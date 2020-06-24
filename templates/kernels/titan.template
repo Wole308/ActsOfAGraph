@@ -1,0 +1,2224 @@
+#include "{{context['PROJECT_BASEPATH']}}/debugger/kernel_debugger.h"
+#ifndef FPGA_IMPL
+#include "{{context['PROJECT_BASEPATH']}}/kernels/titan.h"
+#endif 
+#ifndef FPGA_IMPL
+#include <chrono>
+#endif 
+using namespace std;
+// #define OOO
+#define INVALIDDATA 0
+
+#ifdef _DEBUGMODE_STATS
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+int titan_kvpairsread{{ddrs}};
+int titan_kvpairswritten{{ddrs}};
+int titan_kvpairsread{{ddrs}}_transfers;
+int titan_kvpairswritten{{ddrs}}_transfers;
+#ifdef _BUFFERB4WRITE
+int titan_kvpairswritten_bram2tmp{{ddrs}};
+int titan_kvpairswritten_tmp2dram{{ddrs}};
+int titan_kvpairswritten_bram2tmp{{ddrs}}_transfers;
+int titan_kvpairswritten_tmp2dram{{ddrs}}_transfers;
+#endif
+int titan_kvpairswritten_interm2dest_parallel{{ddrs}};
+int titan_kvpairswritten_interm2dest_seqential{{ddrs}};
+{%endfor%}
+int titan_INapplyphase;
+edge_t titan_numedgesprocessedPE;
+vertex_t titan_numverticesprocessedPE;
+#endif
+
+
+#ifndef FPGA_IMPL
+titan::titan(){}
+titan::~titan(){}
+#endif
+#ifndef HW
+
+unsigned int globalvar_totalkvstatsread;
+unsigned int globalvar_totalkvstatscollected;
+unsigned int globalvar_totalkvstatswritten;
+
+unsigned int globalvar_totalkvsread;
+
+unsigned int globalstats_totalkvspartitioned;
+unsigned int globalstats_totalkvspartitionswritten;
+
+unsigned int globalstats_totalkvsreduced;
+unsigned int globalstats_totalkvsreducewritten;
+#endif 
+#ifdef _LDEBUGMODE_HEADER
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}checkoutofbounds(string message, unsigned int data, unsigned int upper_bound){
+	if(data >= upper_bound){ std::cout<<"enigma::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<std::endl; exit(EXIT_FAILURE); }
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}checkforequal(string message, unsigned int data1, unsigned int data2){
+	if(data1 == data2){ cout<<"enigma::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}print1(string messagea, unsigned int dataa){
+	cout<<messagea<<": "<<dataa<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<datef<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"["<<keyvalues1[p].key<<":"<<keyvalues1[p].value<<"]["<<keyvalues2[p].key<<":"<<keyvalues2[p].value<<"]"<<endl; }
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int i=0; i<size_kvs; i++){ 
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+			cout<<"keyvalues["<<i<<"].data[{{v}}].key: "<<(unsigned int)keyvalues[i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}})<<", keyvalues["<<i<<"].data[{{v}}].value: "<<(unsigned int)keyvalues[i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}})<<endl;
+		{%endfor%}
+		#else 
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"keyvalues["<<i<<"].data["<<v<<"].key: "<<keyvalues[i].data[v].key<<", keyvalues["<<i<<"].data["<<v<<"].value: "<<keyvalues[i].data[v].value<<endl; }
+		#endif 
+	}
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}getvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
+	unsigned int totalnumkeyvalues = 0;
+	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
+	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
+}
+void countkeyvalues(){
+
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}printparameters(){
+	cout<<endl<<"enigma::printparameters: test started."<<endl;
+	cout<<"enigma::printparameters:: KVBUFFERSZ: "<<KVBUFFERSZ<<endl;
+	cout<<"enigma::printparameters:: LSRCKVBUFFERSZ: "<<LSRCKVBUFFERSZ<<endl;
+	cout<<"enigma::printparameters:: LSRCKVBUFFERSZ_KVS: "<<LSRCKVBUFFERSZ_KVS<<endl;
+	cout<<"enigma::printparameters:: LDESTKVBUFFERSZ: "<<LDESTKVBUFFERSZ<<endl;
+	cout<<"enigma::printparameters:: LDESTKVBUFFERSZ_KVS: "<<LDESTKVBUFFERSZ_KVS<<endl;
+	cout<<"enigma::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
+	cout<<"enigma::printparameters:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<endl;
+	cout<<"enigma::printparameters:: LKVSTATSBIGBUFFERSZ_KVS: "<<LKVSTATSBIGBUFFERSZ_KVS<<endl;
+}
+#endif
+#ifdef _DEBUGMODE_STATS
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}printglobalvars(){
+	cout<<"printglobalvars: "<<endl;
+	cout<<"enigma::printglobalvars:: COLLECTSTATS & SPREAD & PARTITION:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
+	
+	cout<<"enigma::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatsread: "<<globalvar_totalkvstatsread<<endl;
+	cout<<"enigma::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatscollected: "<<globalvar_totalkvstatscollected<<endl;
+	cout<<"enigma::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatswritten: "<<globalvar_totalkvstatswritten<<endl;	
+
+	cout<<"enigma::printglobalvars:: SPREAD:: globalstats_totalkvspartitioned: "<<globalstats_totalkvspartitioned<<endl;
+	cout<<"enigma::printglobalvars:: SPREAD:: globalstats_totalkvspartitionswritten: "<<globalstats_totalkvspartitionswritten<<endl;
+	
+	cout<<"enigma::printglobalvars:: REDUCE:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
+	// cout<<"enigma::printglobalvars:: REDUCE:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}clearglobalvars(){
+	cout<<"clearglobalvars: "<<endl;
+	globalvar_totalkvsread = 0;
+	globalstats_totalkvspartitionswritten = 0;
+	globalstats_totalkvspartitioned = 0;
+	globalvar_totalkvstatsread = 0;
+	globalvar_totalkvstatscollected = 0;
+	globalvar_totalkvstatswritten = 0;
+	globalstats_totalkvsreduced = 0;
+	globalstats_totalkvsreducewritten = 0;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvstatsread(unsigned int count){
+	globalvar_totalkvstatsread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvstatscollected(unsigned int count){
+	globalvar_totalkvstatscollected += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvstatswritten(unsigned int count){
+	globalvar_totalkvstatswritten += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvsread(unsigned int count){
+	globalvar_totalkvsread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvspartitionswritten(unsigned int count){
+	globalstats_totalkvspartitionswritten += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvspartitioned(unsigned int count){
+	globalstats_totalkvspartitioned += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvsreduced(unsigned int count){
+	globalstats_totalkvsreduced += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}globalstats_countkvsreducewritten(unsigned int count){
+	globalstats_totalkvsreducewritten += count;
+	return;
+}
+#endif 
+
+/// Utility Functions
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}printstate(){
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}ceildiv(unsigned int val1, unsigned int val2){
+	return (val1 + (val2 - 1)) / val2;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}min8(unsigned int val0, unsigned int val1, unsigned int val2, unsigned int val3, unsigned int val4, unsigned int val5, unsigned int val6, unsigned int val7){
+	unsigned int min = 7777777;	
+	#ifdef _DEBUGMODE_CHECKS
+	cout<<"min8: val0: "<<val0<<endl;
+	cout<<"min8: val1: "<<val1<<endl;
+	cout<<"min8: val2: "<<val2<<endl;
+	cout<<"min8: val3: "<<val3<<endl;
+	cout<<"min8: val4: "<<val4<<endl;
+	cout<<"min8: val5: "<<val5<<endl;
+	cout<<"min8: val6: "<<val6<<endl;
+	cout<<"min8: val7: "<<val7<<endl;
+	#endif	
+	if(min > val0){ min = val0; }
+	if(min > val1){ min = val1; }
+	if(min > val2){ min = val2; }
+	if(min > val3){ min = val3; }
+	if(min > val4){ min = val4; }
+	if(min > val5){ min = val5; }
+	if(min > val6){ min = val6; }
+	if(min > val7){ min = val7; }
+	return min;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}min(unsigned int val1, unsigned int val2){
+	if(val1 < val2){ return val1; }
+	else { return val2; }
+}
+			
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}max(unsigned int val1, unsigned int val2){
+	if(val1 > val2){ return val1; }
+	else { return val2; }
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}minorzero(int val1){
+	if(val1 > 0){ return val1; }
+	else { return 0; }
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}allignup_KV(unsigned int val){
+	unsigned int fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	return (fac * VECTOR_SIZE);
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}alligndown_KV(unsigned int val){
+	unsigned int fac = val / VECTOR_SIZE;
+	return (fac * VECTOR_SIZE);
+}
+
+vertex_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(unsigned int ssdpartitonid){
+	vertex_t range = 0;
+	#ifdef _EVENWORLOADDISTRIBUTION
+	if(ssdpartitonid < MAXNUMSSDPARTITIONS){
+		range = KVDATA_RANGE_PERSSDPARTITION;
+	} else { range = KVDATA_RANGE; } // NB: partitioning phase takes the DEFAULT
+	#else
+	range = KVDATA_RANGE_PERSSDPARTITION;
+	else {
+		range = KVDATA_RANGE; // NB: partitioning phase takes the DEFAULT
+		#ifdef _DEBUGMODE_CHECKS2
+		#ifndef PARTITION_PHASE
+		std::cout<<"Kernel::GETKVDATA_RANGE_PERSSDPARTITION should never get here. {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION 45 "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+		#endif
+	}
+	#endif 
+	return range;
+}
+
+vertex_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(unsigned int ssdpartitonid){
+	return KVDATA_RANGE_PERSSDPARTITION_POW;
+}
+
+vertex_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(unsigned int ssdpartitonid){
+	return APPLYVERTEXBUFFERSZ_PERSSDPARTITION;
+}
+
+vertex_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(unsigned int ssdpartitonid){
+	return APPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETTREEDEPTH(unsigned int ssdpartitonid){
+	unsigned int depth = 0;
+	#ifdef _EVENWORLOADDISTRIBUTION
+	if(ssdpartitonid < MAXNUMSSDPARTITIONS){
+		depth = TREEDEPTH_FORSSDPARTITION0;
+	} else { depth = 1; } // NB: partitioning phase takes the DEFAULT
+	#else 
+	{%for ppid in context['MAXNUMSSDPARTITIONS_seq']%}
+	{%if(ppid==0)%}{%else%}else {%endif%}if(ssdpartitonid == {{ppid}}){
+		depth = TREEDEPTH_FORSSDPARTITION{{ppid}};
+	}
+	{%endfor%}
+	else {
+		// depth = TREEDEPTH_FORSSDPARTITION0;
+		depth = 1; // NB: partitioning phase takes the DEFAULT
+		#ifdef _DEBUGMODE_CHECKS2
+		#ifndef PARTITION_PHASE
+		std::cout<<"Kernel:: {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETTREEDEPTH should never get here.  {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETTREEDEPTH 45 "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+		#endif
+	}
+	#endif 
+	return depth;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc(unsigned int currentLOP, keyvalue_t kventry, vertex_t upperlimit, vertex_t range){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc: kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", range: "<<range<<std::endl;
+	#endif
+
+	unsigned int hashedval = 0;
+	if(currentLOP == 1){
+		hashedval = (kventry.key - upperlimit) / (range / NUM_PARTITIONS);
+	} else if(currentLOP == 2){
+		hashedval = (kventry.key - upperlimit) / ((range / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else if(currentLOP == 3){
+		hashedval = (kventry.key - upperlimit) / (((range / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else if(currentLOP == 4){
+		hashedval = (kventry.key - upperlimit) / ((((range / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else if(currentLOP == 5){
+		hashedval = (kventry.key - upperlimit) / (((((range / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else {
+		hashedval = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc should never get here. {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc 45 "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_CHECKS2
+	if(hashedval >= NUM_PARTITIONS){
+		std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc:: out-of-bounds 45. hashedval: "<<hashedval<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", range: "<<range<<", currentLOP: "<<currentLOP<<std::endl;
+		exit(EXIT_FAILURE);
+	}
+	#endif
+	if(hashedval >= FORCDFINISH_NUM_PARTITIONS){ hashedval = 0; }
+	return hashedval;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc2(unsigned int currentLOP, keyvalue_t kventry, vertex_t upperlimit, unsigned int ssdpartitonid){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc2: kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<std::endl;
+	#endif
+
+	unsigned int hashedval = 0;
+	if(currentLOP == 1){
+		hashedval = (kventry.key - upperlimit) / ({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / NUM_PARTITIONS);		
+	} else if(currentLOP == 2){
+		hashedval = (kventry.key - upperlimit) / (({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else if(currentLOP == 3){
+		hashedval = (kventry.key - upperlimit) / ((({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else if(currentLOP == 4){
+		hashedval = (kventry.key - upperlimit) / (((({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else if(currentLOP == 5){
+		hashedval = (kventry.key - upperlimit) / ((((({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS) / NUM_PARTITIONS);
+	} else {
+		hashedval = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc2 should never get here. {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc2 45 "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_CHECKS2
+	if(hashedval >= NUM_PARTITIONS){
+		std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc2:: out-of-bounds 45. hashedval: "<<hashedval<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<", currentLOP: "<<currentLOP<<std::endl;
+		exit(EXIT_FAILURE);
+	}
+	#endif
+	if(hashedval >= FORCDFINISH_NUM_PARTITIONS){ hashedval = 0; }
+	return hashedval;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc3(unsigned int currentLOP, keyvalue_t kventry, vertex_t upperlimit, unsigned int ssdpartitonid){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc3: kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<std::endl;
+	#endif
+
+	unsigned int hashedval = 0;
+	hashedval = (kventry.key - upperlimit) / ({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / (1 << (NUM_PARTITIONS_POW * currentLOP)));
+	#ifdef _DEBUGMODE_CHECKS2
+	if(hashedval >= NUM_PARTITIONS){
+		std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc3:: out-of-bounds 45. hashedval: "<<hashedval<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<", currentLOP: "<<currentLOP<<std::endl;
+		exit(EXIT_FAILURE);
+	}
+	#endif
+	if(hashedval >= FORCDFINISH_NUM_PARTITIONS){ hashedval = 0; }
+	return hashedval;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4(unsigned int currentLOP, keyvalue_t kventry, vertex_t upperlimit, unsigned int ssdpartitonid){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4: kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<std::endl;
+	#endif
+	#ifdef _DEBUGMODE_CHECKS2
+	if(kventry.key < upperlimit){
+		if(kventry.key != INVALIDDATA){ std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4:: out-of-bounds 44. kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<", currentLOP: "<<currentLOP<<endl; }
+		if(kventry.key != INVALIDDATA){ exit(EXIT_FAILURE); }
+		// exit(EXIT_FAILURE);
+	}
+	#endif
+
+	unsigned int hashedval = 0;
+	hashedval = ((kventry.key - upperlimit) >> ({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(ssdpartitonid) - (NUM_PARTITIONS_POW * currentLOP)));
+	
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4: kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<", hashedval: "<<hashedval<<", currentLOP: "<<currentLOP<<", {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW("<<ssdpartitonid<<"): "<<{%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(ssdpartitonid)<<std::endl;
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	if(hashedval >= NUM_PARTITIONS){
+		if(kventry.key != INVALIDDATA){ std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4:: out-of-bounds 45. hashedval: "<<hashedval<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", ssdpartitonid: "<<ssdpartitonid<<", currentLOP: "<<currentLOP<<", {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW("<<ssdpartitonid<<"): "<<{%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(ssdpartitonid)<<", (NUM_PARTITIONS_POW * currentLOP): "<<(NUM_PARTITIONS_POW * currentLOP)<<std::endl;	}
+		if(kventry.key != INVALIDDATA){ {%if(context['XWARE'] == "SW")%}titan::{%endif%}printstate(); }
+		if(kventry.key != INVALIDDATA){ exit(EXIT_FAILURE); }
+		// exit(EXIT_FAILURE);
+	}
+	#endif
+	if(hashedval >= FORCDFINISH_NUM_PARTITIONS){ hashedval = 0; }
+	return hashedval;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc5(unsigned int currentLOP, keyvalue_t kventry, vertex_t upperlimit, unsigned int range){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc5: kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<std::endl;
+	#endif
+
+	unsigned int hashedval = 0;
+	#pragma HLS RESOURCE variable=hashedval core=DivnS
+	hashedval = (kventry.key - upperlimit) / range;
+	#ifdef _DEBUGMODE_CHECKS2
+	if(hashedval >= NUM_PARTITIONS){
+		std::cout<<"Kernel::{%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc5:: out-of-bounds 45. hashedval: "<<hashedval<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", kventry.key: "<<kventry.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<std::endl;
+		exit(EXIT_FAILURE);
+	}
+	#endif
+	if(hashedval >= FORCDFINISH_NUM_PARTITIONS){ hashedval = 0; }
+	return hashedval;
+}
+
+keyvalue_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry(int addr, uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS]){
+	unsigned int idy = (addr / VECTOR_SIZE);
+	unsigned int idx = ((addr * 2) % (VECTOR_SIZE * 2));
+	unsigned int idx_plus1 = idx + 1;
+	#ifdef _WIDEWORD
+	keyvalue_t kventry;
+	kventry.key = kvbuffer[(idy % FORCDFINISH_KVSRCBUFFERSZ_KVS)].range(DATATYPE_SIZE * (idx + 1) - 1, idx * DATATYPE_SIZE); 
+	kventry.value = kvbuffer[(idy % FORCDFINISH_KVSRCBUFFERSZ_KVS)].range(DATATYPE_SIZE * (idx_plus1 + 1) - 1, idx_plus1 * DATATYPE_SIZE); 
+	return kventry;
+	#else 
+	return kvbuffer[(idy % FORCDFINISH_KVSRCBUFFERSZ_KVS)].data[idx]; 
+	#endif 
+}
+
+keyvalue_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII(int addr, uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS]){
+	if(addr >= FORCDFINISH_KVSRCBUFFERSZ){ addr = 0; }
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(idy, KVSRCBUFFERSZ_KVS, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII 5", 0, 0, 0);
+	checkforoutofbounds_kernel(idx, VECTOR_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII 6", 0, 0, 0);
+	#endif
+	#ifdef _WIDEWORD
+	keyvalue_t kventry;
+	unsigned int ihi = ((VECTOR_SIZE - idx) * 32) - 1;
+	unsigned int ilo = ihi - 31;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(ihi, DATAWIDTH, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII 7", 0, 0, 0);
+	#endif
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){
+		kventry.key = kvbuffer[idy].range({{(((e*2) * 32) + 31)}}, {{((e*2) * 32)}});
+		kventry.value = kvbuffer[idy].range({{(((((e*2) * 32) + 31) + 1) + 31)}}, {{((((e*2) * 32) + 31) + 1)}});
+	}
+	{%endfor%}
+	else {
+		kventry.key = 0; 
+		kventry.value = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return kventry;
+	#else
+	return kvbuffer[idy].data[idx];
+	#endif
+}
+
+keyvalue_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII(int addr, uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS]){
+	#pragma HLS INLINE // "unlike {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII, this is inlined"
+	if(addr >= FORCDFINISH_KVSRCBUFFERSZ){ addr = 0; }
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(idy, KVSRCBUFFERSZ_KVS, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII 5", 0, 0, 0);
+	checkforoutofbounds_kernel(idx, VECTOR_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII 6", 0, 0, 0);
+	#endif
+	#ifdef _WIDEWORD
+	keyvalue_t kventry;
+	unsigned int ihi = ((VECTOR_SIZE - idx) * 32) - 1;
+	unsigned int ilo = ihi - 31;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(ihi, DATAWIDTH, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII 7", 0, 0, 0);
+	#endif
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){
+		kventry.key = kvbuffer[idy].range({{(((e*2) * 32) + 31)}}, {{((e*2) * 32)}});
+		kventry.value = kvbuffer[idy].range({{(((((e*2) * 32) + 31) + 1) + 31)}}, {{((((e*2) * 32) + 31) + 1)}});
+	}
+	{%endfor%}
+	else {
+		kventry.key = 0; 
+		kventry.value = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return kventry;
+	#else
+	return kvbuffer[idy].data[idx];
+	#endif
+}
+
+keyvalue_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV(int addr, uint512_dt kvbuffer[APPLYVERTEXBUFFERSZ_KVS]){
+	#pragma HLS INLINE
+	if(addr >= APPLYVERTEXBUFFERSZ){ addr = 0; }
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(idy, APPLYVERTEXBUFFERSZ_KVS, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV 5", 0, 0, 0);
+	checkforoutofbounds_kernel(idx, VECTOR_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV 6", 0, 0, 0);
+	#endif
+	#ifdef _WIDEWORD
+	keyvalue_t kventry;
+	unsigned int ihi = ((VECTOR_SIZE - idx) * 32) - 1;
+	unsigned int ilo = ihi - 31;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(ihi, DATAWIDTH, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV 7", 0, 0, 0);
+	#endif
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){
+		kventry.key = kvbuffer[idy].range({{(((e*2) * 32) + 31)}}, {{((e*2) * 32)}});
+		kventry.value = kvbuffer[idy].range({{(((((e*2) * 32) + 31) + 1) + 31)}}, {{((((e*2) * 32) + 31) + 1)}});
+	}
+	{%endfor%}
+	else {
+		kventry.key = 0; 
+		kventry.value = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return kventry;
+	#else
+	return kvbuffer[idy].data[idx];
+	#endif
+}
+
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventry(uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS], unsigned int addr, keyvalue_t kventry){
+	unsigned int idy = (addr / VECTOR_SIZE);
+	unsigned int idx = ((addr * 2) % (VECTOR_SIZE * 2));
+	unsigned int idx_plus1 = idx + 1;
+	#ifdef _WIDEWORD
+	kvbuffer[(idy % FORCDFINISH_KVSRCBUFFERSZ_KVS)].range(DATATYPE_SIZE * (idx + 1) - 1, idx * DATATYPE_SIZE) = kventry.key; 
+	kvbuffer[(idy % FORCDFINISH_KVSRCBUFFERSZ_KVS)].range(DATATYPE_SIZE * (idx_plus1 + 1) - 1, idx_plus1 * DATATYPE_SIZE) = kventry.value; 
+	#else 
+	kvbuffer[(idy % FORCDFINISH_KVSRCBUFFERSZ_KVS)].data[idx] = kventry; 
+	#endif 
+	return;
+}
+
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII(uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS], unsigned int addr, keyvalue_t kventry){
+	if(addr >= FORCDFINISH_KVSRCBUFFERSZ){ addr = 0; }
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(idy, KVSRCBUFFERSZ_KVS, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII 5", 0, 0, 0);
+	checkforoutofbounds_kernel(idx, VECTOR_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII 6", 0, 0, 0);
+	#endif
+	#ifdef _WIDEWORD
+	unsigned int ihi = ((VECTOR_SIZE - idx) * 32) - 1;
+	unsigned int ilo = ihi - 31;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(ihi, DATAWIDTH, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII 7", 0, 0, 0);
+	#endif
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){	
+		kvbuffer[idy].range({{(((e*2) * 32) + 31)}}, {{((e*2) * 32)}}) = kventry.key;
+		kvbuffer[idy].range({{(((((e*2) * 32) + 31) + 1) + 31)}}, {{((((e*2) * 32) + 31) + 1)}}) = kventry.value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	kvbuffer[idy].data[idx] = kventry;
+	#endif
+	return;
+}
+
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryIII(
+		{%for vec in context['VECTOR_SIZE_seq']%}
+		keyvalue_t kvbuffer_vec{{vec}}[KVDESTBUFFERSZ_KVS], 
+		{%endfor%}
+		unsigned int addr, keyvalue_t kventry){
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){	
+		kvbuffer_vec{{e}}[idy].key = kventry.key;
+		kvbuffer_vec{{e}}[idy].value = kventry.value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryIII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return;
+}
+
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventry4(
+		{%for vec in context['VECTOR_SIZE_seq']%}
+		keyvalue_t kvbuffer_vec{{vec}}[APPLYVERTEXBUFFERSZ_KVS], 
+		{%endfor%}
+		unsigned int addr, keyvalue_t kventry){
+	#pragma HLS INLINE
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){	
+		kvbuffer_vec{{e}}[idy].key = kventry.key;
+		kvbuffer_vec{{e}}[idy].value = kventry.value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryIII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return;
+}
+
+keyvalue_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3(uint512_dt tmpV1, unsigned int idx){
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(idx, VECTOR_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3 6", 0, 0, 0);
+	#endif
+	#ifdef _WIDEWORD
+	keyvalue_t kventry;
+	unsigned int ihi = ((VECTOR_SIZE - idx) * 32) - 1;
+	unsigned int ilo = ihi - 31;
+	#ifdef _DEBUGMODE_CHECKS
+	checkforoutofbounds_kernel(ihi, DATAWIDTH, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3 7", 0, 0, 0);
+	#endif
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){
+		kventry.key = tmpV1.range({{(((e*2) * 32) + 31)}}, {{((e*2) * 32)}});
+		kventry.value = tmpV1.range({{(((((e*2) * 32) + 31) + 1) + 31)}}, {{((((e*2) * 32) + 31) + 1)}});
+	}
+	{%endfor%}
+	else {
+		kventry.key = 0; 
+		kventry.value = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return kventry;
+	#else
+	return tmpV1.data[idx];
+	#endif
+}
+
+keyvalue_t {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry4(
+		{%for vec in context['VECTOR_SIZE_seq']%}
+		keyvalue_t kvbuffer_vec{{vec}}[KVSRCBUFFERSZ_APPLY_KVS], 
+		{%endfor%}
+		unsigned int addr){
+	#pragma HLS INLINE
+	keyvalue_t kventry;
+	#pragma HLS DATA_PACK variable kventry
+	unsigned int idy = addr / VECTOR_SIZE;
+	unsigned int idx = addr % VECTOR_SIZE;
+	{%for e in context['VECTOR_SIZE_seq']%}
+	{%if(e>0)%}else {%endif%}if(idx=={{e}}){	
+		kventry.key = kvbuffer_vec{{e}}[idy].key;
+		kventry.value = kvbuffer_vec{{e}}[idy].value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryIII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return kventry;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}getsourceskipsize(unsigned int currentLOP, unsigned int param){
+	unsigned int treedepth = TREEDEPTH_FORSSDPARTITION0;
+	unsigned int _finalnumpartitions = param;
+	for(unsigned int i=0; i<(currentLOP-1); i++){ // FIXME?
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		_finalnumpartitions = _finalnumpartitions / NUM_PARTITIONS;
+	}
+	return _finalnumpartitions;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}getdestskipsize(unsigned int currentLOP, unsigned int param){
+	unsigned int treedepth = TREEDEPTH_FORSSDPARTITION0; // NB: for debugging purposes only
+	unsigned int _finalnumpartitions = param / NUM_PARTITIONS;
+	for(unsigned int i=0; i<(currentLOP-1); i++){ // FIXME?
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		_finalnumpartitions = _finalnumpartitions / NUM_PARTITIONS;
+	}
+	return _finalnumpartitions;
+}
+
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats(metadata_t * kvstats, metadata_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t finalnumpartitions){
+	unsigned int skipsize = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getdestskipsize(currentLOP, finalnumpartitions);
+	unsigned int nxtpos = partitionoffset;
+	#ifdef _DEBUGMODE_PRINTS
+	cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats:: currentLOP: "<<currentLOP<<", skipsize: "<<skipsize<<", partitionoffset: "<<partitionoffset<<", finalnumpartitions: "<<finalnumpartitions<<endl;
+	#endif
+	LOADDESTSTATS_LOOP1: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		#ifdef _DEBUGMODE_CHECKS
+		checkforoutofbounds_kernel(p, NUM_PARTITIONS, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats 5", 0, 0, 0);
+		checkforoutofbounds_kernel((skipsize * p), KVSTATS_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats 6", 0, 0, 0);
+		#endif
+		
+		/* kvdeststats_tmp[p] = kvstats[((partitionoffset + (p * skipsize)) % FORCDFINISH_KVSTATS_SIZE)];  */
+		/* kvdeststats_tmp[p] = kvstats[nxtpos]; 
+		nxtpos += skipsize; */		
+		kvdeststats_tmp[p] = kvstats[(nxtpos % FORCDFINISH_KVSTATS_SIZE)]; 
+		nxtpos += skipsize;
+		
+		#ifdef _DEBUGMODE_PRINTS
+		cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats:: kvdeststats_tmp["<<p<<"].offset: "<<kvdeststats_tmp[p].offset<<", kvdeststats_tmp["<<p<<"].size: "<<kvdeststats_tmp[p].size<<", ";
+		cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats:: kvstats["<<(partitionoffset + (p * skipsize))<<"].offset: "<<kvstats[(partitionoffset + (p * skipsize))].offset<<", kvstats["<<(partitionoffset + (p * skipsize))<<"].size: "<<kvstats[(partitionoffset + (p * skipsize))].size;
+		cout<<endl;
+		#endif
+	}
+	LOADDESTSTATS_LOOP2: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		kvdeststats_tmp[p].size = 0;
+	}
+	return;
+}
+
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats(metadata_t * kvstats, metadata_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t finalnumpartitions){
+	unsigned int skipsize = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getdestskipsize(currentLOP, finalnumpartitions);
+	unsigned int nxtpos = partitionoffset;
+	#ifdef _DEBUGMODE_PRINTS
+	cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats:: currentLOP: "<<currentLOP<<", skipsize: "<<skipsize<<", partitionoffset: "<<partitionoffset<<", finalnumpartitions: "<<finalnumpartitions<<endl;
+	#endif
+	STOREDESTSTATS_LOOP1: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		#ifdef _DEBUGMODE_CHECKS
+		checkforoutofbounds_kernel(p, NUM_PARTITIONS, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats 5", 0, 0, 0);
+		checkforoutofbounds_kernel((skipsize * p), KVSTATS_SIZE, "{%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats:: out-of-bounds seen at {%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats 6", 0, 0, 0);
+		#endif
+		
+		/* kvstats[((partitionoffset + (p * skipsize)) % FORCDFINISH_KVSTATS_SIZE)].size = kvdeststats_tmp[p].size; */
+		/* kvstats[nxtpos].size = kvdeststats_tmp[p].size; 
+		nxtpos += skipsize; */
+		kvstats[(nxtpos % FORCDFINISH_KVSTATS_SIZE)].size = kvdeststats_tmp[p].size; 
+		nxtpos += skipsize;
+		
+		#ifdef _DEBUGMODE_PRINTS
+		cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats:: kvdeststats_tmp["<<p<<"].offset: "<<kvdeststats_tmp[p].offset<<", kvdeststats_tmp["<<p<<"].size: "<<kvdeststats_tmp[p].size<<", ";
+		cout<<"{%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats:: kvstats["<<(partitionoffset + (p * skipsize))<<"].offset: "<<kvstats[(partitionoffset + (p * skipsize))].offset<<", kvstats["<<(partitionoffset + (p * skipsize))<<"].size: "<<kvstats[(partitionoffset + (p * skipsize))].size;
+		cout<<endl;
+		#endif
+	}
+	STOREDESTSTATS_LOOP2: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		kvdeststats_tmp[p].size = 0;
+	}
+	return;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}get_num_source_partitions(unsigned int currentLOP){
+	unsigned int treedepth = TREEDEPTH_FORSSDPARTITION0;
+	unsigned int pow = 1;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		pow = pow * NUM_PARTITIONS;
+	}
+	return pow;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}titan::{%endif%}reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount){
+	unsigned int ret = 0;
+	#ifdef PR_ALGORITHM
+	ret = value + edgeval;
+	#elif defined(BFS_ALGORITHM)
+	// ret = 777;
+	// cout<<"************** reducefunc: "<<endl; exit(EXIT_SUCCESS);
+	ret = min(value, IterCount);
+	// cout<<"************** reducefunc: ret: "<<ret<<", value: "<<value<<", IterCount: "<<IterCount<<endl; exit(EXIT_SUCCESS);
+	#elif defined(BC_ALGORITHM)
+	// ret = min(value, edgeval);
+	ret = min(value, IterCount);
+	#endif
+	return ret;
+}
+
+/// Main Functions
+// READ
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}read_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int workerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int offset_kvs, unsigned int kvsize_kvs, uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS]){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel:: read. workerid: "<<workerid<<std::endl;
+	#endif
+	unsigned int kvbuffersz_kvs = KVBUFFERSZ_KVS;  // NB: debugging purposes only
+
+	dramsz_dtype dramoffset = baseaddr_kvs + offset_kvs;
+	READBURSTKVS{{ddrs}}{{sw}}_LOOP: for(kvbuffersz_dtype i=0; i<KVBUFFERSZ_KVS; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_CHECKS2
+		checkforoutofbounds_kernel((offset_kvs + i), PADDEDKVDATA_BATCHSIZE_KVS, "read{{ddrs}}{{sw}}:: out-of-bounds seen at read 5", baseaddr_kvs, offset_kvs, dramoffset);		
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "read{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", baseaddr_kvs, offset_kvs, dramoffset);		
+		checkforoutofbounds_kernel(i, KVSRCBUFFERSZ_KVS, "out-of-bounds seen at read 7", 0, 0, 0);
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairsread{{ddrs}} += VECTOR_SIZE;
+		#endif
+		
+		#ifdef FORCDFINISH
+		kvbuffer[i] = kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))];
+		#else 
+		kvbuffer[i] = kvdram[(dramoffset + i)];
+		#endif 
+	}
+	#ifdef _DEBUGMODE_STATS
+	titan_kvpairsread{{ddrs}}_transfers += 1;
+	#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}readAU_VU_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int workerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int offset_kvs, unsigned int kvsize_kvs, uint512_dt kvbuffer[KVSRCBUFFERSZ_APPLY_KVS]){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel:: read. workerid: "<<workerid<<std::endl;
+	#endif
+	unsigned int kvbuffersz_kvs = KVSRCBUFFERSZ_APPLY_KVS;  // NB: debugging purposes only
+	
+	tracker_t kvbuffer1_tracker_kvs;
+	unsigned int curroffset_kvs = offset_kvs;
+	unsigned int nextoffset_kvs = offset_kvs + KVSRCBUFFERSZ_APPLY_KVS; 
+	if(curroffset_kvs >= kvsize_kvs){ kvbuffer1_tracker_kvs.weof = 0; }
+	else if ((curroffset_kvs < kvsize_kvs) && (nextoffset_kvs < kvsize_kvs)) { kvbuffer1_tracker_kvs.weof = KVSRCBUFFERSZ_APPLY_KVS; }
+	else if ((curroffset_kvs < kvsize_kvs) && (nextoffset_kvs >= kvsize_kvs)) { kvbuffer1_tracker_kvs.weof = kvsize_kvs - curroffset_kvs; }
+	else {
+		kvbuffer1_tracker_kvs.weof = 0;
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"read{{ddrs}}{{sw}}:: should NEVER get here: kvbuffer1_tracker_kvs.weof: "<<kvbuffer1_tracker_kvs.weof<<", kvsize_kvs: "<<kvsize_kvs<<", KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	
+	kvbuffersz_dtype rwsize_kvs = kvbuffer1_tracker_kvs.weof;
+	if(rwsize_kvs > FORCDFINISH_KVSRCBUFFERSZ_APPLY_KVS){ rwsize_kvs = KVSRCBUFFERSZ_APPLY_KVS; } 
+	dramsz_dtype dramoffset = baseaddr_kvs + offset_kvs;
+	
+	if((dramoffset + rwsize_kvs - 1) >= _x3PADDEDKVDATA_SIZE_KVS){ dramoffset = 0; }
+	READBURSTKVS{{ddrs}}{{sw}}_LOOP: for(kvbuffersz_dtype i=0; i<rwsize_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_CHECKS2
+		checkforoutofbounds_kernel((offset_kvs + i), PADDEDKVDATA_BATCHSIZE_KVS, "read{{ddrs}}{{sw}}:: out-of-bounds seen at read 5", baseaddr_kvs, offset_kvs, dramoffset);		
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "read{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", baseaddr_kvs, offset_kvs, dramoffset);		
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "read{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", (curroffset_kvs * 1), kvsize_kvs, kvbuffer1_tracker_kvs.weof);		
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "read{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", baseaddr_kvs, offset_kvs, dramoffset);
+		checkforoutofbounds_kernel(i, KVSRCBUFFERSZ_APPLY_KVS, "out-of-bounds seen at read 7", 0, 0, 0);
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairsread{{ddrs}} += VECTOR_SIZE;
+		#endif
+		
+		// for(unsigned int k=0; k<VECTOR_SIZE; k++){ cout<<"readAU_VU_ddr: kvdram["<<(dramoffset + i)<<"].data["<<k<<"].key: "<<kvdram[(dramoffset + i)].data[k].key<<", kvdram["<<(dramoffset + i)<<"].data["<<k<<"].value: "<<kvdram[(dramoffset + i)].data[k].value<<endl; } // FIXME. REMOVEME
+		// exit(EXIT_SUCCESS);
+		
+		#ifdef FORCDFINISH
+		kvbuffer[i] = kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))];
+		#else 
+		kvbuffer[i] = kvdram[(dramoffset + i)];
+		#endif
+	}
+	#ifdef _DEBUGMODE_STATS
+	titan_kvpairsread{{ddrs}}_transfers += 1;
+	#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}readAU_V_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int offset_kvs, unsigned int kvsize_kvs, uint512_dt verticesbuffer[APPLYVERTEXBUFFERSZ_KVS]){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::readAU_V{{ddrs}}{{sw}} read. workerid: "<<workerid<<std::endl;
+	#endif
+	int verticesbuffersz_kvs = APPLYVERTEXBUFFERSZ_KVS;
+	
+	tracker_t kvbuffer1_tracker_kvs;
+	unsigned int vertexreadsz_kvs = {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid);
+	unsigned int curroffset_kvs = offset_kvs;
+	unsigned int nextoffset_kvs = offset_kvs + vertexreadsz_kvs; 
+	if(curroffset_kvs >= kvsize_kvs){ kvbuffer1_tracker_kvs.weof = 0; }
+	else if ((curroffset_kvs < kvsize_kvs) && (nextoffset_kvs < kvsize_kvs)) { kvbuffer1_tracker_kvs.weof = vertexreadsz_kvs; }
+	else if ((curroffset_kvs < kvsize_kvs) && (nextoffset_kvs >= kvsize_kvs)) { kvbuffer1_tracker_kvs.weof = (kvsize_kvs - curroffset_kvs) * VECTOR_SIZE; }
+	else {
+		kvbuffer1_tracker_kvs.weof = 0; 
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"read{{ddrs}}{{sw}}:: should NEVER get here: kvbuffer1_tracker_kvs.weof: "<<(kvbuffer1_tracker_kvs.weof * VECTOR_SIZE)<<", kvsize_kvs: "<<kvsize_kvs<<", KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	
+	kvbuffersz_dtype rwsize_kvs = kvbuffer1_tracker_kvs.weof;
+	dramsz_dtype dramoffset = baseaddr_kvs + offset_kvs;
+	if(rwsize_kvs > FORCDFINISH_APPLYVERTEXBUFFERSZ_KVS){ rwsize_kvs = vertexreadsz_kvs; }
+	if((dramoffset + rwsize_kvs - 1) >= _x3PADDEDKVDATA_SIZE_KVS){ dramoffset = 0; }
+	READBURSTKVS{{ddrs}}{{sw}}_LOOP: for(kvbuffersz_dtype i=0; i<rwsize_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=verticesbuffersz_kvs avg=verticesbuffersz_kvs
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_CHECKS2
+		checkforoutofbounds_kernel((offset_kvs + i), (VERTICESDATASZ_FORDRAMX / VECTOR_SIZE), "readAU_V{{ddrs}}{{sw}}:: out-of-bounds seen at read 5", baseaddr_kvs, offset_kvs, dramoffset);	
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "readAU_V{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", baseaddr_kvs, offset_kvs, dramoffset);		
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "readAU_V{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", (curroffset_kvs * 1), kvsize_kvs, kvbuffer1_tracker_kvs.weof);		
+		checkforoutofbounds_kernel((dramoffset + i), _x3PADDEDKVDATA_SIZE_KVS, "readAU_V{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", baseaddr_kvs, offset_kvs, dramoffset);
+		checkforoutofbounds_kernel(i, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid), "readAU_V{{ddrs}}{{sw}}:: out-of-bounds seen at read 7A", kvbuffer1_tracker_kvs.weof, i, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid));
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairsread{{ddrs}} += VECTOR_SIZE;
+		#endif
+		
+		#ifdef FORCDFINISH
+		verticesbuffer[i] = kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))];
+		#else 
+		verticesbuffer[i] = kvdram[(dramoffset + i)]; 
+		#endif 
+	}
+	#ifdef _DEBUGMODE_STATS
+	titan_kvpairsread{{ddrs}}_transfers += 1;
+	#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+// PARTITION
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}partition_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, unsigned int subworkerid, unsigned int kvreadoffset_kvs, unsigned int kvsize_kvs, unsigned int currentLOP, unsigned int destpartitionoffset, unsigned int upperlimit, unsigned int destpartitionrange,
+		uint512_dt kvbuffer_src[KVSRCBUFFERSZ_KVS], uint512_dt kvbuffer_dest[KVDESTBUFFERSZ_KVS], smalluint_t kvbufferstats_offset[NUM_PARTITIONS]
+		#ifdef _PARTITIONED_KVBUFFERSTATS
+		,smalluint_t kvbufferstats_size[NUM_PARTITIONS]
+		#else 
+		,smalluint_t kvbufferstats_tmp_size[NUM_PARTITIONS]
+		#endif 
+		,smallmargin_t ov[NUM_PARTITIONS], uint512_dt ovkvs_tmp[NUM_PARTITIONS]){
+	
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"titan:: partition. workerid: "<<workerid<<", KVBUFFERSZ: "<<KVBUFFERSZ<<", kvreadoffset_kvs: "<<kvreadoffset_kvs<<", kvsize_kvs: "<<kvsize_kvs<<std::endl;
+	#endif
+	int kvbuffersz = KVBUFFERSZ;  // NB: debugging purposes only
+	int kvbuffersz_kvs = KVBUFFERSZ_KVS;  // NB: debugging purposes only
+	int vector_size = VECTOR_SIZE;  // NB: debugging purposes only
+	
+	#ifdef _PARTITIONED_KVBUFFERSTATS
+	smalluint_t kvbufferstats_tmp_size[NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=kvbufferstats_tmp_size complete
+	#endif	
+	#ifdef _PARTITIONED_KVBUFFERSTATS // >>> sync
+	READ_KVSTATSTMP{{ddrs}}{{sw}}_LOOP1: for(unsigned int p=0; p<NUM_PARTITIONS; p++){ kvbufferstats_tmp_size[p] = kvbufferstats_size[p]; }
+	#endif 
+	
+	tracker_t kvbuffer1_kvs_tracker;
+	kvbuffer1_kvs_tracker.weof = KVBUFFERSZ_KVS;
+
+	#ifdef _DEBUGMODE_PRINTS
+	printkvbuffer_kernel(kvbuffer_src, KVBUFFERSZ, "extractstats2_.extractstats.kvbuffer_src");
+	#endif
+	EXTRACTSTATS{{ddrs}}{{sw}}_INIT_LOOP0: for (int p = 0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE
+		kvbufferstats_offset[p] = 0;
+		kvbufferstats_tmp_size[p] = 0;
+	}
+	
+	keyvalue_t kventry1;
+	EXTRACTSTATS{{ddrs}}{{sw}}_MAIN_LOOP1: for (unsigned int j = 0; j<KVBUFFERSZ_KVS; j++){
+	#pragma HLS PIPELINE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	uint512_dt tmpV1 = kvbuffer_src[j];
+	#ifdef OOO 
+	kventry1.key = tmpV1.range(31, 0);
+	kventry1.value = tmpV1.range(63, 32);
+	#endif 
+		EXTRACTSTATS{{ddrs}}{{sw}}_MAIN_LOOP1B: for(unsigned int k=0; k<VECTOR_SIZE; k++){
+			// #pragma HLS UNROLL
+			#ifdef _WIDEWORD			
+			#ifndef OOO
+			// kventry1 = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3(tmpV1, k);
+			unsigned int _k2 = k * 2;
+			unsigned int _k2plus1 = _k2 + 1;
+			kventry1.key = tmpV1.range(DATATYPE_SIZE * (_k2 + 1) - 1, _k2 * DATATYPE_SIZE);
+			kventry1.value = tmpV1.range(DATATYPE_SIZE * (_k2plus1 + 1) - 1, _k2plus1 * DATATYPE_SIZE);
+			#endif			
+			#else 
+			kventry1.key = tmpV1.data[k].key;
+			kventry1.value = tmpV1.data[k].value;
+			#endif 
+			
+			unsigned int p = {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4(currentLOP, kventry1, upperlimit, ssdpartitonid);
+			#ifdef _DEBUGMODE_
+			checkforoutofbounds_kernel(p, NUM_PARTITIONS, "extractstats2_.extractstats:: out-of-bounds seen at write 5");
+			#endif
+			kvbufferstats_tmp_size[p] += 1;
+			
+			#ifdef _WIDEWORD
+			#ifdef OOO
+			tmpV1 = tmpV1 >> 64;
+			kventry1.key = tmpV1.range(31, 0);
+			kventry1.value = tmpV1.range(63, 32);
+			#endif 
+			#endif 			
+		}
+	}
+	// kvbufferstats_tmp_size[0] -=  // NB: this eliminates any edge conditions associated with partially alligned kvbuffer_src. NB: ensure extras are set to zero in host!
+	
+	kvbufferstats_offset[0] = 0;
+	EXTRACTSTATS{{ddrs}}{{sw}}_ALLIGNOFFSETS_LOOP1: for (int p = 1; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE
+		kvbufferstats_offset[p] = {%if(context['XWARE'] == "SW")%}titan::{%endif%}allignup_KV((kvbufferstats_offset[(p-1)] + kvbufferstats_tmp_size[(p-1)] + ov[(p-1)].size));
+	}
+	#ifdef _DEBUGMODE_PRINTS
+	printstats2_kernel(kvbufferstats_tmp_size, NUM_PARTITIONS, "", 0, 0, 0);
+	#endif
+
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel:: extractstats2_.extractstats2_. workerid: "<<workerid<<std::endl;
+	#endif
+	EXTRACTSTATS{{ddrs}}{{sw}}_INIT2_LOOP1: for (unsigned int p = 0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE
+		kvbufferstats_tmp_size[p] = 0;
+	}
+
+	keyvalue_t kventry2;
+	PARTITION{{ddrs}}{{sw}}_MAIN_LOOP1: for (unsigned int j = 0; j<KVBUFFERSZ_KVS; j++){
+	#pragma HLS PIPELINE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	uint512_dt tmpV1 = kvbuffer_src[j];
+	#ifdef OOO 
+	kventry2.key = tmpV1.range(31, 0);
+	kventry2.value = tmpV1.range(63, 32);
+	#endif 
+		PARTITION{{ddrs}}{{sw}}_MAIN_LOOP1B: for(unsigned int k=0; k<VECTOR_SIZE; k++){
+		// #pragma HLS PIPELINE
+		// #pragma HLS UNROLL
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=vector_size avg=vector_size
+			#ifdef _WIDEWORD			
+			#ifndef OOO
+			// kventry2 = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3(tmpV1, k);
+			unsigned int _k2 = k * 2;
+			unsigned int _k2plus1 = _k2 + 1;
+			kventry2.key = tmpV1.range(DATATYPE_SIZE * (_k2 + 1) - 1, _k2 * DATATYPE_SIZE);
+			kventry2.value = tmpV1.range(DATATYPE_SIZE * (_k2plus1 + 1) - 1, _k2plus1 * DATATYPE_SIZE);
+			#endif
+			#else
+			kventry2.key = tmpV1.data[k].key;
+			kventry2.value = tmpV1.data[k].value;
+			#endif			
+			
+			unsigned int p = {%if(context['XWARE'] == "SW")%}titan::{%endif%}hashfunc4(currentLOP, kventry2, upperlimit, ssdpartitonid);
+			{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII(kvbuffer_dest, (kvbufferstats_offset[p] + kvbufferstats_tmp_size[p]), kventry2); 
+			kvbufferstats_tmp_size[p] += 1;
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			if(p<(NUM_PARTITIONS-1)){ checkforoutofbounds_kernel((kvbufferstats_offset[p] + kvbufferstats_tmp_size[p]), (kvbufferstats_offset[p+1] + 1), "kernel::PARTITION{{ddrs}}{{sw}}_LOOP2:: out-of-bounds seen at partition2_ 37", p, 0, 0); }
+			else { checkforoutofbounds_kernel((kvbufferstats_offset[p] + kvbufferstats_tmp_size[p]), KVSRCBUFFERSZ, "kernel::PARTITION{{ddrs}}{{sw}}_LOOP2:: out-of-bounds seen at partition2_ 38", p, 0, 0); }
+			#endif
+			
+			#ifdef _WIDEWORD
+			#ifdef OOO
+			tmpV1 = tmpV1 >> 64;
+			kventry2.key = tmpV1.range(31, 0);
+			kventry2.value = tmpV1.range(63, 32);
+			#endif	
+			#endif 
+		}
+	}
+	
+	#ifdef _PARTITIONED_KVBUFFERSTATS // >>> sync
+	WRITEBACK_KVSTATSTMP{{ddrs}}{{sw}}_LOOP1: for(unsigned int p=0; p<NUM_PARTITIONS; p++){ kvbufferstats_size[p] = kvbufferstats_tmp_size[p]; }
+	#endif	
+	#ifdef _DEBUGMODE_PRINTS
+	printkvbuffer_kernel(kvbuffer_dest, kvbuffer1_kvs_tracker.weof, "extractstats2_.extractstats2_.kvbuffer_dest");
+	#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+// APPLY
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}reduce_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int IterCount, unsigned int ssdpartitonid, unsigned int workerid, unsigned int verticesreadoffset_vs, unsigned int kvreadoffset_kvs, unsigned int kvsize_kvsTTT, metadata_t sourcestatbuffer, uint512_dt verticesbuffer[APPLYVERTEXBUFFERSZ_KVS], uint512_dt kvbuffer[KVSRCBUFFERSZ_APPLY_KVS]){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel:: reduce. workerid: "<<workerid<<", KVSRCBUFFERSZ_APPLY: "<<KVSRCBUFFERSZ_APPLY<<std::endl;
+	#endif
+	
+	int kvbuffersz = KVSRCBUFFERSZ_APPLY; // NB: debugging purposes only
+	unsigned int kvbuffersz_kvs = KVSRCBUFFERSZ_APPLY_KVS;  // NB: debugging purposes only
+
+	tracker_t kvbuffer1_tracker_kvs;
+	unsigned int kvsize_kvs = (sourcestatbuffer.size + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	unsigned int kvsize_lower_kvs = sourcestatbuffer.size / VECTOR_SIZE;
+	unsigned int curroffset_kvs = kvreadoffset_kvs + (0 * KVSRCBUFFERSZ_APPLY_KVS); // subworkerid
+	unsigned int nextoffset_kvs = kvreadoffset_kvs + ((0 + 1) * KVSRCBUFFERSZ_APPLY_KVS);
+	if(curroffset_kvs >= kvsize_lower_kvs){ kvbuffer1_tracker_kvs.weof = 0; }
+	else if ((curroffset_kvs < kvsize_lower_kvs) && (nextoffset_kvs < kvsize_lower_kvs)) { kvbuffer1_tracker_kvs.weof = KVSRCBUFFERSZ_APPLY_KVS; }
+	else if ((curroffset_kvs < kvsize_lower_kvs) && (nextoffset_kvs >= kvsize_lower_kvs)) { kvbuffer1_tracker_kvs.weof = (kvsize_lower_kvs - curroffset_kvs); }
+	else {
+		kvbuffer1_tracker_kvs.weof = 0; 
+		#ifdef _DEBUGMODE_CHECKS
+		cout<<"reduce_ddr{{ddrs}}_sw{{sw}}:: should NEVER get here: kvbuffer1_tracker_kvs.weof: "<<kvbuffer1_tracker_kvs.weof<<", kvsize_lower_kvs: "<<kvsize_lower_kvs<<", kvreadoffset_kvs: "<<kvreadoffset_kvs<<", next kvreadoffset_kvs: "<<(kvreadoffset_kvs + (({{sw}} + 1) * KVSRCBUFFERSZ_APPLY_KVS))<<", KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"reduce_ddr{{ddrs}}_sw{{sw}}:: kvbuffer1_tracker_kvs.weof: "<<kvbuffer1_tracker_kvs.weof<<", KVSRCBUFFERSZ_APPLY: "<<KVSRCBUFFERSZ_APPLY<<std::endl;
+	exit(EXIT_SUCCESS);
+	#endif
+	vertex_t voffset = verticesreadoffset_vs * VECTOR_SIZE;
+	keyvalue_t kventry;
+	keyvalue_t kv; 
+	
+	unsigned int rwsize_kvs = kvbuffer1_tracker_kvs.weof;
+	if(rwsize_kvs > FORCDFINISH_KVSRCBUFFERSZ_APPLY){ rwsize_kvs = 0; }
+	REDUCE_ddr{{ddrs}}_w{{w}}_sw{{sw}}_LOOP1: for (unsigned int i = 0; i<rwsize_kvs; i++){
+	#pragma HLS PIPELINE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	uint512_dt tmpV1 = kvbuffer[i];
+		REDUCE_ddr{{ddrs}}_w{{w}}_sw{{sw}}_LOOP1B: for(unsigned int k=0; k<VECTOR_SIZE; k++){
+			#ifdef _WIDEWORD
+			kventry = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3(tmpV1, k);
+			#else 
+			kventry.key = tmpV1.data[k].key;
+			kventry.value = tmpV1.data[k].value;
+			#endif 
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			if((kventry.key - voffset) >= {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(ssdpartitonid)){ cout<<"out-of-bounds seen at reduce_ddr{{ddrs}}_w{{w}}_sw{{sw}} 5: kventry.key: "<<kventry.key<<", voffset: "<<voffset<<", APPLYVERTEXBUFFERSZ_PERSSDPARTITION("<<ssdpartitonid<<"): "<<GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(ssdpartitonid)<<", KVSRCBUFFERSZ_APPLY_KVS: "<<KVSRCBUFFERSZ_APPLY_KVS<<", kvbuffer1_tracker_kvs.weof: "<<kvbuffer1_tracker_kvs.weof<<", i: "<<i<<", k: "<<k<<endl; exit(EXIT_FAILURE); }
+			#endif
+			unsigned int loc = kventry.key - voffset; 
+			if(loc >= FORCDFINISH_APPLYVERTEXBUFFERSZ){ loc = 0; }
+			
+			keyvalue_t vprop = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV(loc, verticesbuffer);
+			unsigned int temp = {%if(context['XWARE'] == "SW")%}titan::{%endif%}reducefunc(vprop.key, vprop.value, kventry.value, IterCount);
+	
+			#if defined(BC_ALGORITHM)
+			// reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount)
+			// ret = min(value, IterCount);
+			if(temp == vprop.value){ vprop.key = kventry.key; } // REMOVEME. DIRECTIVE
+			#endif
+			vprop.value = temp;
+			{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII(verticesbuffer, loc, vprop);					
+		}
+	}
+	
+	uint512_dt tmpV1 = kvbuffer[(kvsize_kvs - 1)];
+	unsigned int keyvalues_overflow = sourcestatbuffer.size - alligndown_KV(sourcestatbuffer.size);
+	REDUCEOV_ddr{{ddrs}}_w{{w}}_sw{{sw}}_LOOP1B: for(unsigned int k=0; k<keyvalues_overflow; k++){
+		#ifdef _WIDEWORD
+		kventry = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventry3(tmpV1, k);
+		#else 
+		kventry.key = tmpV1.data[k].key;
+		kventry.value = tmpV1.data[k].value;
+		#endif 
+	
+		#ifdef _DEBUGMODE_CHECKS2
+		if((kventry.key - voffset) >= {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(ssdpartitonid)){ cout<<"out-of-bounds seen at reduce_ddr{{ddrs}}_w{{w}}_sw{{sw}} 5: kventry.key: "<<kventry.key<<", voffset: "<<voffset<<", APPLYVERTEXBUFFERSZ_PERSSDPARTITION("<<ssdpartitonid<<"): "<<GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(ssdpartitonid)<<", KVSRCBUFFERSZ_APPLY_KVS: "<<KVSRCBUFFERSZ_APPLY_KVS<<", kvbuffer1_tracker_kvs.weof: "<<kvbuffer1_tracker_kvs.weof<<", i: "<<(kvsize_kvs - 1)<<", k: "<<k<<endl; exit(EXIT_FAILURE); }
+		#endif
+		
+		unsigned int loc = kventry.key - voffset; 
+		if(loc >= FORCDFINISH_APPLYVERTEXBUFFERSZ){ loc = 0; }
+		
+		keyvalue_t vprop = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getkventryIV(loc, verticesbuffer);
+		unsigned int temp = {%if(context['XWARE'] == "SW")%}titan::{%endif%}reducefunc(vprop.key, vprop.value, kventry.value, IterCount);
+		
+		#if defined(BC_ALGORITHM)
+		// reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount)
+		// ret = min(value, IterCount);
+		if(temp == vprop.value){ vprop.key = kventry.key; } // REMOVEME. DIRECTIVE
+		#endif
+		vprop.value = temp;
+		{%if(context['XWARE'] == "SW")%}titan::{%endif%}setkventryII(verticesbuffer, loc, vprop);
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+// WRITE
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}write_fake_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt * kvdram, uint512_dt kvbuffer[KVDESTBUFFERSZ_KVS], unsigned int dramoffset_kvs, unsigned int bramoffset_kvs, unsigned int size_kvs){
+	unsigned int kvbuffersz_perpartition_kvs = KVBUFFERSZ_KVS / NUM_PARTITIONS;  // NB: debugging purposes only
+	
+	FAKEWRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1B: for(unsigned int i=0; i<size_kvs; i++){ 
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_perpartition_kvs avg=kvbuffersz_perpartition_kvs
+		#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}} += VECTOR_SIZE;
+		#endif
+		kvdram[((dramoffset_kvs + i) & 0xFFFFFFF)] = kvbuffer[(bramoffset_kvs + i)];
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}writeburst_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int dramoffset_kvs, unsigned int offset_kvs, unsigned int size_kvs, uint512_dt kvbuffer[KVSRCBUFFERSZ_KVS]){
+	#pragma HLS INLINE OFF
+	unsigned int chunk_size = KVDESTBUFFERSZ_KVS;
+	
+	if (size_kvs < chunk_size){ chunk_size = size_kvs; }
+	
+	dramsz_dtype dramoffset = baseaddr_kvs + dramoffset_kvs;
+	MYWRITEBURSTKVS{{ddrs}}{{sw}}_LOOP: for(kvbuffersz_dtype i=0; i<chunk_size; i++){ // size_kvs
+	#pragma HLS PIPELINE II=1	
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}} += VECTOR_SIZE;
+		#endif
+		
+		#ifdef FORCDFINISH
+		kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))] = kvbuffer[(offset_kvs + i)];
+		#else 
+		kvdram[(dramoffset + i)] = kvbuffer[(offset_kvs + i)];
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}write_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, unsigned int currentLOP, unsigned int destpartitionoffset,
+		uint512_dt kvbuffer[KVDESTBUFFERSZ_KVS], uint512_dt * kvdram, unsigned int baseaddr_kvs){
+	// #pragma HLS INLINE OFF
+	unsigned int kvbuffersz_kvs = KVBUFFERSZ_KVS;  // NB: debugging purposes only
+	unsigned int kvbuffersz_perpartition_kvs = KVBUFFERSZ_KVS / NUM_PARTITIONS;  // NB: debugging purposes only
+	
+		{%for p in context['NUMPARTITIONS_seq']%}
+		
+		#ifdef _WIDEWORD
+		unsigned int offset{{p}} = kvbuffer[0].range(63, 32) / VECTOR_SIZE;
+		unsigned int size{{p}}_kvs = (kvbuffer[0].range(31, 0) / VECTOR_SIZE) % (KVDESTBUFFERSZ_KVS / NUM_PARTITIONS);
+		unsigned int dramoffset{{p}}_g = 0;
+		unsigned int dramoffset{{p}}_l = (kvbuffer[1].range(63, 32) / VECTOR_SIZE) % 1024;
+		dramsz_dtype dramoffset{{p}} = baseaddr_kvs + dramoffset{{p}}_g + dramoffset{{p}}_l;
+		#else 
+		unsigned int offset{{p}} = kvbuffer[0].data[{{p}}].value / VECTOR_SIZE;
+		unsigned int size{{p}}_kvs = (kvbuffer[0].data[{{p}}].key / VECTOR_SIZE) % (KVDESTBUFFERSZ_KVS / NUM_PARTITIONS);
+		unsigned int dramoffset{{p}}_g = 0;
+		unsigned int dramoffset{{p}}_l = (kvbuffer[1].data[{{p}}].value / VECTOR_SIZE) % 1024;
+		dramsz_dtype dramoffset{{p}} = baseaddr_kvs + dramoffset{{p}}_g + dramoffset{{p}}_l;
+		#endif 
+		
+		writeburst_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, baseaddr_kvs, (dramoffset{{p}}_g + dramoffset{{p}}_l), offset{{p}}, size{{p}}_kvs, kvbuffer);
+		
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}}_transfers += 1;
+		#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+/** {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}write_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, unsigned int currentLOP, unsigned int destpartitionoffset,
+		uint512_dt kvbuffer[KVDESTBUFFERSZ_KVS], smalluint_t kvbufferstats_offset[NUM_PARTITIONS], smalluint_t kvbufferstats_size[NUM_PARTITIONS], uint512_dt * kvdram, metadata_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int baseaddr_kvs){
+	// #pragma HLS INLINE OFF
+	unsigned int kvbuffersz_kvs = KVBUFFERSZ_KVS;  // NB: debugging purposes only
+	unsigned int kvbuffersz_perpartition_kvs = KVBUFFERSZ_KVS / NUM_PARTITIONS;  // NB: debugging purposes only
+	WRITEKVS{{ddrs}}{{sw}}_LOOP1A: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		// #pragma HLS PIPELINE
+		unsigned int offset = kvbufferstats_offset[p] / VECTOR_SIZE;
+		unsigned int size_kvs = kvbufferstats_size[p] / VECTOR_SIZE;
+		unsigned int dramoffset_g = kvdeststats_tmp[p].offset / VECTOR_SIZE;
+		unsigned int dramoffset_l = kvdeststats_tmp[p].size / VECTOR_SIZE;
+		dramsz_dtype dramoffset = baseaddr_kvs + dramoffset_g + dramoffset_l;
+
+		kvbuffersz_dtype rwsize_kvs = size_kvs;
+		if(rwsize_kvs > FORCDFINISH_KVDESTBUFFERSZ_KVS){ rwsize_kvs = 0; } 
+		if((dramoffset + rwsize_kvs - 1) >= _x3PADDEDKVDATA_SIZE_KVS){ dramoffset = 0; }
+		if((offset + rwsize_kvs) >= FORCDFINISH_KVDESTBUFFERSZ_KVS){ offset = 0; }
+		
+		writeburst_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, baseaddr_kvs, (dramoffset_g + dramoffset_l), offset, rwsize_kvs, kvbuffer);
+		
+		kvdeststats_tmp[p].size += rwsize_kvs * VECTOR_SIZE;
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}}_transfers += 1;
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%} */
+/** {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}write_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, unsigned int currentLOP, unsigned int destpartitionoffset,
+		uint512_dt kvbuffer[KVDESTBUFFERSZ_KVS], smalluint_t kvbufferstats_offset[NUM_PARTITIONS], smalluint_t kvbufferstats_size[NUM_PARTITIONS], uint512_dt * kvdram, metadata_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int baseaddr_kvs){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::write{{ddrs}}{{sw}}. workerid: "<<workerid<<std::endl;
+	#endif
+	unsigned int kvbuffersz_kvs = KVBUFFERSZ_KVS;  // NB: debugging purposes only
+	unsigned int kvbuffersz_perpartition_kvs = KVBUFFERSZ_KVS / NUM_PARTITIONS;  // NB: debugging purposes only
+	WRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1A: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		unsigned int offset = kvbufferstats_offset[p] / VECTOR_SIZE;
+		unsigned int size_kvs = kvbufferstats_size[p] / VECTOR_SIZE;
+		unsigned int dramoffset_g = kvdeststats_tmp[p].offset / VECTOR_SIZE;
+		unsigned int dramoffset_l = kvdeststats_tmp[p].size / VECTOR_SIZE;
+		dramsz_dtype dramoffset = baseaddr_kvs + dramoffset_g + dramoffset_l;
+
+		kvbuffersz_dtype rwsize_kvs = size_kvs;
+		if(rwsize_kvs > FORCDFINISH_KVDESTBUFFERSZ_KVS){ rwsize_kvs = 0; } 
+		if((dramoffset + rwsize_kvs - 1) >= _x3PADDEDKVDATA_SIZE_KVS){ dramoffset = 0; }
+		if((offset + rwsize_kvs) >= FORCDFINISH_KVDESTBUFFERSZ_KVS){ offset = 0; }
+		WRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1B: for(kvbuffersz_dtype i=0; i<rwsize_kvs; i++){
+			// cout<<"------------- partition: "<<p<<", rwsize_kvs: "<<rwsize_kvs<<endl;
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_perpartition_kvs avg=kvbuffersz_perpartition_kvs
+		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS
+			checkforoutofbounds_kernel((offset + i), KVDESTBUFFERSZ_KVS, "out-of-bounds seen at write{{ddrs}}{{sw}} 5", 0, 0, 0);
+			checkforoutofbounds_kernel((dramoffset_g + dramoffset_l + i), PADDEDKVDATA_BATCHSIZE_KVS, "out-of-bounds seen at write{{ddrs}}{{sw}} 6", 0, 0, 0);
+			if(p<(NUM_PARTITIONS-1)){ checkforoutofbounds_kernel((dramoffset_g + dramoffset_l + i), kvdeststats_tmp[p+1].offset, "out-of-bounds seen at write{{ddrs}}{{sw}} 7", 0, 0, 0); }
+			else { checkforoutofbounds_kernel((dramoffset_g + dramoffset_l + i), PADDEDKVDATA_BATCHSIZE, "out-of-bounds seen at write{{ddrs}}{{sw}} 8", 0, 0, 0); }
+			#endif
+			#ifdef _DEBUGMODE_STATS
+			titan_kvpairswritten{{ddrs}} += VECTOR_SIZE;
+			#endif
+			
+			#ifdef FORCDFINISH
+			kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))] = kvbuffer[(offset + i)];
+			#else 
+			kvdram[(dramoffset + i)] = kvbuffer[(offset + i)];
+			#endif 
+		}
+		kvdeststats_tmp[p].size += rwsize_kvs * VECTOR_SIZE;
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}}_transfers += 1;
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%} */
+/** {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}write_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, unsigned int currentLOP, unsigned int destpartitionoffset,
+		uint512_dt kvbuffer[KVDESTBUFFERSZ_KVS], smalluint_t kvbufferstats_offset[NUM_PARTITIONS], smalluint_t kvbufferstats_size[NUM_PARTITIONS], uint512_dt * kvdram, metadata_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int baseaddr_kvs){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::write{{ddrs}}{{sw}}. workerid: "<<workerid<<std::endl;
+	#endif
+	unsigned int kvbuffersz_kvs = KVBUFFERSZ_KVS;  // NB: debugging purposes only
+	unsigned int kvbuffersz_perpartition_kvs = KVBUFFERSZ_KVS / NUM_PARTITIONS;  // NB: debugging purposes only
+	WRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1A: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		unsigned int offset = kvbufferstats_offset[p] / VECTOR_SIZE;
+		unsigned int size_kvs = kvbufferstats_size[p] / VECTOR_SIZE;
+		unsigned int dramoffset_g = kvdeststats_tmp[p].offset / VECTOR_SIZE;
+		unsigned int dramoffset_l = kvdeststats_tmp[p].size / VECTOR_SIZE;
+		dramsz_dtype dramoffset = baseaddr_kvs + dramoffset_g + dramoffset_l;
+		
+		kvbuffersz_dtype rwsize_kvs = size_kvs;
+		if(rwsize_kvs > FORCDFINISH_KVDESTBUFFERSZ_KVS){ rwsize_kvs = KVDESTBUFFERSZ_KVS; } 
+		if((dramoffset + rwsize_kvs - 1) >= _x3PADDEDKVDATA_SIZE_KVS){ dramoffset = 0; }
+		if((offset + rwsize_kvs) >= FORCDFINISH_KVDESTBUFFERSZ_KVS){ offset = 0; }		
+		
+		// uint9_dt offset = kvbufferstats_offset[p] / VECTOR_SIZE;
+		// uint9_dt size_kvs = kvbufferstats_size[p] / VECTOR_SIZE;
+		// uint24_dt dramoffset_g = kvdeststats_tmp[p].offset / VECTOR_SIZE;
+		// uint24_dt dramoffset_l = kvdeststats_tmp[p].size / VECTOR_SIZE;
+		// uint24_dt dramoffset = baseaddr_kvs + dramoffset_g + dramoffset_l;
+		// uint9_dt rwsize_kvs = size_kvs;
+		
+		/// WRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1B: for(kvbuffersz_dtype i=0; i<rwsize_kvs; i++){
+		WRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1B: for(uint9_dt i=0; i<rwsize_kvs; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=kvbuffersz_perpartition_kvs max=kvbuffersz_perpartition_kvs avg=kvbuffersz_perpartition_kvs
+		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS
+			checkforoutofbounds_kernel((offset + i), KVDESTBUFFERSZ_KVS, "out-of-bounds seen at write{{ddrs}}{{sw}} 5", 0, 0, 0);
+			checkforoutofbounds_kernel((dramoffset_g + dramoffset_l + i), PADDEDKVDATA_BATCHSIZE_KVS, "out-of-bounds seen at write{{ddrs}}{{sw}} 6", 0, 0, 0);
+			if(p<(NUM_PARTITIONS-1)){ checkforoutofbounds_kernel((dramoffset_g + dramoffset_l + i), kvdeststats_tmp[p+1].offset, "out-of-bounds seen at write{{ddrs}}{{sw}} 7", 0, 0, 0); }
+			else { checkforoutofbounds_kernel((dramoffset_g + dramoffset_l + i), PADDEDKVDATA_BATCHSIZE, "out-of-bounds seen at write{{ddrs}}{{sw}} 8", 0, 0, 0); }
+			#endif
+			#ifdef _DEBUGMODE_STATS
+			titan_kvpairswritten{{ddrs}} += VECTOR_SIZE;
+			#endif
+			
+			#ifdef FORCDFINISHXXX // CHANGED.
+			kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))] = kvbuffer[(offset + i)];
+			#else 
+			kvdram[(dramoffset + i)] = kvbuffer[(offset + i)];
+			#endif 
+			// kvdram[(dramoffset + i)] = kvbuffer[(offset + i)];
+		}
+		// kvdeststats_tmp[p].size += rwsize_kvs * VECTOR_SIZE;
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}}_transfers += 1;
+		#endif
+	}
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ kvdeststats_tmp[p].size += kvbufferstats_size[p]; }
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%} */
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}writeremainingovs_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, uint512_dt * kvdram, metadata_t kvdeststats_tmp[NUM_PARTITIONS], uint512_dt ovkvs_tmp_ddr[NUM_PARTITIONS], smallmargin_t ov[NUM_PARTITIONS], unsigned int baseaddr_kvs){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::writeremainingovs_ddr{{ddrs}}{{sw}}. workerid: "<<workerid<<std::endl;
+	#endif
+	
+	WRITEBURSTKVS{{ddrs}}{{sw}}_LOOP1A: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE II=1
+		unsigned int dramoffset_g = kvdeststats_tmp[p].offset / VECTOR_SIZE;
+		unsigned int dramoffset_l = kvdeststats_tmp[p].size / VECTOR_SIZE;
+		dramsz_dtype dramoffset = baseaddr_kvs + dramoffset_g + dramoffset_l;
+		
+		#ifdef FORCDFINISH
+		kvdram[(dramoffset & (FORCDFINISH_DRAMSZ_KVS - 1))] = ovkvs_tmp_ddr[p];
+		#else 
+		kvdram[dramoffset] = ovkvs_tmp_ddr[p];
+		#endif 
+		
+		kvdeststats_tmp[p].size += ov[p].size; // VECTOR_SIZE;
+		
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}} += ov[p].size; // VECTOR_SIZE;
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}}_transfers += 1;
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+// WRITE VERTICES TO DRAM (APPLY PHASE)
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}writeAU_Vs_ddr{{ddrs}}_w{{w}}_sw{{sw}}(unsigned int ssdpartitonid, unsigned int workerid, uint512_dt * kvdram, unsigned int offset_vs, unsigned int baseaddr_vs, uint512_dt verticesbuffer[APPLYVERTEXBUFFERSZ_KVS]){
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<"Kernel::writeAU_Vs{{ddrs}}{{sw}} read. workerid: "<<workerid<<std::endl;
+	#endif
+	unsigned int verticesbuffersz_kvs = APPLYVERTEXBUFFERSZ_KVS;  // NB: debugging purposes only
+	
+	kvbuffersz_dtype rwsize_kvs = {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid);
+	if(rwsize_kvs > FORCDFINISH_APPLYVERTEXBUFFERSZ_KVS){ rwsize_kvs = 0; } 
+	dramsz_dtype dramoffset = baseaddr_vs + offset_vs;
+	if((dramoffset + rwsize_kvs - 1) >= _x3PADDEDKVDATA_SIZE_KVS){ dramoffset = 0; }
+	WRITEBURSTKVS{{ddrs}}{{sw}}_AU_LOOP: for(kvbuffersz_dtype i=0; i<rwsize_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=verticesbuffersz_kvs avg=verticesbuffersz_kvs
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_CHECKS
+		checkforoutofbounds_kernel((offset_vs + i), _x3PADDEDKVDATA_SIZE_KVS, "writeAU_Vs{{ddrs}}{{sw}}:: out-of-bounds seen at read 5", 0, 0, 0);
+		checkforoutofbounds_kernel(i, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid), "writeAU_Vs{{ddrs}}{{sw}}:: out-of-bounds seen at read 6", 0, 0, 0);
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairswritten{{ddrs}} += VECTOR_SIZE;
+		#endif
+		// kvdram[(dramoffset + i)] = verticesbuffer[i];
+		// kvdram[((dramoffset + i) % _x3PADDEDKVDATA_SIZE_KVS)] = verticesbuffer[i]; 
+		#ifdef FORCDFINISH
+		kvdram[((dramoffset + i) & (FORCDFINISH_DRAMSZ_KVS - 1))] = verticesbuffer[i];
+		#else 
+		kvdram[(dramoffset + i)] = verticesbuffer[i];
+		#endif 
+	}
+	#ifdef _DEBUGMODE_STATS
+	titan_kvpairswritten{{ddrs}}_transfers += 1;
+	#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+// READ MANY
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}readmany_ddr{{ddrs}}_w{{w}}(unsigned int beginworkerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int kvreadoffset_kvs, unsigned int kvsize_kvs
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	,uint512_dt kvbuffer{{sw}}[KVSRCBUFFERSZ_KVS]
+	{%endfor%}
+	){
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	unsigned int worker{{sw}}id = beginworkerid + {{sw}};
+	unsigned int baseaddr{{sw}}_kvs = baseaddr_kvs;
+	unsigned int offset{{sw}}_kvs = kvreadoffset_kvs + ({{sw}} * KVBUFFERSZ_KVS);
+	unsigned int kvsize{{sw}}_kvs = kvsize_kvs;
+	
+	{%endfor%}		
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}read_ddr{{ddrs}}_w{{w}}_sw{{sw}}(worker{{sw}}id, kvdram, baseaddr{{sw}}_kvs, offset{{sw}}_kvs, kvsize{{sw}}_kvs, kvbuffer{{sw}});
+	/// read_ddr{{ddrs}}_w{{w}}_sw{{sw}}((beginworkerid + {{sw}}), kvdram, baseaddr_kvs, (kvreadoffset_kvs + ({{sw}} * KVBUFFERSZ_KVS)), kvsize_kvs, kvbuffer{{sw}});
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}readmanyAU_Vs_ddr{{ddrs}}_w{{w}}(unsigned int ssdpartitonid, unsigned int beginworkerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int kvreadoffset_kvs, unsigned int kvsize_kvs
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	,uint512_dt verticesbuffer{{sw}}[APPLYVERTEXBUFFERSZ_KVS]
+	{%endfor%}
+	){
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}readAU_V_ddr{{ddrs}}_w{{w}}_sw{{sw}}(ssdpartitonid, (beginworkerid + {{sw}}), kvdram, baseaddr_kvs, (kvreadoffset_kvs + ({{sw}} * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid))), kvsize_kvs, verticesbuffer{{sw}});
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}readmanyAU_VUs_ddr{{ddrs}}_w{{w}}(unsigned int beginworkerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, metadata_t sourcestatbuffer[NUMSUBWORKERS], unsigned int kvreadoffset_kvs, unsigned int kvsize_kvs
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	,uint512_dt kvbuffer{{sw}}[KVSRCBUFFERSZ_APPLY_KVS]
+	{%endfor%}
+	){
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	unsigned int worker{{sw}}id = beginworkerid + {{sw}}; 
+	unsigned int baseaddr{{sw}}_kvs = baseaddr_kvs;
+	unsigned int offset{{sw}}_kvs = (sourcestatbuffer[{{sw}}].offset / VECTOR_SIZE) + kvreadoffset_kvs;
+	unsigned int kvsize{{sw}}_kvs = (sourcestatbuffer[{{sw}}].offset + sourcestatbuffer[{{sw}}].size + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	// cout<<"readmanyAU_VUs_ddr:: kvsize{{sw}}_kvs: "<<kvsize{{sw}}_kvs<<", sourcestatbuffer[{{sw}}].offset: "<<sourcestatbuffer[{{sw}}].offset<<", sourcestatbuffer[{{sw}}].size: "<<sourcestatbuffer[{{sw}}].size<<", kvreadoffset_kvs: "<<kvreadoffset_kvs<<endl;
+	{%endfor%}
+	
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}readAU_VU_ddr{{ddrs}}_w{{w}}_sw0(worker{{sw}}id, kvdram, baseaddr{{sw}}_kvs, offset{{sw}}_kvs, kvsize{{sw}}_kvs, kvbuffer{{sw}});
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+// PARTITION MANY
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}partitionmany_ddr{{ddrs}}_w{{w}}(unsigned int ssdpartitonid, unsigned int beginworkerid, unsigned int kvreadoffset_kvs, unsigned int kvsize_kvs, unsigned int currentLOP, unsigned int destpartitionoffset, unsigned int upperlimit, unsigned int destpartitionrange
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	,uint512_dt kvbuffer{{sw}}1[KVSRCBUFFERSZ_KVS], uint512_dt kvbuffer{{sw}}2[KVDESTBUFFERSZ_KVS], smalluint_t kvbufferstats_offset{{sw}}[NUM_PARTITIONS], smalluint_t kvbufferstats_size{{sw}}[NUM_PARTITIONS], smallmargin_t ov{{sw}}[NUM_PARTITIONS], uint512_dt ovkvs_tmp{{sw}}[NUM_PARTITIONS]
+	{%endfor%}
+	){
+	#pragma HLS INLINE OFF
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	unsigned int ssdpartiton{{sw}}id = ssdpartitonid;
+	unsigned int worker{{sw}}id =  beginworkerid + {{sw}};
+	unsigned int subworker{{sw}}id = {{sw}};
+	unsigned int kvreadoffset{{sw}}_kvs = kvreadoffset_kvs;
+	unsigned int kvsize{{sw}}_kvs = kvsize_kvs;
+	unsigned int currentLOP{{sw}} = currentLOP;
+	unsigned int destpartitionoffset{{sw}} = destpartitionoffset;
+	unsigned int upperlimit{{sw}} = upperlimit;
+	unsigned int destpartitionrange{{sw}} = destpartitionrange;	
+	{%endfor%}
+	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}partition_ddr{{ddrs}}_w{{w}}_sw{{sw}}(ssdpartiton{{sw}}id, worker{{sw}}id, subworker{{sw}}id, kvreadoffset{{sw}}_kvs, kvsize{{sw}}_kvs, currentLOP{{sw}}, destpartitionoffset{{sw}}, upperlimit{{sw}}, destpartitionrange{{sw}}, kvbuffer{{sw}}1, kvbuffer{{sw}}2, kvbufferstats_offset{{sw}}, kvbufferstats_size{{sw}}, ov{{sw}}, ovkvs_tmp{{sw}});
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+// APPLY MANY
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}reducemany_ddr{{ddrs}}_w{{w}}(unsigned int IterCount, unsigned int ssdpartitonid, unsigned int beginworkerid, unsigned int verticesreadoffset_vs, metadata_t sourcestatbuffer[NUMSUBWORKERS], unsigned int kvreadoffset_kvs
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	,uint512_dt verticesbuffer{{sw}}[APPLYVERTEXBUFFERSZ_KVS]
+	{%endfor%}
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	,uint512_dt kvbuffer{{sw}}[KVSRCBUFFERSZ_APPLY_KVS]
+	{%endfor%}	
+	){		
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	unsigned int ssdpartiton{{sw}}id = ssdpartitonid; 
+	unsigned int worker{{sw}}id = beginworkerid + {{sw}}; 
+	unsigned int verticesreadoffset{{sw}}_vs = verticesreadoffset_vs + ({{sw}} * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid)); 
+	unsigned int kvreadoffset{{sw}}_kvs = kvreadoffset_kvs; 
+	unsigned int kvsize{{sw}}_kvs = (sourcestatbuffer[{{sw}}].size + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	{%endfor%}
+	
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	#ifdef _DEBUGMODE_PRINTS
+	cout<<"reduce_ddr{{ddrs}}_sw{{sw}}: verticesreadoffset: "<<(verticesreadoffset_vs * VECTOR_SIZE)<<", verticesreadoffset for subworker:{{sw}}: "<<((verticesreadoffset_vs + ({{sw}} * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid))) * VECTOR_SIZE)<<endl;
+	#endif
+	{%endfor%}
+	
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}reduce_ddr{{ddrs}}_w{{w}}_sw{{sw}}(IterCount, ssdpartiton{{sw}}id, worker{{sw}}id, verticesreadoffset{{sw}}_vs, kvreadoffset{{sw}}_kvs, kvsize{{sw}}_kvs, sourcestatbuffer[{{sw}}], verticesbuffer{{sw}}, kvbuffer{{sw}}); // FIXME
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+// WRITE MANY
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}writemany_ddr{{ddrs}}_w{{w}}(unsigned int ssdpartitonid, unsigned int beginworkerid, uint512_dt * kvdram, unsigned int baseaddr_kvs, unsigned int currentLOP, unsigned int destpartitionoffset	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	,uint512_dt kvbuffer{{sw}}[KVDESTBUFFERSZ_KVS]
+	{%endfor%}
+	){
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	unsigned int ssdpartiton{{sw}}id = ssdpartitonid;
+	unsigned int worker{{sw}}id = beginworkerid + {{sw}};
+	unsigned int currentLOP{{sw}} = currentLOP;
+	unsigned int destpartitionoffset{{sw}} = destpartitionoffset;
+	unsigned int baseaddr{{sw}}_kvs = baseaddr_kvs;
+	
+	{%endfor%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}write_ddr{{ddrs}}_w{{w}}_sw{{sw}}(ssdpartiton{{sw}}id, worker{{sw}}id, currentLOP{{sw}}, destpartitionoffset{{sw}}, kvbuffer{{sw}}, kvdram, baseaddr{{sw}}_kvs);
+	
+	// {%if(context['XWARE'] == "SW")%}titan::{%endif%}write_ddr{{ddrs}}_w{{w}}_sw{{sw}}(ssdpartiton{{sw}}id, worker{{sw}}id, currentLOP{{sw}}, destpartitionoffset{{sw}}, kvbuffer{{sw}}, kvbufferstats_offset{{sw}}, kvbufferstats_size{{sw}}, kvdram, kvdeststats_tmp, baseaddr{{sw}}_kvs);
+	
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}writemanyAU_Vs_ddr{{ddrs}}_w{{w}}(unsigned int ssdpartitonid, unsigned int beginworkerid, uint512_dt * kvdram, unsigned int baseaddr_vs, unsigned int kvreadoffset_kvs
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	,uint512_dt verticesbuffer{{sw}}[APPLYVERTEXBUFFERSZ_KVS]
+	{%endfor%}
+	){
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	{%if(context['XWARE'] == "SW")%}titan::{%endif%}writeAU_Vs_ddr{{ddrs}}_w{{w}}_sw{{sw}}(ssdpartitonid, (beginworkerid + {{sw}}), kvdram, (kvreadoffset_kvs + ({{sw}} * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid))), baseaddr_vs, verticesbuffer{{sw}});
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}topkernel_instancePU{{ddrs}}(
+		unsigned int command,
+		uint512_dt * kvdram,
+		metadata_t * kvstats,
+		unsigned int treedepth,
+		unsigned int finalnumpartitions,
+		unsigned int vbegin,
+		unsigned int ssdpartitonid,
+		unsigned int paddedkvdatabatchsz_kvs
+        ){
+	if(command != ON){ return; }
+	
+	unsigned int maxtreedepthsz = TREEDEPTH_FORSSDPARTITION0; // NB: debugging purposes only
+	unsigned int steps = treedepth + 1;
+	// unsigned int steps = 2 + 1; // FIXME. CHANGEBACK
+
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	#ifndef _SHARED_SRCBUFFER
+	uint512_dt srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[KVSRCBUFFERSZ_KVS];
+	#endif
+	#ifdef _USEURAM_SRCKVBUFFER
+	#pragma HLS RESOURCE variable=srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}} core=XPM_MEMORY uram 
+	#endif 
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	#ifndef _SHARED_DESTBUFFER
+	uint512_dt destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[KVDESTBUFFERSZ_KVS]; 
+	#endif
+	#ifndef _WIDEWORD
+	#pragma HLS DATA_PACK variable=srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+	#pragma HLS DATA_PACK variable=destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+	#endif
+	{%endfor%}
+	{%endfor%}
+	
+	#ifndef _SHARED_DESTBUFFER
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt ovkvs_tmp_ddr{{ddrs}}_w{{w}}_sw{{sw}}[NUM_PARTITIONS];
+	{%endfor%}
+	{%endfor%}
+	#endif
+	
+	// Other structures
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	smalluint_t kvbufferstats_offset_w{{w}}_sw{{sw}}[NUM_PARTITIONS];
+	smalluint_t kvbufferstats_size_w{{w}}_sw{{sw}}[NUM_PARTITIONS];	
+	smallmargin_t ov_w{{w}}_sw{{sw}}[NUM_PARTITIONS];
+	{%endfor%}
+	{%endfor%}
+
+	READ_PARTITION_WRITE_LOOP1: for(unsigned int currentLOP=1; currentLOP<(steps % 8); currentLOP++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=maxtreedepthsz avg=maxtreedepthsz
+		#ifdef _DEBUGMODE_PRINTS_TMP
+		std::cout<<std::endl;
+		std::cout<<"### kernel::topkernel_instancePU{{ddrs}} Started: currentLOP: "<<currentLOP<<" ###"<<std::endl;
+		#endif 
+		#ifdef _DEBUGMODE_PRINTS
+		printkvbuffer_kernel(kvdram, 32, "kernel::topkernel_instancePU{{ddrs}}:: printing kvdram");
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		titan_kvpairsread{{ddrs}} = 0;
+		titan_kvpairswritten{{ddrs}} = 0;
+		titan_kvpairsread{{ddrs}}_transfers = 0;
+		titan_kvpairswritten{{ddrs}}_transfers = 0;
+		titan_kvpairswritten_interm2dest_parallel{{ddrs}} = 0;
+		titan_kvpairswritten_interm2dest_seqential{{ddrs}} = 0;
+		titan_INapplyphase = 0;
+		#endif
+		
+		metadata_t kvdeststats_tmp[NUM_PARTITIONS];
+		unsigned int sourcebaseaddr_kvs = 0;
+		unsigned int destbaseaddr_kvs = 0;
+
+		INITKVDRAMREACKER_LOOP: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+			#pragma HLS PIPELINE II=1
+			kvdeststats_tmp[p].size = 0;
+		}
+		
+		if((currentLOP % 2) == 1){
+			sourcebaseaddr_kvs = 0;
+			destbaseaddr_kvs = paddedkvdatabatchsz_kvs;
+		} else {
+			sourcebaseaddr_kvs = paddedkvdatabatchsz_kvs;
+			destbaseaddr_kvs = 0;
+		}
+
+		unsigned int num_source_partitions = {%if(context['XWARE'] == "SW")%}titan::{%endif%}get_num_source_partitions(currentLOP);
+		unsigned int nextsourceoffset_partition = 0;
+		unsigned int nextdestoffset_partition = 0;
+		unsigned int nextsourceoffset_kv = 0;
+		unsigned int nextdestoffset_kv = 0;
+		unsigned int sourceskipsize_partition = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getsourceskipsize(currentLOP, finalnumpartitions);
+		unsigned int destskipsize_partition = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getdestskipsize(currentLOP, finalnumpartitions);
+		unsigned int sourceskipsize_kv = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getsourceskipsize(currentLOP, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid));
+		unsigned int destskipsize_kv = {%if(context['XWARE'] == "SW")%}titan::{%endif%}getdestskipsize(currentLOP, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid));
+		unsigned int destpartitionrange = (1 << ({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(ssdpartitonid) - (NUM_PARTITIONS_POW * currentLOP)));
+		#ifdef _DEBUGMODE_PRINTS_TMP
+		print4ints_kernel(">>> kernel::topkernel_instancePU{{ddrs}}", "currentLOP", currentLOP, "tree depth", treedepth, "num_source_partitions", num_source_partitions, "number of kvs in each final partition", destskipsize_kv);
+		print4ints_kernel(">>> kernel::topkernel_instancePU{{ddrs}}", "currentLOP", currentLOP, "tree depth", treedepth, "num_source_partitions", num_source_partitions, "number of destination partitions", ({%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) / destskipsize_kv));		
+		#endif
+		#ifdef _DEBUGMODE_PRINTS_TMP
+		print4ints_kernel(">>> kernel::topkernel_instancePU{{ddrs}}", "currentLOP", currentLOP, "num_source_partitions", num_source_partitions, "tree depth", treedepth, "", 0);
+		print4ints_kernel(">>> kernel::topkernel_instancePU{{ddrs}}", "sourceskipsize_partition", sourceskipsize_partition, "destskipsize_partition", destskipsize_partition, "sourceskipsize_kv", sourceskipsize_kv, "destskipsize_kv", destskipsize_kv);
+		#endif
+		
+		unsigned int avgnum_source_partitions = (1 << (TREE_DEPTH * NUM_PARTITIONS_POW)); // NB: debugging purposes only
+		if(num_source_partitions > finalnumpartitions){ num_source_partitions = 0; } 
+		READ_PARTITION_WRITE_LOOP2: for(unsigned int source_partition=0; source_partition<num_source_partitions; source_partition++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=avgnum_source_partitions avg=avgnum_source_partitions
+			#ifdef _DEBUGMODE_PRINTS_TMP
+			print4ints_kernel("kernel::topkernel_instancePU{{ddrs}}", "ssdpartitonid", ssdpartitonid, "source_partition", source_partition, "num_source_partitions", num_source_partitions, "tree depth", {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETTREEDEPTH(ssdpartitonid));
+			#endif
+
+			{%if(context['XWARE'] == "SW")%}titan::{%endif%}loaddeststats(kvstats, kvdeststats_tmp, nextdestoffset_partition, currentLOP, finalnumpartitions);
+			#ifdef _DEBUGMODE_PRINTS
+			printstats_kernel(kvdeststats_tmp, NUM_PARTITIONS, "kernel::kvdeststats_tmp", source_partition, 0, 0);
+			print4ints_kernel("kernel::topkernel_instancePU{{ddrs}}", "source_partition", source_partition, "num_source_partitions", num_source_partitions, "destpartitionoffset", nextdestoffset_partition, "nextsourceoffset_partition", nextsourceoffset_partition);
+			#endif
+
+			{%for w in context['NUMWORKERS_seq']%}
+			{%for sw in context['NUMSUBWORKERS_seq']%}
+			INITOV_LOOP_w{{w}}_sw{{sw}}1: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+				ov_w{{w}}_sw{{sw}}[p].begin = 0; ov_w{{w}}_sw{{sw}}[p].size = 0;
+			}
+			{%endfor%}
+			{%endfor%}
+			
+			INITKVDRAMREACKER_LOOP2: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+				#pragma HLS PIPELINE II=1
+				kvdeststats_tmp[p].size = 0;
+			}
+			
+			if(nextsourceoffset_partition >= FORCDFINISH_KVSTATS_SIZE){ nextsourceoffset_partition = 0; } 
+			metadata_t sourcestat = kvstats[(nextsourceoffset_partition % FORCDFINISH_KVSTATS_SIZE)]; 
+			unsigned int begin_kvs = sourcestat.offset / VECTOR_SIZE;
+			unsigned int size_kvs = (sourcestat.size + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+			
+			unsigned int alligndownsize_kvs = sourcestat.size / VECTOR_SIZE;
+			unsigned int offset_kvs = sourcebaseaddr_kvs + begin_kvs + alligndownsize_kvs;
+			unsigned int topk = sourcestat.size % VECTOR_SIZE;
+			unsigned int sizek = allignup_KV(sourcestat.size) - sourcestat.size;
+			#ifdef _DEBUGMODE_PRINTS
+			std::cout<<"kernel::topkernel_instancePU{{ddrs}}:: begin_kvs "<<begin_kvs<<", size_kvs: "<<size_kvs<<", begin: "<<(begin_kvs * VECTOR_SIZE)<<", size: "<<(size_kvs * VECTOR_SIZE)<<", (sourcestat.size % VECTOR_SIZE): "<<(sourcestat.size % VECTOR_SIZE)<<endl;
+			#endif
+			
+			unsigned int avgikvs_sz = PADDEDKVDATA_BATCHSIZE_KVS / avgnum_source_partitions; // NB: debugging purposes only
+			unsigned int avgtripcnt = avgikvs_sz / (NUMWORKERS * NUMSUBWORKERS * KVBUFFERSZ_KVS); // NB: debugging purposes only			
+			unsigned int ikvs_sz = begin_kvs + size_kvs;
+			if(ikvs_sz >= paddedkvdatabatchsz_kvs){ begin_kvs = 0; ikvs_sz = 0; } 
+			if(begin_kvs > ikvs_sz){ begin_kvs = 0; ikvs_sz = 0; } 
+			READ_PARTITION_WRITE_LOOP3: for(unsigned int i_kvs=begin_kvs; i_kvs<ikvs_sz; i_kvs+=(NUMWORKERS * NUMSUBWORKERS * KVBUFFERSZ_KVS)){
+				#pragma HLS LOOP_TRIPCOUNT min=0 max=avgtripcnt avg=avgtripcnt
+				#ifdef _DEBUGMODE_PRINTS // 
+				std::cout<<"kernel::topkernel_instancePU{{ddrs}}::Current Iteration:: offset_kvs: "<<i_kvs<<", last offset: "<<ikvs_sz<<", skip size (kvs): "<<(NUMWORKERS * NUMSUBWORKERS * KVBUFFERSZ_KVS)<<", source_partition: "<<source_partition<<", currentLOP: "<<currentLOP<<endl;
+				#endif
+				
+				{%for w,sepw in zip(context['NUMWORKERS_seq'], context['BUNDLEFACTOR_lseq'])%}
+				unsigned int ssdpartiton{{w}}id = ssdpartitonid;
+				unsigned int beginworker{{w}}id = {{w}} * NUMSUBWORKERS;
+				unsigned int baseaddr{{w}}_kvs = sourcebaseaddr_kvs;
+				unsigned int kvreadoffset{{w}}_kvs = i_kvs + ({{w}} * NUMSUBWORKERS * KVBUFFERSZ_KVS);
+				unsigned int kvsize{{w}}_kvs = begin_kvs + size_kvs;
+				unsigned int currentLOP{{w}} = currentLOP;
+				unsigned int destpartitionoffset{{w}} = nextdestoffset_partition;
+				unsigned int upperlimit{{w}} = vbegin + nextsourceoffset_kv;
+				unsigned int destpartitionrange{{w}} = destpartitionrange;
+				unsigned int ibegin{{w}}_kvs = i_kvs;
+				unsigned int iend{{w}}_kvs = ikvs_sz;
+				unsigned int destbaseaddr{{w}}_kvs = destbaseaddr_kvs;
+				unsigned int finalnumpartitions{{w}} = finalnumpartitions;
+				{%endfor%}
+				
+				{%for w,sepw in zip(context['NUMWORKERS_seq'], context['BUNDLEFACTOR_lseq'])%}
+					
+				{%for sw in context['NUMSUBWORKERS_seq']%}
+				read_ddr{{ddrs}}_w{{w}}_sw{{sw}}(NAp, kvdram, baseaddr{{w}}_kvs, kvreadoffset{{w}}_kvs + ({{sw}} * KVBUFFERSZ_KVS), kvsize{{w}}_kvs, srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}});
+				{%endfor%}
+				
+				#ifdef _WIDEWORD
+				upperlimit{{w}} = srckvbuffer_ddr{{ddrs}}_w{{w}}_sw0[0].range(31, 0) + srckvbuffer_ddr{{ddrs}}_w{{w}}_sw1[0].range(31, 0) + srckvbuffer_ddr{{ddrs}}_w{{w}}_sw2[0].range(31, 0) + srckvbuffer_ddr{{ddrs}}_w{{w}}_sw3[0].range(31, 0);
+				#else 
+				upperlimit{{w}} = srckvbuffer_ddr{{ddrs}}_w{{w}}_sw0[0].data[0].key + srckvbuffer_ddr{{ddrs}}_w{{w}}_sw1[0].data[0].key + srckvbuffer_ddr{{ddrs}}_w{{w}}_sw2[0].data[0].key + srckvbuffer_ddr{{ddrs}}_w{{w}}_sw3[0].data[0].key;
+				#endif 
+				
+				/* partitionmany_ddr{{ddrs}}_w{{sepw}}(ssdpartiton{{w}}id, beginworker{{w}}id, kvreadoffset{{w}}_kvs, kvsize{{w}}_kvs, currentLOP{{w}}, destpartitionoffset{{w}}, upperlimit{{w}}, destpartitionrange{{w}}
+					{%for sw in context['NUMSUBWORKERS_seq']%}
+					,srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}, destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}, kvbufferstats_offset_w{{w}}_sw{{sw}}, kvbufferstats_size_w{{w}}_sw{{sw}}, ov_w{{w}}_sw{{sw}}, ovkvs_tmp_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+					{%endfor%}
+					); */
+					
+				{%for sw in context['NUMSUBWORKERS_seq']%}
+				partition_ddr{{ddrs}}_w{{w}}_sw{{sw}}(ssdpartiton{{w}}id, beginworker{{w}}id, NAp, kvreadoffset{{w}}_kvs, kvsize{{w}}_kvs, currentLOP{{w}}, destpartitionoffset{{w}}, upperlimit{{w}}, destpartitionrange{{w}}, srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}, destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}, kvbufferstats_offset_w{{w}}_sw{{sw}}, kvbufferstats_size_w{{w}}_sw{{sw}}, ov_w{{w}}_sw{{sw}}, ovkvs_tmp_ddr{{ddrs}}_w{{w}}_sw{{sw}});
+				{%endfor%}
+					
+				destbaseaddr{{w}}_kvs = destbaseaddr{{w}}_kvs + kvbufferstats_offset_w{{w}}_sw0[0] + kvbufferstats_offset_w{{w}}_sw1[0] + kvbufferstats_offset_w{{w}}_sw2[0] + kvbufferstats_offset_w{{w}}_sw3[0];
+				
+				{%for sw in context['NUMSUBWORKERS_seq']%}
+				{%for p in context['NUMPARTITIONS_seq']%}
+				write_fake_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}, (destbaseaddr{{w}}_kvs + (kvdeststats_tmp[{{p}}].offset / VECTOR_SIZE)), (kvbufferstats_offset_w{{w}}_sw{{sw}}[{{p}}] / VECTOR_SIZE), (kvbufferstats_size_w{{w}}_sw{{sw}}[{{p}}] / VECTOR_SIZE));
+				{%endfor%}
+				{%endfor%}
+					
+				{%endfor%}
+			}
+			
+			#ifdef _DEBUGMODE_CHECKS
+			check_kvdram_kernel(kvdram, destbaseaddr_kvs, kvdeststats_tmp, nextdestoffset_partition, currentLOP, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETTREEDEPTH(ssdpartitonid), finalnumpartitions, {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid));
+			#endif
+			#ifdef _DEBUGMODE_STATSX
+			std::cout<<"### source partition ended: titan_kvpairsread{{ddrs}}: "<<titan_kvpairsread{{ddrs}}<<", titan_kvpairswritten{{ddrs}}: "<<titan_kvpairswritten{{ddrs}}<<" ###"<<std::endl;
+			#endif
+			{%if(context['XWARE'] == "SW")%}titan::{%endif%}storedeststats(kvstats, kvdeststats_tmp, nextdestoffset_partition, currentLOP, finalnumpartitions);
+			nextsourceoffset_partition += sourceskipsize_partition;
+			nextdestoffset_partition += (destskipsize_partition * NUM_PARTITIONS);
+			nextsourceoffset_kv += sourceskipsize_kv;
+			nextdestoffset_kv += destskipsize_kv;
+		}
+		
+		#ifdef _DEBUGMODE_STATS
+		std::cout<<">>>"<<endl;
+		std::cout<<"### topkernel_instancePU::Summary:: KV PAIRS READ (DRAM {{ddrs_}}): "<<titan_kvpairsread{{ddrs}}<<" ("<<titan_kvpairsread{{ddrs}}_transfers<<" TRANSFERS)"<<endl;		
+		std::cout<<"### topkernel_instancePU::Summary:: KV PAIRS WRITTEN (DRAM {{ddrs_}}): "<<titan_kvpairswritten{{ddrs}}<<" ("<<titan_kvpairswritten{{ddrs}}_transfers<<" TRANSFERS)"<<endl;
+		std::cout<<std::endl;
+		#endif
+	}
+	return;
+}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}topkernel_instanceAU{{ddrs}}(
+		unsigned int command,
+		unsigned int IterCount,
+		uint512_dt * kvdram,
+		metadata_t * kvstats,
+		unsigned int treedepth,
+		unsigned int finalnumpartitions,
+		unsigned int vbegin,
+		unsigned int ssdpartitonid,
+		unsigned int paddedkvdatabatchsz_kvs
+		
+		#ifdef _SHARED_SRCBUFFER
+		{%for sw in context['NUMSUBWORKERS_seq']%}
+		,uint512_dt srckvbuffer_ddr{{ddrs}}_w0_sw{{sw}}[KVSRCBUFFERSZ_KVS]
+		{%endfor%}
+		#endif
+		#ifdef _SHARED_DESTBUFFER
+		{%for sw in context['NUMSUBWORKERS_seq']%}
+		,uint512_dt destkvbuffer_ddr{{ddrs}}_w0_sw{{sw}}[KVDESTBUFFERSZ_KVS]
+		{%endfor%}
+		#endif
+		#ifdef _SHARED_DESTBUFFER
+		{%for sw in context['NUMSUBWORKERS_seq']%}
+		,uint512_dt ovkvs_tmp_ddr{{ddrs}}_w0_sw{{sw}}[NUM_PARTITIONS]
+		{%endfor%}
+		#endif
+        ){
+	if(command != ON){ return; }
+
+	unsigned int currentLOP = treedepth + 1;
+	#ifdef _DEBUGMODE_PRINTS
+	std::cout<<std::endl;
+	std::cout<<"### kernel::topkernel_instanceAU{{ddrs}} Started: currentLOP: "<<currentLOP<<" ###"<<std::endl;
+	printkvbuffer_kernel(kvdram, 32, "kernel::topkernel_instanceAU{{ddrs}}:: printing kvdram");
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	titan_kvpairsread{{ddrs}} = 0;
+	titan_kvpairswritten{{ddrs}} = 0;
+	titan_INapplyphase = 1;
+	#endif
+
+	unsigned int sourcebaseaddr_kvs = 0;
+	unsigned int destbaseaddr_vs = 0;
+	if((treedepth % 2) == 1){
+		sourcebaseaddr_kvs = paddedkvdatabatchsz_kvs;
+	} else {
+		sourcebaseaddr_kvs = 0;
+	}
+	destbaseaddr_vs = 2 * paddedkvdatabatchsz_kvs; // third part houses the vertices 
+	
+	// src kvbuffer
+	#ifndef _SHARED_SRCBUFFER
+	{%for w in context['NUMWORKERS_APPLYPH_seq']%}
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	uint512_dt srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[KVSRCBUFFERSZ_APPLY_KVS];
+	#ifndef _WIDEWORD
+	#pragma HLS DATA_PACK variable=srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+	#endif
+	{%endfor%}
+	{%endfor%}
+	#endif
+	
+	#ifndef _SHARED_DESTBUFFER
+	{%for w in context['NUMWORKERS_APPLYPH_seq']%}
+	{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+	uint512_dt destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[APPLYVERTEXBUFFERSZ_KVS];
+	#ifndef _WIDEWORD
+	#pragma HLS DATA_PACK variable=destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+	/// #pragma HLS RESOURCE variable=destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}} core=XPM_MEMORY uram // utilizes URAM
+	#endif
+	{%endfor%}
+	{%endfor%}
+	#endif
+	
+	unsigned int num_source_partitions = {%if(context['XWARE'] == "SW")%}titan::{%endif%}get_num_source_partitions(currentLOP);
+	#ifdef _DEBUGMODE_PRINTS_TMP
+	print4ints_kernel("kernel::kernel", "currentLOP", currentLOP, "num_source_partitions", num_source_partitions, "tree depth", treedepth, "vbegin", vbegin);
+	#endif
+
+	READ_PARTITION_WRITE_LOOP1: for(unsigned int source_partition=0; source_partition<num_source_partitions; source_partition+=NUMSUBWORKERS_APPLYPH){
+		#ifdef _DEBUGMODE_PRINTS_TMP
+		print4ints_kernel("kernel::topkernel_instanceAU{{ddrs}}", "ssdpartitonid", ssdpartitonid, "source_partition", source_partition, "num_source_partitions", num_source_partitions, "skip size", NUMSUBWORKERS_APPLYPH);
+		#endif
+
+		metadata_t sourcestatbuffer[NUMSUBWORKERS_APPLYPH];
+		for(unsigned int i=0; i<NUMSUBWORKERS_APPLYPH; i++){
+			sourcestatbuffer[i] = kvstats[((source_partition + i) % FORCDFINISH_KVSTATS_SIZE)]; 
+			#ifdef _DEBUGMODE_PRINTS
+			cout<<">>> sourcestatbuffer["<<i<<"].offset: "<<sourcestatbuffer[i].offset<<", kvstats["<<(source_partition + i)<<"].offset: "<<kvstats[(source_partition + i)].offset<<", kvstats["<<(source_partition + i)<<"].size: "<<kvstats[(source_partition + i)].size<<endl;
+			#endif
+		}
+		#ifdef _DEBUGMODE_PRINTS
+		for(unsigned int i=0; i<NUMSUBWORKERS_APPLYPH; i++){ std::cout<<"kernel::topkernel_instanceAU{{ddrs}}:: begin_kvs[i] "<<(sourcestatbuffer[i].offset / VECTOR_SIZE)<<", size_kvs[i]: "<<(sourcestatbuffer[i].size / VECTOR_SIZE)<<endl; }
+		#endif
+
+		#ifdef _DEBUGMODE_PRINTS
+		std::cout<<"kernel::topkernel_instanceAU{{ddrs}}:: next read offset: "<<(source_partition * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(ssdpartitonid))<<endl;
+		#endif
+		/** [NUMSUBWORKERS_APPLYPH] consecutive locations are loaded into each verticesbuffer */
+		{%for w in context['NUMWORKERS_APPLYPH_seq']%}
+		readmanyAU_Vs_ddr{{ddrs}}_w0(ssdpartitonid, ({{w}} * NUMSUBWORKERS_APPLYPH), kvdram, destbaseaddr_vs, (source_partition * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid)), {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(ssdpartitonid) /// FIXME KVDATA_BATCHSIZE?
+				{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+				,destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+				{%endfor%}
+				);
+		{%endfor%}
+		
+		unsigned int maxsz = 0;
+		for(unsigned int sw=0; sw<NUMSUBWORKERS_APPLYPH; sw++){ maxsz = max(sourcestatbuffer[sw].size, maxsz); } // get max number of iterations
+		unsigned int max_ikvs = ceildiv(maxsz, (NUMWORKERS_APPLYPH * KVSRCBUFFERSZ_APPLY));
+
+		READ_PARTITION_WRITE_LOOP2: for(unsigned int i=0; i<max_ikvs; i++){
+			unsigned int i_kvs = i * NUMWORKERS_APPLYPH * KVSRCBUFFERSZ_APPLY_KVS;
+			#ifdef _DEBUGMODE_PRINTS
+			std::cout<<"kernel::topkernel_instanceAU{{ddrs}}::Current Iteration:: i: "<<i<<", i_kvs: "<<i_kvs<<", max_ikvs: "<<max_ikvs<<", skip size (kvs): "<<(NUMWORKERS_APPLYPH * NUMSUBWORKERS_APPLYPH * KVBUFFERSZ_KVS)<<endl;
+			#endif
+		
+			/** Each subworker is assigned to a last-level partition. */
+			{%for w,sepw in zip(context['NUMWORKERS_APPLYPH_seq'], context['BUNDLEFACTOR_APPLYPH_lseq'])%}
+			unsigned int ssdpartiton{{w}}id = ssdpartitonid; 
+			unsigned int beginworker{{w}}id = {{w}} * NUMSUBWORKERS_APPLYPH; 
+			unsigned int verticesreadoffset{{w}}_vs = ((vbegin / VECTOR_SIZE) + (source_partition * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid))); 
+			unsigned int kvreadoffset{{w}}_kvs = i_kvs + ({{w}} * KVSRCBUFFERSZ_APPLY_KVS);
+			unsigned int sourcebaseaddr{{w}}_kvs = sourcebaseaddr_kvs;			
+			{%endfor%}
+			
+			{%for w,sepw in zip(context['NUMWORKERS_APPLYPH_seq'], context['BUNDLEFACTOR_APPLYPH_lseq'])%}
+			readmanyAU_VUs_ddr{{ddrs}}_w{{sepw}}(beginworker{{w}}id, kvdram, sourcebaseaddr{{w}}_kvs, sourcestatbuffer, kvreadoffset{{w}}_kvs, PADDEDKVDATA_BATCHSIZE /// FIXME KVDATA_BATCHSIZE or PADDEDKVDATA_BATCHSIZE?
+				{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+				,srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+				{%endfor%}
+				);		
+			
+			/** Each subworker's key-values' is committed to its vertices' */
+			reducemany_ddr{{ddrs}}_w{{sepw}}(IterCount, ssdpartitonid, beginworker{{w}}id, verticesreadoffset{{w}}_vs, sourcestatbuffer, kvreadoffset{{w}}_kvs 
+				{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+				,destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+				{%endfor%}
+				{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+				,srckvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+				{%endfor%}
+				);	
+			{%endfor%}
+		}
+
+		#ifdef _DEBUGMODE_PRINTS
+		std::cout<<"kernel::topkernel_instanceAU{{ddrs}}:: next write offset: "<<(source_partition * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid))<<endl;
+		#endif
+		{%for w in context['NUMWORKERS_APPLYPH_seq']%}
+		writemanyAU_Vs_ddr{{ddrs}}_w0(ssdpartitonid, ({{w}} * NUMSUBWORKERS_APPLYPH), kvdram, destbaseaddr_vs, (source_partition * {%if(context['XWARE'] == "SW")%}titan::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(ssdpartitonid))
+				{%for sw in context['NUMSUBWORKERS_APPLYPH_seq']%}
+				,destkvbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}
+				{%endfor%}
+				);
+		{%endfor%}
+	}
+	#ifdef _DEBUGMODE_STATS
+	std::cout<<"### topkernel_instanceAU ended::Summary:: titan_kvpairsread{{ddrs}}: "<<titan_kvpairsread{{ddrs}}<<", titan_kvpairswritten{{ddrs}}: "<<titan_kvpairswritten{{ddrs}}<<" ########"<<std::endl<<std::endl;
+	#endif
+	return;
+}
+{%endfor%}
+
+extern "C" {
+void {%if(context['XWARE'] == "SW")%}titan::{%endif%}topkernel(
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		{%if(ddrs==0)%}{%else%},{%endif%}uint512_dt * kvdram{{ddrs_}}
+		{%endfor%}
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		,metadata_t * kvstats{{ddrs_}}
+		{%endfor%}
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		,int * messages{{ddrs_}}
+		{%endfor%}
+        ){
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE m_axi port=kvdram{{ddrs_}}  offset=slave bundle=gmem{{ddrs}} max_read_burst_length=128 max_write_burst_length=128
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE m_axi port=kvstats{{ddrs_}}  offset=slave bundle=gmem{{context['NUMINSTANCES'] + ddrs}}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE m_axi port=messages{{ddrs_}}  offset=slave bundle=gmem{{context['NUMINSTANCES'] + context['NUMINSTANCES'] + ddrs}}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE s_axilite port=kvdram{{ddrs_}}  bundle=control
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE s_axilite port=kvstats{{ddrs_}}  bundle=control
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE s_axilite port=messages{{ddrs_}} bundle=control
+{%endfor%}
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#ifndef _WIDEWORD
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS DATA_PACK variable=kvdram{{ddrs_}}
+{%endfor%}
+#endif 
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS DATA_PACK variable=kvstats{{ddrs_}}
+{%endfor%}
+
+	#if defined(_DEBUGMODE_PRINTS_TMP) || defined(_DEBUGMODE_STATS)
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	std::cout<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[MESSAGES_KVDATASIZEID]: "<<messages{{ddrs_}}[MESSAGES_KVDATASIZEID]<<std::endl;
+	std::cout<<"Kernel Started: final number of partitions: "<<messages{{ddrs_}}[MESSAGES_FINALNUMPARTITIONSID]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[MESSAGES_COMMANDID]: "<<messages{{ddrs_}}[MESSAGES_COMMANDID]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[MESSAGES_ITERATIONID]: "<<messages{{ddrs_}}[MESSAGES_ITERATIONID]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[MESSAGES_SSDPARTITIONID]: "<<messages{{ddrs_}}[MESSAGES_SSDPARTITIONID]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[DRAM_VOFFSET]: "<<messages{{ddrs_}}[DRAM_VOFFSET]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[DRAM_VSIZE]: "<<messages{{ddrs_}}[DRAM_VSIZE]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[DRAM_TREEDEPTH]: "<<messages{{ddrs_}}[DRAM_TREEDEPTH]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[DRAM_FINALNUMPARTITIONS]: "<<messages{{ddrs_}}[DRAM_FINALNUMPARTITIONS]<<std::endl;
+	std::cout<<"Kernel Started: messages{{ddrs_}}[MESSAGES_PADDEDKVDATA_BATCHSIZE_KVS_ID]: "<<messages{{ddrs_}}[MESSAGES_PADDEDKVDATA_BATCHSIZE_KVS_ID]<<std::endl;
+	{%endfor%}	
+	#endif
+	#ifdef _DEBUGMODE_PRINTS
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	printkvbuffer(kvdram{{ddrs}}, 32, "kernel.kvdram{{ddrs_}}");
+	{%endfor%}
+	#endif
+	
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt ovkvs_tmp_ddr{{ddrs}}_w0_sw{{sw}}[NUM_PARTITIONS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}	
+	unsigned int dram{{ddrs_}}_processcommand = messages{{ddrs_}}[(MESSAGES_PROCESSCOMMANDID )];
+	unsigned int dram{{ddrs_}}_partitioncommand = messages{{ddrs_}}[(MESSAGES_PARTITIONCOMMANDID )];
+	unsigned int dram{{ddrs_}}_reducecommand = messages{{ddrs_}}[(MESSAGES_APPLYUPDATESCOMMANDID )];
+	unsigned int dram{{ddrs_}}_iteration_idx = messages{{ddrs_}}[(MESSAGES_ITERATIONID)]; 
+	unsigned int dram{{ddrs_}}_ssdpartitonid = messages{{ddrs_}}[(MESSAGES_SSDPARTITIONID)];
+	unsigned int dram{{ddrs_}}_vbegin = messages{{ddrs_}}[(DRAM_VOFFSET)]; 
+	unsigned int dram{{ddrs_}}_vsize = messages{{ddrs_}}[(DRAM_VSIZE)]; 
+	unsigned int dram{{ddrs_}}_treedepth = messages{{ddrs_}}[(DRAM_TREEDEPTH)]; 
+	unsigned int dram{{ddrs_}}_finalnumpartitions = messages{{ddrs_}}[(DRAM_FINALNUMPARTITIONS)]; 
+	unsigned int dram{{ddrs_}}_paddedkvdatabatchszkvs = messages{{ddrs_}}[MESSAGES_PADDEDKVDATA_BATCHSIZE_KVS_ID];
+	unsigned int dram{{ddrs_}}_IterCount = messages{{ddrs_}}[GRAPH_ITERATIONID];
+	{%endfor%}
+	
+	#ifndef FPGA_IMPL
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	#endif
+	
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	topkernel_instancePU{{ddrs}}(
+		dram{{ddrs_}}_partitioncommand,
+		kvdram{{ddrs_}},
+		kvstats{{ddrs_}},
+		dram{{ddrs_}}_treedepth,
+		dram{{ddrs_}}_finalnumpartitions,
+		dram{{ddrs_}}_vbegin,
+		dram{{ddrs_}}_ssdpartitonid,
+		dram{{ddrs_}}_paddedkvdatabatchszkvs
+		);
+	// return;
+		
+	/** topkernel_instanceAU{{ddrs}}(
+		dram{{ddrs_}}_reducecommand,
+		dram{{ddrs_}}_IterCount,
+		kvdram{{ddrs_}},
+		kvstats{{ddrs_}},
+		dram{{ddrs_}}_treedepth,
+		dram{{ddrs_}}_finalnumpartitions,
+		dram{{ddrs_}}_vbegin,
+		dram{{ddrs_}}_ssdpartitonid,
+		dram{{ddrs_}}_paddedkvdatabatchszkvs
+		#ifdef _SHARED_SRCBUFFER
+		{%for sw in context['NUMSUBWORKERS_seq']%}
+		,srckvbuffer_ddr{{ddrs}}_w0_sw{{sw}}
+		{%endfor%}
+		#endif 
+		#ifdef _SHARED_DESTBUFFER
+		{%for sw in context['NUMSUBWORKERS_seq']%}
+		,destkvbuffer_ddr{{ddrs}}_w0_sw{{sw}}
+		{%endfor%}
+		#endif 
+		#ifdef _SHARED_DESTBUFFER
+		{%for sw in context['NUMSUBWORKERS_seq']%}
+		,ovkvs_tmp_ddr{{ddrs}}_w0_sw{{sw}}
+		{%endfor%}
+		#endif
+		); */
+	// return;
+	{%endfor%}	
+	// cout<<"FINISHED kernel run..."<<endl;
+	#ifndef FPGA_IMPL
+	#ifdef _DEBUGMODE_TIMERS
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::cout << "Kernel Finished: Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[nanao seconds]" << std::endl;
+	std::cout << "Kernel Finished: Time difference = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << "[micro seconds]" << std::endl;
+	std::cout << "Kernel Finished: Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << "[milli seconds]" << std::endl;
+	std::cout << "Kernel Finished: Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[seconds]" << std::endl;
+	std::cout << std::endl;
+	#endif 
+	#endif 
+	return;
+}
+}
+

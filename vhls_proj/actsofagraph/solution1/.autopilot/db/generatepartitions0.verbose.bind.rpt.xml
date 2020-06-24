@@ -1,0 +1,114 @@
+<profile>
+
+<section name = "Vivado HLS Report for 'generatepartitions0'" level="0">
+<item name = "Date">Wed Jun 24 14:46:54 2020
+</item>
+<item name = "Version">2019.1.3 (Build 2642998 on Wed Sep 04 10:25:22 MDT 2019)</item>
+<item name = "Project">actsofagraph</item>
+<item name = "Solution">solution1</item>
+<item name = "Product family">virtexuplus</item>
+<item name = "Target device">xcvu9p-fsgd2104-2-i</item>
+</section>
+
+<section name = "Performance Estimates" level="0">
+<item name = "Timing (ns)">
+<section name = "" level="1">
+<item name = "Summary"><table name="" hasTotal="0">
+<keys size="4">Clock, Target, Estimated, Uncertainty</keys>
+<column name="ap_clk">10.00, 8.750, 1.25</column>
+</table>
+</item>
+</section>
+</item>
+<item name = "Latency (clock cycles)">
+<section name = "" level="1">
+<item name = "Summary"><table name="" hasTotal="0">
+<keys size="6">, min, max, min, max, Type</keys>
+<column name="">2, 302088260, 2, 302088260, none</column>
+</table>
+</item>
+<item name = "Detail">
+<section name = "" level="1">
+<item name = "Instance"><table name="" hasTotal="0">
+<keys size="7">Instance, Module, min, max, min, max, Type</keys>
+<column name="grp_getpartition_fu_4335">getpartition, 0, 0, 1, 1, function</column>
+<column name="grp_getpartition_fu_4343">getpartition, 0, 0, 1, 1, function</column>
+<column name="grp_getpartition_fu_4351">getpartition, 0, 0, 1, 1, function</column>
+<column name="grp_getpartition_fu_4359">getpartition, 0, 0, 1, 1, function</column>
+</table>
+</item>
+<item name = "Loop"><table name="" hasTotal="0">
+<keys size="8">Loop Name, min, max, Latency, achieved, target, Count, Pipelined</keys>
+<column name="- PARTITIONPHASE_LOOP1">0, 30277686, 6 ~ 10092562, -, -, 0 ~ 3, no</column>
+<column name=" + PARTITIONPHASE_LOOP1.1">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name=" + PARTITIONPHASE_LOOP1.2">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name=" + PARTITIONPHASE_LOOP1.3">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name=" + PARTITIONPHASE_LOOP1.4">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name=" + PARTITIONPHASE_LOOP2">0, 10092544, 302 ~ 308, -, -, 0 ~ 32768, no</column>
+<column name="  ++ PARTITIONPHASE_LOOP2.1">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name="  ++ LOADDESTSTATS_LOOP1">75, 75, 45, 1, 1, 32, yes</column>
+<column name="  ++ LOADDESTSTATS_LOOP2">32, 32, 1, 1, 1, 32, yes</column>
+<column name="  ++ GENERATEPARTITIONS_INITKVDRAMREACKER_LOOP2">32, 32, 1, 1, 1, 32, yes</column>
+<column name="  ++ PARTITIONPHASE_LOOP3">0, 0, 41760 ~ 49960, -, -, 0, no</column>
+<column name="   +++ READBUFFER0_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER1_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER2_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER3_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER4_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER5_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER6_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ READBUFFER7_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="   +++ RESETCAPSULEA_LOOP1">32, 32, 1, -, -, 32, no</column>
+<column name="   +++ EXTRACTCAPSULES_LOOP2">16385, 16385, 4, 2, 1, 8192, yes</column>
+<column name="   +++ PREPARECAPSULE_LOOP1">62, 62, 2, -, -, 31, no</column>
+<column name="   +++ RESETCAPSULEB_LOOP1">32, 32, 1, -, -, 32, no</column>
+<column name="   +++ PARTITION_LOOP2">16385, 16385, 4, 2, 1, 8192, yes</column>
+<column name="   +++ SAVEBUFFER0_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS0_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER1_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS1_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER2_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS2_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER3_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS3_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER4_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS4_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER5_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS5_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER6_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS6_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="   +++ SAVEBUFFER7_LOOP1_L">1031, 1031, 9, 1, 1, 1024, yes</column>
+<column name="   +++ UPDATEGLOBALSTATS7_LOOP1">64, 64, 2, -, -, 32, no</column>
+<column name="  ++ PARTITIONPHASE_LOOP2.6">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name="  ++ STOREDESTSTATS_LOOP1">73, 73, 43, 1, 1, 32, yes</column>
+<column name="  ++ STOREDESTSTATS_LOOP2">32, 32, 1, 1, 1, 32, yes</column>
+<column name="- Loop 2">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name="- Loop 3">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name="- Loop 4">0, 3, 1, -, -, 0 ~ 3, no</column>
+<column name="- REDUCEPHASE_LOOP1">0, 271810560, 8295, -, -, 0 ~ 32768, no</column>
+<column name=" + REDUCEPHASE_REDUCEPARTITION_LOOP">0, 0, 16459 ~ 24659, -, -, 0, no</column>
+<column name="  ++ REDUCEPHASE_READBUFFER0_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER1_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER2_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER3_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER4_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER5_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER6_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_READBUFFER7_LOOP1">0, 1025, 3, 1, 1, 0 ~ 1024, yes</column>
+<column name="  ++ REDUCEPHASE_REDUCE_LOOP2">16384, 16384, 3, 2, 1, 8192, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER0_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER1_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER2_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER3_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER4_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER5_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER6_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+<column name=" + REDUCEPHASE_SAVEBUFFER7_LOOP1">1025, 1025, 3, 1, 1, 1024, yes</column>
+</table>
+</item>
+</section>
+</item>
+</section>
+</item>
+</section>
+</profile>

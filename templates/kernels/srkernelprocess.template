@@ -1,0 +1,64 @@
+#include <chrono>
+#include <stdlib.h>
+#include <ctime>
+#include <map>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <vector>
+#include <mutex>
+#include <map>
+#include <stdio.h>
+#include <stdlib.h>
+#include <chrono>
+#include <ctime>
+#include "../src/host_common.h"
+#include "../src/common.h"
+#include "../debugger/host_debugger.h"
+#include "EdgeProcess.h"
+#include "VertexValues.h" 
+#include "sortreduce.h" 
+#include "filekvreader.h" 
+#include "../kernels/kernelprocess.h"
+#include "../src/grafboost_pr_sw.h"
+#include "sortreduce.h"
+#include "types.h"
+#include "srkernelprocess.h"
+#include "sortreduce.h"
+#include "filekvreader.h"
+#include "types.h"
+#include "EdgeProcess.h"
+#include "VertexValues.h"
+using namespace std;
+
+void srkernelprocess::srtopkernel(
+		SortReduce<uint64_t,uint32_t>* sr
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		,keyvalue_t * kvdram{{ddrs_}}
+		{%endfor%}
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		,vertex_t kvbatchsz{{ddrs_}}
+		{%endfor%}
+        ){
+	#ifdef GRAFBOOST_SETUP
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	printf( "srtopkernel Started!\n" ); fflush(stdout);
+	#endif
+	
+	unsigned int kvuploadcount = 0;
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	for (uint64_t i = 0; i < kvbatchsz{{ddrs_}}; i++) {
+		uint64_t key = (uint64_t)(kvdram{{ddrs_}}[i].key);
+		uint64_t value = (uint64_t)(kvdram{{ddrs_}}[i].value);
+		while ( !sr->Update(key, value) ) { }
+		kvuploadcount += 1;
+	}
+	
+	{%endfor%}
+	cout<<"srtopkernel: number of key-value pairs uploaded for sorting: "<<kvuploadcount<<endl;
+	#endif 
+	return;
+}
+srkernelprocess::srkernelprocess(){}
+srkernelprocess::~srkernelprocess(){}
+

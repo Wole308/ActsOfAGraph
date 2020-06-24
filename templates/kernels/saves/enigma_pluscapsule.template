@@ -1,0 +1,1056 @@
+#include "{{context['PROJECT_BASEPATH']}}/src/common.h"
+{%if(context['XWARE'] != "HW")%}
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+{%endif%}
+#include "{{context['PROJECT_BASEPATH']}}/kernels/enigma.h"
+using namespace std;
+
+#ifndef FPGA_IMPL
+enigma::enigma(){}
+enigma::~enigma(){}
+#endif
+#ifndef HW
+
+unsigned int globalvar_totalkvstatsread;
+unsigned int globalvar_totalkvstatscollected;
+unsigned int globalvar_totalkvstatswritten;
+
+unsigned int globalvar_totalkvsread;
+
+unsigned int globalstats_totalkvspartitioned;
+unsigned int globalstats_totalkvspartitionswritten;
+
+unsigned int globalstats_totalkvsreduced;
+unsigned int globalstats_totalkvsreducewritten;
+#endif 
+#ifdef _LDEBUGMODE_HEADER
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}checkoutofbounds(string message, unsigned int data, unsigned int upper_bound){
+	if(data >= upper_bound){ std::cout<<"enigma::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<std::endl; exit(EXIT_FAILURE); }
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}checkforequal(string message, unsigned int data1, unsigned int data2){
+	if(data1 == data2){ cout<<"enigma::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}print1(string messagea, unsigned int dataa){
+	cout<<messagea<<": "<<dataa<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<datef<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"["<<keyvalues1[p].key<<":"<<keyvalues1[p].value<<"]["<<keyvalues2[p].key<<":"<<keyvalues2[p].value<<"]"<<endl; }
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int i=0; i<size_kvs; i++){ 
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+			cout<<"keyvalues["<<i<<"].data[{{v}}].key: "<<(unsigned int)keyvalues[i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}})<<", keyvalues["<<i<<"].data[{{v}}].value: "<<(unsigned int)keyvalues[i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}})<<endl;
+		{%endfor%}
+		#else 
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"keyvalues["<<i<<"].data["<<v<<"].key: "<<keyvalues[i].data[v].key<<", keyvalues["<<i<<"].data["<<v<<"].value: "<<keyvalues[i].data[v].value<<endl; }
+		#endif 
+	}
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
+	unsigned int totalnumkeyvalues = 0;
+	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
+	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
+}
+void countkeyvalues(){
+
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}printparameters(){
+	cout<<endl<<"enigma::printparameters: test started."<<endl;
+	cout<<"enigma::printparameters:: KVBUFFERSZ: "<<KVBUFFERSZ<<endl;
+	cout<<"enigma::printparameters:: LSRCKVBUFFERSZ: "<<LSRCKVBUFFERSZ<<endl;
+	cout<<"enigma::printparameters:: LSRCKVBUFFERSZ_KVS: "<<LSRCKVBUFFERSZ_KVS<<endl;
+	cout<<"enigma::printparameters:: LDESTKVBUFFERSZ: "<<LDESTKVBUFFERSZ<<endl;
+	cout<<"enigma::printparameters:: LDESTKVBUFFERSZ_KVS: "<<LDESTKVBUFFERSZ_KVS<<endl;
+	cout<<"enigma::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
+	cout<<"enigma::printparameters:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<endl;
+	cout<<"enigma::printparameters:: CAPSULESTATSBATCHSZ: "<<CAPSULESTATSBATCHSZ<<endl;
+	cout<<"enigma::printparameters:: CAPSULESTATSBATCHSZ_KVS: "<<CAPSULESTATSBATCHSZ_KVS<<endl;
+	cout<<"enigma::printparameters:: LKVSTATSBIGBUFFERSZ_KVS: "<<LKVSTATSBIGBUFFERSZ_KVS<<endl;
+}
+#endif
+#ifdef _DEBUGMODE_STATS
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}printglobalvars(){
+	cout<<"printglobalvars: "<<endl;
+	cout<<"enigma::printglobalvars:: COLLECTSTATS & SPREAD & PARTITION:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
+	
+	cout<<"enigma::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatsread: "<<globalvar_totalkvstatsread<<endl;
+	cout<<"enigma::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatscollected: "<<globalvar_totalkvstatscollected<<endl;
+	cout<<"enigma::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatswritten: "<<globalvar_totalkvstatswritten<<endl;	
+
+	cout<<"enigma::printglobalvars:: SPREAD:: globalstats_totalkvspartitioned: "<<globalstats_totalkvspartitioned<<endl;
+	cout<<"enigma::printglobalvars:: SPREAD:: globalstats_totalkvspartitionswritten: "<<globalstats_totalkvspartitionswritten<<endl;
+	
+	cout<<"enigma::printglobalvars:: REDUCE:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
+	// cout<<"enigma::printglobalvars:: REDUCE:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}clearglobalvars(){
+	cout<<"clearglobalvars: "<<endl;
+	globalvar_totalkvsread = 0;
+	globalstats_totalkvspartitionswritten = 0;
+	globalstats_totalkvspartitioned = 0;
+	globalvar_totalkvstatsread = 0;
+	globalvar_totalkvstatscollected = 0;
+	globalvar_totalkvstatswritten = 0;
+	globalstats_totalkvsreduced = 0;
+	globalstats_totalkvsreducewritten = 0;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvstatsread(unsigned int count){
+	globalvar_totalkvstatsread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvstatscollected(unsigned int count){
+	globalvar_totalkvstatscollected += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvstatswritten(unsigned int count){
+	globalvar_totalkvstatswritten += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvsread(unsigned int count){
+	globalvar_totalkvsread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvspartitionswritten(unsigned int count){
+	globalstats_totalkvspartitionswritten += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvspartitioned(unsigned int count){
+	globalstats_totalkvspartitioned += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvsreduced(unsigned int count){
+	globalstats_totalkvsreduced += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}globalstats_countkvsreducewritten(unsigned int count){
+	globalstats_totalkvsreducewritten += count;
+	return;
+}
+#endif 
+
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}allignup_KV(unsigned int val){
+	unsigned int fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	return (fac * VECTOR_SIZE);
+}
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}alligndown_KV(unsigned int val){
+	unsigned int fac = val / VECTOR_SIZE;
+	return (fac * VECTOR_SIZE);
+}
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}ceildiv(unsigned int val1, unsigned int val2){
+	return (val1 + (val2 - 1)) / val2;
+}	
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}max(unsigned int val1, unsigned int val2){
+	if(val1 > val2){ return val1; }
+	else { return val2; }
+}
+
+vertex_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(){ return KVDATA_RANGE_PERSSDPARTITION; }
+vertex_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(){ return KVDATA_RANGE_PERSSDPARTITION_POW; }
+vertex_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(){ return APPLYVERTEXBUFFERSZ_PERSSDPARTITION; }
+vertex_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(){ return APPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS; }
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}GETTREEDEPTH(){ return TREE_DEPTH; }
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}min(unsigned int A, unsigned int B){
+	#pragma HLS INLINE
+	if(A<B){ return A; }
+	else { return B; }
+}
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}hsub(unsigned int A, unsigned int B){
+	#pragma HLS INLINE
+	if(A < B){ return 0; }
+	else { return A - B; }
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit){
+	// return 0;
+	partition_type hashedval = 0;
+	hashedval = ((keyvalue.key - upperlimit) >> (GETKVDATA_RANGE_PERSSDPARTITION_POW() - (NUM_PARTITIONS_POW * currentLOP)));
+	// return (hashedval % NUM_PARTITIONS); // REMOVEME.
+	return (((1 << NUM_PARTITIONS_POW) - 1) & (hashedval >> (1 - 1))); // REMOVEME.
+	if(hashedval >= NUM_PARTITIONS){ hashedval = 0; }
+	return hashedval;
+}
+keyvalue_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs){
+	#pragma HLS INLINE
+	keyvalue_t keyvalue;
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	if(idy >= maxaddr_kvs){ cout<<"getkeyvalue:: ERROR 45. addr: "<<addr<<", idy: "<<idy<<", idx: "<<idx<<endl; exit(EXIT_FAILURE); }
+	checkoutofbounds("enigma::getkeyvalue 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){	
+		keyvalue.key = buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+		keyvalue.value = buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"getkeyvalue:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	keyvalue = buffer[idy].data[idx];
+	#endif
+	return keyvalue;
+}
+keyy_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getkey(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs){
+	#pragma HLS INLINE
+	keyy_t keyy;
+	value_t value;
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	if(idy >= maxaddr_kvs){ cout<<"getkey:: ERROR 45. addr: "<<addr<<", idy: "<<idy<<", idx: "<<idx<<", maxaddr_kvs: "<<maxaddr_kvs<<endl; exit(EXIT_FAILURE); }
+	checkoutofbounds("enigma::getkey 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){	
+		keyy = buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+		value = buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"getkey:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	keyy = buffer[idy].data[idx].key;
+	value = buffer[idy].data[idx].value;
+	#endif
+	return keyy;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs){
+	#pragma HLS INLINE
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("enigma::setkeyvalue 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){	
+		buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue.key;
+		buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue.value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"setkventryII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	buffer[idy].data[idx] = keyvalue;
+	#endif
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}setkey(uint512_dt * buffer, batch_type addr, keyy_t keyy, batch_type maxaddr_kvs){
+	#pragma HLS INLINE
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("enigma::setkey 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){	
+		buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyy;
+		buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = 0;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"setkey:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	buffer[idy].data[idx].key = keyy;
+	buffer[idy].data[idx].value = 0;
+	#endif
+	return;
+}
+
+buffer_type {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getactivesize(buffer_type i, batch_type i_end, buffer_type buffersize){	
+	#pragma HLS INLINE
+	buffer_type activesize = 0;
+	buffer_type next_i = i + buffersize;
+	if(i >= i_end){ activesize = 0; }
+	else if ((i < i_end) && (next_i < i_end)) { activesize = buffersize; }
+	else if ((i < i_end) && (next_i >= i_end)) { activesize = i_end - i; }
+	else {
+		i = 0; 
+		#ifdef _DEBUGMODE_CHECKS
+		cout<<"getactivesize:: should NEVER get here: activesize: "<<activesize<<", i: "<<i<<", next_i: "<<next_i<<", i_end: "<<i_end<<endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("getactivesize: i", "i_end", "buffersize", "activesize", i, i_end, buffersize, activesize);
+	#endif
+	return activesize;
+}
+batch_type {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getAddr(batch_type addr){
+	#pragma HLS INLINE
+	#ifdef FORCDFINISH
+	return (addr & ((1 << 27) - 1)); 
+	#else 
+	return addr;
+	#endif
+}
+batch_type {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getstatsAddr(batch_type addr){
+	#pragma HLS INLINE
+	#ifdef FORCDFINISH
+	return (addr & ((1 << 27) - 1)); 
+	#else 
+	return addr;
+	#endif
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getsourceskipsize(unsigned int currentLOP, unsigned int param){
+	unsigned int treedepth = TREE_DEPTH; // NB: for debugging purposes only
+	unsigned int result = param;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		result = result / NUM_PARTITIONS;
+	}
+	return result;
+}
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getdestskipsize(unsigned int currentLOP, unsigned int param){
+	unsigned int treedepthloop_tripcount = TREE_DEPTH; // NB: for debugging purposes only
+	unsigned int result = param / NUM_PARTITIONS;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepthloop_tripcount avg=treedepthloop_tripcount
+		result = result / NUM_PARTITIONS;
+	}
+	return result;
+}
+
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}loaddeststats(keyvalue_t * kvstats, keyvalue_t buffer[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t LLOPnumpartitions){
+	unsigned int skipsize = getdestskipsize(currentLOP, LLOPnumpartitions);
+	unsigned int nxtpos = partitionoffset;
+	
+	LOADDESTSTATS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE	
+		buffer[p] = kvstats[getstatsAddr(nxtpos)]; 
+		nxtpos += skipsize;
+	}
+	LOADDESTSTATS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		buffer[p].value = 0;
+	}
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}storedeststats(keyvalue_t * kvstats, keyvalue_t buffer[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t LLOPnumpartitions){
+	unsigned int skipsize = getdestskipsize(currentLOP, LLOPnumpartitions);
+	unsigned int nxtpos = partitionoffset;
+	
+	STOREDESTSTATS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE
+		kvstats[getstatsAddr(nxtpos)].value = buffer[p].value; 
+		nxtpos += skipsize;
+	}
+	STOREDESTSTATS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE
+		buffer[p].value = 0;
+	}
+	return;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}get_num_source_partitions(unsigned int currentLOP){
+	unsigned int treedepth = TREEDEPTH_FORSSDPARTITION0;
+	unsigned int pow = 1;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		pow = pow * NUM_PARTITIONS;
+	}
+	return pow;
+}
+
+buffer_type {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getglobalcapsuleoffset_kvs(travstate_t travstate){
+	#pragma HLS INLINE
+	batch_type kvoffset_kvs = travstate.i_kvs - travstate.begin_kvs;
+	return (kvoffset_kvs / (NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS)) * NUMPARTITIONS_DIV_VECTORSIZE;
+	// return kvoffset_kvs / (NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS);
+}
+buffer_type {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getlocalcapsuleoffset_kvs(travstate_t travstate){
+	#pragma HLS INLINE
+	return getglobalcapsuleoffset_kvs(travstate) % LCAPSULEBUFFERSZ_KVS;
+}
+buffer_type {%if(context['XWARE'] == "SW")%}enigma::{%endif%}getglobalcapsulebufferoffset_kvs(travstate_t travstate){
+	#pragma HLS INLINE
+	return (getglobalcapsuleoffset_kvs(travstate) / LCAPSULEBUFFERSZ_KVS) * (NUMWORKERS * NUMSUBWORKERS * LCAPSULEBUFFERSZ_KVS);
+}
+bool {%if(context['XWARE'] == "SW")%}enigma::{%endif%}enablecapsuleread(travstate_t travstate){
+	#pragma HLS INLINE
+	if(getlocalcapsuleoffset_kvs(travstate) == 0){ return true; }
+	else{ return false; }
+}
+bool {%if(context['XWARE'] == "SW")%}enigma::{%endif%}enablecapsulewrite(travstate_t travstate){
+	#pragma HLS INLINE
+	
+	// cout<<"getlocalcapsuleoffset_kvs(travstate): "<<getlocalcapsuleoffset_kvs(travstate)<<", LCAPSULEBUFFERSZ_KVS-1: "<<LCAPSULEBUFFERSZ_KVS-1<<", travstate.i_kvs: "<<travstate.i_kvs<<endl;
+	
+	// if(getlocalcapsuleoffset_kvs(travstate) == (LCAPSULEBUFFERSZ_KVS - 1)){ return true; }
+	if(getlocalcapsuleoffset_kvs(travstate) + NUMPARTITIONS_DIV_VECTORSIZE >= (LCAPSULEBUFFERSZ_KVS - 1)){ return true; }
+	else{ return false; }
+}
+
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}preparecapsule(uint512_dt * buffer, buffer_type sizes[NUM_PARTITIONS], buffer_type offset_kvs){
+	#pragma HLS INLINE	
+	uint512_dt tmpV[NUMPARTITIONS_DIV_VECTORSIZE];
+	for(buffer_type i=0; i<NUMPARTITIONS_DIV_VECTORSIZE; i++){ tmpV[i] = buffer[offset_kvs + i]; }
+	
+	keyvalue_t keyvalue;
+	keyvalue.key = 0;
+	keyvalue.value = sizes[0];
+	setkeyvalue(tmpV, 0, keyvalue, NUMPARTITIONS_DIV_VECTORSIZE);
+	for (partition_type p = 1; p<NUM_PARTITIONS; p++){
+		keyvalue_t keyvalue;
+		keyvalue.key = (getkey(tmpV, p-1, NUMPARTITIONS_DIV_VECTORSIZE) + sizes[p-1]);
+		keyvalue.value = sizes[p];
+		setkeyvalue(tmpV, p, keyvalue, NUMPARTITIONS_DIV_VECTORSIZE);
+	}
+	
+	for(buffer_type i=0; i<NUMPARTITIONS_DIV_VECTORSIZE; i++){ buffer[offset_kvs + i] = tmpV[i]; }
+	return;
+}
+
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP){
+	#pragma HLS INLINE
+	if((currentLOP % 2) == 1){ llopparams->baseaddr_sourcekvs_kvs = BASEOFFSET_KVDRAM_KVS; llopparams->baseaddr_destkvs_kvs = BASEOFFSET_KVDRAMWORKSPACE_KVS; } 
+	else { llopparams->baseaddr_sourcekvs_kvs = BASEOFFSET_KVDRAMWORKSPACE_KVS; llopparams->baseaddr_destkvs_kvs = BASEOFFSET_KVDRAM_KVS; }	
+	llopparams->baseaddr_capsule_kvs = BASEOFFSET_CAPSULEDRAM_KVS;
+	llopparams->baseaddr_stats = BASEOFFSET_STATSDRAM;
+	llopparams->num_source_partitions = get_num_source_partitions(currentLOP);
+	llopparams->nextsourceoffset_partition = 0;
+	llopparams->nextdestoffset_partition = 0;
+	llopparams->nextsourceoffset_kv = 0;
+	llopparams->nextdestoffset_kv = 0;
+	llopparams->sourceskipsize_partition = getsourceskipsize(currentLOP, globalparams.LLOPnumpartitions);
+	llopparams->destskipsize_partition = getdestskipsize(currentLOP, globalparams.LLOPnumpartitions);
+	llopparams->sourceskipsize_kv = getsourceskipsize(currentLOP, GETKVDATA_RANGE_PERSSDPARTITION());
+	llopparams->destskipsize_kv = getdestskipsize(currentLOP, GETKVDATA_RANGE_PERSSDPARTITION());
+	llopparams->destpartitionrange = (1 << (GETKVDATA_RANGE_PERSSDPARTITION_POW() - (NUM_PARTITIONS_POW * currentLOP)));
+	llopparams->currentLOP = currentLOP;
+	llopparams->upperlimit = 0;
+	return;
+}
+
+unsigned int {%if(context['XWARE'] == "SW")%}enigma::{%endif%}reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount){
+	#pragma HLS INLINE
+	unsigned int ret = 0;
+	#ifdef PR_ALGORITHM
+	ret = value + edgeval;
+	#elif defined(BFS_ALGORITHM)
+	ret = min(value, IterCount);
+	#elif defined(BC_ALGORITHM)
+	ret = min(value, IterCount);
+	#endif
+	return ret;
+}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readkeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress_kvs, batch_type localoffset_kvs, batch_type size_kvs, globalparams_t globalparams){
+	unsigned int kvbuffersz_kvs = LSRCKVBUFFERSZ_KVS; // NB: for debugging purposes only
+	
+	READKVSETS{{ddrs}}{{sw}}_LOOP: for(buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	#pragma HLS PIPELINE II=1
+		buffer[i] = kvdram[getAddr(baseaddress_kvs + localoffset_kvs + i)];
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsread(1 * VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}extractcapsule_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt capsule[LCAPSULEBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int extractcapsuleskvsloop_tripcount = LSRCKVBUFFERSZ; // NB: for debugging purposes only
+	
+	buffer_type sizes[NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=sizes complete
+	
+	buffer_type sourcesize = getactivesize(travstate.i_kvs, travstate.iend_kvs, LSRCKVBUFFERSZ_KVS);
+	
+	EXTRACTCAPSULES{{v}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){ sizes[p] = 0; }
+	EXTRACTCAPSULES{{v}}_LOOP2: for(buffer_type i=0; i<LSRCKVBUFFERSZ; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=extractcapsuleskvsloop_tripcount avg=extractcapsuleskvsloop_tripcount
+	#pragma HLS PIPELINE II=1
+		keyvalue_t keyvalue = getkeyvalue(sourcebuffer, i, LSRCKVBUFFERSZ_KVS);
+		partition_type p = getpartition(keyvalue, llopparams.currentLOP, llopparams.upperlimit);
+		sizes[p] += 1;
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvstatscollected(1);
+		#endif
+	}
+	
+	batch_type localcapsuleoffset_kvs = getlocalcapsuleoffset_kvs(travstate);
+	preparecapsule(capsule, sizes, localcapsuleoffset_kvs);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("", (keyvalue_t *)capsule, 2*VECTOR_SIZE);
+	#endif
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partition_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt capsule[LCAPSULEBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int partitionkvsloop_tripcount = LSRCKVBUFFERSZ; // NB: for debugging purposes only
+	
+	buffer_type sizes[NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=sizes complete 
+	
+	buffer_type sourcesize = getactivesize(travstate.i_kvs, travstate.iend_kvs, LSRCKVBUFFERSZ_KVS);
+	
+	PARTITION{{v}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){ sizes[p] = 0; }
+	PARTITION{{v}}_LOOP2: for(buffer_type i=0; i<LSRCKVBUFFERSZ; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=partitionkvsloop_tripcount avg=partitionkvsloop_tripcount
+	#pragma HLS PIPELINE II=1
+		keyvalue_t keyvalue = getkeyvalue(sourcebuffer, i, LSRCKVBUFFERSZ_KVS);
+		partition_type p = 0; /// getpartition(keyvalue, llopparams.currentLOP, llopparams.upperlimit); // FIXME.
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("enigma::partition_ddr{{ddrs}}_v{{v}} 34", getkeyvalue(capsule, p, LSRCKVBUFFERSZ_KVS).key + sizes[p], LCAPSULEBUFFERSZ);
+		#endif 
+		setkeyvalue(resultbuffer, getkeyvalue(capsule, p, LSRCKVBUFFERSZ_KVS).key + sizes[p], keyvalue, LSRCKVBUFFERSZ_KVS);
+		sizes[p] += 1;
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvspartitioned(1);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}reduce_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int reducekvsloop_tripcount = LSRCKVBUFFERSZ; // NB: for debugging purposes only
+	
+	buffer_type sourcesize = getactivesize(travstate.i_kvs, travstate.iend_kvs, LSRCKVBUFFERSZ_KVS);
+	
+	PARTITION{{v}}_LOOP2: for(buffer_type i=0; i<LSRCKVBUFFERSZ; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=reducekvsloop_tripcount avg=reducekvsloop_tripcount
+	#pragma HLS PIPELINE II=1
+		keyvalue_t sourcekeyvalue = getkeyvalue(sourcebuffer, i, LSRCKVBUFFERSZ_KVS);		
+		buffer_type loc = sourcekeyvalue.key - globalparams.vbegin;
+		if(loc >= LSRCKVBUFFERSZ){ loc = 0; } // REMOVEME.
+		
+		keyvalue_t destkeyvalue = getkeyvalue(resultbuffer, i, LSRCKVBUFFERSZ_KVS);		
+		unsigned int temp = reducefunc(destkeyvalue.key, destkeyvalue.value, sourcekeyvalue.value, globalparams.IterCount);
+		destkeyvalue.value = temp;
+		setkeyvalue(resultbuffer, loc, destkeyvalue, LSRCKVBUFFERSZ_KVS);
+		
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsreduced(1);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}writekeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseoffset_kvs, batch_type localoffset_kvs, batch_type size_kvs, globalparams_t globalparams){
+	unsigned int kvbuffersz_kvs = LSRCKVBUFFERSZ_KVS; // NB: for debugging purposes only
+	
+	WRITEKVSETS{{ddrs}}{{sw}}_LOOP: for(buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=kvbuffersz_kvs avg=kvbuffersz_kvs
+	#pragma HLS PIPELINE II=1
+		kvdram[getAddr(baseoffset_kvs + localoffset_kvs + i)] = buffer[i];
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvstatswritten(1 * VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}writekvpartitions_ddr{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], uint512_dt capsule[LCAPSULEBUFFERSZ_KVS], keyvalue_t gstats[NUM_PARTITIONS], batch_type baseaddress_kvs, travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){							
+	unsigned int analysis_looptripcount = LDESTKVBUFFERSZ_KVS / NUM_PARTITIONS; // NB: debugging purposes only
+
+	uint512_dt tmpV[NUMPARTITIONS_DIV_VECTORSIZE];
+	batch_type localcapsuleoffset_kvs = getlocalcapsuleoffset_kvs(travstate);
+	for(buffer_type i=0; i<NUMPARTITIONS_DIV_VECTORSIZE; i++){ tmpV[i] = capsule[localcapsuleoffset_kvs + i]; }
+	
+	WRITEKVPARTITIONS_DDR{{ddrs}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		keyvalue_t localstats = getkeyvalue(tmpV, p, NUMPARTITIONS_DIV_VECTORSIZE);
+	
+		batch_type kvdramoffset_kvs = baseaddress_kvs + ((gstats[p].key + gstats[p].value) / VECTOR_SIZE);
+		buffer_type bufferoffset_kvs = localstats.key / VECTOR_SIZE;
+		buffer_type size_kvs = localstats.value / VECTOR_SIZE;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		print4("writekvpartitions_ddr{{ddrs}}:: bufferoffset_kvs", "size_kvs", "NAp", "NAp", bufferoffset_kvs, size_kvs, NAp, NAp);
+		#endif
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("enigma::writekvpartitions_ddr{{ddrs}} 35", (kvdramoffset_kvs + size_kvs), WIDEWORD_TOTALVOLUMEDRAMSZ_KVS);
+		#endif
+		// exit(EXIT_SUCCESS);
+	
+		WRITEKVPARTITIONS_DDR{{ddrs}}_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_looptripcount avg=analysis_looptripcount
+		#pragma HLS PIPELINE II=1
+			kvdram[getAddr(kvdramoffset_kvs + i)] = buffer[bufferoffset_kvs + i];
+			#ifdef _DEBUGMODE_STATS
+			globalstats_countkvspartitionswritten(1 * VECTOR_SIZE);
+			#endif
+		}
+	}
+	WRITEKVPARTITIONS_DDR{{ddrs}}_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ gstats[p].value += getkeyvalue(tmpV, p, NUMPARTITIONS_DIV_VECTORSIZE).value; }
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+{%for sw in context['NUMSUBWORKERS_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}resetbuffer{{ddrs}}_w{{w}}_sw{{sw}}(uint512_dt * buffer){
+	RESETBUFFER{{ddrs}}{{sw}}_LOOP: for(buffer_type i=0; i<LSRCKVBUFFERSZ_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		#ifdef _WIDEWORD
+		buffer[i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = 0;
+		buffer[i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = 0;
+		#else 
+		buffer[i].data[{{v}}].key = 0;
+		buffer[i].data[{{v}}].value = 0;
+		#endif 
+		{%endfor%}
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readmanykvsets_ddr{{ddrs}}_w{{w}}(uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt buffer{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){		
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	readkeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, buffer{{sw}}, llopparams.baseaddr_sourcekvs_kvs, travstate.i_kvs + ({{sw}} * LSRCKVBUFFERSZ_KVS), LSRCKVBUFFERSZ_KVS, globalparams);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readmanycapsules_ddr{{ddrs}}_w{{w}}(uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt capsulebuffer{{sw}}[LCAPSULEBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){		
+	if(enablecapsuleread(travstate) == false){ return; }
+	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	readkeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, capsulebuffer{{sw}}, llopparams.baseaddr_capsule_kvs, getglobalcapsulebufferoffset_kvs(travstate) + ({{sw}} * LCAPSULEBUFFERSZ_KVS), LCAPSULEBUFFERSZ_KVS, globalparams);
+	{%endfor%}	
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readmanyAkvs_ddr{{ddrs}}_w{{w}}(uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt buffer{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} keyvalue_t kvstatsbuffer[NUMSUBWORKERS_APPLYPH], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	readkeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, buffer{{sw}}, llopparams.baseaddr_sourcekvs_kvs, (kvstatsbuffer[{{sw}}].key / VECTOR_SIZE) + travstate.i_kvs, LSRCKVBUFFERSZ_KVS, globalparams);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}extractmanycapsules_ddr{{ddrs}}_w{{w}}({%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt sourcebuffer{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt capsule{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){				
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	extractcapsule_ddr{{ddrs}}_w{{w}}_sw{{sw}}(sourcebuffer{{sw}}, capsule{{sw}}, travstate, globalparams, llopparams, partitionparams);
+	{%endfor%}	
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partitionmany_ddr{{ddrs}}_w{{w}}({%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt sourcebuffer{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt capsule{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt resultbuffer{{sw}}[LDESTKVBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){				
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	partition_ddr{{ddrs}}_w{{w}}_sw{{sw}}(sourcebuffer{{sw}}, capsule{{sw}}, resultbuffer{{sw}}, travstate, globalparams, llopparams, partitionparams);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}reducemany_ddr{{ddrs}}_w{{w}}({%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt sourcebuffer{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt resultbuffer{{sw}}[LDESTKVBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	reduce_ddr{{ddrs}}_w{{w}}_sw{{sw}}(sourcebuffer{{sw}}, resultbuffer{{sw}}, travstate, globalparams, llopparams, partitionparams);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}writemanycapsules_ddr{{ddrs}}_w{{w}}(uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt capsule{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	if((travstate.i_kvs + travstate.skip_kvs >= travstate.iend_kvs) || (enablecapsulewrite(travstate) == true)){} else { return; }	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("writemanycapsules_ddr{{ddrs}}_w{{w}}: travstate.i_kvs", "travstate.iend_kvs", "travstate.skip_kvs", "getglobalcapsulebufferoffset_kvs(travstate)", travstate.i_kvs, travstate.iend_kvs, travstate.skip_kvs, getglobalcapsulebufferoffset_kvs(travstate));
+	#endif
+	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	writekeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, capsule{{sw}}, llopparams.baseaddr_capsule_kvs, getglobalcapsulebufferoffset_kvs(travstate) + ({{sw}} * LCAPSULEBUFFERSZ_KVS), LCAPSULEBUFFERSZ_KVS, globalparams);
+	{%endfor%}
+	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	resetbuffer{{ddrs}}_w{{w}}_sw{{sw}}(capsule{{sw}});
+	{%endfor%}	
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}writemanykvspartitions_ddr{{ddrs}}_w{{w}}(uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt buffer{{sw}}[LDESTKVBUFFERSZ_KVS],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt capsule{{sw}}[LSRCKVBUFFERSZ_KVS],{%endfor%} keyvalue_t gstats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	writekvpartitions_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, buffer{{sw}}, capsule{{sw}}, gstats, llopparams.baseaddr_destkvs_kvs, travstate, globalparams, llopparams, partitionparams);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for w in context['BUNDLEFACTOR_seq']%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}writemanykvsets_ddr{{ddrs}}_w{{w}}(uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt buffer{{sw}}[LDESTKVBUFFERSZ_KVS],{%endfor%} travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	writekeyvaluesets_ddr{{ddrs}}_w{{w}}_sw{{sw}}(kvdram, buffer{{sw}}, llopparams.baseaddr_sourcekvs_kvs, travstate.i_kvs, LDESTKVBUFFERSZ_KVS, globalparams);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}generatepartitions{{ddrs}}(uint512_dt * kvdram, keyvalue_t * kvstats, globalparams_t globalparams){
+	unsigned int maxtreedepthsz = TREEDEPTH_FORSSDPARTITION0; // NB: debugging purposes only
+	unsigned int avgnum_source_partitions = (1 << (TREE_DEPTH * NUM_PARTITIONS_POW)); // NB: debugging purposes only
+	unsigned int avgikvs_sz = PADDEDKVDATA_BATCHSIZE_KVS / avgnum_source_partitions; // NB: debugging purposes only
+	unsigned int avgtripcnt = avgikvs_sz / (NUMWORKERS * NUMSUBWORKERS * KVBUFFERSZ_KVS); // NB: debugging purposes only	
+
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt resultbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[LDESTKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	resetbuffer{{ddrs}}_w{{w}}_sw{{sw}}(capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}});
+	{%endfor%}
+	{%endfor%}
+
+	GENERATEPARTITIONS_LOOP: for(unsigned int currentLOP=1; currentLOP<globalparams.treedepth + 1; currentLOP++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=maxtreedepthsz avg=maxtreedepthsz	
+		unsigned int avgnum_source_partitions = (1 << (TREE_DEPTH * NUM_PARTITIONS_POW)); // NB: debugging purposes only
+		keyvalue_t kvdeststats_tmp[NUM_PARTITIONS];
+		
+		clopparams_t llopparams;
+		loadclopparams(globalparams, &llopparams, currentLOP);		
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<endl;
+		print4("GeneratePartitions{{ddrs}}:: num_source_partitions", "num_destpartitions", "sourceskipsize_kv", "NAp", llopparams.num_source_partitions, llopparams.num_source_partitions * NUM_PARTITIONS, llopparams.sourceskipsize_kv, NAp);
+		#endif
+		
+		GENERATEPARTITIONS_ALOPS_LOOP: for(unsigned int source_partition=0; source_partition<llopparams.num_source_partitions; source_partition++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=avgnum_source_partitions avg=avgnum_source_partitions			
+			partitionparams_t partitionparams;
+			llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
+			
+			loaddeststats(kvstats, kvdeststats_tmp, llopparams.nextdestoffset_partition, llopparams.currentLOP, globalparams.LLOPnumpartitions);			
+			GENERATEPARTITIONS_INITKVDRAMREACKER_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+			#pragma HLS PIPELINE II=1
+				kvdeststats_tmp[p].value = 0;
+			}
+			
+			keyvalue_t sourcestat = kvstats[getstatsAddr(llopparams.nextsourceoffset_partition)];
+			partitionparams.begin_kvs = sourcestat.key / VECTOR_SIZE;
+			partitionparams.size_kvs = (sourcestat.value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+			partitionparams.step_kvs = NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS;
+			travstate_t travstate;
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			print5("processALOPS_ddr{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", sourcestat.key, sourcestat.value, NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ, llopparams.currentLOP, KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, llopparams.currentLOP));
+			#endif
+			
+			GENERATEPARTITIONS_EXTRACTCAPSULES_LOOP: for(batch_type i_kvs=partitionparams.begin_kvs; i_kvs<(partitionparams.begin_kvs + partitionparams.size_kvs); i_kvs+=partitionparams.step_kvs){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=avgtripcnt avg=avgtripcnt
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			print5("ExtractCapsules_ddr{{ddrs}}:: i", "i_end", "begin", "size", "skip size", i_kvs * VECTOR_SIZE, (partitionparams.begin_kvs + partitionparams.size_kvs) * VECTOR_SIZE, partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ);
+			#endif
+				{%for w in context['NUMWORKERS_seq']%}
+				travstate.i_kvs = i_kvs; travstate.begin_kvs = partitionparams.begin_kvs; travstate.iend_kvs = partitionparams.begin_kvs + partitionparams.size_kvs; travstate.skip_kvs = NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS;
+				readmanykvsets_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate, globalparams, llopparams, partitionparams);
+				extractmanycapsules_ddr{{ddrs}}_w{{w}}({%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate, globalparams, llopparams, partitionparams);
+				writemanycapsules_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate, globalparams, llopparams, partitionparams);
+				{%endfor%}
+			}
+			GENERATEPARTITIONS_PARTITIONKVS_LOOP: for(batch_type i_kvs=partitionparams.begin_kvs; i_kvs<(partitionparams.begin_kvs + partitionparams.size_kvs); i_kvs+=(NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS)){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=avgtripcnt avg=avgtripcnt
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			print5("PartitionKVs_ddr{{ddrs}}:: i", "i_end", "begin", "size", "skip size", i_kvs * VECTOR_SIZE, (partitionparams.begin_kvs + partitionparams.size_kvs) * VECTOR_SIZE, partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ);
+			#endif
+				{%for w in context['NUMWORKERS_seq']%}
+				travstate.i_kvs = i_kvs; travstate.begin_kvs = partitionparams.begin_kvs; travstate.iend_kvs = partitionparams.begin_kvs + partitionparams.size_kvs; travstate.skip_kvs = NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS;
+				readmanykvsets_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate, globalparams, llopparams, partitionparams);
+				// readmanycapsules_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate, globalparams, llopparams, partitionparams);
+				partitionmany_ddr{{ddrs}}_w{{w}}({%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} resultbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate, globalparams, llopparams, partitionparams);
+				writemanykvspartitions_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} resultbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} kvdeststats_tmp, travstate, globalparams, llopparams, partitionparams);
+				{%endfor%}
+			}
+			
+			storedeststats(kvstats, kvdeststats_tmp, llopparams.nextdestoffset_partition, llopparams.currentLOP, globalparams.LLOPnumpartitions); 
+			llopparams.nextsourceoffset_partition += llopparams.sourceskipsize_partition;
+			llopparams.nextdestoffset_partition += (llopparams.destskipsize_partition * NUM_PARTITIONS);
+			llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv;
+			llopparams.nextdestoffset_kv += llopparams.destskipsize_kv;
+		}
+	}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}reducepartitions{{ddrs}}(uint512_dt * kvdram, keyvalue_t * kvstats, globalparams_t globalparams){
+	unsigned int avgnum_source_partitions = (1 << (TREE_DEPTH * NUM_PARTITIONS_POW)); // NB: debugging purposes only
+	unsigned int avgtripcnt = PADDEDKVDATA_BATCHSIZE_KVS / avgnum_source_partitions / LSRCKVBUFFERSZ_KVS; // NB: debugging purposes only	
+
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt capsule_ddr{{ddrs}}_w{{w}}_sw{{sw}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt resultbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}}[LDESTKVBUFFERSZ_KVS]; 
+	{%endfor%}
+	{%endfor%}
+	
+	partitionparams_t partitionparams;
+	clopparams_t llopparams;
+	travstate_t travstate1;
+	travstate_t travstate2;
+
+	unsigned int currentLOP = globalparams.treedepth + 1;
+	loadclopparams(globalparams, &llopparams, currentLOP);
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<endl;
+	print4("ReducePartitions{{ddrs}}:: num_source_partitions", "sourceskipsize_partition", "sourceskipsize_kv", "NAp", llopparams.num_source_partitions, llopparams.sourceskipsize_partition, llopparams.sourceskipsize_kv, NAp);
+	#endif
+	
+	REDUCEPARTITIONS_LOOP1: for(unsigned int source_partition=0; source_partition<llopparams.num_source_partitions; source_partition+=NUMWORKERS * NUMSUBWORKERS_APPLYPH){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=avgnum_source_partitions avg=avgnum_source_partitions			
+		llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
+		
+		keyvalue_t kvstatsbuffer[NUMSUBWORKERS_APPLYPH];
+		for(unsigned int i=0; i<NUMSUBWORKERS_APPLYPH; i++){ kvstatsbuffer[i] = kvstats[getstatsAddr(source_partition + i)]; }
+		
+		batch_type maxsz = 0;
+		for(batch_type i=0; i<NUMSUBWORKERS_APPLYPH; i++){ maxsz = max(kvstatsbuffer[i].value, maxsz); }
+		
+		partitionparams.begin_kvs = 0;
+		partitionparams.size_kvs = ceildiv(maxsz, VECTOR_SIZE); 
+		partitionparams.step_kvs = LSRCKVBUFFERSZ_KVS;
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		for(unsigned int i=0; i<NUMSUBWORKERS_APPLYPH; i++){ print6("ReducePartitions_ddr{{ddrs}}:: source_partition", "begin", "size", "step", "currentLOP", "range_per_destpartition", source_partition + i, kvstatsbuffer[i].key, kvstatsbuffer[i].value, LSRCKVBUFFERSZ, llopparams.currentLOP, KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, llopparams.currentLOP)); }
+		#endif
+		
+		{%for w in context['NUMWORKERS_seq']%}
+		travstate1.i_kvs = source_partition * LSRCKVBUFFERSZ_KVS; travstate1.begin_kvs = 0; travstate1.iend_kvs = llopparams.num_source_partitions * LSRCKVBUFFERSZ_KVS; travstate1.skip_kvs = NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ_KVS;
+		readmanykvsets_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate1, globalparams, llopparams, partitionparams);
+		{%endfor%}
+		REDUCEPARTITIONS_LOOP2: for(batch_type i_kvs=partitionparams.begin_kvs; i_kvs<(partitionparams.begin_kvs + partitionparams.size_kvs); i_kvs+=partitionparams.step_kvs){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=avgtripcnt avg=avgtripcnt
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		print5("ReducePartitions_ddr{{ddrs}}:: i", "i_end", "begin", "size", "skip size", i_kvs * VECTOR_SIZE, (partitionparams.begin_kvs + partitionparams.size_kvs) * VECTOR_SIZE, partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, NUMWORKERS * NUMSUBWORKERS * LSRCKVBUFFERSZ);
+		#endif
+			{%for w in context['NUMWORKERS_seq']%}
+			travstate2.i_kvs = i_kvs; travstate2.begin_kvs = NAp; travstate2.iend_kvs = NAp; travstate2.skip_kvs = NAp;
+			readmanyAkvs_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} kvstatsbuffer, travstate2, globalparams, llopparams, partitionparams);
+			
+			reducemany_ddr{{ddrs}}_w{{w}}({%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} resultbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate2, globalparams, llopparams, partitionparams);
+			{%endfor%}
+		}
+		{%for w in context['NUMWORKERS_seq']%}
+		writemanykvsets_ddr{{ddrs}}_w{{w}}(kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} resultbuffer_ddr{{ddrs}}_w{{w}}_sw{{sw}},{%endfor%} travstate1, globalparams, llopparams, partitionparams);
+		{%endfor%}
+		
+		llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv;
+		llopparams.nextdestoffset_kv += llopparams.destskipsize_kv;
+	}
+	return;
+}
+{%endfor%}
+
+extern "C" {
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}topkernel(
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		{%if(ddrs==0)%}{%else%},{%endif%}uint512_dt * kvsetdram{{ddrs_}}
+		{%endfor%}
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		,keyvalue_t * kvdram{{ddrs_}}
+		{%endfor%}
+        ){
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE m_axi port=kvsetdram{{ddrs_}}  offset=slave bundle=gmem{{ddrs}} max_read_burst_length=128 max_write_burst_length=128
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE m_axi port=kvdram{{ddrs_}}  offset=slave bundle=gmem{{context['NUMINSTANCES'] + ddrs}}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE s_axilite port=kvsetdram{{ddrs_}}  bundle=control
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE s_axilite port=kvdram{{ddrs_}}  bundle=control
+{%endfor%}
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#ifndef _WIDEWORD
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS DATA_PACK variable=kvsetdram{{ddrs_}}
+{%endfor%}
+#endif 
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS DATA_PACK variable=kvdram{{ddrs_}}
+{%endfor%}
+	
+	globalparams_t globalparams;
+	globalparams.processcommand = kvdramA[BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key;
+	globalparams.partitioncommand = kvdramA[BASEOFFSET_MESSAGESDRAM + MESSAGES_PARTITIONCOMMANDID].key;
+	globalparams.reducecommand = kvdramA[BASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key;
+	globalparams.iteration_idx = kvdramA[BASEOFFSET_MESSAGESDRAM + MESSAGES_ITERATIONID].key; 
+	globalparams.ssdpartitonid = kvdramA[BASEOFFSET_MESSAGESDRAM + MESSAGES_SSDPARTITIONID].key;
+	globalparams.vbegin = kvdramA[BASEOFFSET_MESSAGESDRAM + DRAM_VOFFSET].key; 
+	globalparams.vsize = kvdramA[BASEOFFSET_MESSAGESDRAM + DRAM_VSIZE].key; 
+	globalparams.treedepth = kvdramA[BASEOFFSET_MESSAGESDRAM + DRAM_TREEDEPTH].key; 
+	globalparams.LLOPnumpartitions = kvdramA[BASEOFFSET_MESSAGESDRAM + DRAM_FINALNUMPARTITIONS].key; 
+	globalparams.paddedkvdatabatchszkvs = kvdramA[BASEOFFSET_MESSAGESDRAM + MESSAGES_PADDEDKVDATA_BATCHSIZE_KVS_ID].key;
+	globalparams.IterCount = kvdramA[BASEOFFSET_MESSAGESDRAM + GRAPH_ITERATIONID].key;
+	
+	#ifdef _LDEBUGMODE_HEADER
+	std::cout<<std::endl;
+	std::cout<<"Kernel Started: globalparams.processcommand: "<<globalparams.processcommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.partitioncommand: "<<globalparams.partitioncommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.reducecommand: "<<globalparams.reducecommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.iteration_idx: "<<globalparams.iteration_idx<<std::endl;
+	std::cout<<"Kernel Started: globalparams.ssdpartitonid: "<<globalparams.ssdpartitonid<<std::endl;
+	std::cout<<"Kernel Started: globalparams.vbegin: "<<globalparams.vbegin<<std::endl;
+	std::cout<<"Kernel Started: globalparams.vsize: "<<globalparams.vsize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.treedepth: "<<globalparams.treedepth<<std::endl;
+	std::cout<<"Kernel Started: globalparams.LLOPnumpartitions: "<<globalparams.LLOPnumpartitions<<std::endl;
+	std::cout<<"Kernel Started: globalparams.paddedkvdatabatchszkvs: "<<globalparams.paddedkvdatabatchszkvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.IterCount: "<<globalparams.IterCount<<std::endl;
+	#endif 
+	
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	generatepartitions{{ddrs}}(kvsetdram{{ddrs_}}, kvdram{{ddrs_}}, globalparams);
+	{%endfor%}
+	
+	#ifdef _LDEBUGMODE_HEADER
+	printglobalvars();
+	#endif
+	
+	/** {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	reducepartitions{{ddrs}}(kvsetdram{{ddrs_}}, kvdram{{ddrs_}}, globalparams);
+	{%endfor%} */
+	
+	#ifdef _LDEBUGMODE_HEADER
+	cout<<endl<<"=== topkernel ENDED. printing summary and out messages === "<<endl;
+	printglobalvars();
+	printparameters();
+	#endif
+	return;
+}
+}
+
+
+
+
+
+

@@ -1,0 +1,1040 @@
+#include "{{context['PROJECT_BASEPATH']}}/src/common.h"
+{%if(context['XWARE'] != "HW")%}
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+{%endif%}
+#include "{{context['PROJECT_BASEPATH']}}/kernels/legion.h"
+using namespace std;
+
+#ifndef FPGA_IMPL
+legion::legion(){}
+legion::~legion(){}
+#endif 
+#ifndef HW
+
+unsigned int globalvar_totalkvstatsread;
+unsigned int globalvar_totalkvstatscollected;
+unsigned int globalvar_totalkvstatswritten;
+
+unsigned int globalvar_totalkvsread;
+
+unsigned int globalstats_totalkvsspread;
+unsigned int globalvar_totalkvsspreadwritten;
+
+unsigned int globalstats_totalkvsreduced;
+unsigned int globalstats_totalkvsreducewritten;
+#endif 
+#ifdef _LDEBUGMODE_HEADER
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}checkoutofbounds(string message, unsigned int data, unsigned int upper_bound){
+	if(data >= upper_bound){ std::cout<<"legion::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<std::endl; exit(EXIT_FAILURE); }
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}checkforequal(string message, unsigned int data1, unsigned int data2){
+	if(data1 == data2){ cout<<"legion::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}print1(string messagea, unsigned int dataa){
+	cout<<messagea<<": "<<dataa<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"["<<keyvalues1[p].key<<":"<<keyvalues1[p].value<<"]["<<keyvalues2[p].key<<":"<<keyvalues2[p].value<<"]"<<endl; }
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int i=0; i<size_kvs; i++){ 
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+			cout<<"keyvalues["<<i<<"].data[{{v}}].key: "<<(unsigned int)keyvalues[i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}})<<", keyvalues["<<i<<"].data[{{v}}].value: "<<(unsigned int)keyvalues[i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}})<<endl;
+		{%endfor%}
+		#else 
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"keyvalues["<<i<<"].data["<<v<<"].key: "<<keyvalues[i].data[v].key<<", keyvalues["<<i<<"].data["<<v<<"].value: "<<keyvalues[i].data[v].value<<endl; }
+		#endif 
+	}
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}getvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
+	unsigned int totalnumkeyvalues = 0;
+	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
+	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
+}
+void countkeyvalues(){
+
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}printparameters(){
+	cout<<endl<<"legion::printparameters: test started."<<endl;
+	cout<<"legion::printparameters:: KVBUFFERSZ: "<<KVBUFFERSZ<<endl;
+	cout<<"legion::printparameters:: LSRCKVBUFFERSZ: "<<LSRCKVBUFFERSZ<<endl;
+	cout<<"legion::printparameters:: LSRCKVBUFFERSZ_KVS: "<<LSRCKVBUFFERSZ_KVS<<endl;
+	cout<<"legion::printparameters:: LDESTKVBUFFERSZ: "<<LDESTKVBUFFERSZ<<endl;
+	cout<<"legion::printparameters:: LDESTKVBUFFERSZ_KVS: "<<LDESTKVBUFFERSZ_KVS<<endl;
+	cout<<"legion::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
+	cout<<"legion::printparameters:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<endl;
+	cout<<"legion::printparameters:: CAPSULESTATSBATCHSZ: "<<CAPSULESTATSBATCHSZ<<endl;
+	cout<<"legion::printparameters:: CAPSULESTATSBATCHSZ_KVS: "<<CAPSULESTATSBATCHSZ_KVS<<endl;
+	cout<<"legion::printparameters:: LKVSTATSBIGBUFFERSZ_KVS: "<<LKVSTATSBIGBUFFERSZ_KVS<<endl;
+}
+#endif
+#ifdef _DEBUGMODE_STATS
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}printglobalvars(){
+	cout<<"printglobalvars: "<<endl;
+	cout<<"legion::printglobalvars:: COLLECTSTATS & SPREAD & PARTITION:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
+	
+	cout<<"legion::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatsread: "<<globalvar_totalkvstatsread<<endl;
+	cout<<"legion::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatscollected: "<<globalvar_totalkvstatscollected<<endl;
+	cout<<"legion::printglobalvars:: COLLECTSTATS:: globalvar_totalkvstatswritten: "<<globalvar_totalkvstatswritten<<endl;	
+
+	cout<<"legion::printglobalvars:: SPREAD:: globalstats_totalkvsspread: "<<globalstats_totalkvsspread<<endl;
+	cout<<"legion::printglobalvars:: SPREAD:: globalvar_totalkvsspreadwritten: "<<globalvar_totalkvsspreadwritten<<endl;
+	
+	cout<<"legion::printglobalvars:: REDUCE:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
+	cout<<"legion::printglobalvars:: REDUCE:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}clearglobalvars(){
+	cout<<"clearglobalvars: "<<endl;
+	globalvar_totalkvsread = 0;
+	globalvar_totalkvsspreadwritten = 0;
+	globalstats_totalkvsspread = 0;
+	globalvar_totalkvstatsread = 0;
+	globalvar_totalkvstatscollected = 0;
+	globalvar_totalkvstatswritten = 0;
+	globalstats_totalkvsreduced = 0;
+	globalstats_totalkvsreducewritten = 0;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvstatsread(unsigned int count){
+	globalvar_totalkvstatsread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvstatscollected(unsigned int count){
+	globalvar_totalkvstatscollected += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvstatswritten(unsigned int count){
+	globalvar_totalkvstatswritten += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvsread(unsigned int count){
+	globalvar_totalkvsread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvsspreadwritten(unsigned int count){
+	globalvar_totalkvsspreadwritten += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvsspread(unsigned int count){
+	globalstats_totalkvsspread += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvsreduced(unsigned int count){
+	globalstats_totalkvsreduced += count;
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}globalstats_countkvsreducewritten(unsigned int count){
+	globalstats_totalkvsreducewritten += count;
+	return;
+}
+#endif 
+
+vertex_t {%if(context['XWARE'] == "SW")%}legion::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION(){ return KVDATA_RANGE_PERSSDPARTITION; }
+vertex_t {%if(context['XWARE'] == "SW")%}legion::{%endif%}GETKVDATA_RANGE_PERSSDPARTITION_POW(){ return KVDATA_RANGE_PERSSDPARTITION_POW; }
+vertex_t {%if(context['XWARE'] == "SW")%}legion::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION(){ return APPLYVERTEXBUFFERSZ_PERSSDPARTITION; }
+vertex_t {%if(context['XWARE'] == "SW")%}legion::{%endif%}GETAPPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS(){ return APPLYVERTEXBUFFERSZ_PERSSDPARTITION_KVS; }
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}GETTREEDEPTH(){ return TREE_DEPTH; }
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}min(unsigned int A, unsigned int B){
+	#pragma HLS INLINE
+	if(A<B){ return A; }
+	else { return B; }
+}
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}hsub(unsigned int A, unsigned int B){
+	#pragma HLS INLINE
+	if(A < B){ return 0; }
+	else { return A - B; }
+}
+
+buffer_type {%if(context['XWARE'] == "SW")%}legion::{%endif%}getactivesize(buffer_type i, batch_type i_end, buffer_type buffersize){	
+	#pragma HLS INLINE
+	buffer_type activesize = 0;
+	buffer_type next_i = i + buffersize;
+	if(i >= i_end){ activesize = 0; }
+	else if ((i < i_end) && (next_i < i_end)) { activesize = buffersize; }
+	else if ((i < i_end) && (next_i >= i_end)) { activesize = i_end - i; }
+	else {
+		i = 0; 
+		#ifdef _DEBUGMODE_CHECKS
+		cout<<"getactivesize:: should NEVER get here: activesize: "<<activesize<<", i: "<<i<<", next_i: "<<next_i<<", i_end: "<<i_end<<endl;
+		exit(EXIT_FAILURE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("getactivesize: i", "i_end", "buffersize", "activesize", i, i_end, buffersize, activesize);
+	#endif
+	return activesize;
+}
+batch_type {%if(context['XWARE'] == "SW")%}legion::{%endif%}getAddr(batch_type addr){
+	#pragma HLS INLINE
+	#ifdef FORCDFINISH
+	return (addr & ((1 << 27) - 1)); 
+	#else 
+	return addr;
+	#endif
+}
+batch_type {%if(context['XWARE'] == "SW")%}legion::{%endif%}getcapsuleAddr(batch_type addr){
+	#pragma HLS INLINE
+	#ifdef FORCDFINISH
+	return (addr & ((1 << 27) - 1)); 
+	#else 
+	return addr;
+	#endif
+}
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit){
+	#pragma HLS INLINE
+	partition_type hashedval = 0;
+	hashedval = ((keyvalue.key - upperlimit) >> (KVDATA_RANGE_PERSSDPARTITION_POW - (NUM_PARTITIONS_POW * currentLOP)));
+	#ifdef _DEBUGMODE_CHECKS
+	if(hashedval >= NUM_PARTITIONS){ print5("keyvalue.key", "upperlimit", "hashedval", "currentLOP", "RangePerCLOP", keyvalue.key, upperlimit, hashedval, currentLOP, (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (NUM_PARTITIONS_POW * currentLOP)))); exit(EXIT_FAILURE); }
+	#else 
+	if(hashedval >= NUM_PARTITIONS){ hashedval = 0; } // REMOVEME.
+	#endif
+	return hashedval;
+}
+buffer_type {%if(context['XWARE'] == "SW")%}legion::{%endif%}getglobalstatoffset_kvs(unsigned int kvoffset_kvs){
+	#pragma HLS INLINE
+	return ((kvoffset_kvs / (VECTOR_SIZE * LSRCKVBUFFERSZ_KVS)) * NUM_PARTITIONS);
+}
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}getsourceskipsize(unsigned int currentLOP, unsigned int param){
+	unsigned int treedepth = TREE_DEPTH; // NB: for debugging purposes only
+	unsigned int result = param;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		result = result / NUM_PARTITIONS;
+	}
+	return result;
+}
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}getdestskipsize(unsigned int currentLOP, unsigned int param){
+	unsigned int treedepthloop_tripcount = TREE_DEPTH; // NB: for debugging purposes only
+	unsigned int result = param / NUM_PARTITIONS;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepthloop_tripcount avg=treedepthloop_tripcount
+		result = result / NUM_PARTITIONS;
+	}
+	return result;
+}
+keyvalue_t {%if(context['XWARE'] == "SW")%}legion::{%endif%}getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs){
+	#pragma HLS INLINE
+	keyvalue_t keyvalue;
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	if(idy >= maxaddr_kvs){ cout<<"getkeyvalue:: ERROR 45. addr: "<<addr<<", idy: "<<idy<<", idx: "<<idx<<endl; exit(EXIT_FAILURE); }
+	checkoutofbounds("legion::getkeyvalue 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){	
+		keyvalue.key = buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+		keyvalue.value = buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"setkventryII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	keyvalue = buffer[idy].data[idx];
+	#endif
+	return keyvalue;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs){
+	#pragma HLS INLINE
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("legion::setkeyvalue 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){	
+		buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue.key;
+		buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue.value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"setkventryII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	buffer[idy].data[idx] = keyvalue;
+	#endif
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}setvalue(uint512_dt * buffer, batch_type addr, value_t value, batch_type maxaddr_kvs){
+	batch_type idy = addr / VECTOR_SIZE;
+	vector_type idx = addr % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("legion::setvalue 35", idy, maxaddr_kvs);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){
+		buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = value;
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"setkventryII:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	#else
+	buffer[idy].data[idx].value = value;
+	#endif
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}loaddeststats(uint512_dt kvstats[KVSTATS_SIZE_KVS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t finalnumpartitions){
+	unsigned int skipsize = getdestskipsize(currentLOP, finalnumpartitions);
+	unsigned int nxtpos = partitionoffset;
+	
+	LOADDESTSTATS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE II=1
+		kvdeststats_tmp[p] = getkeyvalue(kvstats, nxtpos, KVSTATS_SIZE_KVS);
+		nxtpos += skipsize;
+	}
+	LOADDESTSTATS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE II=1	
+		kvdeststats_tmp[p].value = 0;
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){ cout<<"loaddeststats:: kvdeststats_tmp["<<p<<"].key: "<<kvdeststats_tmp[p].key<<", kvdeststats_tmp["<<p<<"].value: "<<kvdeststats_tmp[p].value<<endl; }
+	#endif
+	// exit(EXIT_SUCCESS);
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}storedeststats(uint512_dt kvstats[KVSTATS_SIZE_KVS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t finalnumpartitions){
+	unsigned int skipsize = getdestskipsize(currentLOP, finalnumpartitions);
+	unsigned int nxtpos = partitionoffset;
+	STOREDESTSTATS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE II=1
+		setvalue(kvstats, nxtpos, kvdeststats_tmp[p].value, KVSTATS_SIZE_KVS);
+		nxtpos += skipsize;
+	}
+	STOREDESTSTATS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE II=1
+		kvdeststats_tmp[p].value = 0;
+	}
+	return;
+}
+unsigned int {%if(context['XWARE'] == "SW")%}legion::{%endif%}get_num_source_partitions(unsigned int currentLOP){
+	unsigned int treedepth = TREE_DEPTH;
+	unsigned int pow = 1;
+	for(unsigned int i=0; i<(currentLOP-1); i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=treedepth avg=treedepth
+		pow = pow * NUM_PARTITIONS;
+	}
+	return pow;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}addtobuffer(uint512_dt buffer[LDESTKVBUFFERSZ_KVS], buffer_type offset, keyvalue_t kventry){
+	#pragma HLS INLINE
+	buffer_type idy = offset / VECTOR_SIZE;
+	buffer_type idx = offset % VECTOR_SIZE;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	checkoutofbounds("legion::addtobuffer 35", idy, LDESTKVBUFFERSZ_KVS);
+	checkoutofbounds("legion::addtobuffer 34", idx, VECTOR_SIZE);
+	#endif
+
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else {%endif%}if(idx=={{v}}){
+		#ifdef _WIDEWORD
+		buffer[idy].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = kventry.key;
+		buffer[idy].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = kventry.value;
+		#else 
+		buffer[idy].data[{{v}}] = kventry;
+		#endif 
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		std::cout<<"addtobuffer:: out-of-bounds 45. "<<std::endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}addtobuffer2({%for v in context['VECTOR_SIZE_seq']%}uint512_dt buffer{{v}}[LDESTKVBUFFERSZ_KVS],{%endfor%} buffer_type offset, uint512_dt keyvalueset){
+	#pragma HLS INLINE
+	buffer_type lbufferidx = offset / LDESTKVBUFFERSZ_KVS;
+	buffer_type lbufferoffset = offset % LDESTKVBUFFERSZ_KVS;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	checkoutofbounds("legion::addtobuffer 34", lbufferidx, VECTOR_SIZE);
+	checkoutofbounds("legion::addtobuffer 35", lbufferoffset, LDESTKVBUFFERSZ_KVS);
+	#endif
+		
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if(lbufferidx == {{v}}){ buffer{{v}}[lbufferoffset] = keyvalueset; }
+	{%endfor%}
+	return;
+}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}calculateoffsets(keyvalue_t buffer[NUM_PARTITIONS]){
+	buffer[0].key = 0;
+	for(partition_type p=1; p<NUM_PARTITIONS; p++){ buffer[p].key = buffer[p-1].key + buffer[p-1].value; }
+}
+value_t {%if(context['XWARE'] == "SW")%}legion::{%endif%}reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount){
+	value_t ret = 0;
+	#ifdef PR_ALGORITHM
+	ret = value + edgeval;
+	#elif defined(BFS_ALGORITHM)
+	ret = min(value, IterCount);
+	#elif defined(BC_ALGORITHM)
+	ret = min(value, IterCount);
+	#endif
+	return ret;
+}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}loadstatsbuffer_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress){	
+	LOADSTATSBUFFER_DDR{{ddrs}}_LOOP1: for(batch_type i=0; i<KVSTATS_SIZE_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		buffer[i] = kvdram[getAddr(baseaddress + i)];
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("loadstatsbuffer_ddr{{ddrs}}", (keyvalue_t *)buffer, KVSTATS_SIZE);
+	#endif 
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}loadcapsulestatsS_ddr{{ddrs}}(uint512_dt * stats, {%for v in context['VECTOR_SIZE_seq']%}keyvalue_t buffer{{v}}[NUM_PARTITIONS], {%endfor%} batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	batch_type ldramoffset_kvs = llopparams.baseaddr_capsule_kvs + localoffset_kvs;
+	LOADCAPSULESTATSV_DDR{{ddrs}}_LOOP1: for(buffer_type i=0; i<NUM_PARTITIONS; i++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("legion::loadcapsulestatsS_ddr{{ddrs}} 35", (localoffset_kvs + i), CAPSULESTATSBATCHSZ_KVS);
+		checkoutofbounds("legion::loadcapsulestatsS_ddr{{ddrs}} 35", (ldramoffset_kvs + i), WORKVOLUMEDRAMSZ_KVS);
+		#endif
+		uint512_dt Vtemp = stats[getcapsuleAddr((ldramoffset_kvs + i))];
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+			buffer{{v}}[i].key = Vtemp.range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+			buffer{{v}}[i].value = Vtemp.range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+			buffer{{v}}[i] = Vtemp.data[{{v}}];
+		{%endfor%}	
+		#endif 
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvstatsread((1 * VECTOR_SIZE));
+		#endif
+	}
+	
+	{%for v in context['VECTOR_SIZE_seq']%}
+	calculateoffsets(buffer{{v}});
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}loadbufferV_ddr{{ddrs}}(uint512_dt * kvdram, {%for v in context['VECTOR_SIZE_seq']%}keyvalue_t buffer{{v}}[LSRCKVBUFFERSZ_KVS],{%endfor%} batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("legion::loadbufferV_ddr 35", (localoffset_kvs + LSRCKVBUFFERSZ_KVS), PADDEDKVDATA_BATCHSIZE_KVS + 1);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("legion::loadbufferV_ddr 35: localoffset_kvs", "llopparams.sourcebaseaddr_kvs", "NAp", "NAp", localoffset_kvs, llopparams.sourcebaseaddr_kvs, NAp, NAp);
+	#endif
+	
+	LOADBUFFERV_DDR{{ddrs}}_LOOP1: for(buffer_type i=0; i<LSRCKVBUFFERSZ_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		uint512_dt Vtemp = kvdram[getAddr((llopparams.sourcebaseaddr_kvs + localoffset_kvs + i))];
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+			buffer{{v}}[i].key = Vtemp.range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+			buffer{{v}}[i].value = Vtemp.range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+			buffer{{v}}[i] = Vtemp.data[{{v}}];
+		{%endfor%}
+		#endif 
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsread((1 * VECTOR_SIZE));
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}loadbufferH_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt buffer[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("legion::loadbufferH_ddr 35", (localoffset_kvs + LSRCKVBUFFERSZ_KVS), PADDEDKVDATA_BATCHSIZE_KVS + 1);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("legion::loadbufferH_ddr 35: localoffset_kvs", "llopparams.sourcebaseaddr_kvs", "NAp", "NAp", localoffset_kvs, llopparams.sourcebaseaddr_kvs, NAp, NAp);
+	#endif
+	
+	LOADBUFFERH_DDR{{ddrs}}_LOOP1: for(buffer_type i=0; i<LSRCKVBUFFERSZ_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		buffer[i] = kvdram[getAddr(llopparams.sourcebaseaddr_kvs + localoffset_kvs + i)];		
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsread((1 * VECTOR_SIZE));
+		#endif
+	}
+	return;
+}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}extractcapsules_ddr{{ddrs}}(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], vector_type vecid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	{%for v in context['VECTOR_SIZE_seq']%}
+	buffer_type sizes{{v}}[NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=sizes{{v}} complete
+	{%endfor%}
+	
+	if(vecid == 0){
+		EXTRACTCAPSULES{{ddrs}}_LOOP0: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#pragma HLS PIPELINE II=1
+			{%for v in context['VECTOR_SIZE_seq']%}
+			#ifdef _WIDEWORD
+			resultbuffer[p].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = 0;
+			resultbuffer[p].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = 0;
+			#else 
+			resultbuffer[p].data[{{v}}].key = 0;
+			resultbuffer[p].data[{{v}}].value = 0;
+			#endif
+			{%endfor%}
+		}
+	}
+	
+	EXTRACTCAPSULES{{ddrs}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		sizes{{v}}[p] = 0;
+		{%endfor%}
+	}	
+	EXTRACTCAPSULES{{ddrs}}_LOOP2: for(buffer_type i=0; i<LSRCKVBUFFERSZ_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		uint512_dt Vtemp = sourcebuffer[i];
+		{%for v in context['VECTOR_SIZE_seq']%}
+			keyvalue_t keyvalue{{v}};
+			partition_type p{{v}};
+			#ifdef _WIDEWORD
+			keyvalue{{v}}.key = Vtemp.range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+			keyvalue{{v}}.value = Vtemp.range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
+			#else 
+			keyvalue{{v}} = Vtemp.data[{{v}}];
+			#endif 
+			p{{v}} = getpartition(keyvalue{{v}}, llopparams.currentLOP, llopparams.upperlimit);
+			sizes{{v}}[p{{v}}] += 1;
+		{%endfor%}
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvstatscollected(1 * VECTOR_SIZE);
+		#endif
+	}
+	EXTRACTCAPSULES{{ddrs}}_LOOP3: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		
+		#ifdef _WIDEWORD
+		resultbuffer[p].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = 0;
+		resultbuffer[p].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = resultbuffer[p].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) + sizes{{v}}[p];
+		#else 
+		resultbuffer[p].data[{{v}}].key = 0;
+		resultbuffer[p].data[{{v}}].value = resultbuffer[p].data[{{v}}].value + sizes{{v}}[p];
+		#endif
+		{%endfor%}
+	}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for v in context['VECTOR_SIZE_seq']%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}spreadkvs_ddr{{ddrs}}_v{{v}}(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int spreadkvsloop_tripcount = LSRCKVBUFFERSZ_KVS; // NB: for debugging purposes only
+	
+	buffer_type sizes[NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=sizes complete 
+	buffer_type sourcesize = getactivesize(travstate.i_kvs, travstate.iend_kvs, LSRCKVBUFFERSZ_KVS);
+	SPREAD{{v}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){ sizes[p] = 0; }
+
+	SPREAD{{v}}_LOOP2: for(buffer_type i=0; i<sourcesize; i++){ /// LSRCKVBUFFERSZ_KVS
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=spreadkvsloop_tripcount avg=spreadkvsloop_tripcount
+	#pragma HLS PIPELINE II=1
+		keyvalue_t keyvalue = sourcebuffer[i];
+		partition_type p = getpartition(keyvalue, llopparams.currentLOP, llopparams.upperlimit);
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		checkoutofbounds("legion::spreadkvs_ddr{{ddrs}}_v{{v}} 34", stats[p].key + sizes[p], LDESTKVBUFFERSZ_KVS);
+		#endif 
+		addtobuffer(resultbuffer, stats[p].key + sizes[p], keyvalue);
+		sizes[p] += 1;
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsspread(1);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+{%for v in context['VECTOR_SIZE_seq']%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}reduce_ddr{{ddrs}}_v{{v}}(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int reduceloop_tripcount = LSRCKVBUFFERSZ_KVS; // NB: for debugging purposes only
+	
+	buffer_type sourcesize = getactivesize(travstate.i_kvs, travstate.iend_kvs, LSRCKVBUFFERSZ_KVS);
+	REDUCE{{v}}_LOOP2: for(buffer_type i=0; i<sourcesize; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=reduceloop_tripcount avg=reduceloop_tripcount
+	#pragma HLS PIPELINE II=1		
+		vertex_t voffset = 0;
+		unsigned int IterCount = 0;
+		
+		keyvalue_t keyvalue = sourcebuffer[i];
+		vertex_t loc = keyvalue.key - voffset;
+		if(loc >= LDESTKVBUFFERSZ){ loc = 0; } // REMOVEME.
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("legion::reduce_ddr{{ddrs}}_v{{v}} 34", loc, LDESTKVBUFFERSZ);
+		#endif
+		keyvalue_t vprop = getkeyvalue(resultbuffer, loc, LDESTKVBUFFERSZ_KVS);
+		value_t temp = reducefunc(vprop.key, vprop.value, keyvalue.value, IterCount);
+		vprop.value = temp;
+		setkeyvalue(resultbuffer, loc, vprop, LDESTKVBUFFERSZ_KVS);	
+		
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsreduced(1);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}savestatsbuffer_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress){	
+	SAVESTATSBUFFER_DDR{{ddrs}}_LOOP1: for(batch_type i=0; i<KVSTATS_SIZE_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		kvdram[getAddr(baseaddress + i)] = buffer[i];
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("savestatsbuffer_ddr{{ddrs}}", (keyvalue_t *)buffer, KVSTATS_SIZE);
+	#endif 
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}savepartialbuffer_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, buffer_type size_kvs, code_type callerprocessid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){							
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	print4("legion::savepartialbuffer_ddr{{ddrs}} 35:", "NAp", "NAp", "NAp", NAp, NAp, NAp, NAp);
+	#endif
+	
+	unsigned int ldramoffset_kvs = baseaddress_kvs + localoffset_kvs;
+	SAVEPARTIALBUFFER_DDR{{ddrs}}_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("legion::savepartialbuffer_ddr{{ddrs}} 35", (ldramoffset_kvs + i), WORKVOLUMEDRAMSZ_KVS);
+		#endif
+		kvdram[getAddr((ldramoffset_kvs + i))] = buffer[i];
+		#ifdef _DEBUGMODE_STATS
+		if(callerprocessid == SPREADPROCESS){ globalstats_countkvsspreadwritten((1 * VECTOR_SIZE)); }
+		else if(callerprocessid == COLLECTSTATSPROCESS){ globalstats_countkvstatswritten(1 * VECTOR_SIZE); }
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}savebuffer_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){							
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	print4("legion::savebuffer_ddr{{ddrs}} 35:", "NAp", "NAp", "NAp", NAp, NAp, NAp, NAp);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("savebuffer_ddr{{ddrs}}", stats, NUM_PARTITIONS);
+	#endif
+	
+	unsigned int analysis_looptripcount = LDESTKVBUFFERSZ_KVS / NUM_PARTITIONS; // NB: debugging purposes only
+	SAVEBUFFER_DDR{{ddrs}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("legion::savebuffer_ddr{{ddrs}} 34", (kvdeststats_tmp[p].key + kvdeststats_tmp[p].value + stats[p].value), PADDEDKVDATA_BATCHSIZE + 1);
+		#endif
+	
+		batch_type kvdramoffset_kvs = baseaddress_kvs + ((kvdeststats_tmp[p].key + kvdeststats_tmp[p].value) / VECTOR_SIZE);
+		buffer_type bufferoffset_kvs = stats[p].key / VECTOR_SIZE;
+		buffer_type size_kvs = stats[p].value / VECTOR_SIZE;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		print4("savebuffer_ddr{{ddrs}}:: bufferoffset_kvs", "size_kvs", "NAp", "NAp", bufferoffset_kvs, size_kvs, NAp, NAp);
+		#endif
+		#ifdef _DEBUGMODE_CHECKS2
+		checkoutofbounds("legion::savebuffer_ddr{{ddrs}} 35", (kvdramoffset_kvs + size_kvs), WORKVOLUMEDRAMSZ_KVS);
+		#endif
+	
+		SAVEBUFFER_DDR{{ddrs}}_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_looptripcount avg=analysis_looptripcount
+		#pragma HLS PIPELINE II=1
+			kvdram[getAddr(kvdramoffset_kvs + i)] = buffer[bufferoffset_kvs + i];
+			#ifdef _DEBUGMODE_STATS
+			globalstats_countkvsspreadwritten(1 * VECTOR_SIZE);
+			#endif
+		}
+	}
+	SAVEBUFFER_DDR{{ddrs}}_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ kvdeststats_tmp[p].value += stats[p].value; }
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}savebuffer_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){							
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("legion::savebuffer_ddr{{ddrs}} 34", getAddr(llopparams.destbaseaddr_kvs + localoffset_kvs + LDESTKVBUFFERSZ_KVS), KVDATA_RANGE_PERSSDPARTITION_KVS);
+	#endif
+	
+	SAVEBUFFER_DDR{{ddrs}}_LOOP1: for(buffer_type i=0; i<LDESTKVBUFFERSZ_KVS; i++){
+	#pragma HLS PIPELINE II=1
+		buffer[i] = kvdram[getAddr(llopparams.destbaseaddr_kvs + localoffset_kvs + i)];		
+		#ifdef _DEBUGMODE_STATS
+		globalstats_countkvsreducewritten((1 * VECTOR_SIZE));
+		#endif
+	}
+	return;
+}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}processpartition_ddr{{ddrs}}(uint512_dt * kvdram, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int collectstatsloop_tripcount = KVDATA_BATCHSIZE_KVS / (VECTOR_SIZE * LSRCKVBUFFERSZ_KVS); // NB: for debugging purposes only
+	unsigned int spreadloop_tripcount = KVDATA_BATCHSIZE_KVS / (VECTOR_SIZE * LSRCKVBUFFERSZ_KVS); // NB: for debugging purposes only
+	unsigned int partitionloop_tripcount = KVDATA_BATCHSIZE_KVS / (VECTOR_SIZE * LSRCKVBUFFERSZ_KVS); // NB: for debugging purposes only
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	uint512_dt sourcebufferH{{w}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	keyvalue_t sourcebufferV{{w}}{{v}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	uint512_dt resultbuffer{{w}}{{v}}[LDESTKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	keyvalue_t bufferstats{{w}}{{v}}[NUM_PARTITIONS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	uint512_dt resultbufferS{{w}}[LDESTKVBUFFERSZ_KVS];
+	{%endfor%}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	print5("processpartition_ddr{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, partitionparams.step_kvs * VECTOR_SIZE, llopparams.currentLOP, KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, llopparams.currentLOP));
+	#endif
+	
+	COLLECTSTATS_LOOP2: for(batch_type i_kvs=partitionparams.begin_kvs; i_kvs<(partitionparams.begin_kvs + partitionparams.size_kvs); i_kvs+=NUMWORKERS * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=collectstatsloop_tripcount avg=collectstatsloop_tripcount
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		print5("collectstats_ddr{{ddrs}}:: i", "i_end", "begin", "size", "skip size", i_kvs * VECTOR_SIZE, (partitionparams.begin_kvs + partitionparams.size_kvs) * VECTOR_SIZE, partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, NUMWORKERS * VECTOR_SIZE * LSRCKVBUFFERSZ);
+		#endif
+		COLLECTSTATS_LOOP2B: for(vector_type v=0; v<VECTOR_SIZE; v++){
+			{%for w in context['NUMWORKERS_seq']%}
+			loadbufferH_ddr{{ddrs}}(kvdram, sourcebufferH{{w}}, (i_kvs + {{w}} * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS) + (v * LSRCKVBUFFERSZ_KVS), globalparams, llopparams, partitionparams);
+	
+			extractcapsules_ddr{{ddrs}}(sourcebufferH{{w}}, resultbufferS{{w}}, v, globalparams, llopparams, partitionparams);
+			{%endfor%}
+		}
+		{%for w in context['NUMWORKERS_seq']%}
+		savepartialbuffer_ddr{{ddrs}}(kvdram, resultbufferS{{w}}, llopparams.baseaddr_capsule_kvs, ((((i_kvs + {{w}} * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS) / VECTOR_SIZE) / LSRCKVBUFFERSZ_KVS) * NUM_PARTITIONS), NUM_PARTITIONS, COLLECTSTATSPROCESS, globalparams, llopparams, partitionparams);
+		{%endfor%}
+	}
+	
+	SPREAD_LOOP2: for(unsigned int i_kvs=partitionparams.begin_kvs; i_kvs<(partitionparams.begin_kvs + partitionparams.size_kvs); i_kvs+=NUMWORKERS * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=spreadloop_tripcount avg=spreadloop_tripcount
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		print5("spread_ddr{{ddrs}}:: i_kvs", "i_kvs end", "begin_kvs", "size_kvs", "skip size", i_kvs, (partitionparams.begin_kvs + partitionparams.size_kvs), partitionparams.begin_kvs, partitionparams.size_kvs, NUMWORKERS * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS);
+		#endif
+		
+		{%for w in context['NUMWORKERS_seq']%}
+		loadcapsulestatsS_ddr{{ddrs}}(kvdram, {%for v in context['VECTOR_SIZE_seq']%}bufferstats{{w}}{{v}}, {%endfor%} getglobalstatoffset_kvs((i_kvs + {{w}} * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS)), globalparams, llopparams, partitionparams);
+		{%endfor%}
+		SPREAD_LOOP2B: for(vector_type v=0; v<VECTOR_SIZE; v++){
+			{%for w in context['NUMWORKERS_seq']%}
+			travstate_t travstate; travstate.i_kvs = i_kvs + (v * LSRCKVBUFFERSZ_KVS); travstate.iend_kvs = partitionparams.begin_kvs + partitionparams.size_kvs;
+			loadbufferV_ddr{{ddrs}}(kvdram, {%for v in context['VECTOR_SIZE_seq']%}sourcebufferV{{w}}{{v}},{%endfor%} (i_kvs + {{w}} * VECTOR_SIZE * LSRCKVBUFFERSZ_KVS) + (v * LSRCKVBUFFERSZ_KVS), globalparams, llopparams, partitionparams);
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			spreadkvs_ddr{{ddrs}}_v{{v}}(sourcebufferV{{w}}{{v}}, resultbuffer{{w}}{{v}}, bufferstats{{w}}{{v}}, travstate, globalparams, llopparams, partitionparams);
+			{%endfor%}
+			{%endfor%}
+		}
+		{%for w in context['NUMWORKERS_seq']%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		savebuffer_ddr{{ddrs}}(kvdram, resultbuffer{{w}}{{v}}, bufferstats{{w}}{{v}}, kvdeststats_tmp, llopparams.destbaseaddr_kvs, globalparams, llopparams, partitionparams);
+		{%endfor%}
+		{%endfor%}
+	}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}processCLOP_ddr{{ddrs}}(uint512_dt * kvdram, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams){
+	keyvalue_t kvdeststats_tmp[NUM_PARTITIONS];
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("processCLOP_ddr{{ddrs}}:: num_source_partitions", "num_destpartitions", "sourceskipsize_kv", "NAp", llopparams.num_source_partitions, llopparams.num_source_partitions * NUM_PARTITIONS, llopparams.sourceskipsize_kv, NAp);
+	#endif
+	PROCESSCLOP_LOOP1: for(unsigned int source_partition=0; source_partition<llopparams.num_source_partitions; source_partition++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=1 avg=1
+		partitionparams_t partitionparams;
+		llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
+		
+		loaddeststats(kvstatsbuffer, kvdeststats_tmp, llopparams.nextdestoffset_partition, llopparams.currentLOP, globalparams.finalnumpartitions);		
+		PROCESSPARTITION_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+			#pragma HLS PIPELINE II=1
+			kvdeststats_tmp[p].value = 0;
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("processCLOP_ddr{{ddrs}}", kvdeststats_tmp, NUM_PARTITIONS);
+		#endif
+		
+		keyvalue_t sourcestat = getkeyvalue(kvstatsbuffer, llopparams.nextsourceoffset_partition, KVSTATS_SIZE_KVS);
+		partitionparams.begin_kvs = sourcestat.key / VECTOR_SIZE;
+		partitionparams.size_kvs = (sourcestat.value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+		partitionparams.step_kvs = LSRCKVBUFFERSZ_KVS;
+		
+		processpartition_ddr{{ddrs}}(kvdram, kvdeststats_tmp, globalparams, llopparams, partitionparams);
+	
+		storedeststats(kvstatsbuffer, kvdeststats_tmp, llopparams.nextdestoffset_partition, llopparams.currentLOP, globalparams.finalnumpartitions); 
+		llopparams.nextsourceoffset_partition += llopparams.sourceskipsize_partition;
+		llopparams.nextdestoffset_partition += (llopparams.destskipsize_partition * NUM_PARTITIONS);
+		llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv;
+	}
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}partitionphase_ddr{{ddrs}}(uint512_dt * kvdram, globalparams_t globalparams){
+	uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS];
+	loadstatsbuffer_ddr{{ddrs}}(kvdram, kvstatsbuffer, (KVDRAMSZ_KVS + CAPSULEDRAMSZ_KVS));
+	unsigned int partitionphase_looptripcount = TREE_DEPTH; // NB: debugging purposes only
+	
+	PROCESSALL_LOOP1: for(unsigned int currentLOP=1; currentLOP<globalparams.steps + 1; currentLOP++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=partitionphase_looptripcount avg=partitionphase_looptripcount
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<endl;
+		print5("partitionphase_ddr{{ddrs}}:: currentLOP", "size", "numsourcepartitions", "num_destpartitions", "destskipsize_partition", currentLOP, globalparams.steps + 1, get_num_source_partitions(currentLOP), get_num_source_partitions(currentLOP) * NUM_PARTITIONS, getdestskipsize(currentLOP, globalparams.finalnumpartitions));
+		#endif
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("[BEFORE] partitionphase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, KVSTATS_SIZE);
+		#endif
+		clopparams_t llopparams;
+		llopparams.sourcebaseaddr_kvs = 0;
+		llopparams.destbaseaddr_kvs = 0;
+		if((currentLOP % 2) == 1){ llopparams.sourcebaseaddr_kvs = 0; llopparams.destbaseaddr_kvs = WORKLOADDRAMSZ_KVS; } 
+		else { llopparams.sourcebaseaddr_kvs = WORKLOADDRAMSZ_KVS; llopparams.destbaseaddr_kvs = 0; }	
+		llopparams.baseaddr_capsule_kvs = KVDRAMSZ_KVS;
+		llopparams.baseaddr_stats_kvs = KVDRAMSZ_KVS + CAPSULEDRAMSZ_KVS;
+		llopparams.num_source_partitions = get_num_source_partitions(currentLOP);
+		llopparams.nextsourceoffset_partition = 0;
+		llopparams.nextdestoffset_partition = 0;
+		llopparams.nextsourceoffset_kv = 0;
+		llopparams.nextdestoffset_kv = 0;
+		llopparams.sourceskipsize_partition = getsourceskipsize(currentLOP, globalparams.finalnumpartitions);
+		llopparams.destskipsize_partition = getdestskipsize(currentLOP, globalparams.finalnumpartitions);
+		llopparams.sourceskipsize_kv = getsourceskipsize(currentLOP, GETKVDATA_RANGE_PERSSDPARTITION());
+		llopparams.destskipsize_kv = getdestskipsize(currentLOP, GETKVDATA_RANGE_PERSSDPARTITION());
+		llopparams.destpartitionrange = (1 << (GETKVDATA_RANGE_PERSSDPARTITION_POW() - (NUM_PARTITIONS_POW * currentLOP)));
+		llopparams.currentLOP = currentLOP;
+		llopparams.upperlimit = 0;
+		
+		processCLOP_ddr{{ddrs}}(kvdram, kvstatsbuffer, globalparams, llopparams);
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("[AFTER] partitionphase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, KVSTATS_SIZE);
+		#endif
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		getvaluecount("[AFTER] partitionphase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, KVSTATS_SIZE);
+		#endif
+	}
+	savestatsbuffer_ddr{{ddrs}}(kvdram, kvstatsbuffer, (KVDRAMSZ_KVS + CAPSULEDRAMSZ_KVS));
+	return;
+}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}reducepartition_ddr{{ddrs}}(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams){
+	unsigned int reduceloop_tripcount = (KVDATA_RANGE_PERSSDPARTITION_KVS / NUM_LLOPS) / LSRCKVBUFFERSZ_KVS; // NB: for debugging purposes only
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	keyvalue_t sourcebufferV{{w}}{{v}}[LSRCKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	uint512_dt resultbuffer{{w}}{{v}}[LDESTKVBUFFERSZ_KVS];
+	{%endfor%}
+	{%endfor%}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	print5("reducepartition_ddr{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, partitionparams.step_kvs * VECTOR_SIZE, llopparams.currentLOP, KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, llopparams.currentLOP));
+	#endif
+	
+	REDUCE_LOOP1: for(unsigned int i_kvs=partitionparams.begin_kvs; i_kvs<(partitionparams.begin_kvs + partitionparams.size_kvs); i_kvs+=NUMWORKERS * LSRCKVBUFFERSZ_KVS){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=reduceloop_tripcount avg=reduceloop_tripcount
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		print5("reduce_ddr{{ddrs}}:: i", "i end", "begin", "size", "skip size", i_kvs * VECTOR_SIZE, (partitionparams.begin_kvs + partitionparams.size_kvs) * VECTOR_SIZE, partitionparams.begin_kvs * VECTOR_SIZE, partitionparams.size_kvs * VECTOR_SIZE, NUMWORKERS * LSRCKVBUFFERSZ);
+		#endif
+		
+		{%for w in context['NUMWORKERS_seq']%}
+		travstate_t travstate; travstate.i_kvs = i_kvs; travstate.iend_kvs = partitionparams.begin_kvs + partitionparams.size_kvs;
+		loadbufferV_ddr{{ddrs}}(kvdram_source, {%for v in context['VECTOR_SIZE_seq']%}sourcebufferV{{w}}{{v}},{%endfor%} (i_kvs + {{w}} * LSRCKVBUFFERSZ_KVS), globalparams, llopparams, partitionparams);
+		
+		{%for v in context['VECTOR_SIZE_seq']%}			
+		reduce_ddr{{ddrs}}_v{{v}}(sourcebufferV{{w}}{{v}}, resultbuffer{{w}}{{v}}, travstate, globalparams, llopparams, partitionparams);
+		{%endfor%}
+		{%endfor%}
+	}
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	savebuffer_ddr{{ddrs}}(kvdram_dest, resultbuffer{{w}}{{v}}, llopparams.destbaseaddr_kvs, llopparams.nextsourceoffset_kv / VECTOR_SIZE, globalparams, llopparams, partitionparams);
+	{%endfor%}
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}reduceLLOP_ddr{{ddrs}}(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	print4("processCLOP_ddr{{ddrs}}:: num_source_partitions", "num_destpartitions", "NAp", "NAp", llopparams.num_source_partitions, llopparams.num_source_partitions * NUM_PARTITIONS, NAp, NAp);
+	#endif	
+	unsigned int reduceLLOPloop_tripcount = NUM_LLOPS; // NB: for debugging purposes only
+
+	PROCESSCLOP_LOOP1: for(unsigned int source_partition=0; source_partition<(1 << (NUM_PARTITIONS_POW * TREE_DEPTH)); source_partition++){ // FIXME
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=reduceLLOPloop_tripcount avg=reduceLLOPloop_tripcount
+		partitionparams_t partitionparams;
+		llopparams.upperlimit = 0;
+		llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
+		
+		keyvalue_t sourcestat = getkeyvalue(kvstatsbuffer, llopparams.nextsourceoffset_partition, KVSTATS_SIZE_KVS);
+		partitionparams.begin_kvs = sourcestat.key / VECTOR_SIZE;
+		partitionparams.size_kvs = (sourcestat.value + (VECTOR_SIZE - 1)) / VECTOR_SIZE; // FIXME. reason for slight difference
+		partitionparams.step_kvs = LSRCKVBUFFERSZ_KVS;
+		
+		reducepartition_ddr{{ddrs}}(kvdram_source, kvdram_dest, globalparams, llopparams, partitionparams);
+		
+		llopparams.nextsourceoffset_partition += llopparams.sourceskipsize_partition;
+		llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv;
+	}
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}reducephase_ddr{{ddrs}}(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams){
+	uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS];
+	loadstatsbuffer_ddr{{ddrs}}(kvdram_source, kvstatsbuffer, (KVDRAMSZ_KVS + CAPSULEDRAMSZ_KVS));
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("reducephase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, KVSTATS_SIZE);
+	#endif
+	
+	unsigned int currentLOP = TREE_DEPTH + 1;	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<endl;
+	print4("reducephase_ddr{{ddrs}}:: currentLOP", "size", "numsourcepartitions", "num_destpartitions", currentLOP, globalparams.steps + 1, get_num_source_partitions(currentLOP), get_num_source_partitions(currentLOP) * NUM_PARTITIONS);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("[BEFORE] reducephase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, 0);
+	#endif
+	clopparams_t llopparams;
+	if((currentLOP % 2) == 1){ llopparams.sourcebaseaddr_kvs = 0; } 
+	else { llopparams.sourcebaseaddr_kvs = WORKLOADDRAMSZ_KVS; }
+	llopparams.destbaseaddr_kvs = 0;	
+	llopparams.baseaddr_capsule_kvs = KVDRAMSZ_KVS;
+	llopparams.baseaddr_stats_kvs = KVDRAMSZ_KVS + CAPSULEDRAMSZ_KVS;
+	llopparams.num_source_partitions = get_num_source_partitions(currentLOP);
+	llopparams.nextsourceoffset_partition = 0;
+	llopparams.nextdestoffset_partition = 0;
+	llopparams.nextsourceoffset_kv = 0;
+	llopparams.nextdestoffset_kv = 0;
+	llopparams.sourceskipsize_partition = getsourceskipsize(currentLOP, globalparams.finalnumpartitions);
+	llopparams.destskipsize_partition = getdestskipsize(currentLOP, globalparams.finalnumpartitions);
+	llopparams.sourceskipsize_kv = getsourceskipsize(currentLOP, GETKVDATA_RANGE_PERSSDPARTITION());
+	llopparams.destskipsize_kv = getdestskipsize(currentLOP, GETKVDATA_RANGE_PERSSDPARTITION());
+	llopparams.destpartitionrange = (1 << (GETKVDATA_RANGE_PERSSDPARTITION_POW() - (NUM_PARTITIONS_POW * currentLOP)));
+	llopparams.currentLOP = currentLOP;
+	llopparams.upperlimit = 0;
+	
+	reduceLLOP_ddr{{ddrs}}(kvdram_source, kvdram_dest, kvstatsbuffer, globalparams, llopparams);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("[AFTER] reducephase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, 0);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	getvaluecount("[AFTER] reducephase_ddr{{ddrs}}", (keyvalue_t *)kvstatsbuffer, KVSTATS_SIZE);
+	#endif 
+	return;
+}
+{%endfor%}
+
+extern "C" {
+void {%if(context['XWARE'] == "SW")%}legion::{%endif%}topkernel(		
+		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+		{%if(ddrs==0)%}{%else%},{%endif%}uint512_dt * kvdram_source{{ddrs_}}, uint512_dt * kvdram_dest{{ddrs_}}
+		{%endfor%}
+        ){
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE m_axi port=kvdram_source{{ddrs_}}  offset=slave bundle=gmem{{ddrs}}
+#pragma HLS INTERFACE m_axi port=kvdram_dest{{ddrs_}}  offset=slave bundle=gmem{{ddrs+1}}
+{%endfor%}
+
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+#pragma HLS INTERFACE s_axilite port=kvdram_source{{ddrs_}}  bundle=control
+#pragma HLS INTERFACE s_axilite port=kvdram_dest{{ddrs_}}  bundle=control
+{%endfor%}
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+	
+	#ifdef _LDEBUGMODE_HEADER
+	printparameters();
+	#endif
+	
+	globalparams_t globalparams;
+	globalparams.steps = TREE_DEPTH; // 1; // TREE_DEPTH;
+	globalparams.finalnumpartitions = (1 << (NUM_PARTITIONS_POW * TREE_DEPTH));	
+	globalparams.paddedkvdatabatchsz_kvs = KVDATA_BATCHSIZE_KVS;
+	globalparams.capsulebatchsz_kvs = CAPSULESTATSBATCHSZ_KVS;
+	globalparams.vbegin = 0;
+	
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	partitionphase_ddr{{ddrs}}(kvdram_source{{ddrs_}}, globalparams);
+	reducephase_ddr{{ddrs}}(kvdram_source{{ddrs_}}, kvdram_dest{{ddrs_}}, globalparams);
+	{%endfor%}
+	
+	#ifdef _LDEBUGMODE_HEADER
+	cout<<endl<<"=== topkernel ENDED. printing summary and out messages === "<<endl;
+	printglobalvars();
+	printparameters();
+	#endif
+	return;
+}
+}
+
+
