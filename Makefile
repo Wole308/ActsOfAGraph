@@ -19,23 +19,22 @@ MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem1:DDR[0]
 # MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem14:DDR[2]
 # MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem15:DDR[3]
 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
 # MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem3:bank3
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem4:bank0  
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem5:bank1  
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem6:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem7:bank3
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem8:bank0 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem9:bank1 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem12:bank0 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem13:bank1 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem14:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem15:bank3 
+
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank1 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank2 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem3:bank3
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem4:bank0  
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem5:bank1  
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem6:bank2 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem7:bank3
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem8:bank0 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem9:bank1 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
 
 # Kernel linker flags
 LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR1
@@ -54,7 +53,6 @@ MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem2:DDR[1]
 # TOPKERNEL_ARG += kernels/legion.cpp
 TOPKERNEL_ARG += kernels/enigma.cpp
 # TOPKERNEL_ARG += kernels/titan.cpp
-# KERNEL_SRCS = debugger/kernel_debugger.cpp
 
 HOST_TOP += src/hostprocess.cpp
 HOST_TOP_NTHREADS += src/hostprocess.cpp
@@ -82,7 +80,6 @@ HOSTPROCESS_SRCS += heuristics/heuristics.cpp
 HOSTPROCESS_SRCS += algorithm/algorithm.cpp
 HOSTPROCESS_SRCS += utility/utility.cpp
 HOSTPROCESS_SRCS += kernels/kernelprocess.cpp
-HOSTPROCESS_SRCS += debugger/kernel_debugger.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/

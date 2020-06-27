@@ -14,7 +14,7 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
-#include "../kernels/kernelprocess.h"
+#include "../kernels/enigma.h"
 #include "sortreduce.h"
 #include "types.h"
 #include "../kernels/srkernelprocess.h"
@@ -73,7 +73,7 @@ grafboost_bfs_sw::grafboost_bfs_sw(graph * _graphobj){
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
 		for(int ddr = 0; ddr < NUMDRAMBANKS; ddr++){
-			kvdram[i][ddr] = new uint512_vec_dt[DRAMSZ_KVS];
+			kvdram[i][ddr] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
 		}
 	}
 	

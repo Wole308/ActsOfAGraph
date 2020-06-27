@@ -11,8 +11,6 @@
 #define LOADKVDRAMS
 
 #define STREAMEDGESSETUP
-
-#define KERNEL_LEGION
 #endif
 
 

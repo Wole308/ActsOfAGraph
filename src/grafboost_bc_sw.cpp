@@ -14,7 +14,7 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
-#include "../kernels/kernelprocess.h"
+#include "../kernels/enigma.h"
 #include "sortreduce.h"
 #include "types.h"
 #include "../kernels/srkernelprocess.h"

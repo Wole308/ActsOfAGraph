@@ -11,20 +11,20 @@
 #include "common.h"
 #include "../debugger/host_debugger.h"
 #include "EdgeProcess.h" // Grafboost header
-#include "VertexValues.h" // Grafboost header
-#include "sortreduce.h" // Grafboost header
-#include "filekvreader.h" // Grafboost header
+#include "VertexValues.h" 
+#include "sortreduce.h" 
+#include "filekvreader.h" 
 #include "edge_process.h"
 #include "../graphs/graph.h"
 #include "../algorithm/algorithm.h"
 #include "../utility/utility.h"
 #ifdef SW
-#include "../kernels/enigma.h"
+#include "../kernels/kernelprocess.h"
 #endif
 #include "host_enigma.h"
 using namespace std;
 #define YES
-#define NUMINSTANCESETS 2
+#define NUMINSTANCESETS 3
 
 #ifdef FPGA_IMPL
 #define OCL_CHECK(call)							\
@@ -43,20 +43,22 @@ host_enigma::host_enigma(graph * _graphobj){
 	
 	#ifdef SW
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
-		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvsourcedram[i][ddr] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS]; }
+		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvsourcedram[i][ddr] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvdestdram[i][ddr] = new uint512_vec_dt[KVDATA_RANGE_PERSSDPARTITION_KVS]; }
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvstats[i][ddr] = new keyvalue_t[KVSTATSDRAMSZ]; }
 	}
 	#else
+	// #ifdef FPGA_IMPL & defined(SW)
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
-		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvsourcedram[i][ddr] = (uint512_vec_dt *) aligned_alloc(4096, (KVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }
+		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvsourcedram[i][ddr] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvdestdram[i][ddr] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_RANGE_PERSSDPARTITION_KVS * sizeof(uint512_vec_dt))); }
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvstats[i][ddr] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }
 	}
-	#endif
+	// #endif
+	#endif 
 	
 	#ifdef SW
-	enigma * kernelobj = new enigma();
+	kernelprocess * kernelobj = new kernelprocess();
 	#endif 
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj); }
@@ -82,12 +84,25 @@ void host_enigma::start() {
 	WorkerThread(0);
 }
 void host_enigma::WorkerThread(int threadidx){
-	loaddrams(threadidx);
-	#ifdef SW
-	launchswkernel(threadidx);
-	#else 
-	launchkernel(threadidx);
-	#endif 
+	for(unsigned int IterCount=0; IterCount<DRAMBATCHFACTOR; IterCount++){
+		loaddrams(threadidx, IterCount);
+		if((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)){ prepareallstats(threadidx); }
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("BEFORE", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
+		#endif 
+		
+		#ifdef SW
+		launchswkernel(threadidx);
+		#else 
+		launchkernel(threadidx);
+		#endif 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("AFTER", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
+		#endif
+	}
+	return;
 }
 void host_enigma::finish(){
 	#if (defined(FPGA_IMPL) && defined(PR_ALGORITHM))
@@ -95,26 +110,21 @@ void host_enigma::finish(){
 	#endif
 }
 
-void host_enigma::loaddrams(int threadidx){
-	#ifdef SW
-	kernelobj->printparameters();
-	kernelobj->clearglobalvars();
-	#endif
-
+void host_enigma::loaddrams(int threadidx, unsigned int IterCount){
 	for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){
-		loadkvdram(kvsourcedram[0][ddr], 0, KVDATA_BATCHSIZE_KVS);
-		loadstats(kvsourcedram[0][ddr], (keyvalue_t *)kvstats[0][ddr], 0, KVDATA_BATCHSIZE, BASEOFFSET_STATSDRAM, 0, pow(NUM_PARTITIONS, TREE_DEPTH), (KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, TREE_DEPTH)));
-		loadmessages(kvstats[0][ddr], BASEOFFSET_MESSAGESDRAM);
+		loadkvdram(kvsourcedram[threadidx][ddr], 0, KVDATA_BATCHSIZE_KVS);
+		loadstats(kvsourcedram[threadidx][ddr], (keyvalue_t *)kvstats[threadidx][ddr], 0, KVDATA_BATCHSIZE, BASEOFFSET_STATSDRAM, 0, pow(NUM_PARTITIONS, TREE_DEPTH), (KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, TREE_DEPTH)));
+		loadmessages(kvstats[threadidx][ddr], BASEOFFSET_MESSAGESDRAM, IterCount);
 	}
-	
-	#ifdef SW
-	cout<<endl<<"=== host_enigma:: loaddrams ENDED. printing summary and out messages === "<<endl;
-	kernelobj->printglobalvars();	
-	cout<<"host_enigma::loaddrams: test ended."<<endl;
-	kernelobj->printparameters();
-	#endif 
 	return;
 }
+void host_enigma::prepareallstats(int threadidx){	
+	for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){
+		calculateoffsets(kvstats[threadidx][ddr], KVDATA_BATCHSIZE * DRAMBATCHFACTOR, BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH));
+	}
+	return;
+}
+
 void host_enigma::loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kvs, unsigned int kvsize_kvs){
 	for(unsigned int i=0; i<kvsize_kvs; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
@@ -128,42 +138,40 @@ void host_enigma::loadstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, verte
 	vertex_t kvdramoffset_kvs = kvdramoffset / VECTOR_SIZE;
 	vertex_t kvdramsz_kvs = kvdramsz / VECTOR_SIZE;
 	unsigned int partition;
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"host_enigma::loadstats:: LLOPnumpartitions: "<<LLOPnumpartitions<<", LLOPrangepartitions: "<<LLOPrangepartitions<<endl;
-	
+	#endif 
 	for(int i = 0 ; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].key = 0; kvstats[kvstatsoffset + i].value = 0; }
 	for(unsigned int i=0; i<kvdramsz_kvs; i++){
 		for(int j=0; j<VECTOR_SIZE; j++){
 			partition = (kvdram[kvdramoffset_kvs + i].data[j].key - kvrangeoffset) / LLOPrangepartitions;
 			kvstats[kvstatsoffset + partition].value += 1;
 		}
-	}	
-	// calculate offsets
-	kvstats[kvstatsoffset + 0].key = 0;
-	for (unsigned int p = 1; p<LLOPnumpartitions; p++){
-		kvstats[kvstatsoffset + p].key = utilityobj[0]->hallignup_KV(kvstats[kvstatsoffset + p-1].key + kvstats[kvstatsoffset + p-1].value + (PADSIZE_PERLLOP / 2));
-	}	
-	// assign initial workload size
-	for(unsigned int i = 0; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].value = 0; }
-	kvstats[kvstatsoffset + 0].value = kvdramsz;
+	}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	printkeyvalues("print kvstats", kvstats, 8);
-	cout<<"PADDEDKVDATA_BATCHSIZE: "<<PADDEDKVDATA_BATCHSIZE<<endl;
-	cout<<"KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
-	cout<<"PADSIZE_PERLLOP: "<<PADSIZE_PERLLOP<<endl;
-	#endif
-	// exit(EXIT_SUCCESS);
+	cout<<"host_enigma::loadstats ENDED:: "<<endl;
 	return;
 }
-void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset){
-	messages[offset + MESSAGES_PROCESSCOMMANDID].key = OFF;
-	messages[offset + MESSAGES_PARTITIONCOMMANDID].key = ON;
-	messages[offset + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
-	messages[offset + DRAM_VOFFSET].key = 0;
-	messages[offset + DRAM_VSIZE].key = KVDATA_RANGE_PERSSDPARTITION;
-	messages[offset + DRAM_TREEDEPTH].key = TREE_DEPTH;
-	messages[offset + DRAM_FINALNUMPARTITIONS].key = pow(NUM_PARTITIONS, TREE_DEPTH);
-	messages[offset + GRAPH_ITERATIONID].key = 0;
+void host_enigma::calculateoffsets(keyvalue_t * kvstats, vertex_t kvsize, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions){				
+	kvstats[kvstatsoffset + 0].key = 0;
+	for (unsigned int p = 1; p<LLOPnumpartitions; p++){
+		kvstats[kvstatsoffset + p].key = utilityobj[0]->hallignup_KV(kvstats[kvstatsoffset + p-1].key + kvstats[kvstatsoffset + p-1].value + LASTLEVELPARTITIONPADDING);
+	}	
+	
+	for(unsigned int i = 0; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].value = 0; }
+	kvstats[kvstatsoffset + 0].value = kvsize;
+	return;
+}
+void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount){
+	messages[getmessagesAddr(MESSAGES_PROCESSCOMMANDID)].key = ON;
+	messages[getmessagesAddr(MESSAGES_PARTITIONCOMMANDID)].key = ON;
+	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = OFF;
+	messages[getmessagesAddr(MESSAGES_VOFFSET)].key = 0;
+	messages[getmessagesAddr(MESSAGES_VSIZE)].key = KVDATA_RANGE_PERSSDPARTITION;
+	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = TREE_DEPTH;
+	messages[getmessagesAddr(MESSAGES_FINALNUMPARTITIONS)].key = pow(NUM_PARTITIONS, TREE_DEPTH);
+	messages[getmessagesAddr(MESSAGES_GRAPHITERATIONID)].key = 0;
+	messages[getmessagesAddr(MESSAGES_ITERATIONID)].key = IterCount;
 }
 
 void host_enigma::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound){
@@ -172,6 +180,10 @@ void host_enigma::checkoutofbounds(string message, unsigned int data, unsigned i
 void host_enigma::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+}
+unsigned int host_enigma::getmessagesAddr(unsigned int addr){
+	#pragma HLS INLINE
+	return BASEOFFSET_MESSAGESDRAM + addr;
 }
 
 #ifdef SW
@@ -189,7 +201,7 @@ void host_enigma::loadOCLstructures(std::string binaryFile){
 	cl_int err;
 	global = 1; local = 1;
 
-	kvsource_size_bytes = KVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
 	kvdest_size_bytes = KVDATA_RANGE_PERSSDPARTITION_KVS * sizeof(uint512_vec_dt);
 	kvstats_size_bytes = KVSTATSDRAMSZ * sizeof(keyvalue_t);
 	
@@ -240,7 +252,11 @@ void host_enigma::launchkernel(unsigned int flag){
 	int nargs=0;
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), &buffer_kvsourcedram[flag][ddr]);
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), &buffer_kvdestdram[flag][ddr]);
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), &buffer_kvstatsdram[flag][ddr]);
 	}
 	
@@ -248,11 +264,15 @@ void host_enigma::launchkernel(unsigned int flag){
 	std::cout << "Copy input data to device global memory" << std::endl;
 	array<cl_event, 1*NUMINSTANCESETS> write_events;
 	
-	// Copy data from Host to Device	
+	// Copy data from Host to Device
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[flag][ddr], CL_FALSE, 0, kvsource_size_bytes, kvsourcedram[flag][ddr], 0, NULL, &write_events[ddr] ));
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[1 + ddr] ));
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[1 + 1 + ddr] ));
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[2 + ddr] ));
 	}
 	
 	// Launch the Kernel			

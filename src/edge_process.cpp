@@ -67,7 +67,7 @@ unsigned int edge_process::generateupdates_random(SortReduceUtils::FileKvReader<
 	for(unsigned int i=0; i<16; i++){ cout<<">>> edge_process::generateupdates_random: ebuf2["<<i<<"].srcvid: "<<ebuf2[i].srcvid<<", ebuf2["<<i<<"].dstvid: "<<ebuf2[i].dstvid<<endl; }
 	#endif 
 	
-	unsigned int kvthreshold = (PADDEDKVDATA_BATCHSIZE / 10) * 9; // FIXME. might not work for scale-free graphs
+	unsigned int kvthreshold = (KVDATA_BATCHSIZE / 10) * 9; // FIXME. might not work for scale-free graphs
 	unsigned int keyvaluesread = 0;
 	
 	std::tuple<uint32_t,uint32_t,bool> res = reader->Next();
@@ -182,7 +182,7 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, int nvmeF
 	}
 }
 
-unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, metadata_t * kvstats, unsigned int threadidx){		
+unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx){		
 	#ifndef LOADKVDRAMS
 	return; 
 	#endif	
@@ -217,7 +217,7 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 	#ifdef _DEBUGMODE_TIMERS
 	std::chrono::steady_clock::time_point begintime_4 = std::chrono::steady_clock::now();
 	#endif 
-	collectstats(kvdram, kvstats, 0, kvcount, 0, pow(NUM_PARTITIONS, utilityobj->GETTREEDEPTH_(threadidx)), (utilityobj->GETKVDATA_RANGE_FORSSDPARTITION_(threadidx) / pow(NUM_PARTITIONS, utilityobj->GETTREEDEPTH_(threadidx)))); // edge->dstvid's in all workbanks are all local
+	collectstats(kvdram, kvstats, 0, BASEOFFSET_STATSDRAM, kvcount, 0, pow(NUM_PARTITIONS, TREE_DEPTH), (utilityobj->GETKVDATA_RANGE_FORSSDPARTITION_(threadidx) / pow(NUM_PARTITIONS, TREE_DEPTH)));
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj->stopTIME("edge_process::generateupdates_stream: collect stats Time Elapsed: ", begintime_4, NAp);
 	#endif
@@ -294,7 +294,7 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 	#endif 
 }
 
-void edge_process::generateupdates_contiguous(size_t wordoffset, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, uint512_vec_dt * kvdram, metadata_t * kvstats, unsigned int threadidx){		
+void edge_process::generateupdates_contiguous(size_t wordoffset, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx){		
 	#ifndef LOADKVDRAMS
 	return; 
 	#endif 
@@ -311,7 +311,8 @@ void edge_process::generateupdates_contiguous(size_t wordoffset, vertex_t edgesp
 	loadedgeoffsetsfromfile<prvertexoffset_t>(nvmeFd_edgeoffsets_r2, (firstv * sizeof(prvertexoffset_t)), edgeoffsetsbuffer, 0, (vertexpropsz * sizeof(prvertexoffset_t)));
 	generatekeyvalues_contiguous(vertexpropertiesbuffer, (keyvalue_t *) kvdram, vertexpropsz, edgespropsz, 0);
 	#ifdef ACTGRAPH_SETUP
-	collectstats(kvdram, kvstats, 0, edgespropsz, 0, pow(NUM_PARTITIONS, utilityobj->GETTREEDEPTH_(threadidx)), (utilityobj->GETKVDATA_RANGE_FORSSDPARTITION_(threadidx) / pow(NUM_PARTITIONS, utilityobj->GETTREEDEPTH_(threadidx)))); // edge->dstvid's in all workbanks are all local
+	collectstats(kvdram, kvstats, 0, BASEOFFSET_STATSDRAM, edgespropsz, 0, pow(NUM_PARTITIONS, TREE_DEPTH), (utilityobj->GETKVDATA_RANGE_FORSSDPARTITION_(threadidx) / pow(NUM_PARTITIONS, TREE_DEPTH)));
+	calculateoffsets(kvstats, BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH)); // FIXME.
 	#endif
 	return;
 }
@@ -368,7 +369,7 @@ void edge_process::generatekeyvalues_contiguous(vertexprop_t * vertexpropertiesb
 			data.value = edgeval;
 			
 			#ifdef _DEBUGMODE_CHECKS2
-			if((kvdramoffset + edgeindex) >= (kvdramoffset + PADDEDKVDATA_BATCHSIZE)){ std::cout<<"Host::generatekeyvalues::ERROR 45: out-of-bounds: (kvdramoffset + edgeindex): "<<(kvdramoffset + edgeindex)<<", PADDEDKVDATA_BATCHSIZE: "<<PADDEDKVDATA_BATCHSIZE<<std::endl; exit(EXIT_FAILURE); }
+			if((kvdramoffset + edgeindex) >= (kvdramoffset + KVDATA_BATCHSIZE)){ std::cout<<"Host::generatekeyvalues::ERROR 45: out-of-bounds: (kvdramoffset + edgeindex): "<<(kvdramoffset + edgeindex)<<", KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<std::endl; exit(EXIT_FAILURE); }
 			#endif			
 			kvdram[((kvdramoffset + edgeindex) % KVDATA_BATCHSIZE)] = data; // FIXME. CORRECT THIS
 			edgeindex ++;
@@ -413,55 +414,47 @@ void edge_process::loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fil
 	#endif
 	return;
 }
-void edge_process::collectstats(uint512_vec_dt * kvdram, metadata_t * kvstats, vertex_t kvoffset, vertex_t kvbatchsz, vertex_t kvrangeoffset, unsigned int finalnumpartitionsfordram_partition, unsigned int finalrangefordram_partition){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	std::cout << endl << "Collect stats of KvDRAM. "<< std::endl;
-	cout<<"edge_process::collectstats:: kvoffset: "<<kvoffset<<endl;
-	cout<<"edge_process::collectstats:: kvbatchsz: "<<kvbatchsz<<endl;
-	cout<<"edge_process::collectstats:: kvrangeoffset: "<<kvrangeoffset<<endl;
-	cout<<"edge_process::collectstats:: finalnumpartitionsfordram_partition: "<<finalnumpartitionsfordram_partition<<", KVSTATS_SIZE: "<<KVSTATS_SIZE<<endl;
-	cout<<"edge_process::collectstats:: finalrangefordram_partition: "<<finalrangefordram_partition<<endl;
-	#endif 
-	vertex_t kvoffset_kvs = kvoffset / VECTOR_SIZE;
-	vertex_t kvbatchsz_kvs = kvbatchsz / VECTOR_SIZE;
-	unsigned int numerrors = 0;
-	
-	for(int i = 0 ; i<KVSTATS_SIZE; i++){ kvstats[i].offset = 0; kvstats[i].size = 0; }
 
+void edge_process::collectstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, vertex_t kvdramoffset, vertex_t kvstatsoffset, vertex_t kvsize, vertex_t kvrangeoffset, unsigned int LLOPnumpartitions, unsigned int LLOPrangepartitions){				
+	vertex_t kvdramoffset_kvs = kvdramoffset / VECTOR_SIZE;
+	vertex_t kvdramsz_kvs = kvsize / VECTOR_SIZE;
 	unsigned int partition;
-	for(unsigned int i=0; i<kvbatchsz_kvs; i++){
+	unsigned int numerrors = 0;
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"edge_process::collectstats:: LLOPnumpartitions: "<<LLOPnumpartitions<<", LLOPrangepartitions: "<<LLOPrangepartitions<<endl;
+	#endif 
+	
+	// for(int i = 0 ; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].key = 0; kvstats[kvstatsoffset + i].value = 0; }
+	for(unsigned int i=0; i<kvdramsz_kvs; i++){
 		for(int j=0; j<VECTOR_SIZE; j++){
-			partition = (kvdram[(kvoffset_kvs + i)].data[j].key - kvrangeoffset) / finalrangefordram_partition;
+			partition = (kvdram[kvdramoffset_kvs + i].data[j].key - kvrangeoffset) / LLOPrangepartitions;
 			#ifdef _DEBUGMODE_CHECKS3
-			if(partition >= finalnumpartitionsfordram_partition){
-				cout<<"WARNING: edge_process::collectstats:: partition is out-of-range: i:"<<i<<", j:"<<j<<", partition: "<<partition<<", finalnump..: "<<finalnumpartitionsfordram_partition<<", kvdram["<<i<<"].data["<<j<<"].key: "<<kvdram[i].data[j].key<<", kvrangeoffset: "<<kvrangeoffset<<endl; 
+			if(partition >= LLOPnumpartitions){
+				cout<<"WARNING: edge_process::collectstats:: partition is out-of-range: i:"<<i<<", j:"<<j<<", partition: "<<partition<<", LLOPnumpartitions: "<<LLOPnumpartitions<<", kvdram["<<i<<"].data["<<j<<"].key: "<<kvdram[i].data[j].key<<", kvrangeoffset: "<<kvrangeoffset<<endl; 
 				partition = 0;
 				numerrors += 1; if(numerrors > (100)){ cout<<"edge_process::collectstats: too many ERRORS. check design."<<endl; exit(EXIT_FAILURE); }
 			}
 			#endif
-			kvstats[partition].size += 1;
+			kvstats[kvstatsoffset + partition].value += 1;
 		}
 	}
-	
-	// calculate offsets
-	kvstats[0].offset = 0;
-	for (unsigned int p = 1; p<finalnumpartitionsfordram_partition; p++){
-		kvstats[p].offset = utilityobj->hallignup_KV((kvstats[p-1].offset + kvstats[p-1].size + ((KVDATA_BATCHSIZE_NUMPADS / 2) * VECTOR_SIZE))); // FIXME. POSSIBLE CAUSE OF ERROR
-	}
-	
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int p=0; p<2; p++){ cout<<"edge_process::collectstats:: kvstats["<<p<<"].offset: "<<kvstats[p].offset<<", kvstats["<<p<<"].size: "<<kvstats[p].size<<" key value pairs"<<endl; }
-	#endif 
-	
-	// assign initial workload sizes
-	for(int i = 0 ; i<KVSTATS_SIZE; i++){ kvstats[i].size = 0; }
-	kvstats[0].size = kvbatchsz;
-
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"HOST::DEBUGGER:: checking last offset of collected stats (sanity test). "<<finalnumpartitionsfordram_partition<<", KVSTATS_SIZE: "<<KVSTATS_SIZE<<endl;
-	cout<<"edge_process::collectstats:: kvstats["<<(finalnumpartitionsfordram_partition - 1)<<"].offset: "<<kvstats[(finalnumpartitionsfordram_partition - 1)].offset<<", KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
-	cout<<"edge_process::collectstats:: kvstats[0].size: "<<kvstats[0].size<<" key value pairs"<<", numerrors: "<<numerrors<<endl;
-	// exit(EXIT_SUCCESS);
-	#endif 
 	return;
 }
+void edge_process::calculateoffsets(keyvalue_t * kvstats, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions){				
+	unsigned int kvsize = 0;
+	kvstats[kvstatsoffset + 0].key = 0;
+	kvsize += kvstats[kvstatsoffset + 0].value;
+	for (unsigned int p = 1; p<LLOPnumpartitions; p++){
+		kvstats[kvstatsoffset + p].key = utilityobj->hallignup_KV(kvstats[kvstatsoffset + p-1].key + kvstats[kvstatsoffset + p-1].value + LASTLEVELPARTITIONPADDING);
+		kvsize += kvstats[kvstatsoffset + p].value;
+	}	
+	
+	for(unsigned int i = 0; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].value = 0; }
+	kvstats[kvstatsoffset + 0].value = kvsize;
+	return;
+}
+
+
+
+
+

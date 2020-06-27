@@ -69,42 +69,6 @@ else if(ssdpartitonid == 2){
 else if(ssdpartitonid == 3){
 		range = KVDATA_RANGE_FORSSDPARTITION3;
 	}
-else if(ssdpartitonid == 4){
-		range = KVDATA_RANGE_FORSSDPARTITION4;
-	}
-else if(ssdpartitonid == 5){
-		range = KVDATA_RANGE_FORSSDPARTITION5;
-	}
-else if(ssdpartitonid == 6){
-		range = KVDATA_RANGE_FORSSDPARTITION6;
-	}
-else if(ssdpartitonid == 7){
-		range = KVDATA_RANGE_FORSSDPARTITION7;
-	}
-else if(ssdpartitonid == 8){
-		range = KVDATA_RANGE_FORSSDPARTITION8;
-	}
-else if(ssdpartitonid == 9){
-		range = KVDATA_RANGE_FORSSDPARTITION9;
-	}
-else if(ssdpartitonid == 10){
-		range = KVDATA_RANGE_FORSSDPARTITION10;
-	}
-else if(ssdpartitonid == 11){
-		range = KVDATA_RANGE_FORSSDPARTITION11;
-	}
-else if(ssdpartitonid == 12){
-		range = KVDATA_RANGE_FORSSDPARTITION12;
-	}
-else if(ssdpartitonid == 13){
-		range = KVDATA_RANGE_FORSSDPARTITION13;
-	}
-else if(ssdpartitonid == 14){
-		range = KVDATA_RANGE_FORSSDPARTITION14;
-	}
-else if(ssdpartitonid == 15){
-		range = KVDATA_RANGE_FORSSDPARTITION15;
-	}
 	else {
 		#ifdef _DEBUGMODE_CHECKS2
 		std::cout<<"Kernel::GETRANGE should never get here. GETRANGE 45 "<<std::endl;
@@ -128,42 +92,6 @@ else if(ssdpartitonid == 2){
 	}
 else if(ssdpartitonid == 3){
 		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION3;
-	}
-else if(ssdpartitonid == 4){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION4;
-	}
-else if(ssdpartitonid == 5){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION5;
-	}
-else if(ssdpartitonid == 6){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION6;
-	}
-else if(ssdpartitonid == 7){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION7;
-	}
-else if(ssdpartitonid == 8){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION8;
-	}
-else if(ssdpartitonid == 9){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION9;
-	}
-else if(ssdpartitonid == 10){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION10;
-	}
-else if(ssdpartitonid == 11){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION11;
-	}
-else if(ssdpartitonid == 12){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION12;
-	}
-else if(ssdpartitonid == 13){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION13;
-	}
-else if(ssdpartitonid == 14){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION14;
-	}
-else if(ssdpartitonid == 15){
-		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION15;
 	}
 	else {
 		#ifdef _DEBUGMODE_CHECKS2
@@ -189,42 +117,6 @@ else if(ssdpartitonid == 2){
 else if(ssdpartitonid == 3){
 		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION3;
 	}
-else if(ssdpartitonid == 4){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION4;
-	}
-else if(ssdpartitonid == 5){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION5;
-	}
-else if(ssdpartitonid == 6){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION6;
-	}
-else if(ssdpartitonid == 7){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION7;
-	}
-else if(ssdpartitonid == 8){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION8;
-	}
-else if(ssdpartitonid == 9){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION9;
-	}
-else if(ssdpartitonid == 10){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION10;
-	}
-else if(ssdpartitonid == 11){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION11;
-	}
-else if(ssdpartitonid == 12){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION12;
-	}
-else if(ssdpartitonid == 13){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION13;
-	}
-else if(ssdpartitonid == 14){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION14;
-	}
-else if(ssdpartitonid == 15){
-		size = APPLYVERTEXBUFFERSZ_FORSSDPARTITION15;
-	}
 	else {
 		#ifdef _DEBUGMODE_CHECKS2
 		std::cout<<"Kernel:: GETAPPLYVERTEXBUFFERSZ_FORSSDPARTITION_ should never get here.  GETAPPLYVERTEXBUFFERSZ_FORSSDPARTITION_ 45 "<<std::endl;
@@ -248,42 +140,6 @@ else if(ssdpartitonid == 2){
 	}
 else if(ssdpartitonid == 3){
 		depth = TREEDEPTH_FORSSDPARTITION3;
-	}
-else if(ssdpartitonid == 4){
-		depth = TREEDEPTH_FORSSDPARTITION4;
-	}
-else if(ssdpartitonid == 5){
-		depth = TREEDEPTH_FORSSDPARTITION5;
-	}
-else if(ssdpartitonid == 6){
-		depth = TREEDEPTH_FORSSDPARTITION6;
-	}
-else if(ssdpartitonid == 7){
-		depth = TREEDEPTH_FORSSDPARTITION7;
-	}
-else if(ssdpartitonid == 8){
-		depth = TREEDEPTH_FORSSDPARTITION8;
-	}
-else if(ssdpartitonid == 9){
-		depth = TREEDEPTH_FORSSDPARTITION9;
-	}
-else if(ssdpartitonid == 10){
-		depth = TREEDEPTH_FORSSDPARTITION10;
-	}
-else if(ssdpartitonid == 11){
-		depth = TREEDEPTH_FORSSDPARTITION11;
-	}
-else if(ssdpartitonid == 12){
-		depth = TREEDEPTH_FORSSDPARTITION12;
-	}
-else if(ssdpartitonid == 13){
-		depth = TREEDEPTH_FORSSDPARTITION13;
-	}
-else if(ssdpartitonid == 14){
-		depth = TREEDEPTH_FORSSDPARTITION14;
-	}
-else if(ssdpartitonid == 15){
-		depth = TREEDEPTH_FORSSDPARTITION15;
 	}
 	else {
 		#ifdef _DEBUGMODE_CHECKS2

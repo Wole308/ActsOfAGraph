@@ -5,6 +5,7 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
+#include "../kernels/kernelprocess.h"
 #include "../kernels/srkernelprocess.h"
 #include "actgraph_bfs_sw.h"
 #include "actgraph_pr_sw.h"

@@ -4,8 +4,7 @@
 #include "../graphs/graph.h"
 #include "../algorithm/algorithm.h"
 #include "../utility/utility.h"
-// #include "../kernels/legion.h"
-#include "../kernels/enigma.h"
+#include "../kernels/kernelprocess.h"
 #include "common.h"
 
 class host_enigma {
@@ -18,12 +17,15 @@ public:
 	void WorkerThread(int threadidx);
 	void finish();
 	
-	void loaddrams(int threadidx);
+	void loaddrams(int threadidx, unsigned int IterCount);
 	void loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kvs, unsigned int kvsize_kvs);
+	void prepareallstats(int threadidx);
 	void loadstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, vertex_t kvdramoffset, vertex_t kvdramsz, vertex_t kvstatsoffset, vertex_t kvrangeoffset, unsigned int LLOPnumpartitions, unsigned int LLOPrangepartitions);			
-	void loadmessages(keyvalue_t * messages, vertex_t offset);
+	void calculateoffsets(keyvalue_t * kvstats, vertex_t kvsize, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions);
+	void loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount);
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
+	unsigned int getmessagesAddr(unsigned int addr);
 	
 	#ifdef SW
 	void launchswkernel(int threadidx);
@@ -40,8 +42,7 @@ private:
 	keyvalue_t * kvstats[NUMCPUTHREADS][NUMDRAMBANKS];
 	
 	#ifdef SW
-	// legion * kernelobj;
-	enigma * kernelobj;
+	kernelprocess * kernelobj;
 	#endif
 	edge_process * edgeprocessobj[NUMCPUTHREADS];
 	utility * utilityobj[NUMCPUTHREADS];
@@ -52,7 +53,8 @@ private:
 	size_t global; 
 	size_t local;
 	
-	size_t kvsource_size_bytes; 
+	size_t kvsource_size_bytes;
+	size_t kvdest_size_bytes; 
 	size_t kvstats_size_bytes;
 	
 	cl_event kernel_events[2];

@@ -20,11 +20,16 @@
 #endif
 using namespace std;
 
+#define ENABLEREDUCEPHASE
+
 #define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define BUFFER_PADDING NUM_PARTITIONS
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 960 // 1024
 #define PADDEDBUFFER_SIZE (BUFFER_SIZE + BUFFER_PADDING)
+
+#define APPLYVERTEXBUFFERSZ (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)))
+#define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE)
 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
@@ -50,6 +55,7 @@ typedef struct {
 } runcmd_t;
 
 typedef struct {
+	unsigned int runkernelcommand;
 	unsigned int processcommand;
 	unsigned int partitioncommand;
 	unsigned int reducecommand;
@@ -60,6 +66,7 @@ typedef struct {
 	unsigned int treedepth;
 	unsigned int LLOPnumpartitions;
 	unsigned int paddedkvdatabatchszkvs;
+	unsigned int GraphIter;
 	unsigned int IterCount;
 	unsigned int baseoffset_kvs;
 	unsigned int basesize_kvs;
@@ -132,6 +139,7 @@ public:
 	void globalstats_countkvspartitioned(unsigned int count);
 	void globalstats_countkvsreduced(unsigned int count);
 	void globalstats_countkvsreducewritten(unsigned int count);
+	void globalstats_countkvsreadV(unsigned int count);
 	#endif
 	
 	unsigned int allignhigher_KV(unsigned int val);
@@ -140,6 +148,7 @@ public:
 	unsigned int max(unsigned int val1, unsigned int val2);
 	unsigned int min(unsigned int A, unsigned int B);
 	unsigned int hsub(unsigned int A, unsigned int B);
+	int runActs(unsigned int GraphIter);
 
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 	keyvalue_t getkeyvalue(uint512_dt buffer[BUFFER_SIZE], batch_type addr, batch_type maxaddr_kvs);
@@ -164,9 +173,11 @@ public:
 		
 	void loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP);
 	
-	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount);
+	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter);
 	
 	void generatepartitions0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	
+	void loadKvDRAM0(uint512_dt * kvdram, batch_type sourceoffset_kvs, batch_type destoffset_kvs, batch_type size_kvs);
 	
 	void topkernel(
 uint512_dt * kvsourcedramA

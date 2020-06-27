@@ -13,54 +13,20 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
 	std::cout<<"host:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
 	std::cout<<"host:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<std::endl;
-	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;	
-	std::cout<<"host:: PADDEDKVDATA_BATCHSIZE: "<<PADDEDKVDATA_BATCHSIZE<<std::endl;
-	std::cout<<"host:: PADDEDKVDATA_BATCHSIZE_KVS: "<<PADDEDKVDATA_BATCHSIZE_KVS<<std::endl;
-	std::cout<<"host:: _x2PADDEDKVDATA_SIZE: "<<_x2PADDEDKVDATA_SIZE<<std::endl;
-	std::cout<<"host:: _x2PADDEDKVDATA_SIZE_KVS: "<<_x2PADDEDKVDATA_SIZE_KVS<<std::endl;
-	std::cout<<"host:: _x3PADDEDKVDATA_SIZE: "<<_x3PADDEDKVDATA_SIZE<<std::endl;
-	std::cout<<"host:: _x3PADDEDKVDATA_SIZE_KVS: "<<_x3PADDEDKVDATA_SIZE_KVS<<std::endl;	
-	std::cout<<"host:: DRAMSZ: "<<DRAMSZ<<std::endl;
-	std::cout<<"host:: DRAMSZ_KVS: "<<DRAMSZ_KVS<<std::endl;	
+	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
-	std::cout<<"host:: KVBUFFERSZ: "<<KVBUFFERSZ<<std::endl;
-	std::cout<<"host:: KVBUFFERSZ_KVS: "<<KVBUFFERSZ_KVS<<std::endl;
-	std::cout<<"host:: KVSRCBUFFERSZ: "<<KVSRCBUFFERSZ<<std::endl;
-	std::cout<<"host:: KVSRCBUFFERSZ_KVS: "<<KVSRCBUFFERSZ_KVS<<std::endl;
-	std::cout<<"host:: KVSRCBUFFERSZ_APPLY: "<<KVSRCBUFFERSZ_APPLY<<std::endl;
-	std::cout<<"host:: KVSRCBUFFERSZ_APPLY_KVS: "<<KVSRCBUFFERSZ_APPLY_KVS<<std::endl;
-	std::cout<<"host:: KVDESTBUFFERSZ: "<<KVDESTBUFFERSZ<<std::endl;
-	std::cout<<"host:: KVDESTBUFFERSZ_KVS: "<<KVDESTBUFFERSZ_KVS<<std::endl;
-	std::cout<<"host:: OFFSETSCODE: "<<OFFSETSCODE<<std::endl;
-	std::cout<<"host:: SIZESCODE: "<<SIZESCODE<<std::endl;
-	std::cout<<"host:: SIZEOFKV: "<<SIZEOFKV<<std::endl;
-	std::cout<<"host:: SIZEOFVERTEXID: "<<SIZEOFVERTEXID<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
-	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;
-	std::cout<<"host:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<std::endl;	
-	std::cout<<"host:: VERTICESDATA_BATCHSIZE: "<<VERTICESDATA_BATCHSIZE<<std::endl;
-	std::cout<<"host:: VERTICESDATA_BUFFERSZ: "<<VERTICESDATA_BUFFERSZ<<std::endl;
-	std::cout<<"host:: KVSPARTITIONBUFFERSZ: "<<KVSPARTITIONBUFFERSZ<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION_POW: "<<KVDATA_RANGE_PERSSDPARTITION_POW<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION: "<<KVDATA_RANGE_PERSSDPARTITION<<std::endl;
 	{%for ppid in context['MAXNUMSSDPARTITIONS_seq']%}
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION{{ppid}}: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION{{ppid}}<<std::endl;
 	{%endfor%}
-	std::cout<<"host:: VERTICESDATASZ_FORDRAMX: "<<VERTICESDATASZ_FORDRAMX<<std::endl;
-	std::cout<<"host:: MAXTREEDEPTH: "<<MAXTREEDEPTH<<std::endl;
 	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
-	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;	
-	std::cout<<"host:: NM: "<<NM<<std::endl;
-	std::cout<<"host:: DESTTMPKVBUFFERSZ: "<<DESTTMPKVBUFFERSZ<<std::endl;	
-	std::cout<<"host:: DESTTMPKVBUFFERSZ_KVS: "<<DESTTMPKVBUFFERSZ_KVS<<std::endl;	
-	std::cout<<"host:: TOTALDESTTMPKVBUFFERSZ: "<<TOTALDESTTMPKVBUFFERSZ<<std::endl;	
-	std::cout<<"host:: TOTALDESTTMPKVBUFFERSZ_KVS: "<<TOTALDESTTMPKVBUFFERSZ_KVS<<std::endl;
-	std::cout<<"host:: NUMWORKERS_APPLYPH: "<<NUMWORKERS_APPLYPH<<std::endl;	
-	std::cout<<"host:: NUMSUBWORKERS_APPLYPH: "<<NUMSUBWORKERS_APPLYPH<<std::endl;
+	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;
 	#ifdef LOCKE
 	std::cout<<"host:: LOCKE DEFINED"<<std::endl;
 	#else 
@@ -145,21 +111,17 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: KVDRAMSZ: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;
-	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;	
-	// std::cout<<"host:: CAPSULEDRAMSZ: "<<CAPSULEDRAMSZ<<std::endl;
-	// std::cout<<"host:: CAPSULEDRAMSZ_KVS: "<<CAPSULEDRAMSZ_KVS<<std::endl;
+	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
 	std::cout<<"host:: STATSDRAMSZ: "<<STATSDRAMSZ<<std::endl;
-	// std::cout<<"host:: STATSDRAMSZ_KVS: "<<STATSDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<KVDRAMWORKSPACESZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;	
-	// std::cout<<"host:: BASEOFFSET_CAPSULEDRAM: "<<CAPSULEDRAMSZ<<std::endl;
-	// std::cout<<"host:: BASEOFFSET_CAPSULEDRAM_KVS: "<<CAPSULEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<STATSDRAMSZ<<std::endl;
-	// std::cout<<"host:: BASEOFFSET_STATSDRAM_KVS: "<<STATSDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
+	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
+	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	return;
 }
@@ -173,24 +135,10 @@ void printkvdrams(uint512_vec_dt * kvdram){
     }
 	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
 		for(unsigned int j=0; j<VECTOR_SIZE; j++){
-			std::cout<<"kvdram["<<(PADDEDKVDATA_BATCHSIZE_KVS + i)<<"].data["<<j<<"].key: "<<kvdram[(PADDEDKVDATA_BATCHSIZE_KVS + i)].data[j].key<<std::endl;
+			std::cout<<"kvdram["<<(KVDATA_BATCHSIZE_KVS + i)<<"].data["<<j<<"].key: "<<kvdram[(KVDATA_BATCHSIZE_KVS + i)].data[j].key<<std::endl;
 		}
     }
 	std::cout<<std::endl;
-	return;
-}
-
-void printkvdramsII(uint512_vec_dt * kvdram, metadata_t * kvstats){
-	#ifdef _DEBUGMODE_CHECKS
-	for(unsigned int i=0; i<NUMSSDPARTITIONS; i++){
-	cout<<">>> partition: "<<i<<endl;
-		for(unsigned int k = ((PADDEDKVDATA_BATCHSIZE + kvstats[i].offset) / VECTOR_SIZE) ; k<(((PADDEDKVDATA_BATCHSIZE + kvstats[i].offset) / VECTOR_SIZE) + 2) ; k++){
-			for(unsigned int j=0; j<VECTOR_SIZE; j++){
-				std::cout<<"kvdram["<<k<<"].data["<<j<<"].key: "<<kvdram[k].data[j].key<<std::endl;
-			}
-		}
-	}
-	#endif 
 	return;
 }
 
@@ -229,41 +177,6 @@ void print_graph(string path_graph, edge_t begin, edge_t size){
 		}
 		file.close();
 	}
-	return;
-}
-
-void check_kvdram2(uint512_vec_dt * kvdramX, metadata_t * kvstats, vertex_t vbegin, vertex_t applyvertexbuffersz, unsigned int treedepth, string message){
-	cout<<endl<<"DEBUGGER::check_kvdram2:: checking kvdram for errors... vbegin: "<<vbegin<<", applyvertexbuffersz: "<<applyvertexbuffersz<<", message: "<<message<<endl;
-	
-	unsigned int finalnum_partitions = pow(NUM_PARTITIONS, treedepth);
-	
-	cout<<"DEBUGGER::check_kvdram2:: kvstats["<<(finalnum_partitions - 1)<<"].offset: "<<kvstats[finalnum_partitions - 1].offset<<endl;
-	cout<<"DEBUGGER::check_kvdram2:: kvstats["<<(finalnum_partitions - 1)<<"].size: "<<kvstats[finalnum_partitions - 1].size<<endl;
-	cout<<"DEBUGGER::check_kvdram2:: kvstats["<<(finalnum_partitions - 1)<<"].offset + kvstats["<<(finalnum_partitions - 1)<<"].size: "<<(kvstats[finalnum_partitions - 1].offset + kvstats[finalnum_partitions - 1].size)<<endl;		
-	
-	unsigned int baseaddr_kvs = 0;
-	if((treedepth % 2) == 1){
-		baseaddr_kvs = PADDEDKVDATA_BATCHSIZE_KVS; // FIXME
-	} else {
-		baseaddr_kvs = 0;
-	}
-	unsigned int items_counted = 0;
-	
-	for(unsigned int i=0; i<finalnum_partitions; i++){
-		for(unsigned int j=(kvstats[i].offset / VECTOR_SIZE); j<((kvstats[i].offset + kvstats[i].size) / VECTOR_SIZE); j++){
-			for(unsigned int k=0; k<VECTOR_SIZE; k++){
-				if(((kvdramX[baseaddr_kvs + j].data[k].key - vbegin) - (i * applyvertexbuffersz)) > applyvertexbuffersz){ 
-					cout<<"!!! DEBUGGER::check_kvdram2:: ERROR: out of bounds seen in kvdram:"<<endl;
-					cout<<"kvdramX["<<(baseaddr_kvs + j)<<"].data["<<k<<"].key: "<<kvdramX[baseaddr_kvs + j].data[k].key<<endl;
-					cout<<"kvitemoffset: "<<(j * VECTOR_SIZE + k)<<endl;
-					cout<<endl;
-					exit(EXIT_FAILURE);
-				}
-				items_counted += 1;
-			}
-		}
-	}
-	cout<<"DEBUGGER::check_kvdram2::"<<message<<" CHECK COMPLETED SUCCESSFULLY. "<<items_counted<<" key-values counted"<<endl;
 	return;
 }
 

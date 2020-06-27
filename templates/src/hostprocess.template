@@ -22,11 +22,11 @@
 #include "actgraph_bc_sw.h"
 #include "grafboost_bfs_sw.h"
 #include "grafboost_bc_sw.h"
-#include "../kernels/kernelprocess.h"
+// #include "../kernels/kernelprocess.h"
 // #include "host_legion.h"
 // #include "../kernels/legion.h"
 #include "host_enigma.h"
-#include "../kernels/enigma.h"
+// #include "../kernels/enigma.h"
 // #include "host_titan.h"
 // #include "../kernels/titan.h"
 #include "../graphs/createsmartgraph.h"
@@ -46,6 +46,7 @@
 #endif
 using namespace std;
 #define YES
+// #define TESTKERNEL
 
 #ifdef YES
 unsigned long globaldebugger_totalbytesreadfromfile; 
@@ -60,9 +61,6 @@ int main(int argc, char** argv){
 	#ifdef LOCKE
 	if(NUMCPUTHREADS != 4){ std::cout<<"hostprocess:: WARNING: no need to use LOCKE setting with more than 1 thread. returning..."<<std::endl; return EXIT_SUCCESS; }
 	#endif
-	#ifdef FPGA_IMPL
-	// if(NUMCPUTHREADS != 1){ std::cout<<"hostprocess:: WARNING: FPGA implementation does not support multithreading..."<<std::endl; return EXIT_SUCCESS; }
-	#endif 
 	#ifdef GRAFBOOST_SETUP
 	if(NUMCPUTHREADS < 2){ std::cout<<"hostprocess:: WARNING: grafboost not working with more than 2 threads. returning..."<<std::endl; return EXIT_SUCCESS; }
 	#endif
@@ -105,10 +103,8 @@ int main(int argc, char** argv){
 	printallparameters(graphobj->getdataset());
 	
 	// implementing kernel_legion
-	#ifdef KERNEL_LEGION
-	// host_legion * hostXobj = new host_legion(graphobj);
+	#ifdef TESTKERNEL
 	host_enigma * hostXobj = new host_enigma(graphobj);
-	// host_titan * hostXobj = new host_titan(graphobj);
 	#ifdef FPGA_IMPL
 	hostXobj->loadOCLstructures(binaryFile);
 	#endif

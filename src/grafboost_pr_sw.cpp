@@ -14,7 +14,7 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
-#include "../kernels/kernelprocess.h"
+#include "../kernels/enigma.h"
 #include "grafboost_pr_sw.h"
 #include "sortreduce.h"
 #include "types.h"
@@ -96,10 +96,10 @@ grafboost_pr_sw::grafboost_pr_sw(graph * _graphobj){
 	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, *(uint32_t*)&init_val2, &is_active, &finalize_program, max_vertexval_thread_count);	
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
-		kvdramA[i] = new uint512_vec_dt[DRAMSZ_KVS];
-		kvdramB[i] = new uint512_vec_dt[DRAMSZ_KVS];
-		kvdramC[i] = new uint512_vec_dt[DRAMSZ_KVS];
-		kvdramD[i] = new uint512_vec_dt[DRAMSZ_KVS];
+		kvdramA[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
+		kvdramB[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
+		kvdramC[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
+		kvdramD[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
 		kvstatsA[i] = new metadata_t[1]; // NAp
 		kvstatsB[i] = new metadata_t[1]; // NAp
 		kvstatsC[i] = new metadata_t[1]; // NAp

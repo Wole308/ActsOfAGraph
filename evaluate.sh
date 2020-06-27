@@ -130,14 +130,15 @@ do
 	do
 		### >>> LOOP3: locke (kernel-only evaluation)
 		# for locke in $_LOCKE $_NOLOCKE
+		# for locke in $_NOLOCKE
 		for locke in $_LOCKE
 		do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 			# for dataset in $LARGEDATASET_1M
-			# for dataset in $LARGEDATASET_67M
+			for dataset in $LARGEDATASET_67M
 			# for dataset in $LARGEDATASET_268M
-			for dataset in $LARGEDATASET_1B
+			# for dataset in $LARGEDATASET_1B
 			do 
 				if [ $dataset == $LARGEDATASET_1M ]  
 				then	
@@ -202,8 +203,8 @@ do
 					# make build_host
 					# make build_host_aws
 					# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
-					# make swemu 
-					make swemu_aws
+					make swemu 
+					# make swemu_aws
 					# make swemu_aws > $OUTFILE_NAME
 				elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 				then

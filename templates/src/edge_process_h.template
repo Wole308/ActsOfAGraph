@@ -4,7 +4,6 @@
 #include "../utility/utility.h"
 #include "../algorithm/algorithm.h"
 #include "../graphs/graph.h"
-#include "../kernels/kernelprocess.h"
 #include "common.h"
 
 class edge_process {
@@ -16,17 +15,18 @@ public:
 	unsigned int generateupdates2_random(SortReduceUtils::FileKvReader<uint32_t,uint32_t>* reader, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int * status);
 	void generatekeyvalues_random(vertex_t key, value_t val, int nvmeFd_edgeoffsets_r2, int nvmeFd_edgeproperties_r2, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int * kvsize);
 	
-	unsigned int generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, metadata_t * kvstats, unsigned int threadidx);
+	unsigned int generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx);
 	unsigned int generatekeyvalues_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, vertex_t edgesbuffersz, keyvalue_t * kvdram, vertex_t kvdramoffset);
 	
-	void generateupdates_contiguous(size_t wordoffset, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, uint512_vec_dt * kvdram, metadata_t * kvstats, unsigned int threadidx);
+	void generateupdates_contiguous(size_t wordoffset, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx);
 	void generatekeyvalues_contiguous(vertexprop_t * vertexpropertiesbuffer, keyvalue_t * kvdram, vertex_t vertexpropsz, vertex_t edgespropsz, vertex_t kvdramoffset);
 	
 	template <class T>
 	void loadedgepropertiesfromfile(int nvmeFd_edgeproperties_r2, size_t fileoffset, T * buffer, edge_t bufferoffset, vertex_t numbytestoread);
 	template <class T>
 	void loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fileoffset, T * buffer, vertex_t bufferoffset, size_t numbytestoread);
-	void collectstats(uint512_vec_dt * kvdram, metadata_t * kvstats, vertex_t kvoffset, vertex_t kvbatchsz, vertex_t kvrangeoffset, unsigned int finalnumpartitionsfordram_partition, unsigned int finalrangefordram_partition);
+	void collectstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, vertex_t kvdramoffset, vertex_t kvstatsoffset, vertex_t kvsize, vertex_t kvrangeoffset, unsigned int LLOPnumpartitions, unsigned int LLOPrangepartitions);
+	void calculateoffsets(keyvalue_t * kvstats, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions);
 
 private:	
 	unsigned int numvertexbanks;
