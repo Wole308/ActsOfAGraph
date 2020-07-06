@@ -20,7 +20,7 @@ void kernelprocess::topkernel(
 		,keyvalue_t * kvstats{{ddrs_}}
 		{%endfor%}
         ){
-	
+	#ifdef SW
 	return enigmaobj.topkernel(
 		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 		{%if(ddrs==0)%}{%else%},{%endif%}kvsourcedram{{ddrs_}}
@@ -32,5 +32,6 @@ void kernelprocess::topkernel(
 		,kvstats{{ddrs_}}
 		{%endfor%}
         );
+	#endif
 	return;
 }

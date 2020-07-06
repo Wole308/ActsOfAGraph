@@ -381,8 +381,17 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 		#ifdef SW 
 		kernel_process[threadidx]->topkernel(
 			(uint512_dt *)kvsourcedram[threadidx][0]
+,			(uint512_dt *)kvsourcedram[threadidx][1]
+,			(uint512_dt *)kvsourcedram[threadidx][2]
+,			(uint512_dt *)kvsourcedram[threadidx][3]
 			,(uint512_dt *)kvdestdram[threadidx][0]
+			,(uint512_dt *)kvdestdram[threadidx][1]
+			,(uint512_dt *)kvdestdram[threadidx][2]
+			,(uint512_dt *)kvdestdram[threadidx][3]
 			,(keyvalue_t *)kvstats[threadidx][0]
+			,(keyvalue_t *)kvstats[threadidx][1]
+			,(keyvalue_t *)kvstats[threadidx][2]
+			,(keyvalue_t *)kvstats[threadidx][3]
 );
 		#else
 		launchkernel(flag);
@@ -664,7 +673,7 @@ void actgraph_bfs_sw::launchkernel(unsigned int flag){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[flag][ddr], CL_FALSE, 0, kvsource_size_bytes, kvsourcedram[flag][ddr], 0, NULL, &write_events[ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[context['NUMDRAMBANKS'] + ddr] ));
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[4 + ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[8 + ddr] ));

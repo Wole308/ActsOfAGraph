@@ -21,7 +21,9 @@ public:
         );
 	
 private:
+	#ifdef SW
 	enigma enigmaobj;
+	#endif
 };
 #endif 
 

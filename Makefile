@@ -2,23 +2,6 @@ TARGETPLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_
 TARGETPLATFORM_AWS=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm
 
 # Memory assignment flags
-MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem0:DDR[0] 
-MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem1:DDR[0] 
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem2:DDR[2] 
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem3:DDR[3]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem4:DDR[0] 
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem5:DDR[1] 
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem6:DDR[2] 
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem7:DDR[3]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem8:DDR[0]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem9:DDR[1]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem10:DDR[2]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem11:DDR[3]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem12:DDR[0]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem13:DDR[1]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem14:DDR[2]
-# MEMBANKCONFIG += --sp topkernel_1.m_axi_gmem15:DDR[3]
-
 # MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
 # MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
 # MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0 
@@ -37,15 +20,24 @@ MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2
 MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
 
 # Kernel linker flags
-LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR1
+# LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR0 --slr topkernel_3:SLR1 --slr topkernel_4:SLR1
 
-# Memory assignment flags (2 Instances Implementation) 
-MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem0:DDR[0] 
-MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem1:DDR[0] 
-MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem2:DDR[0]
-MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem0:DDR[1] 
-MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem1:DDR[1] 
-MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem2:DDR[1]
+# Memory assignment flags (2 Instances Implementation)
+MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem0:bank0 
+MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem1:bank0 
+MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem2:bank0 
+
+MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem0:bank1
+MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem1:bank1  
+MEMBANKCONFIG_2ndInst += --sp topkernel_2.m_axi_gmem2:bank1 
+ 
+MEMBANKCONFIG_3rdInst += --sp topkernel_3.m_axi_gmem0:bank2 
+MEMBANKCONFIG_3rdInst += --sp topkernel_3.m_axi_gmem1:bank2
+MEMBANKCONFIG_3rdInst += --sp topkernel_3.m_axi_gmem2:bank2 
+
+MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem0:bank3 
+MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem1:bank3 
+MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem2:bank3
 
 # Src files
 # TOPKERNEL_ARG = kernels/kernel.cpp
@@ -98,38 +90,38 @@ swemu_aws: cleanall build_xo_swemu_aws build_xclbin_swemu_aws build_host_aws run
 swemu_2inst_aws: cleanall build_xo_swemu_aws build_xclbin_swemu_2inst_aws build_host_aws run_swemu
 
 hw: cleanall build_xo_hw build_xclbin_hw build_host
-hw_2inst: cleanall build_xo_hw build_xclbin_hw_2inst build_host
+hw_4inst: cleanall build_xo_hw build_xclbin_hw_4inst build_host
 
 hw_aws: cleanall build_xo_hw_aws build_xclbin_hw_aws build_host_aws
-hw_2inst_aws: cleanall build_xo_hw_aws build_xclbin_hw_2inst_aws build_host_aws
+hw_4inst_aws: cleanall build_xo_hw_aws build_xclbin_hw_4inst_aws build_host_aws
 	
 build_xo_swemu:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -c --target sw_emu --platform $(TARGETPLATFORM) $(TOPKERNEL_ARG) $(KERNEL_SRCS) --kernel topkernel -o kernel.xo
 build_xclbin_swemu:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM) $(MEMBANKCONFIG) kernel.xo -o kernel.xclbin
 build_xclbin_swemu_2inst:
-	/tools/Xilinx/SDx/2019.1/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(LDCLFLAGS) kernel.xo -o kernel.xclbin
+	/tools/Xilinx/SDx/2019.1/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(MEMBANKCONFIG_3rdInst) $(MEMBANKCONFIG_4thInst) $(LDCLFLAGS) kernel.xo -o kernel.xclbin
 	
 build_xo_swemu_aws:
 	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -c --target sw_emu --platform $(TARGETPLATFORM_AWS) $(TOPKERNEL_ARG) $(KERNEL_SRCS) --kernel topkernel -o kernel.xo
 build_xclbin_swemu_aws:
 	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM_AWS) $(MEMBANKCONFIG_AWS) kernel.xo -o kernel.xclbin
 build_xclbin_swemu_2inst_aws:
-	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM_AWS) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(LDCLFLAGS) kernel.xo -o kernel.xclbin
+	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM_AWS) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(MEMBANKCONFIG_3rdInst) $(MEMBANKCONFIG_4thInst) $(LDCLFLAGS) kernel.xo -o kernel.xclbin
 	
 build_xo_hw:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -g -c --kernel_frequency=300 --target hw --platform $(TARGETPLATFORM) $(TOPKERNEL_ARG) $(KERNEL_SRCS) --kernel topkernel -o kernel.xo
 build_xclbin_hw:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM) $(MEMBANKCONFIG) kernel.xo -o kernel.xclbin
-build_xclbin_hw_2inst:
-	/tools/Xilinx/SDx/2019.1/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(LDCLFLAGS) --nk topkernel:2 kernel.xo -o kernel.xclbin
+build_xclbin_hw_4inst:
+	/tools/Xilinx/SDx/2019.1/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(MEMBANKCONFIG_3rdInst) $(MEMBANKCONFIG_4thInst) $(LDCLFLAGS) --nk topkernel:4 kernel.xo -o kernel.xclbin
 	
 build_xo_hw_aws:
 	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -g -c --kernel_frequency=300 --target hw --platform $(TARGETPLATFORM_AWS) $(TOPKERNEL_ARG) $(KERNEL_SRCS) --kernel topkernel -o kernel.xo
 build_xclbin_hw_aws:
 	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM_AWS) $(MEMBANKCONFIG_AWS) kernel.xo -o kernel.xclbin
-build_xclbin_hw_2inst_aws:
-	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM_AWS) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(LDCLFLAGS) --nk topkernel:2 kernel.xo -o kernel.xclbin
+build_xclbin_hw_4inst_aws:
+	/opt/Xilinx/SDx/2019.1.op2552052/bin/xocc --xp param:compiler.userPostSysLinkTcl=/home/centos/src/project_data/oj2zf/ActsOfAGraph/userPostSysLink.tcl -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM_AWS) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(MEMBANKCONFIG_3rdInst) $(MEMBANKCONFIG_4thInst) $(LDCLFLAGS) --nk topkernel:4 kernel.xo -o kernel.xclbin
 	
 build_host:
 	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O0 -g -std=c++14 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(HOST_TOP) $(HOST_SRCS) $(HOSTPROCESS_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt

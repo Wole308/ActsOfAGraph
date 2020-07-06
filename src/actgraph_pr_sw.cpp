@@ -250,8 +250,17 @@ void actgraph_pr_sw::WorkerThread(int threadidx, int gbankoffset){
 				#ifdef SW
 				kernel_process[threadidx]->topkernel(
 					(uint512_dt *)kvsourcedram[threadidx][0]
+,					(uint512_dt *)kvsourcedram[threadidx][1]
+,					(uint512_dt *)kvsourcedram[threadidx][2]
+,					(uint512_dt *)kvsourcedram[threadidx][3]
 					,(uint512_dt *)kvdestdram[threadidx][0]
+					,(uint512_dt *)kvdestdram[threadidx][1]
+					,(uint512_dt *)kvdestdram[threadidx][2]
+					,(uint512_dt *)kvdestdram[threadidx][3]
 					,(keyvalue_t *)kvstats[threadidx][0]
+					,(keyvalue_t *)kvstats[threadidx][1]
+					,(keyvalue_t *)kvstats[threadidx][2]
+					,(keyvalue_t *)kvstats[threadidx][3]
 );
 				#else 
 					unsigned int flag = 1; // FIXME.
@@ -399,8 +408,17 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 			#ifdef SW
 			kernel_process[threadidx]->topkernel(
 				(uint512_dt *)kvsourcedram[threadidx][0]
+,				(uint512_dt *)kvsourcedram[threadidx][1]
+,				(uint512_dt *)kvsourcedram[threadidx][2]
+,				(uint512_dt *)kvsourcedram[threadidx][3]
 				,(uint512_dt *)kvdestdram[threadidx][0]
+				,(uint512_dt *)kvdestdram[threadidx][1]
+				,(uint512_dt *)kvdestdram[threadidx][2]
+				,(uint512_dt *)kvdestdram[threadidx][3]
 				,(keyvalue_t *)kvstats[threadidx][0]
+				,(keyvalue_t *)kvstats[threadidx][1]
+				,(keyvalue_t *)kvstats[threadidx][2]
+				,(keyvalue_t *)kvstats[threadidx][3]
 );
 			#else
 			launchkernel(flag);

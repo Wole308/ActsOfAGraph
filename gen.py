@@ -6,7 +6,8 @@ import math
 import sys
 import array as arr 
 
-ACTSACCEL1_params = arr.array('i', [1, 8, 1])
+# ACTSACCEL1_params = arr.array('i', [1, 8, 1])
+ACTSACCEL1_params = arr.array('i', [1, 4, 1])
 
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
@@ -19,9 +20,9 @@ context['LOCKE'] = sys.argv[6]
 context['PLATFORM'] = "CRABTREE_PLATFORM" # AWS_PLATFORM, CRABTREE_PLATFORM
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
-context['VECTOR_SIZE'] = int(context['DATAWIDTH'] / context['NUMBITSINKVPAIR'])
+context['VECTOR_SIZE'] = 8
 context['NUMDRAMBANKS'] = 4
-context['NUMINSTANCES'] = 1
+context['NUMINSTANCES'] = 4
 context['NUMWORKERS'] = ACTSACCEL1_params[0]
 context['NUMSUBWORKERS'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
@@ -30,6 +31,7 @@ context['NUMWORKERS_APPLYPH'] = 1
 context['NUMSUBWORKERS_APPLYPH'] = ACTSACCEL1_params[1] 
 context['BUNDLEFACTOR_APPLYPH'] = 1
 context['NUMPARTIALRESULTS'] = 4
+context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
 
 if context['DATASET'] == "_EQUALDATASET_X":
 	context['MAXNUMSSDPARTITIONS_POW'] = 2
@@ -45,8 +47,8 @@ elif context['DATASET'] == "_LARGEDATASET_4B":
 	context['MAXNUMSSDPARTITIONS_POW'] = 4
 
 # context['NUM_PARTITIONS_POW'] = 3
-# context['NUM_PARTITIONS_POW'] = 4
-context['NUM_PARTITIONS_POW'] = 5
+context['NUM_PARTITIONS_POW'] = 4
+# context['NUM_PARTITIONS_POW'] = 5
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
 if (context['PLATFORM'] == "AWS_PLATFORM"):
@@ -330,6 +332,10 @@ for i in range (0,(context['NUMPARTIALRESULTS'])):
 context['NUMPARTITIONS_seq'] = []
 for i in range (0,(context['NUM_PARTITIONS'])):
 		context['NUMPARTITIONS_seq'].append(i)   
+        
+context['NUMSUBWORKERSPERVECTOR_seq'] = []
+for i in range (0,(context['NUMSUBWORKERSPERVECTOR'])):
+		context['NUMSUBWORKERSPERVECTOR_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)

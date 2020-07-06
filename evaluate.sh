@@ -136,9 +136,9 @@ do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 			# for dataset in $LARGEDATASET_1M
-			for dataset in $LARGEDATASET_67M
+			# for dataset in $LARGEDATASET_67M
 			# for dataset in $LARGEDATASET_268M
-			# for dataset in $LARGEDATASET_1B
+			for dataset in $LARGEDATASET_1B
 			do 
 				if [ $dataset == $LARGEDATASET_1M ]  
 				then	

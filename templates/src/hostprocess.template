@@ -46,7 +46,7 @@
 #endif
 using namespace std;
 #define YES
-// #define TESTKERNEL
+#define TESTKERNEL
 
 #ifdef YES
 unsigned long globaldebugger_totalbytesreadfromfile; 
