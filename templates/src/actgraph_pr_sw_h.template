@@ -48,7 +48,6 @@ public:
 	void finishOCL();
 	unsigned int getflag(unsigned int giteration_idx);
 	void reloadOCLenv(xcl_world * _world, cl_program * _program, cl_kernel * _kernel);
-	void allocateOCLbuffers();
 	#endif 
 	
 private:

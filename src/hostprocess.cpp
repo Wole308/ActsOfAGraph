@@ -22,13 +22,7 @@
 #include "actgraph_bc_sw.h"
 #include "grafboost_bfs_sw.h"
 #include "grafboost_bc_sw.h"
-// #include "../kernels/kernelprocess.h"
-// #include "host_legion.h"
-// #include "../kernels/legion.h"
 #include "host_enigma.h"
-// #include "../kernels/enigma.h"
-// #include "host_titan.h"
-// #include "../kernels/titan.h"
 #include "../graphs/createsmartgraph.h"
 #include "../graphs/create2Dgraph.h"
 #include "../kernels/srkernelprocess.h"
@@ -46,7 +40,7 @@
 #endif
 using namespace std;
 #define YES
-#define TESTKERNEL
+// #define TESTKERNEL
 
 #ifdef YES
 unsigned long globaldebugger_totalbytesreadfromfile; 

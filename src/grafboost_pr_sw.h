@@ -38,12 +38,6 @@ public:
 private:
 	uint512_vec_dt * kvdramA[NUMCPUTHREADS];
 	metadata_t * kvstatsA[NUMCPUTHREADS];
-	uint512_vec_dt * kvdramB[NUMCPUTHREADS];
-	metadata_t * kvstatsB[NUMCPUTHREADS];
-	uint512_vec_dt * kvdramC[NUMCPUTHREADS];
-	metadata_t * kvstatsC[NUMCPUTHREADS];
-	uint512_vec_dt * kvdramD[NUMCPUTHREADS];
-	metadata_t * kvstatsD[NUMCPUTHREADS];
 	
 	int nvmeFd_vertexoffsets_r2[MAXNUMEDGEBANKS][MAXNUMEDGEBANKS];
 	int nvmeFd_vertexproperties_r2[MAXNUMEDGEBANKS];

@@ -236,6 +236,10 @@ int utility::runActs(unsigned int IterCount){
 	if((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)){ return 1; }
 	else { return 0; }
 }
+int utility::resetActs(unsigned int IterCount){
+	if((IterCount % DRAMBATCHFACTOR) == 0){ return 1; }
+	else { return 0; }
+}
 
 #ifdef FPGA_IMPL
 #define OCL_CHECK(call)							\

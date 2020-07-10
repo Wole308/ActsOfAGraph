@@ -278,14 +278,8 @@ void grafboost_pr_sw::WorkerThread(int threadidx, edge_t ledgeoffset, edge_t led
 		srkernel_process->srtopkernel(
 			sr
 			,(keyvalue_t *)kvdramA[threadidx]
-			,(keyvalue_t *)kvdramB[threadidx]
-			,(keyvalue_t *)kvdramC[threadidx]
-			,(keyvalue_t *)kvdramD[threadidx]
 			
 			,edgeszA
-			,edgeszB
-			,edgeszC
-			,edgeszD
 );
 		mutex5_srkernel.unlock(); // unlock
 		#ifdef LOCKE

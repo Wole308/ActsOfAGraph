@@ -25,8 +25,8 @@ public:
 	void loadedgepropertiesfromfile(int nvmeFd_edgeproperties_r2, size_t fileoffset, T * buffer, edge_t bufferoffset, vertex_t numbytestoread);
 	template <class T>
 	void loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fileoffset, T * buffer, vertex_t bufferoffset, size_t numbytestoread);
-	void collectstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, vertex_t kvdramoffset, vertex_t kvstatsoffset, vertex_t kvsize, vertex_t kvrangeoffset, unsigned int LLOPnumpartitions, unsigned int LLOPrangepartitions);
-	void calculateoffsets(keyvalue_t * kvstats, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions);
+	void collectstats(keyvalue_t * kvstats, vertex_t kvsize);
+	void resetstats(keyvalue_t * kvstats);
 
 private:	
 	unsigned int numvertexbanks;

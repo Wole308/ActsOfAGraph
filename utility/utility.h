@@ -32,6 +32,7 @@ public:
 	unsigned int getstatsAddr(unsigned int addr);
 	unsigned int getmessagesAddr(unsigned int addr);
 	int runActs(unsigned int IterCount);
+	int resetActs(unsigned int IterCount);
 
 	#ifdef FPGA_IMPL
 	// void event_cb(cl_event event, cl_int cmd_status, void *data);

@@ -381,17 +381,8 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 		#ifdef SW 
 		kernel_process[threadidx]->topkernel(
 			(uint512_dt *)kvsourcedram[threadidx][0]
-,			(uint512_dt *)kvsourcedram[threadidx][1]
-,			(uint512_dt *)kvsourcedram[threadidx][2]
-,			(uint512_dt *)kvsourcedram[threadidx][3]
 			,(uint512_dt *)kvdestdram[threadidx][0]
-			,(uint512_dt *)kvdestdram[threadidx][1]
-			,(uint512_dt *)kvdestdram[threadidx][2]
-			,(uint512_dt *)kvdestdram[threadidx][3]
 			,(keyvalue_t *)kvstats[threadidx][0]
-			,(keyvalue_t *)kvstats[threadidx][1]
-			,(keyvalue_t *)kvstats[threadidx][2]
-			,(keyvalue_t *)kvstats[threadidx][3]
 );
 		#else
 		launchkernel(flag);
@@ -480,11 +471,8 @@ void actgraph_bfs_sw::workerthread_generatekvs(unsigned int ddr, int threadidx, 
 	*kvcount = utilityobj[threadidx]->hmin(KVDATA_BATCHSIZE, utilityobj[threadidx]->hsub((size_t)buffer_vertexupdates_w[(bankoffset + threadidx)].size(), (size_t)((size_t)((size_t)iteration_idx * (size_t)NUMDRAMBANKS * (size_t)KVDATA_BATCHSIZE) + (ddr * KVDATA_BATCHSIZE))));
 	size_t kvoffset = (size_t)((size_t)iteration_idx * (size_t)NUMDRAMBANKS * (size_t)KVDATA_BATCHSIZE) + (size_t)(ddr * KVDATA_BATCHSIZE);	
 	this->loadupdatesfrombuffer(buffer_vertexupdates_w[(bankoffset + threadidx)], kvoffset, (keyvalue_t *) kvsourcedram[threadidx][ddr], 0, *kvcount, true);
-	// edge_process_obj[threadidx]->collectstats(kvsourcedram[threadidx][ddr], kvstats[threadidx][ddr], 0, *kvcount, ((bankoffset + threadidx) * (KVDATA_RANGE / NUMSSDPARTITIONS)), pow(NUM_PARTITIONS, utilityobj[threadidx]->GETTREEDEPTH_((bankoffset + threadidx))), (utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_(threadidx) / pow(NUM_PARTITIONS, utilityobj[threadidx]->GETTREEDEPTH_((bankoffset + threadidx)))));	
-
-	edge_process_obj[threadidx]->collectstats(kvsourcedram[threadidx][ddr], kvstats[threadidx][ddr], 0, BASEOFFSET_STATSDRAM, *kvcount, ((bankoffset + threadidx) * (KVDATA_RANGE / NUMSSDPARTITIONS)), pow(NUM_PARTITIONS, TREE_DEPTH), (utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_(threadidx) / pow(NUM_PARTITIONS, TREE_DEPTH)));		
-	// edge_process_obj[threadidx]->calculateoffsets(kvstats[threadidx][ddr], *kvcount, BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH));
-	edge_process_obj[threadidx]->calculateoffsets(kvstats[threadidx][ddr], BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH));
+	
+	edge_process_obj[threadidx]->collectstats(kvstats[threadidx][ddr], *kvcount);
 }
 void actgraph_bfs_sw::partitionupdates(keyvalue_t * kvdram, vector<keyvalue_t> (&vertexupdates)[NUMSSDPARTITIONS], unsigned int vbegin, unsigned int keyvaluesize, unsigned int rangeperpartition){
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -701,7 +689,7 @@ void actgraph_bfs_sw::launchkernel(unsigned int flag){
 	// potentially overlap the next kernel call as well as the next read
 	// operations
 	#ifdef _DEBUGMODE_TIMERS
-	actgraph_pr_sw_obj->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Top kernel Time Elapsed: ", begintime_topkernel, iteration_idx);
+	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Top kernel Time Elapsed: ", begintime_topkernel, NAp);
 	#endif 
 	#ifdef LOCKE
 	totaltime_topkernel2_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_topkernel).count();

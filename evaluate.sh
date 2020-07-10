@@ -50,11 +50,14 @@ _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP1: basic experiement setup
 # SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
-# HW__ACTGRAPH_SETUP__PR_ALGORITHM
+# HW__ACTGRAPH_SETUP__PR_ALGORITHM HW__ACTGRAPH_SETUP__BFS_ALGORITHM HW__ACTGRAPH_SETUP__BC_ALGORITHM
 # SW__ACTGRAPH_SETUP__PR_ALGORITHM
 # for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $SW__GRAFBOOST_SETUP__PR_ALGORITHM $SW__GRAFBOOST_SETUP__BFS_ALGORITHM $SW__GRAFBOOST_SETUP__BC_ALGORITHM			
 # for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM $SW__GRAFBOOST_SETUP__PR_ALGORITHM $SW__GRAFBOOST_SETUP__BFS_ALGORITHM $SW__GRAFBOOST_SETUP__BC_ALGORITHM			
-for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+
+# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 do 
 	if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ]  
 	then 
@@ -130,8 +133,8 @@ do
 	do
 		### >>> LOOP3: locke (kernel-only evaluation)
 		# for locke in $_LOCKE $_NOLOCKE
-		# for locke in $_NOLOCKE
-		for locke in $_LOCKE
+		for locke in $_NOLOCKE
+		# for locke in $_LOCKE
 		do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
@@ -183,6 +186,7 @@ do
 					make cleanall
 					# make build_acts_nthreads
 					make demo_acts_nthreads
+					# make demo_acts_nthreads_debug
 					# make demo_acts_nthreads > $OUTFILE_NAME
 				elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 				then
@@ -203,15 +207,16 @@ do
 					# make build_host
 					# make build_host_aws
 					# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
-					make swemu 
-					# make swemu_aws
+					# make swemu 
+					make swemu_aws
 					# make swemu_aws > $OUTFILE_NAME
 				elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 				then
 					make cleanall
 					# rm -rf host
 					# make build_host
-					# make build_host_aws
+					make build_host_aws
+					./host kernel.awsxclbin
 					# ./host ../ACTGraph_kernels/$KERNEL_NAME
 					# ./host ../ACTGraph_kernels/$KERNEL_NAME > $OUTFILE_NAME
 					wait 
@@ -224,9 +229,9 @@ do
 					make cleanall
 					# rm -rf host
 					# make build_host
-					make build_host_aws
+					# make build_host_aws
 					# ./host ../ACTGraph_kernels/$KERNEL_NAME
-					./host ../ACTGraph_kernels/$KERNEL_NAME > $OUTFILE_NAME
+					# ./host ../ACTGraph_kernels/$KERNEL_NAME > $OUTFILE_NAME
 					wait 
 					if test -f "profile_summary.csv"; then
 						echo "profile_summary.csv exist"

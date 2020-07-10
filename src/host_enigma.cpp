@@ -92,7 +92,7 @@ void host_enigma::WorkerThread(int threadidx){
 			for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ kvstats[threadidx][ddr][getmessagesAddr(MESSAGES_RUNKERNELCOMMANDID)].key = ON; }
 		} else { for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ kvstats[threadidx][ddr][getmessagesAddr(MESSAGES_RUNKERNELCOMMANDID)].key = OFF; } }
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTSX
 		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("BEFORE", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
 		#endif 
 		
@@ -102,7 +102,7 @@ void host_enigma::WorkerThread(int threadidx){
 		launchkernel(threadidx);
 		#endif 
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTSX
 		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("AFTER", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
 		#endif
 	}
@@ -117,51 +117,24 @@ void host_enigma::finish(){
 void host_enigma::loaddrams(int threadidx, unsigned int IterCount){
 	for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){
 		loadkvdram(kvsourcedram[threadidx][ddr], 0, KVDATA_BATCHSIZE_KVS);
-		loadstats(kvsourcedram[threadidx][ddr], (keyvalue_t *)kvstats[threadidx][ddr], 0, KVDATA_BATCHSIZE, BASEOFFSET_STATSDRAM, 0, pow(NUM_PARTITIONS, TREE_DEPTH), (KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, TREE_DEPTH)));
 		loadmessages(kvstats[threadidx][ddr], BASEOFFSET_MESSAGESDRAM, IterCount);
 	}
 	return;
 }
 void host_enigma::calculatealloffsets(int threadidx){	
 	for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){
-		calculateoffsets(kvstats[threadidx][ddr], KVDATA_BATCHSIZE * DRAMBATCHFACTOR, BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH));
+		kvstats[threadidx][ddr][0].value = KVDATA_BATCHSIZE * DRAMBATCHFACTOR; // calculateoffsets(kvstats[threadidx][ddr], KVDATA_BATCHSIZE * DRAMBATCHFACTOR, BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH));
 	}
 	return;
 }
 
 void host_enigma::loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kvs, unsigned int kvsize_kvs){
-	
-	/* for(unsigned int i=0; i<KVSOURCEDRAMSZ_KVS; i++){
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			kvdram[baseoffset_kvs + i].data[v].key = 0;
-			kvdram[baseoffset_kvs + i].data[v].value = 0;
-		}
-	} */
-	
 	for(unsigned int i=0; i<kvsize_kvs; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			kvdram[baseoffset_kvs + i].data[v].key = rand() % KVDATA_RANGE_PERSSDPARTITION;
 			kvdram[baseoffset_kvs + i].data[v].value = 0;
 		}
 	}
-	return;
-}
-void host_enigma::loadstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, vertex_t kvdramoffset, vertex_t kvdramsz, vertex_t kvstatsoffset, vertex_t kvrangeoffset, unsigned int LLOPnumpartitions, unsigned int LLOPrangepartitions){				
-	vertex_t kvdramoffset_kvs = kvdramoffset / VECTOR_SIZE;
-	vertex_t kvdramsz_kvs = kvdramsz / VECTOR_SIZE;
-	unsigned int partition;
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"host_enigma::loadstats:: LLOPnumpartitions: "<<LLOPnumpartitions<<", LLOPrangepartitions: "<<LLOPrangepartitions<<endl;
-	#endif 
-	for(int i = 0 ; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].key = 0; kvstats[kvstatsoffset + i].value = 0; }
-	for(unsigned int i=0; i<kvdramsz_kvs; i++){
-		for(int j=0; j<VECTOR_SIZE; j++){
-			partition = (kvdram[kvdramoffset_kvs + i].data[j].key - kvrangeoffset) / LLOPrangepartitions;
-			kvstats[kvstatsoffset + partition].value += 1;
-		}
-	}
-	
-	cout<<"host_enigma::loadstats ENDED:: "<<endl;
 	return;
 }
 void host_enigma::calculateoffsets(keyvalue_t * kvstats, vertex_t kvsize, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions){				
@@ -206,17 +179,8 @@ int host_enigma::runActs(unsigned int IterCount){
 void host_enigma::launchswkernel(int threadidx){
 	kernelobj->topkernel(
 (uint512_dt *)kvsourcedram[threadidx][0]
-,(uint512_dt *)kvsourcedram[threadidx][1]
-,(uint512_dt *)kvsourcedram[threadidx][2]
-,(uint512_dt *)kvsourcedram[threadidx][3]
 		,(uint512_dt *)kvdestdram[threadidx][0]
-		,(uint512_dt *)kvdestdram[threadidx][1]
-		,(uint512_dt *)kvdestdram[threadidx][2]
-		,(uint512_dt *)kvdestdram[threadidx][3]
 		,(keyvalue_t *)kvstats[threadidx][0]
-		,(keyvalue_t *)kvstats[threadidx][1]
-		,(keyvalue_t *)kvstats[threadidx][2]
-		,(keyvalue_t *)kvstats[threadidx][3]
 	);
 	return;
 }
@@ -226,7 +190,8 @@ void host_enigma::loadOCLstructures(std::string binaryFile){
 	cl_int err;
 	global = 1; local = 1;
 
-	kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
+	// kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
+	kvsource_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
 	kvdest_size_bytes = KVDATA_RANGE_PERSSDPARTITION_KVS * sizeof(uint512_vec_dt);
 	kvstats_size_bytes = KVSTATSDRAMSZ * sizeof(keyvalue_t);
 	
@@ -287,26 +252,26 @@ void host_enigma::launchkernel(unsigned int flag){
 	
 	// Copy input data to device global memory
 	std::cout << "Copy input data to device global memory" << std::endl;
-	array<cl_event, 4*NUMINSTANCESETS> write_events;
+	array<cl_event, 1*NUMINSTANCESETS> write_events;
 	
 	// Copy data from Host to Device
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[flag][ddr], CL_FALSE, 0, kvsource_size_bytes, kvsourcedram[flag][ddr], 0, NULL, &write_events[ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[4 + ddr] ));
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[1 + ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[8 + ddr] ));
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[2 + ddr] ));
 	}
 	
 	// Launch the Kernel			
 	printf("Enqueueing NDRange kernel.\n");
 	std::cout << "Launch the Kernel" << std::endl;
 	std::vector<cl_event> waitList; 
-	for(unsigned int i=0; i<4*NUMINSTANCESETS; i++){ waitList.push_back(write_events[i]); }
+	for(unsigned int i=0; i<1*NUMINSTANCESETS; i++){ waitList.push_back(write_events[i]); }
 	OCL_CHECK(clEnqueueNDRangeKernel(world.command_queue, kernel, 1, nullptr,
-									&global, &local, 4*NUMINSTANCESETS, waitList.data(),
+									&global, &local, 1*NUMINSTANCESETS, waitList.data(),
 									&kernel_events[flag]));
 	
 	// Copy Result from Device Global Memory to Host Local Memory
