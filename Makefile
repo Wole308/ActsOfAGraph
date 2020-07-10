@@ -2,22 +2,22 @@ TARGETPLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_
 TARGETPLATFORM_AWS=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm
 
 # Memory assignment flags
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0 
 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank1 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem3:bank3
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem4:bank0  
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem5:bank1  
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem6:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem7:bank3
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem8:bank0 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem9:bank1 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank1 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank2 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem3:bank3
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem4:bank0  
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem5:bank1  
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem6:bank2 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem7:bank3
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem8:bank0 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem9:bank1 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
 
 # Kernel linker flags
 # LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR0 --slr topkernel_3:SLR1 --slr topkernel_4:SLR1

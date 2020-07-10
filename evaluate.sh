@@ -133,8 +133,8 @@ do
 	do
 		### >>> LOOP3: locke (kernel-only evaluation)
 		# for locke in $_LOCKE $_NOLOCKE
-		for locke in $_NOLOCKE
-		# for locke in $_LOCKE
+		# for locke in $_NOLOCKE
+		for locke in $_LOCKE
 		do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
@@ -215,8 +215,7 @@ do
 					make cleanall
 					# rm -rf host
 					# make build_host
-					make build_host_aws
-					./host kernel.awsxclbin
+					# make build_host_aws
 					# ./host ../ACTGraph_kernels/$KERNEL_NAME
 					# ./host ../ACTGraph_kernels/$KERNEL_NAME > $OUTFILE_NAME
 					wait 
@@ -229,9 +228,9 @@ do
 					make cleanall
 					# rm -rf host
 					# make build_host
-					# make build_host_aws
+					make build_host_aws
 					# ./host ../ACTGraph_kernels/$KERNEL_NAME
-					# ./host ../ACTGraph_kernels/$KERNEL_NAME > $OUTFILE_NAME
+					./host ../ACTGraph_kernels/$KERNEL_NAME > $OUTFILE_NAME
 					wait 
 					if test -f "profile_summary.csv"; then
 						echo "profile_summary.csv exist"

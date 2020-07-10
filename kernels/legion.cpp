@@ -1,5 +1,5 @@
-#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/src/common.h"
-#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/kernels/legion.h"
+#include "/home/oj2zf/Documents/ActsOfAGraph/src/common.h"
+#include "/home/oj2zf/Documents/ActsOfAGraph/kernels/legion.h"
 using namespace std;
 
 #ifndef FPGA_IMPL

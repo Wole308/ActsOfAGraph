@@ -126,8 +126,8 @@ void actgraph_pr_sw::start() {
 }
 void actgraph_pr_sw::start2() {
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	for(unsigned int i_batch=0; i_batch<graphobj->getnumvertexbanks(); i_batch += NUMCPUTHREADS){
-	// for(unsigned int i_batch=0; i_batch<NUMCPUTHREADS; i_batch += NUMCPUTHREADS){ // REMOVEME.
+	// for(unsigned int i_batch=0; i_batch<graphobj->getnumvertexbanks(); i_batch += NUMCPUTHREADS){
+	for(unsigned int i_batch=0; i_batch<NUMCPUTHREADS; i_batch += NUMCPUTHREADS){ // REMOVEME.
 		cout<<">>> actgraph_pr_sw::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumvertexbanks()<<"][step: "<<NUMCPUTHREADS<<"]"<<endl;
 		cout<<">>> actgraph_pr_sw::start2: loading vertex properties..."<<endl;
 	
@@ -135,8 +135,8 @@ void actgraph_pr_sw::start2() {
 		for (int i = 0; i < NUMCPUTHREADS; i++) { panas_thread[i] = std::thread(&actgraph_pr_sw::WorkerThread2, this, i, i_batch); }
 		for (int i = 0; i < NUMCPUTHREADS; i++ ) { panas_thread[i].join(); }
 		#else 
-		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
-		// WorkerThread2(0, i_batch); // REMOVEME.
+		// for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
+		WorkerThread2(0, i_batch); // REMOVEME.
 		#endif
 		
 		cout<<">>> actgraph_pr_sw::start2 Finished: all threads joined..."<<endl;
@@ -376,7 +376,7 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_COMMANDID)].key = NAp;
 				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_PROCESSCOMMANDID)].key = OFF;
 				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_PARTITIONCOMMANDID)].key = ON;
-				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = ON; // REMOVEME.
+				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = OFF; // REMOVEME.
 				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_KVDATASIZEID)].key = KVDATA_BATCHSIZE;
 				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_FINALNUMPARTITIONSID)].key = NAp;
 				kvstats[threadidx][ddr][utilityobj[threadidx]->getmessagesAddr(MESSAGES_TREEDEPTHID)].key = NAp;

@@ -218,6 +218,8 @@ struct _bitData {
 
 #define NAp 666
 
+#define NUM_KAPI 3 // number of kernel args per instance
+
 ////////////////
 
 #define MESSAGES_SIZE 1024

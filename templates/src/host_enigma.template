@@ -24,7 +24,7 @@
 #include "host_enigma.h"
 using namespace std;
 #define YES
-#define NUMINSTANCESETS 3
+#define NUM_KAPI 3
 
 #ifdef FPGA_IMPL
 #define OCL_CHECK(call)							\
@@ -48,13 +48,11 @@ host_enigma::host_enigma(graph * _graphobj){
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvstats[i][ddr] = new keyvalue_t[KVSTATSDRAMSZ]; }
 	}
 	#else
-	// #ifdef FPGA_IMPL & defined(SW)
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
-		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvsourcedram[i][ddr] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }
+		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvsourcedram[i][ddr] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvdestdram[i][ddr] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_RANGE_PERSSDPARTITION_KVS * sizeof(uint512_vec_dt))); }
 		for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ kvstats[i][ddr] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }
 	}
-	// #endif
 	#endif 
 	
 	#ifdef SW
@@ -196,8 +194,7 @@ void host_enigma::loadOCLstructures(std::string binaryFile){
 	cl_int err;
 	global = 1; local = 1;
 
-	// kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
-	kvsource_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
 	kvdest_size_bytes = KVDATA_RANGE_PERSSDPARTITION_KVS * sizeof(uint512_vec_dt);
 	kvstats_size_bytes = KVSTATSDRAMSZ * sizeof(keyvalue_t);
 	
@@ -258,7 +255,7 @@ void host_enigma::launchkernel(unsigned int flag){
 	
 	// Copy input data to device global memory
 	std::cout << "Copy input data to device global memory" << std::endl;
-	array<cl_event, {{context['NUMINSTANCES']}}*NUMINSTANCESETS> write_events;
+	array<cl_event, {{context['NUMINSTANCES']}}*NUM_KAPI> write_events;
 	
 	// Copy data from Host to Device
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
@@ -275,9 +272,9 @@ void host_enigma::launchkernel(unsigned int flag){
 	printf("Enqueueing NDRange kernel.\n");
 	std::cout << "Launch the Kernel" << std::endl;
 	std::vector<cl_event> waitList; 
-	for(unsigned int i=0; i<{{context['NUMINSTANCES']}}*NUMINSTANCESETS; i++){ waitList.push_back(write_events[i]); }
+	for(unsigned int i=0; i<{{context['NUMINSTANCES']}}*NUM_KAPI; i++){ waitList.push_back(write_events[i]); }
 	OCL_CHECK(clEnqueueNDRangeKernel(world.command_queue, kernel, 1, nullptr,
-									&global, &local, {{context['NUMINSTANCES']}}*NUMINSTANCESETS, waitList.data(),
+									&global, &local, {{context['NUMINSTANCES']}}*NUM_KAPI, waitList.data(),
 									&kernel_events[flag]));
 	
 	// Copy Result from Device Global Memory to Host Local Memory

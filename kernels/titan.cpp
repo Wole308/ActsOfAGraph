@@ -1,6 +1,6 @@
-#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/src/common.h"
-#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/kernels/enigma.h"
-#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/kernels/titan.h"
+#include "/home/oj2zf/Documents/ActsOfAGraph/src/common.h"
+#include "/home/oj2zf/Documents/ActsOfAGraph/kernels/enigma.h"
+#include "/home/oj2zf/Documents/ActsOfAGraph/kernels/titan.h"
 using namespace std;
 
 #define DRAMLIMITSZ (1 << 26)

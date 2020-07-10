@@ -219,11 +219,6 @@ public:
 	keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs);
 	void setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs);
 	
-	void resetkeyandvalues(keyvalue_t * buffer, unsigned int size);
-	void resetvalues(keyvalue_t * buffer, unsigned int size);
-	void copy(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
-	void copykeys(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
-	
 	buffer_type getactivesize(buffer_type i, batch_type i_end, buffer_type buffersize);
 	batch_type getAddr(batch_type addr);
 	batch_type getstatsAddr(batch_type addr);
@@ -233,13 +228,12 @@ public:
 	unsigned int getdestskipsize(unsigned int currentLOP, unsigned int param);
 
 	void loaddeststats(keyvalue_t * kvstats, keyvalue_t buffer[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t LLOPnumpartitions);
-	void storedeststats(keyvalue_t * kvstats, keyvalue_t buffer[NUM_PARTITIONS], unsigned int drambaseoffset, unsigned int dramloffset);
+	void storedeststats(keyvalue_t * kvstats, keyvalue_t buffer[NUM_PARTITIONS], unsigned int partitionoffset, unsigned int currentLOP, vertex_t LLOPnumpartitions);
 
 	unsigned int get_num_source_partitions(unsigned int currentLOP);
 	
 	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS]);
 	void calculateoffsets({%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS],{%endfor%} int dummy);
-	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset);
 	
 	void loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP);
 	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter);
@@ -255,17 +249,6 @@ public:
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	{%for w in context['NUMWORKERS_seq']%}
-	void King{{ddrs}}{{w}}(unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%} ,int enable, clopparams_t llopparams, travstate_t travstate, globalparams_t globalparams, operation_t operation);			
-	{%endfor%}
-	{%endfor%}
-	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	{%for w in context['NUMWORKERS_seq']%}
-	void Queen{{ddrs}}{{w}}(unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE]{%endfor%} ,int enable, travstate_t travstate, globalparams_t globalparams);
-	{%endfor%}
-	{%endfor%}
-	
-	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	{%for w in context['NUMWORKERS_seq']%}
 	void extractcapsules{{ddrs}}{{w}}(unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, clopparams_t llopparams, travstate_t travstate);
 	{%endfor%}
 	{%endfor%}
@@ -277,12 +260,25 @@ public:
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void reducepartitions{{ddrs}}(unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE] {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE] {%endfor%} ,travstate_t travstate, globalparams_t globalparams);
 	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	{%for w in context['NUMWORKERS_seq']%}
+	void King{{ddrs}}{{w}}(
+				unsigned int workerID 
+				{%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%}
+				{%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE]{%endfor%}
+				{%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}
+				,clopparams_t llopparams 
+				,travstate_t travstate
+				,globalparams_t globalparams
+				,operation_t operation);
+	{%endfor%}
+	{%endfor%}
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void savekeyvalues{{ddrs}}(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs, int enable, int collectstats);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	travoffsets_t savecapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset_kvs, int enable, travstate_t travstate, travoffsets_t travoffsets);
+	travoffsets_t savecapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, batch_type baseaddress_kvs, batch_type offset_kvs, int enable, travstate_t travstate, travoffsets_t travoffsets);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void savepartitions{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%},uint512_dt result_local{{sw}}[PADDEDBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%},keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type kvdrambaseaddress, int enable);
