@@ -1,6 +1,20 @@
 #ifndef KERNEL_LEGION_H
 #define KERNEL_LEGION_H
 #include "../src/common.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
@@ -9,6 +23,7 @@ using namespace std;
 #define COLLECTSTATSPROCESS 5
 #define SPREADPROCESS 6
 
+#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER //
 
 #define LSRCKVBUFFERSZ KVBUFFERSZ
 #define LSRCKVBUFFERSZ_KVS (LSRCKVBUFFERSZ / VECTOR_SIZE)
@@ -137,11 +152,26 @@ public:
 	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount);
 	
 	void loadstatsbuffer_ddr0(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
+	void loadstatsbuffer_ddr1(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
+	void loadstatsbuffer_ddr2(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
+	void loadstatsbuffer_ddr3(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
 	void loadcapsulestatsS_ddr0(uint512_dt * stats, keyvalue_t buffer0[NUM_PARTITIONS], keyvalue_t buffer1[NUM_PARTITIONS], keyvalue_t buffer2[NUM_PARTITIONS], keyvalue_t buffer3[NUM_PARTITIONS], keyvalue_t buffer4[NUM_PARTITIONS], keyvalue_t buffer5[NUM_PARTITIONS], keyvalue_t buffer6[NUM_PARTITIONS], keyvalue_t buffer7[NUM_PARTITIONS],  batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadcapsulestatsS_ddr1(uint512_dt * stats, keyvalue_t buffer0[NUM_PARTITIONS], keyvalue_t buffer1[NUM_PARTITIONS], keyvalue_t buffer2[NUM_PARTITIONS], keyvalue_t buffer3[NUM_PARTITIONS], keyvalue_t buffer4[NUM_PARTITIONS], keyvalue_t buffer5[NUM_PARTITIONS], keyvalue_t buffer6[NUM_PARTITIONS], keyvalue_t buffer7[NUM_PARTITIONS],  batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadcapsulestatsS_ddr2(uint512_dt * stats, keyvalue_t buffer0[NUM_PARTITIONS], keyvalue_t buffer1[NUM_PARTITIONS], keyvalue_t buffer2[NUM_PARTITIONS], keyvalue_t buffer3[NUM_PARTITIONS], keyvalue_t buffer4[NUM_PARTITIONS], keyvalue_t buffer5[NUM_PARTITIONS], keyvalue_t buffer6[NUM_PARTITIONS], keyvalue_t buffer7[NUM_PARTITIONS],  batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadcapsulestatsS_ddr3(uint512_dt * stats, keyvalue_t buffer0[NUM_PARTITIONS], keyvalue_t buffer1[NUM_PARTITIONS], keyvalue_t buffer2[NUM_PARTITIONS], keyvalue_t buffer3[NUM_PARTITIONS], keyvalue_t buffer4[NUM_PARTITIONS], keyvalue_t buffer5[NUM_PARTITIONS], keyvalue_t buffer6[NUM_PARTITIONS], keyvalue_t buffer7[NUM_PARTITIONS],  batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void loadbufferH_ddr0(uint512_dt * kvdram, uint512_dt buffer[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadbufferH_ddr1(uint512_dt * kvdram, uint512_dt buffer[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadbufferH_ddr2(uint512_dt * kvdram, uint512_dt buffer[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadbufferH_ddr3(uint512_dt * kvdram, uint512_dt buffer[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void loadbufferV_ddr0(uint512_dt * kvdram, keyvalue_t buffer0[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer1[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer2[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer3[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer4[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer5[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer6[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer7[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadbufferV_ddr1(uint512_dt * kvdram, keyvalue_t buffer0[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer1[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer2[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer3[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer4[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer5[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer6[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer7[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadbufferV_ddr2(uint512_dt * kvdram, keyvalue_t buffer0[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer1[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer2[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer3[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer4[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer5[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer6[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer7[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void loadbufferV_ddr3(uint512_dt * kvdram, keyvalue_t buffer0[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer1[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer2[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer3[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer4[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer5[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer6[LSRCKVBUFFERSZ_KVS],keyvalue_t buffer7[LSRCKVBUFFERSZ_KVS], batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	
 	void extractcapsules_ddr0(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], vector_type vecid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void extractcapsules_ddr1(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], vector_type vecid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void extractcapsules_ddr2(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], vector_type vecid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void extractcapsules_ddr3(uint512_dt sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], vector_type vecid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void spreadkvs_ddr0_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void spreadkvs_ddr0_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void spreadkvs_ddr0_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
@@ -150,6 +180,30 @@ public:
 	void spreadkvs_ddr0_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void spreadkvs_ddr0_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void spreadkvs_ddr0_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v3(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v4(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr1_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v3(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v4(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr2_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v3(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v4(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void spreadkvs_ddr3_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void reduce_ddr0_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void reduce_ddr0_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void reduce_ddr0_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
@@ -158,23 +212,83 @@ public:
 	void reduce_ddr0_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void reduce_ddr0_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void reduce_ddr0_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v3(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v4(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr1_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v3(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v4(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr2_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v0(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v1(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v2(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v3(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v4(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v5(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v6(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reduce_ddr3_v7(keyvalue_t sourcebuffer[LSRCKVBUFFERSZ_KVS], uint512_dt resultbuffer[LDESTKVBUFFERSZ_KVS], travstate_t travstate, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	
 	void savestatsbuffer_ddr0(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
+	void savestatsbuffer_ddr1(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
+	void savestatsbuffer_ddr2(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
+	void savestatsbuffer_ddr3(uint512_dt * kvdram, uint512_dt buffer[KVSTATS_SIZE_KVS], batch_type baseaddress);
 	void savepartialbuffer_ddr0(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, buffer_type size_kvs, code_type callerprocessid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savepartialbuffer_ddr1(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, buffer_type size_kvs, code_type callerprocessid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savepartialbuffer_ddr2(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, buffer_type size_kvs, code_type callerprocessid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savepartialbuffer_ddr3(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, buffer_type size_kvs, code_type callerprocessid, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void savebuffer_ddr0(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savebuffer_ddr1(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savebuffer_ddr2(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savebuffer_ddr3(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], keyvalue_t stats[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void savebuffer_ddr0(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savebuffer_ddr1(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savebuffer_ddr2(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void savebuffer_ddr3(uint512_dt * kvdram, uint512_dt buffer[LDESTKVBUFFERSZ_KVS], batch_type baseaddress_kvs, batch_type localoffset_kvs, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	
 	void processpartition_ddr0(uint512_dt * kvdram, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void processpartition_ddr1(uint512_dt * kvdram, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void processpartition_ddr2(uint512_dt * kvdram, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void processpartition_ddr3(uint512_dt * kvdram, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void processCLOP_ddr0(uint512_dt * kvdram, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
+	void processCLOP_ddr1(uint512_dt * kvdram, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
+	void processCLOP_ddr2(uint512_dt * kvdram, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
+	void processCLOP_ddr3(uint512_dt * kvdram, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
 	void partitionphase_ddr0(uint512_dt * kvdram, globalparams_t globalparams);
+	void partitionphase_ddr1(uint512_dt * kvdram, globalparams_t globalparams);
+	void partitionphase_ddr2(uint512_dt * kvdram, globalparams_t globalparams);
+	void partitionphase_ddr3(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	void reducepartition_ddr0(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reducepartition_ddr1(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reducepartition_ddr2(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
+	void reducepartition_ddr3(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams, clopparams_t llopparams, partitionparams_t partitionparams);
 	void reduceLLOP_ddr0(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
+	void reduceLLOP_ddr1(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
+	void reduceLLOP_ddr2(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
+	void reduceLLOP_ddr3(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, uint512_dt kvstatsbuffer[KVSTATS_SIZE_KVS], globalparams_t globalparams, clopparams_t llopparams);
 	void reducephase_ddr0(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams);
+	void reducephase_ddr1(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams);
+	void reducephase_ddr2(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams);
+	void reducephase_ddr3(uint512_dt * kvdram_source, uint512_dt * kvdram_dest, globalparams_t globalparams);
 	
 	void topkernel(
 uint512_dt * kvdram_sourceA
 		,uint512_dt * kvdram_destA
+,uint512_dt * kvdram_sourceB
+		,uint512_dt * kvdram_destB
+,uint512_dt * kvdram_sourceC
+		,uint512_dt * kvdram_destC
+,uint512_dt * kvdram_sourceD
+		,uint512_dt * kvdram_destD
         );
 private:
 };

@@ -94,12 +94,14 @@ void host_enigma::WorkerThread(int threadidx){
 		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("BEFORE", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
 		#endif 
 		
+		std::chrono::steady_clock::time_point begintime_topkernel = std::chrono::steady_clock::now();
 		#ifdef SW
 		launchswkernel(threadidx);
 		#else 
 		launchkernel(threadidx);
 		#endif 
-		
+		utilityobj[threadidx]->stopTIME("Total time elapsed (Entire TopKernel Process): ", begintime_topkernel, NAp);
+			
 		#ifdef _DEBUGMODE_KERNELPRINTSX
 		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("AFTER", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
 		#endif
@@ -121,7 +123,7 @@ void host_enigma::loaddrams(int threadidx, unsigned int IterCount){
 }
 void host_enigma::calculatealloffsets(int threadidx){	
 	for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){
-		kvstats[threadidx][ddr][0].value = KVDATA_BATCHSIZE * DRAMBATCHFACTOR; // calculateoffsets(kvstats[threadidx][ddr], KVDATA_BATCHSIZE * DRAMBATCHFACTOR, BASEOFFSET_STATSDRAM, pow(NUM_PARTITIONS, TREE_DEPTH));
+		kvstats[threadidx][ddr][getstatsAddr(0)].value = KVDATA_BATCHSIZE * DRAMBATCHFACTOR;
 	}
 	return;
 }
@@ -133,16 +135,6 @@ void host_enigma::loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kv
 			kvdram[baseoffset_kvs + i].data[v].value = 0;
 		}
 	}
-	return;
-}
-void host_enigma::calculateoffsets(keyvalue_t * kvstats, vertex_t kvsize, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions){				
-	kvstats[kvstatsoffset + 0].key = 0;
-	for (unsigned int p = 1; p<LLOPnumpartitions; p++){
-		kvstats[kvstatsoffset + p].key = utilityobj[0]->hallignup_KV(kvstats[kvstatsoffset + p-1].key + kvstats[kvstatsoffset + p-1].value + LASTLEVELPARTITIONPADDING);
-	}	
-	
-	for(unsigned int i = 0; i<KVSTATS_SIZE; i++){ kvstats[kvstatsoffset + i].value = 0; }
-	kvstats[kvstatsoffset + 0].value = kvsize;
 	return;
 }
 void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount){
@@ -167,6 +159,10 @@ void host_enigma::printkeyvalues(string message, keyvalue_t * keyvalues, unsigne
 unsigned int host_enigma::getmessagesAddr(unsigned int addr){
 	#pragma HLS INLINE
 	return BASEOFFSET_MESSAGESDRAM + addr;
+}
+unsigned int host_enigma::getstatsAddr(unsigned int addr){
+	#pragma HLS INLINE
+	return BASEOFFSET_STATSDRAM + addr;
 }
 int host_enigma::runActs(unsigned int IterCount){
 	if((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)){ return 1; }

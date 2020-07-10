@@ -34,7 +34,13 @@ using namespace std;
 void srkernelprocess::srtopkernel(
 		SortReduce<uint64_t,uint32_t>* sr
 		,keyvalue_t * kvdramA
+		,keyvalue_t * kvdramB
+		,keyvalue_t * kvdramC
+		,keyvalue_t * kvdramD
 		,vertex_t kvbatchszA
+		,vertex_t kvbatchszB
+		,vertex_t kvbatchszC
+		,vertex_t kvbatchszD
         ){
 	#ifdef GRAFBOOST_SETUP
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -45,6 +51,27 @@ void srkernelprocess::srtopkernel(
 	for (uint64_t i = 0; i < kvbatchszA; i++) {
 		uint64_t key = (uint64_t)(kvdramA[i].key);
 		uint64_t value = (uint64_t)(kvdramA[i].value);
+		while ( !sr->Update(key, value) ) { }
+		kvuploadcount += 1;
+	}
+	
+	for (uint64_t i = 0; i < kvbatchszB; i++) {
+		uint64_t key = (uint64_t)(kvdramB[i].key);
+		uint64_t value = (uint64_t)(kvdramB[i].value);
+		while ( !sr->Update(key, value) ) { }
+		kvuploadcount += 1;
+	}
+	
+	for (uint64_t i = 0; i < kvbatchszC; i++) {
+		uint64_t key = (uint64_t)(kvdramC[i].key);
+		uint64_t value = (uint64_t)(kvdramC[i].value);
+		while ( !sr->Update(key, value) ) { }
+		kvuploadcount += 1;
+	}
+	
+	for (uint64_t i = 0; i < kvbatchszD; i++) {
+		uint64_t key = (uint64_t)(kvdramD[i].key);
+		uint64_t value = (uint64_t)(kvdramD[i].value);
 		while ( !sr->Update(key, value) ) { }
 		kvuploadcount += 1;
 	}

@@ -181,9 +181,10 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 		{%endfor%}
 		unsigned int iteration_size = 0;
 		for(unsigned int i=0; i<NUMDRAMBANKS; i++){ iteration_size = utilityobj[threadidx]->hmax(iteration_size, _iteration_size[i]); }			
-		#ifdef _DEBUGMODE_HOSTPRINTS
+		#ifdef _DEBUGMODE_HOSTPRINTS2
 		for(unsigned int i=0; i<NUMDRAMBANKS; i++){ cout<<"actgraph_pr_sw::WorkerThread: edgepropertyfilesize["<<i<<"]: "<<edgepropertyfilesize[i]<<", numverticespervertexbank: "<<utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_(0)<<", threadidx: "<<(threadidxoffset + threadidx)<<endl; }			
 		#endif
+		// exit(EXIT_SUCCESS);
 		
 		unsigned int runningvertexid[NUMDRAMBANKS];
 		unsigned int kvcount[NUMDRAMBANKS];

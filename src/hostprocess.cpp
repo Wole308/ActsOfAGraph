@@ -40,7 +40,6 @@
 #endif
 using namespace std;
 #define YES
-#define TESTKERNEL
 
 #ifdef YES
 unsigned long globaldebugger_totalbytesreadfromfile; 
@@ -95,6 +94,7 @@ int main(int argc, char** argv){
 	#endif
 	graph * graphobj = new graph(algorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
 	printallparameters(graphobj->getdataset());
+	// exit(EXIT_SUCCESS);
 	
 	// implementing kernel_legion
 	#ifdef TESTKERNEL

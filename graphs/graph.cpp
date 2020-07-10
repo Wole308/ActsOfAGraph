@@ -404,11 +404,15 @@ string graph::getpath_edgeoffsets(unsigned int i, unsigned int j){
 	// #endif 
 }
 string graph::getpath_activevertices(unsigned int graph_iterationidx){
-	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices"; // CORRECTONE.
+	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices"; // CORRECTONE.		
 	// return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";
 }
 string graph::getpath_activeverticesW(unsigned int graph_iterationidx){
+	#ifdef FORCEDFINISH_DONTCAREABOUTACTIVEVERTICESGENERATED
 	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";	
+	#else 
+	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";	
+	#endif 
 }
 string graph::getpath_vertexisactive(unsigned int graph_iterationidx){
 	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".vertexisactive";	

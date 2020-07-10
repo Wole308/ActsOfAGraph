@@ -10,13 +10,11 @@
 
 class actgraph_pr_sw {
 public:
-	// actgraph_pr_sw(graph * _graphobj, std::string binaryFile);
 	actgraph_pr_sw(graph * graphobj);		
 	actgraph_pr_sw();
 	~actgraph_pr_sw();
 	
 	void run();
-	void start();
 	void start2();
 	void reloadenv();
 	void finish();
@@ -24,7 +22,6 @@ public:
 	float totalkerneltime();
 	float totalpopulateKvDRAMtime();
 	
-	void WorkerThread(int threadidx, int bankoffset);
 	void WorkerThread2(int threadidx, int threadidxoffset);
 
 	void generatekvs(int threadidx, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t * edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);		

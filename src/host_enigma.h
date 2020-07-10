@@ -21,11 +21,11 @@ public:
 	void loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kvs, unsigned int kvsize_kvs);
 	void calculatealloffsets(int threadidx);
 	void loadstats(uint512_vec_dt * kvdram, keyvalue_t * kvstats, vertex_t kvdramoffset, vertex_t kvdramsz, vertex_t kvstatsoffset, vertex_t kvrangeoffset, unsigned int LLOPnumpartitions, unsigned int LLOPrangepartitions);			
-	void calculateoffsets(keyvalue_t * kvstats, vertex_t kvsize, vertex_t kvstatsoffset, unsigned int LLOPnumpartitions);
 	void loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount);
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
 	unsigned int getmessagesAddr(unsigned int addr);
+	unsigned int getstatsAddr(unsigned int addr);
 	int runActs(unsigned int IterCount);
 	
 	#ifdef SW

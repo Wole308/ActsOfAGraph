@@ -33,8 +33,8 @@ public:
 	void WorkerThread1(int threadidx);
 	void WorkerThread2(int threadidx, int bankoffset);
 	
-	void generatekvs(int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int * kvcount);
-	void workerthread_generatekvs(unsigned int ddr, int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int * kvcount);
+	void generatekvs(int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);
+	void workerthread_generatekvs(unsigned int ddr, int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);
 	void partitionupdates(keyvalue_t * kvdram, vector<keyvalue_t> (&vertexupdates)[NUMSSDPARTITIONS], unsigned int vbegin, unsigned int keyvaluesize, unsigned int rangeperpartition);
 	void appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITIONS], vector<keyvalue_t> (&destinationbuffer)[NUMSSDPARTITIONS], FILE * destinationfile[NUMSSDPARTITIONS], bool writetodram);
 	void loadupdatesfrombuffer(vector<keyvalue_t> & sourcebuffer, size_t sourceoffset, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int kvsize, bool loadfromdram);

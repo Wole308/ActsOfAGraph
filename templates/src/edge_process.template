@@ -272,6 +272,12 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		data.value = edgeval;
 		kvdram[i] = data;
 		#else
+		#ifdef FORCEDFINISH_DONTCAREABOUTISVERTEXACTIVE
+		keyvalue_t data;
+		data.key = edge.dstvid;
+		data.value = edgeval;
+		kvdram[kvcount++] = data;
+		#else 
 		if(isvertexactive == 1){
 			keyvalue_t data;
 			data.key = edge.dstvid;
@@ -282,6 +288,7 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 			cout<<"generatekeyvalues_stream: (*runningvertexid - basevertexoffset): "<<(*runningvertexid - basevertexoffset)<<", basevertexoffset: "<<basevertexoffset<<", *runningvertexid: "<<*runningvertexid<<endl;
 			#endif
 		}
+		#endif 
 		#endif 
 	}
 	#ifdef PR_ALGORITHM

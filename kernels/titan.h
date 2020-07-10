@@ -1,6 +1,20 @@
 #ifndef TITAN_H
 #define TITAN_H
 #include "../src/common.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
@@ -8,6 +22,7 @@ using namespace std;
 
 /* #define ENABLEREDUCEPHASE
 
+#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define BUFFER_PADDING NUM_PARTITIONS
 #define BUFFER_SIZE 960 // 1024
@@ -155,13 +170,28 @@ public:
 	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int IterCount);
 	
 	void generatepartitions0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	void generatepartitions1(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	void generatepartitions2(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	void generatepartitions3(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
 	
 	void loadKvDRAM0(uint512_dt * kvdram, batch_type sourceoffset_kvs, batch_type destoffset_kvs, batch_type size_kvs);
+	void loadKvDRAM1(uint512_dt * kvdram, batch_type sourceoffset_kvs, batch_type destoffset_kvs, batch_type size_kvs);
+	void loadKvDRAM2(uint512_dt * kvdram, batch_type sourceoffset_kvs, batch_type destoffset_kvs, batch_type size_kvs);
+	void loadKvDRAM3(uint512_dt * kvdram, batch_type sourceoffset_kvs, batch_type destoffset_kvs, batch_type size_kvs);
 	
 	void topkernel(
 uint512_dt * kvsourcedramA
+,uint512_dt * kvsourcedramB
+,uint512_dt * kvsourcedramC
+,uint512_dt * kvsourcedramD
 		,uint512_dt * kvdestdramA
+		,uint512_dt * kvdestdramB
+		,uint512_dt * kvdestdramC
+		,uint512_dt * kvdestdramD
 		,keyvalue_t * kvstatsA
+		,keyvalue_t * kvstatsB
+		,keyvalue_t * kvstatsC
+		,keyvalue_t * kvstatsD
         );
 private:
 };
