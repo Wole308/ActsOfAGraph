@@ -24,10 +24,10 @@ public:
 	
 	void WorkerThread2(int threadidx, int threadidxoffset);
 
-	void generatekvs(int threadidx, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t * edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);		
-	void workerthread_generatekvs(unsigned int ddr, int threadidx, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);				
-	void printstructures(unsigned int threadidx);
-	void checkresultfromkernel(unsigned int threadidx, unsigned int totalnumkeyvalues[NUMDRAMBANKS]);
+	void generatekvs(int threadidx, unsigned int flag, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t * edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);		
+	void workerthread_generatekvs(unsigned int ddr, unsigned int flag, int threadidx, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);				
+	void printstructures(unsigned int threadidx, unsigned int flag);
+	void checkresultfromkernel(unsigned int threadidx, unsigned int flag, unsigned int totalnumkeyvalues[NUMDRAMBANKS]);
 	void loadverticesdatafromfile(int nvmeFd_verticesdata_r2, unsigned int offset, keyvalue_t * kvdram, vertex_t bufferoffset, vertex_t verticessize);
 	void loadverticesdatafromfile(int nvmeFd_verticesdata_r2, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void writeverticesdatatofile(int nvmeFd_verticesdata_r2, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
@@ -38,29 +38,30 @@ public:
 	void loadvertexisactiveinfosfromfile(int fd, unsigned int offset, unsigned int * buffer, vertex_t bufferoffset, vertex_t size);
 	void applyvertices(unsigned int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size);
 	void setgraphiteration(unsigned int _graph_iterationidx);
+	unsigned int getflag(unsigned int giteration_idx);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
-	void launchkernel(unsigned int flag);
+	void launchkernel(unsigned int threadidx, unsigned int flag);
 	void finishOCL();
-	unsigned int getflag(unsigned int giteration_idx);
 	void reloadOCLenv(xcl_world * _world, cl_program * _program, cl_kernel * _kernel);
 	void allocateOCLbuffers();
 	#endif 
 	
 private:
-	uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMDRAMBANKS];
-	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMDRAMBANKS];
-	keyvalue_t * kvstats[NUMCPUTHREADS][NUMDRAMBANKS];
+	uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	keyvalue_t * kvstats[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
 	
 	unsigned int graph_iterationidx;	
 	
+	float totaltime_ms;
 	float totaltime_topkernel_ms;
 	float totaltime_populatekvdram_ms;
 	
 	vector<uint512_vec_dt> unused_vectorbuffer;
 	std::thread panas_thread[NUMCPUTHREADS];
-	std::thread genw_thread[NUMDRAMBANKS];
+	std::thread genw_thread[NUMCPUTHREADS][NUMDRAMBANKS];
 	value_t * verticesdatabuffer[MAXNUMVERTEXBANKS];
 	vertexprop_t * vertexpropertiesbuffer[MAXNUMVERTEXBANKS];
 	unsigned int * isactivevertexinfobuffer_source[MAXNUMVERTEXBANKS];
@@ -90,9 +91,9 @@ private:
 	cl_program program;
 	cl_kernel kernel;
 	
-	cl_mem buffer_kvsourcedram[2][NUMDRAMBANKS];
-	cl_mem buffer_kvdestdram[2][NUMDRAMBANKS];
-	cl_mem buffer_kvstatsdram[2][NUMDRAMBANKS];
+	cl_mem buffer_kvsourcedram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	cl_mem buffer_kvdestdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	cl_mem buffer_kvstatsdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
 	#endif
 };
 #endif

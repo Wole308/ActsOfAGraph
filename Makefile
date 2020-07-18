@@ -40,11 +40,8 @@ MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem1:bank3
 MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem2:bank3
 
 # Src files
-# TOPKERNEL_ARG = kernels/kernel.cpp
-# TOPKERNEL_ARG += kernels/kernelprocess.cpp
-# TOPKERNEL_ARG += kernels/legion.cpp
-TOPKERNEL_ARG += kernels/enigma.cpp
-# TOPKERNEL_ARG += kernels/titan.cpp
+# TOPKERNEL_ARG += kernels/enigma.cpp
+TOPKERNEL_ARG += kernels/acts.cpp
 
 HOST_TOP += src/hostprocess.cpp
 HOST_TOP_NTHREADS += src/hostprocess.cpp
@@ -59,9 +56,7 @@ HOSTPROCESS_SRCS += src/actgraph_bc_sw.cpp
 HOSTPROCESS_SRCS += src/grafboost_pr_sw.cpp
 HOSTPROCESS_SRCS += src/grafboost_bfs_sw.cpp
 HOSTPROCESS_SRCS += src/grafboost_bc_sw.cpp
-# HOSTPROCESS_SRCS += src/host_legion.cpp
 HOSTPROCESS_SRCS += src/host_enigma.cpp
-# HOSTPROCESS_SRCS += src/host_titan.cpp
 HOSTPROCESS_SRCS += src/edge_process.cpp
 HOSTPROCESS_SRCS += kernels/srkernelprocess.cpp
 HOSTPROCESS_SRCS += graphs/create2Dgraph.cpp

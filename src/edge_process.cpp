@@ -9,6 +9,7 @@
 #include <mutex>
 #include "host_common.h"
 #include "common.h"
+#include "../config/config_params.h"
 #include "../debugger/host_debugger.h"
 #include "../graphs/graph.h"
 #include "../algorithm/algorithm.h"
@@ -227,6 +228,8 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, vertex_t edgespropsz, keyvalue_t * kvdram, vertex_t kvdramoffset){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	std::cout << endl << "edge_process::generatekeyvalues:: generating key values... edgespropsz: "<<edgespropsz<< std::endl;
+	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTSX
 	utilityobj->printbits((char *)edgeoffsetsbuffer, 4);
 	#endif
 
@@ -245,8 +248,10 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		ledgeid += 1;
 		if(edgeoffsetbit==1){ 
 			vertexprop = vertexpropertiesbuffer[(*runningvertexid - basevertexoffset)];  // FIXME.
+			#ifdef FORCEDFINISH_RETRIEVEBUTISCPUINTENSIVE
 			#ifndef PR_ALGORITHM
 			isvertexactive = utilityobj->RetrieveBit(isactivevertexinfobuffer, (*runningvertexid - basevertexoffset)); *runningvertexid+=1;
+			#endif 
 			#endif 
 		}
 		#ifdef _DEBUGMODE_CHECKSX
@@ -257,13 +262,16 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		outdegree = vertexprop.outdegree;
 		vdata = 1; // FIXME.
 		
-		// value_t edgeval = algorithmobj->edge_program(*runningvertexid, 1, outdegree);
+		#ifdef FORCEDFINISH_DONTCAREABOUTEDGEVALUES
+		value_t edgeval = 0.1 + ((1 - 0.1) * (vdata / outdegree));
+		#else 
 		#ifdef PR_ALGORITHM
 		value_t edgeval = 0.1 + ((1 - 0.1) * (vdata / outdegree));
 		#elif defined(BFS_ALGORITHM)
 		value_t edgeval = *runningvertexid;
 		#elif defined(BC_ALGORITHM)
 		value_t edgeval = *runningvertexid;
+		#endif
 		#endif
 		
 		#ifdef PR_ALGORITHM
@@ -291,10 +299,11 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		#endif 
 		#endif 
 	}
+	
 	#ifdef PR_ALGORITHM
 	return edgespropsz;
 	#else
-	#ifdef _DEBUGMODE_CHECKS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"$$$ edge_process::generatekeyvalues_stream. end of generate. "<<kvcount<<" edges from active vertices extracted"<<endl;
 	#endif 
 	return kvcount;
@@ -415,14 +424,17 @@ void edge_process::loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fil
 	
 	if(numbytestoread > 0){ if(pread(nvmeFd_edgeoffsets_r2, &buffer[bufferoffset], numbytestoread, fileoffset) <= 0){ cout<<"edge_process::loadedgeoffsetsfromfile::ERROR 35"<<endl; exit(EXIT_FAILURE); }}
 
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTSX
 	utilityobj->printbits(nvmeFd_edgeoffsets_r2, fileoffset, 4);
 	#endif
 	return;
 }
 
-void edge_process::collectstats(keyvalue_t * kvstats, vertex_t kvsize){				
-	kvstats[utilityobj->getstatsAddr(0)].value += kvsize;
+void edge_process::collectstats(keyvalue_t * kvstats, vertex_t kvsize){		
+	kvstats[utilityobj->getstatsAddr(0)].value = kvsize;
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"$$$ edge_process::collectstats. kvstats[utilityobj->getstatsAddr(0)].value: "<<kvstats[utilityobj->getstatsAddr(0)].value<<endl;
+	#endif 
 	return;
 }
 void edge_process::resetstats(keyvalue_t * kvstats){				

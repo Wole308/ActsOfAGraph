@@ -33,27 +33,27 @@ public:
 	void WorkerThread1(int threadidx);
 	void WorkerThread2(int threadidx, int bankoffset);
 	
-	void generatekvs(int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);
-	void workerthread_generatekvs(unsigned int ddr, int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int * kvcount);
+	void generatekvs(int threadidx, unsigned int flag, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);
+	void workerthread_generatekvs(unsigned int ddr, unsigned int flag, int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);			
 	void partitionupdates(keyvalue_t * kvdram, vector<keyvalue_t> (&vertexupdates)[NUMSSDPARTITIONS], unsigned int vbegin, unsigned int keyvaluesize, unsigned int rangeperpartition);
 	void appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITIONS], vector<keyvalue_t> (&destinationbuffer)[NUMSSDPARTITIONS], FILE * destinationfile[NUMSSDPARTITIONS], bool writetodram);
 	void loadupdatesfrombuffer(vector<keyvalue_t> & sourcebuffer, size_t sourceoffset, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int kvsize, bool loadfromdram);
-	void printstructures(unsigned int threadidx);
+	void printstructures(unsigned int threadidx, unsigned int flag);
 	void applyvertices(unsigned int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size);
 	void setedgeprogramstatus(bool flag);
 	void clearvectorbuffers();
+	unsigned int getflag(unsigned int giteration_idx);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
-	void launchkernel(unsigned int flag);
+	void launchkernel(unsigned int threadidx, unsigned int flag);
 	void finishOCL();
-	unsigned int getflag(unsigned int giteration_idx);
 	#endif 
 	
 private:
-	uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMDRAMBANKS];
-	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMDRAMBANKS];
-	keyvalue_t * kvstats[NUMCPUTHREADS][NUMDRAMBANKS];
+	uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	keyvalue_t * kvstats[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
 	
 	float totaltime_topkernel1_ms;
 	float totaltime_topkernel2_ms;
@@ -62,7 +62,7 @@ private:
 	
 	unsigned int graph_iterationidx;
 	std::thread panas_thread[NUMCPUTHREADS];
-	std::thread genw_thread[NUMCPUTHREADS];
+	std::thread genw_thread[NUMCPUTHREADS][NUMDRAMBANKS];
 	vector<keyvalue_t> buffer_vertexupdates_w[NUMSSDPARTITIONS];
 	vector<keyvalue_t> intermediatevertexupdates[NUMCPUTHREADS][NUMSSDPARTITIONS];
 	value_t * verticesdatabuffer[MAXNUMVERTEXBANKS];
@@ -100,9 +100,9 @@ private:
 	cl_program program;
 	cl_kernel kernel;
 	
-	cl_mem buffer_kvsourcedram[2][NUMDRAMBANKS];
-	cl_mem buffer_kvdestdram[2][NUMDRAMBANKS];
-	cl_mem buffer_kvstatsdram[2][NUMDRAMBANKS];
+	cl_mem buffer_kvsourcedram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	cl_mem buffer_kvdestdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
+	cl_mem buffer_kvstatsdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
 	#endif
 };
 #endif

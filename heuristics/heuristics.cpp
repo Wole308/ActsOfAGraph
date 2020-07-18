@@ -26,8 +26,8 @@
 using namespace std;
 
 // #define SWITCHTTHRESHOLD (KVDATA_RANGE / 16)
-#define SWITCHTTHRESHOLD (KVDATA_RANGE / (16 * 4)) // CORRECTONE
-// #define SWITCHTTHRESHOLD 10 // 3000 // REMOVEME.
+// #define SWITCHTTHRESHOLD (KVDATA_RANGE / 64) // CORRECTONE
+#define SWITCHTTHRESHOLD (KVDATA_RANGE / 256) // 
 
 heuristics::heuristics(){
 	heuristicstype.type = 0;

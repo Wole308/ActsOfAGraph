@@ -140,10 +140,10 @@ void host_enigma::loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kv
 void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount){
 	messages[getmessagesAddr(MESSAGES_PROCESSCOMMANDID)].key = ON;
 	messages[getmessagesAddr(MESSAGES_PARTITIONCOMMANDID)].key = ON;
-	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = ON;
+	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = OFF;
 	messages[getmessagesAddr(MESSAGES_VOFFSET)].key = 0;
 	messages[getmessagesAddr(MESSAGES_VSIZE)].key = KVDATA_RANGE_PERSSDPARTITION;
-	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = TREE_DEPTH;
+	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = 1;//TREE_DEPTH;
 	messages[getmessagesAddr(MESSAGES_FINALNUMPARTITIONS)].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 	messages[getmessagesAddr(MESSAGES_GRAPHITERATIONID)].key = 0;
 	messages[getmessagesAddr(MESSAGES_ITERATIONID)].key = IterCount;
@@ -173,17 +173,8 @@ int host_enigma::runActs(unsigned int IterCount){
 void host_enigma::launchswkernel(int threadidx){
 	kernelobj->topkernel(
 (uint512_dt *)kvsourcedram[threadidx][0]
-,(uint512_dt *)kvsourcedram[threadidx][1]
-,(uint512_dt *)kvsourcedram[threadidx][2]
-,(uint512_dt *)kvsourcedram[threadidx][3]
 		,(uint512_dt *)kvdestdram[threadidx][0]
-		,(uint512_dt *)kvdestdram[threadidx][1]
-		,(uint512_dt *)kvdestdram[threadidx][2]
-		,(uint512_dt *)kvdestdram[threadidx][3]
 		,(keyvalue_t *)kvstats[threadidx][0]
-		,(keyvalue_t *)kvstats[threadidx][1]
-		,(keyvalue_t *)kvstats[threadidx][2]
-		,(keyvalue_t *)kvstats[threadidx][3]
 	);
 	return;
 }
@@ -254,26 +245,26 @@ void host_enigma::launchkernel(unsigned int flag){
 	
 	// Copy input data to device global memory
 	std::cout << "Copy input data to device global memory" << std::endl;
-	array<cl_event, 4*NUM_KAPI> write_events;
+	array<cl_event, 1*NUM_KAPI> write_events;
 	
 	// Copy data from Host to Device
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[flag][ddr], CL_FALSE, 0, kvsource_size_bytes, kvsourcedram[flag][ddr], 0, NULL, &write_events[ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[4 + ddr] ));
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[flag][ddr], 0, NULL, &write_events[1 + ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[8 + ddr] ));
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[flag][ddr], 0, NULL, &write_events[2 + ddr] ));
 	}
 	
 	// Launch the Kernel			
 	printf("Enqueueing NDRange kernel.\n");
 	std::cout << "Launch the Kernel" << std::endl;
 	std::vector<cl_event> waitList; 
-	for(unsigned int i=0; i<4*NUM_KAPI; i++){ waitList.push_back(write_events[i]); }
+	for(unsigned int i=0; i<1*NUM_KAPI; i++){ waitList.push_back(write_events[i]); }
 	OCL_CHECK(clEnqueueNDRangeKernel(world.command_queue, kernel, 1, nullptr,
-									&global, &local, 4*NUM_KAPI, waitList.data(),
+									&global, &local, 1*NUM_KAPI, waitList.data(),
 									&kernel_events[flag]));
 	
 	// Copy Result from Device Global Memory to Host Local Memory

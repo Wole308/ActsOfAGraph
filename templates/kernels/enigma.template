@@ -1611,8 +1611,9 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partitionandreduce{{ddrs}}
 	checkoutofbounds("loadKvDRAM{{ddrs}} 35", ((globalparams.IterCount % DRAMBATCHFACTOR) + 1) * KVDATA_BATCHSIZE_KVS + KVDATA_BATCHSIZE_KVS, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	if(globalparams.runkernelcommand == ON){ cout<<"...running Acts..."<<endl; } // printparameters();
+	if(globalparams.runkernelcommand == ON){ cout<<"...running Acts... size: "<<kvstats[BASEOFFSET_STATSDRAM + 0].value<<endl; } // printparameters();
 	else { cout<<"...loading KvDRAM..."<<endl; }
+	
 	#endif
 	int i;
 	LOADKVDRAMPHASE_LOOP1: for (i = 0; i < loadkvdramsize_kvs; i += SRCBUFFER_SIZE){
@@ -1864,7 +1865,7 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}topkernel(
 	globalparams.baseaddr_destkvs_kvs = 0;
 	// return;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	std::cout<<std::endl;
 	std::cout<<"Kernel Started: globalparams.runkernelcommand: "<<globalparams.runkernelcommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.processcommand: "<<globalparams.processcommand<<std::endl;

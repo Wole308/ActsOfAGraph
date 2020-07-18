@@ -13,8 +13,7 @@
 #include "EdgeProcess.h"
 #include "VertexValues.h" 
 #include "sortreduce.h" 
-#include "filekvreader.h" 
-#include "../kernels/enigma.h"
+#include "filekvreader.h"
 #include "sortreduce.h"
 #include "types.h"
 #include "../kernels/srkernelprocess.h"
@@ -270,14 +269,8 @@ void grafboost_bfs_sw::WorkerThread(int threadidx){
 		srkernel_process->srtopkernel(
 			sr
 			,(keyvalue_t *)kvdram[threadidx][0]
-			,(keyvalue_t *)kvdram[threadidx][1]
-			,(keyvalue_t *)kvdram[threadidx][2]
-			,(keyvalue_t *)kvdram[threadidx][3]
 			
 			,kvsize[0]
-			,kvsize[1]
-			,kvsize[2]
-			,kvsize[3]
 );
 		mutex6_srkernel.unlock(); // unlock
 		#ifdef LOCKE

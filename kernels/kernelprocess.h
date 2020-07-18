@@ -1,6 +1,10 @@
 #ifndef KERNELPROCESS_H
 #define KERNELPROCESS_H
-#include "../kernels/enigma.h"
+#include <mutex>
+#include <iostream>
+#include <thread>
+// #include "../kernels/enigma.h"
+#include "../kernels/acts.h"
 #include "../src/common.h"
 
 class kernelprocess {
@@ -10,22 +14,16 @@ public:
 	
 	void topkernel(
 uint512_dt * kvsourcedramA
-,uint512_dt * kvsourcedramB
-,uint512_dt * kvsourcedramC
-,uint512_dt * kvsourcedramD
 		,uint512_dt * kvdestdramA
-		,uint512_dt * kvdestdramB
-		,uint512_dt * kvdestdramC
-		,uint512_dt * kvdestdramD
 		,keyvalue_t * kvstatsA
-		,keyvalue_t * kvstatsB
-		,keyvalue_t * kvstatsC
-		,keyvalue_t * kvstatsD
         );
+	void topkernelMW(uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats);
 	
 private:
 	#ifdef SW
-	enigma enigmaobj;
+	// enigma kernelobj;
+	acts kernelobj;
+	std::thread acts_thread[NUMDRAMBANKS];
 	#endif
 };
 #endif 
