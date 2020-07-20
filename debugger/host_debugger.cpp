@@ -95,12 +95,6 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"response: "<<response<<std::endl;
 	if(response == "y"){} else { exit(EXIT_FAILURE); }
 	#endif
-	/** #if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM))
-	if(MAXNUMSSDPARTITIONS != NUMWORKLOADBANKS){
-	std::cout<<"host:: WARNING: MAXNUMSSDPARTITIONS must be equal to NUMWORKLOADBANKS . EXITING..."<<std::endl;
-	exit(EXIT_FAILURE);
-	}
-	#endif */
 	std::cout<<"host:: KVDRAMSZ: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;

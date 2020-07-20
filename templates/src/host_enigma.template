@@ -140,10 +140,10 @@ void host_enigma::loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kv
 void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount){
 	messages[getmessagesAddr(MESSAGES_PROCESSCOMMANDID)].key = ON;
 	messages[getmessagesAddr(MESSAGES_PARTITIONCOMMANDID)].key = ON;
-	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = OFF;
+	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = ON;
 	messages[getmessagesAddr(MESSAGES_VOFFSET)].key = 0;
 	messages[getmessagesAddr(MESSAGES_VSIZE)].key = KVDATA_RANGE_PERSSDPARTITION;
-	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = 1;//TREE_DEPTH;
+	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = 3;//TREE_DEPTH;
 	messages[getmessagesAddr(MESSAGES_FINALNUMPARTITIONS)].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 	messages[getmessagesAddr(MESSAGES_GRAPHITERATIONID)].key = 0;
 	messages[getmessagesAddr(MESSAGES_ITERATIONID)].key = IterCount;

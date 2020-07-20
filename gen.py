@@ -7,8 +7,9 @@ import sys
 import array as arr 
 
 # ACTSACCEL1_params = arr.array('i', [1, 8, 1])
-# ACTSACCEL1_params = arr.array('i', [1, 4, 1])
-ACTSACCEL1_params = arr.array('i', [4, 4, 1])
+ACTSACCEL1_params = arr.array('i', [1, 4, 1])
+# ACTSACCEL1_params = arr.array('i', [2, 2, 1])
+# ACTSACCEL1_params = arr.array('i', [4, 4, 1])
 
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
@@ -50,8 +51,8 @@ elif context['DATASET'] == "_LARGEDATASET_1B":
 elif context['DATASET'] == "_LARGEDATASET_4B":
 	context['MAXNUMSSDPARTITIONS_POW'] = 4
 
-context['NUM_PARTITIONS_POW'] = 3
-# context['NUM_PARTITIONS_POW'] = 4
+# context['NUM_PARTITIONS_POW'] = 3
+context['NUM_PARTITIONS_POW'] = 4
 # context['NUM_PARTITIONS_POW'] = 5
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
