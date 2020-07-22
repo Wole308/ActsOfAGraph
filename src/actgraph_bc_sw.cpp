@@ -61,7 +61,7 @@ void actgraph_bc_sw::reverserun(){
 		actgraph_bfs_sw_obj->reloadactvverticesfiles(); // important
 		
 		cout<<"=== PARTIAL_ACCESS_TYPE ==="<<endl;
-		actgraph_bfs_sw_obj->start();
+		actgraph_bfs_sw_obj->start(forward_graph_iterationidx);
 		
 		graphobj->closeactiveverticesfilesforreading();
 		graphobj->closeactiveverticesfilesforwriting();

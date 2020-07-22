@@ -124,14 +124,14 @@
 #define KVBUFFER_SIZE (1 << 9)
 #define KVBUFFERSIZE_KVS (KVBUFFER_SIZE / VECTOR_SIZE)
 
-// #define KVDATA_BATCHSIZE (1 << 24)
-#define KVDATA_BATCHSIZE (1 << 26) // REMOVEME.
+#define KVDATA_BATCHSIZE (1 << 24)
+// #define KVDATA_BATCHSIZE (1 << 26) // REMOVEME.
 // #define KVDATA_BATCHSIZE (1 << 27)
 // #define KVDATA_BATCHSIZE (1 << 28)
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 
 #if defined(FPGA_IMPL) || defined(TESTKERNEL)
-#define DRAMBATCHFACTOR 1 // 4
+#define DRAMBATCHFACTOR 4
 #else
 #define DRAMBATCHFACTOR 1
 #endif
@@ -387,10 +387,21 @@ typedef struct {
 	unsigned int size;
 } block_t;
 
-typedef struct {
+/* typedef struct {
 	unsigned long size;
     float time_ms;
-} sizetime_t;
+} runsummary_t; */
+typedef struct {
+	unsigned long totalsize;
+    float totaltime_SSDtransfers_ms;
+	float totaltime_OCLtransfers_ms;
+	float totaltime_ms;
+	float totaltime_overallexcludingOCLandSSDtransfers_ms;
+} runsummary_t;
+// runsummary.totaltime_SSDtransfers_ms = totaltime_SSDtransfers_ms;
+// runsummary.totaltime_OCLtransfers_ms = totaltime_OCLtransfers_ms;
+// runsummary.totaltime_ms = totaltime_ms;
+// runsummary.totaltime_overallexcludingOCLandSSDtransfers_ms = totaltime_overallexcludingOCLandSSDtransfers_ms;
 
 // global debugging signals
 extern unsigned long globaldebugger_totalbytesreadfromfile; 

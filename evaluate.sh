@@ -49,10 +49,10 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP1: basic experiement setup
-for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 # for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 
-# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 # for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 
 # for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
@@ -142,9 +142,9 @@ do
 		do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_1M
-			# for dataset in $LARGEDATASET_67M
+			for dataset in $LARGEDATASET_67M
 			# for dataset in $LARGEDATASET_268M
-			for dataset in $LARGEDATASET_1B
+			# for dataset in $LARGEDATASET_1B
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 			do 
 				if [ $dataset == $LARGEDATASET_1M ]  

@@ -22,13 +22,15 @@ public:
 	~actgraph_bfs_sw();
 	
 	unsigned int run();
-	sizetime_t start();
+	runsummary_t start(unsigned int graph_iterationidx);
 	void reloadactvverticesfiles();
 	void reloadenv();
 	void finish();
-	void summary();
+	runsummary_t timingandsummary(unsigned int graph_iterationidx, float totaltime_ms);
+	void overalltimingandsummary(runsummary_t totalsizetime);
 	unsigned int gettotalsize1();
 	unsigned int gettotalsize2();
+	unsigned int gettotalsize();
 	float totalkerneltime();
 	float totalpopulateKvDRAMtime();
 	
@@ -46,6 +48,8 @@ public:
 	void setedgeprogramstatus(bool flag);
 	void clearvectorbuffers();
 	unsigned int getflag(unsigned int giteration_idx);
+	void settime_OCLdatatransfers_ms(unsigned int threadidx, float value);
+	float gettime_OCLdatatransfers_ms(unsigned int threadidx);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
@@ -86,6 +90,7 @@ private:
 	vector<uint512_vec_dt> unused_vectorbuffer;
 	edge_t totalnumkvsread1[NUMCPUTHREADS];
 	edge_t totalnumkvsread2[NUMCPUTHREADS];
+	float totaltime_OCLdatatransfers[NUMCPUTHREADS];
 	bool edgeprogramisactive; // BC parameter
 	std::string binaryFile;
 	

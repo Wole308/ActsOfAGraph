@@ -122,11 +122,13 @@ actgraph_bfs_sw::~actgraph_bfs_sw() {
 } 
 
 unsigned int actgraph_bfs_sw::run(){
-	sizetime_t totalsizetime; totalsizetime.size = 0; totalsizetime.time_ms = 0;
+	runsummary_t totalsizetime; 
+	utilityobj[0]->reset(&totalsizetime);
 	graphobj->writerootvertextoactiveverticesfiles(12, 0);
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
+	// for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
+	for(graph_iterationidx=0; graph_iterationidx<4; graph_iterationidx++){
 		cout<<"actgraph_bfs_sw::run: graph iteration "<<graph_iterationidx<<" of breadth-first-search Started"<<endl;
 		
 		graphobj->openactiveverticesfilesforreading(graph_iterationidx);
@@ -147,32 +149,25 @@ unsigned int actgraph_bfs_sw::run(){
 		if(edges_access_type.type == STREAMING_ACCESS_TYPE){
 			cout<<"=== STREAMING_ACCESS_TYPE ==="<<endl;
 			actgraph_pr_sw_obj->setgraphiteration(graph_iterationidx);
-			sizetime_t sizetime = actgraph_pr_sw_obj->start2();
-			totalsizetime.size += sizetime.size;
-			totalsizetime.time_ms += sizetime.time_ms;
+			runsummary_t runsummary = actgraph_pr_sw_obj->start2(graph_iterationidx);
+			utilityobj[0]->append(&totalsizetime, runsummary);
 		} if(edges_access_type.type == PARTIAL_ACCESS_TYPE){
 			cout<<"=== PARTIAL_ACCESS_TYPE ==="<<endl;
-			sizetime_t sizetime = start();
-			totalsizetime.size += sizetime.size;
-			totalsizetime.time_ms += sizetime.time_ms;
+			runsummary_t runsummary = start(graph_iterationidx);
+			utilityobj[0]->append(&totalsizetime, runsummary);
 		}
 		
 		graphobj->closeactiveverticesfilesforreading();
 		graphobj->closeactiveverticesfilesforwriting();
 		for(unsigned int i=0; i<NUMSSDPARTITIONS; i++){ buffer_vertexupdates_w[i].clear(); }
 		for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSSDPARTITIONS; j++) { intermediatevertexupdates[i][j].clear(); }}
-		summary();
 	}
 	utilityobj[0]->stopTIME("actgraph_bfs_sw::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	float totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total number of kvReads for all threads (1): "<<totalsizetime.size<< RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Throughput: "<<(unsigned long)totalsizetime.size / (float)(totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
-	
-	// finish();
+	overalltimingandsummary(totalsizetime);
 	return graph_iterationidx;
 }
-sizetime_t actgraph_bfs_sw::start() {
+runsummary_t actgraph_bfs_sw::start(unsigned int graph_iterationidx) {
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<">>> actgraph_bfs_sw::start: generating & partitioning vertex updates ..."<<endl;	
 	cout<<">>> actgraph_bfs_sw::start: launching threads..."<<endl;
@@ -188,8 +183,6 @@ sizetime_t actgraph_bfs_sw::start() {
 		
 		#ifdef SW
 		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
-		/** for (int i = 0; i < NUMCPUTHREADS; i++) { panas_thread[i] = std::thread(&actgraph_bfs_sw::WorkerThread2, this, i, i_batch); }
-		for (int i = 0; i < NUMCPUTHREADS; i++ ) { panas_thread[i].join(); } */
 		#else 
 		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
 		#endif 
@@ -201,15 +194,7 @@ sizetime_t actgraph_bfs_sw::start() {
 	}
 	utilityobj[0]->stopTIME("actgraph_bfs_sw::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	float totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-
-	for (int i = 0; i < NUMCPUTHREADS; i++){ cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for thread (1) ["<<i<<"]: "<<totalnumkvsread1[i]<<endl; }
-	for (int i = 0; i < NUMCPUTHREADS; i++){ cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for thread (2) ["<<i<<"]: "<<totalnumkvsread2[i]<<endl; }
-	cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for all threads (1): "<<gettotalsize1()<<endl;
-	cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for all threads (2): "<<gettotalsize2()<<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Throughput: "<<(float)gettotalsize2() / (float)(totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
-	
-	sizetime_t sizetime; sizetime.size = gettotalsize2(); sizetime.time_ms = totaltime_ms;
-	return sizetime;
+	return timingandsummary(graph_iterationidx, totaltime_ms);
 }
 void actgraph_bfs_sw::reloadactvverticesfiles(){
 	size_t filelenght = lseek(graphobj->getnvmeFd_activevertexids_r2(), 0, SEEK_END) / sizeof(keyvalue_t);
@@ -228,17 +213,50 @@ void actgraph_bfs_sw::finish(){
 	finishOCL();
 	#endif
 }
-void actgraph_bfs_sw::summary(){
-	#ifdef LOCKE
-	cout<<">>> actgraph_bfs_sw::summary Total kernel 1 time: "<<totaltime_topkernel1_ms<<" milli seconds"<<endl;
-	cout<<">>> actgraph_bfs_sw::summary Total kernel 1 time: "<<(totaltime_topkernel1_ms / 1000)<<" seconds"<<endl;	
-	cout<<">>> actgraph_bfs_sw::summary Total kernel 2 time: "<<totaltime_topkernel2_ms<<" milli seconds"<<endl;
-	cout<<">>> actgraph_bfs_sw::summary Total kernel 2 time: "<<(totaltime_topkernel2_ms / 1000)<<" seconds"<<endl;	
-	cout<<">>> actgraph_bfs_sw::summary Total populate KvDRAM 1 time: "<<totaltime_populatekvdram1_ms<<" milli seconds"<<endl;
-	cout<<">>> actgraph_bfs_sw::summary Total populate KvDRAM 1 time: "<<(totaltime_populatekvdram1_ms / 1000)<<" seconds"<<endl;	
-	cout<<">>> actgraph_bfs_sw::summary Total populate KvDRAM 2 time: "<<totaltime_populatekvdram2_ms<<" milli seconds"<<endl;
-	cout<<">>> actgraph_bfs_sw::summary Total populate KvDRAM 2 time: "<<(totaltime_populatekvdram2_ms / 1000)<<" seconds"<<endl;	
-	#endif 
+runsummary_t actgraph_bfs_sw::timingandsummary(unsigned int graph_iterationidx, float totaltime_ms){
+	cout<<"=== ACTGRAPH_BFS::TIMING AND SUMMARY RESULTS FOR ITERATION: "<<graph_iterationidx<<" === "<<endl;
+	float totaltime_overallexcludingOCLandSSDtransfers_ms = totaltime_ms;
+	float totaltime_SSDtransfers_ms = 0;
+	float totaltime_OCLtransfers_ms = 0;
+	
+	for (int i = 0; i < NUMCPUTHREADS; i++){ cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for thread (1) ["<<i<<"]: "<<totalnumkvsread1[i]<<endl; }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for thread (2) ["<<i<<"]: "<<totalnumkvsread2[i]<<endl; }
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total number of kvReads for all threads (1): "<<gettotalsize1() << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total number of kvReads for all threads (2): "<<gettotalsize2() << RESET <<endl;
+	
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totaltime_SSDtransfers_ms += edge_process_obj[i]->gettime_SSDaccesses_ms(); }
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totaltime_OCLtransfers_ms += gettime_OCLdatatransfers_ms(i); }
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (OCL data transfers): "<< totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing): "<<totaltime_ms<< " milliseconds" << RESET <<endl;
+	totaltime_overallexcludingOCLandSSDtransfers_ms -= (totaltime_SSDtransfers_ms + totaltime_OCLtransfers_ms);
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing): "<<(float)gettotalsize() / (float)(totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(float)gettotalsize() / (float)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<<endl;
+	
+	runsummary_t runsummary; 
+	runsummary.totalsize = gettotalsize(); 
+	runsummary.totaltime_SSDtransfers_ms = totaltime_SSDtransfers_ms;
+	runsummary.totaltime_OCLtransfers_ms = totaltime_OCLtransfers_ms;
+	runsummary.totaltime_ms = totaltime_ms;
+	runsummary.totaltime_overallexcludingOCLandSSDtransfers_ms = totaltime_overallexcludingOCLandSSDtransfers_ms;
+	return runsummary;
+}
+void actgraph_bfs_sw::overalltimingandsummary(runsummary_t totalsizetime){
+	cout<<"=== ACTGRAPH_BFS::TOTAL TIMING AND SUMMARY RESULTS FOR ITERATION: "<<graph_iterationidx<<" === "<<endl;
+	
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (SSD access): "<< totalsizetime.totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (OCL data transfers): "<< totalsizetime.totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing): "<<totalsizetime.totaltime_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totalsizetime.totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing): "<<(float)totalsizetime.totalsize / (float)(totalsizetime.totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(float)totalsizetime.totalsize / (float)(totalsizetime.totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<<endl;
 	return;
 }
 unsigned int actgraph_bfs_sw::gettotalsize1(){
@@ -250,6 +268,9 @@ unsigned int actgraph_bfs_sw::gettotalsize2(){
 	unsigned int totalsize = 0;
 	for (int i = 0; i < NUMCPUTHREADS; i++){ totalsize += totalnumkvsread2[i]; }
 	return totalsize;
+}
+unsigned int actgraph_bfs_sw::gettotalsize(){
+	return gettotalsize2();
 }
 float actgraph_bfs_sw::totalkerneltime(){ return (totaltime_topkernel1_ms + totaltime_topkernel2_ms); }
 float actgraph_bfs_sw::totalpopulateKvDRAMtime(){ return (totaltime_populatekvdram1_ms + 0); }
@@ -652,6 +673,12 @@ unsigned int actgraph_bfs_sw::getflag(unsigned int giteration_idx){
 	#endif 
 	return flag;
 }
+void actgraph_bfs_sw::settime_OCLdatatransfers_ms(unsigned int threadidx, float value){
+	totaltime_OCLdatatransfers[threadidx] = value;
+}
+float actgraph_bfs_sw::gettime_OCLdatatransfers_ms(unsigned int threadidx){
+	return totaltime_OCLdatatransfers[threadidx];
+}
 
 #ifdef FPGA_IMPL
 void actgraph_bfs_sw::loadOCLstructures(std::string binaryFile){
@@ -714,11 +741,17 @@ void actgraph_bfs_sw::writeVstokernel(unsigned int threadidx){
 	#endif
 	
 	std::cout << "Copy input data to kernel global memory" << std::endl;
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
+	#endif
 	array<cl_event, {{context['NUMINSTANCES']}}> write_events;
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueReadBuffer(world.command_queue, buffer_kvdestdram[threadidx][0][ddr], CL_TRUE, 0, kvdest_size_bytes, kvdestdram[threadidx][0][ddr], 0, NULL, &write_events[ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ clWaitForEvents(1, &write_events[ddr]); }
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
+	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Write Vertices to Kernel Time Elapsed: ", begintime_writeVstokernel, NAp);
@@ -749,17 +782,26 @@ void actgraph_bfs_sw::launchkernel(unsigned int threadidx, unsigned int flag){
 	array<cl_event, {{context['NUMINSTANCES'] + context['NUMINSTANCES'] + context['NUMINSTANCES']}}> write_events;
 	
 	// Copy data from Host to Device
-	// std::chrono::steady_clock::time_point begintime_enqueuewrite = std::chrono::steady_clock::now();
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	cl_bool CLBOOL = CL_TRUE;
+	#else 
+	cl_bool CLBOOL = CL_FALSE;
+	#endif
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
+	#endif 
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[threadidx][flag][ddr], CL_FALSE, 0, kvsource_size_bytes, kvsourcedram[threadidx][flag][ddr], 0, NULL, &write_events[ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		// OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][flag][ddr], CL_FALSE, 0, kvdest_size_bytes, kvdestdram[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMDRAMBANKS']}} + ddr] ));
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][flag][ddr], CL_FALSE, 0, 64, kvdestdram[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMDRAMBANKS']}} + ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[threadidx][flag][ddr], CL_FALSE, 0, kvstats_size_bytes, kvstats[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMDRAMBANKS'] + context['NUMDRAMBANKS']}} + ddr] ));
 	}
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
+	#endif
 	
 	// Launch the Kernel			
 	printf("Enqueueing NDRange kernel.\n");
@@ -797,11 +839,17 @@ void actgraph_bfs_sw::readVsfromkernel(unsigned int threadidx){
 	#endif
 	
 	std::cout << "Copy input data to host global memory" << std::endl;
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
+	#endif 
 	array<cl_event, {{context['NUMINSTANCES']}}> write_events;
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][0][ddr], CL_TRUE, 0, kvdest_size_bytes, kvdestdram[threadidx][0][ddr], 0, NULL, &write_events[ddr] ));
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ clWaitForEvents(1, &write_events[ddr]); }
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
+	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Read Vertices from kernel Time Elapsed: ", begintime_kernelwriteback, NAp);

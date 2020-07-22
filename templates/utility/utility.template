@@ -204,6 +204,20 @@ int utility::resetActs(unsigned int IterCount){
 void utility::appenddata(unsigned int * data1, unsigned int data2){
 	*data1 += data2;
 }
+void utility::append(runsummary_t * dest, runsummary_t source){
+	dest->totalsize += source.totalsize;
+	dest->totaltime_SSDtransfers_ms += source.totaltime_SSDtransfers_ms;
+	dest->totaltime_OCLtransfers_ms += source.totaltime_OCLtransfers_ms;
+	dest->totaltime_ms += source.totaltime_ms;
+	dest->totaltime_overallexcludingOCLandSSDtransfers_ms += source.totaltime_overallexcludingOCLandSSDtransfers_ms;
+}
+void utility::reset(runsummary_t * data){
+	data->totalsize = 0;
+	data->totaltime_SSDtransfers_ms = 0;
+	data->totaltime_OCLtransfers_ms = 0;
+	data->totaltime_ms = 0;
+	data->totaltime_overallexcludingOCLandSSDtransfers_ms = 0;
+}
 
 #ifdef FPGA_IMPL
 #define OCL_CHECK(call)							\

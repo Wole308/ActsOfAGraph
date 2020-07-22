@@ -35,6 +35,8 @@ public:
 	int runActs(unsigned int IterCount);
 	int resetActs(unsigned int IterCount);
 	void appenddata(unsigned int * data1, unsigned int data2);
+	void append(runsummary_t * dest, runsummary_t source);
+	void reset(runsummary_t * data);
 	
 	#ifdef FPGA_IMPL
 	// void event_cb(cl_event event, cl_int cmd_status, void *data);

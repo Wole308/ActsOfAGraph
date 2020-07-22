@@ -34,7 +34,7 @@ context['NUMDRAMBANKS'] = 4
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
 else:
-	context['NUMINSTANCES'] = 1 #4
+	context['NUMINSTANCES'] = 4
 context['NUMWORKERS'] = ACTSACCEL1_params[0]
 context['NUMSUBWORKERS'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]

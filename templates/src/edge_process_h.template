@@ -27,6 +27,8 @@ public:
 	void loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fileoffset, T * buffer, vertex_t bufferoffset, size_t numbytestoread);
 	void collectstats(keyvalue_t * kvstats, vertex_t kvsize);
 	void resetstats(keyvalue_t * kvstats);
+	void settime_ssdaccesses_ms(float value);
+	float gettime_SSDaccesses_ms();
 
 private:	
 	unsigned int numvertexbanks;
@@ -51,6 +53,8 @@ private:
 	size_t m_edgebuffer_alloc_bytes; // = (1024*2); // CHANGED
 	std::atomic<size_t> m_index_blocks_read;
 	std::atomic<size_t> m_edge_blocks_read;
+	
+	float totaltime_ssdaccesses_ms;
 	
 	algorithm * algorithmobj;
 	utility * utilityobj;

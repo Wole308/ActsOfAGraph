@@ -15,10 +15,10 @@ public:
 	~actgraph_pr_sw();
 	
 	void run();
-	sizetime_t start2();
+	runsummary_t start2(unsigned int graph_iterationidx);
 	void reloadenv();
 	void finish();
-	void summary();
+	runsummary_t timingandsummary(unsigned int graph_iterationidx, float totaltime_ms);
 	unsigned int gettotalsize();
 	float totalkerneltime();
 	float totalpopulateKvDRAMtime();
@@ -41,6 +41,8 @@ public:
 	void applyvertices(unsigned int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size);
 	void setgraphiteration(unsigned int _graph_iterationidx);
 	unsigned int getflag(unsigned int giteration_idx);
+	void settime_OCLdatatransfers_ms(unsigned int threadidx, float value);
+	float gettime_OCLdatatransfers_ms(unsigned int threadidx);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
@@ -78,6 +80,7 @@ private:
 	graph * graphobj;
 	
 	edge_t totalnumkvsread[NUMCPUTHREADS];
+	float totaltime_OCLdatatransfers[NUMCPUTHREADS];
 	
 	#ifdef FPGA_IMPL
 	cl_int err;	
