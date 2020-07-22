@@ -196,9 +196,9 @@ do
 				then
 					make cleanall
 					# make build_acts_nthreads
-					# make demo_acts_nthreads
+					make demo_acts_nthreads
 					# make demo_acts_nthreads_debug
-					make demo_acts_nthreads > $OUTFILE_NAME
+					# make demo_acts_nthreads > $OUTFILE_NAME
 				elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 				then
 					make cleanall

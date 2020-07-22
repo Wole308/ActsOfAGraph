@@ -19,6 +19,7 @@ public:
 	int hallignup_KV(int val);
 	int halligndown_KV(int val);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
+	void resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
 	void printkvdrams(uint512_vec_dt * kvdram);
 	void printstats(unsigned int size, keyvalue_t * kvstats);
 	void printkvdramsII(uint512_vec_dt * kvdram, keyvalue_t * kvstats);
@@ -33,7 +34,8 @@ public:
 	unsigned int getmessagesAddr(unsigned int addr);
 	int runActs(unsigned int IterCount);
 	int resetActs(unsigned int IterCount);
-
+	void appenddata(unsigned int * data1, unsigned int data2);
+	
 	#ifdef FPGA_IMPL
 	// void event_cb(cl_event event, cl_int cmd_status, void *data);
 	void set_callback(cl_event event, const char *queue_name);

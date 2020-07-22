@@ -22,11 +22,13 @@ public:
 	~actgraph_bfs_sw();
 	
 	unsigned int run();
-	void start();
+	sizetime_t start();
 	void reloadactvverticesfiles();
 	void reloadenv();
 	void finish();
 	void summary();
+	unsigned int gettotalsize1();
+	unsigned int gettotalsize2();
 	float totalkerneltime();
 	float totalpopulateKvDRAMtime();
 	
@@ -34,6 +36,7 @@ public:
 	void WorkerThread2(int threadidx, int bankoffset);
 	
 	void generatekvs(int threadidx, unsigned int flag, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);
+	void settleupdates(int threadidx, unsigned int flag, unsigned int iteration_idx, unsigned int iteration_size);
 	void workerthread_generatekvs(unsigned int ddr, unsigned int flag, int threadidx, unsigned int bankoffset, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);			
 	void partitionupdates(keyvalue_t * kvdram, vector<keyvalue_t> (&vertexupdates)[NUMSSDPARTITIONS], unsigned int vbegin, unsigned int keyvaluesize, unsigned int rangeperpartition);
 	void appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITIONS], vector<keyvalue_t> (&destinationbuffer)[NUMSSDPARTITIONS], FILE * destinationfile[NUMSSDPARTITIONS], bool writetodram);
@@ -46,7 +49,9 @@ public:
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
+	void writeVstokernel(unsigned int threadidx);
 	void launchkernel(unsigned int threadidx, unsigned int flag);
+	void readVsfromkernel(unsigned int threadidx);
 	void finishOCL();
 	#endif 
 	

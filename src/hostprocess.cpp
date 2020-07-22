@@ -271,7 +271,7 @@ int main(int argc, char** argv){
 	std::cout<< TIMINGRESULTSCOLOR  << ">>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredtokernel: " << globaldebugger_totalkeyvaluesstransferredtokernel << " [key values]" << RESET << std::endl;
 	std::cout<< TIMINGRESULTSCOLOR  << ">>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredfromkernel: " << globaldebugger_totalkeyvaluesstransferredfromkernel << " [key values]" << RESET << std::endl;
 	std::cout<< TIMINGRESULTSCOLOR  << ">>> TIMING SUMMARY: globaldebugger_totalkvstats["<<0<<"]: " << globaldebugger_totalkvstats[0] << " [key values]" << RESET << std::endl;
-	std::cout<< TIMINGRESULTSCOLOR  << ">>> TIMING SUMMARY: globaldebugger_totalkvstats["<<((KVSTATS_SIZE-1) / 2)<<"]: " << globaldebugger_totalkvstats[((KVSTATS_SIZE-1) / 2)] << " [key values]" << RESET << std::endl;
+	std::cout<< TIMINGRESULTSCOLOR  << ">>> TIMING SUMMARY: globaldebugger_totalkvstats["<<((KVSTATS_SIZE-1) / 2)<<"]: " << globaldebugger_totalkvstats[((KVSTATS_SIZE-1) / 2)] << " [key values]" << RESET << std::endl;			
 	std::cout<< TIMINGRESULTSCOLOR  << ">>> TIMING SUMMARY: globaldebugger_totalkvstats["<<(KVSTATS_SIZE-1)<<"]: " << globaldebugger_totalkvstats[(KVSTATS_SIZE-1)] << " [key values]" << RESET << std::endl;	
 	std::cout << std::endl;
 	#endif

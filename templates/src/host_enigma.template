@@ -61,6 +61,7 @@ host_enigma::host_enigma(graph * _graphobj){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj); }
 	srand (0);
+	// srand(time(0)); 
 }
 host_enigma::~host_enigma(){
 	cout<<"host_enigma::~host_enigma:: finish destroying memory structures... "<<endl;
@@ -87,8 +88,20 @@ void host_enigma::WorkerThread(int threadidx){
 		loaddrams(threadidx, IterCount);
 		if((runActs(IterCount) == 1) || (IterCount == (iteration_size-1))){ 
 			calculatealloffsets(threadidx); 
-			for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ kvstats[threadidx][ddr][getmessagesAddr(MESSAGES_RUNKERNELCOMMANDID)].key = ON; }
-		} else { for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ kvstats[threadidx][ddr][getmessagesAddr(MESSAGES_RUNKERNELCOMMANDID)].key = OFF; } }
+			for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ 
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNKERNELCOMMANDID].key = ON; 
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_BATCHSIZE].key = KVDATA_BATCHSIZE;
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNSIZE].key = KVDATA_BATCHSIZE * DRAMBATCHFACTOR; 
+				kvstats[threadidx][ddr][BASEOFFSET_STATSDRAM + 0].value = KVDATA_BATCHSIZE * DRAMBATCHFACTOR;
+			}
+		} else { 
+			for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ 
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNKERNELCOMMANDID].key = OFF;
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_BATCHSIZE].key = KVDATA_BATCHSIZE;
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNSIZE].key = 0;
+				kvstats[threadidx][ddr][BASEOFFSET_STATSDRAM + 0].value = 0;
+			}
+		}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTSX
 		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("BEFORE", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
@@ -102,6 +115,16 @@ void host_enigma::WorkerThread(int threadidx){
 		#endif 
 		utilityobj[threadidx]->stopTIME("Total time elapsed (Entire TopKernel Process): ", begintime_topkernel, NAp);
 			
+		if((runActs(IterCount) == 1) || (IterCount == (iteration_size-1))){ 
+			for(int ddr = 0; ddr < NUMDRAMBANKS; ddr++){
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_NEXTBATCHOFFSET].key = 0; 
+			}
+		} else {
+			for(int ddr = 0; ddr < NUMDRAMBANKS; ddr++){
+				kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_NEXTBATCHOFFSET].key += kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_BATCHSIZE].key;
+			}
+		}
+	
 		#ifdef _DEBUGMODE_KERNELPRINTSX
 		for(unsigned int i=0; i<DRAMBATCHFACTOR; i++){ kernelobj->printkeyvalues("AFTER", (keyvalue_t *)&kvsourcedram[threadidx][0][i*KVDATA_BATCHSIZE_KVS], 16); }
 		#endif
@@ -143,7 +166,7 @@ void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset, unsigned 
 	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = ON;
 	messages[getmessagesAddr(MESSAGES_VOFFSET)].key = 0;
 	messages[getmessagesAddr(MESSAGES_VSIZE)].key = KVDATA_RANGE_PERSSDPARTITION;
-	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = 3;//TREE_DEPTH;
+	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = TREE_DEPTH;
 	messages[getmessagesAddr(MESSAGES_FINALNUMPARTITIONS)].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 	messages[getmessagesAddr(MESSAGES_GRAPHITERATIONID)].key = 0;
 	messages[getmessagesAddr(MESSAGES_ITERATIONID)].key = IterCount;

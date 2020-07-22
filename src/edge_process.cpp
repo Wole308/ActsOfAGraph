@@ -218,7 +218,7 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 	#ifdef _DEBUGMODE_TIMERS
 	std::chrono::steady_clock::time_point begintime_4 = std::chrono::steady_clock::now();
 	#endif 
-	collectstats(kvstats, kvcount);
+	// collectstats(kvstats, kvcount);
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj->stopTIME("edge_process::generateupdates_stream: collect stats Time Elapsed: ", begintime_4, NAp);
 	#endif

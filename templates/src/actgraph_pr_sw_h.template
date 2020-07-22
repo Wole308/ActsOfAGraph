@@ -15,17 +15,19 @@ public:
 	~actgraph_pr_sw();
 	
 	void run();
-	void start2();
+	sizetime_t start2();
 	void reloadenv();
 	void finish();
 	void summary();
+	unsigned int gettotalsize();
 	float totalkerneltime();
 	float totalpopulateKvDRAMtime();
 	
 	void WorkerThread2(int threadidx, int threadidxoffset);
 
-	void generatekvs(int threadidx, unsigned int flag, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t * edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);		
-	void workerthread_generatekvs(unsigned int ddr, unsigned int flag, int threadidx, unsigned int subthreadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);				
+	void generatekvs(int threadidx, unsigned int flag, unsigned int threadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t * edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);		
+	void workerthread_generatekvs(unsigned int ddr, unsigned int flag, int threadidx, unsigned int threadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);				
+	void settleupdates(int threadidx, unsigned int flag, unsigned int iteration_idx, unsigned int iteration_size);
 	void printstructures(unsigned int threadidx, unsigned int flag);
 	void checkresultfromkernel(unsigned int threadidx, unsigned int flag, unsigned int totalnumkeyvalues[NUMDRAMBANKS]);
 	void loadverticesdatafromfile(int nvmeFd_verticesdata_r2, unsigned int offset, keyvalue_t * kvdram, vertex_t bufferoffset, vertex_t verticessize);
@@ -42,7 +44,9 @@ public:
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
+	void writeVstokernel(unsigned int threadidx);
 	void launchkernel(unsigned int threadidx, unsigned int flag);
+	void readVsfromkernel(unsigned int threadidx);
 	void finishOCL();
 	void reloadOCLenv(xcl_world * _world, cl_program * _program, cl_kernel * _kernel);
 	void allocateOCLbuffers();

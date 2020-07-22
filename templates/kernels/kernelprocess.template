@@ -48,7 +48,7 @@ void kernelprocess::topkernel(
 }
 void kernelprocess::topkernelMW(uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats){
 	#ifdef SW
-	#ifdef TESTKERNEL
+	#if defined(TESTKERNEL) || defined(LOCKE)
 	topkernel(kvsourcedram[0], kvdestdram[0], kvstats[0]);
 	#else 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i] = std::thread(&kernelprocess::topkernel, this, kvsourcedram[i], kvdestdram[i], kvstats[i]); }

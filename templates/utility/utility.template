@@ -92,6 +92,10 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
+void utility::resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
+	cout<<"resetkeyvalues:"<<message<<endl;
+	for(unsigned int i=0; i<size; i++){ keyvalues[i].key = 0; keyvalues[i].value = 0; }
+}
 void utility::printkvdrams(uint512_vec_dt * kvdram){
 	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
 		for(unsigned int j=0; j<VECTOR_SIZE; j++){
@@ -196,6 +200,9 @@ int utility::runActs(unsigned int IterCount){
 int utility::resetActs(unsigned int IterCount){
 	if((IterCount % DRAMBATCHFACTOR) == 0){ return 1; }
 	else { return 0; }
+}
+void utility::appenddata(unsigned int * data1, unsigned int data2){
+	*data1 += data2;
 }
 
 #ifdef FPGA_IMPL
