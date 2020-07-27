@@ -550,6 +550,16 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readkeyvalues{{ddrs}}(uint
 }
 {%endfor%}
 {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readkeyvalues{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt * buffer{{sw}} {%endfor%} ,batch_type baseaddress ,batch_type offset_kvs {%for sw in context['NUMSUBWORKERS_seq']%} ,buffer_type size{{sw}}_kvs {%endfor%} ,batch_type maxaddress_kvs, int enable, int collectstats){			
+	if(enable == 0){ return; }
+	
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	readkeyvalues{{ddrs}}(kvdram, buffer{{sw}}, baseaddress, offset_kvs + (workerID * {{sw}} * SRCBUFFER_SIZE), size{{sw}}_kvs, maxaddress_kvs, enable, collectstats);
+	{%endfor%}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 travoffsets_t {%if(context['XWARE'] == "SW")%}enigma::{%endif%}readcapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS], {%endfor%} batch_type baseaddress_kvs, batch_type offset_kvs, int enable, travoffsets_t travoffsets){
 	if(enable == 0){ return travoffsets; }
 	#ifdef _DEBUGMODE_CHECKS2
@@ -1297,8 +1307,259 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}Throne{{ddrs}}(uint512_dt 
 			exit(EXIT_SUCCESS);
 			#endif 
 			
-			storedeststats(kvstats, kvdeststats_tmp, 0, deststatsmarker);
-			deststatsmarker += NUM_PARTITIONS;
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0){ storedeststats(kvstats, kvdeststats_tmp, 0, deststatsmarker); deststatsmarker += NUM_PARTITIONS; }
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ sourcestatsmarker += NUMSUBWORKERS; }
+			else { sourcestatsmarker += 1; }
+			
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv * NUMSUBWORKERS; } 
+			else { llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv; }
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		printglobalvars();
+		clearglobalvars();
+		#endif
+	}
+	return;
+}
+{%endfor%}
+{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}Rule{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams){
+	int analysis_maxtreedepthsz = 1;
+	int analysis_avgnumsourcepartitions = 1;
+	int analysis_partitionphase = (KVDRAMSZ_KVS / (NUMWORKERS * SRCBUFFER_SIZE)) / VECTOR_SIZE;
+	int analysis_reducephase = 1;
+	int analysis_chunksize = SRCBUFFER_SIZE;
+	int analysis_iterationcount = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	{%for sw in context['NUMSUBWORKERS_seq']%}
+	uint512_dt sourcebuffer{{w}}{{sw}}[2][SRCBUFFER_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=sourcebuffer{{w}}{{sw}} dim=1
+	uint512_dt destbuffer{{w}}{{sw}}[PADDEDDESTBUFFER_SIZE];
+	keyvalue_t capsule{{w}}{{sw}}[NUM_PARTITIONS];
+	uint512_dt BIGcapsule{{w}}{{sw}}[CAPSULEBUFFER_SIZE];
+	{%endfor%}
+	{%endfor%}
+	
+	{%for w in context['NUMWORKERS_seq']%}
+	resetcapsules{{ddrs}}({%for sw in context['NUMSUBWORKERS_seq']%}capsule{{w}}{{sw}},{%endfor%} NAp);
+	{%endfor%}
+	
+	unsigned int numLOPs = 0;
+	if(globalparams.runkernelcommand == ON){
+		if(globalparams.reducecommand == ON){ numLOPs = globalparams.treedepth + 1 + 1; }
+		else { numLOPs = globalparams.treedepth + 1; }
+	} else { numLOPs = 1; }
+	unsigned int loadkvdramsize_kvs = 0;
+	if(globalparams.runkernelcommand == ON){ loadkvdramsize_kvs = 0; }
+	else { loadkvdramsize_kvs = KVDATA_BATCHSIZE_KVS; }
+	unsigned int sourcestatsmarker = 0;
+	unsigned int deststatsmarker = 1;
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("loadKvDRAM{{ddrs}} 35", ((globalparams.IterCount % DRAMBATCHFACTOR) + 1) * KVDATA_BATCHSIZE_KVS + KVDATA_BATCHSIZE_KVS, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	if(globalparams.runkernelcommand == ON){ cout<<"...running Acts..."<<endl; } // printparameters();
+	else { cout<<"...loading KvDRAM..."<<endl; }
+	#endif
+	int i;
+	LOADKVDRAMPHASE_LOOP1: for (i = 0; i < loadkvdramsize_kvs; i += SRCBUFFER_SIZE){
+	#pragma HLS LOOP_TRIPCOUNT min=analysis_iterationcount max=analysis_iterationcount
+		//boundary checks
+		int chunk_size = SRCBUFFER_SIZE;
+		if ((i + SRCBUFFER_SIZE) > loadkvdramsize_kvs){ chunk_size = loadkvdramsize_kvs - i; }
+		readkeyvalues{{ddrs}}(kvsourcedram, sourcebuffer00[0], 0, 0 + i, chunk_size, PADDEDKVSOURCEDRAMSZ_KVS, 1, 0);
+		savekeyvalues{{ddrs}}(kvsourcedram, sourcebuffer00[0], 0, (((globalparams.IterCount % DRAMBATCHFACTOR) + 1) * KVDATA_BATCHSIZE_KVS) + i, chunk_size, PADDEDKVSOURCEDRAMSZ_KVS, 1, 0);
+	}
+
+	// Partition Phase
+	PARTITIONANDREDUCE_LOOP1: for(unsigned int currentLOP=1; currentLOP<numLOPs; currentLOP++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_maxtreedepthsz avg=analysis_maxtreedepthsz
+		keyvalue_t kvdeststats_tmp[NUM_PARTITIONS];
+		keyvalue_t kvdeststats_tmp2[NUM_PARTITIONS];
+		
+		clopparams_t llopparams;
+		loadclopparams(globalparams, &llopparams, currentLOP);
+		unsigned int num_source_partition_skipsize = 0;
+		if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ num_source_partition_skipsize = NUMSUBWORKERS; }
+		else { num_source_partition_skipsize = 1; }
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<endl;
+		print4("PartitionPhase{{ddrs}}:: num_source_partitions", "num_destpartitions", "sourceskipsize_kv", "NAp", llopparams.num_source_partitions, llopparams.num_source_partitions * NUM_PARTITIONS, llopparams.sourceskipsize_kv, NAp);
+		#endif
+		
+		PARTITIONANDREDUCE_LOOP2: for(unsigned int source_partition=0; source_partition<llopparams.num_source_partitions; source_partition+=num_source_partition_skipsize){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_avgnumsourcepartitions avg=analysis_avgnumsourcepartitions
+		
+			partitionparams_t partitionparams;
+			travstate_t travstate;
+			travstate_t travstates[NUMSUBWORKERS];
+			travoffsets_t travoffsets;
+			#ifdef _DEBUGMODE_CHECKSM
+			initializeDebuggers();
+			#endif
+			
+			llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
+			keyvalue_t sourcestat = kvstats[getstatsAddr(sourcestatsmarker)];
+			partitionparams.begin_kvs = sourcestat.key / VECTOR_SIZE;
+			partitionparams.size_kvs = (sourcestat.value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+			partitionparams.step_kvs = NUMWORKERS * NUMSUBWORKERS * NFACTOR * SRCBUFFER_SIZE;
+			partitionparams.end_kvs = partitionparams.begin_kvs + partitionparams.size_kvs;
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ partitionparams.begin_kvs = 0; partitionparams.size_kvs = 0; partitionparams.step_kvs = 0; partitionparams.end_kvs = 0; }
+			travstate.begin_kvs = partitionparams.begin_kvs;
+			travstate.end_kvs = partitionparams.end_kvs;
+			travstate.skip_kvs = partitionparams.step_kvs;
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ print6("ReducePhase{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", "source_partition", sourcestat.key, sourcestat.value, NUMSUBWORKERS * SRCBUFFER_SIZE * VECTOR_SIZE, llopparams.currentLOP, KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, llopparams.currentLOP), source_partition); } 
+			else { print6("PartitionPhase{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", "source_partition", sourcestat.key, sourcestat.value, NUMSUBWORKERS * SRCBUFFER_SIZE * VECTOR_SIZE, llopparams.currentLOP, KVDATA_RANGE_PERSSDPARTITION / pow(NUM_PARTITIONS, llopparams.currentLOP), source_partition); }
+			#endif
+			resetkeyandvalues(kvdeststats_tmp, NUM_PARTITIONS);
+			resetkeyandvalues(kvdeststats_tmp2, NUM_PARTITIONS);
+			
+			// Collect capsules
+			travoffsets.capsuleoffset_kvs = 0;
+			COLLECTSTATS_MAINLOOP1: for(int i = partitionparams.begin_kvs; i < partitionparams.end_kvs; i += partitionparams.step_kvs){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionphase avg=analysis_partitionphase
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				print4("collectstats_ddr{{ddrs}}:: i", "i_end", "step size", "NAp", i, partitionparams.end_kvs, partitionparams.step_kvs, NAp);
+				#endif
+				
+				batch_type capsuleoffset_kvs = ((i - partitionparams.begin_kvs) / partitionparams.step_kvs) * NUM_PARTITIONS;
+				COLLECTSTATS_MAINLOOP1B: for(vector_type v=0; v<NFACTOR / 2; v++){
+					travstate.i_kvs = i + (v * 2 * NUMWORKERS * NUMSUBWORKERS * SRCBUFFER_SIZE);
+					
+					{%for w in context['NUMWORKERS_seq']%}	
+					{%for sw in context['NUMSUBWORKERS_seq']%}
+					buffer_type chunk{{w}}{{sw}}_size = SRCBUFFER_SIZE;
+					{%endfor%}
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					readkeyvalues{{ddrs}}({{w}}, kvsourcedram {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[0] {%endfor%} ,llopparams.baseaddr_worksourcekvs_kvs ,travstate.i_kvs {%for sw in context['NUMSUBWORKERS_seq']%} ,chunk{{w}}{{sw}}_size {%endfor%} ,PADDEDKVSOURCEDRAMSZ_KVS, 1, ENREADKVS_COLLECTSTATS);
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					extractcapsules{{ddrs}}{{w}}({{w}} {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[1]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,capsule{{w}}{{sw}}{%endfor%}, llopparams, travstate);
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					readkeyvalues{{ddrs}}({{w}}, kvsourcedram {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[1] {%endfor%} ,llopparams.baseaddr_worksourcekvs_kvs ,travstate.i_kvs + (NUMWORKERS * NUMSUBWORKERS * SRCBUFFER_SIZE) {%for sw in context['NUMSUBWORKERS_seq']%} ,chunk{{w}}{{sw}}_size {%endfor%} ,PADDEDKVSOURCEDRAMSZ_KVS, 1, ENREADKVS_COLLECTSTATS);
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					extractcapsules{{ddrs}}{{w}}({{w}} {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[0]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,capsule{{w}}{{sw}}{%endfor%}, llopparams, travstate);
+					{%endfor%}
+				}
+				{%for w in context['NUMWORKERS_seq']%}
+				travoffsets = savecapsules{{ddrs}}({{w}}, kvsourcedram {%for sw in context['NUMSUBWORKERS_seq']%}, BIGcapsule{{w}}{{sw}}{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, capsule{{w}}{{sw}}{%endfor%}, kvdeststats_tmp, llopparams.baseaddr_capsule_kvs, capsuleoffset_kvs, 1, travstate, travoffsets);
+				{%endfor%}
+				{%for w in context['NUMWORKERS_seq']%}
+				resetcapsules{{ddrs}}({%for sw in context['NUMSUBWORKERS_seq']%} capsule{{w}}{{sw}},{%endfor%} NAp);
+				{%endfor%}
+				#ifdef _DEBUGMODE_CHECKSM
+				debugger_i += 1;
+				#endif
+			}
+			{%for w in context['NUMWORKERS_seq']%}
+			resetcapsules{{ddrs}}({%for sw in context['NUMSUBWORKERS_seq']%} capsule{{w}}{{sw}},{%endfor%} NAp);
+			{%endfor%}
+			copy(kvdeststats_tmp, kvdeststats_tmp2, NUM_PARTITIONS); // should happen before calculateoffsets
+			calculateoffsets(kvdeststats_tmp, sourcestat.key);
+			calculateoffsets(kvdeststats_tmp2);
+			resetvalues(kvdeststats_tmp2, NUM_PARTITIONS);
+			#ifdef _DEBUGMODE_CHECKSM
+			debugger_i = 0;
+			#endif
+			
+			// Partition phase
+			travoffsets.capsuleoffset_kvs = 0;
+			PARTITIONPHASE_MAINLOOP1: for (int i = partitionparams.begin_kvs; i < partitionparams.end_kvs; i += partitionparams.step_kvs){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionphase avg=analysis_partitionphase
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				print4("PartitionPhase{{ddrs}}:: i", "i_end", "step size", "NAp", i, partitionparams.end_kvs, partitionparams.step_kvs, NAp);
+				#endif
+				
+				batch_type capsuleoffset_kvs = ((i - partitionparams.begin_kvs) / partitionparams.step_kvs) * NUM_PARTITIONS;
+				{%for w in context['NUMWORKERS_seq']%}
+				travoffsets = readcapsules{{ddrs}}({{w}}, kvsourcedram, {%for sw in context['NUMSUBWORKERS_seq']%} BIGcapsule{{w}}{{sw}}, {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}capsule{{w}}{{sw}},{%endfor%} llopparams.baseaddr_capsule_kvs, capsuleoffset_kvs, 1, travoffsets); // FIXME. include workerID in offset
+				{%endfor%}
+				PARTITIONPHASE_MAINLOOP1B: for (int v = 0; v < NFACTOR / 2; v += 1){
+					travstate.i_kvs = i + (v * NUMWORKERS * NUMSUBWORKERS * SRCBUFFER_SIZE);
+					
+					{%for w in context['NUMWORKERS_seq']%}	
+					{%for sw in context['NUMSUBWORKERS_seq']%}
+					buffer_type chunk{{w}}{{sw}}_size = SRCBUFFER_SIZE;
+					{%endfor%}
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					readkeyvalues{{ddrs}}({{w}}, kvsourcedram {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[0] {%endfor%} ,llopparams.baseaddr_worksourcekvs_kvs ,travstate.i_kvs {%for sw in context['NUMSUBWORKERS_seq']%} ,chunk{{w}}{{sw}}_size {%endfor%} ,PADDEDKVSOURCEDRAMSZ_KVS, 1, ENREADKEYVALUES_PARTITION);
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					partitionkeyvalues{{ddrs}}{{w}}({{w}} {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[1] {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,destbuffer{{w}}{{sw}}{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,capsule{{w}}{{sw}}{%endfor%}, travstate, llopparams);
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					readkeyvalues{{ddrs}}({{w}}, kvsourcedram {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[1] {%endfor%} ,llopparams.baseaddr_worksourcekvs_kvs ,travstate.i_kvs + (NUMWORKERS * NUMSUBWORKERS * SRCBUFFER_SIZE) {%for sw in context['NUMSUBWORKERS_seq']%} ,chunk{{w}}{{sw}}_size {%endfor%} ,PADDEDKVSOURCEDRAMSZ_KVS, 1, ENREADKEYVALUES_PARTITION);
+					{%endfor%}
+					
+					{%for w in context['NUMWORKERS_seq']%}
+					partitionkeyvalues{{ddrs}}{{w}}({{w}} {%for sw in context['NUMSUBWORKERS_seq']%} ,sourcebuffer{{w}}{{sw}}[0] {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,destbuffer{{w}}{{sw}}{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,capsule{{w}}{{sw}}{%endfor%}, travstate, llopparams);
+					{%endfor%}
+				}
+				{%for w in context['NUMWORKERS_seq']%}
+				savepartitions{{ddrs}}({{w}}, kvsourcedram {%for sw in context['NUMSUBWORKERS_seq']%}, destbuffer{{w}}{{sw}}{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, capsule{{w}}{{sw}}{%endfor%}, kvdeststats_tmp2, llopparams.baseaddr_workdestkvs_kvs, 1);
+				{%endfor%}
+				{%for w in context['NUMWORKERS_seq']%}
+				resetcapsules{{ddrs}}({%for sw in context['NUMSUBWORKERS_seq']%}capsule{{w}}{{sw}},{%endfor%} NAp);
+				{%endfor%}
+				#ifdef _DEBUGMODE_CHECKSM
+				debugger_i += 1;
+				#endif
+			}
+			#ifdef _DEBUGMODE_CHECKSM
+			IsEqual(Debugger_Sizes1, Debugger_Sizes2, debugger_i, NUM_PARTITIONS);
+			debugger_i = 0;
+			#endif
+			
+			// Reduce phase
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){
+			keyvalue_t sourcestats[NUMSUBWORKERS];
+			unsigned int maxsz = 0;
+			for(unsigned int i=0; i<NUMSUBWORKERS; i++){ sourcestats[i] = kvstats[getstatsAddr(sourcestatsmarker + i)]; }
+			for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){ maxsz = max(sourcestats[sw].value, maxsz); }
+			unsigned int maxsz_kvs = (maxsz + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+			for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){
+			travstates[sw].begin_kvs = 0;
+			travstates[sw].end_kvs = (sourcestats[sw].value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+			travstates[sw].skip_kvs = SRCBUFFER_SIZE; }
+			
+			{%for sw in context['NUMSUBWORKERS_seq']%}
+			readkeyvalues{{ddrs}}(kvdestdram, destbuffer0{{sw}}, globalparams.baseaddr_destkvs_kvs, (llopparams.nextsourceoffset_kv / VECTOR_SIZE) + ({{sw}} * PADDEDDESTBUFFER_SIZE), PADDEDDESTBUFFER_SIZE, KVDATA_RANGE_PERSSDPARTITION, 1, ENREADVPROPS_REDUCE);
+			{%endfor%}
+			REDUCEPHASE_MAINLOOP: for (int i = 0; i < maxsz_kvs; i += SRCBUFFER_SIZE){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reducephase avg=analysis_reducephase
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				print5("ReducePhase{{ddrs}}:: i", "i_end", "NAp", "NAp", "skip size", i, maxsz_kvs, NAp, NAp, SRCBUFFER_SIZE);
+				#endif
+				for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){ travstates[sw].i_kvs = i; }
+				
+				{%for sw in context['NUMSUBWORKERS_seq']%}
+				buffer_type chunk{{sw}}_size = SRCBUFFER_SIZE;
+				getchunksize(&chunk{{sw}}_size, SRCBUFFER_SIZE, travstates[{{sw}}], 0);
+				readkeyvalues{{ddrs}}(kvsourcedram, sourcebuffer0{{sw}}[0], llopparams.baseaddr_worksourcekvs_kvs, (sourcestats[{{sw}}].key / VECTOR_SIZE) + i, chunk{{sw}}_size, PADDEDKVSOURCEDRAMSZ_KVS, 1, ENREADKEYVALUES_REDUCE);
+				{%endfor%}
+				
+				reducepartitions{{ddrs}}(0, {%for sw in context['NUMSUBWORKERS_seq']%} sourcebuffer0{{sw}}[0], {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} destbuffer0{{sw}}, {%endfor%} travstate, globalparams);
+			}
+			{%for sw in context['NUMSUBWORKERS_seq']%}
+			savekeyvalues{{ddrs}}(kvdestdram, destbuffer0{{sw}}, globalparams.baseaddr_destkvs_kvs, ((llopparams.nextsourceoffset_kv / VECTOR_SIZE) + ({{sw}} * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE, KVDATA_RANGE_PERSSDPARTITION, 1, ENSAVEVERTICES_REDUCE);
+			{%endfor%}
+			}
+			
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0){ storedeststats(kvstats, kvdeststats_tmp, 0, deststatsmarker); deststatsmarker += NUM_PARTITIONS; }
 			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ sourcestatsmarker += NUMSUBWORKERS; }
 			else { sourcestatsmarker += 1; }
 			
@@ -1350,8 +1611,9 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partitionandreduce{{ddrs}}
 	checkoutofbounds("loadKvDRAM{{ddrs}} 35", ((globalparams.IterCount % DRAMBATCHFACTOR) + 1) * KVDATA_BATCHSIZE_KVS + KVDATA_BATCHSIZE_KVS, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	if(globalparams.runkernelcommand == ON){ cout<<"...running Acts..."<<endl; } // printparameters();
+	if(globalparams.runkernelcommand == ON){ cout<<"...running Acts... size: "<<kvstats[BASEOFFSET_STATSDRAM + 0].value<<endl; } // printparameters();
 	else { cout<<"...loading KvDRAM..."<<endl; }
+	
 	#endif
 	int i;
 	LOADKVDRAMPHASE_LOOP1: for (i = 0; i < loadkvdramsize_kvs; i += SRCBUFFER_SIZE){
@@ -1390,6 +1652,9 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partitionandreduce{{ddrs}}
 			initializeDebuggers();
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS2
+			checkoutofbounds("enigma::partitionandreduce{{ddrs}} 22", getstatsAddr(sourcestatsmarker), KVSTATSDRAMSZ, NAp, NAp, NAp);
+			#endif
 			llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
 			keyvalue_t sourcestat = kvstats[getstatsAddr(sourcestatsmarker)];
 			partitionparams.begin_kvs = sourcestat.key / VECTOR_SIZE;
@@ -1496,6 +1761,9 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partitionandreduce{{ddrs}}
 			
 			// Reduce phase
 			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){
+			#ifdef _DEBUGMODE_CHECKS2
+			checkoutofbounds("enigma::partitionandreduce{{ddrs}} 23", getstatsAddr(sourcestatsmarker + NUMSUBWORKERS), KVSTATSDRAMSZ, NAp, NAp, NAp);
+			#endif
 			keyvalue_t sourcestats[NUMSUBWORKERS];
 			unsigned int maxsz = 0;
 			for(unsigned int i=0; i<NUMSUBWORKERS; i++){ sourcestats[i] = kvstats[getstatsAddr(sourcestatsmarker + i)]; }
@@ -1529,8 +1797,7 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}partitionandreduce{{ddrs}}
 			{%endfor%}
 			}
 			
-			storedeststats(kvstats, kvdeststats_tmp, 0, deststatsmarker);
-			deststatsmarker += NUM_PARTITIONS;
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0){ storedeststats(kvstats, kvdeststats_tmp, 0, deststatsmarker); deststatsmarker += NUM_PARTITIONS; }
 			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ sourcestatsmarker += NUMSUBWORKERS; }
 			else { sourcestatsmarker += 1; }
 			
@@ -1598,7 +1865,7 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}topkernel(
 	globalparams.baseaddr_destkvs_kvs = 0;
 	// return;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	std::cout<<std::endl;
 	std::cout<<"Kernel Started: globalparams.runkernelcommand: "<<globalparams.runkernelcommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.processcommand: "<<globalparams.processcommand<<std::endl;
@@ -1618,31 +1885,17 @@ void {%if(context['XWARE'] == "SW")%}enigma::{%endif%}topkernel(
 	#endif
 	// return;
 	
-	// partitionandreduce(
-		// {%for ddrs_ in context['INSTANCES_charseq']%} kvsourcedram{{ddrs_}},{%endfor%} 
-		// {%for ddrs_ in context['INSTANCES_charseq']%} kvdestdram{{ddrs_}},{%endfor%} 
-		// {%for ddrs_ in context['INSTANCES_charseq']%} kvstats{{ddrs_}},{%endfor%} 
-		// globalparams);
-		
-	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	partitionandreduce{{ddrs}}(kvsourcedram{{ddrs_}}, kvdestdram{{ddrs_}}, kvstats{{ddrs_}}, globalparams);
-	{%endfor%}
-		
 	// {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	// Throne{{ddrs}}(kvsourcedram{{ddrs_}}, kvdestdram{{ddrs_}}, kvstats{{ddrs_}}, globalparams);
 	// {%endfor%}
 	
-	/* #ifdef FPGA_IMPL
-	partitionandreduce(
-		{%for ddrs_ in context['INSTANCES_charseq']%} kvsourcedram{{ddrs_}},{%endfor%} 
-		{%for ddrs_ in context['INSTANCES_charseq']%} kvdestdram{{ddrs_}},{%endfor%} 
-		{%for ddrs_ in context['INSTANCES_charseq']%} kvstats{{ddrs_}},{%endfor%} 
-		globalparams);
-	#else
+	// {%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	// Rule{{ddrs}}(kvsourcedram{{ddrs_}}, kvdestdram{{ddrs_}}, kvstats{{ddrs_}}, globalparams);
+	// {%endfor%}
+	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	partitionandreduce{{ddrs}}(kvsourcedram{{ddrs_}}, kvdestdram{{ddrs_}}, kvstats{{ddrs_}}, globalparams);
 	{%endfor%}
-	#endif  */
 	return;
 }
 }

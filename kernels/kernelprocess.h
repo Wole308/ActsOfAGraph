@@ -3,7 +3,6 @@
 #include <mutex>
 #include <iostream>
 #include <thread>
-// #include "../kernels/enigma.h"
 #include "../kernels/acts.h"
 #include "../src/common.h"
 
@@ -21,8 +20,11 @@ uint512_dt * kvsourcedramA
 	
 private:
 	#ifdef SW
-	// enigma kernelobj;
+	#ifdef ACTS
 	acts kernelobj;
+	#else 
+	enigma kernelobj;
+	#endif 
 	std::thread acts_thread[NUMDRAMBANKS];
 	#endif
 };

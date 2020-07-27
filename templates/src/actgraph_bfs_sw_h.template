@@ -21,18 +21,18 @@ public:
 	actgraph_bfs_sw(graph * _graphobj, heuristics * _heuristicsobj, actgraph_pr_sw * _actgraph_pr_sw_obj, std::string _binaryFile);		
 	~actgraph_bfs_sw();
 	
-	unsigned int run();
+	runsummary_t run();
 	runsummary_t start(unsigned int graph_iterationidx);
 	void reloadactvverticesfiles();
 	void reloadenv();
 	void finish();
-	runsummary_t timingandsummary(unsigned int graph_iterationidx, float totaltime_ms);
-	void overalltimingandsummary(runsummary_t totalsizetime);
-	unsigned int gettotalsize1();
-	unsigned int gettotalsize2();
-	unsigned int gettotalsize();
-	float totalkerneltime();
-	float totalpopulateKvDRAMtime();
+	runsummary_t timingandsummary(unsigned int graph_iterationidx, long double totaltime_ms);
+	runsummary_t overalltimingandsummary(unsigned int graph_iterationidx, runsummary_t totalsizetime);
+	unsigned long gettotalsize1();
+	unsigned long gettotalsize2();
+	unsigned long gettotalsize();
+	long double totalkerneltime();
+	long double totalpopulateKvDRAMtime();
 	
 	void WorkerThread1(int threadidx);
 	void WorkerThread2(int threadidx, int bankoffset);
@@ -43,19 +43,23 @@ public:
 	void partitionupdates(keyvalue_t * kvdram, vector<keyvalue_t> (&vertexupdates)[NUMSSDPARTITIONS], unsigned int vbegin, unsigned int keyvaluesize, unsigned int rangeperpartition);
 	void appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITIONS], vector<keyvalue_t> (&destinationbuffer)[NUMSSDPARTITIONS], FILE * destinationfile[NUMSSDPARTITIONS], bool writetodram);
 	void loadupdatesfrombuffer(vector<keyvalue_t> & sourcebuffer, size_t sourceoffset, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int kvsize, bool loadfromdram);
-	void printstructures(unsigned int threadidx, unsigned int flag);
-	void applyvertices(unsigned int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size);
+	void printstructures(int threadidx, unsigned int flag);
+	
+	void cummulateverticesdata(int threadidx, unsigned int offset, unsigned int size);
+	void workerthread_cummulateverticesdata(int ithreadidx, int threadidx, unsigned int offset, unsigned int size);
+	void applyvertices(int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size);
+	
 	void setedgeprogramstatus(bool flag);
 	void clearvectorbuffers();
 	unsigned int getflag(unsigned int giteration_idx);
-	void settime_OCLdatatransfers_ms(unsigned int threadidx, float value);
-	float gettime_OCLdatatransfers_ms(unsigned int threadidx);
+	void settime_OCLdatatransfers_ms(int threadidx, long double value);
+	long double gettime_OCLdatatransfers_ms(int threadidx);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
-	void writeVstokernel(unsigned int threadidx);
-	void launchkernel(unsigned int threadidx, unsigned int flag);
-	void readVsfromkernel(unsigned int threadidx);
+	void writeVstokernel(int threadidx);
+	void launchkernel(int threadidx, unsigned int flag);
+	void readVsfromkernel(int threadidx);
 	void finishOCL();
 	#endif 
 	
@@ -64,10 +68,10 @@ private:
 	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
 	keyvalue_t * kvstats[NUMCPUTHREADS][NUMFLAGS][NUMDRAMBANKS];
 	
-	float totaltime_topkernel1_ms;
-	float totaltime_topkernel2_ms;
-	float totaltime_populatekvdram1_ms;
-	float totaltime_populatekvdram2_ms;
+	long double totaltime_topkernel1_ms;
+	long double totaltime_topkernel2_ms;
+	long double totaltime_populatekvdram1_ms;
+	long double totaltime_populatekvdram2_ms;
 	
 	unsigned int graph_iterationidx;
 	std::thread panas_thread[NUMCPUTHREADS];
@@ -90,7 +94,7 @@ private:
 	vector<uint512_vec_dt> unused_vectorbuffer;
 	edge_t totalnumkvsread1[NUMCPUTHREADS];
 	edge_t totalnumkvsread2[NUMCPUTHREADS];
-	float totaltime_OCLdatatransfers[NUMCPUTHREADS];
+	long double totaltime_OCLdatatransfers[NUMCPUTHREADS];
 	bool edgeprogramisactive; // BC parameter
 	std::string binaryFile;
 	

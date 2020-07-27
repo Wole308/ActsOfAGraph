@@ -95,6 +95,7 @@ actgraph_bfs_sw::actgraph_bfs_sw(graph * _graphobj, heuristics * _heuristicsobj,
 		for(unsigned int k=0; k<isactivevertexinfo; k++){ isactivevertexinfobuffer[i][k] = 0; }}
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i] = new edge_process(_graphobj); }
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i]->settime_ssdaccesses_ms(0); }
 	#ifdef SW
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernel_process[i] = new kernelprocess(); }
 	#endif
@@ -103,6 +104,8 @@ actgraph_bfs_sw::actgraph_bfs_sw(graph * _graphobj, heuristics * _heuristicsobj,
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totalnumkvsread1[i] = 0; }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totalnumkvsread2[i] = 0; }
+	
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ settime_OCLdatatransfers_ms(i, 0); }
 }
 actgraph_bfs_sw::~actgraph_bfs_sw() {
 	cout<<"actgraph_bfs_sw::~actgraph_bfs_sw::finish destroying memory structures... "<<endl;
@@ -121,14 +124,13 @@ actgraph_bfs_sw::~actgraph_bfs_sw() {
 	#endif 
 } 
 
-unsigned int actgraph_bfs_sw::run(){
-	runsummary_t totalsizetime; 
-	utilityobj[0]->reset(&totalsizetime);
+runsummary_t actgraph_bfs_sw::run(){
+	runsummary_t totalrunsummary; 
+	utilityobj[0]->reset(&totalrunsummary);
 	graphobj->writerootvertextoactiveverticesfiles(12, 0);
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	// for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
-	for(graph_iterationidx=0; graph_iterationidx<4; graph_iterationidx++){
+	for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
 		cout<<"actgraph_bfs_sw::run: graph iteration "<<graph_iterationidx<<" of breadth-first-search Started"<<endl;
 		
 		graphobj->openactiveverticesfilesforreading(graph_iterationidx);
@@ -150,11 +152,11 @@ unsigned int actgraph_bfs_sw::run(){
 			cout<<"=== STREAMING_ACCESS_TYPE ==="<<endl;
 			actgraph_pr_sw_obj->setgraphiteration(graph_iterationidx);
 			runsummary_t runsummary = actgraph_pr_sw_obj->start2(graph_iterationidx);
-			utilityobj[0]->append(&totalsizetime, runsummary);
+			utilityobj[0]->append(&totalrunsummary, runsummary);
 		} if(edges_access_type.type == PARTIAL_ACCESS_TYPE){
 			cout<<"=== PARTIAL_ACCESS_TYPE ==="<<endl;
 			runsummary_t runsummary = start(graph_iterationidx);
-			utilityobj[0]->append(&totalsizetime, runsummary);
+			utilityobj[0]->append(&totalrunsummary, runsummary);
 		}
 		
 		graphobj->closeactiveverticesfilesforreading();
@@ -163,11 +165,13 @@ unsigned int actgraph_bfs_sw::run(){
 		for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSSDPARTITIONS; j++) { intermediatevertexupdates[i][j].clear(); }}
 	}
 	utilityobj[0]->stopTIME("actgraph_bfs_sw::start2: finished start2. Time Elapsed: ", begintime, NAp);
-	float totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	overalltimingandsummary(totalsizetime);
-	return graph_iterationidx;
+	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	return overalltimingandsummary(graph_iterationidx, totalrunsummary);
 }
 runsummary_t actgraph_bfs_sw::start(unsigned int graph_iterationidx) {
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i]->settime_ssdaccesses_ms(0); }
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ settime_OCLdatatransfers_ms(i, 0); }
+	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<">>> actgraph_bfs_sw::start: generating & partitioning vertex updates ..."<<endl;	
 	cout<<">>> actgraph_bfs_sw::start: launching threads..."<<endl;
@@ -179,7 +183,7 @@ runsummary_t actgraph_bfs_sw::start(unsigned int graph_iterationidx) {
 	for(unsigned int i_batch=0; i_batch<NUMSSDPARTITIONS; i_batch += NUMCPUTHREADS){
 		cout<<">>> actgraph_bfs_sw::start: super iteration: [i_batch: "<<i_batch<<"][size: "<<NUMSSDPARTITIONS<<"][step: "<<NUMCPUTHREADS<<"]"<<endl;
 		cout<<">>> actgraph_bfs_sw::start: launching threads..."<<endl;
-		for (int i = 0; i < NUMCPUTHREADS; i++) { actgraph_pr_sw_obj->loadvertexpropertiesfromfile(graphobj->getnvmeFd_vertexproperties_r2()[(i_batch + i)], 0, vertexpropertiesbuffer[i], 0, utilityobj[i]->GETKVDATA_RANGE_FORSSDPARTITION_((i_batch + i))); }
+		for (int i = 0; i < NUMCPUTHREADS; i++) { actgraph_pr_sw_obj->loadvertexpropertiesfromfile(i, graphobj->getnvmeFd_vertexproperties_r2()[(i_batch + i)], 0, vertexpropertiesbuffer[i], 0, KVDATA_RANGE_PERSSDPARTITION); }
 		
 		#ifdef SW
 		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
@@ -188,12 +192,12 @@ runsummary_t actgraph_bfs_sw::start(unsigned int graph_iterationidx) {
 		#endif 
 		
 		#ifndef PR_ALGORITHM
-		for (int i = 0; i < NUMDRAMBANKS; i++) { graphobj->savevertexisactiveinfostofile(graphobj->getnvmeFd_vertexisactive_w2(), utilityobj[0]->GETKVDATA_RANGEOFFSET_FORSSDPARTITION_((i_batch + i)), isactivevertexinfobuffer[i], 0, utilityobj[0]->GETKVDATA_RANGE_FORSSDPARTITION_((i_batch + i)), (graph_iterationidx + 1)); }			
+		for (int i = 0; i < NUMDRAMBANKS; i++) { graphobj->savevertexisactiveinfostofile(graphobj->getnvmeFd_vertexisactive_w2(), utilityobj[0]->GETKVDATA_RANGEOFFSET_FORSSDPARTITION_((i_batch + i)), isactivevertexinfobuffer[i], 0, KVDATA_RANGE_PERSSDPARTITION, (graph_iterationidx + 1)); }			
 		#endif
 		cout<<">>> actgraph_bfs_sw:: Finished: all threads joined..."<<endl;
 	}
 	utilityobj[0]->stopTIME("actgraph_bfs_sw::start2: finished start2. Time Elapsed: ", begintime, NAp);
-	float totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	return timingandsummary(graph_iterationidx, totaltime_ms);
 }
 void actgraph_bfs_sw::reloadactvverticesfiles(){
@@ -213,11 +217,11 @@ void actgraph_bfs_sw::finish(){
 	finishOCL();
 	#endif
 }
-runsummary_t actgraph_bfs_sw::timingandsummary(unsigned int graph_iterationidx, float totaltime_ms){
+runsummary_t actgraph_bfs_sw::timingandsummary(unsigned int graph_iterationidx, long double totaltime_ms){
 	cout<<"=== ACTGRAPH_BFS::TIMING AND SUMMARY RESULTS FOR ITERATION: "<<graph_iterationidx<<" === "<<endl;
-	float totaltime_overallexcludingOCLandSSDtransfers_ms = totaltime_ms;
-	float totaltime_SSDtransfers_ms = 0;
-	float totaltime_OCLtransfers_ms = 0;
+	long double totaltime_overallexcludingOCLandSSDtransfers_ms = totaltime_ms;
+	long double totaltime_SSDtransfers_ms = 0;
+	long double totaltime_OCLtransfers_ms = 0;
 	
 	for (int i = 0; i < NUMCPUTHREADS; i++){ cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for thread (1) ["<<i<<"]: "<<totalnumkvsread1[i]<<endl; }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ cout<<">>> actgraph_bfs_sw::summary Total number of kvReads for thread (2) ["<<i<<"]: "<<totalnumkvsread2[i]<<endl; }
@@ -226,15 +230,19 @@ runsummary_t actgraph_bfs_sw::timingandsummary(unsigned int graph_iterationidx, 
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totaltime_SSDtransfers_ms += edge_process_obj[i]->gettime_SSDaccesses_ms(); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totaltime_OCLtransfers_ms += gettime_OCLdatatransfers_ms(i); }
-	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
-	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (OCL data transfers): "<< totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms / 1000 << " seconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (OCL data transfers): "<< totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (OCL data transfers): "<< totaltime_OCLtransfers_ms / 1000 << " seconds" << RESET <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing): "<<totaltime_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing): "<<totaltime_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing): "<<totaltime_ms / 1000<< " seconds" << RESET <<endl;
 	totaltime_overallexcludingOCLandSSDtransfers_ms -= (totaltime_SSDtransfers_ms + totaltime_OCLtransfers_ms);
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totaltime_overallexcludingOCLandSSDtransfers_ms / 1000<< " seconds" << RESET <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing): "<<(float)gettotalsize() / (float)(totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(float)gettotalsize() / (float)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Throughput (Overall processing): "<<(unsigned long)gettotalsize() / (long double)(totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(unsigned long)gettotalsize() / (long double)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
 	cout<<endl;
 	
 	runsummary_t runsummary; 
@@ -245,35 +253,42 @@ runsummary_t actgraph_bfs_sw::timingandsummary(unsigned int graph_iterationidx, 
 	runsummary.totaltime_overallexcludingOCLandSSDtransfers_ms = totaltime_overallexcludingOCLandSSDtransfers_ms;
 	return runsummary;
 }
-void actgraph_bfs_sw::overalltimingandsummary(runsummary_t totalsizetime){
-	cout<<"=== ACTGRAPH_BFS::TOTAL TIMING AND SUMMARY RESULTS FOR ITERATION: "<<graph_iterationidx<<" === "<<endl;
+runsummary_t actgraph_bfs_sw::overalltimingandsummary(unsigned int graph_iterationidx, runsummary_t totalrunsummary){
+	cout<<"=== ACTGRAPH_BFS::TOTAL TIMING AND SUMMARY RESULTS FOR ALL ITERATIONS === "<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total number of kvReads for all threads: "<<totalrunsummary.totalsize<< RESET <<endl;
 	
-	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (SSD access): "<< totalsizetime.totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
-	cout << TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (OCL data transfers): "<< totalsizetime.totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (SSD access): "<< totalrunsummary.totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (SSD access): "<< totalrunsummary.totaltime_SSDtransfers_ms / 1000 << " seconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (OCL data transfers): "<< totalrunsummary.totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (OCL data transfers): "<< totalrunsummary.totaltime_OCLtransfers_ms / 1000 << " seconds" << RESET <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing): "<<totalsizetime.totaltime_ms<< " milliseconds" << RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totalsizetime.totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing): "<<totalrunsummary.totaltime_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing): "<<totalrunsummary.totaltime_ms / 1000<< " seconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totalrunsummary.totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totalrunsummary.totaltime_overallexcludingOCLandSSDtransfers_ms / 1000<< " seconds" << RESET <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing): "<<(float)totalsizetime.totalsize / (float)(totalsizetime.totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(float)totalsizetime.totalsize / (float)(totalsizetime.totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Throughput (Overall processing): "<<(unsigned long)totalrunsummary.totalsize / (long double)(totalrunsummary.totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bfs_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(unsigned long)totalrunsummary.totalsize / (long double)(totalrunsummary.totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
 	cout<<endl;
-	return;
+	
+	totalrunsummary.graph_iterationidx = graph_iterationidx;
+	return totalrunsummary;
 }
-unsigned int actgraph_bfs_sw::gettotalsize1(){
-	unsigned int totalsize = 0;
+unsigned long actgraph_bfs_sw::gettotalsize1(){
+	unsigned long totalsize = 0;
 	for (int i = 0; i < NUMCPUTHREADS; i++){ totalsize += totalnumkvsread1[i]; }
 	return totalsize;
 }
-unsigned int actgraph_bfs_sw::gettotalsize2(){
-	unsigned int totalsize = 0;
+unsigned long actgraph_bfs_sw::gettotalsize2(){
+	unsigned long totalsize = 0;
 	for (int i = 0; i < NUMCPUTHREADS; i++){ totalsize += totalnumkvsread2[i]; }
 	return totalsize;
 }
-unsigned int actgraph_bfs_sw::gettotalsize(){
+unsigned long actgraph_bfs_sw::gettotalsize(){
 	return gettotalsize2();
 }
-float actgraph_bfs_sw::totalkerneltime(){ return (totaltime_topkernel1_ms + totaltime_topkernel2_ms); }
-float actgraph_bfs_sw::totalpopulateKvDRAMtime(){ return (totaltime_populatekvdram1_ms + 0); }
+long double actgraph_bfs_sw::totalkerneltime(){ return (totaltime_topkernel1_ms + totaltime_topkernel2_ms); }
+long double actgraph_bfs_sw::totalpopulateKvDRAMtime(){ return (totaltime_populatekvdram1_ms + 0); }
 
 void actgraph_bfs_sw::WorkerThread1(int threadidx){
 	#ifdef LOCKE
@@ -368,8 +383,8 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 	unsigned int giteration_idx = 0;
 	
 	// load temp vertices data // FIXME. ensure non-sharing
-	actgraph_pr_sw_obj->loadverticesdatafromfile(graphobj->getnvmeFd_verticesdata_r2()[(bankoffset + threadidx)], 0, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_((threadidx)));
-	actgraph_pr_sw_obj->replicateverticesdata((keyvalue_t *)kvdestdram[threadidx][0][0],(keyvalue_t *)kvdestdram[threadidx][0][1],(keyvalue_t *)kvdestdram[threadidx][0][2],(keyvalue_t *)kvdestdram[threadidx][0][3], 0, utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_((threadidx)));
+	actgraph_pr_sw_obj->loadverticesdatafromfile(threadidx, graphobj->getnvmeFd_verticesdata_r2()[(bankoffset + threadidx)], 0, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	actgraph_pr_sw_obj->replicateverticesdata((keyvalue_t *)kvdestdram[threadidx][0][0],(keyvalue_t *)kvdestdram[threadidx][0][1],(keyvalue_t *)kvdestdram[threadidx][0][2],(keyvalue_t *)kvdestdram[threadidx][0][3], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
 	writeVstokernel(threadidx);
 	#endif 
@@ -437,8 +452,8 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 	#ifdef FPGA_IMPL
 	readVsfromkernel(threadidx);
 	#endif
-	actgraph_pr_sw_obj->cummulateverticesdata(threadidx, (keyvalue_t *)kvdestdram[threadidx][0][0],(keyvalue_t *)kvdestdram[threadidx][0][1],(keyvalue_t *)kvdestdram[threadidx][0][2],(keyvalue_t *)kvdestdram[threadidx][0][3], 0, utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_((threadidx)), utilityobj[threadidx]);		
-	applyvertices(threadidx, bankoffset, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_((threadidx)));
+	cummulateverticesdata(threadidx, 0, KVDATA_RANGE_PERSSDPARTITION);		
+	applyvertices(threadidx, bankoffset, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj[threadidx]->stopTIME("ACTGRAPH_BFS_SW::PARTITION AND APPLY PHASE::Total time elapsed: ", begintime_actgraph_bfs2_sw, NAp);
@@ -455,9 +470,12 @@ void actgraph_bfs_sw::generatekvs(int threadidx, unsigned int flag, unsigned int
 	#endif
 	
 	for (int i = 0; i < NUMDRAMBANKS; i++){ kvcount[i] = 0; }
-	// for (int i = 0; i < NUMDRAMBANKS; i++){ workerthread_generatekvs(i, flag, threadidx, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount); }
+	#ifdef LOCKE
+	for (int i = 0; i < NUMDRAMBANKS; i++){ workerthread_generatekvs(i, flag, threadidx, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount); }
+	#else 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i] = std::thread(&actgraph_bfs_sw::workerthread_generatekvs, this, i, flag, threadidx, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount); }
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i].join(); }
+	#endif
 	for (int i = 0; i < NUMDRAMBANKS; i++){ totalnumkvsread2[threadidx] += kvcount[i]; }
 	#ifdef _DEBUGMODE_CHECKS3
 	for (int i = 0; i < NUMDRAMBANKS; i++){ globaldebugger_totalkeyvaluesstransferredtokernel += kvcount[i]; }
@@ -479,9 +497,12 @@ void actgraph_bfs_sw::generatekvs(int threadidx, unsigned int flag, unsigned int
 	#endif
 	
 	for (int i = 0; i < NUMDRAMBANKS; i++){ kvcount[i] = 0; }
-	// for (int i = 0; i < NUMDRAMBANKS; i++){ workerthread_generatekvs(i, flag, threadidx, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount); }
+	#ifdef LOCKE
+	for (int i = 0; i < NUMDRAMBANKS; i++){ workerthread_generatekvs(i, flag, threadidx, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount); }
+	#else 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i] = std::thread(&actgraph_bfs_sw::workerthread_generatekvs, this, i, flag, threadidx, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount); }
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i].join(); }
+	#endif
 	for (int i = 0; i < NUMDRAMBANKS; i++){ totalnumkvsread2[threadidx] += kvcount[i]; }
 	#ifdef _DEBUGMODE_CHECKS3
 	for (int i = 0; i < NUMDRAMBANKS; i++){ globaldebugger_totalkeyvaluesstransferredtokernel += kvcount[i]; }
@@ -532,10 +553,8 @@ void actgraph_bfs_sw::workerthread_generatekvs(unsigned int ddr, unsigned int fl
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key = OFF;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PARTITIONCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
-	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_KVDATASIZEID].key = KVDATA_BATCHSIZE;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_FINALNUMPARTITIONSID].key = NAp;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_TREEDEPTHID].key = NAp;
-	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_ITERATIONID].key = iteration_idx;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_SSDPARTITIONID].key = (bankoffset + threadidx);
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_VOFFSET].key = utilityobj[threadidx]->GETKVDATA_RANGEOFFSET_FORSSDPARTITION_(threadidx);
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_VSIZE].key = NAp;
@@ -612,14 +631,34 @@ void actgraph_bfs_sw::loadupdatesfrombuffer(vector<keyvalue_t> & sourcebuffer, s
 	#endif 
 	return;
 }
-void actgraph_bfs_sw::printstructures(unsigned int threadidx, unsigned int flag){
+void actgraph_bfs_sw::printstructures(int threadidx, unsigned int flag){
 	for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->printkvdrams(kvsourcedram[threadidx][flag][ddr]); }	
 	for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->printstats(16, kvstats[threadidx][flag][ddr]); }
 	return;
 }
-void actgraph_bfs_sw::applyvertices(unsigned int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size){
+
+void actgraph_bfs_sw::cummulateverticesdata(int threadidx, unsigned int offset, unsigned int size){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	std::cout << endl << "actgraph_bfs_sw::cummulateverticesdata. commulatiing verticesdata across DRAMs"<<endl;
+	#endif
+	for (int i = 0; i < NUMCPUTHREADS; i++){ genw_thread[threadidx][i] = std::thread(&actgraph_bfs_sw::workerthread_cummulateverticesdata, this, i, threadidx, offset + (i * (size / NUMCPUTHREADS)), size); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ genw_thread[threadidx][i].join(); }
+	return;
+}
+void actgraph_bfs_sw::workerthread_cummulateverticesdata(int ithreadidx, int threadidx, unsigned int offset, unsigned int size){
+	keyvalue_t * tempkvdestdram0 = (keyvalue_t *)kvdestdram[threadidx][0][0];
+	keyvalue_t * tempkvdestdram1 = (keyvalue_t *)kvdestdram[threadidx][0][1];
+	keyvalue_t * tempkvdestdram2 = (keyvalue_t *)kvdestdram[threadidx][0][2];
+	keyvalue_t * tempkvdestdram3 = (keyvalue_t *)kvdestdram[threadidx][0][3];
+	
+	for(unsigned int i=offset; i<(offset + size); i++){
+		tempkvdestdram0[i].value = utilityobj[threadidx]->hmin(utilityobj[threadidx]->hmin(tempkvdestdram0[i].value, tempkvdestdram1[i].value), utilityobj[threadidx]->hmin(tempkvdestdram2[i].value, tempkvdestdram3[i].value));
+	}
+	return;
+}
+void actgraph_bfs_sw::applyvertices(int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size){
 	cout<<"actgraph_bfs_sw::applyvertices:: apply vertices: threadidx: "<<threadidx<<endl;
-	actgraph_pr_sw_obj->loadverticesdatafromfile(graphobj->getnvmeFd_verticesdata_r2()[(bankoffset + threadidx)], 0, verticesdatabuffer[threadidx], 0, utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_((bankoffset + threadidx))); 
+	actgraph_pr_sw_obj->loadverticesdatafromfile(threadidx, graphobj->getnvmeFd_verticesdata_r2()[(bankoffset + threadidx)], 0, verticesdatabuffer[threadidx], 0, KVDATA_RANGE_PERSSDPARTITION); 
 	
 	vector<keyvalue_t> activeverticesbuffer;
 	for(unsigned int i=0; i<size; i++){
@@ -648,7 +687,7 @@ void actgraph_bfs_sw::applyvertices(unsigned int threadidx, int bankoffset, keyv
 	for(unsigned int t=0; t<activeverticesbuffer.size(); t++){ cout<<"actgraph_bfs_sw::applyvertices:: activeverticesbuffer["<<t<<"].key: "<<activeverticesbuffer[t].key<<", activeverticesbuffer["<<t<<"].value: "<<activeverticesbuffer[t].value<<endl; }
 	#endif
 	
-	actgraph_pr_sw_obj->writeverticesdatatofile(graphobj->getnvmeFd_verticesdata_w2()[(bankoffset + threadidx)], 0, verticesdatabuffer[threadidx], 0, utilityobj[threadidx]->GETKVDATA_RANGE_FORSSDPARTITION_((threadidx)));
+	actgraph_pr_sw_obj->writeverticesdatatofile(threadidx, graphobj->getnvmeFd_verticesdata_w2()[(bankoffset + threadidx)], 0, verticesdatabuffer[threadidx], 0, KVDATA_RANGE_PERSSDPARTITION);
 	graphobj->saveactiveverticestofile(graphobj->getnvmeFd_activevertexids_w(), activeverticesbuffer, (graph_iterationidx + 1));
 	activeverticesbuffer.clear();
 	return;
@@ -673,10 +712,10 @@ unsigned int actgraph_bfs_sw::getflag(unsigned int giteration_idx){
 	#endif 
 	return flag;
 }
-void actgraph_bfs_sw::settime_OCLdatatransfers_ms(unsigned int threadidx, float value){
+void actgraph_bfs_sw::settime_OCLdatatransfers_ms(int threadidx, long double value){
 	totaltime_OCLdatatransfers[threadidx] = value;
 }
-float actgraph_bfs_sw::gettime_OCLdatatransfers_ms(unsigned int threadidx){
+long double actgraph_bfs_sw::gettime_OCLdatatransfers_ms(int threadidx){
 	return totaltime_OCLdatatransfers[threadidx];
 }
 
@@ -734,7 +773,7 @@ void actgraph_bfs_sw::loadOCLstructures(std::string binaryFile){
 	actgraph_pr_sw_obj->allocateOCLbuffers();
 	return;
 }
-void actgraph_bfs_sw::writeVstokernel(unsigned int threadidx){
+void actgraph_bfs_sw::writeVstokernel(int threadidx){
 	#ifdef LAUNCHKERNEL
 	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
 	std::chrono::steady_clock::time_point begintime_writeVstokernel = std::chrono::steady_clock::now();
@@ -758,7 +797,7 @@ void actgraph_bfs_sw::writeVstokernel(unsigned int threadidx){
 	#endif 
 	#endif 
 }
-void actgraph_bfs_sw::launchkernel(unsigned int threadidx, unsigned int flag){
+void actgraph_bfs_sw::launchkernel(int threadidx, unsigned int flag){
 	#ifdef LAUNCHKERNEL
 	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
 	std::chrono::steady_clock::time_point begintime_topkernel = std::chrono::steady_clock::now();
@@ -832,7 +871,7 @@ void actgraph_bfs_sw::launchkernel(unsigned int threadidx, unsigned int flag){
 	#endif
 	#endif 
 }
-void actgraph_bfs_sw::readVsfromkernel(unsigned int threadidx){
+void actgraph_bfs_sw::readVsfromkernel(int threadidx){
 	#ifdef LAUNCHKERNEL
 	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
 	std::chrono::steady_clock::time_point begintime_kernelwriteback = std::chrono::steady_clock::now();

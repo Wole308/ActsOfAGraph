@@ -21,6 +21,7 @@
 #include "../kernels/kernelprocess.h"
 #include "edge_process.h"
 using namespace std;
+std::mutex mutex_ep_ssdaccess;
 
 edge_process::edge_process(graph * graphobj){			
 	cout<<"edge_process::edge_process:: constructor called. "<<endl;
@@ -117,16 +118,14 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, int nvmeF
 	cout<<"edge_process::generatekeyvalues_random: key: "<<key<<", val: "<<val<<", kvoffset: "<<kvoffset<<", *kvsize: "<<*kvsize<<endl;
 	#endif 
 
+	#ifdef CONFIG_FACTOROUTSSDLATENCY
+	lockmutex(&mutex_ep_ssdaccess);
+	std::chrono::steady_clock::time_point begintime_ssdaccess = std::chrono::steady_clock::now();
+	#endif 
 	size_t edge_element_bytes = sizeof(edgeprop2_t);
 	size_t byte_offset = ((size_t)key)*sizeof(bfsvertexoffset_t);
 	bfsvertexoffset_t mp_vidx_buffer[2];
-	#ifdef CONFIG_FACTOROUTSSDLATENCY
-	std::chrono::steady_clock::time_point begintime_ssdaccess = std::chrono::steady_clock::now();
-	#endif 
 	pread(nvmeFd_edgeoffsets_r2, mp_vidx_buffer, (2 * sizeof(bfsvertexoffset_t)), byte_offset);
-	#ifdef CONFIG_FACTOROUTSSDLATENCY
-	totaltime_ssdaccesses_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_ssdaccess).count();
-	#endif
 	
 	bfsvertexoffset_t byte_offset_1 = mp_vidx_buffer[0];	
 	uint32_t fanout = mp_vidx_buffer[1] - mp_vidx_buffer[0];
@@ -142,7 +141,6 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, int nvmeF
 	m_edgebuffer_alloc_bytes = (((fanout * sizeof(edgeprop2_t)) + (1024 - 1)) / 1024) * 1024;
 	#ifdef _DEBUGMODE_HOSTPRINTS_X
 	printf("edge_process::generatekeyvalues_random: m_edgebuffer_alloc_bytes: %i, fanout: %i \n", m_edgebuffer_alloc_bytes, fanout);
-	// exit(EXIT_SUCCESS);
 	#endif 
 
 	for (vertex_t i = 0; i < fanout; i++){
@@ -150,13 +148,7 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, int nvmeF
 		if ((edge_offset < m_edge_buffer_offset) || ((edge_offset + edge_element_bytes) > (m_edge_buffer_offset+m_edge_buffer_bytes))){
 			uint64_t byte_offset_aligned = edge_offset&(~0x3ff); // 1 KB alignment
 	
-			#ifdef CONFIG_FACTOROUTSSDLATENCY
-			std::chrono::steady_clock::time_point begintime_ssdaccess = std::chrono::steady_clock::now();
-			#endif 
 			pread(nvmeFd_edgeproperties_r2, mp_edge_buffer, m_edgebuffer_alloc_bytes, byte_offset_aligned);
-			#ifdef CONFIG_FACTOROUTSSDLATENCY
-			totaltime_ssdaccesses_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_ssdaccess).count();
-			#endif
 			m_edge_blocks_read++;
 			m_edge_buffer_offset = byte_offset_aligned;
 			m_edge_buffer_bytes = m_edgebuffer_alloc_bytes;
@@ -174,9 +166,13 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, int nvmeF
 		kvdram[(kvoffset + *kvsize)] = kv;
 		*kvsize += 1;
 	}
+	#ifdef CONFIG_FACTOROUTSSDLATENCY
+	totaltime_ssdaccesses_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_ssdaccess).count();
+	unlockmutex(&mutex_ep_ssdaccess);
+	#endif
 }
 
-unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx){		
+unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, unsigned int threadidx){		
 	size_t epfileoffset = edgesoffset * sizeof(edgeprop1_t);
 	size_t epfilenumbytestoread = edgespropsz * sizeof(edgeprop1_t);
 
@@ -199,7 +195,7 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 	#ifdef _DEBUGMODE_TIMERS
 	std::chrono::steady_clock::time_point begintime_3 = std::chrono::steady_clock::now();
 	#endif 
-	unsigned int kvcount = generatekeyvalues_stream(edgesoffset, basevertexoffset, runningvertexid, vertexpropertiesbuffer, isactivevertexinfobuffer, edgespropsz, (keyvalue_t *) kvdram, 0);
+	unsigned int kvcount = generatekeyvalues_stream(edgesoffset, basevertexoffset, runningvertexid, vertexpropertiesbuffer, isactivevertexinfobuffer, edgespropsz, (keyvalue_t *) kvdram, BASEOFFSET_KVDRAMBUFFER);
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj->stopTIME("edge_process::generateupdates_stream: generate key-values Time Elapsed: ", begintime_3, NAp);
 	#endif 
@@ -266,19 +262,19 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		keyvalue_t data;
 		data.key = edge.dstvid;
 		data.value = edgeval;
-		kvdram[i] = data;
+		kvdram[kvdramoffset + i] = data;
 		#else
 		#ifdef FORCEDFINISH_DONTCAREABOUTISVERTEXACTIVE
 		keyvalue_t data;
 		data.key = edge.dstvid;
 		data.value = edgeval;
-		kvdram[kvcount++] = data;
+		kvdram[kvdramoffset + kvcount++] = data;
 		#else 
 		if(isvertexactive == 1){
 			keyvalue_t data;
 			data.key = edge.dstvid;
 			data.value = edgeval;
-			kvdram[kvcount++] = data;
+			kvdram[kvdramoffset + kvcount++] = data;
 			#ifdef XXX
 			cout<<"generatekeyvalues_stream: vertexprop.vertexisactive == 1 seen. data.key: "<<data.key<<", data.value: "<<data.value<<endl;
 			cout<<"generatekeyvalues_stream: (*runningvertexid - basevertexoffset): "<<(*runningvertexid - basevertexoffset)<<", basevertexoffset: "<<basevertexoffset<<", *runningvertexid: "<<*runningvertexid<<endl;
@@ -387,11 +383,13 @@ void edge_process::loadedgepropertiesfromfile(int nvmeFd_edgeproperties_r2, size
 	#endif
 	
 	#ifdef CONFIG_FACTOROUTSSDLATENCY
+	lockmutex(&mutex_ep_ssdaccess);
 	std::chrono::steady_clock::time_point begintime_ssdaccess = std::chrono::steady_clock::now();
 	#endif 
 	if(numbytestoread > 0){ if(pread (nvmeFd_edgeproperties_r2, &buffer[bufferoffset], numbytestoread, fileoffset) <= 0){ cout<<"loadedgepropertiesfromfile::ERROR 37. edgesoffset: "<<bufferoffset<<", numbytestoread: "<<numbytestoread<<", fileoffset: "<<fileoffset<<endl; exit(EXIT_FAILURE); }}
 	#ifdef CONFIG_FACTOROUTSSDLATENCY
 	totaltime_ssdaccesses_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_ssdaccess).count();
+	unlockmutex(&mutex_ep_ssdaccess);
 	#endif
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -413,11 +411,13 @@ void edge_process::loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fil
 	#endif 
 	
 	#ifdef CONFIG_FACTOROUTSSDLATENCY
+	lockmutex(&mutex_ep_ssdaccess);
 	std::chrono::steady_clock::time_point begintime_ssdaccess = std::chrono::steady_clock::now();
 	#endif 
 	if(numbytestoread > 0){ if(pread(nvmeFd_edgeoffsets_r2, &buffer[bufferoffset], numbytestoread, fileoffset) <= 0){ cout<<"edge_process::loadedgeoffsetsfromfile::ERROR 35"<<endl; exit(EXIT_FAILURE); }}
 	#ifdef CONFIG_FACTOROUTSSDLATENCY
 	totaltime_ssdaccesses_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_ssdaccess).count();
+	unlockmutex(&mutex_ep_ssdaccess);
 	#endif
 	
 	#ifdef _DEBUGMODE_HOSTPRINTSX
@@ -437,13 +437,20 @@ void edge_process::resetstats(keyvalue_t * kvstats){
 	kvstats[utilityobj->getstatsAddr(0)].value = 0;
 	return;
 }
-void edge_process::settime_ssdaccesses_ms(float value){
+void edge_process::settime_ssdaccesses_ms(long double value){
 	totaltime_ssdaccesses_ms = value;
 }
-float edge_process::gettime_SSDaccesses_ms(){
+long double edge_process::gettime_SSDaccesses_ms(){
 	return totaltime_ssdaccesses_ms;
 }
-
-
+void edge_process::appendtime_ssdaccesses_ms(long double value){
+	totaltime_ssdaccesses_ms += value;
+}
+void edge_process::lockmutex(std::mutex * mutex){
+	// mutex->lock();
+}
+void edge_process::unlockmutex(std::mutex * mutex){
+	// mutex->unlock();
+}
 
 

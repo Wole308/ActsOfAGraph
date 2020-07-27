@@ -49,10 +49,10 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP1: basic experiement setup
-# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 # for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 
-for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 # for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 
 # for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
@@ -61,6 +61,7 @@ for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 # for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 # for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 # for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM
+# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 # for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 do 
 	if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ]  
@@ -136,15 +137,15 @@ do
 	for numthreads in $_4THREADS
 	do
 		### >>> LOOP3: locke (kernel-only evaluation)
+		# for locke in $_NOLOCKE
+		for locke in $_LOCKE
 		# for locke in $_LOCKE $_NOLOCKE
-		for locke in $_NOLOCKE
-		# for locke in $_LOCKE
 		do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_1M
-			for dataset in $LARGEDATASET_67M
+			# for dataset in $LARGEDATASET_67M
 			# for dataset in $LARGEDATASET_268M
-			# for dataset in $LARGEDATASET_1B
+			for dataset in $LARGEDATASET_1B
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 			do 
 				if [ $dataset == $LARGEDATASET_1M ]  
@@ -196,9 +197,9 @@ do
 				then
 					make cleanall
 					# make build_acts_nthreads
-					make demo_acts_nthreads
+					# make demo_acts_nthreads
 					# make demo_acts_nthreads_debug
-					# make demo_acts_nthreads > $OUTFILE_NAME
+					make demo_acts_nthreads > $OUTFILE_NAME
 				elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 				then
 					make cleanall

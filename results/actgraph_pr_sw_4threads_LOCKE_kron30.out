@@ -4,7 +4,7 @@ rm -rf acts sr acts_nthreads sr_nthreads
 rm -rf *.xo xocc_kernel* _x* pfm_top_* *.xo *.exe host xocc* *.info *.ltx
 rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
 rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
-g++ -O3 src/hostprocess.cpp    debugger/host_debugger.cpp src/actgraph_pr_sw.cpp src/actgraph_bfs_sw.cpp src/actgraph_bc_sw.cpp src/grafboost_pr_sw.cpp src/grafboost_bfs_sw.cpp src/grafboost_bc_sw.cpp src/edge_process.cpp src/srkernelprocess.cpp graphs/create2Dgraph.cpp graphs/createsmartgraph.cpp graphs/graph.cpp graphs/generateactivevertices.cpp heuristics/heuristics.cpp algorithm/algorithm.cpp utility/utility.cpp src/kernelprocess.cpp debugger/kernel_debugger.cpp sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+g++ -O3 src/hostprocess.cpp    debugger/host_debugger.cpp src/actgraph_pr_sw.cpp src/actgraph_bfs_sw.cpp src/actgraph_bc_sw.cpp src/grafboost_pr_sw.cpp src/grafboost_bfs_sw.cpp src/grafboost_bc_sw.cpp src/host_enigma.cpp src/edge_process.cpp kernels/srkernelprocess.cpp graphs/create2Dgraph.cpp graphs/createsmartgraph.cpp graphs/graph.cpp graphs/generateactivevertices.cpp heuristics/heuristics.cpp algorithm/algorithm.cpp utility/utility.cpp kernels/kernelprocess.cpp kernels/acts.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
 ./acts_nthreads
 Hostprocess:: Graph Analytics Started...
 graph::graph:: datasetid: 6, _numvertexbanks: 16, _numedgebanks: 16
@@ -14,107 +14,20 @@ host:: NUM VERTICES: 1073741824
 host:: NUM EDGES: 17179869184
 host:: NUMDRAMBANKS: 4
 host:: NUMWORKERS: 1
-host:: NUMSUBWORKERS: 1
-host:: NUM_PARTITIONS: 32
+host:: NUMSUBWORKERS: 4
+host:: NUM_PARTITIONS: 16
 host:: NUMCPUTHREADS: 4
 host:: DATAWIDTH: 512
 host:: VECTOR_SIZE: 8
 host:: KVDATA_BATCHSIZE: 16777216
 host:: KVDATA_BATCHSIZE_KVS: 2097152
-host:: PADDEDKVDATA_BATCHSIZE: 20971520
-host:: PADDEDKVDATA_BATCHSIZE_KVS: 2621440
-host:: _x2PADDEDKVDATA_SIZE: 41943040
-host:: _x2PADDEDKVDATA_SIZE_KVS: 5242880
-host:: _x3PADDEDKVDATA_SIZE: 109051904
-host:: _x3PADDEDKVDATA_SIZE_KVS: 13631488
-host:: DRAMSZ: 109051904
-host:: DRAMSZ_KVS: 13631488
 host:: KVDATA_RANGE: 1073741824
 host:: KVDATA_RANGE_POW: 30
-host:: KVBUFFERSZ: 8192
-host:: KVBUFFERSZ_KVS: 1024
-host:: KVSRCBUFFERSZ: 8704
-host:: KVSRCBUFFERSZ_KVS: 1088
-host:: KVSRCBUFFERSZ_APPLY: 8704
-host:: KVSRCBUFFERSZ_APPLY_KVS: 1088
-host:: KVDESTBUFFERSZ: 8704
-host:: KVDESTBUFFERSZ_KVS: 1088
-host:: OFFSETSCODE: 0
-host:: SIZESCODE: 1
-host:: SIZEOFKV: 4
-host:: SIZEOFVERTEXID: 32
 host:: TREE_DEPTH: 3
-host:: KVSTATS_SIZE: 32768
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION0: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION1: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION2: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION3: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION4: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION5: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION6: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION7: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION8: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION9: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION10: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION11: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION12: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION13: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION14: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION15: 2048
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION0_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION1_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION2_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION3_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION4_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION5_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION6_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION7_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION8_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION9_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION10_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION11_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION12_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION13_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION14_KVS: 256
-host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION15_KVS: 256
-host:: APPLYVERTEXBUFFERSZ: 2048
-host:: APPLYVERTEXBUFFERSZ_KVS: 256
-host:: VERTICESDATA_BATCHSIZE: 67108864
-host:: VERTICESDATA_BUFFERSZ: 65536
-host:: KVSPARTITIONBUFFERSZ: 268435456
+host:: KVSTATS_SIZE: 12288
 host:: NUMSSDPARTITIONS: 16
-host:: KVDATA_RANGE_FORSSDPARTITION0_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION1_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION2_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION3_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION4_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION5_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION6_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION7_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION8_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION9_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION10_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION11_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION12_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION13_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION14_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION15_POW: 26
-host:: KVDATA_RANGE_FORSSDPARTITION0: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION1: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION2: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION3: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION4: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION5: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION6: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION7: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION8: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION9: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION10: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION11: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION12: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION13: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION14: 67108864
-host:: KVDATA_RANGE_FORSSDPARTITION15: 67108864
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 26
+host:: KVDATA_RANGE_PERSSDPARTITION: 67108864
 host:: KVDATA_RANGEOFFSET_FORSSDPARTITION0: 0
 host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: 67108864
 host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: 134217728
@@ -131,34 +44,9 @@ host:: KVDATA_RANGEOFFSET_FORSSDPARTITION12: 805306368
 host:: KVDATA_RANGEOFFSET_FORSSDPARTITION13: 872415232
 host:: KVDATA_RANGEOFFSET_FORSSDPARTITION14: 939524096
 host:: KVDATA_RANGEOFFSET_FORSSDPARTITION15: 1006632960
-host:: TREEDEPTH_FORSSDPARTITION0: 3
-host:: TREEDEPTH_FORSSDPARTITION1: 3
-host:: TREEDEPTH_FORSSDPARTITION2: 3
-host:: TREEDEPTH_FORSSDPARTITION3: 3
-host:: TREEDEPTH_FORSSDPARTITION4: 3
-host:: TREEDEPTH_FORSSDPARTITION5: 3
-host:: TREEDEPTH_FORSSDPARTITION6: 3
-host:: TREEDEPTH_FORSSDPARTITION7: 3
-host:: TREEDEPTH_FORSSDPARTITION8: 3
-host:: TREEDEPTH_FORSSDPARTITION9: 3
-host:: TREEDEPTH_FORSSDPARTITION10: 3
-host:: TREEDEPTH_FORSSDPARTITION11: 3
-host:: TREEDEPTH_FORSSDPARTITION12: 3
-host:: TREEDEPTH_FORSSDPARTITION13: 3
-host:: TREEDEPTH_FORSSDPARTITION14: 3
-host:: TREEDEPTH_FORSSDPARTITION15: 3
-host:: VERTICESDATASZ_FORDRAMX: 67108864
-host:: MAXTREEDEPTH: 3
 host:: MESSAGES_SIZE: 1024
 host:: NUMSSDPARTITIONS: 16
 host:: MAXNUMSSDPARTITIONS: 16
-host:: NM: 666
-host:: DESTTMPKVBUFFERSZ: 666
-host:: DESTTMPKVBUFFERSZ_KVS: 666
-host:: TOTALDESTTMPKVBUFFERSZ: 8704
-host:: TOTALDESTTMPKVBUFFERSZ_KVS: 1088
-host:: NUMWORKERS_APPLYPH: 1
-host:: NUMSUBWORKERS_APPLYPH: 1
 host:: LOCKE DEFINED
 host:: STREAMEDGESSETUP DEFINED
 host:: sizeof(keyvalue_t): 8 bytes (64 bits)
@@ -166,6 +54,25 @@ host:: sizeof(vertex_t): 4 bytes (32 bits)
 host:: sizeof(edge_t): 8 bytes (64 bits)
 
 printallparameters:: PR_ALGORITHM
+host:: KVDRAMSZ: 21250048
+host:: KVDRAMSZ_KVS: 2656256
+host:: KVDRAMWORKSPACESZ: 21250048
+host:: KVDRAMWORKSPACESZ_KVS: 2656256
+host:: CAPSULESZ: 332032
+host:: CAPSULESZ_KVS: 41504
+host:: STATSDRAMSZ: 12288
+host:: BASEOFFSET_KVDRAM: 21250048
+host:: BASEOFFSET_KVDRAM_KVS: 2656256
+host:: BASEOFFSET_KVDRAMWORKSPACE: 21250048
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 2656256
+host:: BASEOFFSET_CAPSULES: 59277312
+host:: BASEOFFSET_CAPSULES_KVS: 7409664
+host:: BASEOFFSET_STATSDRAM: 1024
+host:: KVSOURCEDRAMSZ: 59609344
+host:: KVSOURCEDRAMSZ_KVS: 7451168
+host:: PADDEDKVSOURCEDRAMSZ: 60797696
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 7599712
+host:: KVSTATSDRAMSZ: 13312
 graph::openfilesforreading : opening files for reading
 INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_0.edgeoffsets
 INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_1.edgeoffsets
@@ -772,664 +679,2202 @@ edge_process::edge_process:: constructor called.
 actgraph_pr_sw::run: graph iteration 0 of pagerank Started
 >>> actgraph_pr_sw::start2: super iteration: [i_batch: 0][size: 16][step: 4]
 >>> actgraph_pr_sw::start2: loading vertex properties...
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2455ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2318ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2330ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2331ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 393ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2325ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2313ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2339ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2333ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 389ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2309ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2445ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2298ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2298ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2312ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2344ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 395ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2308ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2307ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2304ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 385ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2308ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2447ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2304ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2434ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2378ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2306ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2322ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2457ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2314ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2308ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2304ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2307ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2343ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2316ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2306ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16771443
+...running Acts... size: 16775793
+...running Acts... size: 16774757
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16771443
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 10299
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16769666
+...running Acts... size: 16777216
+...running Acts... size: 16773690
+...running Acts... size: 16771708
+...running Acts... offset: 0, size: 16769666
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 4789
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16775496
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16775496
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 3458
+...running Acts... size: 6648
+...running Acts... size: 7249
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16772788
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:0][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 1106
+...running Acts... size: 13160
+...running Acts... size: 0
+...running Acts... size: 6705
+...running Acts... offset: 0, size: 1106
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:4][step:1]
+...running Acts... size: 16772751
+...running Acts... size: 16763196
+...running Acts... size: 16764678
+...running Acts... size: 16776692
+...running Acts... offset: 0, size: 16772751
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16775895
+...running Acts... size: 16770607
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 14203
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 6499
+...running Acts... offset: 0, size: 14203
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774108
+...running Acts... size: 16777216
+...running Acts... size: 16764085
+...running Acts... size: 16775762
+...running Acts... offset: 0, size: 16774108
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 5349
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:1][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:4][step:1]
+...running Acts... size: 16767943
+...running Acts... size: 16752576
+...running Acts... size: 16773572
+...running Acts... size: 16767471
+...running Acts... offset: 0, size: 16767943
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16767346
+...running Acts... size: 16769813
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 1654
+...running Acts... size: 10982
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 1654
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:4][step:1]
+...running Acts... size: 16761358
+...running Acts... size: 16775408
+...running Acts... size: 16773456
+...running Acts... size: 16768543
+...running Acts... offset: 0, size: 16761358
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:4][step:1]
+...running Acts... size: 16774718
+...running Acts... size: 16766241
+...running Acts... size: 16764672
+...running Acts... size: 16767058
+...running Acts... offset: 0, size: 16774718
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16763722
+...running Acts... size: 16768321
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:2][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 14808
+...running Acts... size: 1244
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 14808
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16775503
+...running Acts... size: 16770896
+...running Acts... size: 16777216
+...running Acts... size: 16776189
+...running Acts... offset: 0, size: 16775503
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 1972
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16774769
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 11394
+...running Acts... size: 0
+...running Acts... size: 1378
+...running Acts... size: 2369
+...running Acts... offset: 0, size: 11394
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16765109
+...running Acts... size: 16777216
+...running Acts... size: 16772986
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16765109
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 7484
+...running Acts... size: 0
+...running Acts... size: 15877
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774410
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16774410
+PP&A:: [threadidx:3][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 7320
+...running Acts... size: 6252
+...running Acts... size: 1021
+...running Acts... offset: 0, size: 0
 >>> actgraph_pr_sw::start2 Finished: all threads joined...
 >>> actgraph_pr_sw::start2: super iteration: [i_batch: 4][size: 16][step: 4]
 >>> actgraph_pr_sw::start2: loading vertex properties...
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 392ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2323ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 397ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2341ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2322ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2307ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2304ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2307ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2306ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2323ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2344ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2353ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2346ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2337ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2327ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2342ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2337ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2438ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2373ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2348ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2334ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2328ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2317ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2324ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2322ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2288ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 385ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2373ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2345ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2315ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2288ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2298ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2289ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2286ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 381ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2369ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2336ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2320ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 395ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2316ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2306ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16773161
+...running Acts... size: 16775537
+...running Acts... size: 16756355
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 422
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 422
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16769195
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16769195
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 4519
+...running Acts... size: 7296
+...running Acts... size: 4823
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16756489
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 649
+...running Acts... size: 0
+...running Acts... size: 5294
+...running Acts... size: 7058
+...running Acts... offset: 0, size: 649
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774167
+...running Acts... size: 16770190
+...running Acts... size: 16777216
+...running Acts... size: 16770321
+...running Acts... offset: 0, size: 16774167
+PP&A:: [threadidx:4][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 5204
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16770299
+...running Acts... size: 16767955
+...running Acts... size: 16777216
+...running Acts... size: 16776331
+...running Acts... offset: 0, size: 16770299
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 1404
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16767466
+...running Acts... size: 16777216
+...running Acts... size: 16773812
+...running Acts... size: 16776609
+...running Acts... offset: 0, size: 16767466
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 71
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16775487
+...running Acts... size: 16777216
+...running Acts... size: 16766399
+...running Acts... size: 16775555
+...running Acts... offset: 0, size: 16775487
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 9166
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16775326
+...running Acts... size: 16774146
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:5][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 7194
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 6158
+...running Acts... offset: 0, size: 7194
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16769250
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16769250
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 3470
+...running Acts... size: 14426
+...running Acts... size: 12386
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16776966
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 7858
+...running Acts... size: 9598
+...running Acts... size: 8528
+...running Acts... size: 0
+...running Acts... offset: 0, size: 7858
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16773019
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16773019
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 2192
+...running Acts... size: 10361
+...running Acts... size: 15023
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16770021
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:6][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 3928
+...running Acts... size: 7911
+...running Acts... size: 0
+...running Acts... size: 1869
+...running Acts... offset: 0, size: 3928
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16769692
+...running Acts... size: 16777216
+...running Acts... size: 16765988
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 6979
+...running Acts... size: 0
+...running Acts... size: 20367
+...running Acts... size: 0
+...running Acts... offset: 0, size: 6979
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16771505
+...running Acts... size: 16777216
+...running Acts... size: 16763924
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 4876
+...running Acts... size: 0
+...running Acts... size: 3630
+...running Acts... size: 0
+...running Acts... offset: 0, size: 4876
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16775275
+...running Acts... size: 16763080
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 5998
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 25649
+...running Acts... offset: 0, size: 5998
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:7][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 5631
+...running Acts... size: 2776
+...running Acts... size: 17331
+...running Acts... size: 3650
+...running Acts... offset: 0, size: 5631
 >>> actgraph_pr_sw::start2 Finished: all threads joined...
 >>> actgraph_pr_sw::start2: super iteration: [i_batch: 8][size: 16][step: 4]
 >>> actgraph_pr_sw::start2: loading vertex properties...
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2311ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2317ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 404ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2442ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2354ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2333ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2313ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 385ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2292ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2286ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 383ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2286ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2328ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2315ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 391ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2339ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2353ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2320ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2318ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 392ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2305ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2312ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2292ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 385ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2313ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2308ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2323ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2312ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 386ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2325ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2319ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2321ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2307ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 386ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2310ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2378ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2359ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2345ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 394ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2341ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2320ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2341ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2330ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2315ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2316ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2288ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2284ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2286ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2350ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2318ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2299ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 388ms. 
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16774846
+...running Acts... size: 16761227
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 2462
+...running Acts... size: 1826
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 2462
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16772826
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 3837
+...running Acts... size: 0
+...running Acts... size: 3274
+...running Acts... size: 5213
+...running Acts... offset: 0, size: 3837
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 553
+...running Acts... size: 8624
+...running Acts... size: 3517
+...running Acts... size: 2049
+...running Acts... offset: 0, size: 553
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16773831
+...running Acts... size: 16770911
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:8][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 9159
+...running Acts... size: 4205
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 9159
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16773403
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16773403
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 6372
+...running Acts... size: 10063
+...running Acts... size: 6100
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16772840
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16772840
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 8648
+...running Acts... size: 7745
+...running Acts... size: 6001
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774392
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16776601
+...running Acts... offset: 0, size: 16774392
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 5699
+...running Acts... size: 1636
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16775540
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16773957
+...running Acts... offset: 0, size: 16775540
+PP&A:: [threadidx:9][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 4311
+...running Acts... size: 15298
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16770187
+...running Acts... size: 16769341
+...running Acts... size: 16776484
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 6346
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 6346
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16764143
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16774212
+...running Acts... offset: 0, size: 16764143
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 9601
+...running Acts... size: 2367
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777114
+...running Acts... size: 16771832
+...running Acts... size: 16768903
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777114
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 8490
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:10][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:4][step:1]
+...running Acts... size: 16770219
+...running Acts... size: 16763405
+...running Acts... size: 16762101
+...running Acts... size: 16766784
+...running Acts... offset: 0, size: 16770219
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774220
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16769476
+...running Acts... offset: 0, size: 16774220
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 5904
+...running Acts... size: 8571
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16771619
+...running Acts... size: 16771660
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 2437
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 7309
+...running Acts... offset: 0, size: 2437
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16765626
+...running Acts... size: 16768555
+...running Acts... size: 16776362
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 12377
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 12377
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774891
+...running Acts... size: 16777106
+...running Acts... size: 16775280
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16774891
+PP&A:: [threadidx:11][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 1894
+...running Acts... offset: 0, size: 0
 >>> actgraph_pr_sw::start2 Finished: all threads joined...
 >>> actgraph_pr_sw::start2: super iteration: [i_batch: 12][size: 16][step: 4]
 >>> actgraph_pr_sw::start2: loading vertex properties...
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2294ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2302ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2289ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2287ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2287ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 385ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2284ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2341ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2316ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2292ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 385ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2287ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2291ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2289ms. 
-PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2303ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2315ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2298ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 392ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2292ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2298ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2308ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2312ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2362ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2342ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2332ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 391ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2323ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2320ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2348ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2328ms. 
-PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 387ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2315ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2325ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2325ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2329ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 393ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2312ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2304ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2306ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 389ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2306ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2344ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2330ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2322ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 391ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2305ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2301ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:4][step:1]
------------------------ totaltime_topkernel_ms: 2300ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2289ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2290ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2295ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 384ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2288ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 386ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2293ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2292ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2355ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2317ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 390ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2305ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2297ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
------------------------ totaltime_topkernel_ms: 2296ms. 
-PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
------------------------ totaltime_topkernel_ms: 389ms. 
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 10783
+...running Acts... size: 8671
+...running Acts... size: 13324
+...running Acts... size: 10804
+...running Acts... offset: 0, size: 10783
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 2409
+...running Acts... size: 1588
+...running Acts... size: 597
+...running Acts... size: 5143
+...running Acts... offset: 0, size: 2409
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774741
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16767060
+...running Acts... offset: 0, size: 16774741
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 11721
+...running Acts... size: 1614
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16771617
+...running Acts... size: 16771882
+...running Acts... size: 16777216
+...running Acts... size: 16766658
+...running Acts... offset: 0, size: 16771617
+PP&A:: [threadidx:12][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 3233
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16773904
+...running Acts... size: 16777216
+...running Acts... size: 16772072
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 5883
+...running Acts... size: 0
+...running Acts... size: 11262
+...running Acts... size: 0
+...running Acts... offset: 0, size: 5883
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16774071
+...running Acts... size: 16777216
+...running Acts... size: 16765647
+...running Acts... size: 16775504
+...running Acts... offset: 0, size: 16774071
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 8619
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16768457
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16765211
+...running Acts... offset: 0, size: 16768457
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 11008
+...running Acts... size: 11054
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16771505
+...running Acts... size: 16777216
+...running Acts... size: 16772577
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:13][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 15376
+...running Acts... size: 0
+...running Acts... size: 4929
+...running Acts... size: 0
+...running Acts... offset: 0, size: 15376
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16770553
+...running Acts... size: 16772464
+...running Acts... size: 16777216
+...running Acts... size: 16761916
+...running Acts... offset: 0, size: 16770553
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 3469
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16776009
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16776009
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 3920
+...running Acts... size: 1928
+...running Acts... size: 10403
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16766578
+...running Acts... size: 16777216
+...running Acts... size: 16769566
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16766578
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 177
+...running Acts... size: 0
+...running Acts... size: 9611
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16775715
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:14][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 5466
+...running Acts... size: 10406
+...running Acts... size: 0
+...running Acts... size: 13096
+...running Acts... offset: 0, size: 5466
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16770392
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16774981
+...running Acts... offset: 0, size: 16770392
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:0][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 15384
+...running Acts... size: 5271
+...running Acts... size: 0
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16776982
+...running Acts... size: 16777216
+...running Acts... size: 16775415
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16776982
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:4][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 762
+...running Acts... size: 0
+...running Acts... size: 3526
+...running Acts... offset: 0, size: 0
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:1][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:2][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:3][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16775578
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:8][size:16][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 16418
+...running Acts... size: 0
+...running Acts... size: 6636
+...running Acts... size: 9198
+...running Acts... offset: 0, size: 16418
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:1][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:2][size:4][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... offset: 0, size: 16777216
+PP&A:: [threadidx:15][size:16][step:4], [lbankoffset:12][size:16][step:4], [iteration_idx:3][size:4][step:1]
+...running Acts... size: 16765349
+...running Acts... size: 16774131
+...running Acts... size: 16770462
+...running Acts... size: 16754413
+...running Acts... offset: 0, size: 16765349
 >>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543008422663[nanao seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543008422[micro seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543008[milli seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543[seconds](Iteration 666)
 
-[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 614810 milli seconds[0m
-[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 614.81 seconds[0m
->>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 946191512518[nanao seconds](Iteration 666)
->>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 946191512[micro seconds](Iteration 666)
->>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 946191[milli seconds](Iteration 666)
->>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 946[seconds](Iteration 666)
 
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 237686 milli seconds[0m
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 237.686 seconds[0m
+=== ACTGRAPH_PR::TIMING AND SUMMARY RESULTS FOR ITERATION: 0 === 
 >>> actgraph_pr_sw::summary Total number of kvReads for thread [0]: 4294999320
 >>> actgraph_pr_sw::summary Total number of kvReads for thread [1]: 4294930322
 >>> actgraph_pr_sw::summary Total number of kvReads for thread [2]: 4294913692
 >>> actgraph_pr_sw::summary Total number of kvReads for thread [3]: 4295025849
->>> actgraph_pr_sw::summary Total number of kvReads for all threads: 17179869183
->>> actgraph_pr_sw::summary Total kernel time: 614810 milli seconds
->>> actgraph_pr_sw::summary Total kernel time: 614.81 seconds
->>> actgraph_pr_sw::summary Total populate KvDRAM time: 292497 milli seconds
->>> actgraph_pr_sw::summary Total populate KvDRAM time: 292.497 seconds
+[1m[37m>>> actgraph_pr_sw::summary Total number of kvReads for all threads: 4294967295[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (SSD access): 110185 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 543008 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 543.008 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 432823 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 432.823 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing): 7.90958e+06 keyvalues per second[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): 9.92315e+06 keyvalues per second[0m
 
-[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 614810 milli seconds[0m
-[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 614.81 seconds[0m
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543009836926[nanao seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543009836[micro seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543009[milli seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 543[seconds](Iteration 666)
+
+=== ACTGRAPH_PR::TIMING AND SUMMARY RESULTS FOR ITERATION: 828321843 === 
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [0]: 4294999320
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [1]: 4294930322
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [2]: 4294913692
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [3]: 4295025849
+[1m[37m>>> actgraph_pr_sw::summary Total number of kvReads for all threads: 4294967295[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (SSD access): 110185 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 543009 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 543.009 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 432824 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 432.824 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing): 7.90957e+06 keyvalues per second[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): 9.92313e+06 keyvalues per second[0m
+
+
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 237686 milli seconds[0m
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 237.686 seconds[0m
 TEST FINISHED
 [1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [FETCHING ACTIVE VERTICES]: 0 [seconds][0m
 [1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 1]: 0 [seconds][0m
@@ -1437,18 +2882,18 @@ TEST FINISHED
 [1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM]: 0 [seconds][0m
 [1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [SAVE VERTEX UPDATES]: 0 [seconds][0m
 [1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [KERNEL]: 0 [seconds][0m
-[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 946192 [milli seconds][0m
-[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 946.192 [seconds][0m
-[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C2]: 946.192 [seconds][0m
-[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C3]: 946.192 [seconds][0m
-[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C4*]: 946.192 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 543010 [milli seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 543.01 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C2]: 543.01 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C3]: 543.01 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C4*]: 543.01 [seconds][0m
 [1m[37m>>> TIMING SUMMARY: globaldebugger_totalbytesreadfromfile: 0 [bytes][0m
 [1m[37m>>> TIMING SUMMARY: globaldebugger_totalbyteswrittentofile: 0 [bytes][0m
 [1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredtokernel: 17179869183 [key values][0m
-[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredfromkernel: 17179869183 [key values][0m
-[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[0]: 524870 [key values][0m
-[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[16383]: 524986 [key values][0m
-[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[32767]: 524780 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredfromkernel: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[0]: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[6143]: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[12287]: 0 [key values][0m
 
 graph::closefilesforreading : close files for reading...
 graph::closetemporaryfilesforwriting : close temporary files for writing...

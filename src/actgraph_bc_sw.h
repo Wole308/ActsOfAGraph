@@ -24,8 +24,7 @@ public:
 	void reverserun();
 	void finish();
 	void summary();
-	float totalkerneltime();
-	float totalpopulateKvDRAMtime();
+	runsummary_t overalltimingandsummary(unsigned int graph_iterationidx, runsummary_t totalrunsummary);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
@@ -37,6 +36,8 @@ private:
 	graph * graphobj;
 	heuristics * heuristicsobj;
 	unsigned int forward_graph_iterationidx;
+	runsummary_t totalrunsummary; 
+	utility * utilityobj;
 	
 	std::string binaryFile;
 };

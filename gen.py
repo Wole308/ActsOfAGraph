@@ -19,7 +19,6 @@ context['ALGORITHM'] = sys.argv[3]
 context['DATASET'] = sys.argv[4]
 context['NUMCPUTHREADS'] = sys.argv[5]
 context['LOCKE'] = sys.argv[6]
-# context['PLATFORM'] = "AWS_PLATFORM" # AWS_PLATFORM, CRABTREE_PLATFORM
 path = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 isFile = os.path.isfile(path)  
 print(isFile) 
@@ -34,7 +33,7 @@ context['NUMDRAMBANKS'] = 4
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
 else:
-	context['NUMINSTANCES'] = 4
+	context['NUMINSTANCES'] = 1 # 4
 context['NUMWORKERS'] = ACTSACCEL1_params[0]
 context['NUMSUBWORKERS'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
@@ -44,6 +43,7 @@ context['NUMSUBWORKERS_APPLYPH'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR_APPLYPH'] = 1
 context['NUMPARTIALRESULTS'] = 4
 context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
+context['KERNELNAME'] = "ACTS" #ACTS #ENIGMA
 
 if context['DATASET'] == "_EQUALDATASET_X":
 	context['MAXNUMSSDPARTITIONS_POW'] = 2
@@ -57,10 +57,17 @@ elif context['DATASET'] == "_LARGEDATASET_1B":
 	context['MAXNUMSSDPARTITIONS_POW'] = 4
 elif context['DATASET'] == "_LARGEDATASET_4B":
 	context['MAXNUMSSDPARTITIONS_POW'] = 4
+    
+if context['KERNELNAME'] == "ACTS":
+	context['NUM_PARTITIONS_POW'] = 4
+else:
+	context['NUM_PARTITIONS_POW'] = 4 #5
 
 # context['NUM_PARTITIONS_POW'] = 3
-context['NUM_PARTITIONS_POW'] = 4
+# context['NUM_PARTITIONS_POW'] = 4
 # context['NUM_PARTITIONS_POW'] = 5
+
+
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
 if (context['PLATFORM'] == "AWS_PLATFORM"):

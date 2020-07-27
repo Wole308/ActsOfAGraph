@@ -18,37 +18,42 @@ public:
 	runsummary_t start2(unsigned int graph_iterationidx);
 	void reloadenv();
 	void finish();
-	runsummary_t timingandsummary(unsigned int graph_iterationidx, float totaltime_ms);
-	unsigned int gettotalsize();
-	float totalkerneltime();
-	float totalpopulateKvDRAMtime();
+	runsummary_t timingandsummary(unsigned int graph_iterationidx, long double totaltime_ms);
+	unsigned long gettotalsize();
+	long double totalkerneltime();
+	long double totalpopulateKvDRAMtime();
 	
 	void WorkerThread2(int threadidx, int threadidxoffset);
 
 	void generatekvs(int threadidx, unsigned int flag, unsigned int threadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t * edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);		
 	void workerthread_generatekvs(unsigned int ddr, unsigned int flag, int threadidx, unsigned int threadidxoffset, unsigned int subthreadidx, unsigned int gbankoffset, unsigned int lbankoffset, edge_t edgepropertyfilesize, unsigned int * runningvertexid, unsigned int iteration_idx, unsigned int iteration_size, unsigned int kvcount[NUMDRAMBANKS], unsigned int keyvaluecount[NUMDRAMBANKS]);				
 	void settleupdates(int threadidx, unsigned int flag, unsigned int iteration_idx, unsigned int iteration_size);
-	void printstructures(unsigned int threadidx, unsigned int flag);
-	void checkresultfromkernel(unsigned int threadidx, unsigned int flag, unsigned int totalnumkeyvalues[NUMDRAMBANKS]);
-	void loadverticesdatafromfile(int nvmeFd_verticesdata_r2, unsigned int offset, keyvalue_t * kvdram, vertex_t bufferoffset, vertex_t verticessize);
-	void loadverticesdatafromfile(int nvmeFd_verticesdata_r2, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void writeverticesdatatofile(int nvmeFd_verticesdata_r2, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexpropertiesfromfile(int nvmeFd_vertexproperties_r2, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t verticessize);
-	void writevertexpropertiestofile(int nvmeFd_vertexproperties_w2, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t verticessize);
+	void printstructures(int threadidx, unsigned int flag);
+	void checkresultfromkernel(int threadidx, unsigned int flag, unsigned int totalnumkeyvalues[NUMDRAMBANKS]);
+	void loadverticesdatafromfile(int threadidx, int nvmeFd_verticesdata_r2, unsigned int offset, keyvalue_t * kvdram, vertex_t bufferoffset, vertex_t verticessize);
+	void loadverticesdatafromfile(int threadidx, int nvmeFd_verticesdata_r2, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void writeverticesdatatofile(int threadidx, int nvmeFd_verticesdata_r2, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void loadvertexpropertiesfromfile(int threadidx, int nvmeFd_vertexproperties_r2, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t verticessize);
+	void writevertexpropertiestofile(int threadidx, int nvmeFd_vertexproperties_w2, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t verticessize);
+	void loadvertexisactiveinfosfromfile(int threadidx, int fd, unsigned int offset, unsigned int * buffer, vertex_t bufferoffset, vertex_t size);
+	
 	void replicateverticesdata(keyvalue_t * kvdramA,keyvalue_t * kvdramB,keyvalue_t * kvdramC,keyvalue_t * kvdramD, unsigned int offset, unsigned int size);
-	void cummulateverticesdata(unsigned int threadidx, keyvalue_t * kvdramA,keyvalue_t * kvdramB,keyvalue_t * kvdramC,keyvalue_t * kvdramD, unsigned int offset, unsigned int size, utility * utilityobj);			
-	void loadvertexisactiveinfosfromfile(int fd, unsigned int offset, unsigned int * buffer, vertex_t bufferoffset, vertex_t size);
-	void applyvertices(unsigned int threadidx, int bankoffset, keyvalue_t * kvdram, vertex_t offset, vertex_t size);
+	void cummulateverticesdata(int threadidx, unsigned int offset, unsigned int size);	
+	void workerthread_cummulateverticesdata(int ithreadidx, int threadidx, unsigned int offset, unsigned int size);
+	void applyvertices(int threadidx, int bankoffset, vertex_t bufferoffset, vertex_t size);
+	void workerthread_applyvertices(int ithreadidx, int threadidx, int bankoffset, vertex_t fileoffset, vertex_t bufferoffset, vertex_t size);
 	void setgraphiteration(unsigned int _graph_iterationidx);
 	unsigned int getflag(unsigned int giteration_idx);
-	void settime_OCLdatatransfers_ms(unsigned int threadidx, float value);
-	float gettime_OCLdatatransfers_ms(unsigned int threadidx);
+	void settime_OCLdatatransfers_ms(int threadidx, long double value);
+	long double gettime_OCLdatatransfers_ms(int threadidx);
+	void lockmutex(std::mutex * mutex);
+	void unlockmutex(std::mutex * mutex);
 	
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
-	void writeVstokernel(unsigned int threadidx);
-	void launchkernel(unsigned int threadidx, unsigned int flag);
-	void readVsfromkernel(unsigned int threadidx);
+	void writeVstokernel(int threadidx);
+	void launchkernel(int threadidx, unsigned int flag);
+	void readVsfromkernel(int threadidx);
 	void finishOCL();
 	void reloadOCLenv(xcl_world * _world, cl_program * _program, cl_kernel * _kernel);
 	void allocateOCLbuffers();
@@ -61,9 +66,9 @@ private:
 	
 	unsigned int graph_iterationidx;	
 	
-	float totaltime_ms;
-	float totaltime_topkernel_ms;
-	float totaltime_populatekvdram_ms;
+	long double totaltime_ms;
+	long double totaltime_topkernel_ms;
+	long double totaltime_populatekvdram_ms;
 	
 	vector<uint512_vec_dt> unused_vectorbuffer;
 	std::thread panas_thread[NUMCPUTHREADS];
@@ -80,7 +85,7 @@ private:
 	graph * graphobj;
 	
 	edge_t totalnumkvsread[NUMCPUTHREADS];
-	float totaltime_OCLdatatransfers[NUMCPUTHREADS];
+	long double totaltime_OCLdatatransfers[NUMCPUTHREADS];
 	
 	#ifdef FPGA_IMPL
 	cl_int err;	

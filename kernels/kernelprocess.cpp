@@ -10,7 +10,6 @@
 #include <iostream>
 #include <thread>
 #include "../src/common.h"
-// #include "../kernels/enigma.h"
 #include "../kernels/acts.h"
 #include "../kernels/kernelprocess.h"
 #ifndef FPGA_IMPL
@@ -36,12 +35,15 @@ kvsourcedramA
 }
 void kernelprocess::topkernelMW(uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats){
 	#ifdef SW
-	#if defined(TESTKERNEL) || defined(LOCKE)
+	#if defined(TESTKERNEL)
 	topkernel(kvsourcedram[0], kvdestdram[0], kvstats[0]);
+	#else
+	#ifdef LOCKE
+	for (int i = 0; i < NUMDRAMBANKS; i++){ topkernel(kvsourcedram[i], kvdestdram[i], kvstats[i]); }
 	#else 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i] = std::thread(&kernelprocess::topkernel, this, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
 	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i].join(); }
-	// for (int i = 0; i < NUMDRAMBANKS; i++){ topkernel(kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	#endif
 	#endif
 	#endif 
 	return;

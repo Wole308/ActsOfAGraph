@@ -25,6 +25,18 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION1<<std::endl;
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION2<<std::endl;
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION3<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION4: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION4<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION5: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION5<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION6: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION6<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION7: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION7<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION8: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION8<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION9: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION9<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION10: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION10<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION11: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION11<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION12: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION12<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION13: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION13<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION14: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION14<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION15: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION15<<std::endl;
 	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
 	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;
@@ -83,18 +95,14 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"response: "<<response<<std::endl;
 	if(response == "y"){} else { exit(EXIT_FAILURE); }
 	#endif
-	/** #if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM))
-	if(MAXNUMSSDPARTITIONS != NUMWORKLOADBANKS){
-	std::cout<<"host:: WARNING: MAXNUMSSDPARTITIONS must be equal to NUMWORKLOADBANKS . EXITING..."<<std::endl;
-	exit(EXIT_FAILURE);
-	}
-	#endif */
 	std::cout<<"host:: KVDRAMSZ: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
 	std::cout<<"host:: CAPSULESZ: "<<CAPSULESZ<<std::endl;
 	std::cout<<"host:: CAPSULESZ_KVS: "<<CAPSULESZ_KVS<<std::endl;
+	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
+	std::cout<<"host:: CAPSULEMETADATADRAMSZ: "<<CAPSULEMETADATADRAMSZ<<std::endl;
 	std::cout<<"host:: STATSDRAMSZ: "<<STATSDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<KVDRAMSZ_KVS<<std::endl;
@@ -108,6 +116,8 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
+	
+	
 	return;
 }
 

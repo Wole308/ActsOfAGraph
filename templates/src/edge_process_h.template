@@ -15,7 +15,7 @@ public:
 	unsigned int generateupdates2_random(SortReduceUtils::FileKvReader<uint32_t,uint32_t>* reader, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int * status);
 	void generatekeyvalues_random(vertex_t key, value_t val, int nvmeFd_edgeoffsets_r2, int nvmeFd_edgeproperties_r2, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int * kvsize);
 	
-	unsigned int generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx);
+	unsigned int generateupdates_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, uint512_vec_dt * kvdram, unsigned int threadidx);
 	unsigned int generatekeyvalues_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, vertex_t edgesbuffersz, keyvalue_t * kvdram, vertex_t kvdramoffset);
 	
 	void generateupdates_contiguous(size_t wordoffset, vertex_t edgespropsz, int nvmeFd_edgeproperties_r2, int nvmeFd_edgeoffsets_r2, vertexprop_t * vertexpropertiesbuffer, uint512_vec_dt * kvdram, keyvalue_t * kvstats, unsigned int threadidx);
@@ -27,8 +27,11 @@ public:
 	void loadedgeoffsetsfromfile(int nvmeFd_edgeoffsets_r2, size_t fileoffset, T * buffer, vertex_t bufferoffset, size_t numbytestoread);
 	void collectstats(keyvalue_t * kvstats, vertex_t kvsize);
 	void resetstats(keyvalue_t * kvstats);
-	void settime_ssdaccesses_ms(float value);
-	float gettime_SSDaccesses_ms();
+	void settime_ssdaccesses_ms(long double value);
+	long double gettime_SSDaccesses_ms();
+	void appendtime_ssdaccesses_ms(long double value);
+	void lockmutex(std::mutex * mutex);
+	void unlockmutex(std::mutex * mutex);
 
 private:	
 	unsigned int numvertexbanks;
@@ -54,7 +57,7 @@ private:
 	std::atomic<size_t> m_index_blocks_read;
 	std::atomic<size_t> m_edge_blocks_read;
 	
-	float totaltime_ssdaccesses_ms;
+	long double totaltime_ssdaccesses_ms;
 	
 	algorithm * algorithmobj;
 	utility * utilityobj;

@@ -39,16 +39,21 @@ actgraph_bc_sw::actgraph_bc_sw(graph * _graphobj, heuristics * _heuristicsobj, a
 	binaryFile = _binaryFile;
 	actgraph_bfs_sw_obj = new actgraph_bfs_sw(_graphobj, _heuristicsobj, _actgraph_pr_sw_obj, binaryFile);
 	forward_graph_iterationidx = 0;
+	
+	utilityobj = new utility();
+	utilityobj->reset(&totalrunsummary);
 }
 actgraph_bc_sw::~actgraph_bc_sw() {} 
 
 void actgraph_bc_sw::forwardrun(){
 	actgraph_bfs_sw_obj->setedgeprogramstatus(true);
-	forward_graph_iterationidx = actgraph_bfs_sw_obj->run();
+	// forward_graph_iterationidx = actgraph_bfs_sw_obj->run();
+	runsummary_t runsummary = actgraph_bfs_sw_obj->run();
+	forward_graph_iterationidx = runsummary.graph_iterationidx;
+	utilityobj->append(&totalrunsummary, runsummary);
 	return;
 }
 void actgraph_bc_sw::reverserun(){
-	
 	actgraph_bfs_sw_obj->setedgeprogramstatus(false);
 	for(int reverse_graph_iteration = forward_graph_iterationidx-1; reverse_graph_iteration>=1; reverse_graph_iteration--){
 		cout<<"actgraph_bc_sw::run: reverse graph iteration "<<reverse_graph_iteration<<" of pagerank Started"<<endl;
@@ -61,7 +66,8 @@ void actgraph_bc_sw::reverserun(){
 		actgraph_bfs_sw_obj->reloadactvverticesfiles(); // important
 		
 		cout<<"=== PARTIAL_ACCESS_TYPE ==="<<endl;
-		actgraph_bfs_sw_obj->start(forward_graph_iterationidx);
+		runsummary_t runsummary = actgraph_bfs_sw_obj->start(forward_graph_iterationidx);
+		utilityobj->append(&totalrunsummary, runsummary);
 		
 		graphobj->closeactiveverticesfilesforreading();
 		graphobj->closeactiveverticesfilesforwriting();
@@ -73,10 +79,30 @@ void actgraph_bc_sw::reverserun(){
 }
 void actgraph_bc_sw::finish(){
 	actgraph_bfs_sw_obj->finish();
+	overalltimingandsummary(NAp, totalrunsummary);
 }
 void actgraph_bc_sw::summary(){}
-float actgraph_bc_sw::totalkerneltime(){ return NAp; }
-float actgraph_bc_sw::totalpopulateKvDRAMtime(){ return NAp; }
+runsummary_t actgraph_bc_sw::overalltimingandsummary(unsigned int graph_iterationidx, runsummary_t totalrunsummary){
+	cout<<"=== ACTGRAPH_BC::TOTAL TIMING AND SUMMARY RESULTS FOR ALL ITERATIONS === "<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total number of kvReads for all threads: "<<totalrunsummary.totalsize<< RESET <<endl;
+	
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (SSD access): "<< totalrunsummary.totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (SSD access): "<< totalrunsummary.totaltime_SSDtransfers_ms / 1000 << " seconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (OCL data transfers): "<< totalrunsummary.totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
+	cout << TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (OCL data transfers): "<< totalrunsummary.totaltime_OCLtransfers_ms / 1000 << " seconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (Overall processing): "<<totalrunsummary.totaltime_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (Overall processing): "<<totalrunsummary.totaltime_ms / 1000<< " seconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totalrunsummary.totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totalrunsummary.totaltime_overallexcludingOCLandSSDtransfers_ms / 1000<< " seconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Throughput (Overall processing): "<<(unsigned long)totalrunsummary.totalsize / (long double)(totalrunsummary.totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> actgraph_bc_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(unsigned long)totalrunsummary.totalsize / (long double)(totalrunsummary.totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<<endl;
+	
+	totalrunsummary.graph_iterationidx = graph_iterationidx;
+	return totalrunsummary;
+}
 
 #ifdef FPGA_IMPL
 void actgraph_bc_sw::loadOCLstructures(std::string binaryFile){

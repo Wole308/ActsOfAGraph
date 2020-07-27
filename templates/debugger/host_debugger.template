@@ -114,6 +114,8 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
 	std::cout<<"host:: CAPSULESZ: "<<CAPSULESZ<<std::endl;
 	std::cout<<"host:: CAPSULESZ_KVS: "<<CAPSULESZ_KVS<<std::endl;
+	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
+	std::cout<<"host:: CAPSULEMETADATADRAMSZ: "<<CAPSULEMETADATADRAMSZ<<std::endl;
 	std::cout<<"host:: STATSDRAMSZ: "<<STATSDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<KVDRAMSZ_KVS<<std::endl;
@@ -127,6 +129,8 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
+	
+	
 	return;
 }
 

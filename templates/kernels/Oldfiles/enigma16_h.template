@@ -250,6 +250,9 @@ public:
 	void readkeyvalues{{ddrs}}(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs, int enable, int collectstats);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void readkeyvalues{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt * buffer{{sw}} {%endfor%} ,batch_type baseaddress ,batch_type offset_kvs {%for sw in context['NUMSUBWORKERS_seq']%} ,buffer_type size{{sw}}_kvs {%endfor%} ,batch_type maxaddress_kvs, int enable, int collectstats);
+	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	travoffsets_t readcapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS], {%endfor%} batch_type baseaddress, batch_type offset_kvs, int enable, travoffsets_t travoffsets);
 	{%endfor%}
 	
@@ -296,11 +299,13 @@ public:
 	void loadKvDRAM{{ddrs}}(uint512_dt * kvdram, batch_type sourceoffset_kvs, batch_type destoffset_kvs, batch_type size_kvs);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void partitionandreduce{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
-	{%endfor%}
-	void partitionandreduce({%for ddrs_ in context['INSTANCES_charseq']%}uint512_dt * kvsourcedram{{ddrs_}},{%endfor%}  {%for ddrs_ in context['INSTANCES_charseq']%}uint512_dt * kvdestdram{{ddrs_}},{%endfor%} {%for ddrs_ in context['INSTANCES_charseq']%}keyvalue_t * kvstats{{ddrs_}},{%endfor%} globalparams_t globalparams);
-	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void Throne{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void Rule{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void partitionandreduce{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
 	{%endfor%}
 	
 	void topkernel(

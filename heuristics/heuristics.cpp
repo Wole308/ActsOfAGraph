@@ -25,9 +25,10 @@
 #include "heuristics.h"
 using namespace std;
 
+// #define SWITCHTTHRESHOLD (KVDATA_RANGE / 1) // ALL PARTIAL
 // #define SWITCHTTHRESHOLD (KVDATA_RANGE / 16)
 // #define SWITCHTTHRESHOLD (KVDATA_RANGE / 64) // CORRECTONE
-#define SWITCHTTHRESHOLD (KVDATA_RANGE / 256) // 
+#define SWITCHTTHRESHOLD (KVDATA_RANGE / 256) // USEDONE
 
 heuristics::heuristics(){
 	heuristicstype.type = 0;

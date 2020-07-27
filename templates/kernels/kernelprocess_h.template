@@ -3,8 +3,11 @@
 #include <mutex>
 #include <iostream>
 #include <thread>
-// #include "../kernels/enigma.h"
+{%if(context['KERNELNAME'] == "ACTS")%}
 #include "../kernels/acts.h"
+{%else%}
+#include "../kernels/enigma.h"
+{%endif%}
 #include "../src/common.h"
 
 class kernelprocess {
@@ -27,8 +30,11 @@ public:
 	
 private:
 	#ifdef SW
-	// enigma kernelobj;
+	#ifdef ACTS
 	acts kernelobj;
+	#else 
+	enigma kernelobj;
+	#endif 
 	std::thread acts_thread[NUMDRAMBANKS];
 	#endif
 };
