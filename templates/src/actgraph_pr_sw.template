@@ -14,6 +14,7 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
+#include "../kernels/acts.h"
 #include "../kernels/kernelprocess.h"
 #include "edge_process.h"
 #include "../graphs/graph.h"
@@ -62,7 +63,10 @@ actgraph_pr_sw::actgraph_pr_sw(graph * _graphobj){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i] = new edge_process(_graphobj); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i]->settime_ssdaccesses_ms(0); }
 	#ifdef SW 
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernel_process[i] = new kernelprocess(); }	
+	// for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[j] = new acts(); } // NEWLYADDED.
+	// for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[i][j] = new acts(); }}
+	// for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernelobjs[i] = new acts(); } //
+	// for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernel_process[i] = new kernelprocess(kernelobjs[i]); }	
 	#endif 
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totalnumkvsread[i] = 0; }
 
@@ -111,7 +115,7 @@ runsummary_t actgraph_pr_sw::start2(unsigned int graph_iterationidx) {
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int i_batch=0; i_batch<graphobj->getnumvertexbanks(); i_batch += NUMCPUTHREADS){
-	// for(unsigned int i_batch=12; i_batch<16; i_batch += NUMCPUTHREADS){
+	// for(unsigned int i_batch=0; i_batch<NUMCPUTHREADS; i_batch += NUMCPUTHREADS){ // REMOVEME.
 		cout<<">>> actgraph_pr_sw::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumvertexbanks()<<"][step: "<<NUMCPUTHREADS<<"]"<<endl;
 		cout<<">>> actgraph_pr_sw::start2: loading vertex properties..."<<endl;
 	
@@ -247,7 +251,7 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 			std::chrono::steady_clock::time_point begintime_topkernel = std::chrono::steady_clock::now();
 			#endif
 			#ifdef SW
-			kernel_process[threadidx]->topkernelMW((uint512_dt **)kvsourcedram[threadidx][flag], (uint512_dt **)kvdestdram[threadidx][flag], (keyvalue_t **)kvstats[threadidx][flag]);
+			launchkernel(threadidx, (uint512_dt **)kvsourcedram[threadidx][flag], (uint512_dt **)kvdestdram[threadidx][flag], (keyvalue_t **)kvstats[threadidx][flag]);
 			#else
 			launchkernel(threadidx, flag);
 			#endif 
@@ -311,7 +315,7 @@ void actgraph_pr_sw::generatekvs(int threadidx, unsigned int flag, unsigned int 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i].join(); }
 	#endif
 	for (int i = 0; i < NUMDRAMBANKS; i++){ totalnumkvsread[threadidx] += kvcount[i]; }
-	#ifdef _DEBUGMODE_CHECKS3
+	#ifdef _DEBUGMODE_STATS
 	for (int i = 0; i < NUMDRAMBANKS; i++){ globaldebugger_totalkeyvaluesstransferredtokernel += kvcount[i]; }
 	#endif
 	
@@ -338,7 +342,7 @@ void actgraph_pr_sw::generatekvs(int threadidx, unsigned int flag, unsigned int 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i].join(); }
 	#endif 
 	for (int i = 0; i < NUMDRAMBANKS; i++){ totalnumkvsread[threadidx] += kvcount[i]; }
-	#ifdef _DEBUGMODE_CHECKS3
+	#ifdef _DEBUGMODE_STATS
 	for (int i = 0; i < NUMDRAMBANKS; i++){ globaldebugger_totalkeyvaluesstransferredtokernel += kvcount[i]; }
 	#endif
 	
@@ -380,7 +384,8 @@ void actgraph_pr_sw::workerthread_generatekvs(unsigned int ddr, unsigned int fla
 	}
 	
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_COMMANDID].key = NAp;
-	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key = OFF;
+	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key = ON;
+	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_COLLECTSTATSCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PARTITIONCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_FINALNUMPARTITIONSID].key = NAp;
@@ -765,81 +770,6 @@ void actgraph_pr_sw::writeVstokernel(int threadidx){
 	#endif 
 	#endif 
 }
-void actgraph_pr_sw::launchkernel(int threadidx, unsigned int flag){
-	#ifdef LAUNCHKERNEL
-	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
-	std::chrono::steady_clock::time_point begintime_topkernel = std::chrono::steady_clock::now();
-	#endif
-	
-	// Set the Kernel Arguments. Using setArg(), i.e. setting kernel arguments, explicitly before enqueueMigrateMemObjects(), 
-	// i.e. copying host memory to device memory,  allowing runtime to associate buffer with correct DDR banks automatically. 
-	std::cout << "Set the Kernel Arguments" << std::endl;
-	int nargs=0;
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), (void *) &buffer_kvsourcedram[threadidx][flag][ddr]);
-	}
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), (void *) &buffer_kvdestdram[threadidx][flag][ddr]);
-	}
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), (void *) &buffer_kvstatsdram[threadidx][flag][ddr]);
-	}
-	
-	// Copy input data to device global memory
-	std::cout << "Copy input data to device global memory" << std::endl;
-	array<cl_event, {{context['NUMINSTANCES'] + context['NUMINSTANCES'] + context['NUMINSTANCES']}}> write_events;
-	
-	// Copy data from Host to Device
-	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
-	cl_bool CLBOOL = CL_TRUE;
-	#else 
-	cl_bool CLBOOL = CL_FALSE;
-	#endif
-	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
-	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
-	#endif 
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[threadidx][flag][ddr], CLBOOL, 0, kvsource_size_bytes, kvsourcedram[threadidx][flag][ddr], 0, NULL, &write_events[ddr] ));
-	}
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][flag][ddr], CLBOOL, 0, 64, kvdestdram[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMINSTANCES']}} + ddr] ));
-	}
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[threadidx][flag][ddr], CLBOOL, 0, kvstats_size_bytes, kvstats[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMINSTANCES']}} + {{context['NUMINSTANCES']}} + ddr] ));
-	}
-	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
-	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
-	#endif
-	
-	// Launch the Kernel			
-	printf("Enqueueing NDRange kernel.\n");
-	std::cout << "Launch the Kernel" << std::endl;
-	std::vector<cl_event> waitList; 
-	for(unsigned int i=0; i<{{context['NUMINSTANCES']}} * NUM_KAPI; i++){ waitList.push_back(write_events[i]); }
-	OCL_CHECK(clEnqueueNDRangeKernel(world.command_queue, kernel, 1, nullptr,
-									&global, &local, {{context['NUMINSTANCES']}} * NUM_KAPI, waitList.data(),
-									&kernel_events[flag]));
-	
-	// Copy Result from Device Global Memory to Host Local Memory
-	std::cout << "Getting Results (Device to Host)..." << std::endl;
-	printf("Enqueueing Migrate Mem Object (Device to Host) calls\n");
-	utilityobj[0]->set_callback(kernel_events[flag], "ooo_queue");
-	#ifdef LOCKE
-	clWaitForEvents(1, &kernel_events[flag]);
-	#endif
-	
-	// Copy input data from device global memory back to host
-	// This operation only needs to wait for the kernel call. This call will
-	// potentially overlap the next kernel call as well as the next read
-	// operations
-	#ifdef _DEBUGMODE_TIMERS
-	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Top kernel Time Elapsed: ", begintime_topkernel, NAp);
-	#endif 
-	#ifdef LOCKE
-	totaltime_topkernel_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_topkernel).count();
-	#endif
-	#endif 
-}
 void actgraph_pr_sw::readVsfromkernel(int threadidx){
 	#ifdef LAUNCHKERNEL
 	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
@@ -936,7 +866,104 @@ void actgraph_pr_sw::allocateOCLbuffers(){
 		}
 	}
 }
-#endif 
+#endif
 
+#ifdef SW
+void actgraph_pr_sw::topkernel(unsigned int ddr, int threadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
+	return kernelobjs[threadidx][ddr]->topkernel(kvsourcedram, kvdestdram, kvstats);
+}
+void actgraph_pr_sw::launchkernel(int threadidx, uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats){
+	#ifdef SW
+	#if defined(TESTKERNEL)
+	kernelobjs[threadidx][0]->topkernel(kvsourcedram[0], kvdestdram[0], kvstats[0]);
+	#else
+	#ifdef LOCKE
+	for (int i = 0; i < NUMDRAMBANKS; i++){ kernelobjs[threadidx][i]->topkernel(kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	#else 
+	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i] = std::thread(&actgraph_pr_sw::topkernel, this, i, threadidx, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i].join(); }
+	#endif
+	#endif
+	#endif 
+	return;
+}
+#endif 
+#ifdef FPGA_IMPL
+void actgraph_pr_sw::launchkernel(int threadidx, unsigned int flag){
+	#ifdef LAUNCHKERNEL
+	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
+	std::chrono::steady_clock::time_point begintime_topkernel = std::chrono::steady_clock::now();
+	#endif
+	
+	// Set the Kernel Arguments. Using setArg(), i.e. setting kernel arguments, explicitly before enqueueMigrateMemObjects(), 
+	// i.e. copying host memory to device memory,  allowing runtime to associate buffer with correct DDR banks automatically. 
+	std::cout << "Set the Kernel Arguments" << std::endl;
+	int nargs=0;
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), (void *) &buffer_kvsourcedram[threadidx][flag][ddr]);
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), (void *) &buffer_kvdestdram[threadidx][flag][ddr]);
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		xcl_set_kernel_arg(kernel, nargs++, sizeof(cl_mem), (void *) &buffer_kvstatsdram[threadidx][flag][ddr]);
+	}
+	
+	// Copy input data to device global memory
+	std::cout << "Copy input data to device global memory" << std::endl;
+	array<cl_event, {{context['NUMINSTANCES'] + context['NUMINSTANCES'] + context['NUMINSTANCES']}}> write_events;
+	
+	// Copy data from Host to Device
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	cl_bool CLBOOL = CL_TRUE;
+	#else 
+	cl_bool CLBOOL = CL_FALSE;
+	#endif
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
+	#endif 
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvsourcedram[threadidx][flag][ddr], CLBOOL, 0, kvsource_size_bytes, kvsourcedram[threadidx][flag][ddr], 0, NULL, &write_events[ddr] ));
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][flag][ddr], CLBOOL, 0, 64, kvdestdram[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMINSTANCES']}} + ddr] ));
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvstatsdram[threadidx][flag][ddr], CLBOOL, 0, kvstats_size_bytes, kvstats[threadidx][flag][ddr], 0, NULL, &write_events[{{context['NUMINSTANCES']}} + {{context['NUMINSTANCES']}} + ddr] ));
+	}
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
+	#endif
+	
+	// Launch the Kernel			
+	printf("Enqueueing NDRange kernel.\n");
+	std::cout << "Launch the Kernel" << std::endl;
+	std::vector<cl_event> waitList; 
+	for(unsigned int i=0; i<{{context['NUMINSTANCES']}} * NUM_KAPI; i++){ waitList.push_back(write_events[i]); }
+	OCL_CHECK(clEnqueueNDRangeKernel(world.command_queue, kernel, 1, nullptr,
+									&global, &local, {{context['NUMINSTANCES']}} * NUM_KAPI, waitList.data(),
+									&kernel_events[flag]));
+	
+	// Copy Result from Device Global Memory to Host Local Memory
+	std::cout << "Getting Results (Device to Host)..." << std::endl;
+	printf("Enqueueing Migrate Mem Object (Device to Host) calls\n");
+	utilityobj[0]->set_callback(kernel_events[flag], "ooo_queue");
+	#ifdef LOCKE
+	clWaitForEvents(1, &kernel_events[flag]);
+	#endif
+	
+	// Copy input data from device global memory back to host
+	// This operation only needs to wait for the kernel call. This call will
+	// potentially overlap the next kernel call as well as the next read
+	// operations
+	#ifdef _DEBUGMODE_TIMERS
+	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Top kernel Time Elapsed: ", begintime_topkernel, NAp);
+	#endif 
+	#ifdef LOCKE
+	totaltime_topkernel_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_topkernel).count();
+	#endif
+	#endif 
+}
+#endif 
 
 

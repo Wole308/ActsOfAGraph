@@ -38,18 +38,18 @@
 #else
 #define _DEBUGMODE_STATS // 
 // #define _DEBUGMODE_CHECKS
-// #define _DEBUGMODE_CHECKS2 // 
+#define _DEBUGMODE_CHECKS2 // 
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2
+// #define _DEBUGMODE_KERNELPRINTS2
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
 #define _DEBUGMODE_KERNELPRINTS2 //
 #endif
 // #define _DEBUGMODE_HOSTPRINTS
-#define _DEBUGMODE_HOSTPRINTS2
+#define _DEBUGMODE_HOSTPRINTS2 //
 // #define _DEBUGMODE_TIMERS
 #define _DEBUGMODE_TIMERS2
 
@@ -126,8 +126,8 @@
 
 //////////////// crabtree
 
-// #define KVDATA_BATCHSIZE (1 << 24)
-#define KVDATA_BATCHSIZE (1 << 26) // REMOVEME.
+#define KVDATA_BATCHSIZE (1 << 24)
+// #define KVDATA_BATCHSIZE (1 << 26)
 // #define KVDATA_BATCHSIZE (1 << 27)
 // #define KVDATA_BATCHSIZE (1 << 28)
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)

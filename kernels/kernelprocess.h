@@ -8,7 +8,7 @@
 
 class kernelprocess {
 public:
-	kernelprocess();
+	kernelprocess(acts * _kernelobj);
 	~kernelprocess();
 	
 	void topkernel(
@@ -21,9 +21,9 @@ uint512_dt * kvsourcedramA
 private:
 	#ifdef SW
 	#ifdef ACTS
-	acts kernelobj;
+	acts * kernelobj;
 	#else 
-	enigma kernelobj;
+	enigma * kernelobj;
 	#endif 
 	std::thread acts_thread[NUMDRAMBANKS];
 	#endif

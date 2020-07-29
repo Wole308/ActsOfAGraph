@@ -58,23 +58,14 @@ elif context['DATASET'] == "_LARGEDATASET_1B":
 elif context['DATASET'] == "_LARGEDATASET_4B":
 	context['MAXNUMSSDPARTITIONS_POW'] = 4
     
-if context['KERNELNAME'] == "ACTS":
-	context['NUM_PARTITIONS_POW'] = 4
-else:
-	context['NUM_PARTITIONS_POW'] = 4 #5
-
-# context['NUM_PARTITIONS_POW'] = 3
-# context['NUM_PARTITIONS_POW'] = 4
-# context['NUM_PARTITIONS_POW'] = 5
-
-
+context['NUM_PARTITIONS_POW'] = 4
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
 if (context['PLATFORM'] == "AWS_PLATFORM"):
 	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAGraph"
 else:
 	context['PROJECT_BASEPATH'] = "/home/oj2zf/Documents/ActsOfAGraph"
-
+    
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
 print ('SETUP: ' + str(context['SETUP']))

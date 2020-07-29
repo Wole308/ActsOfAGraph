@@ -29,29 +29,27 @@ using namespace std;
 #define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 {%endif%}
 
-#define SRCBUFFER_SIZE (512 - (2 * NUM_PARTITIONS))
+/** #define SRCBUFFER_SIZE (512 - (2 * NUM_PARTITIONS))
 {%if(context['NUMSUBWORKERS'] == 4)%}
 #define PADDEDDESTBUFFER_SIZE 2048
 {%endif%}
 {%if(context['NUMSUBWORKERS'] == 8)%}
 #define PADDEDDESTBUFFER_SIZE 1024
+{%endif%} 
+#define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
+#define CAPSULEBUFFER_SIZE 512 */
+
+#define SRCBUFFER_SIZE 512
+{%if(context['NUMSUBWORKERS'] == 4)%}
+#define PADDEDDESTBUFFER_SIZE (2048 + (2 * NUM_PARTITIONS))
+{%endif%}
+{%if(context['NUMSUBWORKERS'] == 8)%}
+#define PADDEDDESTBUFFER_SIZE (1024 + (2 * NUM_PARTITIONS))
 {%endif%}
 #define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
 #define CAPSULEBUFFER_SIZE 512
 
 #define NFACTOR (PADDEDDESTBUFFER_SIZE / SRCBUFFER_SIZE)
-
-#define TEMPBUFFER_SIZE PADDEDBUFFER_SIZE
-#define TEMPPAD 4
-#define OPTIMALTEMPBUFFER_SIZE ((PADDEDBUFFER_SIZE / NUM_PARTITIONS) * NUMSUBWORKERS)
-#define TEMP1BUFFER_SIZE (((1 * OPTIMALTEMPBUFFER_SIZE) / 2) + TEMPPAD)
-#define TEMP2BUFFER_SIZE (((2 * OPTIMALTEMPBUFFER_SIZE) / 2) + TEMPPAD)
-#define TEMP3BUFFER_SIZE (((3 * OPTIMALTEMPBUFFER_SIZE) / 2) + TEMPPAD)
-
-#define OPTIMALBUFFER_SIZE (PADDEDBUFFER_SIZE / NUM_PARTITIONS)
-#define BUFFER1_SIZE (((1 * OPTIMALBUFFER_SIZE) / 2) + TEMPPAD)
-#define BUFFER2_SIZE (((2 * OPTIMALBUFFER_SIZE) / 2) + TEMPPAD)
-#define BUFFER3_SIZE (((3 * OPTIMALBUFFER_SIZE) / 2) + TEMPPAD)
 
 #define APPLYVERTEXBUFFERSZ (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)))
 #define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE)
@@ -203,6 +201,7 @@ public:
 	void globalstats_countkvsread(unsigned int count);
 	void globalstats_countkvswritten(unsigned int count);
 	void globalstats_countkvspartitionswritten(unsigned int count);
+	void globalstats_countkvspartitionswritten_actual(unsigned int count);
 	void globalstats_countkvspartitioned(unsigned int count);
 	void globalstats_countkvsreduced(unsigned int count);
 	void globalstats_countkvsreducewritten(unsigned int count);
@@ -221,6 +220,7 @@ public:
 
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 	keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs);
+	keyvalue_t getkeyvalue(uint512_dt * Vtemp, vector_type idx);
 	void setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs);
 	void setkeyvalue(uint512_dt * Vtemp, vector_type idx, keyvalue_t keyvalue);
 	void setkeyvalues({%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} uint512_dt * Vtemp{{sw}}{{v}}, {%endfor%}{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} keyvalue_t keyvalue{{sw}}{{v}}, {%endfor%}{%endfor%} vector_type idx);
@@ -249,7 +249,11 @@ public:
 	void getchunksize(buffer_type * chunk_size, buffer_type buffer_size, travstate_t travstate, unsigned int localoffset);
 	int IsReducePhase(unsigned int currentLOP, unsigned int treedepth, globalparams_t globalparams);
 	void shutdownpartitionparams(partitionparams_t * partitionparams);
+	
 	void resetcapsules({%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS], {%endfor%} int dummy);
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void appendinvalids{{ddrs}}(unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%});
+	{%endfor%}
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void readkeyvalues{{ddrs}}(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
@@ -258,7 +262,10 @@ public:
 	void readkeyvalues{{ddrs}}(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void readkeyvalues{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt * buffer{{sw}} {%endfor%} ,batch_type baseaddress ,batch_type offset_kvs, travstate_t travstate, batch_type maxaddress_kvs);
+	void readkeyvalues{{ddrs}}(uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} ,keyvalue_t * buffer{{sw}}{{v}} {%endfor%}{%endfor%} ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
+	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void readkeyvalues{{ddrs}}(unsigned int enable, unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt * buffer{{sw}} {%endfor%} ,batch_type baseaddress ,batch_type offset_kvs, travstate_t travstate, batch_type maxaddress_kvs);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void readkeyvalues{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt * buffer{{sw}} {%endfor%} ,batch_type baseaddress, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, batch_type maxaddress_kvs);
@@ -278,7 +285,7 @@ public:
 	{%endfor%}
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void reducepartitions{{ddrs}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE] {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE] {%endfor%} ,keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams);
+	void reducepartitions{{ddrs}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE] {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE] {%endfor%} ,batch_type voffset, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams);
 	{%endfor%}
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -288,10 +295,13 @@ public:
 	void savekeyvalues{{ddrs}}(keyvalue_t * kvstats, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void savekeyvalues{{ddrs}}(uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} ,keyvalue_t * buffer{{sw}}{{v}} {%endfor%}{%endfor%} ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
+	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	offset_t savecapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void savepartitions{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%},uint512_dt result_local{{sw}}[PADDEDBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%},keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type kvdrambaseaddress, travstate_t travstate);
+	void savepartitions{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%},uint512_dt result_local{{sw}}[PADDEDBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%},keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type kvdrambaseaddress);
 	{%endfor%}
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}

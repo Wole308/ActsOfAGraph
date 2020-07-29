@@ -5,6 +5,7 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
+#include "../kernels/acts.h"
 #include "../kernels/kernelprocess.h"
 #include "../kernels/srkernelprocess.h"
 #include "actgraph_pr_sw.h"
@@ -58,9 +59,16 @@ public:
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
 	void writeVstokernel(int threadidx);
-	void launchkernel(int threadidx, unsigned int flag);
 	void readVsfromkernel(int threadidx);
 	void finishOCL();
+	#endif 
+	
+	#ifdef SW
+	void topkernel(unsigned int ddr, int threadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats);
+	void launchkernel(int threadidx, uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats);
+	#endif 
+	#ifdef FPGA_IMPL
+	void launchkernel(int threadidx, unsigned int flag);
 	#endif 
 	
 private:
@@ -85,7 +93,7 @@ private:
 	
 	actgraph_pr_sw * actgraph_pr_sw_obj;
 	edge_process * edge_process_obj[NUMCPUTHREADS];
-	kernelprocess * kernel_process[NUMCPUTHREADS];
+	acts * kernelobjs[NUMCPUTHREADS][NUMDRAMBANKS];
 	utility * utilityobj[NUMCPUTHREADS];
 	graph * graphobj;
 	heuristics * heuristicsobj;

@@ -143,9 +143,9 @@ do
 		do
 			### >>> LOOP3: datasets
 			# for dataset in $LARGEDATASET_1M
-			# for dataset in $LARGEDATASET_67M
+			for dataset in $LARGEDATASET_67M
 			# for dataset in $LARGEDATASET_268M
-			for dataset in $LARGEDATASET_1B
+			# for dataset in $LARGEDATASET_1B
 			# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 			do 
 				if [ $dataset == $LARGEDATASET_1M ]  
@@ -197,9 +197,9 @@ do
 				then
 					make cleanall
 					# make build_acts_nthreads
-					# make demo_acts_nthreads
+					make demo_acts_nthreads
 					# make demo_acts_nthreads_debug
-					make demo_acts_nthreads > $OUTFILE_NAME
+					# make demo_acts_nthreads > $OUTFILE_NAME
 				elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 				then
 					make cleanall
@@ -213,8 +213,8 @@ do
 					# make build_host
 					# make build_host_aws
 					# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
-					# make swemu 
-					make swemu_aws
+					make swemu 
+					# make swemu_aws
 					# make swemu_aws > $OUTFILE_NAME
 				elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 				then

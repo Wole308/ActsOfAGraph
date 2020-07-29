@@ -19,6 +19,7 @@
 #include "../algorithm/algorithm.h"
 #include "../utility/utility.h"
 #ifdef SW
+#include "../kernels/acts.h"
 #include "../kernels/kernelprocess.h"
 #endif
 #include "host_enigma.h"
@@ -56,7 +57,8 @@ host_enigma::host_enigma(graph * _graphobj){
 	#endif 
 	
 	#ifdef SW
-	kernelprocess * kernelobj = new kernelprocess();
+	actsobjs = new acts(); //
+	// kernelobj = new kernelprocess(actsobjs);
 	#endif 
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj); }
@@ -179,11 +181,11 @@ void host_enigma::loadkvdram(uint512_vec_dt * kvdram, unsigned int baseoffset_kv
 void host_enigma::loadmessages(keyvalue_t * messages, vertex_t offset, unsigned int IterCount){
 	messages[getmessagesAddr(MESSAGES_PROCESSCOMMANDID)].key = ON;
 	messages[getmessagesAddr(MESSAGES_COLLECTSTATSCOMMANDID)].key = ON;
-	messages[getmessagesAddr(MESSAGES_PARTITIONCOMMANDID)].key = ON; // ON;
-	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = OFF;
+	messages[getmessagesAddr(MESSAGES_PARTITIONCOMMANDID)].key = ON;
+	messages[getmessagesAddr(MESSAGES_APPLYUPDATESCOMMANDID)].key = ON; 
 	messages[getmessagesAddr(MESSAGES_VOFFSET)].key = 0;
 	messages[getmessagesAddr(MESSAGES_VSIZE)].key = KVDATA_RANGE_PERSSDPARTITION;
-	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = 3;//TREE_DEPTH;
+	messages[getmessagesAddr(MESSAGES_TREEDEPTH)].key = TREE_DEPTH;
 	messages[getmessagesAddr(MESSAGES_FINALNUMPARTITIONS)].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 	messages[getmessagesAddr(MESSAGES_GRAPHITERATIONID)].key = 0;
 }
@@ -210,7 +212,7 @@ int host_enigma::runActs(unsigned int IterCount){
 
 #ifdef SW
 void host_enigma::launchswkernel(int threadidx){
-	kernelobj->topkernel(
+	actsobjs->topkernel(
 (uint512_dt *)kvsourcedram[threadidx][0]
 		,(uint512_dt *)kvdestdram[threadidx][0]
 		,(keyvalue_t *)kvstats[threadidx][0]
@@ -286,11 +288,13 @@ void host_enigma::launchkernel(unsigned int flag){
 	std::cout << "Copy input data to device global memory" << std::endl;
 	array<cl_event, 1*NUM_KAPI> write_events;
 	
+	#ifdef XXX
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		for(unsigned int i=0; i<16; i++){
 			cout<<"[BEFORE TRANSFER] kvstats["<<flag<<"]["<<ddr<<"]["<<BASEOFFSET_CAPSULEMETADATA + i<<"].key : "<<kvstats[flag][ddr][BASEOFFSET_CAPSULEMETADATA + i].key <<", kvstats["<<flag<<"]["<<ddr<<"]["<<BASEOFFSET_CAPSULEMETADATA + i<<"].value : "<<kvstats[flag][ddr][BASEOFFSET_CAPSULEMETADATA + i].value <<endl;			
 		}
 	}
+	#endif 
 	
 	// Copy data from Host to Device
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
@@ -318,13 +322,13 @@ void host_enigma::launchkernel(unsigned int flag){
 	std::cout << "Getting Results (Device to Host)..." << std::endl;
 	printf("Enqueueing Migrate Mem Object (Device to Host) calls\n");
 	
+	#ifdef XXX
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
 		for(unsigned int i=0; i<16; i++){
 			cout<<"[AFTER TRANSFER] kvstats["<<flag<<"]["<<ddr<<"]["<<BASEOFFSET_CAPSULEMETADATA + i<<"].key : "<<kvstats[flag][ddr][BASEOFFSET_CAPSULEMETADATA + i].key <<", kvstats["<<flag<<"]["<<ddr<<"]["<<BASEOFFSET_CAPSULEMETADATA + i<<"].value : "<<kvstats[flag][ddr][BASEOFFSET_CAPSULEMETADATA + i].value <<endl;			
 		}
 	}
-	
-	
+	#endif 
 	#endif
 }
 void host_enigma::finishOCL(){

@@ -5,6 +5,7 @@
 #include "../graphs/graph.h"
 #include "../algorithm/algorithm.h"
 #include "../utility/utility.h"
+#include "../kernels/acts.h"
 #include "../kernels/kernelprocess.h"
 #include "common.h"
 
@@ -52,11 +53,18 @@ public:
 	#ifdef FPGA_IMPL
 	void loadOCLstructures(std::string binaryFile);
 	void writeVstokernel(int threadidx);
-	void launchkernel(int threadidx, unsigned int flag);
 	void readVsfromkernel(int threadidx);
 	void finishOCL();
 	void reloadOCLenv(xcl_world * _world, cl_program * _program, cl_kernel * _kernel);
 	void allocateOCLbuffers();
+	#endif 
+	
+	#ifdef SW
+	void topkernel(unsigned int ddr, int threadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats);
+	void launchkernel(int threadidx, uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats);
+	#endif 
+	#ifdef FPGA_IMPL
+	void launchkernel(int threadidx, unsigned int flag);
 	#endif 
 	
 private:
@@ -78,7 +86,7 @@ private:
 	unsigned int * isactivevertexinfobuffer_source[MAXNUMVERTEXBANKS];
 	unsigned int * isactivevertexinfobuffer_dest[MAXNUMVERTEXBANKS];
 	
-	kernelprocess * kernel_process[NUMCPUTHREADS];
+	acts * kernelobjs[NUMCPUTHREADS][NUMDRAMBANKS];
 	edge_process * edge_process_obj[NUMCPUTHREADS];
 	utility * utilityobj[NUMCPUTHREADS];
 	algorithm * algorithmobj[NUMCPUTHREADS];

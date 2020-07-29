@@ -21,7 +21,9 @@
 #endif 
 using namespace std;
 
-kernelprocess::kernelprocess(){ }
+kernelprocess::kernelprocess(acts * _kernelobj){ 
+	kernelobj = _kernelobj; // new acts();
+}
 kernelprocess::~kernelprocess(){}
 
 void kernelprocess::topkernel(
@@ -36,7 +38,7 @@ void kernelprocess::topkernel(
 		{%endfor%}
         ){
 	#ifdef SW
-	return kernelobj.topkernel(
+	return kernelobj->topkernel(
 		{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 		{%if(ddrs==0)%}{%else%},{%endif%}kvsourcedram{{ddrs_}}
 		{%endfor%}

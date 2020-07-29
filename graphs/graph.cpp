@@ -572,7 +572,7 @@ void graph::savevertexisactiveinfostofile(int fd, unsigned int offset, unsigned 
 	if(pwrite(fd, &buffer[bufferoffset], ((size / NUMBITSINUNSIGNEDINT) * sizeof(unsigned int)), ((offset / NUMBITSINUNSIGNEDINT) * sizeof(unsigned int))) <= 0){ cout<<"graph::savevertexisactiveinfostofile::ERROR (graph iteration "<<graph_iterationidx<<") 35"<<endl; exit(EXIT_FAILURE); }		
 
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	utilityobj->printbits(fd, offset, 4);
+	// utilityobj->printbits(fd, offset, 4);
 	// exit(EXIT_SUCCESS);
 	#endif
 	return;

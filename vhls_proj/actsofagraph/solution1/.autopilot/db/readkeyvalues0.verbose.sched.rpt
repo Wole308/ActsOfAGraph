@@ -1,0 +1,238 @@
+
+
+================================================================
+== Vivado HLS Report for 'readkeyvalues0'
+================================================================
+* Date:           Mon Jul 27 23:31:05 2020
+
+* Version:        2019.1.3 (Build 2642998 on Wed Sep 04 10:25:22 MDT 2019)
+* Project:        actsofagraph
+* Solution:       solution1
+* Product family: virtexuplus
+* Target device:  xcvu9p-fsgd2104-2-i
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing (ns): 
+    * Summary: 
+    +--------+-------+----------+------------+
+    |  Clock | Target| Estimated| Uncertainty|
+    +--------+-------+----------+------------+
+    |ap_clk  |  10.00|     8.750|        1.25|
+    +--------+-------+----------+------------+
+
++ Latency (clock cycles): 
+    * Summary: 
+    +-----+-----+-----+-----+---------+
+    |  Latency  |  Interval | Pipeline|
+    | min | max | min | max |   Type  |
+    +-----+-----+-----+-----+---------+
+    |  522|  522|  522|  522|   none  |
+    +-----+-----+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        N/A
+
+        * Loop: 
+        +----------------------+-----+-----+----------+-----------+-----------+------+----------+
+        |                      |  Latency  | Iteration|  Initiation Interval  | Trip |          |
+        |       Loop Name      | min | max |  Latency |  achieved |   target  | Count| Pipelined|
+        +----------------------+-----+-----+----------+-----------+-----------+------+----------+
+        |- READKEYVALUES_LOOP  |  513|  513|         3|          1|          1|   512|    yes   |
+        +----------------------+-----+-----+----------+-----------+-----------+------+----------+
+
+============================================================
++ Verbose Summary: Synthesis Manager
+============================================================
+InlineROM: 1
+ExposeGlobal: 0
+============================================================
++ Verbose Summary: CDFG Model
+============================================================
+IsTopModel: 0
+ResetActiveHigh: 1
+IsCombinational: 0
+IsDatapathOnly: 0
+HasWiredReturn: 1
+HasMFsm: 0
+HasVarLatency: 1
+IsPipeline: 0
+IsRtlPipelined: 0
+IsInstanceOverlapped: 0
+IsDontTouch: 0
+HasImplIP: 0
+IsGatedGlobalClock: 0
+
++ Individual pipeline summary: 
+  * Pipeline-0: initiation interval (II) = 1, depth = 3
+
+
+============================================================
++ Verbose Summary: Schedule
+============================================================
+* Number of FSM states : 12
+* Pipeline : 1
+  Pipeline-0 : II = 1, D = 3, States = { 9 10 11 }
+* Dataflow Pipeline: 0
+
+* FSM state transitions: 
+1 --> 2 
+2 --> 3 
+3 --> 4 
+4 --> 5 
+5 --> 6 
+6 --> 7 
+7 --> 8 
+8 --> 9 
+9 --> 12 10 
+10 --> 11 
+11 --> 9 
+12 --> 
+
+* FSM state operations: 
+
+State 1 <SV = 0> <Delay = 1.33>
+ST_1 : Operation 13 [1/1] (0.00ns)   --->   "%offset_kvs_read = call i32 @_ssdm_op_Read.ap_auto.i32(i32 %offset_kvs)"   --->   Operation 13 'read' 'offset_kvs_read' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 14 [1/1] (0.00ns)   --->   "%kvdram_V_offset_read = call i26 @_ssdm_op_Read.ap_auto.i26(i26 %kvdram_V_offset)"   --->   Operation 14 'read' 'kvdram_V_offset_read' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 15 [1/1] (0.66ns)   --->   "%add_ln1279 = add i32 %offset_kvs_read, 35950592" [../kernels/acts.cpp:1279]   --->   Operation 15 'add' 'add_ln1279' <Predicate = true> <Delay = 0.66> <Core = "AddSub">   --->   Core 14 'AddSub' <Latency = 0> <II = 1> <Delay = 0.66> <FuncUnit> <Opcode : 'add' 'sub'> <InPorts = 2> <OutPorts = 1>
+ST_1 : Operation 16 [1/1] (0.00ns)   --->   "%zext_ln321 = zext i32 %add_ln1279 to i33" [../kernels/acts.cpp:1279]   --->   Operation 16 'zext' 'zext_ln321' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 17 [1/1] (0.00ns)   --->   "%zext_ln321_8 = zext i26 %kvdram_V_offset_read to i33" [../kernels/acts.cpp:1279]   --->   Operation 17 'zext' 'zext_ln321_8' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 18 [1/1] (0.66ns)   --->   "%add_ln321 = add i33 %zext_ln321, %zext_ln321_8" [../kernels/acts.cpp:1279]   --->   Operation 18 'add' 'add_ln321' <Predicate = true> <Delay = 0.66> <Core = "AddSub">   --->   Core 14 'AddSub' <Latency = 0> <II = 1> <Delay = 0.66> <FuncUnit> <Opcode : 'add' 'sub'> <InPorts = 2> <OutPorts = 1>
+
+State 2 <SV = 1> <Delay = 8.75>
+ST_2 : Operation 19 [1/1] (0.00ns)   --->   "%zext_ln321_9 = zext i33 %add_ln321 to i64" [../kernels/acts.cpp:1279]   --->   Operation 19 'zext' 'zext_ln321_9' <Predicate = true> <Delay = 0.00>
+ST_2 : Operation 20 [1/1] (0.00ns)   --->   "%kvdram_V_addr = getelementptr i512* %kvdram_V, i64 %zext_ln321_9" [../kernels/acts.cpp:1279]   --->   Operation 20 'getelementptr' 'kvdram_V_addr' <Predicate = true> <Delay = 0.00>
+ST_2 : Operation 21 [7/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 21 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 3 <SV = 2> <Delay = 8.75>
+ST_3 : Operation 22 [6/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 22 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 4 <SV = 3> <Delay = 8.75>
+ST_4 : Operation 23 [5/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 23 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 5 <SV = 4> <Delay = 8.75>
+ST_5 : Operation 24 [4/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 24 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 6 <SV = 5> <Delay = 8.75>
+ST_6 : Operation 25 [3/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 25 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 7 <SV = 6> <Delay = 8.75>
+ST_7 : Operation 26 [2/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 26 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 8 <SV = 7> <Delay = 8.75>
+ST_8 : Operation 27 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecBRAMWithByteEnable([512 x i512]* %buffer_V)"   --->   Operation 27 'specbramwithbyteenable' <Predicate = true> <Delay = 0.00>
+ST_8 : Operation 28 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecInterface(i512* %kvdram_V, [6 x i8]* @p_str47, i32 0, i32 0, [1 x i8]* @p_str, i32 0, i32 0, [6 x i8]* @p_str48, [6 x i8]* @p_str49, [1 x i8]* @p_str, i32 16, i32 16, i32 64, i32 64, [1 x i8]* @p_str, [1 x i8]* @p_str)"   --->   Operation 28 'specinterface' <Predicate = true> <Delay = 0.00>
+ST_8 : Operation 29 [1/7] (8.75ns)   --->   "%kvdram_V_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i512P(i512* %kvdram_V_addr, i32 512)" [../kernels/acts.cpp:1279]   --->   Operation 29 'readreq' 'kvdram_V_addr_rd_req' <Predicate = true> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+ST_8 : Operation 30 [1/1] (0.60ns)   --->   "br label %1" [../kernels/acts.cpp:1276]   --->   Operation 30 'br' <Predicate = true> <Delay = 0.60>
+
+State 9 <SV = 8> <Delay = 0.60>
+ST_9 : Operation 31 [1/1] (0.00ns)   --->   "%i_0 = phi i10 [ 0, %0 ], [ %i, %READKEYVALUES_LOOP ]"   --->   Operation 31 'phi' 'i_0' <Predicate = true> <Delay = 0.00>
+ST_9 : Operation 32 [1/1] (0.60ns)   --->   "%icmp_ln1276 = icmp eq i10 %i_0, -512" [../kernels/acts.cpp:1276]   --->   Operation 32 'icmp' 'icmp_ln1276' <Predicate = true> <Delay = 0.60> <Core = "Cmp">   --->   Core 25 'Cmp' <Latency = 0> <II = 1> <Delay = 0.60> <FuncUnit> <Opcode : 'icmp'> <InPorts = 2> <OutPorts = 1>
+ST_9 : Operation 33 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecLoopTripCount(i64 512, i64 512, i64 512)"   --->   Operation 33 'speclooptripcount' <Predicate = true> <Delay = 0.00>
+ST_9 : Operation 34 [1/1] (0.54ns)   --->   "%i = add i10 %i_0, 1" [../kernels/acts.cpp:1276]   --->   Operation 34 'add' 'i' <Predicate = true> <Delay = 0.54> <Core = "AddSub">   --->   Core 14 'AddSub' <Latency = 0> <II = 1> <Delay = 0.66> <FuncUnit> <Opcode : 'add' 'sub'> <InPorts = 2> <OutPorts = 1>
+ST_9 : Operation 35 [1/1] (0.00ns)   --->   "br i1 %icmp_ln1276, label %2, label %READKEYVALUES_LOOP" [../kernels/acts.cpp:1276]   --->   Operation 35 'br' <Predicate = true> <Delay = 0.00>
+
+State 10 <SV = 9> <Delay = 8.75>
+ST_10 : Operation 36 [1/1] (8.75ns)   --->   "%kvdram_V_addr_read = call i512 @_ssdm_op_Read.m_axi.i512P(i512* %kvdram_V_addr)" [../kernels/acts.cpp:1279]   --->   Operation 36 'read' 'kvdram_V_addr_read' <Predicate = (!icmp_ln1276)> <Delay = 8.75> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 11 <SV = 10> <Delay = 1.15>
+ST_11 : Operation 37 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecLoopName([19 x i8]* @p_str9) nounwind" [../kernels/acts.cpp:1276]   --->   Operation 37 'specloopname' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+ST_11 : Operation 38 [1/1] (0.00ns)   --->   "%tmp = call i32 (...)* @_ssdm_op_SpecRegionBegin([19 x i8]* @p_str9)" [../kernels/acts.cpp:1276]   --->   Operation 38 'specregionbegin' 'tmp' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+ST_11 : Operation 39 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecPipeline(i32 1, i32 1, i32 1, i32 0, [1 x i8]* @p_str) nounwind" [../kernels/acts.cpp:1277]   --->   Operation 39 'specpipeline' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+ST_11 : Operation 40 [1/1] (0.00ns)   --->   "%zext_ln1279 = zext i10 %i_0 to i64" [../kernels/acts.cpp:1279]   --->   Operation 40 'zext' 'zext_ln1279' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+ST_11 : Operation 41 [1/1] (0.00ns)   --->   "%buffer_V_addr = getelementptr [512 x i512]* %buffer_V, i64 0, i64 %zext_ln1279" [../kernels/acts.cpp:1279]   --->   Operation 41 'getelementptr' 'buffer_V_addr' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+ST_11 : Operation 42 [1/1] (1.15ns)   --->   "call void @_ssdm_op_Write.bram.i512(i512* %buffer_V_addr, i512 %kvdram_V_addr_read, i64 -1)" [../kernels/acts.cpp:1279]   --->   Operation 42 'store' <Predicate = (!icmp_ln1276)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 512> <Depth = 512> <RAM>
+ST_11 : Operation 43 [1/1] (0.00ns)   --->   "%empty = call i32 (...)* @_ssdm_op_SpecRegionEnd([19 x i8]* @p_str9, i32 %tmp)" [../kernels/acts.cpp:1283]   --->   Operation 43 'specregionend' 'empty' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+ST_11 : Operation 44 [1/1] (0.00ns)   --->   "br label %1" [../kernels/acts.cpp:1276]   --->   Operation 44 'br' <Predicate = (!icmp_ln1276)> <Delay = 0.00>
+
+State 12 <SV = 9> <Delay = 0.00>
+ST_12 : Operation 45 [1/1] (0.00ns)   --->   "ret void" [../kernels/acts.cpp:1284]   --->   Operation 45 'ret' <Predicate = true> <Delay = 0.00>
+
+
+============================================================
++ Verbose Summary: Timing violations
+============================================================
+Target clock period: 10ns, clock uncertainty: 1.25ns.
+
+ <State 1>: 1.34ns
+The critical path consists of the following:
+	wire read on port 'offset_kvs' [6]  (0 ns)
+	'add' operation ('add_ln1279', ../kernels/acts.cpp:1279) [9]  (0.669 ns)
+	'add' operation ('add_ln321', ../kernels/acts.cpp:1279) [12]  (0.669 ns)
+
+ <State 2>: 8.75ns
+The critical path consists of the following:
+	'getelementptr' operation ('kvdram_V_addr', ../kernels/acts.cpp:1279) [14]  (0 ns)
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 3>: 8.75ns
+The critical path consists of the following:
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 4>: 8.75ns
+The critical path consists of the following:
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 5>: 8.75ns
+The critical path consists of the following:
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 6>: 8.75ns
+The critical path consists of the following:
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 7>: 8.75ns
+The critical path consists of the following:
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 8>: 8.75ns
+The critical path consists of the following:
+	bus request on port 'kvdram_V' (../kernels/acts.cpp:1279) [15]  (8.75 ns)
+
+ <State 9>: 0.605ns
+The critical path consists of the following:
+	'phi' operation ('i') with incoming values : ('i', ../kernels/acts.cpp:1276) [18]  (0 ns)
+	'icmp' operation ('icmp_ln1276', ../kernels/acts.cpp:1276) [19]  (0.605 ns)
+
+ <State 10>: 8.75ns
+The critical path consists of the following:
+	bus read on port 'kvdram_V' (../kernels/acts.cpp:1279) [28]  (8.75 ns)
+
+ <State 11>: 1.16ns
+The critical path consists of the following:
+	'getelementptr' operation ('buffer_V_addr', ../kernels/acts.cpp:1279) [29]  (0 ns)
+	'store' operation ('store_ln1279', ../kernels/acts.cpp:1279) of constant <constant:_ssdm_op_Write.bram.i512> on array 'buffer_V' [30]  (1.16 ns)
+
+ <State 12>: 0ns
+The critical path consists of the following:
+
+
+============================================================
++ Verbose Summary: Binding
+============================================================
+N/A
+* FSMD analyzer results:
+  - Output states:
+ - Input state : 
+  - Chain level:
+	State 1
+	State 2
+	State 3
+	State 4
+	State 5
+	State 6
+	State 7
+	State 8
+	State 9
+	State 10
+	State 11
+	State 12
+
+
+============================================================
++ Verbose Summary: Datapath Resource usage 
+============================================================
+N/A

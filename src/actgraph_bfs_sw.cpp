@@ -14,7 +14,8 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
-#include "../kernels/kernelprocess.h"
+#include "../kernels/acts.h"
+// #include "../kernels/kernelprocess.h"
 #include "sortreduce.h"
 #include "types.h"
 #include "../kernels/srkernelprocess.h"
@@ -97,7 +98,7 @@ actgraph_bfs_sw::actgraph_bfs_sw(graph * _graphobj, heuristics * _heuristicsobj,
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i] = new edge_process(_graphobj); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i]->settime_ssdaccesses_ms(0); }
 	#ifdef SW
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernel_process[i] = new kernelprocess(); }
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[i][j] = new acts(); }}
 	#endif
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	algorithmobj = new algorithm();
@@ -130,7 +131,9 @@ runsummary_t actgraph_bfs_sw::run(){
 	graphobj->writerootvertextoactiveverticesfiles(12, 0);
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
+	// for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
+	// for(graph_iterationidx=7; graph_iterationidx<10; graph_iterationidx++){
+	for(graph_iterationidx=7; graph_iterationidx<10; graph_iterationidx+=1){
 		cout<<"actgraph_bfs_sw::run: graph iteration "<<graph_iterationidx<<" of breadth-first-search Started"<<endl;
 		
 		graphobj->openactiveverticesfilesforreading(graph_iterationidx);
@@ -303,7 +306,7 @@ void actgraph_bfs_sw::WorkerThread1(int threadidx){
 	int flag = 0;
 	for (unsigned int iteration_idx = 0; iteration_idx < iteration_size; iteration_idx++){
 		#ifdef _DEBUGMODE_HOSTPRINTS2
-		cout<<"PP&A:: [graph_iterationidx:"<<graph_iterationidx<<"], [threadidx:"<<threadidx<<"][size:"<<NUMCPUTHREADS<<"][step:1], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
+		cout<<"PP&A::WorkerThread1:: [graph_iterationidx:"<<graph_iterationidx<<"], [threadidx:"<<threadidx<<"][size:"<<NUMCPUTHREADS<<"][step:1], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
 		#endif 
 		#ifdef _DEBUGMODE_TIMERS
 		std::chrono::steady_clock::time_point begintime_iterationidx = std::chrono::steady_clock::now();
@@ -334,7 +337,7 @@ void actgraph_bfs_sw::WorkerThread1(int threadidx){
 		#endif
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"ACTGRAPH_BFS_SW::PARTITION PHASE:: Print results before Kernel run "<<endl;
+		cout<<"ACTGRAPH_BFS_SW::PARTITION PHASE::WorkerThread1:: Print results before Kernel run "<<endl;
 		printstructures(threadidx, flag);
 		#endif
 
@@ -356,7 +359,7 @@ void actgraph_bfs_sw::WorkerThread1(int threadidx){
 		for(unsigned int i=0; i<NUMSSDPARTITIONS; i++){ intermediatevertexupdates[threadidx][i].clear(); }
 
 		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"ACTGRAPH_BFS_SW::PARTITION PHASE:: Print results after Kernel run "<<endl;
+		cout<<"ACTGRAPH_BFS_SW::PARTITION PHASE::WorkerThread1:: Print results after Kernel run "<<endl;
 		printstructures(threadidx, flag);
 		#endif
 	
@@ -381,7 +384,7 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 	std::chrono::steady_clock::time_point begintime_actgraph_bfs2_sw = std::chrono::steady_clock::now();
 	#endif
 	unsigned int giteration_idx = 0;
-	
+
 	// load temp vertices data // FIXME. ensure non-sharing
 	actgraph_pr_sw_obj->loadverticesdatafromfile(threadidx, graphobj->getnvmeFd_verticesdata_r2()[(bankoffset + threadidx)], 0, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	actgraph_pr_sw_obj->replicateverticesdata((keyvalue_t *)kvdestdram[threadidx][0][0],(keyvalue_t *)kvdestdram[threadidx][0][1],(keyvalue_t *)kvdestdram[threadidx][0][2],(keyvalue_t *)kvdestdram[threadidx][0][3], 0, KVDATA_RANGE_PERSSDPARTITION);
@@ -396,7 +399,7 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 		
 	for (unsigned int iteration_idx = 0; iteration_idx < iteration_size; iteration_idx++){
 		#ifdef _DEBUGMODE_HOSTPRINTS2
-		cout<<"PP&A:: [graph_iterationidx:"<<graph_iterationidx<<"], [threadidx:"<<threadidx<<"][size:"<<NUMCPUTHREADS<<"][step:1], [bankoffset:"<<bankoffset<<"][size:"<<NUMSSDPARTITIONS<<"][step:"<<NUMCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
+		cout<<"PP&A::WorkerThread2:: [graph_iterationidx:"<<graph_iterationidx<<"], [threadidx:"<<threadidx<<"][size:"<<NUMCPUTHREADS<<"][step:1], [bankoffset:"<<bankoffset<<"][size:"<<NUMSSDPARTITIONS<<"][step:"<<NUMCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
 		#endif 
 		#ifdef _DEBUGMODE_TIMERS
 		std::chrono::steady_clock::time_point begintime_iterationidx = std::chrono::steady_clock::now();
@@ -408,7 +411,7 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 		generatekvs(threadidx, flag, bankoffset, iteration_idx, iteration_size, kvcount, keyvaluecount);
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"ACTGRAPH_BFS_SW::PARTITION AND APPLY PHASE:: Print results before Kernel run "<<endl;
+		cout<<"ACTGRAPH_BFS_SW::PARTITION AND APPLY PHASE::WorkerThread2:: Print results before Kernel run "<<endl;
 		printstructures(threadidx, flag);
 		#endif
 		#ifdef _DEBUGMODE_CHECKSX
@@ -420,7 +423,7 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 		std::chrono::steady_clock::time_point begintime_topkernel = std::chrono::steady_clock::now();
 		#endif
 		#ifdef SW
-		kernel_process[threadidx]->topkernelMW((uint512_dt **)kvsourcedram[threadidx][flag], (uint512_dt **)kvdestdram[threadidx][flag], (keyvalue_t **)kvstats[threadidx][flag]);
+		launchkernel(threadidx, (uint512_dt **)kvsourcedram[threadidx][flag], (uint512_dt **)kvdestdram[threadidx][flag], (keyvalue_t **)kvstats[threadidx][flag]);
 		#else
 		launchkernel(threadidx, flag);
 		#endif 
@@ -433,13 +436,13 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 		
 		// Print results after Kernel run
 		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"ACTGRAPH_BFS_SW::PARTITION AND APPLY PHASE:: Print results after Kernel run "<<endl;
+		cout<<"ACTGRAPH_BFS_SW::PARTITION AND APPLY PHASE::WorkerThread2:: Print results after Kernel run "<<endl;
 		printstructures(threadidx, flag);
 		#endif
 		#ifdef _DEBUGMODE_CHECKSX
 		for(int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->printtempverticesdata(kvsourcedram[threadidx][flag][ddr]); }
 		#endif		
-		#ifdef _DEBUGMODE_CHECKS3
+		#ifdef _DEBUGMODE_STATS
 		for(int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->recordstats(kvstats[threadidx][flag][ddr]); }
 		#endif
 		giteration_idx += 1;
@@ -452,7 +455,7 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 	#ifdef FPGA_IMPL
 	readVsfromkernel(threadidx);
 	#endif
-	cummulateverticesdata(threadidx, 0, KVDATA_RANGE_PERSSDPARTITION);		
+	cummulateverticesdata(threadidx, 0, KVDATA_RANGE_PERSSDPARTITION);	// REMOVEME.	
 	applyvertices(threadidx, bankoffset, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	
 	#ifdef _DEBUGMODE_TIMERS
@@ -477,7 +480,7 @@ void actgraph_bfs_sw::generatekvs(int threadidx, unsigned int flag, unsigned int
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i].join(); }
 	#endif
 	for (int i = 0; i < NUMDRAMBANKS; i++){ totalnumkvsread2[threadidx] += kvcount[i]; }
-	#ifdef _DEBUGMODE_CHECKS3
+	#ifdef _DEBUGMODE_STATS
 	for (int i = 0; i < NUMDRAMBANKS; i++){ globaldebugger_totalkeyvaluesstransferredtokernel += kvcount[i]; }
 	#endif
 	
@@ -504,7 +507,7 @@ void actgraph_bfs_sw::generatekvs(int threadidx, unsigned int flag, unsigned int
 	for (int i = 0; i < NUMDRAMBANKS; i++){ genw_thread[threadidx][i].join(); }
 	#endif
 	for (int i = 0; i < NUMDRAMBANKS; i++){ totalnumkvsread2[threadidx] += kvcount[i]; }
-	#ifdef _DEBUGMODE_CHECKS3
+	#ifdef _DEBUGMODE_STATS
 	for (int i = 0; i < NUMDRAMBANKS; i++){ globaldebugger_totalkeyvaluesstransferredtokernel += kvcount[i]; }
 	#endif
 	
@@ -550,7 +553,8 @@ void actgraph_bfs_sw::workerthread_generatekvs(unsigned int ddr, unsigned int fl
 	}
 	
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_COMMANDID].key = NAp;
-	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key = OFF;
+	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key = ON;
+	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_COLLECTSTATSCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_PARTITIONCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
 	kvstats[threadidx][flag][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_FINALNUMPARTITIONSID].key = NAp;
@@ -618,6 +622,7 @@ void actgraph_bfs_sw::appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[N
 	for(unsigned int i=0; i<NUMSSDPARTITIONS; i++){ totalsz += destinationbuffer[i].size(); std::cout << "actgraph_bfs_sw::appendupdatestobuffer: destinationbuffer["<<i<<"].size: "<<destinationbuffer[i].size()<<endl; }
 	std::cout << "actgraph_bfs_sw::appendupdatestobuffer: totalsz: "<<totalsz<<endl;
 	#endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
 void actgraph_bfs_sw::loadupdatesfrombuffer(vector<keyvalue_t> & sourcebuffer, size_t sourceoffset, keyvalue_t * kvdram, unsigned int kvoffset, unsigned int kvsize, bool loadfromdram){
@@ -633,7 +638,7 @@ void actgraph_bfs_sw::loadupdatesfrombuffer(vector<keyvalue_t> & sourcebuffer, s
 }
 void actgraph_bfs_sw::printstructures(int threadidx, unsigned int flag){
 	for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->printkvdrams(kvsourcedram[threadidx][flag][ddr]); }	
-	for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->printstats(16, kvstats[threadidx][flag][ddr]); }
+	// for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ utilityobj[threadidx]->printstats(16, kvstats[threadidx][flag][ddr]); }
 	return;
 }
 
@@ -682,8 +687,8 @@ void actgraph_bfs_sw::applyvertices(int threadidx, int bankoffset, keyvalue_t * 
 			utilityobj[threadidx]-> InsertBit(isactivevertexinfobuffer[threadidx], i, 1);
 		}
 	}
-	#ifdef _DEBUGMODE_HOSTPRINTSX
-	cout<<"actgraph_bfs_sw::applyvertices:: activeverticesbuffer.size(): "<<activeverticesbuffer.size()<<endl;
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"CHECKME. actgraph_bfs_sw::applyvertices:: activeverticesbuffer.size(): "<<activeverticesbuffer.size()<<endl;
 	for(unsigned int t=0; t<activeverticesbuffer.size(); t++){ cout<<"actgraph_bfs_sw::applyvertices:: activeverticesbuffer["<<t<<"].key: "<<activeverticesbuffer[t].key<<", activeverticesbuffer["<<t<<"].value: "<<activeverticesbuffer[t].value<<endl; }
 	#endif
 	
@@ -797,6 +802,86 @@ void actgraph_bfs_sw::writeVstokernel(int threadidx){
 	#endif 
 	#endif 
 }
+void actgraph_bfs_sw::readVsfromkernel(int threadidx){
+	#ifdef LAUNCHKERNEL
+	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
+	std::chrono::steady_clock::time_point begintime_kernelwriteback = std::chrono::steady_clock::now();
+	#endif
+	
+	std::cout << "Copy input data to host global memory" << std::endl;
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
+	#endif 
+	array<cl_event, 1> write_events;
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
+		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][0][ddr], CL_TRUE, 0, kvdest_size_bytes, kvdestdram[threadidx][0][ddr], 0, NULL, &write_events[ddr] ));
+	}
+	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ clWaitForEvents(1, &write_events[ddr]); }
+	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
+	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
+	#endif
+	
+	#ifdef _DEBUGMODE_TIMERS
+	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Read Vertices from kernel Time Elapsed: ", begintime_kernelwriteback, NAp);
+	#endif
+	#endif 
+}
+void actgraph_bfs_sw::finishOCL(){
+	for(unsigned int flag=0; flag<2; flag++){ clWaitForEvents(1, &kernel_events[flag]); }
+	
+	cout<<"actgraph_bfs_sw::finish: releasing and destroying all OCL structures... "<<endl;
+	#ifdef LAUNCHKERNEL
+	clFlush(world.command_queue);
+	clFinish(world.command_queue);
+	for (int threadidx = 0; threadidx < NUMCPUTHREADS; threadidx++) { // NUMCPUTHREADS
+		for(int flag=0; flag<2; flag++){
+			for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ OCL_CHECK(clReleaseMemObject(buffer_kvsourcedram[threadidx][flag][ddr])); }
+			for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ OCL_CHECK(clReleaseMemObject(buffer_kvdestdram[threadidx][flag][ddr])); }
+			for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ OCL_CHECK(clReleaseMemObject(buffer_kvstatsdram[threadidx][flag][ddr])); }
+			clWaitForEvents(1, &kernel_events[flag]);
+		}
+	}
+	
+	cout<<"clReleaseCommandQueue"<<endl;
+	clReleaseCommandQueue(world.command_queue);
+	cout<<"clReleaseContext"<<endl;
+	clReleaseContext(world.context);
+	cout<<"clReleaseDevice"<<endl;
+	clReleaseDevice(world.device_id); 
+	cout<<"clReleaseKernel"<<endl;
+	clReleaseKernel(kernel);
+	cout<<"clReleaseProgram"<<endl;
+	clReleaseProgram(program);
+	/** cout<<"free(world.platform_id)"<<endl;
+	free(world.platform_id);
+	cout<<"free(world.device_id)"<<endl;
+	free(world.device_id); */
+	cout<<"actgraph_bfs_sw::finish: released and destroyed all OCL structures"<<endl;
+	#endif 
+}
+#endif
+
+#ifdef SW
+void actgraph_bfs_sw::topkernel(unsigned int ddr, int threadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
+	return kernelobjs[threadidx][ddr]->topkernel(kvsourcedram, kvdestdram, kvstats);
+}
+void actgraph_bfs_sw::launchkernel(int threadidx, uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats){
+	#ifdef SW
+	#if defined(TESTKERNEL)
+	kernelobjs[threadidx][0]->topkernel(kvsourcedram[0], kvdestdram[0], kvstats[0]);
+	#else
+	#ifdef LOCKE
+	for (int i = 0; i < NUMDRAMBANKS; i++){ kernelobjs[threadidx][i]->topkernel(kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	#else 
+	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i] = std::thread(&actgraph_bfs_sw::topkernel, this, i, threadidx, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i].join(); }
+	#endif
+	#endif
+	#endif 
+	return;
+}
+#endif 
+#ifdef FPGA_IMPL
 void actgraph_bfs_sw::launchkernel(int threadidx, unsigned int flag){
 	#ifdef LAUNCHKERNEL
 	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
@@ -856,7 +941,7 @@ void actgraph_bfs_sw::launchkernel(int threadidx, unsigned int flag){
 	printf("Enqueueing Migrate Mem Object (Device to Host) calls\n");
 	utilityobj[0]->set_callback(kernel_events[flag], "ooo_queue");
 	#ifdef LOCKE
-	clWaitForEvents(1, &kernel_events[flag]); // REMOVEME
+	clWaitForEvents(1, &kernel_events[flag]);
 	#endif 
 	
 	// Copy input data from device global memory back to host
@@ -869,63 +954,6 @@ void actgraph_bfs_sw::launchkernel(int threadidx, unsigned int flag){
 	#ifdef LOCKE
 	totaltime_topkernel2_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_topkernel).count();
 	#endif
-	#endif 
-}
-void actgraph_bfs_sw::readVsfromkernel(int threadidx){
-	#ifdef LAUNCHKERNEL
-	#if (defined(_DEBUGMODE_TIMERS) || defined(LOCKE))
-	std::chrono::steady_clock::time_point begintime_kernelwriteback = std::chrono::steady_clock::now();
-	#endif
-	
-	std::cout << "Copy input data to host global memory" << std::endl;
-	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
-	std::chrono::steady_clock::time_point begintime_OCLdatatransfers = std::chrono::steady_clock::now();
-	#endif 
-	array<cl_event, 1> write_events;
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){
-		OCL_CHECK(clEnqueueWriteBuffer(world.command_queue, buffer_kvdestdram[threadidx][0][ddr], CL_TRUE, 0, kvdest_size_bytes, kvdestdram[threadidx][0][ddr], 0, NULL, &write_events[ddr] ));
-	}
-	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ clWaitForEvents(1, &write_events[ddr]); }
-	#ifdef CONFIG_FACTOROUTOCLDATATRANSFERS
-	totaltime_OCLdatatransfers[threadidx] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_OCLdatatransfers).count();
-	#endif
-	
-	#ifdef _DEBUGMODE_TIMERS
-	utilityobj[0]->stopTIME("PROCESS, PARTITION AND APPLY PHASE (FPGA): Read Vertices from kernel Time Elapsed: ", begintime_kernelwriteback, NAp);
-	#endif
-	#endif 
-}
-void actgraph_bfs_sw::finishOCL(){
-	for(unsigned int flag=0; flag<2; flag++){ clWaitForEvents(1, &kernel_events[flag]); }
-	
-	cout<<"actgraph_bfs_sw::finish: releasing and destroying all OCL structures... "<<endl;
-	#ifdef LAUNCHKERNEL
-	clFlush(world.command_queue);
-	clFinish(world.command_queue);
-	for (int threadidx = 0; threadidx < NUMCPUTHREADS; threadidx++) { // NUMCPUTHREADS
-		for(int flag=0; flag<2; flag++){
-			for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ OCL_CHECK(clReleaseMemObject(buffer_kvsourcedram[threadidx][flag][ddr])); }
-			for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ OCL_CHECK(clReleaseMemObject(buffer_kvdestdram[threadidx][flag][ddr])); }
-			for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ OCL_CHECK(clReleaseMemObject(buffer_kvstatsdram[threadidx][flag][ddr])); }
-			clWaitForEvents(1, &kernel_events[flag]);
-		}
-	}
-	
-	cout<<"clReleaseCommandQueue"<<endl;
-	clReleaseCommandQueue(world.command_queue);
-	cout<<"clReleaseContext"<<endl;
-	clReleaseContext(world.context);
-	cout<<"clReleaseDevice"<<endl;
-	clReleaseDevice(world.device_id); 
-	cout<<"clReleaseKernel"<<endl;
-	clReleaseKernel(kernel);
-	cout<<"clReleaseProgram"<<endl;
-	clReleaseProgram(program);
-	/** cout<<"free(world.platform_id)"<<endl;
-	free(world.platform_id);
-	cout<<"free(world.device_id)"<<endl;
-	free(world.device_id); */
-	cout<<"actgraph_bfs_sw::finish: released and destroyed all OCL structures"<<endl;
 	#endif 
 }
 #endif

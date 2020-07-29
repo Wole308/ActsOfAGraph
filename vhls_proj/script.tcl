@@ -8,7 +8,7 @@
 open_project actsofagraph
 set_top topkernel
 
-add_files ../kernels/enigma.cpp
+add_files ../kernels/acts.cpp
 
 open_solution "solution1"
 # set_part {xcvu9p-fsgd2104-3-e}

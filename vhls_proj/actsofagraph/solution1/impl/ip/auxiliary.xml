@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xd:acceleratorMap xmlns:xd="http://www.xilinx.com/xidane" xd:functionName="topkernel" xd:componentRef="topkernel" xd:initiationInterval="197844235" xd:clockPeriod="10.000" xd:sequential="true" xd:hostMachine="64" xd:reset="control">
+  <xd:controlReg xd:name="control" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:type="generic_axi_lite" xd:offset="0x0"/>
+  <xd:arg xd:name="*(kvsourcedramA)" xd:originalName="kvsourcedramA" xd:direction="inout" xd:interfaceRef="m_axi_gmem0" xd:busTypeRef="aximm" xd:dataWidth="512" xd:bufferDirection="inout"/>
+  <xd:arg xd:name="*(kvdestdramA)" xd:originalName="kvdestdramA" xd:direction="inout" xd:interfaceRef="m_axi_gmem1" xd:busTypeRef="aximm" xd:dataWidth="512" xd:bufferDirection="inout"/>
+  <xd:arg xd:name="kvstatsA-&gt;key" xd:originalName="kvstatsA" xd:direction="inout" xd:interfaceRef="m_axi_gmem2" xd:busTypeRef="aximm" xd:dataPack="true" xd:bitMapping="31:0" xd:dataWidth="32" xd:bufferDirection="inout"/>
+  <xd:arg xd:name="kvstatsA-&gt;value" xd:originalName="kvstatsA" xd:direction="inout" xd:interfaceRef="m_axi_gmem2" xd:busTypeRef="aximm" xd:dataPack="true" xd:bitMapping="63:32" xd:dataWidth="32" xd:bufferDirection="inout"/>
+  <xd:arg xd:name="kvsourcedramA_V" xd:originalName="kvsourcedramA_V" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:aximmInterfaceRef="m_axi_gmem0" xd:dataWidth="32" xd:offset="0x10" xd:handshakeRef="ap_none"/>
+  <xd:arg xd:name="kvdestdramA_V" xd:originalName="kvdestdramA_V" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:aximmInterfaceRef="m_axi_gmem1" xd:dataWidth="32" xd:offset="0x18" xd:handshakeRef="ap_none"/>
+  <xd:arg xd:name="kvstatsA" xd:originalName="kvstatsA" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:aximmInterfaceRef="m_axi_gmem2" xd:dataWidth="32" xd:offset="0x20" xd:handshakeRef="ap_none"/>
+  <xd:latencyEstimates xd:best-case="57" xd:worst-case="197844234" xd:average-case="119339574"/>
+  <xd:resourceEstimates xd:LUT="47622" xd:FF="48172" xd:BRAM="984" xd:DSP="0"/>
+</xd:acceleratorMap>

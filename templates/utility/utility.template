@@ -102,11 +102,11 @@ void utility::printkvdrams(uint512_vec_dt * kvdram){
 			std::cout<<"kvdram["<<i<<"].data["<<j<<"].key: "<<kvdram[i].data[j].key<<""<<std::endl;
 		}
     }
-	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
-		for(unsigned int j=0; j<VECTOR_SIZE; j++){
-			std::cout<<"kvdram["<<(BASEOFFSET_KVDRAMWORKSPACE_KVS + i)<<"].data["<<j<<"].key: "<<kvdram[(BASEOFFSET_KVDRAMWORKSPACE_KVS + i)].data[j].key<<""<<std::endl;					
-		}
-    }
+	// for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
+		// for(unsigned int j=0; j<VECTOR_SIZE; j++){
+			// std::cout<<"kvdram["<<(BASEOFFSET_KVDRAMWORKSPACE_KVS + i)<<"].data["<<j<<"].key: "<<kvdram[(BASEOFFSET_KVDRAMWORKSPACE_KVS + i)].data[j].key<<""<<std::endl;					
+		// }
+    // }
 	std::cout<<std::endl;
 	return;
 }

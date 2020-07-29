@@ -4,6 +4,7 @@
 #include "../graphs/graph.h"
 #include "../algorithm/algorithm.h"
 #include "../utility/utility.h"
+#include "../kernels/acts.h"
 #include "../kernels/kernelprocess.h"
 #include "common.h"
 
@@ -43,6 +44,7 @@ private:
 	keyvalue_t * kvstats[NUMCPUTHREADS][NUMDRAMBANKS];
 	
 	#ifdef SW
+	acts * actsobjs;
 	kernelprocess * kernelobj;
 	#endif
 	edge_process * edgeprocessobj[NUMCPUTHREADS];

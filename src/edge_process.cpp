@@ -232,7 +232,7 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		ledgeid += 1;
 		if(edgeoffsetbit==1){ 
 			vertexprop = vertexpropertiesbuffer[(*runningvertexid - basevertexoffset)];  // FIXME.
-			#ifdef FORCEDFINISH_RETRIEVEBUTISCPUINTENSIVE
+			#ifndef FORCEDFINISH_DONTCAREABOUTRETRIEVEBITS
 			#ifndef PR_ALGORITHM
 			isvertexactive = utilityobj->RetrieveBit(isactivevertexinfobuffer, (*runningvertexid - basevertexoffset)); *runningvertexid+=1;
 			#endif 
@@ -246,9 +246,6 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		outdegree = vertexprop.outdegree;
 		vdata = 1; // FIXME.
 		
-		#ifdef FORCEDFINISH_DONTCAREABOUTEDGEVALUES
-		value_t edgeval = 0.1 + ((1 - 0.1) * (vdata / outdegree));
-		#else 
 		#ifdef PR_ALGORITHM
 		value_t edgeval = 0.1 + ((1 - 0.1) * (vdata / outdegree));
 		#elif defined(BFS_ALGORITHM)
@@ -256,39 +253,32 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		#elif defined(BC_ALGORITHM)
 		value_t edgeval = *runningvertexid;
 		#endif
-		#endif
 		
-		#ifdef PR_ALGORITHM
+		#if (defined(PR_ALGORITHM) || defined(FORCEDFINISH_DONTCAREABOUTISVERTEXACTIVE))
 		keyvalue_t data;
 		data.key = edge.dstvid;
 		data.value = edgeval;
 		kvdram[kvdramoffset + i] = data;
 		#else
-		#ifdef FORCEDFINISH_DONTCAREABOUTISVERTEXACTIVE
-		keyvalue_t data;
-		data.key = edge.dstvid;
-		data.value = edgeval;
-		kvdram[kvdramoffset + kvcount++] = data;
-		#else 
 		if(isvertexactive == 1){
 			keyvalue_t data;
 			data.key = edge.dstvid;
 			data.value = edgeval;
 			kvdram[kvdramoffset + kvcount++] = data;
-			#ifdef XXX
+			#ifdef _DEBUGMODE_HOSTPRINTS
 			cout<<"generatekeyvalues_stream: vertexprop.vertexisactive == 1 seen. data.key: "<<data.key<<", data.value: "<<data.value<<endl;
 			cout<<"generatekeyvalues_stream: (*runningvertexid - basevertexoffset): "<<(*runningvertexid - basevertexoffset)<<", basevertexoffset: "<<basevertexoffset<<", *runningvertexid: "<<*runningvertexid<<endl;
 			#endif
 		}
-		#endif 
 		#endif 
 	}
 	
 	#ifdef PR_ALGORITHM
 	return edgespropsz;
 	#else
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"$$$ edge_process::generatekeyvalues_stream. end of generate. "<<kvcount<<" edges from active vertices extracted"<<endl;
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	cout<<"$$$ edge_process::generatekeyvalues_stream. end of generate. "<<kvcount<<" edges from active vertices extracted. edgespropsz: "<<edgespropsz<<endl;
+	// exit(EXIT_SUCCESS);
 	#endif 
 	return kvcount;
 	#endif 

@@ -17,7 +17,9 @@
 #endif 
 using namespace std;
 
-kernelprocess::kernelprocess(){ }
+kernelprocess::kernelprocess(acts * _kernelobj){ 
+	kernelobj = _kernelobj; // new acts();
+}
 kernelprocess::~kernelprocess(){}
 
 void kernelprocess::topkernel(
@@ -26,7 +28,7 @@ uint512_dt * kvsourcedramA
 		,keyvalue_t * kvstatsA
         ){
 	#ifdef SW
-	return kernelobj.topkernel(
+	return kernelobj->topkernel(
 kvsourcedramA
 		,kvdestdramA
 		,kvstatsA
