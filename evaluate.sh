@@ -137,8 +137,8 @@ do
 	for numthreads in $_4THREADS
 	do
 		### >>> LOOP3: locke (kernel-only evaluation)
-		# for locke in $_NOLOCKE
-		for locke in $_LOCKE
+		for locke in $_NOLOCKE
+		# for locke in $_LOCKE
 		# for locke in $_LOCKE $_NOLOCKE
 		do
 			### >>> LOOP3: datasets

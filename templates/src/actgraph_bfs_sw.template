@@ -15,7 +15,6 @@
 #include "sortreduce.h" 
 #include "filekvreader.h" 
 #include "../kernels/acts.h"
-// #include "../kernels/kernelprocess.h"
 #include "sortreduce.h"
 #include "types.h"
 #include "../kernels/srkernelprocess.h"
@@ -132,8 +131,7 @@ runsummary_t actgraph_bfs_sw::run(){
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	// for(graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
-	// for(graph_iterationidx=7; graph_iterationidx<10; graph_iterationidx++){
-	for(graph_iterationidx=7; graph_iterationidx<10; graph_iterationidx+=1){
+	for(graph_iterationidx=6; graph_iterationidx<7; graph_iterationidx++){
 		cout<<"actgraph_bfs_sw::run: graph iteration "<<graph_iterationidx<<" of breadth-first-search Started"<<endl;
 		
 		graphobj->openactiveverticesfilesforreading(graph_iterationidx);
@@ -457,7 +455,6 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 	#endif
 	cummulateverticesdata(threadidx, 0, KVDATA_RANGE_PERSSDPARTITION);	// REMOVEME.	
 	applyvertices(threadidx, bankoffset, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj[threadidx]->stopTIME("ACTGRAPH_BFS_SW::PARTITION AND APPLY PHASE::Total time elapsed: ", begintime_actgraph_bfs2_sw, NAp);
 	#endif
@@ -873,8 +870,8 @@ void actgraph_bfs_sw::launchkernel(int threadidx, uint512_dt ** kvsourcedram, ui
 	#ifdef LOCKE
 	for (int i = 0; i < NUMDRAMBANKS; i++){ kernelobjs[threadidx][i]->topkernel(kvsourcedram[i], kvdestdram[i], kvstats[i]); }
 	#else 
-	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i] = std::thread(&actgraph_bfs_sw::topkernel, this, i, threadidx, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
-	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i].join(); }
+	for (int i = 0; i < NUMDRAMBANKS; i++){ runacts_thread[threadidx][i] = std::thread(&actgraph_bfs_sw::topkernel, this, i, threadidx, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	for (int i = 0; i < NUMDRAMBANKS; i++){ runacts_thread[threadidx][i].join(); }
 	#endif
 	#endif
 	#endif 

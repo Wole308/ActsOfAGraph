@@ -38,7 +38,7 @@
 #else
 #define _DEBUGMODE_STATS // 
 // #define _DEBUGMODE_CHECKS
-#define _DEBUGMODE_CHECKS2 // 
+// #define _DEBUGMODE_CHECKS2 // 
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
@@ -126,10 +126,14 @@
 
 //////////////// crabtree
 
+#ifdef TESTKERNEL 
+#define KVDATA_BATCHSIZE (1 << 26)
+#else 
 #define KVDATA_BATCHSIZE (1 << 24)
 // #define KVDATA_BATCHSIZE (1 << 26)
 // #define KVDATA_BATCHSIZE (1 << 27)
 // #define KVDATA_BATCHSIZE (1 << 28)
+#endif 
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 
 #if defined(FPGA_IMPL)

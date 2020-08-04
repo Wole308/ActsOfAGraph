@@ -81,6 +81,7 @@ private:
 	vector<uint512_vec_dt> unused_vectorbuffer;
 	std::thread panas_thread[NUMCPUTHREADS];
 	std::thread genw_thread[NUMCPUTHREADS][NUMDRAMBANKS];
+	std::thread runacts_thread[NUMCPUTHREADS][NUMDRAMBANKS];
 	value_t * verticesdatabuffer[MAXNUMVERTEXBANKS];
 	vertexprop_t * vertexpropertiesbuffer[MAXNUMVERTEXBANKS];
 	unsigned int * isactivevertexinfobuffer_source[MAXNUMVERTEXBANKS];

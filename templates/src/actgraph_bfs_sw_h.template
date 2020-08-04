@@ -84,6 +84,7 @@ private:
 	unsigned int graph_iterationidx;
 	std::thread panas_thread[NUMCPUTHREADS];
 	std::thread genw_thread[NUMCPUTHREADS][NUMDRAMBANKS];
+	std::thread runacts_thread[NUMCPUTHREADS][NUMDRAMBANKS];
 	vector<keyvalue_t> buffer_vertexupdates_w[NUMSSDPARTITIONS];
 	vector<keyvalue_t> intermediatevertexupdates[NUMCPUTHREADS][NUMSSDPARTITIONS];
 	value_t * verticesdatabuffer[MAXNUMVERTEXBANKS];

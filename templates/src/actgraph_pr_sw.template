@@ -63,21 +63,18 @@ actgraph_pr_sw::actgraph_pr_sw(graph * _graphobj){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i] = new edge_process(_graphobj); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i]->settime_ssdaccesses_ms(0); }
 	#ifdef SW 
-	// for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[j] = new acts(); } // NEWLYADDED.
-	// for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[i][j] = new acts(); }}
-	// for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernelobjs[i] = new acts(); } //
-	// for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernel_process[i] = new kernelprocess(kernelobjs[i]); }	
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[i][j] = new acts(); }}
 	#endif 
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totalnumkvsread[i] = 0; }
 
 	for(unsigned int i=0; i<graphobj->getnumvertexbanks(); i++){ vertexpropertiesbuffer[i] = new vertexprop_t[(KVDATA_RANGE / graphobj->getnumvertexbanks())]; }
 	for(unsigned int i=0; i<graphobj->getnumvertexbanks(); i++){ verticesdatabuffer[i] = new value_t[(KVDATA_RANGE / graphobj->getnumvertexbanks())]; }
 	#ifndef PR_ALGORITHM
-	unsigned int isactivevertexinfo = (KVDATA_RANGE / graphobj->getnumvertexbanks()) / NUMBITSINUNSIGNEDINT;
-	for(unsigned int i=0; i<graphobj->getnumvertexbanks(); i++){ isactivevertexinfobuffer_source[i] = new unsigned int[isactivevertexinfo]; }
+	unsigned int isactivevertexinfosz = (KVDATA_RANGE / graphobj->getnumvertexbanks()) / NUMBITSINUNSIGNEDINT;
+	for(unsigned int i=0; i<graphobj->getnumvertexbanks(); i++){ isactivevertexinfobuffer_source[i] = new unsigned int[isactivevertexinfosz]; }
 	for(unsigned int i=0; i<graphobj->getnumvertexbanks(); i++){ 
-		isactivevertexinfobuffer_dest[i] = new unsigned int[isactivevertexinfo]; 
-		for(unsigned int k=0; k<isactivevertexinfo; k++){ isactivevertexinfobuffer_dest[i][k] = 0; }}
+		isactivevertexinfobuffer_dest[i] = new unsigned int[isactivevertexinfosz]; 
+		for(unsigned int k=0; k<isactivevertexinfosz; k++){ isactivevertexinfobuffer_dest[i][k] = 0; }}
 	#endif
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ settime_OCLdatatransfers_ms(i, 0); }
@@ -115,12 +112,10 @@ runsummary_t actgraph_pr_sw::start2(unsigned int graph_iterationidx) {
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int i_batch=0; i_batch<graphobj->getnumvertexbanks(); i_batch += NUMCPUTHREADS){
-	// for(unsigned int i_batch=0; i_batch<NUMCPUTHREADS; i_batch += NUMCPUTHREADS){ // REMOVEME.
 		cout<<">>> actgraph_pr_sw::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumvertexbanks()<<"][step: "<<NUMCPUTHREADS<<"]"<<endl;
 		cout<<">>> actgraph_pr_sw::start2: loading vertex properties..."<<endl;
 	
 		#ifdef SW
-		// WorkerThread2(0, i_batch);
 		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
 		#else 
 		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }
@@ -288,14 +283,14 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 	}
 
 	// writeback temp vertices data
-	#ifndef PR_ALGORITHM
-	for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ graphobj->savevertexisactiveinfostofile(graphobj->getnvmeFd_vertexisactive_w2(), utilityobj[0]->GETKVDATA_RANGEOFFSET_FORSSDPARTITION_((threadidxoffset + threadidx)), isactivevertexinfobuffer_dest[threadidx], 0, KVDATA_RANGE_PERSSDPARTITION, (graph_iterationidx + 1)); }
-	#endif
 	#ifdef FPGA_IMPL
 	readVsfromkernel(threadidx);
 	#endif 
 	cummulateverticesdata(threadidx, 0, KVDATA_RANGE_PERSSDPARTITION);
 	applyvertices(threadidx, threadidxoffset, 0, KVDATA_RANGE_PERSSDPARTITION);
+	#ifndef PR_ALGORITHM
+	for(unsigned int ddr=0; ddr<NUMDRAMBANKS; ddr++){ graphobj->savevertexisactiveinfostofile(graphobj->getnvmeFd_vertexisactive_w2(), utilityobj[0]->GETKVDATA_RANGEOFFSET_FORSSDPARTITION_((threadidxoffset + threadidx)), isactivevertexinfobuffer_dest[threadidx], 0, KVDATA_RANGE_PERSSDPARTITION, (graph_iterationidx + 1)); }
+	#endif
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj[threadidx]->stopTIME("Total time elapsed (Entire Process, Partition & Apply process): ", begintime_partitionandapply, NAp);
 	#endif
@@ -880,8 +875,8 @@ void actgraph_pr_sw::launchkernel(int threadidx, uint512_dt ** kvsourcedram, uin
 	#ifdef LOCKE
 	for (int i = 0; i < NUMDRAMBANKS; i++){ kernelobjs[threadidx][i]->topkernel(kvsourcedram[i], kvdestdram[i], kvstats[i]); }
 	#else 
-	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i] = std::thread(&actgraph_pr_sw::topkernel, this, i, threadidx, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
-	for (int i = 0; i < NUMDRAMBANKS; i++){ acts_thread[i].join(); }
+	for (int i = 0; i < NUMDRAMBANKS; i++){ runacts_thread[threadidx][i] = std::thread(&actgraph_pr_sw::topkernel, this, i, threadidx, kvsourcedram[i], kvdestdram[i], kvstats[i]); }
+	for (int i = 0; i < NUMDRAMBANKS; i++){ runacts_thread[threadidx][i].join(); }
 	#endif
 	#endif
 	#endif 

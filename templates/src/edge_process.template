@@ -210,7 +210,7 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 	#endif
 	return kvcount;
 }
-unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, vertex_t edgespropsz, keyvalue_t * kvdram, vertex_t kvdramoffset){
+/** unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, vertex_t edgespropsz, keyvalue_t * kvdram, vertex_t kvdramoffset){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	std::cout << endl << "edge_process::generatekeyvalues:: generating key values... edgespropsz: "<<edgespropsz<< std::endl;
 	#endif
@@ -272,6 +272,82 @@ unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, un
 		}
 		#endif 
 	}
+	
+	#ifdef PR_ALGORITHM
+	return edgespropsz;
+	#else
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	cout<<"$$$ edge_process::generatekeyvalues_stream. end of generate. "<<kvcount<<" edges from active vertices extracted. edgespropsz: "<<edgespropsz<<endl;
+	// exit(EXIT_SUCCESS);
+	#endif 
+	return kvcount;
+	#endif 
+} */
+unsigned int edge_process::generatekeyvalues_stream(unsigned int edgesoffset, unsigned int basevertexoffset, unsigned int * runningvertexid, vertexprop_t * vertexpropertiesbuffer, unsigned int * isactivevertexinfobuffer, vertex_t edgespropsz, keyvalue_t * kvdram, vertex_t kvdramoffset){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	std::cout << endl << "edge_process::generatekeyvalues:: generating key values... edgespropsz: "<<edgespropsz<< std::endl;
+	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTSX
+	utilityobj->printbits((char *)edgeoffsetsbuffer, 4);
+	#endif
+
+	size_t ledgeid = 0;
+	unsigned int nextedge = edgesoffset;
+	vertexprop_t vertexprop; vertexprop.outdegree = 1;
+	unsigned int isvertexactive = 0;
+	unsigned int outdegree = 0;
+	unsigned int vdata = 0;
+	unsigned int kvcount = 0;
+	unsigned int temprunningvertexid = *runningvertexid;
+	for(unsigned int i=0; i<edgespropsz; i++){
+		edgeprop1_t edge = edgesbuffer_stream[i];
+		
+		unsigned int edgeoffsetbit = utilityobj->RetrieveBit((unsigned int *)edgeoffsetsbuffer, ledgeid);
+		ledgeid += 1;
+		if(edgeoffsetbit==1){ 
+			vertexprop = vertexpropertiesbuffer[temprunningvertexid - basevertexoffset];  // FIXME.
+			#ifndef FORCEDFINISH_DONTCAREABOUTRETRIEVEBITS
+			#ifndef PR_ALGORITHM
+			isvertexactive = utilityobj->RetrieveBit(isactivevertexinfobuffer, (temprunningvertexid - basevertexoffset)); 
+			temprunningvertexid += 1; // CHANGEMEBACK
+			#endif 
+			#endif 
+		}
+		#ifdef _DEBUGMODE_CHECKSX
+		if((temprunningvertexid - basevertexoffset) > (KVDATA_RANGE / MAXNUMVERTEXBANKS)){ cout<<"edge_process::generatekeyvalues_stream: ERROR: out-of-range. i: "<<i<<", runningvertexid: "<<*runningvertexid<<", (KVDATA_RANGE / MAXNUMVERTEXBANKS): "<<(KVDATA_RANGE / MAXNUMVERTEXBANKS)<<endl; exit(EXIT_FAILURE); }
+		if(edgeoffsetbit==1){ cout<<"i: "<<i<<", runningvertexid: "<<temprunningvertexid<<", vertexprop.outdegree: "<<vertexprop.outdegree<<", vertexprop.data: "<<vertexprop.data<<endl; }
+		#endif 
+
+		outdegree = vertexprop.outdegree;
+		vdata = 1; // FIXME.
+		
+		#ifdef PR_ALGORITHM
+		value_t edgeval = 0.1 + ((1 - 0.1) * (vdata / outdegree));
+		#elif defined(BFS_ALGORITHM)
+		value_t edgeval = temprunningvertexid;
+		#elif defined(BC_ALGORITHM)
+		value_t edgeval = temprunningvertexid;
+		#endif
+		
+		#if (defined(PR_ALGORITHM) || defined(FORCEDFINISH_DONTCAREABOUTISVERTEXACTIVE))
+		keyvalue_t data;
+		data.key = edge.dstvid;
+		data.value = edgeval;
+		kvdram[kvdramoffset + i] = data;
+		#else
+		if(isvertexactive == 1){
+			keyvalue_t data;
+			data.key = edge.dstvid;
+			data.value = edgeval;
+			kvdram[kvdramoffset + kvcount++] = data;
+			#ifdef _DEBUGMODE_HOSTPRINTSX
+			cout<<"generatekeyvalues_stream: vertexprop.vertexisactive == 1 seen. data.key: "<<data.key<<", data.value: "<<data.value<<endl;
+			cout<<"generatekeyvalues_stream: (runningvertexid - basevertexoffset): "<<(temprunningvertexid - basevertexoffset)<<", basevertexoffset: "<<basevertexoffset<<", *runningvertexid: "<<temprunningvertexid<<endl;
+			#endif
+		}
+		#endif 
+	}
+	*runningvertexid = temprunningvertexid;
 	
 	#ifdef PR_ALGORITHM
 	return edgespropsz;
