@@ -16,6 +16,8 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
+	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
+	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
@@ -130,7 +132,10 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	
+	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
+	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

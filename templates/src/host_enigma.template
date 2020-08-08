@@ -20,7 +20,6 @@
 #include "../utility/utility.h"
 #ifdef SW
 #include "../kernels/acts.h"
-#include "../kernels/kernelprocess.h"
 #endif
 #include "host_enigma.h"
 using namespace std;
@@ -57,8 +56,7 @@ host_enigma::host_enigma(graph * _graphobj){
 	#endif 
 	
 	#ifdef SW
-	actsobjs = new acts(); //
-	// kernelobj = new kernelprocess(actsobjs);
+	actsobjs = new acts();
 	#endif 
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj); }
@@ -85,14 +83,15 @@ void host_enigma::start() {
 	WorkerThread(0);
 }
 void host_enigma::WorkerThread(int threadidx){
-	// unsigned int iteration_size = DRAMBATCHFACTOR * 1;//2;
+	/** unsigned int iteration_size = DRAMBATCHFACTOR * 2; */
 	unsigned int iteration_size = 1;
 	bool statsalreadycollected = false;
+	
 	for(unsigned int IterCount=0; IterCount<iteration_size; IterCount++){
 		cout<<"========= host_enigma:: IterCount: "<<IterCount<<", statsalreadycollected: "<<statsalreadycollected<<" ========="<<endl;
 		loaddrams(threadidx, IterCount); 
-		// if(IterCount==0){ loaddrams(threadidx, IterCount); } //  REMOVEME.
-		// if(statsalreadycollected == false){ loaddrams(threadidx, IterCount); }
+		/** if(IterCount==0){ loaddrams(threadidx, IterCount); }
+		if(statsalreadycollected == false){ loaddrams(threadidx, IterCount); } */
 		
 		for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ loadmessages(kvstats[threadidx][ddr], BASEOFFSET_MESSAGESDRAM, IterCount); }
 		if((runActs(IterCount) == 1) || (IterCount == (iteration_size-1))){ 
@@ -112,12 +111,9 @@ void host_enigma::WorkerThread(int threadidx){
 			}
 		}
 		for(unsigned int ddr=0; ddr<NUMINSTANCES; ddr++){ 
-			// kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 0;
-		
-			if(IterCount == 0){ kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 0; }
-			else { kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 1; }
-			
-			// else { kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 0; }
+			kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 0;
+			/** if(IterCount == 0){ kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 0; }
+			else { kvstats[threadidx][ddr][BASEOFFSET_MESSAGESDRAM + MESSAGES_STATSALREADYCOLLECTED].key = 1; } */
 		}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTSX

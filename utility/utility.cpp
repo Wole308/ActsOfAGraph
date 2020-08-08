@@ -76,6 +76,42 @@ else if(ssdpartitonid == 2){
 else if(ssdpartitonid == 3){
 		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION3;
 	}
+else if(ssdpartitonid == 4){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION4;
+	}
+else if(ssdpartitonid == 5){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION5;
+	}
+else if(ssdpartitonid == 6){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION6;
+	}
+else if(ssdpartitonid == 7){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION7;
+	}
+else if(ssdpartitonid == 8){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION8;
+	}
+else if(ssdpartitonid == 9){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION9;
+	}
+else if(ssdpartitonid == 10){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION10;
+	}
+else if(ssdpartitonid == 11){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION11;
+	}
+else if(ssdpartitonid == 12){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION12;
+	}
+else if(ssdpartitonid == 13){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION13;
+	}
+else if(ssdpartitonid == 14){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION14;
+	}
+else if(ssdpartitonid == 15){
+		rangeoffset = KVDATA_RANGEOFFSET_FORSSDPARTITION15;
+	}
 	else {
 		#ifdef _DEBUGMODE_CHECKS2
 		std::cout<<"utility::GETRANGE should never get here. GETRANGE 45 "<<std::endl;

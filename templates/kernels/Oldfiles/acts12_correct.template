@@ -121,9 +121,6 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printparameters(){
 	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS (total dest memory): "<<(PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS)<<endl;
 	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
 	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<endl;
-	cout<<"acts::printparameters:: CS_NUM_READ_PIPELINES: "<<CS_NUM_READ_PIPELINES<<endl;
-	cout<<"acts::printparameters:: PVU_NUM_READ_PIPELINES: "<<PVU_NUM_READ_PIPELINES<<endl;
-	cout<<"acts::printparameters:: PADSKIP: "<<PADSKIP<<endl;
 }
 void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printglobalvars(){
 	cout<<"printglobalvars: "<<endl;
@@ -344,7 +341,10 @@ buffer_type {%if(context['XWARE'] == "SW")%}acts::{%endif%}getpartitionwritesz(b
 	
 	#ifdef WRITEPARTITION_TYPE3
 	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
-	if(realsize_kvs >= 0*PADSKIP && realsize_kvs < 1*PADSKIP){
+	size_kvs = OPTIMALSIZE;
+	if(realsize_kvs == 0){
+		size_kvs = 0;
+	} else if(realsize_kvs > 0*PADSKIP && realsize_kvs < 1*PADSKIP){
 		size_kvs = 1*PADSKIP;
 	} else if(realsize_kvs >= 1*PADSKIP && realsize_kvs < 2*PADSKIP){
 		size_kvs = 2*PADSKIP;
@@ -409,6 +409,7 @@ buffer_type {%if(context['XWARE'] == "SW")%}acts::{%endif%}getpartitionwritesz(b
 	
 	#ifdef WRITEPARTITION_TYPE4
 	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+	size_kvs = OPTIMALSIZE;
 	if(realsize_kvs >= 0*PADSKIP && realsize_kvs < 1*PADSKIP){
 		size_kvs = 1*PADSKIP;
 	} else if(realsize_kvs >= 1*PADSKIP && realsize_kvs < 2*PADSKIP){
@@ -440,7 +441,41 @@ buffer_type {%if(context['XWARE'] == "SW")%}acts::{%endif%}getpartitionwritesz(b
 	#else 
 	size_kvs = realsize_kvs;
 	#endif
+	#endif 
+	
+	#ifdef WRITEPARTITION_TYPE5
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+	if(realsize_kvs >= _0xPADSKIP && realsize_kvs < _1xPADSKIP){
+		size_kvs = _1xPADSKIP;
+	} else if(realsize_kvs >= _1xPADSKIP && realsize_kvs < _2xPADSKIP){
+		size_kvs = _2xPADSKIP;
+	} else if(realsize_kvs >= _2xPADSKIP && realsize_kvs < _3xPADSKIP){
+		size_kvs = _3xPADSKIP;
+	} else if(realsize_kvs >= _3xPADSKIP && realsize_kvs < _4xPADSKIP){
+		size_kvs = _4xPADSKIP;
+	} else if(realsize_kvs >= _4xPADSKIP && realsize_kvs < _5xPADSKIP){
+		size_kvs = _5xPADSKIP;
+	} else if(realsize_kvs >= _5xPADSKIP && realsize_kvs < _6xPADSKIP){
+		size_kvs = _6xPADSKIP;
+	} else if(realsize_kvs >= _6xPADSKIP && realsize_kvs < _7xPADSKIP){
+		size_kvs = _7xPADSKIP;
+	} else if(realsize_kvs >= _7xPADSKIP && realsize_kvs < _8xPADSKIP){
+		size_kvs = _8xPADSKIP;
+	} else {
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<endl; 
+		exit(EXIT_FAILURE);
+		#endif
+		size_kvs = PADDEDDESTBUFFER_SIZE;
+	}
+	#ifdef SW 
+	if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
+	#endif 
+	#else 
+	size_kvs = realsize_kvs;
 	#endif
+	#endif
+	
 	return size_kvs;
 }
 
@@ -667,13 +702,6 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}calculateoffsets(keyvalue_t 
 	PREPARECAPSULE_LOOP2: for (partition_type p = 0; p<NUM_PARTITIONS; p++){ capsule[p].key += offset; }
 	return;
 }
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing[NUM_PARTITIONS]){
-	#pragma HLS INLINE
-	capsule[0].key = 0;
-	PREPARECAPSULE_LOOP1: for (partition_type p = 1; p<NUM_PARTITIONS; p++){ capsule[p].key = allignhigher_KV(capsule[p-1].key + capsule[p-1].value + skipspacing[p-1]); }
-	PREPARECAPSULE_LOOP2: for (partition_type p = 0; p<NUM_PARTITIONS; p++){ capsule[p].key += offset; }
-	return;
-}
 
 void {%if(context['XWARE'] == "SW")%}acts::{%endif%}loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP){
 	#pragma HLS INLINE
@@ -769,8 +797,10 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 	int analysis_appendinvalids = VECTOR_SIZE;
 	
 	// append INVALID values (edge conditions)
+	// #ifdef SW // FIXME. REMOVEME. - seriously degrading FPGA frequency 
 	keyvalue_t NApKV; NApKV.key = INVALIDDATA; NApKV.value = INVALIDDATA;
 	SAVEPARTITIONS_RESOLVEEDGECONDITIONS_LOOP: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	// #pragma HLS PIPELINE
 		{%for sw in context['NUMSUBWORKERS_seq']%}
 		buffer_type ovsize{{sw}} = allignhigher_KV(capsule{{sw}}[p].value) - capsule{{sw}}[p].value;
 		#ifdef _DEBUGMODE_STATS
@@ -785,6 +815,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 		}
 		{%endfor%}
 	}
+	// #endif
 	return;
 }
 {%endfor%}
@@ -795,6 +826,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 	int analysis_appendinvalids = VECTOR_SIZE;
 	
 	// append INVALID values (edge conditions)
+	#ifdef SW // FIXME. REMOVEME. - seriously degrading FPGA frequency
 	keyvalue_t NApKV; NApKV.key = INVALIDDATA; NApKV.value = INVALIDDATA;
 	SAVEPARTITIONS_RESOLVEEDGECONDITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		{%for sw in context['NUMSUBWORKERS_seq']%}
@@ -814,6 +846,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 			{%endfor%}
 		}
 	}
+	#endif
 	return;
 }
 {%endfor%}
@@ -928,8 +961,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}readkeyvalues{{ddrs}}(unsign
 offset_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}readcapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS], {%endfor%} batch_type baseaddress_kvs, batch_type offset, int enable, offset_t capsulemetadata){
 	if(enable == 0){ return capsulemetadata; }
 	#ifdef _DEBUGMODE_CHECKS2
-	// checkoutofbounds("acts::readcapsules{{ddrs}} 35", (baseaddress_kvs + offset + NUM_PARTITIONS), KVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
-	checkoutofbounds("acts::readcapsules{{ddrs}} 35", ((baseaddress_kvs * VECTOR_SIZE) + offset + NUM_PARTITIONS), PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
+	checkoutofbounds("acts::readcapsules{{ddrs}} 35", (baseaddress_kvs + offset + NUM_PARTITIONS), KVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
 	#endif
 	
 	buffer_type loffset = offset % (CAPSULEBUFFER_SIZE * VECTOR_SIZE);
@@ -1190,7 +1222,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}reducepartitions{{ddrs}}(uns
 		if((loc{{sw}} >= APPLYVERTEXBUFFERSZ) && (WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}.key != INVALIDDATA)){ 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reducepartitions{{ddrs}} 45:: k: "<<k<<", loc{{sw}}: "<<loc{{sw}}<<", keyvalue{{sw}}.key: "<<keyvalue{{sw}}.key<<", chunk{{sw}}_size: "<<chunk{{sw}}_size<<", voffset{{sw}}: "<<voffset{{sw}}<<", globalparams.vbegin: "<<globalparams.vbegin<<", APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ <<endl; 
+			cout<<"ERROR SEEN @ reducepartitions{{ddrs}}:: k: "<<k<<", loc{{sw}}: "<<loc{{sw}}<<", keyvalue{{sw}}.key: "<<keyvalue{{sw}}.key<<", chunk{{sw}}_size: "<<chunk{{sw}}_size<<", voffset{{sw}}: "<<voffset{{sw}}<<", globalparams.vbegin: "<<globalparams.vbegin<<", APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ <<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
 			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
@@ -1353,7 +1385,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}savepartitions{{ddrs}}(unsig
 			checkandforce(dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, &size_kvs, 0);
 			checkandforce(dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, &dramoffset_kvs, 0);
 			#ifdef _DEBUGMODE_CHECKS2
-			checkoutofbounds("acts::savepartitions{{sw}} dram 34", dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, dramoffset_kvs, size_kvs, llopparams.baseaddr_workdestkvs_kvs);
+			checkoutofbounds("acts::savepartitions{{sw}} dram 34", dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, dramoffset_kvs, size_kvs, size_kvs);
 			checkoutofbounds("acts::savepartitions{{sw}} bram 35", bramoffset_kvs + size_kvs, PADDEDDESTBUFFER_SIZE, bramoffset_kvs, capsule{{sw}}[p].key, size_kvs);
 			#endif
 
@@ -1373,8 +1405,6 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}savepartitions{{ddrs}}(unsig
 		UPDATEGLOBALSTATS{{sw}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){ kvdeststats_tmp[p].value += allignhigher_KV(capsule{{sw}}[p].value); }
 		#ifdef _DEBUGMODE_CHECKS2
 		for(partition_type p=0; p<NUM_PARTITIONS-1; p++){ checkoutofbounds("acts::savepartitions{{sw}} check 38", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, kvdeststats_tmp[p+1].key, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
-		for(partition_type p=0; p<NUM_PARTITIONS; p++){ checkoutofbounds("acts::savepartitions{{sw}} check 39", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, BASEOFFSET_CAPSULES, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
-		for(partition_type p=0; p<NUM_PARTITIONS; p++){ checkoutofbounds("acts::savepartitions{{sw}} check 40", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, KVSOURCEDRAMSZ, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
 		#endif
 	{%endfor%}
 	return;
@@ -1413,7 +1443,6 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 	travstate_t travstate_pp1;
 	offset_t capsulemetadata;
 	batch_type skipspacing;
-	batch_type skipspacings[NUM_PARTITIONS];
 	keyvalue_t sourcestats[NUMSUBWORKERS];
 	keyvalue_t sourcestats2[NUMSUBWORKERS];
 	
@@ -1477,7 +1506,6 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 		
 			#ifdef _DEBUGMODE_CHECKS2
 			checkoutofbounds("acts::partitionandreduce{{ddrs}} 22", BASEOFFSET_STATSDRAM + sourcestatsmarker, KVSTATSDRAMSZ, NAp, NAp, NAp);
-			checkoutofbounds("acts::partitionandreduce{{ddrs}} 23", destoffset, KVDRAMSZ, destoffset, skipspacing, NAp);
 			#endif
 			llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv;
 			keyvalue_t sourcestat = kvstats[BASEOFFSET_STATSDRAM + sourcestatsmarker];
@@ -1578,10 +1606,8 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			{%for w in context['NUMWORKERS_seq']%}
 			resetcapsules({%for sw in context['NUMSUBWORKERS_seq']%} capsule{{w}}{{sw}},{%endfor%} NAp);
 			{%endfor%}
-			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0 && globalparams.statsalreadycollected == 0){ skipspacing = (((CSpartitionparams.size_kvs + ((SRCBUFFER_SIZE * NFACTOR) - 1)) / (SRCBUFFER_SIZE * NFACTOR)) * (NUM_PARTITIONS * VECTOR_SIZE)) / NUM_PARTITIONS; } /** [number of blocks written][padding for each block][/ num dest partitions] */ // NEWCHANGE. 
-			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0 && globalparams.statsalreadycollected == 0){ skipspacing = skipspacing * 4; } // FIXME. FIXMEFORREALWORKLOADS. '4' reduces the number of ERROR 45s at reduce
-			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0 && globalparams.statsalreadycollected == 0){ calculateoffsets(kvdeststats_tmp, destoffset, skipspacing); }
-			
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0 && globalparams.statsalreadycollected == 0){ skipspacing = ((CSpartitionparams.size_kvs + ((SRCBUFFER_SIZE * NFACTOR) - 1)) / (SRCBUFFER_SIZE * NFACTOR)) * (NUM_PARTITIONS * VECTOR_SIZE); } // NEWCHANGE.
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0 && globalparams.statsalreadycollected == 0){ calculateoffsets(kvdeststats_tmp, destoffset, skipspacing); } // NEWCHANGE.
 			copy(kvdeststats_tmp, kvdeststats_tmp2, NUM_PARTITIONS);
 			resetvalues(kvdeststats_tmp, NUM_PARTITIONS);
 			if(globalparams.partitioncommand == OFF){ break; } // REMOVEME.
@@ -1716,6 +1742,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			#ifdef _DEBUGMODE_CHECKS2
 			checkoutofbounds("acts::partitionandreduce{{ddrs}} 35", sourcestatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
 			checkoutofbounds("acts::partitionandreduce{{ddrs}} 36", deststatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
+			checkoutofbounds("acts::partitionandreduce{{ddrs}} 37", destoffset, KVDRAMSZ, destoffset, skipspacing, NAp);
 			#endif
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS2

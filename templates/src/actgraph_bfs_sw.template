@@ -184,7 +184,7 @@ runsummary_t actgraph_bfs_sw::start(unsigned int graph_iterationidx) {
 	for(unsigned int i_batch=0; i_batch<NUMSSDPARTITIONS; i_batch += NUMCPUTHREADS){
 		cout<<">>> actgraph_bfs_sw::start: super iteration: [i_batch: "<<i_batch<<"][size: "<<NUMSSDPARTITIONS<<"][step: "<<NUMCPUTHREADS<<"]"<<endl;
 		cout<<">>> actgraph_bfs_sw::start: launching threads..."<<endl;
-		for (int i = 0; i < NUMCPUTHREADS; i++) { actgraph_pr_sw_obj->loadvertexpropertiesfromfile(i, graphobj->getnvmeFd_vertexproperties_r2()[(i_batch + i)], 0, vertexpropertiesbuffer[i], 0, KVDATA_RANGE_PERSSDPARTITION); }
+		for (int i = 0; i < NUMCPUTHREADS; i++) { actgraph_pr_sw_obj->workerthread_loadvertexpropertiesfromfile(i, graphobj->getnvmeFd_vertexproperties_r2()[(i_batch + i)], 0, vertexpropertiesbuffer[i], 0, KVDATA_RANGE_PERSSDPARTITION); }
 		
 		#ifdef SW
 		for (int i = 0; i < NUMCPUTHREADS; i++) { WorkerThread2(i, i_batch); }

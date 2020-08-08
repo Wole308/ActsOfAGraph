@@ -5,7 +5,6 @@
 #include "../algorithm/algorithm.h"
 #include "../utility/utility.h"
 #include "../kernels/acts.h"
-#include "../kernels/kernelprocess.h"
 #include "common.h"
 
 class host_enigma {
@@ -45,7 +44,6 @@ private:
 	
 	#ifdef SW
 	acts * actsobjs;
-	kernelprocess * kernelobj;
 	#endif
 	edge_process * edgeprocessobj[NUMCPUTHREADS];
 	utility * utilityobj[NUMCPUTHREADS];

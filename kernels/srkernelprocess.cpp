@@ -19,7 +19,6 @@
 #include "VertexValues.h" 
 #include "sortreduce.h" 
 #include "filekvreader.h" 
-#include "../kernels/kernelprocess.h"
 #include "../src/grafboost_pr_sw.h"
 #include "sortreduce.h"
 #include "types.h"

@@ -29,18 +29,19 @@ using namespace std;
 #define APPENDINVALIDS_TYPE2
 
 // #define WRITEPARTITION_TYPE1
-// #define WRITEPARTITION_TYPE2 // 
-#define WRITEPARTITION_TYPE3
+#define WRITEPARTITION_TYPE2
+// #define WRITEPARTITION_TYPE3
 // #define WRITEPARTITION_TYPE4
+// #define WRITEPARTITION_TYPE5
 
-#define COLLECTCAPSULES_2READPIPELINES
+// #define COLLECTCAPSULES_2READPIPELINES
 #ifdef COLLECTCAPSULES_2READPIPELINES
 #define CS_NUM_READ_PIPELINES 2
 #else 
 #define CS_NUM_READ_PIPELINES 1
 #endif 
 
-#define PARTITIONKEYVALUES_2READPIPELINES
+// #define PARTITIONKEYVALUES_2READPIPELINES
 #ifdef PARTITIONKEYVALUES_2READPIPELINES
 #define PVU_NUM_READ_PIPELINES 2
 #else 
@@ -51,12 +52,16 @@ using namespace std;
 #define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 {%endif%}
 
-#define NFACTOR 4
-#define PADDEDDESTBUFFER_SIZE 2048 // NEWCHANGE. HARDWARECOMPLAINT. using > 2048 drastically dropped frequency 
-#define SRCBUFFER_SIZE ((PADDEDDESTBUFFER_SIZE - NUM_PARTITIONS) / NFACTOR)
+/** #define SRCBUFFER_SIZE (512 - (2 * NUM_PARTITIONS))
+#define PADDEDDESTBUFFER_SIZE 2048 */
+#define SRCBUFFER_SIZE 512
+// #define PADDEDDESTBUFFER_SIZE (2048 + (2 * NUM_PARTITIONS))
+#define PADDEDDESTBUFFER_SIZE (2048 + (1 * NUM_PARTITIONS)) // NEWCHANGE.
 
 #define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
 #define CAPSULEBUFFER_SIZE 512
+
+#define NFACTOR (PADDEDDESTBUFFER_SIZE / SRCBUFFER_SIZE)
 
 #define APPLYVERTEXBUFFERSZ (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)))
 #define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE)
@@ -78,19 +83,23 @@ using namespace std;
 
 #define OPTIMALSIZE (PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS) // used with ENABLE_APPROXIMATEPARTITIONWRITES 
 #ifdef WRITEPARTITION_TYPE3
-#if OPTIMALSIZE < 16
-    #define PADSKIP 1
-#else
-    #define PADSKIP (OPTIMALSIZE / 16)
-#endif
+#define PADSKIP (OPTIMALSIZE / 16)
 #endif 
 #ifdef WRITEPARTITION_TYPE4
-#if OPTIMALSIZE < 6
-    #define PADSKIP 1
-#else
-    #define PADSKIP (OPTIMALSIZE / 6)
-#endif
-#endif
+#define PADSKIP (OPTIMALSIZE / 6)
+#endif 
+#ifdef WRITEPARTITION_TYPE5
+#define PADSKIP (OPTIMALSIZE / 6)
+#define _0xPADSKIP (0*PADSKIP)
+#define _1xPADSKIP (1*PADSKIP)
+#define _2xPADSKIP (2*PADSKIP)
+#define _3xPADSKIP (3*PADSKIP)
+#define _4xPADSKIP (4*PADSKIP)
+#define _5xPADSKIP (5*PADSKIP)
+#define _6xPADSKIP (6*PADSKIP)
+#define _7xPADSKIP (7*PADSKIP)
+#define _8xPADSKIP (8*PADSKIP)
+#endif 
 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
@@ -267,7 +276,6 @@ public:
 	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int skipspacing);
 	void calculatemanyoffsets({%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS],{%endfor%} unsigned int skipspacing);
 	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing);
-	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing[NUM_PARTITIONS]);
 	
 	void loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP);
 	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter);

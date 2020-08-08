@@ -6,7 +6,6 @@
 #include "sortreduce.h" 
 #include "filekvreader.h" 
 #include "../kernels/acts.h"
-#include "../kernels/kernelprocess.h"
 #include "../kernels/srkernelprocess.h"
 #include "actgraph_pr_sw.h"
 #include "edge_process.h"
@@ -94,7 +93,9 @@ private:
 	
 	actgraph_pr_sw * actgraph_pr_sw_obj;
 	edge_process * edge_process_obj[NUMCPUTHREADS];
+	#ifdef SW 
 	acts * kernelobjs[NUMCPUTHREADS][NUMDRAMBANKS];
+	#endif 
 	utility * utilityobj[NUMCPUTHREADS];
 	graph * graphobj;
 	heuristics * heuristicsobj;

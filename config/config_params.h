@@ -1,8 +1,6 @@
 #ifndef CONFIG_PARAMS_H
 #define CONFIG_PARAMS_H
 
-// #define TESTKERNEL
-
 // #define _GENERATE2DGRAPH //
 // #define _GENERATEACTIVEVERTICES
 // #define _GENERATESMARTGRAPH
@@ -20,8 +18,9 @@
 
 // #define ENABLE_LOADKVDRAM
 // #define ENABLE_REUSESAVEDCAPSULES
-// #define ENABLE_APPROXIMATEPARTITIONWRITES // FPGA hangs if this is disabled
+#define ENABLE_APPROXIMATEPARTITIONWRITES // FPGA hangs if this is disabled
 // #define ENABLE_PERFECTACCURACY
+#define ENABLE_VOICEOUTREDUCEERRORS //
 #endif
 
 

@@ -16,6 +16,8 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
+	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
+	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
@@ -25,6 +27,18 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION1<<std::endl;
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION2<<std::endl;
 	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION3<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION4: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION4<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION5: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION5<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION6: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION6<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION7: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION7<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION8: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION8<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION9: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION9<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION10: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION10<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION11: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION11<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION12: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION12<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION13: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION13<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION14: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION14<<std::endl;
+	std::cout<<"host:: KVDATA_RANGEOFFSET_FORSSDPARTITION15: "<<KVDATA_RANGEOFFSET_FORSSDPARTITION15<<std::endl;
 	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
 	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;
@@ -83,12 +97,6 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"response: "<<response<<std::endl;
 	if(response == "y"){} else { exit(EXIT_FAILURE); }
 	#endif
-	/** #if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM))
-	if(MAXNUMSSDPARTITIONS != NUMWORKLOADBANKS){
-	std::cout<<"host:: WARNING: MAXNUMSSDPARTITIONS must be equal to NUMWORKLOADBANKS . EXITING..."<<std::endl;
-	exit(EXIT_FAILURE);
-	}
-	#endif */
 	std::cout<<"host:: KVDRAMSZ: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;
@@ -111,7 +119,10 @@ void printallparameters(dataset_t dataset){
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	
+	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
+	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

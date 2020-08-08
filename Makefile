@@ -2,22 +2,22 @@ TARGETPLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_
 TARGETPLATFORM_AWS=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm
 
 # Memory assignment flags
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
-# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank0 
+MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0 
 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank1 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank2 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem3:bank3
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem4:bank0  
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem5:bank1  
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem6:bank2 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem7:bank3
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem8:bank0 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem9:bank1 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2 
-MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem0:bank0 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem1:bank1 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank2 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem3:bank3
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem4:bank0  
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem5:bank1  
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem6:bank2 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem7:bank3
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem8:bank0 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem9:bank1 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem10:bank2 
+# MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
 
 # Kernel linker flags
 # LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR0 --slr topkernel_3:SLR1 --slr topkernel_4:SLR1
@@ -66,7 +66,7 @@ HOSTPROCESS_SRCS += graphs/generateactivevertices.cpp
 HOSTPROCESS_SRCS += heuristics/heuristics.cpp
 HOSTPROCESS_SRCS += algorithm/algorithm.cpp
 HOSTPROCESS_SRCS += utility/utility.cpp
-HOSTPROCESS_SRCS += kernels/kernelprocess.cpp
+# HOSTPROCESS_SRCS += kernels/kernelprocess.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/
@@ -85,6 +85,7 @@ swemu_aws: cleanall build_xo_swemu_aws build_xclbin_swemu_aws build_host_aws run
 swemu_2inst_aws: cleanall build_xo_swemu_aws build_xclbin_swemu_2inst_aws build_host_aws run_swemu
 
 hw: cleanall build_xo_hw build_xclbin_hw build_host
+# hw: cleanall build_xo_hw build_host
 hw_4inst: cleanall build_xo_hw build_xclbin_hw_4inst build_host
 
 hw_aws: cleanall build_xo_hw_aws build_xclbin_hw_aws build_host_aws
@@ -159,7 +160,7 @@ run_grafboost_nthreads:
 	
 ### generate source files (python)
 generatesrcs:
-	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMCPUTHREADS) $(LOCKE)
+	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMCPUTHREADS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
 
 ### Cleaning stuff
 clean:

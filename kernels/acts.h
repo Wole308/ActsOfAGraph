@@ -23,14 +23,22 @@ using namespace std;
 // #define COLLECTCAPSULES_TYPE1
 #define COLLECTCAPSULES_TYPE2
 
-// #define COLLECTCAPSULES_2READPIPELINES
+// #define APPENDINVALIDS_TYPE1
+#define APPENDINVALIDS_TYPE2
+
+// #define WRITEPARTITION_TYPE1
+// #define WRITEPARTITION_TYPE2 // 
+#define WRITEPARTITION_TYPE3
+// #define WRITEPARTITION_TYPE4
+
+#define COLLECTCAPSULES_2READPIPELINES
 #ifdef COLLECTCAPSULES_2READPIPELINES
 #define CS_NUM_READ_PIPELINES 2
 #else 
 #define CS_NUM_READ_PIPELINES 1
 #endif 
 
-// #define PARTITIONKEYVALUES_2READPIPELINES
+#define PARTITIONKEYVALUES_2READPIPELINES
 #ifdef PARTITIONKEYVALUES_2READPIPELINES
 #define PVU_NUM_READ_PIPELINES 2
 #else 
@@ -39,18 +47,12 @@ using namespace std;
 
 #define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
-/** #define SRCBUFFER_SIZE (512 - (2 * NUM_PARTITIONS))
-#define PADDEDDESTBUFFER_SIZE 2048
- 
-#define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
-#define CAPSULEBUFFER_SIZE 512 */
+#define NFACTOR 4
+#define PADDEDDESTBUFFER_SIZE 2048 // NEWCHANGE. HARDWARECOMPLAINT. using > 2048 drastically dropped frequency 
+#define SRCBUFFER_SIZE ((PADDEDDESTBUFFER_SIZE - NUM_PARTITIONS) / NFACTOR)
 
-#define SRCBUFFER_SIZE 512
-#define PADDEDDESTBUFFER_SIZE (2048 + (2 * NUM_PARTITIONS))
 #define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
 #define CAPSULEBUFFER_SIZE 512
-
-#define NFACTOR (PADDEDDESTBUFFER_SIZE / SRCBUFFER_SIZE)
 
 #define APPLYVERTEXBUFFERSZ (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)))
 #define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE)
@@ -69,6 +71,22 @@ using namespace std;
 #define REDUCEKEYVALUES 7
 
 #define DEBUGGER_SIZE KVDATA_BATCHSIZE
+
+#define OPTIMALSIZE (PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS) // used with ENABLE_APPROXIMATEPARTITIONWRITES 
+#ifdef WRITEPARTITION_TYPE3
+#if OPTIMALSIZE < 16
+    #define PADSKIP 1
+#else
+    #define PADSKIP (OPTIMALSIZE / 16)
+#endif
+#endif 
+#ifdef WRITEPARTITION_TYPE4
+#if OPTIMALSIZE < 6
+    #define PADSKIP 1
+#else
+    #define PADSKIP (OPTIMALSIZE / 6)
+#endif
+#endif
 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
@@ -218,6 +236,7 @@ public:
 	unsigned int hsub(unsigned int A, unsigned int B);
 	void checkandforce(unsigned int data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval);
 	int WithinValidRange(unsigned int val1, unsigned int val2);
+	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 	keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs);
@@ -242,8 +261,9 @@ public:
 	unsigned int get_num_source_partitions(unsigned int currentLOP);
 	
 	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int skipspacing);
-	void calculateoffsets(keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], unsigned int skipspacing);
+	void calculatemanyoffsets(keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], unsigned int skipspacing);
 	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing);
+	void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing[NUM_PARTITIONS]);
 	
 	void loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP);
 	value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter);
@@ -269,7 +289,7 @@ public:
 	void savekeyvalues0(keyvalue_t * kvstats, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
 	void savekeyvalues0(uint512_dt * kvdram  ,keyvalue_t * buffer00  ,keyvalue_t * buffer01  ,keyvalue_t * buffer02  ,keyvalue_t * buffer03  ,keyvalue_t * buffer04  ,keyvalue_t * buffer05  ,keyvalue_t * buffer06  ,keyvalue_t * buffer07  ,keyvalue_t * buffer10  ,keyvalue_t * buffer11  ,keyvalue_t * buffer12  ,keyvalue_t * buffer13  ,keyvalue_t * buffer14  ,keyvalue_t * buffer15  ,keyvalue_t * buffer16  ,keyvalue_t * buffer17  ,keyvalue_t * buffer20  ,keyvalue_t * buffer21  ,keyvalue_t * buffer22  ,keyvalue_t * buffer23  ,keyvalue_t * buffer24  ,keyvalue_t * buffer25  ,keyvalue_t * buffer26  ,keyvalue_t * buffer27  ,keyvalue_t * buffer30  ,keyvalue_t * buffer31  ,keyvalue_t * buffer32  ,keyvalue_t * buffer33  ,keyvalue_t * buffer34  ,keyvalue_t * buffer35  ,keyvalue_t * buffer36  ,keyvalue_t * buffer37  ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
 	offset_t savecapsules0(unsigned int workerID, uint512_dt * kvdram , uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule1[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule2[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule3[CAPSULEBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata);
-	void savepartitions0(unsigned int workerID, uint512_dt * kvdram ,uint512_dt result_local0[PADDEDBUFFER_SIZE],uint512_dt result_local1[PADDEDBUFFER_SIZE],uint512_dt result_local2[PADDEDBUFFER_SIZE],uint512_dt result_local3[PADDEDBUFFER_SIZE] ,keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type kvdrambaseaddress);
+	void savepartitions0(unsigned int workerID, uint512_dt * kvdram ,uint512_dt result_local0[PADDEDBUFFER_SIZE],uint512_dt result_local1[PADDEDBUFFER_SIZE],uint512_dt result_local2[PADDEDBUFFER_SIZE],uint512_dt result_local3[PADDEDBUFFER_SIZE] ,keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], clopparams_t llopparams);
 	
 	void partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
 	

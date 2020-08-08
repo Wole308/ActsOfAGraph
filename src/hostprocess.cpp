@@ -51,14 +51,16 @@ edge_t globaldebugger_totalkeyvaluesstransferredfromkernel;
 
 int main(int argc, char** argv){
 	cout<<"Hostprocess:: Graph Analytics Started..."<<endl;
+	#ifndef TESTKERNEL
 	#ifdef LOCKE
-	if(NUMCPUTHREADS != 4){ std::cout<<"hostprocess:: WARNING: no need to use LOCKE setting with more than 1 thread. returning..."<<std::endl; return EXIT_SUCCESS; }
+	// if(NUMCPUTHREADS != 4){ std::cout<<"hostprocess:: WARNING: no need to use LOCKE setting with more than 1 thread. returning..."<<std::endl; return EXIT_SUCCESS; }
 	#endif
 	#ifdef GRAFBOOST_SETUP
 	if(NUMCPUTHREADS < 2){ std::cout<<"hostprocess:: WARNING: grafboost not working with more than 2 threads. returning..."<<std::endl; return EXIT_SUCCESS; }
 	#endif
 	#ifdef ACTGRAPH_SETUP
 	if(NUMCPUTHREADS > MAXNUMVERTEXBANKS){ std::cout<<"hostprocess:: WARNING: maxed out on available parallelism. NUMCPUTHREADS is greater than MAXNUMVERTEXBANKS. returning..."<<std::endl; return EXIT_SUCCESS; }	
+	#endif 
 	#endif 
 	
 	// Preparations

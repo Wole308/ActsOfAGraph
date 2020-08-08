@@ -18,7 +18,6 @@
 #include "VertexValues.h" // Grafboost header
 #include "sortreduce.h" // Grafboost header
 #include "filekvreader.h" // Grafboost header
-#include "../kernels/kernelprocess.h"
 #include "edge_process.h"
 using namespace std;
 std::mutex mutex_ep_ssdaccess;
@@ -184,6 +183,9 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 	utilityobj->stopTIME("edge_process::generateupdates_stream: load edge properties Time Elapsed: ", begintime_1, NAp);
 	#endif 
 	
+	// cout<<"### kvdram[0].data[0].key: "<<kvdram[0].data[0].key<<endl;
+	// return edgespropsz;
+	
 	#ifdef _DEBUGMODE_TIMERS
 	std::chrono::steady_clock::time_point begintime_2 = std::chrono::steady_clock::now();
 	#endif 
@@ -199,6 +201,7 @@ unsigned int edge_process::generateupdates_stream(unsigned int edgesoffset, unsi
 	#ifdef _DEBUGMODE_TIMERS
 	utilityobj->stopTIME("edge_process::generateupdates_stream: generate key-values Time Elapsed: ", begintime_3, NAp);
 	#endif 
+	// cout<<"### kvdram[0].data[0].key: "<<kvdram[0].data[0].key<<endl;
 	
 	#ifdef ACTGRAPH_SETUP
 	#ifdef _DEBUGMODE_TIMERS

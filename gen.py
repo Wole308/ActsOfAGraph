@@ -6,10 +6,7 @@ import math
 import sys
 import array as arr 
 
-# ACTSACCEL1_params = arr.array('i', [1, 8, 1])
 ACTSACCEL1_params = arr.array('i', [1, 4, 1])
-# ACTSACCEL1_params = arr.array('i', [2, 2, 1])
-# ACTSACCEL1_params = arr.array('i', [4, 4, 1])
 
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
@@ -17,25 +14,63 @@ context['XWARE'] = sys.argv[1]
 context['SETUP'] = sys.argv[2]
 context['ALGORITHM'] = sys.argv[3] 
 context['DATASET'] = sys.argv[4]
-context['NUMCPUTHREADS'] = sys.argv[5]
+context['NUMCPUTHREADS'] = sys.argv[5] # FIXME. this is overriden in common.h
 context['LOCKE'] = sys.argv[6]
+context['EVALUATION_TYPE'] = sys.argv[7]
+context['EVALUATION_PARAM0'] = int(sys.argv[8])
 path = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 isFile = os.path.isfile(path)  
 print(isFile) 
+
+EV_IMPACTOFRANGE = [0, 2, 4, 8]
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE": # {0, 2, 4, 8}
+    context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
+else:
+    if context['DATASET'] == "_EQUALDATASET_X":
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
+    elif context['DATASET'] == "_LARGEDATASET_1M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
+    elif context['DATASET'] == "_LARGEDATASET_67M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
+    elif context['DATASET'] == "_LARGEDATASET_268M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
+    elif context['DATASET'] == "_LARGEDATASET_1B":
+        context['MAXNUMSSDPARTITIONS_POW'] = 4
+    elif context['DATASET'] == "_LARGEDATASET_4B":
+        context['MAXNUMSSDPARTITIONS_POW'] = 4
+
+EV_IMPACTOFPARTITIONFANOUT = [3, 4, 5, 6, 7, 8]
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT": # {3, 4, 5, 6}
+    context['NUM_PARTITIONS_POW'] = EV_IMPACTOFPARTITIONFANOUT[context['EVALUATION_PARAM0']]
+else:
+    context['NUM_PARTITIONS_POW'] = 4
+    
+EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": # {1, 2, 4, 8}
+    context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
+else:
+    context['NUMSUBWORKERS'] = ACTSACCEL1_params[1]
+
 if (isFile):
     context['PLATFORM'] = "AWS_PLATFORM"
 else:
     context['PLATFORM'] = "CRABTREE_PLATFORM"
-context['DATAWIDTH'] = 512
-context['NUMBITSINKVPAIR'] = 64
-context['VECTOR_SIZE'] = 8
-context['NUMDRAMBANKS'] = 4
+    
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
 else:
 	context['NUMINSTANCES'] = 1 # 4
+    
+if (context['PLATFORM'] == "AWS_PLATFORM"):
+	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAGraph"
+else:
+	context['PROJECT_BASEPATH'] = "/home/oj2zf/Documents/ActsOfAGraph"
+    
+context['DATAWIDTH'] = 512
+context['NUMBITSINKVPAIR'] = 64
+context['VECTOR_SIZE'] = 8
+context['NUMDRAMBANKS'] = 4
 context['NUMWORKERS'] = ACTSACCEL1_params[0]
-context['NUMSUBWORKERS'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
 context['NUMPEFUNCS'] = 8
 context['NUMWORKERS_APPLYPH'] = 1
@@ -43,28 +78,9 @@ context['NUMSUBWORKERS_APPLYPH'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR_APPLYPH'] = 1
 context['NUMPARTIALRESULTS'] = 4
 context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
-context['KERNELNAME'] = "ACTS" #ACTS #ENIGMA
-
-if context['DATASET'] == "_EQUALDATASET_X":
-	context['MAXNUMSSDPARTITIONS_POW'] = 2
-elif context['DATASET'] == "_LARGEDATASET_1M":
-	context['MAXNUMSSDPARTITIONS_POW'] = 2
-elif context['DATASET'] == "_LARGEDATASET_67M":
-	context['MAXNUMSSDPARTITIONS_POW'] = 2
-elif context['DATASET'] == "_LARGEDATASET_268M":
-	context['MAXNUMSSDPARTITIONS_POW'] = 2
-elif context['DATASET'] == "_LARGEDATASET_1B":
-	context['MAXNUMSSDPARTITIONS_POW'] = 4
-elif context['DATASET'] == "_LARGEDATASET_4B":
-	context['MAXNUMSSDPARTITIONS_POW'] = 4
-    
-context['NUM_PARTITIONS_POW'] = 4
+context['KERNELNAME'] = "ACTS"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
-if (context['PLATFORM'] == "AWS_PLATFORM"):
-	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAGraph"
-else:
-	context['PROJECT_BASEPATH'] = "/home/oj2zf/Documents/ActsOfAGraph"
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
@@ -73,8 +89,11 @@ print ('ALGORITHM: ' + str(context['ALGORITHM']))
 print ('DATASET: ' + str(context['DATASET']))
 print ('NUMCPUTHREADS: ' + str(context['NUMCPUTHREADS']))
 print ('LOCKE: ' + str(context['LOCKE']))
+print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
+print ('EVALUATION_PARAM0: ' + str(context['EVALUATION_PARAM0']))
 print ('NUMDRAMBANKS: ' + str(context['NUMDRAMBANKS']))
 print ('NUMINSTANCES: ' + str(context['NUMINSTANCES']))
+print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))
 print ('NUMWORKERS: ' + str(context['NUMWORKERS'])) 
 print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('BUNDLEFACTOR: ' + str(context['BUNDLEFACTOR'])) 
