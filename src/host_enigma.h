@@ -29,6 +29,7 @@ public:
 	int runActs(unsigned int IterCount);
 	
 	#ifdef SW
+	void topkernel(unsigned int ddr, int threadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats);
 	void launchswkernel(int threadidx);
 	#endif
 	#ifdef FPGA_IMPL
@@ -38,16 +39,24 @@ public:
 	#endif 
 	
 private:
-	uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMDRAMBANKS];
-	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMDRAMBANKS];
-	keyvalue_t * kvstats[NUMCPUTHREADS][NUMDRAMBANKS];
+	#ifdef FPGA_IMPL
+	uint512_vec_dt * kvsourcedram[NUMCPUTHREADSY][NUMCPUTHREADS];
+	uint512_vec_dt * kvdestdram[NUMCPUTHREADSY][NUMCPUTHREADS];
+	keyvalue_t * kvstats[NUMCPUTHREADSY][NUMCPUTHREADS];
+	#else 
+	uint512_vec_dt * kvsourcedram[NUMCPUTHREADSY][NUMCPUTHREADS];
+	uint512_vec_dt * kvdestdram[NUMCPUTHREADSY][NUMCPUTHREADS];
+	keyvalue_t * kvstats[NUMCPUTHREADSY][NUMCPUTHREADS];
+	#endif 
 	
 	#ifdef SW
 	acts * actsobjs;
+	acts * kernelobjs[NUMCPUTHREADSY][NUMCPUTHREADS];
 	#endif
 	edge_process * edgeprocessobj[NUMCPUTHREADS];
 	utility * utilityobj[NUMCPUTHREADS];
 	graph * graphobj;
+	std::thread runacts_thread[NUMCPUTHREADSY][NUMCPUTHREADS];
 	
 	#ifdef FPGA_IMPL
 	cl_int err;	
@@ -65,9 +74,9 @@ private:
 	cl_program program;
 	cl_kernel kernel;
 	
-	cl_mem buffer_kvsourcedram[2][NUMDRAMBANKS];
-	cl_mem buffer_kvdestdram[2][NUMDRAMBANKS];
-	cl_mem buffer_kvstatsdram[2][NUMDRAMBANKS];
+	cl_mem buffer_kvsourcedram[NUMCPUTHREADSY][NUMCPUTHREADS];
+	cl_mem buffer_kvdestdram[NUMCPUTHREADSY][NUMCPUTHREADS];
+	cl_mem buffer_kvstatsdram[NUMCPUTHREADSY][NUMCPUTHREADS];
 	#endif
 };
 #endif

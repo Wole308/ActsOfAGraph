@@ -22,34 +22,57 @@ path = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 isFile = os.path.isfile(path)  
 print(isFile) 
 
-EV_IMPACTOFRANGE = [0, 2, 4, 8]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE": # {0, 2, 4, 8}
+###
+
+EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
 else:
     if context['DATASET'] == "_EQUALDATASET_X":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['KVDATA_RANGE_POW'] = 24
     elif context['DATASET'] == "_LARGEDATASET_1M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['KVDATA_RANGE_POW'] = 20
     elif context['DATASET'] == "_LARGEDATASET_67M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_268M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['KVDATA_RANGE_POW'] = 28
     elif context['DATASET'] == "_LARGEDATASET_1B":
         context['MAXNUMSSDPARTITIONS_POW'] = 4
+        context['KVDATA_RANGE_POW'] = 30
     elif context['DATASET'] == "_LARGEDATASET_4B":
         context['MAXNUMSSDPARTITIONS_POW'] = 4
+        context['KVDATA_RANGE_POW'] = 32
 
 EV_IMPACTOFPARTITIONFANOUT = [3, 4, 5, 6, 7, 8]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT": # {3, 4, 5, 6}
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT":
     context['NUM_PARTITIONS_POW'] = EV_IMPACTOFPARTITIONFANOUT[context['EVALUATION_PARAM0']]
 else:
     context['NUM_PARTITIONS_POW'] = 4
     
 EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": # {1, 2, 4, 8}
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": 
     context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
 else:
-    context['NUMSUBWORKERS'] = ACTSACCEL1_params[1]
+    context['NUMSUBWORKERS'] = 4
+    
+EV_IMPACTOFBANDWIDTH = [1, 2, 4, 6, 8, 8]
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFBANDWIDTH": 
+    context['VECTOR_SIZE'] = EV_IMPACTOFBANDWIDTH[context['EVALUATION_PARAM0']]
+else:
+    context['VECTOR_SIZE'] = 8
+    
+EV_IMPACTOFPLATFORM = [1, 2, 4, 8, 12, 16]
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFPLATFORM": 
+    context['DUMMY'] = 0
+    context['LOCKE'] = "NOLOCKE"
+else:
+    context['DUMMY'] = 0
+
+###
 
 if (isFile):
     context['PLATFORM'] = "AWS_PLATFORM"
@@ -68,7 +91,6 @@ else:
     
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
-context['VECTOR_SIZE'] = 8
 context['NUMDRAMBANKS'] = 4
 context['NUMWORKERS'] = ACTSACCEL1_params[0]
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
@@ -78,7 +100,8 @@ context['NUMSUBWORKERS_APPLYPH'] = ACTSACCEL1_params[1]
 context['BUNDLEFACTOR_APPLYPH'] = 1
 context['NUMPARTIALRESULTS'] = 4
 context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
-context['KERNELNAME'] = "ACTS"
+context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
+# context['KERNELNAME'] = "TRADITIONAL"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
     
@@ -96,6 +119,7 @@ print ('NUMINSTANCES: ' + str(context['NUMINSTANCES']))
 print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))
 print ('NUMWORKERS: ' + str(context['NUMWORKERS'])) 
 print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
+print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 print ('BUNDLEFACTOR: ' + str(context['BUNDLEFACTOR'])) 
 print ('NUMWORKERS_APPLYPH: ' + str(context['NUMWORKERS_APPLYPH'])) 
 print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH'])) 

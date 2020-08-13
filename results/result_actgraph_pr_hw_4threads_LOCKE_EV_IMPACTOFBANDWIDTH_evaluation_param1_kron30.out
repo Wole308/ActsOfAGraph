@@ -1,0 +1,289 @@
+Hostprocess:: Graph Analytics Started...
+graph::graph:: datasetid: 6, _numvertexbanks: 16, _numedgebanks: 16
+graph::loadalldatasets:: 
+host:: GRAPH: /oj2zf/datasets/kronecker30/kronecker30.graph
+host:: NUM VERTICES: 1073741824
+host:: NUM EDGES: 17179869184
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 4
+host:: NUM_PARTITIONS: 16
+host:: NUMCPUTHREADS: 4
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 2
+host:: KVDATA_BATCHSIZE: 67108864
+host:: KVDATA_BATCHSIZE_KVS: 33554432
+host:: KVDATA_RANGE: 1073741824
+host:: KVDATA_RANGE_POW: 30
+host:: (float)APPROXTREE_DEPTH: 3
+host:: APPROXTREE_DEPTH: 3
+host:: TREE_DEPTH: 3
+host:: KVSTATS_SIZE: 12290
+host:: NUMSSDPARTITIONS: 16
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 26
+host:: KVDATA_RANGE_PERSSDPARTITION: 67108864
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION0: 0
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: 67108864
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: 134217728
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: 201326592
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION4: 268435456
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION5: 335544320
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION6: 402653184
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION7: 469762048
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION8: 536870912
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION9: 603979776
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION10: 671088640
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION11: 738197504
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION12: 805306368
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION13: 872415232
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION14: 939524096
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION15: 1006632960
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 16
+host:: MAXNUMSSDPARTITIONS: 16
+host:: LOCKE DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 8 bytes (64 bits)
+
+printallparameters:: PR_ALGORITHM
+host:: KVDRAMSZ: 69210112
+host:: KVDRAMSZ_KVS: 34605056
+host:: KVDRAMWORKSPACESZ: 69210112
+host:: KVDRAMWORKSPACESZ_KVS: 34605056
+host:: CAPSULESZ: 1622112
+host:: CAPSULESZ_KVS: 811056
+host:: MESSAGESDRAMSZ: 1024
+host:: CAPSULEMETADATADRAMSZ: 12288
+host:: STATSDRAMSZ: 12290
+host:: BASEOFFSET_KVDRAM: 69210112
+host:: BASEOFFSET_KVDRAM_KVS: 34605056
+host:: BASEOFFSET_KVDRAMWORKSPACE: 69210112
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 34605056
+host:: BASEOFFSET_CAPSULES: 138420224
+host:: BASEOFFSET_CAPSULES_KVS: 69210112
+host:: BASEOFFSET_STATSDRAM: 1024
+host:: KVSOURCEDRAMSZ: 140042336
+host:: KVSOURCEDRAMSZ_KVS: 70021168
+host:: PADDEDKVSOURCEDRAMSZ: 140042336
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 70021168
+host:: KVSTATSDRAMSZ: 25602
+host:: KVDRAMPADDING: 2101248
+host:: KVDRAMPADDING: 2101248
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+xclProbe found 1 FPGA slots with xocl driver running
+INFO: Importing /home/centos/src/project_data/oj2zf/ActsOfAGraph_Kernels/kernel_actgraph_pr_hw_4threads_LOCKE_EV_IMPACTOFBANDWIDTH_evaluation_param1_kron30.awsxclbin
+INFO: Loaded file
+INFO: Could not load AFI for data retention, code: 18 - Loading in classic mode.
+AFI load complete.
+INFO: Created Binary
+INFO: Built Program
+Allocate Buffer in Global Memory
+Allocate Buffer in Global Memory
+========= host_enigma:: IterCount: 0, statsalreadycollected: 0 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2515856887[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2515856[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2515[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2616290861[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2616290[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2616[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 1, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1769225749[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1769225[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1769[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2051723173[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2051723[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2051[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 2, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1764775754[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1764775[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1764[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2046559862[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2046559[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2046[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 3, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1760813708[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1760813[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1760[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2043356632[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2043356[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2043[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 4, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1758445184[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1758445[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1758[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2040027187[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2040027[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2040[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 5, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1756026295[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1756026[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1756[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2037475518[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2037475[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2037[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 6, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2712745134[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2712745[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2712[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2995063770[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2995063[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2995[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 7, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1736577874[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1736577[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1736[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2018160891[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2018160[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2018[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 8, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1740811956[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1740811[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1740[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 1[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2022415986[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2022415[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2022[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+========= host_enigma:: IterCount: 9, statsalreadycollected: 1 =========
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+[ooo_queue]: Completed kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2698185060[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2698185[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2698[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 2[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2979619043[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2979619[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2979[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 2[seconds](Iteration 666)
+
+[1m[37m>>> host_enigma::summary Total Size : 671088640 keyvalues[0m
+[1m[37m>>> host_enigma::summary Total Time Elapsed (ms) : 20208 milliseconds[0m
+[1m[37m>>> host_enigma::summary Total Time Elapsed (s) : 20.208 seconds[0m
+[1m[37m>>> host_enigma::summary Throughput : 3.32091e+07 keyvalues per second[0m
+[1m[37m>>> host_enigma::summary Throughput : 33.2047 million keyvalues per second[0m
+host_enigma::finish destroying memory structures... 
+host_enigma::finish: releasing and destroying all OCL structures... 
+clReleaseCommandQueue
+clReleaseContext
+clReleaseDevice
+clReleaseKernel
+clReleaseProgram
+host_enigma::finish: released and destroyed all OCL structures
+XRT build version: 2.2.0
+Build hash: e21b8a5b208618834760593bbb15063f7e399642
+Build date: 2019-09-06 20:10:43
+Git branch: 2019.1
+PID: 7244
+UID: 0
+[Mon Aug 10 16:46:47 2020]
+HOST: ip-172-31-31-81.ec2.internal
+EXE: /home/centos/src/project_data/oj2zf/ActsOfAGraph/host
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).

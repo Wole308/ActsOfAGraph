@@ -1,19 +1,5 @@
-#include "/home/oj2zf/Documents/ActsOfAGraph/src/common.h"
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
-#include "/home/oj2zf/Documents/ActsOfAGraph/kernels/enigma.h"
+#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/src/common.h"
+#include "/home/centos/src/project_data/oj2zf/ActsOfAGraph/kernels/enigma.h"
 using namespace std;
 
 #ifndef FPGA_IMPL
@@ -38,36 +24,36 @@ unsigned int globalstats_totalkvsreducewritten;
 unsigned int globalstats_reduce_validkvsreduced;
 #endif 
 #ifdef _LDEBUGMODE_HEADER
-void enigma::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
+void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"enigma::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }
-void enigma::checkforequal(string message, unsigned int data1, unsigned int data2){
+void checkforequal(string message, unsigned int data1, unsigned int data2){
 	if(data1 == data2){ cout<<"enigma::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
 }
-void enigma::print1(string messagea, unsigned int dataa){
+void print1(string messagea, unsigned int dataa){
 	cout<<messagea<<": "<<dataa<<endl;
 }
-void enigma::print2(string messagea, string messageb, unsigned int dataa, unsigned int datab){
+void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<endl;
 }
-void enigma::print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
+void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<endl;
 }
-void enigma::print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae){
+void print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<endl;
 }
-void enigma::print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef){
+void print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<datef<<endl;
 }
-void enigma::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
+void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
-void enigma::printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
+void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"["<<keyvalues1[p].key<<":"<<keyvalues1[p].value<<"]["<<keyvalues2[p].key<<":"<<keyvalues2[p].value<<"]"<<endl; }
 }
-void enigma::printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
+void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int i=0; i<size_kvs; i++){ 
 		#ifdef _WIDEWORD
@@ -84,13 +70,13 @@ void enigma::printkeyvalues(string message, uint512_dt * keyvalues, unsigned int
 		#endif 
 	}
 }
-void enigma::printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
+void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
 	unsigned int totalnumkeyvalues = 0;
 	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
 	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
 	return;
 }
-unsigned int enigma::getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
+unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
 	cout<<"getvaluecountexcept: size: "<<size<<", exceptvalue: "<<exceptvalue<<endl;
 	unsigned int totalnumkeyvalues = 0; 
 	unsigned int totalnumNOTkeyvalues = 0;
@@ -98,11 +84,11 @@ unsigned int enigma::getvaluecountexcept(keyvalue_t * keyvalues, unsigned int si
 	cout<<"total values counted: "<<totalnumkeyvalues<<", totalnumNOTkeyvalues: "<<totalnumNOTkeyvalues<<endl;
 	return totalnumkeyvalues;
 }
-void enigma::setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue){
+void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue){
 	cout<<"setting keyvalues... "<<endl;
 	for(unsigned int i=0; i<size; i++){ keyvalues[i] = keyvalue; }
 }
-void enigma::printparameters(){
+void printparameters(){
 	cout<<endl<<"enigma::printparameters: test started."<<endl;
 	cout<<"enigma::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
 	cout<<"enigma::printparameters:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<endl;
@@ -124,7 +110,7 @@ void enigma::printparameters(){
 	cout<<"enigma::printparameters:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
 	cout<<"enigma::printparameters:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<endl;
 }
-void enigma::printglobalvars(){
+void printglobalvars(){
 	cout<<"printglobalvars: "<<endl;
 	cout<<"enigma::printglobalvars:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
 	cout<<"enigma::printglobalvars:: globalvar_totalkvsreadV: "<<globalvar_totalkvsreadV<<endl;
@@ -143,7 +129,7 @@ void enigma::printglobalvars(){
 	cout<<"enigma::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
 	cout<<"enigma::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
 }
-void enigma::clearglobalvars(){
+void clearglobalvars(){
 	cout<<"clearglobalvars: "<<endl;
 	globalvar_totalkvsread = 0;
 	globalstats_totalkvswritten = 0;
@@ -164,7 +150,7 @@ void enigma::clearglobalvars(){
 keyvalue_t ** Debugger_Sizes1;
 keyvalue_t ** Debugger_Sizes2;
 unsigned int debugger_i;
-void enigma::createDebuggers(){
+void createDebuggers(){
 	Debugger_Sizes1 = new keyvalue_t*[DEBUGGER_SIZE];
 	Debugger_Sizes2 = new keyvalue_t*[DEBUGGER_SIZE];
 	for(int i = 0; i < DEBUGGER_SIZE; ++i){
@@ -173,7 +159,7 @@ void enigma::createDebuggers(){
 	}
 	initializeDebuggers();
 }
-void enigma::initializeDebuggers(){
+void initializeDebuggers(){
 	for(unsigned int i=0; i<DEBUGGER_SIZE; i++){ // reset
 		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 			Debugger_Sizes1[i][p].key = 0;
@@ -184,7 +170,7 @@ void enigma::initializeDebuggers(){
 	}
 	debugger_i = 0;
 }
-void enigma::debuggerA(keyvalue_t ** Debugger_Sizes, keyvalue_t sizes[NUM_PARTITIONS], unsigned int committype){
+void debuggerA(keyvalue_t ** Debugger_Sizes, keyvalue_t sizes[NUM_PARTITIONS], unsigned int committype){
 	checkoutofbounds("enigma::debuggerA 34", debugger_i, DEBUGGER_SIZE, debugger_i, DEBUGGER_SIZE, NAp);
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		Debugger_Sizes[debugger_i][p].key = 0;
@@ -193,7 +179,7 @@ void enigma::debuggerA(keyvalue_t ** Debugger_Sizes, keyvalue_t sizes[NUM_PARTIT
 		else {}
 	}
 }
-void enigma::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize){
+void IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize){
 	for(unsigned int i=0; i<_1stdimsize; i++){
 		for(unsigned int p=0; p<_2nddimsize; p++){
 			if((data1[i][p].key == data2[i][p].key) && (data1[i][p].value == data2[i][p].value)){} 
@@ -210,95 +196,95 @@ void enigma::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1st
 }
 #endif
 #ifdef _DEBUGMODE_STATS
-void enigma::globalstats_countkvstatsread(unsigned int count){
+void globalstats_countkvstatsread(unsigned int count){
 	globalvar_totalkvstatsread += count;
 	return;
 }
-void enigma::globalvar_collectstats_counttotalkvsread(unsigned int count){
+void globalvar_collectstats_counttotalkvsread(unsigned int count){
 	globalvar_collectstats_totalkvsread += count;
 	return;
 }
-void enigma::globalvar_extractcapsules_counttotalkvsread(unsigned int count){
+void globalvar_extractcapsules_counttotalkvsread(unsigned int count){
 	globalvar_extractcapsules_totalkvsread += count;
 	return;
 }
-void enigma::globalvar_organizekeyvalues_counttotalkvsread(unsigned int count){
+void globalvar_organizekeyvalues_counttotalkvsread(unsigned int count){
 	globalvar_organizekeyvalues_totalkvsread += count;
 	return;
 }
-void enigma::globalvar_savestats_counttotalstatswritten(unsigned int count){
+void globalvar_savestats_counttotalstatswritten(unsigned int count){
 	globalvar_savestats_totalstatswritten += count;
 	return;
 }
-void enigma::globalvar_savepartitions_countinvalids(unsigned int count){
+void globalvar_savepartitions_countinvalids(unsigned int count){
 	globalvar_savepartitions_invalids += count;
 	return;
 }
-void enigma::globalvar_inmemory_counttotalvalidkeyvalues(unsigned int count){
+void globalvar_inmemory_counttotalvalidkeyvalues(unsigned int count){
 	globalvar_inmemory_totalvalidkeyvalues += count;
 	return;
 }
-void enigma::globalstats_countkvsread(unsigned int count){
+void globalstats_countkvsread(unsigned int count){
 	globalvar_totalkvsread += count;
 	return;
 }
-void enigma::globalstats_countkvswritten(unsigned int count){
+void globalstats_countkvswritten(unsigned int count){
 	globalstats_totalkvswritten += count;
 	return;
 }
-void enigma::globalstats_countkvspartitionswritten(unsigned int count){
+void globalstats_countkvspartitionswritten(unsigned int count){
 	globalstats_totalkvspartitionswritten += count;
 	return;
 }
-void enigma::globalstats_countkvspartitioned(unsigned int count){
+void globalstats_countkvspartitioned(unsigned int count){
 	globalstats_totalkvspartitioned += count;
 	return;
 }
-void enigma::globalstats_countkvsreduced(unsigned int count){
+void globalstats_countkvsreduced(unsigned int count){
 	globalstats_totalkvsreduced += count;
 	return;
 }
-void enigma::globalstats_countkvsreducewritten(unsigned int count){
+void globalstats_countkvsreducewritten(unsigned int count){
 	globalstats_totalkvsreducewritten += count;
 	return;
 }
-void enigma::globalstats_reduce_countvalidkvsreduced(unsigned int count){
+void globalstats_reduce_countvalidkvsreduced(unsigned int count){
 	globalstats_reduce_validkvsreduced += count;
 	return;
 }
 
-void enigma::globalstats_countkvsreadV(unsigned int count){
+void globalstats_countkvsreadV(unsigned int count){
 	globalvar_totalkvsreadV += count;
 	return;
 }
 #endif 
 
-unsigned int enigma::allignhigher_KV(unsigned int val){
+unsigned int allignhigher_KV(unsigned int val){
 	unsigned int fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-unsigned int enigma::allignlower_KV(unsigned int val){
+unsigned int allignlower_KV(unsigned int val){
 	unsigned int fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-unsigned int enigma::ceildiv(unsigned int val1, unsigned int val2){
+unsigned int ceildiv(unsigned int val1, unsigned int val2){
 	return (val1 + (val2 - 1)) / val2;
 }	
-unsigned int enigma::max(unsigned int val1, unsigned int val2){
+unsigned int max(unsigned int val1, unsigned int val2){
 	if(val1 > val2){ return val1; }
 	else { return val2; }
 }
-unsigned int enigma::min(unsigned int A, unsigned int B){
+unsigned int min(unsigned int A, unsigned int B){
 	#pragma HLS INLINE
 	if(A<B){ return A; }
 	else { return B; }
 }
-unsigned int enigma::hsub(unsigned int A, unsigned int B){
+unsigned int hsub(unsigned int A, unsigned int B){
 	#pragma HLS INLINE
 	if(A < B){ return 0; }
 	else { return A - B; }
 }
-void enigma::checkandforce(unsigned int data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval){
+void checkandforce(unsigned int data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval){
 	#pragma HLS INLINE
 	#ifdef BC_ALGORITHM // FIXME. REMOVEME.
 	if(data >= upper_bound){ *datatoforce = forceval; }
@@ -307,13 +293,13 @@ void enigma::checkandforce(unsigned int data, unsigned int upper_bound, unsigned
 	return;
 	#endif 
 }
-int enigma::WithinValidRange(unsigned int val1, unsigned int val2){
+int WithinValidRange(unsigned int val1, unsigned int val2){
 	#pragma HLS INLINE
 	if(val1 < val2){ return 1; }
 	else { return 0; }
 }
 
-unsigned int enigma::getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit){
+unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit){
 	partition_type val = ((keyvalue.key - upperlimit) >> (KVDATA_RANGE_PERSSDPARTITION_POW - (NUM_PARTITIONS_POW * currentLOP)));
 	partition_type hashedval = val;
 	if(keyvalue.key == INVALIDDATA){ hashedval = 0; }
@@ -324,7 +310,7 @@ unsigned int enigma::getpartition(keyvalue_t keyvalue, unsigned int currentLOP, 
 	#endif
 	return hashedval;
 }
-keyvalue_t enigma::getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs){
+keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs){
 	#pragma HLS INLINE
 	if(addr >= (maxaddr_kvs * VECTOR_SIZE)){ addr = 0; } // FIXME. FORCEDFINISH
 	keyvalue_t keyvalue;
@@ -374,7 +360,7 @@ else if(idx==7){
 	#endif
 	return keyvalue;
 }
-void enigma::setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs){
+void setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs){
 	#pragma HLS INLINE
 	if(addr >= (maxaddr_kvs * VECTOR_SIZE)){ addr = 0; } // FIXME. FORCEDFINISH
 	batch_type idy = (addr / VECTOR_SIZE);
@@ -422,7 +408,7 @@ else if(idx==7){
 	#endif
 	return;
 }
-void enigma::setkeyvalue(uint512_dt * Vtemp, vector_type idx, keyvalue_t keyvalue){
+void setkeyvalue(uint512_dt * Vtemp, vector_type idx, keyvalue_t keyvalue){
 	// #pragma HLS INLINE OFF
 	#ifdef _WIDEWORD
 if(idx==0){	
@@ -463,7 +449,7 @@ else if(idx==7){
 	#endif
 	return;
 }
-void enigma::setkeyvalues( uint512_dt * Vtemp00,  uint512_dt * Vtemp01,  uint512_dt * Vtemp02,  uint512_dt * Vtemp03,  uint512_dt * Vtemp04,  uint512_dt * Vtemp05,  uint512_dt * Vtemp06,  uint512_dt * Vtemp07,  uint512_dt * Vtemp10,  uint512_dt * Vtemp11,  uint512_dt * Vtemp12,  uint512_dt * Vtemp13,  uint512_dt * Vtemp14,  uint512_dt * Vtemp15,  uint512_dt * Vtemp16,  uint512_dt * Vtemp17,  uint512_dt * Vtemp20,  uint512_dt * Vtemp21,  uint512_dt * Vtemp22,  uint512_dt * Vtemp23,  uint512_dt * Vtemp24,  uint512_dt * Vtemp25,  uint512_dt * Vtemp26,  uint512_dt * Vtemp27,  uint512_dt * Vtemp30,  uint512_dt * Vtemp31,  uint512_dt * Vtemp32,  uint512_dt * Vtemp33,  uint512_dt * Vtemp34,  uint512_dt * Vtemp35,  uint512_dt * Vtemp36,  uint512_dt * Vtemp37,   keyvalue_t keyvalue00,  keyvalue_t keyvalue01,  keyvalue_t keyvalue02,  keyvalue_t keyvalue03,  keyvalue_t keyvalue04,  keyvalue_t keyvalue05,  keyvalue_t keyvalue06,  keyvalue_t keyvalue07,  keyvalue_t keyvalue10,  keyvalue_t keyvalue11,  keyvalue_t keyvalue12,  keyvalue_t keyvalue13,  keyvalue_t keyvalue14,  keyvalue_t keyvalue15,  keyvalue_t keyvalue16,  keyvalue_t keyvalue17,  keyvalue_t keyvalue20,  keyvalue_t keyvalue21,  keyvalue_t keyvalue22,  keyvalue_t keyvalue23,  keyvalue_t keyvalue24,  keyvalue_t keyvalue25,  keyvalue_t keyvalue26,  keyvalue_t keyvalue27,  keyvalue_t keyvalue30,  keyvalue_t keyvalue31,  keyvalue_t keyvalue32,  keyvalue_t keyvalue33,  keyvalue_t keyvalue34,  keyvalue_t keyvalue35,  keyvalue_t keyvalue36,  keyvalue_t keyvalue37,  vector_type idx){
+void setkeyvalues( uint512_dt * Vtemp00,  uint512_dt * Vtemp01,  uint512_dt * Vtemp02,  uint512_dt * Vtemp03,  uint512_dt * Vtemp04,  uint512_dt * Vtemp05,  uint512_dt * Vtemp06,  uint512_dt * Vtemp07,  uint512_dt * Vtemp10,  uint512_dt * Vtemp11,  uint512_dt * Vtemp12,  uint512_dt * Vtemp13,  uint512_dt * Vtemp14,  uint512_dt * Vtemp15,  uint512_dt * Vtemp16,  uint512_dt * Vtemp17,  uint512_dt * Vtemp20,  uint512_dt * Vtemp21,  uint512_dt * Vtemp22,  uint512_dt * Vtemp23,  uint512_dt * Vtemp24,  uint512_dt * Vtemp25,  uint512_dt * Vtemp26,  uint512_dt * Vtemp27,  uint512_dt * Vtemp30,  uint512_dt * Vtemp31,  uint512_dt * Vtemp32,  uint512_dt * Vtemp33,  uint512_dt * Vtemp34,  uint512_dt * Vtemp35,  uint512_dt * Vtemp36,  uint512_dt * Vtemp37,   keyvalue_t keyvalue00,  keyvalue_t keyvalue01,  keyvalue_t keyvalue02,  keyvalue_t keyvalue03,  keyvalue_t keyvalue04,  keyvalue_t keyvalue05,  keyvalue_t keyvalue06,  keyvalue_t keyvalue07,  keyvalue_t keyvalue10,  keyvalue_t keyvalue11,  keyvalue_t keyvalue12,  keyvalue_t keyvalue13,  keyvalue_t keyvalue14,  keyvalue_t keyvalue15,  keyvalue_t keyvalue16,  keyvalue_t keyvalue17,  keyvalue_t keyvalue20,  keyvalue_t keyvalue21,  keyvalue_t keyvalue22,  keyvalue_t keyvalue23,  keyvalue_t keyvalue24,  keyvalue_t keyvalue25,  keyvalue_t keyvalue26,  keyvalue_t keyvalue27,  keyvalue_t keyvalue30,  keyvalue_t keyvalue31,  keyvalue_t keyvalue32,  keyvalue_t keyvalue33,  keyvalue_t keyvalue34,  keyvalue_t keyvalue35,  keyvalue_t keyvalue36,  keyvalue_t keyvalue37,  vector_type idx){
 	#pragma HLS INLINE OFF
 	#ifdef _WIDEWORD
 if(idx==0){
@@ -1031,30 +1017,30 @@ else if(idx==7){
 	#endif
 	return;
 }
-unsigned int enigma::getvaluecount(keyvalue_t * keyvalues, unsigned int size){
+unsigned int getvaluecount(keyvalue_t * keyvalues, unsigned int size){
 	unsigned int totalnumkeyvalues = 0;
 	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
 	return totalnumkeyvalues;
 }
 
-void enigma::resetkeyandvalues(keyvalue_t * buffer, unsigned int size){
+void resetkeyandvalues(keyvalue_t * buffer, unsigned int size){
 	#pragma HLS INLINE
 	RESETKEYVANDVALUES_LOOP: for(partition_type p=0; p<size; p++){ buffer[p].key = 0; buffer[p].value = 0; }
 }
-void enigma::resetvalues(keyvalue_t * buffer, unsigned int size){
+void resetvalues(keyvalue_t * buffer, unsigned int size){
 	#pragma HLS INLINE
 	RESETVALUES_LOOP: for(partition_type p=0; p<size; p++){ buffer[p].value = 0; }
 }
-void enigma::copykeys(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size){
+void copykeys(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size){
 	#pragma HLS INLINE
 	COPYKEYS_LOOP: for(partition_type p=0; p<size; p++){ buffer2[p].key = buffer1[p].key; }
 }
-void enigma::copy(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size){
+void copy(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size){
 	#pragma HLS INLINE
 	COPYKEYS_LOOP: for(partition_type p=0; p<size; p++){ buffer2[p] = buffer1[p]; }
 }
 
-buffer_type enigma::getactivesize(buffer_type i, batch_type i_end, buffer_type buffersize){	
+buffer_type getactivesize(buffer_type i, batch_type i_end, buffer_type buffersize){	
 	#pragma HLS INLINE
 	buffer_type activesize = 0;
 	buffer_type next_i = i + buffersize;
@@ -1073,16 +1059,16 @@ buffer_type enigma::getactivesize(buffer_type i, batch_type i_end, buffer_type b
 	#endif
 	return activesize;
 }
-batch_type enigma::getAddr(batch_type addr){
+batch_type getAddr(batch_type addr){
 	#pragma HLS INLINE
 	return addr;
 }
-batch_type enigma::getmessagesAddr(batch_type addr){
+batch_type getmessagesAddr(batch_type addr){
 	#pragma HLS INLINE
 	return BASEOFFSET_MESSAGESDRAM + addr;
 }
 
-unsigned int enigma::getsourceskipsize(unsigned int currentLOP, unsigned int param){
+unsigned int getsourceskipsize(unsigned int currentLOP, unsigned int param){
 	#pragma HLS INLINE
 	unsigned int treedepth = TREE_DEPTH; // NB: for debugging purposes only
 	unsigned int result = param;
@@ -1092,7 +1078,7 @@ unsigned int enigma::getsourceskipsize(unsigned int currentLOP, unsigned int par
 	}
 	return result;
 }
-unsigned int enigma::getdestskipsize(unsigned int currentLOP, unsigned int param){
+unsigned int getdestskipsize(unsigned int currentLOP, unsigned int param){
 	#pragma HLS INLINE
 	unsigned int treedepthloop_tripcount = TREE_DEPTH; // NB: for debugging purposes only
 	unsigned int result = param / NUM_PARTITIONS;
@@ -1102,7 +1088,7 @@ unsigned int enigma::getdestskipsize(unsigned int currentLOP, unsigned int param
 	}
 	return result;
 }
-unsigned int enigma::get_num_source_partitions(unsigned int currentLOP){
+unsigned int get_num_source_partitions(unsigned int currentLOP){
 	#pragma HLS INLINE
 	unsigned int treedepth = TREE_DEPTH;
 	unsigned int pow = 1;
@@ -1113,13 +1099,13 @@ unsigned int enigma::get_num_source_partitions(unsigned int currentLOP){
 	return pow;
 }
 
-void enigma::calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int skipspacing){
+void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int skipspacing){
 	#pragma HLS INLINE
 	capsule[0].key = 0;
 	PREPARECAPSULE_LOOP1: for (partition_type p = 1; p<NUM_PARTITIONS; p++){ capsule[p].key = allignhigher_KV(capsule[p-1].key + capsule[p-1].value + skipspacing); }
 	return;
 }
-void enigma::calculateoffsets(keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], unsigned int skipspacing){
+void calculateoffsets(keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], unsigned int skipspacing){
 	#pragma HLS INLINE
 	capsule0[0].key = 0;
 	capsule1[0].key = 0;
@@ -1139,7 +1125,7 @@ void enigma::calculateoffsets(keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t cap
 	#endif
 	return;
 }
-void enigma::calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing){
+void calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int offset, unsigned int skipspacing){
 	#pragma HLS INLINE
 	capsule[0].key = 0;
 	PREPARECAPSULE_LOOP1: for (partition_type p = 1; p<NUM_PARTITIONS; p++){ capsule[p].key = allignhigher_KV(capsule[p-1].key + capsule[p-1].value + skipspacing); }
@@ -1147,7 +1133,7 @@ void enigma::calculateoffsets(keyvalue_t capsule[NUM_PARTITIONS], unsigned int o
 	return;
 }
 
-void enigma::loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP){
+void loadclopparams(globalparams_t globalparams, clopparams_t * llopparams, unsigned int currentLOP){
 	#pragma HLS INLINE
 	if((currentLOP % 2) == 1){ llopparams->baseaddr_worksourcekvs_kvs = BASEOFFSET_KVDRAM_KVS; llopparams->baseaddr_workdestkvs_kvs = BASEOFFSET_KVDRAMWORKSPACE_KVS; }
 	else { llopparams->baseaddr_worksourcekvs_kvs = BASEOFFSET_KVDRAMWORKSPACE_KVS; llopparams->baseaddr_workdestkvs_kvs = BASEOFFSET_KVDRAM_KVS; }	
@@ -1186,7 +1172,7 @@ void enigma::loadclopparams(globalparams_t globalparams, clopparams_t * lloppara
 	#endif
 	return;
 }
-value_t enigma::reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter){
+value_t reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter){
 	#pragma HLS INLINE
 	value_t ret = 0;
 	#ifdef PR_ALGORITHM
@@ -1198,7 +1184,7 @@ value_t enigma::reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned 
 	#endif
 	return ret;
 }
-void enigma::getchunksize(buffer_type * chunk_size, buffer_type buffer_size, travstate_t travstate, unsigned int localoffset){
+void getchunksize(buffer_type * chunk_size, buffer_type buffer_size, travstate_t travstate, unsigned int localoffset){
 	#pragma HLS INLINE
 	*chunk_size = buffer_size;
 	batch_type i = travstate.i_kvs + localoffset;
@@ -1214,11 +1200,11 @@ void enigma::getchunksize(buffer_type * chunk_size, buffer_type buffer_size, tra
 	#endif
 	return;
 }
-int enigma::IsReducePhase(unsigned int currentLOP, unsigned int treedepth, globalparams_t globalparams){
+int IsReducePhase(unsigned int currentLOP, unsigned int treedepth, globalparams_t globalparams){
 	if((currentLOP == (treedepth + 1)) && (globalparams.reducecommand == ON)){ return 1; }
 	return 0;
 }
-void enigma::shutdownpartitionparams(partitionparams_t * partitionparams){
+void shutdownpartitionparams(partitionparams_t * partitionparams){
 	#pragma HLS INLINE
 	partitionparams->begin_kvs = 0;
 	partitionparams->size_kvs = 0;
@@ -1226,7 +1212,7 @@ void enigma::shutdownpartitionparams(partitionparams_t * partitionparams){
 	return;
 }
 
-void enigma::readkeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs){			
+void readkeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs){			
 	unsigned int analysis_buffersz = SRCBUFFER_SIZE;
 	
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &size_kvs, 0);
@@ -1244,7 +1230,7 @@ void enigma::readkeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type
 	}
 	return;
 }
-void enigma::readkeyvalues(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs){
+void readkeyvalues(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs){
 	#pragma HLS INLINE
 	int analysis_savebuffer = NUM_PARTITIONS;
 	
@@ -1255,7 +1241,7 @@ void enigma::readkeyvalues(keyvalue_t * dram, keyvalue_t * buffer, batch_type ba
 	}
 	return;
 }
-void enigma::readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,uint512_dt * buffer1  ,uint512_dt * buffer2  ,uint512_dt * buffer3  ,batch_type baseaddress ,batch_type offset_kvs, travstate_t travstate, batch_type maxaddress_kvs){			
+void readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,uint512_dt * buffer1  ,uint512_dt * buffer2  ,uint512_dt * buffer3  ,batch_type baseaddress ,batch_type offset_kvs, travstate_t travstate, batch_type maxaddress_kvs){			
 	buffer_type chunk0_size = SRCBUFFER_SIZE;
 	getchunksize(&chunk0_size, SRCBUFFER_SIZE, travstate, ((workerID * NUMSUBWORKERS) + (0 * SRCBUFFER_SIZE)));
 	buffer_type chunk1_size = SRCBUFFER_SIZE;
@@ -1271,7 +1257,7 @@ void enigma::readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512
 	readkeyvalues0(kvdram, buffer3, baseaddress, offset_kvs + ((workerID * NUMSUBWORKERS * SRCBUFFER_SIZE) + (3 * SRCBUFFER_SIZE)), chunk3_size, maxaddress_kvs);
 	return;
 }
-void enigma::readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,uint512_dt * buffer1  ,uint512_dt * buffer2  ,uint512_dt * buffer3  ,batch_type baseaddress, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, batch_type maxaddress_kvs){			
+void readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,uint512_dt * buffer1  ,uint512_dt * buffer2  ,uint512_dt * buffer3  ,batch_type baseaddress, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, batch_type maxaddress_kvs){			
 	
 	travstate_t travstate0; 
 	travstate0.i_kvs = travstate.i_kvs;
@@ -1309,7 +1295,7 @@ void enigma::readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512
 	readkeyvalues0(kvdram, buffer3, baseaddress, ((sourcestats[3].key / VECTOR_SIZE) + travstate3.i_kvs) + ((workerID * NUMSUBWORKERS * SRCBUFFER_SIZE) + (3 * SRCBUFFER_SIZE)), chunk3_size, maxaddress_kvs);
 	return;
 }
-offset_t enigma::readcapsules0(unsigned int workerID, uint512_dt * kvdram,  uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule1[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule2[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule3[CAPSULEBUFFER_SIZE], keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS],  batch_type baseaddress_kvs, batch_type offset, int enable, offset_t capsulemetadata){
+offset_t readcapsules0(unsigned int workerID, uint512_dt * kvdram,  uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule1[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule2[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule3[CAPSULEBUFFER_SIZE], keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS],  batch_type baseaddress_kvs, batch_type offset, int enable, offset_t capsulemetadata){
 	if(enable == 0){ return capsulemetadata; }
 	#ifdef _DEBUGMODE_CHECKS2
 	checkoutofbounds("enigma::readcapsules0 35", (baseaddress_kvs + offset + NUM_PARTITIONS), KVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
@@ -1363,7 +1349,7 @@ offset_t enigma::readcapsules0(unsigned int workerID, uint512_dt * kvdram,  uint
 	return capsulemetadata;
 }
 
-void enigma::collectstats00(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE], uint512_dt sourcebuffer1[SRCBUFFER_SIZE], uint512_dt sourcebuffer2[SRCBUFFER_SIZE], uint512_dt sourcebuffer3[SRCBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], clopparams_t llopparams, travstate_t travstate){
+void collectstats00(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE], uint512_dt sourcebuffer1[SRCBUFFER_SIZE], uint512_dt sourcebuffer2[SRCBUFFER_SIZE], uint512_dt sourcebuffer3[SRCBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], clopparams_t llopparams, travstate_t travstate){
 	if(enable == 0){ return; }
 	
 	
@@ -1434,7 +1420,7 @@ void enigma::collectstats00(unsigned int enable, unsigned int workerID , uint512
 	}
 	return;
 }
-void enigma::partitionkeyvalues00(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE], uint512_dt sourcebuffer1[SRCBUFFER_SIZE], uint512_dt sourcebuffer2[SRCBUFFER_SIZE], uint512_dt sourcebuffer3[SRCBUFFER_SIZE] , uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer1[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer2[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer3[PADDEDDESTBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], travstate_t travstate, clopparams_t llopparams){					
+void partitionkeyvalues00(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE], uint512_dt sourcebuffer1[SRCBUFFER_SIZE], uint512_dt sourcebuffer2[SRCBUFFER_SIZE], uint512_dt sourcebuffer3[SRCBUFFER_SIZE] , uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer1[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer2[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer3[PADDEDDESTBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], travstate_t travstate, clopparams_t llopparams){					
 	if(enable == 0){ return; }
 	unsigned int analysis_partition = SRCBUFFER_SIZE;
 	
@@ -1503,7 +1489,7 @@ void enigma::partitionkeyvalues00(unsigned int enable, unsigned int workerID , u
 	}
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){  capsule0[p].value = sizes0[p].value;  capsule1[p].value = sizes1[p].value;  capsule2[p].value = sizes2[p].value;  capsule3[p].value = sizes3[p].value;  }
 }
-void enigma::reducepartitions0(unsigned int enable, unsigned int workerID  ,uint512_dt sourcebuffer0[SRCBUFFER_SIZE]  ,uint512_dt sourcebuffer1[SRCBUFFER_SIZE]  ,uint512_dt sourcebuffer2[SRCBUFFER_SIZE]  ,uint512_dt sourcebuffer3[SRCBUFFER_SIZE]   ,uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE]  ,uint512_dt destbuffer1[PADDEDDESTBUFFER_SIZE]  ,uint512_dt destbuffer2[PADDEDDESTBUFFER_SIZE]  ,uint512_dt destbuffer3[PADDEDDESTBUFFER_SIZE]  ,keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams){
+void reducepartitions0(unsigned int enable, unsigned int workerID  ,uint512_dt sourcebuffer0[SRCBUFFER_SIZE]  ,uint512_dt sourcebuffer1[SRCBUFFER_SIZE]  ,uint512_dt sourcebuffer2[SRCBUFFER_SIZE]  ,uint512_dt sourcebuffer3[SRCBUFFER_SIZE]   ,uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE]  ,uint512_dt destbuffer1[PADDEDDESTBUFFER_SIZE]  ,uint512_dt destbuffer2[PADDEDDESTBUFFER_SIZE]  ,uint512_dt destbuffer3[PADDEDDESTBUFFER_SIZE]  ,keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams){
 	if(enable == 0){ return; }
 	unsigned int analysis_buffersz = SRCBUFFER_SIZE * VECTOR_SIZE;
 	
@@ -1600,7 +1586,7 @@ void enigma::reducepartitions0(unsigned int enable, unsigned int workerID  ,uint
 	return;
 }
 
-void enigma::savekeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs){			
+void savekeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs){			
 	int analysis_savebuffer = PADDEDDESTBUFFER_SIZE;
 	
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &size_kvs, 0);
@@ -1618,7 +1604,7 @@ void enigma::savekeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type
 	}
 	return;
 }
-void enigma::savekeyvalues(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs){
+void savekeyvalues(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs){
 	#pragma HLS INLINE
 	int analysis_savebuffer = NUM_PARTITIONS;
 	
@@ -1629,7 +1615,7 @@ void enigma::savekeyvalues(keyvalue_t * dram, keyvalue_t * buffer, batch_type ba
 	}
 	return;
 }
-offset_t enigma::savecapsules0(unsigned int workerID, uint512_dt * kvdram , uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule1[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule2[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule3[CAPSULEBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata){							
+offset_t savecapsules0(unsigned int workerID, uint512_dt * kvdram , uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule1[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule2[CAPSULEBUFFER_SIZE], uint512_dt BIGcapsule3[CAPSULEBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata){							
 	buffer_type loffset = offset % (CAPSULEBUFFER_SIZE * VECTOR_SIZE);
 	
 	// gathering global information
@@ -1705,7 +1691,7 @@ offset_t enigma::savecapsules0(unsigned int workerID, uint512_dt * kvdram , uint
 	}
 	return capsulemetadata;
 }
-void enigma::savepartitions0(unsigned int workerID, uint512_dt * kvdram , uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer1[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer2[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer3[PADDEDDESTBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS] ,keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type kvdrambaseaddress, travstate_t travstate){				
+void savepartitions0(unsigned int workerID, uint512_dt * kvdram , uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer1[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer2[PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer3[PADDEDDESTBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS] ,keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type kvdrambaseaddress, travstate_t travstate){				
 	int analysis_savebuffer = PADDEDBUFFER_SIZE / NUM_PARTITIONS;
 	int analysis_appendinvalids = VECTOR_SIZE;
 
@@ -1875,7 +1861,7 @@ void enigma::savepartitions0(unsigned int workerID, uint512_dt * kvdram , uint51
 	return;
 }
 
-void enigma::resetcapsules0(keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS],  int enableresetdebugger){
+void resetcapsules0(keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t capsule1[NUM_PARTITIONS], keyvalue_t capsule2[NUM_PARTITIONS], keyvalue_t capsule3[NUM_PARTITIONS],  int enableresetdebugger){
 	#pragma HLS INLINE 
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
 		capsule0[p].key = 0; capsule0[p].value = 0;
@@ -1886,7 +1872,7 @@ void enigma::resetcapsules0(keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t caps
 	return;
 }
 
-void enigma::partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams){
+void partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams){
 	int analysis_maxtreedepthsz = 1;
 	int analysis_avgnumsourcepartitions = 1;
 	int analysis_partitionphase = (KVDRAMSZ_KVS / (NUMWORKERS * SRCBUFFER_SIZE)) / VECTOR_SIZE;
@@ -2157,7 +2143,7 @@ void enigma::partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestd
 }
 
 extern "C" {
-void enigma::topkernel(
+void topkernel(
 uint512_dt * kvsourcedramA
 		,uint512_dt * kvdestdramA
 		,keyvalue_t * kvstatsA

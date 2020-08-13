@@ -1,20 +1,6 @@
 #ifndef ACTS_H
 #define ACTS_H
 #include "../src/common.h"
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
@@ -45,17 +31,6 @@ using namespace std;
 #define PVU_NUM_READ_PIPELINES 1
 #endif 
 
-#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
-
-#define NFACTOR 4
-#define PADDEDDESTBUFFER_SIZE 2048 // NEWCHANGE. HARDWARECOMPLAINT. using > 2048 drastically dropped frequency 
-#define SRCBUFFER_SIZE ((PADDEDDESTBUFFER_SIZE - NUM_PARTITIONS) / NFACTOR)
-
-#define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
-#define CAPSULEBUFFER_SIZE 512
-
-#define APPLYVERTEXBUFFERSZ (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)))
-#define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE)
 
 #define ENREADKEYVALUES 1
 #define ENREADKVS_COLLECTSTATS 0
@@ -241,7 +216,7 @@ public:
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 	keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs);
 	keyvalue_t getkeyvalue(uint512_dt * Vtemp, vector_type idx);
-	void setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs);
+	void setkeyvalue(uint512_dt * buffer, batch_type offset, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs);
 	void setkeyvalue(uint512_dt * Vtemp, vector_type idx, keyvalue_t keyvalue);
 	void setkeyvalues( uint512_dt * Vtemp00,  uint512_dt * Vtemp01,  uint512_dt * Vtemp02,  uint512_dt * Vtemp03,  uint512_dt * Vtemp04,  uint512_dt * Vtemp05,  uint512_dt * Vtemp06,  uint512_dt * Vtemp07,  uint512_dt * Vtemp10,  uint512_dt * Vtemp11,  uint512_dt * Vtemp12,  uint512_dt * Vtemp13,  uint512_dt * Vtemp14,  uint512_dt * Vtemp15,  uint512_dt * Vtemp16,  uint512_dt * Vtemp17,  uint512_dt * Vtemp20,  uint512_dt * Vtemp21,  uint512_dt * Vtemp22,  uint512_dt * Vtemp23,  uint512_dt * Vtemp24,  uint512_dt * Vtemp25,  uint512_dt * Vtemp26,  uint512_dt * Vtemp27,  uint512_dt * Vtemp30,  uint512_dt * Vtemp31,  uint512_dt * Vtemp32,  uint512_dt * Vtemp33,  uint512_dt * Vtemp34,  uint512_dt * Vtemp35,  uint512_dt * Vtemp36,  uint512_dt * Vtemp37,   keyvalue_t keyvalue00,  keyvalue_t keyvalue01,  keyvalue_t keyvalue02,  keyvalue_t keyvalue03,  keyvalue_t keyvalue04,  keyvalue_t keyvalue05,  keyvalue_t keyvalue06,  keyvalue_t keyvalue07,  keyvalue_t keyvalue10,  keyvalue_t keyvalue11,  keyvalue_t keyvalue12,  keyvalue_t keyvalue13,  keyvalue_t keyvalue14,  keyvalue_t keyvalue15,  keyvalue_t keyvalue16,  keyvalue_t keyvalue17,  keyvalue_t keyvalue20,  keyvalue_t keyvalue21,  keyvalue_t keyvalue22,  keyvalue_t keyvalue23,  keyvalue_t keyvalue24,  keyvalue_t keyvalue25,  keyvalue_t keyvalue26,  keyvalue_t keyvalue27,  keyvalue_t keyvalue30,  keyvalue_t keyvalue31,  keyvalue_t keyvalue32,  keyvalue_t keyvalue33,  keyvalue_t keyvalue34,  keyvalue_t keyvalue35,  keyvalue_t keyvalue36,  keyvalue_t keyvalue37,  vector_type idx);
 	unsigned int getvaluecount(keyvalue_t * keyvalues, unsigned int size);
@@ -292,6 +267,7 @@ public:
 	void savepartitions0(unsigned int workerID, uint512_dt * kvdram ,uint512_dt result_local0[PADDEDBUFFER_SIZE],uint512_dt result_local1[PADDEDBUFFER_SIZE],uint512_dt result_local2[PADDEDBUFFER_SIZE],uint512_dt result_local3[PADDEDBUFFER_SIZE] ,keyvalue_t capsule0[NUM_PARTITIONS],keyvalue_t capsule1[NUM_PARTITIONS],keyvalue_t capsule2[NUM_PARTITIONS],keyvalue_t capsule3[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], clopparams_t llopparams);
 	
 	void partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	void randomaccessreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, globalparams_t globalparams);
 	
 	void topkernel(
 uint512_dt * kvsourcedramA

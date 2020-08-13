@@ -51,16 +51,6 @@ using namespace std;
 #define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 {%endif%}
 
-#define NFACTOR 4
-#define PADDEDDESTBUFFER_SIZE 2048 // NEWCHANGE. HARDWARECOMPLAINT. using > 2048 drastically dropped frequency 
-#define SRCBUFFER_SIZE ((PADDEDDESTBUFFER_SIZE - NUM_PARTITIONS) / NFACTOR)
-
-#define PADDEDBUFFER_SIZE PADDEDDESTBUFFER_SIZE
-#define CAPSULEBUFFER_SIZE 512
-
-#define APPLYVERTEXBUFFERSZ (1 << (KVDATA_RANGE_PERSSDPARTITION_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)))
-#define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE)
-
 #define ENREADKEYVALUES 1
 #define ENREADKVS_COLLECTSTATS 0
 #define ENSAVECAPSULES_COLLECTSTATS 1
@@ -245,7 +235,7 @@ public:
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 	keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type addr, batch_type maxaddr_kvs);
 	keyvalue_t getkeyvalue(uint512_dt * Vtemp, vector_type idx);
-	void setkeyvalue(uint512_dt * buffer, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs);
+	void setkeyvalue(uint512_dt * buffer, batch_type offset, batch_type addr, keyvalue_t keyvalue, batch_type maxaddr_kvs);
 	void setkeyvalue(uint512_dt * Vtemp, vector_type idx, keyvalue_t keyvalue);
 	void setkeyvalues({%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} uint512_dt * Vtemp{{sw}}{{v}}, {%endfor%}{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} keyvalue_t keyvalue{{sw}}{{v}}, {%endfor%}{%endfor%} vector_type idx);
 	unsigned int getvaluecount(keyvalue_t * keyvalues, unsigned int size);
@@ -331,6 +321,9 @@ public:
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void partitionandreduce{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
+	{%endfor%}
+	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void randomaccessreduce{{ddrs}}(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, globalparams_t globalparams);
 	{%endfor%}
 	
 	void topkernel(
