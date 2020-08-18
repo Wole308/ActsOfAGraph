@@ -81,7 +81,10 @@ int main(int argc, char** argv){
 	unsigned int datasetid;
 	#ifdef _LARGEDATASET_1M
 	datasetid = 1;
-	#endif 
+	#endif
+	#ifdef _TWITTERDATASET_67M
+	datasetid = 2;
+	#endif
 	#ifdef _LARGEDATASET_67M
 	datasetid = 4;
 	#endif
@@ -107,7 +110,7 @@ int main(int argc, char** argv){
 	hostXobj->run();
 	hostXobj->finish();
 	exit(EXIT_SUCCESS);
-	#endif 
+	#endif
 	
 	// create graph
 	#ifdef _GENERATE2DGRAPH

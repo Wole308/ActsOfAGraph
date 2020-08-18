@@ -62,7 +62,7 @@ actgraph_pr_sw::actgraph_pr_sw(graph * _graphobj){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i] = new edge_process(_graphobj); }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edge_process_obj[i]->settime_ssdaccesses_ms(0); }
 	#ifdef SW 
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMDRAMBANKS; j++){ kernelobjs[i][j] = new acts(); }}
+	for(unsigned int i=0; i<NUMCPUTHREADSY; i++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ kernelobjs[i][j] = new acts(); }}
 	#endif 
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ totalnumkvsread[i] = 0; }
 
@@ -112,15 +112,7 @@ runsummary_t actgraph_pr_sw::start2(unsigned int graph_iterationidx) {
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int i_batch=0; i_batch<graphobj->getnumvertexbanks(); i_batch += NUMCPUTHREADSY){
 		cout<<">>> actgraph_pr_sw::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumvertexbanks()<<"][step: "<<NUMCPUTHREADSY<<"]"<<endl;
-		cout<<">>> actgraph_pr_sw::start2: loading vertex properties..."<<endl;
-	
-		#ifdef SW
 		for (int i = 0; i < NUMCPUTHREADSY; i++) { WorkerThread2(i, i_batch); }
-		#else 
-		for (int i = 0; i < NUMCPUTHREADSY; i++) { WorkerThread2(i, i_batch); }
-		#endif
-		// break;
-		
 		cout<<">>> actgraph_pr_sw::start2 Finished: all threads joined..."<<endl;
 	}
 	utilityobj[0]->stopTIME("actgraph_pr_sw::start2: finished start2. Time Elapsed: ", begintime, NAp);
@@ -187,10 +179,10 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 	
 	// load temp vertices data
 	loadverticesdatafromfile(threadidx, graphobj->getnvmeFd_verticesdata_r2()[(threadidxoffset + threadidx)], 0, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	replicateverticesdata({%for ddrs, ddrs_ in zip(context['NUMDRAMBANKS_seq'], context['DRAMBANKS_charseq'])%}(keyvalue_t *)kvdestdram[threadidx][0][{{ddrs}}],{%endfor%} 0, KVDATA_RANGE_PERSSDPARTITION);
+	replicateverticesdata((keyvalue_t **)kvdestdram[threadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
 	writeVstokernel(threadidx);
-	#endif 
+	#endif
 	
 	for(unsigned int lbankoffset = 0; lbankoffset < graphobj->getnumedgebanks(); lbankoffset += NUMCPUTHREADS){
 		edge_t edgepropertyfilesize[NUMCPUTHREADS];
@@ -254,6 +246,7 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 			totaltime_topkernel_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_topkernel).count();
 			#endif
 			#endif
+			exit(EXIT_SUCCESS);
 			
 			// settle updates
 			settleupdates(threadidx, flag, iteration_idx, iteration_size);
@@ -519,13 +512,11 @@ void actgraph_pr_sw::writevertexpropertiestofile(int threadidx, int fd, unsigned
 	#endif
 	return;
 }
-void actgraph_pr_sw::replicateverticesdata({%for ddrs_ in context['DRAMBANKS_charseq']%}keyvalue_t * kvdram{{ddrs_}},{%endfor%} unsigned int offset, unsigned int size){
+void actgraph_pr_sw::replicateverticesdata(keyvalue_t * kvdram[NUMCPUTHREADS], unsigned int offset, unsigned int size){
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	std::cout << endl << "actgraph_pr_sw::replicateverticesdata. replicating verticesdata across DRAMs"<<endl;
-	#endif 
-	{%for ddrs, ddrs_ in zip(context['NUMDRAMBANKS_seq'], context['DRAMBANKS_charseq'])%}
-	memcpy(&kvdram{{ddrs_}}[offset], &kvdramA[offset], (size * sizeof(keyvalue_t)));
-	{%endfor%}
+	std::cout << endl << "actgraph_pr_sw::replicateverticesdata. replicating verticesdata across DRAMs. offset: "<<offset<<", size: "<<size<<endl;
+	#endif
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ memcpy(&kvdram[i][offset], &kvdram[0][offset], (size * sizeof(keyvalue_t))); }
 	return;
 }
 void actgraph_pr_sw::loadvertexisactiveinfosfromfile(int threadidx, int threadidxoffset){
@@ -838,17 +829,16 @@ void actgraph_pr_sw::topkernel(unsigned int ddr, int threadidx, uint512_dt * kvs
 	return kernelobjs[threadidx][ddr]->topkernel(kvsourcedram, kvdestdram, kvstats);
 }
 void actgraph_pr_sw::launchkernel(int threadidx, uint512_dt ** kvsourcedram, uint512_dt ** kvdestdram, keyvalue_t ** kvstats){
+	// return; // REMOVEME.
 	#if defined(TESTKERNEL)
 	kernelobjs[threadidx][0]->topkernel(kvsourcedram[0], kvdestdram[0], kvstats[0]);
 	#else
-	for (int iy = 0; iy < NUMCPUTHREADS; iy+=NUMDRAMBANKS){
-		#ifdef LOCKE
-		for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ kernelobjs[threadidx][ddr]->topkernel(kvsourcedram[iy + ddr], kvdestdram[ddr], kvstats[iy + ddr]); }
-		#else 
-		for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ runacts_thread[threadidx][ddr] = std::thread(&actgraph_pr_sw::topkernel, this, ddr, threadidx, kvsourcedram[iy + ddr], kvdestdram[ddr], kvstats[iy + ddr]); }
-		for (int ddr = 0; ddr < NUMDRAMBANKS; ddr++){ runacts_thread[threadidx][ddr].join(); }
-		#endif
-	}
+	#ifdef LOCKE
+	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ kernelobjs[threadidx][ddr]->topkernel(kvsourcedram[ddr], kvdestdram[ddr], kvstats[ddr]); exit(EXIT_SUCCESS); }
+	#else 
+	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr] = std::thread(&actgraph_pr_sw::topkernel, this, ddr, threadidx, kvsourcedram[ddr], kvdestdram[ddr], kvstats[ddr]); }
+	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr].join(); }
+	#endif
 	#endif
 	return;
 }

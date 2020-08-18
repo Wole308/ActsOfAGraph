@@ -1,11 +1,26 @@
 #ifndef ENIGMA_H
 #define ENIGMA_H
 #include "../src/common.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
 using namespace std;
 
+#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define SRCBUFFER_SIZE (512 - (2 * NUM_PARTITIONS))
 #define PADDEDDESTBUFFER_SIZE 2048

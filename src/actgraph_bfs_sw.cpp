@@ -385,7 +385,7 @@ void actgraph_bfs_sw::WorkerThread2(int threadidx, int bankoffset){
 
 	// load temp vertices data // FIXME. ensure non-sharing
 	actgraph_pr_sw_obj->loadverticesdatafromfile(threadidx, graphobj->getnvmeFd_verticesdata_r2()[(bankoffset + threadidx)], 0, (keyvalue_t *)kvdestdram[threadidx][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	actgraph_pr_sw_obj->replicateverticesdata((keyvalue_t *)kvdestdram[threadidx][0][0],(keyvalue_t *)kvdestdram[threadidx][0][1],(keyvalue_t *)kvdestdram[threadidx][0][2],(keyvalue_t *)kvdestdram[threadidx][0][3], 0, KVDATA_RANGE_PERSSDPARTITION);
+	actgraph_pr_sw_obj->replicateverticesdata((keyvalue_t **)kvdestdram[threadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
 	writeVstokernel(threadidx);
 	#endif 

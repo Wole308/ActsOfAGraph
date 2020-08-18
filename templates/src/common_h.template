@@ -117,13 +117,7 @@
 ////////////////
 
 #ifdef TESTKERNEL
-#ifdef TESTKERNEL_IMPACTOFPLATFORM
-// #define KVDATA_BATCHSIZE ((1 << 26) / NUMCPUTHREADS)
-// #define KVDATA_BATCHSIZE (1 << 24)
 #define KVDATA_BATCHSIZE (1 << 26)
-#else 
-#define KVDATA_BATCHSIZE (1 << 26)
-#endif 
 #else 
 #define KVDATA_BATCHSIZE (1 << 24)
 #endif 

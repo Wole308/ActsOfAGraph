@@ -87,7 +87,7 @@ void host_enigma::start() {
 }
 void host_enigma::WorkerThread(int threadidx){
 	/** unsigned int iteration_size = DRAMBATCHFACTOR * 2; */
-	unsigned int iteration_size = 10;
+	unsigned int iteration_size = 1;
 	bool statsalreadycollected = false;
 	totaltime_topkernel_ms = 0;
 	
@@ -226,7 +226,6 @@ void host_enigma::launchswkernel(int threadidx){
 	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ kernelobjs[threadidx][ddr]->topkernel((uint512_dt *)kvsourcedram[threadidx][ddr], (uint512_dt *)kvdestdram[threadidx][ddr], kvstats[threadidx][ddr]); }
 	#else 
 	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr] = std::thread(&host_enigma::topkernel, this, ddr, threadidx, (uint512_dt *)kvsourcedram[threadidx][ddr], (uint512_dt *)kvdestdram[threadidx][ddr], kvstats[threadidx][ddr]); }
-	// for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr] = std::thread(&host_enigma::topkernel, this, ddr, threadidx, (uint512_dt *)kvsourcedram[threadidx][ddr], (uint512_dt *)kvdestdram[threadidx][0], kvstats[threadidx][ddr]); } // REMOVEME
 	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr].join(); }
 	#endif
 	utilityobj[0]->stopTIME("Total time elapsed (TopKernel Process): ", begintime_topkernel, NAp);

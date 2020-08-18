@@ -23,10 +23,10 @@
 using namespace std;
 
 // #define COLLECTCAPSULES_TYPE1
-#define COLLECTCAPSULES_TYPE2
+#define COLLECTCAPSULES_TYPE2 //
 
 // #define APPENDINVALIDS_TYPE1
-#define APPENDINVALIDS_TYPE2
+#define APPENDINVALIDS_TYPE2 //
 
 // #define WRITEPARTITION_TYPE1
 // #define WRITEPARTITION_TYPE2 // 
@@ -313,7 +313,7 @@ public:
 	void savekeyvalues{{ddrs}}(uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}{%for v in context['VECTOR_SIZE_seq']%} ,keyvalue_t * buffer{{sw}}{{v}} {%endfor%}{%endfor%} ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	offset_t savecapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata);
+	offset_t savecapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], keyvalue_t kvdeststats3_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void savepartitions{{ddrs}}(unsigned int workerID, uint512_dt * kvdram {%for sw in context['NUMSUBWORKERS_seq']%},uint512_dt result_local{{sw}}[PADDEDBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%},keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], clopparams_t llopparams);

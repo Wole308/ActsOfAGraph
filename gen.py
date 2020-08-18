@@ -34,6 +34,9 @@ else:
     elif context['DATASET'] == "_LARGEDATASET_1M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 20
+    elif context['DATASET'] == "_TWITTERDATASET_67M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_67M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 26
@@ -169,8 +172,8 @@ o_path39="src/common.h"
 o_path40="src/common.h"
 o_path41="src/common.h"
 o_path42="src/common.h"
-o_path43="kernels/enigma.cpp"
-o_path44="kernels/enigma.h"
+o_path43="kernels/common.cpp"
+o_path44="kernels/common.h"
 o_path45="src/host_enigma.cpp"
 o_path46="src/host_enigma.h"
 o_path47="kernels/acts.cpp"
@@ -281,16 +284,16 @@ templ_path39="templates/src/"
 templ_path40="templates/src/"
 templ_path41="templates/src/"
 templ_path42="templates/src/"
-templ_path43="templates/kernels/"
-templ_path44="templates/kernels/"
+templ_path43="templates/src/"
+templ_path44="templates/src/"
 templ_path45="templates/src/"
 templ_path46="templates/src/"
 templ_path47="templates/kernels/"
 templ_path48="templates/kernels/"
 templ_path49="templates/src/"
 templ_path50="templates/src/"
-templ_path51="templates/kernels/"
-templ_path52="templates/kernels/"
+templ_path51="templates/src/"
+templ_path52="templates/src/"
 templ_path53="templates/src/"
 templ_path54="templates/src/"
 
@@ -545,16 +548,16 @@ template39 = env39.get_template('common_h.template')
 template40 = env40.get_template('common_h.template')
 template41 = env41.get_template('common_h.template')
 template42 = env42.get_template('common_h.template')
-template43 = env43.get_template('enigma.template')
-template44 = env44.get_template('enigma_h.template')
+template43 = env43.get_template('common_h.template')
+template44 = env44.get_template('common_h.template')
 template45 = env45.get_template('host_enigma.template')
 template46 = env46.get_template('host_enigma_h.template')
 template47 = env47.get_template('acts.template')
 template48 = env48.get_template('acts_h.template')
 template49 = env49.get_template('common_h.template')
 template50 = env50.get_template('common_h.template')
-template51 = env51.get_template('kernelprocess.template')
-template52 = env52.get_template('kernelprocess_h.template')
+template51 = env51.get_template('common_h.template')
+template52 = env52.get_template('common_h.template')
 template53 = env53.get_template('common_h.template')
 template54 = env54.get_template('common_h.template')
 

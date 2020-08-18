@@ -99,7 +99,7 @@ grafboost_pr_sw::grafboost_pr_sw(graph * _graphobj){
 		kvdram{{ddrs_}}[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
 		{%endfor%}
 		{%for ddrs, ddrs_ in zip(context['NUMDRAMBANKS_seq'], context['DRAMBANKS_charseq'])%}
-		kvstats{{ddrs_}}[i] = new metadata_t[1]; // NAp
+		kvstats{{ddrs_}}[i] = new keyvalue_t[1]; // NAp
 		{%endfor%}
 	}
 	
@@ -322,11 +322,6 @@ void grafboost_pr_sw::printkvdrams(uint512_vec_dt * kvdram){
 	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
 		for(unsigned int j=0; j<VECTOR_SIZE; j++){
 			std::cout<<"kvdram["<<i<<"].data["<<j<<"].key: "<<kvdram[i].data[j].key<<std::endl;
-		}
-    }
-	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
-		for(unsigned int j=0; j<VECTOR_SIZE; j++){
-			std::cout<<"kvdram["<<(PADDEDKVDATA_BATCHSIZE_KVS + i)<<"].data["<<j<<"].key: "<<kvdram[(PADDEDKVDATA_BATCHSIZE_KVS + i)].data[j].key<<std::endl;
 		}
     }
 	std::cout<<std::endl;

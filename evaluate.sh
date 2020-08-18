@@ -40,10 +40,11 @@ SW__GRAFBOOST_SETUP__BC_ALGORITHM=23
 HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=24
 
 LARGEDATASET_1M=1
-LARGEDATASET_67M=2
-LARGEDATASET_268M=3
-LARGEDATASET_1B=4
-LARGEDATASET_4B=5
+TWITTERDATASET_67M=2
+LARGEDATASET_67M=3
+LARGEDATASET_268M=4
+LARGEDATASET_1B=5
+LARGEDATASET_4B=6
 
 _1THREADS=1
 _2THREADS=2
@@ -65,17 +66,18 @@ _NOLOCKE="NOLOCKE"
 # evaluation_type=EV_TRADITIONAL
 
 ### >>> LOOP0: evaluation types
-# for evaluation_type in EV_SIMPLETEST
+# for evaluation_type in EV_PERFORMANCEOFALGORITHM
+for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
-for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
+# for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
 # for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
 # for evaluation_type in EV_IMPACTOFBANDWIDTH
 # for evaluation_type in EV_IMPACTOFPLATFORM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -84,6 +86,8 @@ do
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 
 	# for setup in $HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	
+	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM
@@ -173,9 +177,10 @@ do
 			do
 				### >>> LOOP3: datasets
 				# for dataset in $LARGEDATASET_1M
+				for dataset in $TWITTERDATASET_67M
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
-				for dataset in $LARGEDATASET_1B
+				# for dataset in $LARGEDATASET_1B
 				# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 				do
 					# for evaluation_param0 in 0 1 2 3 4 5
@@ -202,6 +207,19 @@ do
 							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.out"
+						elif [ $dataset == $TWITTERDATASET_67M ]  
+						then	
+							DATASET="_TWITTERDATASET_67M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_kron26.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron26.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_twitter26.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.out"
 						elif [ $dataset == $LARGEDATASET_67M ]  
 						then	
 							DATASET="_LARGEDATASET_67M"
@@ -338,8 +356,8 @@ do
 						then
 							make cleanall
 							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads
-							make demo_grafboost_nthreads > $RESULTDIR_RESULT
+							make demo_grafboost_nthreads
+							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
 						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall

@@ -36,9 +36,9 @@ public:
 	unsigned int loadedgesfromfile(int nvmeFd_edges_r, size_t fileoffset, edgeprop2_t * edgesbuffer, edge_t edgesoffset, edge_t edgessize);
 
 private:
-	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	{%for ddrs, ddrs_ in zip(context['NUMDRAMBANKS_seq'], context['DRAMBANKS_charseq'])%}
 	uint512_vec_dt * kvdram{{ddrs_}}[NUMCPUTHREADS];
-	metadata_t * kvstats{{ddrs_}}[NUMCPUTHREADS];
+	keyvalue_t * kvstats{{ddrs_}}[NUMCPUTHREADS];
 	{%endfor%}
 	
 	int nvmeFd_vertexoffsets_r2[MAXNUMEDGEBANKS][MAXNUMEDGEBANKS];

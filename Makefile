@@ -40,7 +40,6 @@ MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem1:bank3
 MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem2:bank3
 
 # Src files
-# TOPKERNEL_ARG += kernels/enigma.cpp
 TOPKERNEL_ARG += kernels/acts.cpp
 
 HOST_TOP += src/hostprocess.cpp

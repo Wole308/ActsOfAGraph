@@ -39,7 +39,7 @@ public:
 	void loadvertexisactiveinfosfromfile(int threadidx, int threadidxoffset);
 	void workerthread_loadvertexisactiveinfosfromfile(int ithreadidx, int fd, unsigned int offset, unsigned int * buffer, vertex_t bufferoffset, vertex_t size);
 	
-	void replicateverticesdata({%for ddrs_ in context['DRAMBANKS_charseq']%}keyvalue_t * kvdram{{ddrs_}},{%endfor%} unsigned int offset, unsigned int size);
+	void replicateverticesdata(keyvalue_t * kvdram[NUMCPUTHREADS], unsigned int offset, unsigned int size);
 	void cummulateverticesdata(int threadidx, unsigned int offset, unsigned int size);	
 	void workerthread_cummulateverticesdata(int ithreadidx, int threadidx, unsigned int offset, unsigned int size);
 	void applyvertices(int threadidx, int bankoffset, vertex_t bufferoffset, vertex_t size);
@@ -89,7 +89,8 @@ private:
 	unsigned int * isactivevertexinfobuffer_dest[MAXNUMVERTEXBANKS];
 	
 	#ifdef SW 
-	acts * kernelobjs[NUMCPUTHREADS][NUMDRAMBANKS];
+	// acts * kernelobjs[NUMCPUTHREADS][NUMDRAMBANKS];
+	acts * kernelobjs[NUMCPUTHREADSY][NUMCPUTHREADS];
 	#endif
 	edge_process * edge_process_obj[NUMCPUTHREADS];
 	utility * utilityobj[NUMCPUTHREADS];

@@ -173,7 +173,7 @@ void create2Dgraph::start(){
 			if (line.find("%") == 0){ continue; }
 			if (linecount == 0){ linecount++; continue; } // first entry for flickr is stats
 			if ((linecount % 1000000) == 0){ cout<<"create2Dgraph:: edge: ["<<srcv<<","<<dstv<<"]. linecount: "<<linecount<<endl; }
-			
+			// if (linecount >= 1024){ cout<<"create2Dgraph:: test ended."<<endl; exit(EXIT_SUCCESS); } 
 			// linecount++; // REMOVEME
 			// if ((linecount % 1000000) == 0){ cout<<"create2Dgraph:: edge: ["<<srcv<<","<<dstv<<"]. linecount: "<<linecount<<endl; break; } // FIXME.
 			
@@ -370,7 +370,7 @@ unsigned int create2Dgraph::getbank(vertex_t vertexid){
 	#endif 
 	
 	unsigned int bank = vertexid / hceildiv(dataset.num_vertices, numedgebanks);
-	if(bank >= numedgebanks){ cout<<"create2Dgraph:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", vertexid: "<<vertexid<<endl; exit(EXIT_FAILURE); }  
+	if(bank >= numedgebanks){ cout<<"create2Dgraph:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", dataset.num_vertices: "<<dataset.num_vertices<<", numedgebanks: "<<numedgebanks<<endl; exit(EXIT_FAILURE); }  
 	return bank;	
 }
 template <class T>

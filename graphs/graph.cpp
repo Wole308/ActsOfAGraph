@@ -592,11 +592,9 @@ void graph::loadalldatasets(){
 	
 	#ifdef AWS_PLATFORM
 	string rootDir = "/oj2zf/";
-	#else 
-	// string rootDir = "/net/zf15/oj2zf/";
-	// string rootDir = "/home/oj2zf/Documents/";
+	#else
 	string rootDir = "/localtmp/oj2zf/";
-	#endif 
+	#endif
 	
 	_datasets[0].graphname = "holes";
 	_datasets[0].graph_path = rootDir + "datasets/holes/holes.graph";
@@ -624,15 +622,17 @@ void graph::loadalldatasets(){
 	_datasets[1].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[1].graphorder = DST_SRC;
 	
-	_datasets[2].graphname = "twitter7";
-	_datasets[2].graph_path = rootDir + "datasets/twitter/twitter7.graph";
-	_datasets[2].vertices_path = rootDir + "datasets/twitter/twitter7.vertices";
-	_datasets[2].edges_path = rootDir + "datasets/twitter/twitter7.edges";	
-	_datasets[2].vertices_path_bin = rootDir + "datasets/twitter/twitter7_bin.vertices"; 
-	_datasets[2].edges_path_bin = rootDir + "datasets/twitter/twitter7_bin.edges";
+	_datasets[2].graphname = "twitter";
+	_datasets[2].graph_path = rootDir + "datasets/twitter/twitter.graph";
+	_datasets[2].vertices_path = rootDir + "datasets/twitter/twitter.vertices";
+	_datasets[2].edges_path = rootDir + "datasets/twitter/twitter.edges";	
+	_datasets[2].vertices_path_bin = rootDir + "datasets/twitter/twitter_bin.vertices"; 
+	_datasets[2].edges_path_bin = rootDir + "datasets/twitter/twitter_bin.edges";
 	_datasets[2].min_vertex = 0;	
 	_datasets[2].max_vertex = 41652230; // -- extract_vertices says 41652240
 	_datasets[2].num_vertices = 41652230; // FIXME
+	// _datasets[2].max_vertex = 41652240; // -- extract_vertices says 41652240
+	// _datasets[2].num_vertices = 41652240; // FIXME
 	_datasets[2].num_edges = 1468365184; // 1468365184
 	_datasets[2].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[2].graphorder = DST_SRC;

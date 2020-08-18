@@ -99,10 +99,10 @@ grafboost_pr_sw::grafboost_pr_sw(graph * _graphobj){
 		kvdramB[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
 		kvdramC[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
 		kvdramD[i] = new uint512_vec_dt[KVSOURCEDRAMSZ_KVS];
-		kvstatsA[i] = new metadata_t[1]; // NAp
-		kvstatsB[i] = new metadata_t[1]; // NAp
-		kvstatsC[i] = new metadata_t[1]; // NAp
-		kvstatsD[i] = new metadata_t[1]; // NAp
+		kvstatsA[i] = new keyvalue_t[1]; // NAp
+		kvstatsB[i] = new keyvalue_t[1]; // NAp
+		kvstatsC[i] = new keyvalue_t[1]; // NAp
+		kvstatsD[i] = new keyvalue_t[1]; // NAp
 	}
 	
 	numvertexbanks = _graphobj->getnumvertexbanks();
@@ -334,11 +334,6 @@ void grafboost_pr_sw::printkvdrams(uint512_vec_dt * kvdram){
 	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
 		for(unsigned int j=0; j<VECTOR_SIZE; j++){
 			std::cout<<"kvdram["<<i<<"].data["<<j<<"].key: "<<kvdram[i].data[j].key<<std::endl;
-		}
-    }
-	for(unsigned int i = 0 ; i<(16/VECTOR_SIZE) ; i++){
-		for(unsigned int j=0; j<VECTOR_SIZE; j++){
-			std::cout<<"kvdram["<<(PADDEDKVDATA_BATCHSIZE_KVS + i)<<"].data["<<j<<"].key: "<<kvdram[(PADDEDKVDATA_BATCHSIZE_KVS + i)].data[j].key<<std::endl;
 		}
     }
 	std::cout<<std::endl;
