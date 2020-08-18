@@ -246,7 +246,7 @@ void actgraph_pr_sw::WorkerThread2(int threadidx, int threadidxoffset){
 			totaltime_topkernel_ms += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime_topkernel).count();
 			#endif
 			#endif
-			exit(EXIT_SUCCESS);
+			// exit(EXIT_SUCCESS);
 			
 			// settle updates
 			settleupdates(threadidx, flag, iteration_idx, iteration_size);
@@ -834,7 +834,7 @@ void actgraph_pr_sw::launchkernel(int threadidx, uint512_dt ** kvsourcedram, uin
 	kernelobjs[threadidx][0]->topkernel(kvsourcedram[0], kvdestdram[0], kvstats[0]);
 	#else
 	#ifdef LOCKE
-	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ kernelobjs[threadidx][ddr]->topkernel(kvsourcedram[ddr], kvdestdram[ddr], kvstats[ddr]); exit(EXIT_SUCCESS); }
+	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ kernelobjs[threadidx][ddr]->topkernel(kvsourcedram[ddr], kvdestdram[ddr], kvstats[ddr]); }
 	#else 
 	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr] = std::thread(&actgraph_pr_sw::topkernel, this, ddr, threadidx, kvsourcedram[ddr], kvdestdram[ddr], kvstats[ddr]); }
 	for (int ddr = 0; ddr < NUMCPUTHREADS; ddr++){ runacts_thread[threadidx][ddr].join(); }

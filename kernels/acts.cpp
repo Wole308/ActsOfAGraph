@@ -1785,10 +1785,12 @@ offset_t acts::readcapsules0(unsigned int workerID, uint512_dt * kvdram,  uint51
 		capsule3[i] = getkeyvalue(BIGcapsule3, loffset + i, CAPSULEBUFFER_SIZE);
 	}
 	
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){ capsule0[p].value = 0; } // REMOVEME.
+	/* 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ capsule0[p].value = 0; } // REMOVEME.
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ capsule1[p].value = 0; } // REMOVEME.
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ capsule2[p].value = 0; } // REMOVEME.
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ capsule3[p].value = 0; } // REMOVEME.
+ */
+	
 	return capsulemetadata;
 }
 
@@ -2687,13 +2689,13 @@ offset_t acts::savecapsules0(unsigned int workerID, uint512_dt * kvdram , uint51
 	
 	SAVECAPSULE0_LOOP2: for(partition_type i=0; i<NUM_PARTITIONS; i++){
 	#pragma HLS PIPELINE II=1
-		// capsule0[i].value = 0; // REMOVEME.
+		capsule0[i].value = 0; // REMOVEME. 
 		setkeyvalue(BIGcapsule0, 0, loffset + i, capsule0[i], CAPSULEBUFFER_SIZE);
-		// capsule1[i].value = 0; // REMOVEME.
+		capsule1[i].value = 0; // REMOVEME. 
 		setkeyvalue(BIGcapsule1, 0, loffset + i, capsule1[i], CAPSULEBUFFER_SIZE);
-		// capsule2[i].value = 0; // REMOVEME.
+		capsule2[i].value = 0; // REMOVEME. 
 		setkeyvalue(BIGcapsule2, 0, loffset + i, capsule2[i], CAPSULEBUFFER_SIZE);
-		// capsule3[i].value = 0; // REMOVEME.
+		capsule3[i].value = 0; // REMOVEME. 
 		setkeyvalue(BIGcapsule3, 0, loffset + i, capsule3[i], CAPSULEBUFFER_SIZE);
 	}
 	

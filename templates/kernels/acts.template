@@ -962,9 +962,10 @@ offset_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}readcapsules{{ddrs}}(uns
 		{%endfor%}
 	}
 	
-	{%for sw in context['NUMSUBWORKERS_seq']%}
+	/* {%for sw in context['NUMSUBWORKERS_seq']%}
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ capsule{{sw}}[p].value = 0; } // REMOVEME.
-	{%endfor%}
+	{%endfor%} */
+	
 	return capsulemetadata;
 }
 {%endfor%}
@@ -1327,7 +1328,7 @@ offset_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}savecapsules{{ddrs}}(uns
 	SAVECAPSULE{{ddrs}}_LOOP2: for(partition_type i=0; i<NUM_PARTITIONS; i++){
 	#pragma HLS PIPELINE II=1
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		// capsule{{sw}}[i].value = 0; // REMOVEME.
+		capsule{{sw}}[i].value = 0; // REMOVEME. 
 		setkeyvalue(BIGcapsule{{sw}}, 0, loffset + i, capsule{{sw}}[i], CAPSULEBUFFER_SIZE);
 		{%endfor%}
 	}

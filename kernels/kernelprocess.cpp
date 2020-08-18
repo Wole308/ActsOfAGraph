@@ -25,7 +25,6 @@
 #define CONFIG_FACTOROUTOCLDATATRANSFERS
 #endif 
 #define ACTS
-#define TESTKERNEL
 
 ////////////////
 
@@ -34,11 +33,11 @@
 #else
 #define _DEBUGMODE_STATS // 
 // #define _DEBUGMODE_CHECKS
-#define _DEBUGMODE_CHECKS2 // 
+// #define _DEBUGMODE_CHECKS2 // 
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
@@ -70,7 +69,7 @@
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
 #define NUMCPUTHREADSY 1
-#define NUMCPUTHREADS 1 // FIXME. overridden
+#define NUMCPUTHREADS 4 // FIXME. overridden
 // #define NUMCPUTHREADS 8
 
 #define KVDATA_RANGE_POW 26

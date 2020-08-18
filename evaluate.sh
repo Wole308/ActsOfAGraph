@@ -66,8 +66,8 @@ _NOLOCKE="NOLOCKE"
 # evaluation_type=EV_TRADITIONAL
 
 ### >>> LOOP0: evaluation types
-# for evaluation_type in EV_PERFORMANCEOFALGORITHM
-for evaluation_type in EV_SIMPLETEST
+for evaluation_type in EV_PERFORMANCEOFALGORITHM
+# for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
 # for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
@@ -168,7 +168,7 @@ do
 		
 		### >>> LOOP2: number of threads
 		# for numthreads in $_1THREADS $_2THREADS $_4THREADS $_8THREADS $_12THREADS $_16THREADS
-		for numthreads in $_1THREADS
+		for numthreads in $_4THREADS
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
