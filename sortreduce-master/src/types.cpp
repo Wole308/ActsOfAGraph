@@ -1,5 +1,5 @@
 #include "types.h"
-#include "../../src/common.h" // ACTGraph header
+#include "../../include/common.h" // ACTGraph header
 
 // #define LARGEMEMORY
 

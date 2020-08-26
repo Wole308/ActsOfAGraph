@@ -9,7 +9,7 @@
 #include <thread>
 
 // using namespace std;
-#include "../../src/common.h" // ACTGraph header
+#include "../../include/common.h" // ACTGraph header
 
 #ifdef KVTYPES1
 #define TEMPLATE_EXPLICIT_INSTANTIATION1(X) template class X<KVTYPES1>;

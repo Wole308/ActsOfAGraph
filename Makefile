@@ -40,32 +40,21 @@ MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem1:bank3
 MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem2:bank3
 
 # Src files
-TOPKERNEL_ARG += kernels/acts.cpp
+TOPKERNEL_ARG += acts/acts.cpp
 
-HOST_TOP += src/hostprocess.cpp
-HOST_TOP_NTHREADS += src/hostprocess.cpp
-HOST_SRCS += 
-HOST_SRCS += 
-HOST_SRCS += 
-HOST_SRCS += debugger/host_debugger.cpp
+HOST_TOP += examples/hostprocess.cpp
 
-HOSTPROCESS_SRCS += src/actgraph_pr_sw.cpp
-HOSTPROCESS_SRCS += src/actgraph_bfs_sw.cpp
-HOSTPROCESS_SRCS += src/actgraph_bc_sw.cpp
-HOSTPROCESS_SRCS += src/grafboost_pr_sw.cpp
-HOSTPROCESS_SRCS += src/grafboost_bfs_sw.cpp
-HOSTPROCESS_SRCS += src/grafboost_bc_sw.cpp
-HOSTPROCESS_SRCS += src/host_enigma.cpp
-HOSTPROCESS_SRCS += src/edge_process.cpp
-HOSTPROCESS_SRCS += kernels/srkernelprocess.cpp
-HOSTPROCESS_SRCS += graphs/create2Dgraph.cpp
-HOSTPROCESS_SRCS += graphs/createsmartgraph.cpp
-HOSTPROCESS_SRCS += graphs/graph.cpp
-HOSTPROCESS_SRCS += graphs/generateactivevertices.cpp
-HOSTPROCESS_SRCS += heuristics/heuristics.cpp
-HOSTPROCESS_SRCS += algorithm/algorithm.cpp
-HOSTPROCESS_SRCS += utility/utility.cpp
-# HOSTPROCESS_SRCS += kernels/kernelprocess.cpp
+HOSTPROCESS_SRCS += src/algorithm/algorithm.cpp
+HOSTPROCESS_SRCS += src/dataaccess/dataaccess.cpp
+HOSTPROCESS_SRCS += src/edgeprocess/edge_process.cpp
+HOSTPROCESS_SRCS += examples/helperfunctions/helperfunctions.cpp
+HOSTPROCESS_SRCS += examples/pagerank/pagerank.cpp
+HOSTPROCESS_SRCS += examples/bfs/bfs.cpp
+HOSTPROCESS_SRCS += src/graphs/graph.cpp
+HOSTPROCESS_SRCS += src/heuristics/heuristics.cpp
+HOSTPROCESS_SRCS += src/stats/stats.cpp
+HOSTPROCESS_SRCS += src/utility/utility.cpp
+HOSTPROCESS_SRCS += src/dataset/dataset.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/
@@ -139,7 +128,7 @@ demo_acts_nthreads: clean build_acts_nthreads run_nthreads
 demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 
 build_acts_nthreads:
-	g++ -O3 $(HOST_TOP_NTHREADS) $(HOST_SRCS) $(HOSTPROCESS_SRCS) $(TOPKERNEL_ARG) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+	g++ -O3 $(HOST_TOP) $(HOST_SRCS) $(HOSTPROCESS_SRCS) $(TOPKERNEL_ARG) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
 
 run_nthreads:
 	./acts_nthreads
@@ -149,28 +138,32 @@ run_nthreads_debug:
 	
 ### GrafBoost Multithreaded Implementation
 demo_grafboost_nthreads: clean build_grafboost_nthreads run_grafboost_nthreads
+demo_grafboost_nthreads_debug: clean build_grafboost_nthreads run_grafboost_nthreads_debug
 
 build_grafboost_nthreads: $(SORTREDUCE_LIB)/libsortreduce.a
 	mkdir -p obj
-	g++ -o ./sr_nthreads $(HOST_TOP_NTHREADS) $(HOST_SRCS) $(HOSTPROCESS_SRCS) $(TOPKERNEL_ARG) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+	g++ -o ./sr_nthreads $(HOST_TOP) $(HOST_SRCS) $(HOSTPROCESS_SRCS) $(TOPKERNEL_ARG) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
 
 run_grafboost_nthreads:
 	./sr_nthreads
 	
+run_grafboost_nthreads_debug:
+	gdb ./sr_nthreads
+	
 ### generate source files (python)
 generatesrcs:
-	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMCPUTHREADS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
+	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS_POW) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
 
 ### Cleaning stuff
 clean:
-	rm -rf acts sr acts_nthreads sr_nthreads
+	rm -rf sr acts_nthreads sr_nthreads
 	rm -rf *.xo xocc_kernel* _x* pfm_top_* *.xo *.exe host xocc* *.info *.ltx
 	rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
 	rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
 	$(info clean successful)
 	
 cleanall:
-	rm -rf acts sr acts_nthreads sr_nthreads
+	rm -rf sr acts_nthreads sr_nthreads
 	rm -rf *.xo xocc_kernel* _x* pfm_top_* *.xo *.exe host xocc* *.info *.ltx
 	rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
 	rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb

@@ -21,8 +21,7 @@
 #include "sortreduce.h"
 
 #include <vector>
-#include "../../../../src/common.h" // ACTGraph header
-// #include "/home/centos/src/project_data/oj2zf/ACTGraph_Legend/src/common.h"
+#include "../../../../include/common.h" // ACTGraph header
 
 #define MAX_EDGEPROC_REQS 16
 #define MAX_EDGEPROC_THREADS 8

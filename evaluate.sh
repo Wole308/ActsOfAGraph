@@ -46,12 +46,19 @@ LARGEDATASET_268M=4
 LARGEDATASET_1B=5
 LARGEDATASET_4B=6
 
-_1THREADS=1
-_2THREADS=2
-_4THREADS=4
-_8THREADS=8
-_12THREADS=12
-_16THREADS=16
+THREADCOUNT_EQ1=1
+THREADCOUNT_EQ2=2
+THREADCOUNT_EQ4=4
+THREADCOUNT_EQ8=8
+THREADCOUNT_EQ12=12
+THREADCOUNT_EQ16=16
+
+THREADPOW_EQ0=0
+THREADPOW_EQ1=1
+THREADPOW_EQ2=2
+THREADPOW_EQ3=3
+THREADPOW_EQ4=4
+THREADPOW_EQ5=5
 
 _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
@@ -88,7 +95,13 @@ do
 	# for setup in $HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
+	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
+	# for setup in $SW__GRAFBOOST_SETUP__BC_ALGORITHM
 
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__GRAFBOOST_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $SW__GRAFBOOST_SETUP__BC_ALGORITHM
+	
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 	do 
@@ -165,20 +178,25 @@ do
 			SETUP="" 
 			ALGORITHM="" 
 		fi
+
+		for numsupercputhreads in $THREADCOUNT_EQ1
+		do
+
+		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
+		for numcputhreads in $THREADCOUNT_EQ4
+		do
 		
-		### >>> LOOP2: number of threads
-		# for numthreads in $_1THREADS $_2THREADS $_4THREADS $_8THREADS $_12THREADS $_16THREADS
-		for numthreads in $_4THREADS
+		for numsubcputhreads_pow in $THREADPOW_EQ2
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
-			# for locke in $_NOLOCKE
-			for locke in $_LOCKE
+			for locke in $_NOLOCKE
+			# for locke in $_LOCKE
 			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
 				# for dataset in $LARGEDATASET_1M
-				for dataset in $TWITTERDATASET_67M
-				# for dataset in $LARGEDATASET_67M
+				# for dataset in $TWITTERDATASET_67M
+				for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
 				# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
@@ -188,11 +206,11 @@ do
 					for evaluation_param0 in 5
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numthreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph/results"
-						RESULT_NAME="result_${SETUP_NAME}_${numthreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
-						PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numthreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
 						
 						if [ $dataset == $LARGEDATASET_1M ]  
 						then	
@@ -278,22 +296,22 @@ do
 							KERNEL_NAME=""
 						fi
 						
-						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMCPUTHREADS=$numthreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0
+						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS_POW=$numsubcputhreads_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
 
 						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ]  
 						then
 							make cleanall
 							# make build_acts_nthreads
-							# make demo_acts_nthreads_debug
 							make demo_acts_nthreads
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug
 						elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall
 							# make build_acts_nthreads
 							make demo_acts_nthreads
-							# make demo_acts_nthreads_debug
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug
 						elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 						then
 							make cleanall
@@ -362,8 +380,9 @@ do
 						then
 							make cleanall
 							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads
-							make demo_grafboost_nthreads > $RESULTDIR_RESULT
+							# make demo_grafboost_nthreads_debug
+							make demo_grafboost_nthreads
+							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
 						elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
 						then
 							make cleanall
@@ -416,7 +435,12 @@ do
 					done
 				done
 			done
-		done 
+
+		done
+
+		done
+
+		done
 	done
 done
 echo 'finished: successfully finished all processing'

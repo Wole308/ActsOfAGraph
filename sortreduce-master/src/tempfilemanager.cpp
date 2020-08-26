@@ -97,7 +97,6 @@ TempFileManager::Write(SortReduceTypes::File* file, SortReduceTypes::Block block
 
 		memset(&ma_iocb[idx], 0, sizeof(ma_iocb[idx]));
 		io_prep_pwrite(&ma_iocb[idx], fd, block.buffer, bytes, offset);
-		globaldebugger_totalbyteswrittentofile += bytes; // 
 
 		IocbArgs* args = &ma_request_args[idx];
 		args->bytes = block.valid_bytes;
@@ -171,7 +170,6 @@ TempFileManager::Read(SortReduceTypes::File* file, size_t offset, size_t bytes, 
 
 		memset(&ma_iocb[idx], 0, sizeof(ma_iocb[idx]));
 		io_prep_pread(&ma_iocb[idx], fd, buffer, bytes, offset);
-		globaldebugger_totalbytesreadfromfile += bytes; // 
 
 		IocbArgs* args = &ma_request_args[idx];
 		args->bytes = bytes;
