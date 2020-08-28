@@ -12,11 +12,11 @@
 
 class pagerank {
 public:
-	pagerank(unsigned int algorithmid, unsigned int datasetid);
+	pagerank(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
 	~pagerank();
 	
 	runsummary_t run();
-	void WorkerThread(int threadidx, int threadidxoffset, unsigned int graph_iterationidx);
+	void WorkerThread(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx);
 	
 private:
 	graph * graphobj;

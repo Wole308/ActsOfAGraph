@@ -19,7 +19,7 @@
 using namespace std;
 std::mutex mutex_bufferupdates;
 
-bfs::bfs(unsigned int algorithmid, unsigned int datasetid){
+bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
@@ -40,11 +40,15 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid){
 		#endif
 		for(unsigned int j=0; j<NUMCPUTHREADS; j++){ kvintermediatedram[i][j] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 	}
+	
+	#ifdef FPGA_IMPL
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i]->loadOCLstructures(binaryFile, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvsourcedram[i], (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvdestdram[i], kvstats[i]); }
+	#endif 
 }
 bfs::~bfs(){
 	cout<<"bfs::~bfs:: finish destroying memory structures... "<<endl;
 	#ifdef FPGA_IMPL
-	finishOCL();
+	helperfunctionsobj[0]->finishOCL();
 	#endif 
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){		
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ delete [] kvsourcedram[i][flag][j][k]; }}}
@@ -126,15 +130,14 @@ void bfs::WorkerThread1(int threadidx, unsigned int graph_iterationidx){
 	}
 	return;
 }
-void bfs::WorkerThread2(int threadidx, int threadidxoffset, unsigned int graph_iterationidx){
-	#ifdef TGTGT // REMOVEME.
+void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx){
 	unsigned int globaliteration_idx = 0;
-	unsigned int voffset = (threadidxoffset + threadidx) * KVDATA_RANGE_PERSSDPARTITION;
+	unsigned int voffset = (threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION;
 	
-	graphobj->loadvertexdatafromfile(threadidxoffset + threadidx, voffset, (keyvalue_t *)kvdestdram[threadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	helperfunctionsobj[threadidx]->replicateverticesdata((keyvalue_t ***)kvdestdram[threadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	graphobj->loadvertexdatafromfile(threadidxoffset + superthreadidx, voffset, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
-	writeVstokernel(threadidx);
+	helperfunctionsobj[superthreadidx]->writeVstokernel();
 	#endif
 	
 	unsigned int fdoffset[NUMCPUTHREADS];
@@ -143,42 +146,41 @@ void bfs::WorkerThread2(int threadidx, int threadidxoffset, unsigned int graph_i
 	unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int runsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]; 
-	utilityobj[threadidx]->setarray(batchoffset, NUMCPUTHREADS, NUMSUBCPUTHREADS, BASEOFFSET_KVDRAMBUFFER);
-	utilityobj[threadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
-	utilityobj[threadidx]->setarray(runsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
+	utilityobj[superthreadidx]->setarray(batchoffset, NUMCPUTHREADS, NUMSUBCPUTHREADS, BASEOFFSET_KVDRAMBUFFER);
+	utilityobj[superthreadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
+	utilityobj[superthreadidx]->setarray(runsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
 	
-	for(int flag = 0; flag < NUMFLAGS; flag++){ for(int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ utilityobj[threadidx]->resetkeyvalues("bfs:: resetting messages", &kvstats[threadidx][flag][i][j][BASEOFFSET_MESSAGESDRAM], MESSAGES_SIZE); }}}
-	unsigned int iteration_size = utilityobj[threadidx]->hceildiv(VUbuffer[threadidxoffset + threadidx].size(), (NUMCPUTHREADS * KVDATA_BATCHSIZE));
+	for(int flag = 0; flag < NUMFLAGS; flag++){ for(int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ utilityobj[superthreadidx]->resetkeyvalues("bfs:: resetting messages", &kvstats[superthreadidx][flag][i][j][BASEOFFSET_MESSAGESDRAM], MESSAGES_SIZE); }}}
+	unsigned int iteration_size = utilityobj[superthreadidx]->hceildiv(VUbuffer[threadidxoffset + superthreadidx].size(), (NUMCPUTHREADS * KVDATA_BATCHSIZE));
 
 	for (unsigned int iteration_idx = 0; iteration_idx < iteration_size; iteration_idx += NUMCPUTHREADS){
 		#ifdef _DEBUGMODE_HOSTPRINTS2
-		cout<<"PP&A:: [threadidx:"<<(threadidxoffset + threadidx)<<"][size:"<<graphobj->getnumvertexbanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
+		cout<<"PP&A:: [superthreadidx:"<<(threadidxoffset + superthreadidx)<<"][size:"<<graphobj->getnumvertexbanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
 		#endif
 		
-		int flag = helperfunctionsobj[threadidx]->getflag(globaliteration_idx);
+		int flag = helperfunctionsobj[superthreadidx]->getflag(globaliteration_idx);
 		
 		// Populate kvdrams
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ fdoffset[i] = (iteration_idx + i) * KVDATA_BATCHSIZE; }
-		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ loadsize[i] = utilityobj[threadidx]->hmin(KVDATA_BATCHSIZE, utilityobj[threadidx]->hsub((size_t)VUbuffer[threadidxoffset + threadidx].size(), (size_t)((size_t)(iteration_idx + i) * (size_t)KVDATA_BATCHSIZE))); }			
-		utilityobj[threadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
-		retrieveupdates(threadidx, threadidxoffset + threadidx, fdoffset, (keyvalue_t ***)kvsourcedram[threadidx][flag], batchoffset, batchsize, loadsize);
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ loadsize[i] = utilityobj[superthreadidx]->hmin(KVDATA_BATCHSIZE, utilityobj[superthreadidx]->hsub((size_t)VUbuffer[threadidxoffset + superthreadidx].size(), (size_t)((size_t)(iteration_idx + i) * (size_t)KVDATA_BATCHSIZE))); }			
+		utilityobj[superthreadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
+		retrieveupdates(superthreadidx, threadidxoffset + superthreadidx, fdoffset, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], batchoffset, batchsize, loadsize, voffset);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
-		helperfunctionsobj[threadidx]->updatemessagesbeforelaunch(graph_iterationidx, voffset, batchsize, runsize, kvstats[threadidx][flag]);
+		helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, voffset, batchsize, runsize, kvstats[superthreadidx][flag]);
 
 		// launch kernel
-		helperfunctionsobj[threadidx]->launchkernel(threadidx, (uint512_dt ***)kvsourcedram[threadidx][flag], (uint512_dt ***)kvdestdram[threadidx][flag], (keyvalue_t ***)kvstats[threadidx][flag]);
+		helperfunctionsobj[superthreadidx]->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][flag], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[superthreadidx][flag], flag);
 		
-		helperfunctionsobj[threadidx]->updatemessagesafterlaunch(threadidx, globaliteration_idx, kvstats[threadidx][flag]);
+		helperfunctionsobj[superthreadidx]->updatemessagesafterlaunch(globaliteration_idx, kvstats[superthreadidx][flag]);
 		globaliteration_idx += 1;
 	}
 
 	#ifdef FPGA_IMPL
-	readVsfromkernel(threadidx);
+	helperfunctionsobj[superthreadidx]->readVsfromkernel();
 	#endif
-	helperfunctionsobj[threadidx]->cummulateverticesdata((keyvalue_t ***)kvdestdram[threadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	helperfunctionsobj[threadidx]->applyvertices(threadidxoffset + threadidx, (keyvalue_t *)kvdestdram[threadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx);
-	graphobj->savevertexdatatofile(threadidxoffset + threadidx, 0, (keyvalue_t *)kvdestdram[threadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED
-	#endif 
+	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	helperfunctionsobj[superthreadidx]->applyvertices(threadidxoffset + superthreadidx, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx);
+	graphobj->savevertexdatatofile(threadidxoffset + superthreadidx, 0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED
 	return;
 }
 
@@ -201,19 +203,19 @@ void bfs::appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITI
 	return;
 }
 
-void bfs::retrieveupdates(unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t *** batch, unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS]){
+void bfs::retrieveupdates(unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset){					
 	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ workerthread_retrieveupdates(i, superthreadidx, bank, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i]); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ workerthread_retrieveupdates(i, superthreadidx, bank, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	#else 
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[superthreadidx][i] = std::thread(&bfs::workerthread_retrieveupdates, this, i, superthreadidx, bank, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i]); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[superthreadidx][i] = std::thread(&bfs::workerthread_retrieveupdates, this, i, superthreadidx, bank, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[superthreadidx][i].join(); }
 	#endif
 	return;
 }
-void bfs::workerthread_retrieveupdates(int ithreadidx, unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t ** batch, unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], unsigned int datasize){
+void bfs::workerthread_retrieveupdates(int ithreadidx, unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], unsigned int datasize, unsigned int voffset){
 	unsigned int partition;
 	for(unsigned int k=0; k<datasize; k++){ 
-		partition = edgeprocessobj[superthreadidx]->insertkeyvaluetobuffer(batch, batchoffset, batchsize, VUbuffer[bank][fdoffset + k]);
+		partition = edgeprocessobj[superthreadidx]->insertkeyvaluetobuffer(batch, batchoffset, batchsize, VUbuffer[bank][fdoffset + k], voffset);
 	}
 	return;
 }

@@ -3,6 +3,13 @@
 #include <string.h>
 #include <mutex>
 #include "../../include/common.h"
+#ifdef FPGA_IMPL
+#include <ap_int.h>
+// #include "CL/cl.h"
+#include <CL/opencl.h>
+#include "../../xcl.h"
+// #include "xcl2.hpp"
+#endif
 using namespace std;
 
 class utility {
@@ -38,6 +45,9 @@ public:
 	void copy(unsigned int * array1, unsigned int * array2, unsigned int size);
 	void countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value);
 	
+	#ifdef FPGA_IMPL
+	void set_callback(cl_event event, const char *queue_name);
+	#endif 
 private:
 };
 #endif

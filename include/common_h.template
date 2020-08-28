@@ -30,7 +30,7 @@
 #define CONFIG_FACTOROUTOCLDATATRANSFERS
 #endif 
 #define {{context['KERNELNAME']}}
-{%if(context['EVALUATION_TYPE'] != "EV_PERFORMANCEOFALGORITHM")%}
+{%if(context['EVALUATION_TYPE'] == "EV_SIMPLETEST")%}
 #define TESTKERNEL
 {%endif%}
 {%if(context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE")%}
@@ -64,6 +64,7 @@
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
+#define _DEBUGMODE_CHECKS2 //
 #define _DEBUGMODE_KERNELPRINTS2 //
 #endif
 // #define _DEBUGMODE_HOSTPRINTS
@@ -410,6 +411,13 @@ typedef struct {
 	unsigned int datasize;
 	unsigned int message;
 } kvresults_t;
+
+// HBM EXAMPLE
+#define VDATA_SIZE 16
+const unsigned int c_dt_size = VDATA_SIZE;
+typedef struct v_datatype {
+    unsigned int data[VDATA_SIZE];
+} v_dt;
 #endif
 
 

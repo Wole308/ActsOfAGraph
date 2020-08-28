@@ -11,7 +11,7 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
-#include "../../acts/acts.h"
+#include "../../kernels/kernel.h"
 #include "../../include/common.h"
 #include "helperfunctions.h"
 using namespace std;
@@ -20,7 +20,12 @@ helperfunctions::helperfunctions(graph * _graphobj){
 	utilityobj = new utility();
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ kernelobjs[i] = new acts(); }
+	kernelobj = new kernel();
+}
+helperfunctions::helperfunctions(){
+	utilityobj = new utility();
+	algorithmobj = new algorithm();
+	kernelobj = new kernel();
 }
 helperfunctions::~helperfunctions(){} 
 
@@ -99,35 +104,25 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 	return;
 }
 
-void helperfunctions::launchkernel(int threadidx, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	#ifdef _DEBUGMODE_HOSTPRINTS
+void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+	#ifdef _DEBUGMODE_HOSTPRINTS2
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results before Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
 	#endif
 	
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
-	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel(i, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
-	#else 
-	for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_launchkernel, this, i, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
-	for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
-	#endif
+	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results after Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
-	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("helperfunctions::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}
+	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("helperfunctions::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}			
 	#endif
-	// exit(EXIT_SUCCESS);
-	return;
-}
-void helperfunctions::workerthread_launchkernel(unsigned int i, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
-	kernelobjs[i]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	return;
 }
 
-void helperfunctions::updatemessagesbeforelaunch(unsigned int graph_iterationidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int graph_iterationidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			if((utilityobj->runActs(graph_iterationidx) == 1)){
+			if((utilityobj->runActs(globaliteration_idx) == 1)){
 				kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNKERNELCOMMANDID].key = ON;
 				kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_BATCHSIZE].key = batchsize[i][j];
 				kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNSIZE].key = keyvaluecount[i][j]; 
@@ -155,8 +150,8 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int graph_iterationidx
 	}
 	return;
 }
-void helperfunctions::updatemessagesafterlaunch(int threadidx, unsigned int graph_iterationidx, keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	if((utilityobj->runActs(graph_iterationidx) == 1)){
+void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx, keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	if((utilityobj->runActs(globaliteration_idx) == 1)){
 		for(int i = 0; i < NUMCPUTHREADS; i++){
 			for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 				kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_NEXTBATCHOFFSET].key = 0; 
@@ -181,7 +176,20 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 	return flag;
 }
 
-
+#ifdef FPGA_IMPL 
+void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
+}
+void helperfunctions::writeVstokernel(){
+	kernelobj->writeVstokernel();
+}
+void helperfunctions::readVsfromkernel(){
+	kernelobj->readVsfromkernel();
+}
+void helperfunctions::finishOCL(){
+	kernelobj->finishOCL();
+}
+#endif 
 
 
 

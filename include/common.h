@@ -12,7 +12,7 @@
 #define FPGA_IMPL
 #endif 
 #define CRABTREE_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
-#define NOLOCKE
+#define LOCKE
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL
 #define _WIDEWORD
@@ -25,6 +25,7 @@
 #define CONFIG_FACTOROUTOCLDATATRANSFERS
 #endif 
 #define ACTS
+#define TESTKERNEL
 
 ////////////////
 
@@ -41,6 +42,7 @@
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
+#define _DEBUGMODE_CHECKS2 //
 #define _DEBUGMODE_KERNELPRINTS2 //
 #endif
 // #define _DEBUGMODE_HOSTPRINTS
@@ -51,8 +53,8 @@
 ////////////////
 
 #define NUMSUPERCPUTHREADS 1
-#define NUMCPUTHREADS 4 // FIXME. overridden
-#define NUMSUBCPUTHREADS_POW 2
+#define NUMCPUTHREADS 1 // FIXME. overridden
+#define NUMSUBCPUTHREADS_POW 0
 #define NUMSUBCPUTHREADS (1 << NUMSUBCPUTHREADS_POW) 
 #define NUMUTILITYTHREADS NUMCPUTHREADS
 
@@ -387,5 +389,12 @@ typedef struct {
 	unsigned int datasize;
 	unsigned int message;
 } kvresults_t;
+
+// HBM EXAMPLE
+#define VDATA_SIZE 16
+const unsigned int c_dt_size = VDATA_SIZE;
+typedef struct v_datatype {
+    unsigned int data[VDATA_SIZE];
+} v_dt;
 #endif
 

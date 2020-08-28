@@ -25,6 +25,18 @@
 #include "utility.h"
 using namespace std;
 
+#ifdef FPGA_IMPL
+#define OCL_CHECK(call)							\
+	do {								\
+		cl_int err = call;					\
+		if (err != CL_SUCCESS) {				\
+			cout << "ERR: Error calling " #call		\
+				", error code is: " << err << endl;	\
+			exit(EXIT_FAILURE);				\
+		}							\
+	} while (0);
+#endif 
+
 utility::utility(){}
 utility::~utility(){} 
 
@@ -209,8 +221,61 @@ void utility::countkeyvalueswithvalueequalto(string message, keyvalue_t * keyval
 	cout<<"utility::countkeyvalueswithvalueequalto::"<<message<<":: keyvalues with value equal to "<<value<<": "<<count<<endl;
 }
 
-
-
+#ifdef FPGA_IMPL
+void event_cb(cl_event event, cl_int cmd_status, void *data) {
+  cl_command_type command;
+  clGetEventInfo(event, CL_EVENT_COMMAND_TYPE, sizeof(cl_command_type),
+                 &command, nullptr);
+  cl_int status;
+  clGetEventInfo(event, CL_EVENT_COMMAND_EXECUTION_STATUS, sizeof(cl_int),
+                 &status, nullptr);
+  const char *command_str;
+  const char *status_str;
+	switch (command) {
+		case CL_COMMAND_READ_BUFFER:
+			command_str = "buffer read";
+			break;
+		case CL_COMMAND_WRITE_BUFFER:
+			command_str = "buffer write";
+			break;
+		case CL_COMMAND_NDRANGE_KERNEL:
+			command_str = "kernel";
+			break;
+		case CL_COMMAND_MAP_BUFFER:
+			command_str = "kernel";
+			break;
+		case CL_COMMAND_COPY_BUFFER:
+			command_str = "kernel";
+			break;
+		case CL_COMMAND_MIGRATE_MEM_OBJECTS:
+			command_str = "buffer migrate";
+		  break;
+		default:
+		command_str = "unknown";
+	}
+	switch (status) {
+		case CL_QUEUED:
+			status_str = "Queued";
+			break;
+		case CL_SUBMITTED:
+			status_str = "Submitted";
+			break;
+		case CL_RUNNING:
+			status_str = "Executing";
+			break;
+		case CL_COMPLETE:
+			status_str = "Completed";
+			break;
+	}
+	printf("[%s]: %s %s\n", reinterpret_cast<char *>(data), status_str,
+		 command_str);
+	fflush(stdout);
+}
+void utility::set_callback(cl_event event, const char *queue_name) {
+  OCL_CHECK(
+      clSetEventCallback(event, CL_COMPLETE, event_cb, (void *)queue_name));
+}
+#endif 
 
 
 

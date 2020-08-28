@@ -1,0 +1,73 @@
+#ifndef ACTSUTILITY_H
+#define ACTSUTILITY_H
+#include "../../src/utility/utility.h"
+#include "../../include/common.h"
+
+class actsutility {
+public:
+	actsutility();
+	~actsutility();
+	
+	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
+	void checkforequal(string message, unsigned int data1, unsigned int data2);
+	void print1(string messagea, unsigned int dataa);
+	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
+	void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad);
+	void print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae);
+	void print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef);
+	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
+	void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
+	void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs);
+	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
+	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
+	void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue);
+	void printparameters();
+	void printglobalvars();
+	void clearglobalvars();
+	void IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize);
+
+	void globalstats_countkvstatsread(unsigned int count);
+	void globalvar_collectstats_counttotalkvsread(unsigned int count);
+	void globalvar_extractcapsules_counttotalkvsread(unsigned int count);
+	void globalvar_organizekeyvalues_counttotalkvsread(unsigned int count);
+	void globalvar_savestats_counttotalstatswritten(unsigned int count);
+	void globalvar_savepartitions_countinvalids(unsigned int count);
+	void globalvar_inmemory_counttotalvalidkeyvalues(unsigned int count);
+	void globalstats_countkvsread(unsigned int count);
+	void globalstats_countkvswritten(unsigned int count);
+	void globalstats_countkvspartitionswritten(unsigned int count);
+	void globalstats_countkvspartitionswritten_actual(unsigned int count);
+	void globalstats_countkvspartitioned(unsigned int count);
+	void globalstats_countkvsreduced(unsigned int count);
+	void globalstats_countkvsreducewritten(unsigned int count);
+	void globalstats_reduce_countvalidkvsreduced(unsigned int count);
+	void globalstats_countkvsreadV(unsigned int count);
+	
+private:
+	utility * utilityobj;
+	
+	unsigned int globalvar_totalkvstatsread;
+	unsigned int globalvar_totalkvsreadV;
+	unsigned int globalvar_collectstats_totalkvsread;
+	unsigned int globalvar_extractcapsules_totalkvsread;
+	unsigned int globalvar_organizekeyvalues_totalkvsread;
+	unsigned int globalvar_savestats_totalstatswritten;
+	unsigned int globalvar_savepartitions_invalids;
+	unsigned int globalvar_inmemory_totalvalidkeyvalues;
+	unsigned int globalvar_totalkvsread;
+	unsigned int globalstats_totalkvswritten;
+	unsigned int globalstats_totalkvspartitioned;
+	unsigned int globalstats_totalkvspartitionswritten;
+	unsigned int globalstats_totalkvspartitionswritten_actual;
+	unsigned int globalstats_totalkvsreduced;
+	unsigned int globalstats_totalkvsreducewritten;
+	unsigned int globalstats_reduce_validkvsreduced;
+};
+#endif
+
+
+
+
+
+
+

@@ -20,7 +20,7 @@ MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem2:bank0
 # MEMBANKCONFIG_AWS += --sp topkernel_1.m_axi_gmem11:bank3
 
 # Kernel linker flags
-# LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR0 --slr topkernel_3:SLR1 --slr topkernel_4:SLR1
+LDCLFLAGS += --slr topkernel_1:SLR0 --slr topkernel_2:SLR0 --slr topkernel_3:SLR1 --slr topkernel_4:SLR1
 
 # Memory assignment flags (2 Instances Implementation)
 MEMBANKCONFIG_1stInst += --sp topkernel_1.m_axi_gmem0:bank0 
@@ -41,6 +41,7 @@ MEMBANKCONFIG_4thInst += --sp topkernel_4.m_axi_gmem2:bank3
 
 # Src files
 TOPKERNEL_ARG += acts/acts.cpp
+# TOPKERNEL_ARG += acts/hbm.cpp
 
 HOST_TOP += examples/hostprocess.cpp
 
@@ -50,11 +51,17 @@ HOSTPROCESS_SRCS += src/edgeprocess/edge_process.cpp
 HOSTPROCESS_SRCS += examples/helperfunctions/helperfunctions.cpp
 HOSTPROCESS_SRCS += examples/pagerank/pagerank.cpp
 HOSTPROCESS_SRCS += examples/bfs/bfs.cpp
+HOSTPROCESS_SRCS += examples/test/test.cpp
 HOSTPROCESS_SRCS += src/graphs/graph.cpp
 HOSTPROCESS_SRCS += src/heuristics/heuristics.cpp
 HOSTPROCESS_SRCS += src/stats/stats.cpp
 HOSTPROCESS_SRCS += src/utility/utility.cpp
 HOSTPROCESS_SRCS += src/dataset/dataset.cpp
+HOSTPROCESS_SRCS += kernels/kernel.cpp
+HOSTPROCESS_SRCS += kernels/swkernel.cpp
+HOSTPROCESS_SRCS += kernels/oclkernel.cpp
+# HOSTPROCESS_SRCS += kernels/goclkernel.cpp
+HOSTPROCESS_SRCS += acts/actsutility.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/
@@ -67,13 +74,14 @@ $(info *** ACTS synthesis started! ***)
 
 ### FPGA Implementation
 swemu: cleanall build_xo_swemu build_xclbin_swemu build_host run_swemu
+swemu_ncomputeunits: cleanall build_xo_swemu build_xclbin_swemu_ncomputeunits build_host run_swemu
 swemu_2inst: cleanall build_xo_swemu build_xclbin_swemu_2inst build_host run_swemu
 
 swemu_aws: cleanall build_xo_swemu_aws build_xclbin_swemu_aws build_host_aws run_swemu
 swemu_2inst_aws: cleanall build_xo_swemu_aws build_xclbin_swemu_2inst_aws build_host_aws run_swemu
 
 hw: cleanall build_xo_hw build_xclbin_hw build_host
-# hw: cleanall build_xo_hw build_host
+hw_ncomputeunits: cleanall build_xo_hw build_xclbin_hw_ncomputeunits build_host
 hw_4inst: cleanall build_xo_hw build_xclbin_hw_4inst build_host
 
 hw_aws: cleanall build_xo_hw_aws build_xclbin_hw_aws build_host_aws
@@ -83,6 +91,8 @@ build_xo_swemu:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -c --target sw_emu --platform $(TARGETPLATFORM) $(TOPKERNEL_ARG) $(KERNEL_SRCS) --kernel topkernel -o kernel.xo
 build_xclbin_swemu:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM) $(MEMBANKCONFIG) kernel.xo -o kernel.xclbin
+build_xclbin_swemu_ncomputeunits:
+	/tools/Xilinx/SDx/2019.1/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM) $(MEMBANKCONFIG) $(LDCLFLAGS) --nk topkernel:8 kernel.xo -o kernel.xclbin
 build_xclbin_swemu_2inst:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -l --target sw_emu --platform $(TARGETPLATFORM) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(MEMBANKCONFIG_3rdInst) $(MEMBANKCONFIG_4thInst) $(LDCLFLAGS) kernel.xo -o kernel.xclbin
 	
@@ -97,6 +107,8 @@ build_xo_hw:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -g -c --kernel_frequency=300 --target hw --platform $(TARGETPLATFORM) $(TOPKERNEL_ARG) $(KERNEL_SRCS) --kernel topkernel -o kernel.xo
 build_xclbin_hw:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM) $(MEMBANKCONFIG) kernel.xo -o kernel.xclbin
+build_xclbin_hw_ncomputeunits:
+	/tools/Xilinx/SDx/2019.1/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM) $(LDCLFLAGS) --nk topkernel:8 kernel.xo -o kernel.xclbin
 build_xclbin_hw_4inst:
 	/tools/Xilinx/SDx/2019.1/bin/xocc -g -l --kernel_frequency=300 --profile_kernel data:all:all:all --target hw --platform $(TARGETPLATFORM) $(MEMBANKCONFIG_1stInst) $(MEMBANKCONFIG_2ndInst) $(MEMBANKCONFIG_3rdInst) $(MEMBANKCONFIG_4thInst) $(LDCLFLAGS) --nk topkernel:4 kernel.xo -o kernel.xclbin
 	

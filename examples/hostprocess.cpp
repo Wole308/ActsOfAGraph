@@ -9,6 +9,7 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
+#include "../../examples/test/test.h"
 #include "../../examples/pagerank/pagerank.h"
 #include "../../examples/bfs/bfs.h"
 #include "../../src/graphs/creategraph.h"
@@ -23,6 +24,7 @@ using namespace std;
 int main(int argc, char** argv){
 	cout<<"Hostprocess:: Graph Analytics Started..."<<endl;
 	
+	std::string binaryFile;
 	dataset * datasetobj = new dataset();
 	utility * utilityobj = new utility();
 	#ifdef FPGA_IMPL
@@ -30,10 +32,9 @@ int main(int argc, char** argv){
         std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
         return EXIT_FAILURE;
     }
-    std::string binaryFile = argv[1];
+    binaryFile = argv[1];
 	#endif
 	utilityobj->printallparameters();
-	// exit(EXIT_SUCCESS);
 
 	#ifdef _GENERATE2DGRAPH
 	creategraph * creategraphobj = new creategraph();
@@ -46,21 +47,17 @@ int main(int argc, char** argv){
 	#endif
 	
 	#ifdef TESTKERNEL
-	host_enigma * hostXobj = new host_enigma(graphobj);
-	#ifdef FPGA_IMPL
-	hostXobj->loadOCLstructures(binaryFile);
-	#endif
-	hostXobj->run();
-	hostXobj->finish();
+	test * testobj = new test();
+	testobj->run();
 	exit(EXIT_SUCCESS);
 	#endif
 	
 	#if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM) & defined(SW))
-	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid());
+	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);
 	pagerankobj->run();
 	#endif
 	#if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM) & defined(SW))
-	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid());
+	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
 	bfsobj->run();
 	#endif
 	

@@ -12,17 +12,17 @@
 
 class bfs {
 public:
-	bfs(unsigned int algorithmid, unsigned int datasetid);
+	bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
 	~bfs();
 	
 	runsummary_t run();
 	void WorkerThread1(int threadidx, unsigned int graph_iterationidx);
-	void WorkerThread2(int threadidx, int threadidxoffset, unsigned int graph_iterationidx);
+	void WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx);
 	
 	void partitionupdates(unsigned int threadidx, keyvalue_t * buffer, unsigned int vbegin, unsigned int datasize);
 	void appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITIONS], vector<keyvalue_t> (&destinationbuffer)[NUMSSDPARTITIONS]);
-	void retrieveupdates(unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t *** batch, unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS]);			
-	void workerthread_retrieveupdates(int ithreadidx, unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t ** batch, unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], unsigned int datasize);				
+	void retrieveupdates(unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset);			
+	void workerthread_retrieveupdates(int ithreadidx, unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], unsigned int datasize, unsigned int voffset);				
 
 private:
 	graph * graphobj;
