@@ -20,7 +20,7 @@
 #define {{context['LOCKE']}}
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL
-#define _WIDEWORD
+// #define _WIDEWORD // REMOVEME.
 #endif
 #ifndef PR_ALGORITHM
 #define ACTIVEVERTICESBASEDALGORITHM
@@ -128,11 +128,17 @@
 
 ////////////////
 
-#ifdef TESTKERNEL
-#define KVDATA_BATCHSIZE (1 << 26)
-#else 
-#define KVDATA_BATCHSIZE (1 << 24)
-#endif 
+#if defined(ACTSMODEL)
+    #ifdef TESTKERNEL
+	#define KVDATA_BATCHSIZE (1 << 26)
+	#else 
+	#define KVDATA_BATCHSIZE (1 << 24)
+	#endif 
+#elif defined(PARALLELACTSMODEL)
+    #define KVDATA_BATCHSIZE (1 << 24)
+#else
+    #define KVDATA_BATCHSIZE (1 << 24)
+#endif
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 
 #if defined(FPGA_IMPL)
@@ -347,6 +353,10 @@ typedef struct {
 #endif
 
 typedef struct {
+	keyvalue_t data[VECTOR_SIZE];
+} uint512_vec_dt;
+
+typedef struct {
 	unsigned int offset;
     unsigned int size;
 } metadata_t;
@@ -369,10 +379,6 @@ typedef struct {
 typedef struct {
     vertexprop_t data[VECTOR_SIZE];
 } vertexpropset_t;
-
-typedef struct {
-	keyvalue_t data[VECTOR_SIZE];
-} uint512_vec_dt;
 
 typedef struct {
 	vertex_t gvid;

@@ -15,7 +15,8 @@
 #include <cmath>
 #include <fstream>
 {%endif%}
-#include "{{context['PROJECT_BASEPATH']}}/acts/acts.h"
+#include "{{context['PROJECT_BASEPATH']}}/acts/actsutility/actsutility.h"
+#include "{{context['PROJECT_BASEPATH']}}/acts/acts/acts.h"
 using namespace std;
 
 unsigned int GVcurrentLOP;
@@ -23,266 +24,11 @@ unsigned int GVsource_partition;
 unsigned int GVi;
 
 #ifndef FPGA_IMPL
-acts::acts(){}
+acts::acts(){
+	actsutilityobj = new actsutility();
+}
 acts::~acts(){}
 #endif
-#ifndef HW
-unsigned int globalvar_totalkvstatsread;
-unsigned int globalvar_totalkvsreadV;
-unsigned int globalvar_collectstats_totalkvsread;
-unsigned int globalvar_extractcapsules_totalkvsread;
-unsigned int globalvar_organizekeyvalues_totalkvsread;
-unsigned int globalvar_savestats_totalstatswritten;
-unsigned int globalvar_savepartitions_invalids;
-unsigned int globalvar_inmemory_totalvalidkeyvalues;
-unsigned int globalvar_totalkvsread;
-unsigned int globalstats_totalkvswritten;
-unsigned int globalstats_totalkvspartitioned;
-unsigned int globalstats_totalkvspartitionswritten;
-unsigned int globalstats_totalkvspartitionswritten_actual;
-unsigned int globalstats_totalkvsreduced;
-unsigned int globalstats_totalkvsreducewritten;
-unsigned int globalstats_reduce_validkvsreduced;
-#endif 
-#ifdef _LDEBUGMODE_HEADER
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
-	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}checkforequal(string message, unsigned int data1, unsigned int data2){
-	if(data1 == data2){ cout<<"acts::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}print1(string messagea, unsigned int dataa){
-	cout<<messagea<<": "<<dataa<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}print2(string messagea, string messageb, unsigned int dataa, unsigned int datab){
-	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
-	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae){
-	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef){
-	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<datef<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
-	cout<<endl<<"printkeyvalues:"<<message<<endl;
-	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
-	cout<<endl<<"printkeyvalues:"<<message<<endl;
-	for(unsigned int p=0; p<size; p++){ cout<<"["<<keyvalues1[p].key<<":"<<keyvalues1[p].value<<"]["<<keyvalues2[p].key<<":"<<keyvalues2[p].value<<"]"<<endl; }
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
-	cout<<endl<<"printkeyvalues:"<<message<<endl;
-	for(unsigned int i=0; i<size_kvs; i++){ 
-		#ifdef _WIDEWORD
-		{%for v in context['VECTOR_SIZE_seq']%}
-			cout<<"keyvalues["<<i<<"].data[{{v}}].key: "<<(unsigned int)keyvalues[i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}})<<", keyvalues["<<i<<"].data[{{v}}].value: "<<(unsigned int)keyvalues[i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}})<<endl;
-		{%endfor%}
-		#else 
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"keyvalues["<<i<<"].data["<<v<<"].key: "<<keyvalues[i].data[v].key<<", keyvalues["<<i<<"].data["<<v<<"].value: "<<keyvalues[i].data[v].value<<endl; }
-		#endif 
-	}
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
-	unsigned int totalnumkeyvalues = 0;
-	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
-	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
-	return;
-}
-unsigned int {%if(context['XWARE'] == "SW")%}acts::{%endif%}getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
-	cout<<"getvaluecountexcept: size: "<<size<<", exceptvalue: "<<exceptvalue<<endl;
-	unsigned int totalnumkeyvalues = 0; 
-	unsigned int totalnumNOTkeyvalues = 0;
-	for(unsigned int p=0; p<size; p++){ if(keyvalues[p].key != exceptvalue){ totalnumkeyvalues += 1; } else { totalnumNOTkeyvalues += 1; }}
-	cout<<"total values counted: "<<totalnumkeyvalues<<", totalnumNOTkeyvalues: "<<totalnumNOTkeyvalues<<endl;
-	return totalnumkeyvalues;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue){
-	cout<<"setting keyvalues... "<<endl;
-	for(unsigned int i=0; i<size; i++){ keyvalues[i] = keyvalue; }
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printparameters(){
-	cout<<endl<<"acts::printparameters: test started."<<endl;
-	cout<<"acts::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
-	cout<<"acts::printparameters:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<endl;
-	cout<<"acts::printparameters:: PADDEDBUFFER_SIZE: "<<PADDEDBUFFER_SIZE<<endl;
-	cout<<"acts::printparameters:: KVDRAMSZ: "<<KVDRAMSZ<<endl;
-	cout<<"acts::printparameters:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<endl;
-	cout<<"acts::printparameters:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<endl;
-	cout<<"acts::printparameters:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<endl;
-	cout<<"acts::printparameters:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
-	cout<<"acts::printparameters:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<endl;
-	cout<<"acts::printparameters:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<endl;
-	cout<<"acts::printparameters:: SRCBUFFER_SIZE * VECTOR_SIZE: "<<SRCBUFFER_SIZE * VECTOR_SIZE<<endl;
-	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;
-	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * VECTOR_SIZE: "<<PADDEDDESTBUFFER_SIZE * VECTOR_SIZE<<endl;
-	cout<<"acts::printparameters:: PADDEDBUFFER_SIZE / NUM_PARTITIONS: "<<PADDEDBUFFER_SIZE / NUM_PARTITIONS<<endl;
-	cout<<"acts::printparameters:: NFACTOR: "<<NFACTOR<<endl;
-	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * NUMSUBWORKERS (total dest_kvs memory): "<<(PADDEDDESTBUFFER_SIZE * NUMSUBWORKERS)<<endl;
-	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS (total dest memory): "<<(PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS)<<endl;
-	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
-	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<endl;
-	cout<<"acts::printparameters:: CS_NUM_READ_PIPELINES: "<<CS_NUM_READ_PIPELINES<<endl;
-	cout<<"acts::printparameters:: PVU_NUM_READ_PIPELINES: "<<PVU_NUM_READ_PIPELINES<<endl;
-	cout<<"acts::printparameters:: PADSKIP: "<<PADSKIP<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}printglobalvars(){
-	cout<<"printglobalvars: "<<endl;
-	cout<<"acts::printglobalvars:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
-	cout<<"acts::printglobalvars:: globalvar_totalkvsreadV: "<<globalvar_totalkvsreadV<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvswritten: "<<globalstats_totalkvswritten<<endl;
-	cout<<"acts::printglobalvars:: globalvar_totalkvstatsread: "<<globalvar_totalkvstatsread<<endl;
-	cout<<"acts::printglobalvars:: globalvar_collectstats_totalkvsread: "<<globalvar_collectstats_totalkvsread<<endl;
-	cout<<"acts::printglobalvars:: globalvar_extractcapsules_totalkvsread: "<<globalvar_extractcapsules_totalkvsread<<endl;
-	cout<<"acts::printglobalvars:: globalvar_organizekeyvalues_totalkvsread: "<<globalvar_organizekeyvalues_totalkvsread<<endl;
-	cout<<"acts::printglobalvars:: globalvar_savestats_totalstatswritten: "<<globalvar_savestats_totalstatswritten<<endl;	
-	cout<<"acts::printglobalvars:: globalvar_savepartitions_invalids: "<<globalvar_savepartitions_invalids<<endl;	
-	cout<<"acts::printglobalvars:: globalvar_inmemory_totalvalidkeyvalues: "<<globalvar_inmemory_totalvalidkeyvalues<<endl;	
-	cout<<"acts::printglobalvars:: globalstats_totalkvspartitioned: "<<globalstats_totalkvspartitioned<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten: "<<globalstats_totalkvspartitionswritten<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten_actual: "<<globalstats_totalkvspartitionswritten_actual<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten (valids): "<<globalstats_totalkvspartitionswritten - globalvar_savepartitions_invalids<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
-	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}clearglobalvars(){
-	cout<<"clearglobalvars: "<<endl;
-	globalvar_totalkvsread = 0;
-	globalstats_totalkvswritten = 0;
-	globalstats_totalkvspartitionswritten = 0;
-	globalstats_totalkvspartitionswritten_actual = 0;
-	globalstats_totalkvspartitioned = 0;
-	globalvar_totalkvstatsread = 0;
-	globalvar_collectstats_totalkvsread = 0;
-	globalvar_extractcapsules_totalkvsread = 0;
-	globalvar_organizekeyvalues_totalkvsread = 0;
-	globalvar_savestats_totalstatswritten = 0;
-	globalvar_savepartitions_invalids = 0;
-	globalvar_inmemory_totalvalidkeyvalues = 0;
-	globalstats_totalkvsreduced = 0;
-	globalstats_totalkvsreducewritten = 0;
-	globalstats_reduce_validkvsreduced = 0;
-	globalvar_totalkvsreadV = 0;
-}
-keyvalue_t ** Debugger_Sizes1;
-keyvalue_t ** Debugger_Sizes2;
-unsigned int debugger_i;
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}initializeDebuggers(){
-	for(unsigned int i=0; i<DEBUGGER_SIZE; i++){ // reset
-		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
-			Debugger_Sizes1[i][p].key = 0;
-			Debugger_Sizes1[i][p].value = 0;
-			Debugger_Sizes2[i][p].key = 0;
-			Debugger_Sizes2[i][p].value = 0;
-		}
-	}
-	debugger_i = 0;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}createDebuggers(){
-	Debugger_Sizes1 = new keyvalue_t*[DEBUGGER_SIZE];
-	Debugger_Sizes2 = new keyvalue_t*[DEBUGGER_SIZE];
-	for(int i = 0; i < DEBUGGER_SIZE; ++i){
-		Debugger_Sizes1[i] = new keyvalue_t[NUM_PARTITIONS];
-		Debugger_Sizes2[i] = new keyvalue_t[NUM_PARTITIONS];
-	}
-	initializeDebuggers();
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}debuggerA(keyvalue_t ** Debugger_Sizes, keyvalue_t sizes[NUM_PARTITIONS], unsigned int committype){
-	checkoutofbounds("acts::debuggerA 34", debugger_i, DEBUGGER_SIZE, debugger_i, DEBUGGER_SIZE, NAp);
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){
-		Debugger_Sizes[debugger_i][p].key = 0;
-		if(committype == 0){ Debugger_Sizes[debugger_i][p].value += sizes[p].value; }
-		else if(committype == 1){ Debugger_Sizes[debugger_i][p].value = sizes[p].value; }
-		else {}
-	}
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize){
-	for(unsigned int i=0; i<_1stdimsize; i++){
-		for(unsigned int p=0; p<_2nddimsize; p++){
-			if((data1[i][p].key == data2[i][p].key) && (data1[i][p].value == data2[i][p].value)){} 
-			else {
-				cout<<"ERROR:IsEqual: unequal values seen: i: "<<i<<", p: "<<p<<endl;
-				cout<<"data1["<<i<<"]["<<p<<"].key: "<<data1[i][p].key<<", data1["<<i<<"]["<<p<<"].value: "<<data1[i][p].value<<endl;
-				cout<<"data2["<<i<<"]["<<p<<"].key: "<<data2[i][p].key<<", data2["<<i<<"]["<<p<<"].value: "<<data2[i][p].value<<endl;
-				exit(EXIT_FAILURE);
-			}
-		}
-	}
-	cout<<"SUCCESS:IsEqual: test passed. _1stdimsize: "<<_1stdimsize<<", _2nddimsize: "<<_2nddimsize<<endl;
-	return;
-}
-#endif
-#ifdef _DEBUGMODE_STATS
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvstatsread(unsigned int count){
-	globalvar_totalkvstatsread += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalvar_collectstats_counttotalkvsread(unsigned int count){
-	globalvar_collectstats_totalkvsread += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalvar_extractcapsules_counttotalkvsread(unsigned int count){
-	globalvar_extractcapsules_totalkvsread += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalvar_organizekeyvalues_counttotalkvsread(unsigned int count){
-	globalvar_organizekeyvalues_totalkvsread += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalvar_savestats_counttotalstatswritten(unsigned int count){
-	globalvar_savestats_totalstatswritten += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalvar_savepartitions_countinvalids(unsigned int count){
-	globalvar_savepartitions_invalids += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalvar_inmemory_counttotalvalidkeyvalues(unsigned int count){
-	globalvar_inmemory_totalvalidkeyvalues += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvsread(unsigned int count){
-	globalvar_totalkvsread += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvswritten(unsigned int count){
-	globalstats_totalkvswritten += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvspartitionswritten(unsigned int count){
-	globalstats_totalkvspartitionswritten += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvspartitionswritten_actual(unsigned int count){
-	globalstats_totalkvspartitionswritten_actual += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvspartitioned(unsigned int count){
-	globalstats_totalkvspartitioned += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvsreduced(unsigned int count){
-	globalstats_totalkvsreduced += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvsreducewritten(unsigned int count){
-	globalstats_totalkvsreducewritten += count;
-	return;
-}
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_reduce_countvalidkvsreduced(unsigned int count){
-	globalstats_reduce_validkvsreduced += count;
-	return;
-}
-
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}globalstats_countkvsreadV(unsigned int count){
-	globalvar_totalkvsreadV += count;
-	return;
-}
-#endif 
 
 unsigned int {%if(context['XWARE'] == "SW")%}acts::{%endif%}allignhigher_KV(unsigned int val){
 	unsigned int fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
@@ -457,7 +203,7 @@ unsigned int {%if(context['XWARE'] == "SW")%}acts::{%endif%}getpartition(keyvalu
 	#endif
 
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::getpartition 35", hashedval, NUM_PARTITIONS, keyvalue.key, upperlimit, currentLOP);
+	actsutilityobj->checkoutofbounds("acts::getpartition 35", hashedval, NUM_PARTITIONS, keyvalue.key, upperlimit, currentLOP);
 	#endif
 	return hashedval;
 }
@@ -469,7 +215,7 @@ keyvalue_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}getkeyvalue(uint512_dt
 	vector_type idx = addr % VECTOR_SIZE;
 	#ifdef _DEBUGMODE_CHECKS2
 	if(idy >= maxaddr_kvs){ cout<<"getkeyvalue:: ERROR 45. addr: "<<addr<<", idy: "<<idy<<", idx: "<<idx<<endl; exit(EXIT_FAILURE); }
-	checkoutofbounds("acts::getkeyvalue 35", idy, maxaddr_kvs, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts::getkeyvalue 35", idy, maxaddr_kvs, NAp, NAp, NAp);
 	#endif
 	
 	#ifdef _WIDEWORD
@@ -506,7 +252,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}setkeyvalue(uint512_dt * buf
 	batch_type idy = (addr / VECTOR_SIZE);
 	vector_type idx = addr % VECTOR_SIZE;
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::setkeyvalue 35", idy, maxaddr_kvs, addr, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts::setkeyvalue 35", idy, maxaddr_kvs, addr, NAp, NAp);
 	#endif
 	
 	#ifdef _WIDEWORD
@@ -598,7 +344,7 @@ buffer_type {%if(context['XWARE'] == "SW")%}acts::{%endif%}getactivesize(buffer_
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTSX
-	print4("getactivesize: i", "i_end", "buffersize", "activesize", i, i_end, buffersize, activesize);
+	actsutilityobj->print4("getactivesize: i", "i_end", "buffersize", "activesize", i, i_end, buffersize, activesize);
 	#endif
 	return activesize;
 }
@@ -660,7 +406,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}calculatemanyoffsets({%for s
 	}
 	#ifdef _DEBUGMODE_CHECKS2
 	{%for sw in context['NUMSUBWORKERS_seq']%}
-	checkoutofbounds("acts::calculatemanyoffsets 34", capsule{{sw}}[NUM_PARTITIONS-1].key + capsule{{sw}}[NUM_PARTITIONS-1].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, capsule{{sw}}[NUM_PARTITIONS-1].key, capsule{{sw}}[NUM_PARTITIONS-1].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE);
+	actsutilityobj->checkoutofbounds("acts::calculatemanyoffsets 34", capsule{{sw}}[NUM_PARTITIONS-1].key + capsule{{sw}}[NUM_PARTITIONS-1].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, capsule{{sw}}[NUM_PARTITIONS-1].key, capsule{{sw}}[NUM_PARTITIONS-1].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE);
 	{%endfor%}
 	#endif
 	return;
@@ -700,22 +446,22 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}loadclopparams(globalparams_
 	llopparams->upperlimit = 0; // THEISSUE.
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	print1("loadclopparams:: llopparams->baseaddr_worksourcekvs_kvs", llopparams->baseaddr_worksourcekvs_kvs);
-	print1("loadclopparams:: llopparams->baseaddr_workdestkvs_kvs", llopparams->baseaddr_workdestkvs_kvs);
-	print1("loadclopparams:: llopparams->baseaddr_capsule_kvs", llopparams->baseaddr_capsule_kvs);
-	print1("loadclopparams:: llopparams->baseaddr_stats", llopparams->baseaddr_stats);
-	print1("loadclopparams:: llopparams->num_source_partitions", llopparams->num_source_partitions);
-	print1("loadclopparams:: llopparams->nextsourceoffset_partition", llopparams->nextsourceoffset_partition);
-	print1("loadclopparams:: llopparams->nextdestoffset_partition", llopparams->nextdestoffset_partition);
-	print1("loadclopparams:: llopparams->nextsourceoffset_kv", llopparams->nextsourceoffset_kv);
-	print1("loadclopparams:: llopparams->nextdestoffset_kv", llopparams->nextdestoffset_kv);
-	print1("loadclopparams:: llopparams->sourceskipsize_partition", llopparams->sourceskipsize_partition);
-	print1("loadclopparams:: llopparams->destskipsize_partition", llopparams->destskipsize_partition);
-	print1("loadclopparams:: llopparams->sourceskipsize_kv", llopparams->sourceskipsize_kv);
-	print1("loadclopparams:: llopparams->destskipsize_kv", llopparams->destskipsize_kv);
-	print1("loadclopparams:: llopparams->destpartitionrange", llopparams->destpartitionrange);
-	print1("loadclopparams:: llopparams->currentLOP", llopparams->currentLOP);
-	print1("loadclopparams:: llopparams->upperlimit", llopparams->upperlimit);
+	actsutilityobj->print1("loadclopparams:: llopparams->baseaddr_worksourcekvs_kvs", llopparams->baseaddr_worksourcekvs_kvs);
+	actsutilityobj->print1("loadclopparams:: llopparams->baseaddr_workdestkvs_kvs", llopparams->baseaddr_workdestkvs_kvs);
+	actsutilityobj->print1("loadclopparams:: llopparams->baseaddr_capsule_kvs", llopparams->baseaddr_capsule_kvs);
+	actsutilityobj->print1("loadclopparams:: llopparams->baseaddr_stats", llopparams->baseaddr_stats);
+	actsutilityobj->print1("loadclopparams:: llopparams->num_source_partitions", llopparams->num_source_partitions);
+	actsutilityobj->print1("loadclopparams:: llopparams->nextsourceoffset_partition", llopparams->nextsourceoffset_partition);
+	actsutilityobj->print1("loadclopparams:: llopparams->nextdestoffset_partition", llopparams->nextdestoffset_partition);
+	actsutilityobj->print1("loadclopparams:: llopparams->nextsourceoffset_kv", llopparams->nextsourceoffset_kv);
+	actsutilityobj->print1("loadclopparams:: llopparams->nextdestoffset_kv", llopparams->nextdestoffset_kv);
+	actsutilityobj->print1("loadclopparams:: llopparams->sourceskipsize_partition", llopparams->sourceskipsize_partition);
+	actsutilityobj->print1("loadclopparams:: llopparams->destskipsize_partition", llopparams->destskipsize_partition);
+	actsutilityobj->print1("loadclopparams:: llopparams->sourceskipsize_kv", llopparams->sourceskipsize_kv);
+	actsutilityobj->print1("loadclopparams:: llopparams->destskipsize_kv", llopparams->destskipsize_kv);
+	actsutilityobj->print1("loadclopparams:: llopparams->destpartitionrange", llopparams->destpartitionrange);
+	actsutilityobj->print1("loadclopparams:: llopparams->currentLOP", llopparams->currentLOP);
+	actsutilityobj->print1("loadclopparams:: llopparams->upperlimit", llopparams->upperlimit);
 	#endif
 	return;
 }
@@ -742,8 +488,8 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}getchunksize(buffer_type * c
 	checkandforce(i + *chunk_size, PADDEDKVSOURCEDRAMSZ_KVS, chunk_size, 0);
 	checkandforce(i + *chunk_size, PADDEDKVSOURCEDRAMSZ_KVS, &i, 0);
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("getchunksize 35", *chunk_size, buffer_size + 1, *chunk_size, buffer_size, NAp);
-	checkoutofbounds("getchunksize 36", i + *chunk_size, PADDEDKVSOURCEDRAMSZ_KVS + 1, i, *chunk_size, PADDEDKVSOURCEDRAMSZ_KVS);
+	actsutilityobj->checkoutofbounds("getchunksize 35", *chunk_size, buffer_size + 1, *chunk_size, buffer_size, NAp);
+	actsutilityobj->checkoutofbounds("getchunksize 36", i + *chunk_size, PADDEDKVSOURCEDRAMSZ_KVS + 1, i, *chunk_size, PADDEDKVSOURCEDRAMSZ_KVS);
 	#endif
 	return;
 }
@@ -779,7 +525,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 		{%for sw in context['NUMSUBWORKERS_seq']%}
 		buffer_type ovsize{{sw}} = allignhigher_KV(capsule{{sw}}[p].value) - capsule{{sw}}[p].value;
 		#ifdef _DEBUGMODE_STATS
-		globalvar_savepartitions_countinvalids(ovsize{{sw}});
+		actsutilityobj->globalvar_savepartitions_countinvalids(ovsize{{sw}});
 		#endif 
 		{%endfor%}
 		
@@ -805,7 +551,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 		{%for sw in context['NUMSUBWORKERS_seq']%}
 		buffer_type ovsize{{sw}} = allignhigher_KV(capsule{{sw}}[p].value) - capsule{{sw}}[p].value;
 		#ifdef _DEBUGMODE_STATS
-		globalvar_savepartitions_countinvalids(ovsize{{sw}});
+		actsutilityobj->globalvar_savepartitions_countinvalids(ovsize{{sw}});
 		#endif 
 		{%endfor%}
 		
@@ -813,7 +559,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}appendinvalids{{ddrs}}(unsig
 		#pragma HLS PIPELINE
 			{%for sw in context['NUMSUBWORKERS_seq']%}
 			#ifdef _DEBUGMODE_CHECKS2
-			checkoutofbounds("acts::appendinvalids{{ddrs}} 34", capsule{{sw}}[p].key + capsule{{sw}}[p].value + v, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, capsule{{sw}}[p].key, capsule{{sw}}[p].value, v);
+			actsutilityobj->checkoutofbounds("acts::appendinvalids{{ddrs}} 34", capsule{{sw}}[p].key + capsule{{sw}}[p].value + v, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, capsule{{sw}}[p].key, capsule{{sw}}[p].value, v);
 			#endif
 			if(v < ovsize{{sw}}){ setkeyvalue(destbuffer{{sw}}, 0, capsule{{sw}}[p].key + capsule{{sw}}[p].value + v, NApKV, PADDEDDESTBUFFER_SIZE); }
 			{%endfor%}
@@ -831,7 +577,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}readkeyvalues{{ddrs}}(uint51
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &size_kvs, 0);
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &offset_kvs, 0);
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::readkeyvalues dram 36", baseaddress + offset_kvs + size_kvs, maxaddress_kvs + 1, baseaddress, offset_kvs, size_kvs);
+	actsutilityobj->checkoutofbounds("acts::readkeyvalues dram 36", baseaddress + offset_kvs + size_kvs, maxaddress_kvs + 1, baseaddress, offset_kvs, size_kvs);
 	#endif
 	
 	READKEYVALUES_LOOP: for (buffer_type i=0; i<size_kvs; i++){
@@ -839,7 +585,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}readkeyvalues{{ddrs}}(uint51
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_buffersz avg=analysis_buffersz	
 		buffer[i] = kvdram[baseaddress + offset_kvs + i];
 		#ifdef _DEBUGMODE_STATS
-		globalstats_countkvsread(VECTOR_SIZE);
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
 	return;
@@ -864,7 +610,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}readkeyvalues{{ddrs}}(uint51
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &size_kvs, 0);
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &offset_kvs, 0);
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::readkeyvalues dram 37", baseaddress + offset_kvs + size_kvs, maxaddress_kvs, baseaddress, offset_kvs, size_kvs);
+	actsutilityobj->checkoutofbounds("acts::readkeyvalues dram 37", baseaddress + offset_kvs + size_kvs, maxaddress_kvs, baseaddress, offset_kvs, size_kvs);
 	#endif
 	
 	READKEYVALUES_LOOP: for(buffer_type i=0; i<size_kvs; i++){
@@ -886,7 +632,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}readkeyvalues{{ddrs}}(uint51
 		#endif
 		
 		#ifdef _DEBUGMODE_STATS
-		globalstats_countkvsread(VECTOR_SIZE);
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
 	return;
@@ -933,7 +679,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}readkeyvalues{{ddrs}}(unsign
 offset_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}readcapsules{{ddrs}}(unsigned int workerID, uint512_dt * kvdram, {%for sw in context['NUMSUBWORKERS_seq']%} uint512_dt BIGcapsule{{sw}}[CAPSULEBUFFER_SIZE],{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}keyvalue_t capsule{{sw}}[NUM_PARTITIONS], {%endfor%} batch_type baseaddress_kvs, batch_type offset, int enable, offset_t capsulemetadata){
 	if(enable == 0){ return capsulemetadata; }
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::readcapsules{{ddrs}} 35", ((baseaddress_kvs * VECTOR_SIZE) + offset + NUM_PARTITIONS), PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts::readcapsules{{ddrs}} 35", ((baseaddress_kvs * VECTOR_SIZE) + offset + NUM_PARTITIONS), PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif
 	
 	buffer_type loffset = offset % (CAPSULEBUFFER_SIZE * VECTOR_SIZE);
@@ -945,11 +691,11 @@ offset_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}readcapsules{{ddrs}}(uns
 		{%for sw in context['NUMSUBWORKERS_seq']%}
 		loadoffset{{sw}}_kvs = capsulemetadata.globaloffset + capsulemetadata.localoffset + {{sw}} * CAPSULEBUFFER_SIZE; 
 		#ifdef _DEBUGMODE_CHECKS2
-		checkoutofbounds("acts::readcapsules{{ddrs}} 34", baseaddress_kvs + loadoffset{{sw}}_kvs + CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS + 1, baseaddress_kvs, loadoffset{{sw}}_kvs, CAPSULEBUFFER_SIZE);
+		actsutilityobj->checkoutofbounds("acts::readcapsules{{ddrs}} 34", baseaddress_kvs + loadoffset{{sw}}_kvs + CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS + 1, baseaddress_kvs, loadoffset{{sw}}_kvs, CAPSULEBUFFER_SIZE);
 		#endif
 		readkeyvalues{{ddrs}}(kvdram, BIGcapsule{{sw}}, baseaddress_kvs, loadoffset{{sw}}_kvs, CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS);
 		#ifdef _DEBUGMODE_STATS
-		globalstats_countkvstatsread(CAPSULEBUFFER_SIZE * VECTOR_SIZE);
+		actsutilityobj->globalstats_countkvstatsread(CAPSULEBUFFER_SIZE * VECTOR_SIZE);
 		#endif
 		{%endfor%}
 	
@@ -1004,7 +750,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}collectstats{{ddrs}}{{w}}(un
 		
 		#ifdef _DEBUGMODE_STATS
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ globalvar_collectstats_counttotalkvsread(1); }
+		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ actsutilityobj->globalvar_collectstats_counttotalkvsread(1); }
 		{%endfor%}
 		#endif
 	}
@@ -1084,7 +830,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}collectstats{{ddrs}}{{w}}(un
 		#ifdef _DEBUGMODE_STATS
 		{%for sw in context['NUMSUBWORKERS_seq']%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if((WithinValidRange(i, chunk{{sw}}_size) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ globalvar_collectstats_counttotalkvsread(1); }
+		if((WithinValidRange(i, chunk{{sw}}_size) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ actsutilityobj->globalvar_collectstats_counttotalkvsread(1); }
 		{%endfor%}
 		{%endfor%}
 		#endif
@@ -1095,9 +841,6 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}collectstats{{ddrs}}{{w}}(un
 		capsule{{sw}}[p].value += ({%for v in context['VECTOR_SIZE_seq']%}{%if(v>0)%}+{%endif%} sizes{{sw}}{{v}}[p] {%endfor%});
 		{%endfor%}
 	}
-	#ifdef _DEBUGMODE_CHECKSM
-	debuggerA(Debugger_Sizes1, sizes0, 0);
-	#endif 
 	return;
 }
 #endif
@@ -1133,13 +876,13 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionkeyvalues{{ddrs}}{{
 		{%endfor%}
 		#ifdef _DEBUGMODE_CHECKS2
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		checkoutofbounds("acts::partitionkeyvalues{{ddrs}} 34", sizes{{sw}}[p{{sw}}].key + sizes{{sw}}[p{{sw}}].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, sizes{{sw}}[p{{sw}}].key, sizes{{sw}}[p{{sw}}].value, p{{sw}});
+		actsutilityobj->checkoutofbounds("acts::partitionkeyvalues{{ddrs}} 34", sizes{{sw}}[p{{sw}}].key + sizes{{sw}}[p{{sw}}].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, sizes{{sw}}[p{{sw}}].key, sizes{{sw}}[p{{sw}}].value, p{{sw}});
 		{%endfor%}
 		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ print4("partitionkeyvalues{{ddrs}}{{w}}:: keyvalue{{sw}}.key", "keyvalue{{sw}}.value", "insert location", "PADDEDDESTBUFFERSIZE", keyvalue{{sw}}.key, keyvalue{{sw}}.value, sizes{{sw}}[p{{sw}}].key + sizes{{sw}}[p{{sw}}].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE); }
+		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ actsutilityobj->print4("partitionkeyvalues{{ddrs}}{{w}}:: keyvalue{{sw}}.key", "keyvalue{{sw}}.value", "insert location", "PADDEDDESTBUFFERSIZE", keyvalue{{sw}}.key, keyvalue{{sw}}.value, sizes{{sw}}[p{{sw}}].key + sizes{{sw}}[p{{sw}}].value, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE); }
 		{%endfor%}
 		#endif 
 		{%for sw in context['NUMSUBWORKERS_seq']%}
@@ -1153,7 +896,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionkeyvalues{{ddrs}}{{
 		
 		#ifdef _DEBUGMODE_STATS
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ globalstats_countkvspartitioned(1); }
+		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ actsutilityobj->globalstats_countkvspartitioned(1); }
 		{%endfor%}
 		#endif
 	}
@@ -1221,7 +964,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}reducepartitions{{ddrs}}(uns
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}.key != INVALIDDATA)){ checkoutofbounds("legion::reduce_ddr{{ddrs}} 34", loc{{sw}}, APPLYVERTEXBUFFERSZ, k, keyvalue{{sw}}.key, voffset{{sw}}); }
+		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}.key != INVALIDDATA)){ actsutilityobj->checkoutofbounds("legion::reduce_ddr{{ddrs}} 34", loc{{sw}}, APPLYVERTEXBUFFERSZ, k, keyvalue{{sw}}.key, voffset{{sw}}); }
 		{%endfor%}
 		#endif
 		
@@ -1239,7 +982,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}reducepartitions{{ddrs}}(uns
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}.key != INVALIDDATA)){ print6("reducepartitions{{ddrs}}:: keyvalue{{sw}}.key", "keyvalue{{sw}}.value", "vprop{{sw}}.key", "vprop{{sw}}.value", "loc{{sw}}", "NAp", keyvalue{{sw}}.key, keyvalue{{sw}}.value, vprop{{sw}}.key, vprop{{sw}}.value, loc{{sw}}, NAp); }
+		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}.key != INVALIDDATA)){ actsutilityobj->print6("reducepartitions{{ddrs}}:: keyvalue{{sw}}.key", "keyvalue{{sw}}.value", "vprop{{sw}}.key", "vprop{{sw}}.value", "loc{{sw}}", "NAp", keyvalue{{sw}}.key, keyvalue{{sw}}.value, vprop{{sw}}.key, vprop{{sw}}.value, loc{{sw}}, NAp); }
 		{%endfor%}
 		#endif 
 		{%for sw in context['NUMSUBWORKERS_seq']%}
@@ -1248,8 +991,8 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}reducepartitions{{ddrs}}(uns
 		
 		#ifdef _DEBUGMODE_STATS
 		{%for sw in context['NUMSUBWORKERS_seq']%}
-		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ globalstats_reduce_countvalidkvsreduced(1); }
-		if(WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1){ globalstats_countkvsreduced(1); }
+		if((WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1) && (keyvalue{{sw}}{{v}}.key != INVALIDDATA)){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(WithinValidRange(k, chunk{{sw}}_size * VECTOR_SIZE) == 1){ actsutilityobj->globalstats_countkvsreduced(1); }
 		{%endfor%}
 		#endif
 	}
@@ -1264,14 +1007,14 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}savekeyvalues{{ddrs}}(uint51
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &size_kvs, 0);
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &offset_kvs, 0);
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::savekeyvalues dram 35", baseaddress + offset_kvs + size_kvs, maxaddress_kvs + 1, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts::savekeyvalues dram 35", baseaddress + offset_kvs + size_kvs, maxaddress_kvs + 1, NAp, NAp, NAp);
 	#endif
 	SAVEKEYVALUES_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=1
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_savebuffer avg=analysis_savebuffer	
 		kvdram[baseaddress + offset_kvs + i] = buffer[i];
 		#ifdef _DEBUGMODE_STATS
-		globalstats_countkvswritten(VECTOR_SIZE);
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
 		#endif
 	}
 	return;
@@ -1296,7 +1039,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}savekeyvalues{{ddrs}}(uint51
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &size_kvs, 0);
 	checkandforce(baseaddress + offset_kvs + size_kvs, maxaddress_kvs, &offset_kvs, 0);
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("acts::savekeyvalues dram 36", baseaddress + offset_kvs + size_kvs, maxaddress_kvs, baseaddress, offset_kvs, size_kvs);
+	actsutilityobj->checkoutofbounds("acts::savekeyvalues dram 36", baseaddress + offset_kvs + size_kvs, maxaddress_kvs, baseaddress, offset_kvs, size_kvs);
 	#endif
 	
 	SAVEKEYVALUES_LOOP: for(buffer_type i=0; i<size_kvs; i++){
@@ -1350,11 +1093,11 @@ offset_t {%if(context['XWARE'] == "SW")%}acts::{%endif%}savecapsules{{ddrs}}(uns
 		
 		checkandforce(baseaddress_kvs + saveoffset{{sw}}_kvs + CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS, &saveoffset{{sw}}_kvs, 0);
 		#ifdef _DEBUGMODE_CHECKS2
-		checkoutofbounds("acts::savecapsules{{ddrs}} 34", baseaddress_kvs + saveoffset{{sw}}_kvs + CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS + 1, baseaddress_kvs, saveoffset{{sw}}_kvs, CAPSULEBUFFER_SIZE);
+		actsutilityobj->checkoutofbounds("acts::savecapsules{{ddrs}} 34", baseaddress_kvs + saveoffset{{sw}}_kvs + CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS + 1, baseaddress_kvs, saveoffset{{sw}}_kvs, CAPSULEBUFFER_SIZE);
 		#endif
 		savekeyvalues{{ddrs}}(kvdram, BIGcapsule{{sw}}, baseaddress_kvs, saveoffset{{sw}}_kvs, CAPSULEBUFFER_SIZE, PADDEDKVSOURCEDRAMSZ_KVS);
 		#ifdef _DEBUGMODE_STATS
-		globalvar_savestats_counttotalstatswritten(CAPSULEBUFFER_SIZE * VECTOR_SIZE);
+		actsutilityobj->globalvar_savestats_counttotalstatswritten(CAPSULEBUFFER_SIZE * VECTOR_SIZE);
 		#endif
 		{%endfor%}
 		
@@ -1381,8 +1124,8 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}savepartitions{{ddrs}}(unsig
 			checkandforce(dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, &size_kvs, 0);
 			checkandforce(dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, &dramoffset_kvs, 0);
 			#ifdef _DEBUGMODE_CHECKS2
-			checkoutofbounds("acts::savepartitions{{sw}} dram 34", dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, dramoffset_kvs, size_kvs, llopparams.baseaddr_workdestkvs_kvs);
-			checkoutofbounds("acts::savepartitions{{sw}} bram 35", bramoffset_kvs + size_kvs, PADDEDDESTBUFFER_SIZE, bramoffset_kvs, capsule{{sw}}[p].key, size_kvs);
+			actsutilityobj->checkoutofbounds("acts::savepartitions{{sw}} dram 34", dramoffset_kvs + size_kvs, PADDEDKVSOURCEDRAMSZ_KVS, dramoffset_kvs, size_kvs, llopparams.baseaddr_workdestkvs_kvs);
+			actsutilityobj->checkoutofbounds("acts::savepartitions{{sw}} bram 35", bramoffset_kvs + size_kvs, PADDEDDESTBUFFER_SIZE, bramoffset_kvs, capsule{{sw}}[p].key, size_kvs);
 			#endif
 
 			SAVEPARTITIONS{{sw}}_MAINLOOP1B: for(buffer_type i=0; i<size_kvs; i++){
@@ -1391,18 +1134,18 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}savepartitions{{ddrs}}(unsig
 				kvdram[dramoffset_kvs + i] = destbuffer{{sw}}[bramoffset_kvs + i];
 				
 				#ifdef _DEBUGMODE_STATS
-				globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
+				actsutilityobj->globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
 				#endif
 			}
 			#ifdef _DEBUGMODE_STATS
-			globalstats_countkvspartitionswritten(realsize_kvs * VECTOR_SIZE);
+			actsutilityobj->globalstats_countkvspartitionswritten(realsize_kvs * VECTOR_SIZE);
 			#endif
 		}
 		UPDATEGLOBALSTATS{{sw}}_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){ kvdeststats_tmp[p].value += allignhigher_KV(capsule{{sw}}[p].value); }
 		#ifdef _DEBUGMODE_CHECKS2
-		for(partition_type p=0; p<NUM_PARTITIONS-1; p++){ checkoutofbounds("acts::savepartitions{{sw}} check 38", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, kvdeststats_tmp[p+1].key, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
-		for(partition_type p=0; p<NUM_PARTITIONS; p++){ checkoutofbounds("acts::savepartitions{{sw}} check 39", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, BASEOFFSET_CAPSULES, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
-		for(partition_type p=0; p<NUM_PARTITIONS; p++){ checkoutofbounds("acts::savepartitions{{sw}} check 40", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, KVSOURCEDRAMSZ, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
+		for(partition_type p=0; p<NUM_PARTITIONS-1; p++){ actsutilityobj->checkoutofbounds("acts::savepartitions{{sw}} check 38", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, kvdeststats_tmp[p+1].key, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
+		for(partition_type p=0; p<NUM_PARTITIONS; p++){ actsutilityobj->checkoutofbounds("acts::savepartitions{{sw}} check 39", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, BASEOFFSET_CAPSULES, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
+		for(partition_type p=0; p<NUM_PARTITIONS; p++){ actsutilityobj->checkoutofbounds("acts::savepartitions{{sw}} check 40", kvdeststats_tmp[p].key + kvdeststats_tmp[p].value, KVSOURCEDRAMSZ, kvdeststats_tmp[p].key, kvdeststats_tmp[p].value, p); }
 		#endif
 	{%endfor%}
 	return;
@@ -1465,7 +1208,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 	
 	#ifdef ENABLE_LOADKVDRAM 
 	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("loadKvDRAM{{ddrs}} 35", globalparams.nextbatchoffset + globalparams.batchsize, PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds("loadKvDRAM{{ddrs}} 35", globalparams.nextbatchoffset + globalparams.batchsize, PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	if(globalparams.runkernelcommand == ON){ cout<<"...running Acts... offset: "<<globalparams.nextbatchoffset<<", size: "<<globalparams.batchsize<<endl; }
@@ -1479,8 +1222,8 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 		savekeyvalues{{ddrs}}(kvsourcedram, sourcebuffer00[0], BASEOFFSET_KVDRAM_KVS, (globalparams.nextbatchoffset / VECTOR_SIZE) + i, chunk_size, PADDEDKVSOURCEDRAMSZ_KVS);
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	printglobalvars();
-	clearglobalvars();
+	actsutilityobj->printglobalvars();
+	actsutilityobj->clearglobalvars();
 	#endif
 	#endif 
 
@@ -1501,14 +1244,14 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<endl;
-		print4("PartitionPhase{{ddrs}}:: num_source_partitions", "num_destpartitions", "sourceskipsize_kv", "NAp", llopparams.num_source_partitions, llopparams.num_source_partitions * NUM_PARTITIONS, llopparams.sourceskipsize_kv, NAp);
+		actsutilityobj->print4("PartitionPhase{{ddrs}}:: num_source_partitions", "num_destpartitions", "sourceskipsize_kv", "NAp", llopparams.num_source_partitions, llopparams.num_source_partitions * NUM_PARTITIONS, llopparams.sourceskipsize_kv, NAp);
 		#endif
 		PARTITIONANDREDUCE_LOOP2: for(unsigned int source_partition=0; source_partition<llopparams.num_source_partitions; source_partition+=num_source_partition_skipsize){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_avgnumsourcepartitions avg=analysis_avgnumsourcepartitions
 		
 			#ifdef _DEBUGMODE_CHECKS2
-			checkoutofbounds("acts::partitionandreduce{{ddrs}} 22", BASEOFFSET_STATSDRAM + sourcestatsmarker, KVSTATSDRAMSZ, NAp, NAp, NAp);
-			checkoutofbounds("acts::partitionandreduce{{ddrs}} 23", destoffset, KVDRAMSZ, destoffset, skipspacing, NAp);
+			actsutilityobj->checkoutofbounds("acts::partitionandreduce{{ddrs}} 22", BASEOFFSET_STATSDRAM + sourcestatsmarker, KVSTATSDRAMSZ, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("acts::partitionandreduce{{ddrs}} 23", destoffset, KVDRAMSZ, destoffset, skipspacing, NAp);
 			#endif
 			llopparams.upperlimit = globalparams.vbegin + llopparams.nextsourceoffset_kv; // THEISSUE.
 			keyvalue_t sourcestat = kvstats[BASEOFFSET_STATSDRAM + sourcestatsmarker];
@@ -1526,8 +1269,8 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			travstate_pp1 = travstate;
 			travstateG = travstate;
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ print6("ReducePhase{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", "source_partition", sourcestat.key, sourcestat.value, NUMSUBWORKERS * SRCBUFFER_SIZE * VECTOR_SIZE, llopparams.currentLOP, BATCH_RANGE / pow(NUM_PARTITIONS, llopparams.currentLOP), source_partition); } 
-			else { print6("PartitionPhase{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", "source_partition", sourcestat.key, sourcestat.value, NUMSUBWORKERS * SRCBUFFER_SIZE * VECTOR_SIZE, llopparams.currentLOP, BATCH_RANGE / pow(NUM_PARTITIONS, llopparams.currentLOP), source_partition); }
+			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){ actsutilityobj->print6("ReducePhase{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", "source_partition", sourcestat.key, sourcestat.value, NUMSUBWORKERS * SRCBUFFER_SIZE * VECTOR_SIZE, llopparams.currentLOP, BATCH_RANGE / pow(NUM_PARTITIONS, llopparams.currentLOP), source_partition); } 
+			else { actsutilityobj->print6("PartitionPhase{{ddrs}}:: begin", "size", "step", "currentLOP", "range_per_destpartition", "source_partition", sourcestat.key, sourcestat.value, NUMSUBWORKERS * SRCBUFFER_SIZE * VECTOR_SIZE, llopparams.currentLOP, BATCH_RANGE / pow(NUM_PARTITIONS, llopparams.currentLOP), source_partition); }
 			#endif
 			resetkeyandvalues(kvdeststats_tmp, NUM_PARTITIONS);
 			#ifdef _DEBUGMODE_STATS
@@ -1560,7 +1303,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			COLLECTSTATS_MAINLOOP1: for(int i = CSpartitionparams.begin_kvs; i < CSpartitionparams.end_kvs; i += CSpartitionparams.step_kvs){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionphase avg=analysis_partitionphase
 				#ifdef _DEBUGMODE_KERNELPRINTS
-				print4("CollectStatsPhase{{ddrs}}:: i", "i_end", "step size", "upperlimit", i, CSpartitionparams.end_kvs, CSpartitionparams.step_kvs, llopparams.upperlimit);
+				actsutilityobj->print4("CollectStatsPhase{{ddrs}}:: i", "i_end", "step size", "upperlimit", i, CSpartitionparams.end_kvs, CSpartitionparams.step_kvs, llopparams.upperlimit);
 				#endif
 				
 				travstateG.i_kvs = i;
@@ -1629,7 +1372,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			PARTITIONPHASE_MAINLOOP1: for (int i = PVUpartitionparams.begin_kvs; i < PVUpartitionparams.end_kvs; i += PVUpartitionparams.step_kvs){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionphase avg=analysis_partitionphase
 				#ifdef _DEBUGMODE_KERNELPRINTS
-				print4("PartitionPhase{{ddrs}}:: i", "i_end", "step size", "upperlimit", i, PVUpartitionparams.end_kvs, PVUpartitionparams.step_kvs, llopparams.upperlimit);
+				actsutilityobj->print4("PartitionPhase{{ddrs}}:: i", "i_end", "step size", "upperlimit", i, PVUpartitionparams.end_kvs, PVUpartitionparams.step_kvs, llopparams.upperlimit);
 				#endif
 				
 				GVi = i;
@@ -1688,21 +1431,21 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 				{%endfor%}
 			}
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			printkeyvalues("partitionandreduce::kvdeststats_tmp", kvdeststats_tmp, NUM_PARTITIONS);
-			printvaluecount("partitionandreduce::kvdeststats_tmp", kvdeststats_tmp, NUM_PARTITIONS);
-			printkeyvalues("partitionandreduce::kvdeststats_tmp2", kvdeststats_tmp2, NUM_PARTITIONS);
-			printvaluecount("partitionandreduce::kvdeststats_tmp2", kvdeststats_tmp2, NUM_PARTITIONS);
-			printkeyvalues("partitionandreduce::kvdeststats_tmp3", kvdeststats_tmp3, NUM_PARTITIONS);
-			printvaluecount("partitionandreduce::kvdeststats_tmp3", kvdeststats_tmp3, NUM_PARTITIONS);
+			actsutilityobj->printkeyvalues("partitionandreduce::kvdeststats_tmp", kvdeststats_tmp, NUM_PARTITIONS);
+			actsutilityobj->printvaluecount("partitionandreduce::kvdeststats_tmp", kvdeststats_tmp, NUM_PARTITIONS);
+			actsutilityobj->printkeyvalues("partitionandreduce::kvdeststats_tmp2", kvdeststats_tmp2, NUM_PARTITIONS);
+			actsutilityobj->printvaluecount("partitionandreduce::kvdeststats_tmp2", kvdeststats_tmp2, NUM_PARTITIONS);
+			actsutilityobj->printkeyvalues("partitionandreduce::kvdeststats_tmp3", kvdeststats_tmp3, NUM_PARTITIONS);
+			actsutilityobj->printvaluecount("partitionandreduce::kvdeststats_tmp3", kvdeststats_tmp3, NUM_PARTITIONS);
 			#endif
 			#ifdef _DEBUGMODE_STATS
-			globalvar_inmemory_counttotalvalidkeyvalues(getvaluecount(kvdeststats_tmp3, NUM_PARTITIONS));
+			actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(getvaluecount(kvdeststats_tmp3, NUM_PARTITIONS));
 			#endif
 			
 			// Reduce phase
 			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 1){
 				#ifdef _DEBUGMODE_CHECKS2
-				checkoutofbounds("acts::partitionandreduce{{ddrs}} 23", BASEOFFSET_STATSDRAM + sourcestatsmarker + NUMSUBWORKERS, KVSTATSDRAMSZ, NAp, NAp, NAp);
+				actsutilityobj->checkoutofbounds("acts::partitionandreduce{{ddrs}} 23", BASEOFFSET_STATSDRAM + sourcestatsmarker + NUMSUBWORKERS, KVSTATSDRAMSZ, NAp, NAp, NAp);
 				#endif
 				unsigned int maxsz = 0;
 				for(unsigned int i=0; i<NUMSUBWORKERS; i++){ sourcestats[i] = kvstats[BASEOFFSET_STATSDRAM + sourcestatsmarker + i]; }
@@ -1710,7 +1453,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 				for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){ maxsz = max(sourcestats[sw].value, maxsz); }
 				unsigned int maxsz_kvs = (maxsz + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 				#ifdef _DEBUGMODE_KERNELPRINTS
-				for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){ print6("ReducePhase{{ddrs}}:: begin", "size", "subworkerID", "currentLOP", "range_per_destpartition", "source_partition", sourcestats[sw].key, sourcestats[sw].value, sw, llopparams.currentLOP, NAp, source_partition); }
+				for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){ actsutilityobj->print6("ReducePhase{{ddrs}}:: begin", "size", "subworkerID", "currentLOP", "range_per_destpartition", "source_partition", sourcestats[sw].key, sourcestats[sw].value, sw, llopparams.currentLOP, NAp, source_partition); }
 				#endif
 				unsigned int voffset = source_partition * APPLYVERTEXBUFFERSZ; 
 
@@ -1720,7 +1463,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 				REDUCEPHASE_MAINLOOP: for (int i = 0; i < maxsz_kvs; i += 2 * SRCBUFFER_SIZE){
 				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reducephase avg=analysis_reducephase
 					#ifdef _DEBUGMODE_KERNELPRINTS
-					print5("ReducePhase{{ddrs}}:: i", "i_end", "NAp", "NAp", "skip size", i, maxsz_kvs, NAp, NAp, SRCBUFFER_SIZE);
+					actsutilityobj->print5("ReducePhase{{ddrs}}:: i", "i_end", "NAp", "NAp", "skip size", i, maxsz_kvs, NAp, NAp, SRCBUFFER_SIZE);
 					#endif
 					
 					if(i==0){ enable_reducekeyvalues = 0; } else { enable_reducekeyvalues = 1; }
@@ -1740,7 +1483,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			
 			// updates
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			print2("PartitionPhase{{ddrs}}:: capsulemetadata.globaloffset", "capsulemetadata.localoffset", capsulemetadata.globaloffset, capsulemetadata.localoffset);
+			actsutilityobj->print2("PartitionPhase{{ddrs}}:: capsulemetadata.globaloffset", "capsulemetadata.localoffset", capsulemetadata.globaloffset, capsulemetadata.localoffset);
 			#endif
 			#ifdef ENABLE_REUSESAVEDCAPSULES
 			keyvalue_t kvcapsulemetadata[1]; kvcapsulemetadata[0].key = capsulemetadata.globaloffset; kvcapsulemetadata[0].value = capsulemetadata.localoffset;
@@ -1757,13 +1500,13 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 			if(globalparams.statsalreadycollected == 0){ capsulemetadata.globaloffset += capsulemetadata.localoffset; }
 			#endif 
 			#ifdef _DEBUGMODE_CHECKS2
-			checkoutofbounds("acts::partitionandreduce{{ddrs}} 35", sourcestatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
-			checkoutofbounds("acts::partitionandreduce{{ddrs}} 36", deststatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("acts::partitionandreduce{{ddrs}} 35", sourcestatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("acts::partitionandreduce{{ddrs}} 36", deststatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
 			#endif
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		printglobalvars();
-		clearglobalvars();
+		actsutilityobj->printglobalvars();
+		actsutilityobj->clearglobalvars();
 		#endif
 	}
 	return;
@@ -1840,25 +1583,16 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}topkernel(
 	std::cout<<"Kernel Started: globalparams.runsize: "<<globalparams.runsize<<std::endl;
 	std::cout<<"Kernel Started: globalparams.nextbatchoffset: "<<globalparams.nextbatchoffset<<std::endl;
 	std::cout<<"Kernel Started: kvstatsA[BASEOFFSET_STATSDRAM + 0].value: "<<kvstatsA[BASEOFFSET_STATSDRAM + 0].value<<std::endl;
-	// printparameters();
-	// exit(EXIT_SUCCESS);
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	printparameters();
-	printglobalvars();
-	clearglobalvars();
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	actsutilityobj->clearglobalvars();
 	#endif
 	
-	#ifdef ACTS
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	partitionandreduce{{ddrs}}(kvsourcedram{{ddrs_}}, kvdestdram{{ddrs_}}, kvstats{{ddrs_}}, globalparams);
 	{%endfor%}
-	#endif 
-	#ifdef TRADITIONAL
-	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	randomaccessreduce{{ddrs}}(kvsourcedram{{ddrs_}}, kvdestdram{{ddrs_}}, globalparams);
-	{%endfor%}
-	#endif 
 	return;
 }
 }

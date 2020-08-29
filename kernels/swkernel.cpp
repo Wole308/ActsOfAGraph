@@ -8,7 +8,8 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-#include "../acts/acts.h"
+#include "../acts/acts/acts.h"
+#include "../acts/parallelacts/actsthread_partition.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 #include "swkernel.h"
@@ -16,13 +17,18 @@ using namespace std;
 
 swkernel::swkernel(){
 	utilityobj = new utility();
-	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ kernelobjs[i] = new acts(); }
+	#ifdef SW 
+	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ 
+		// kernelobjs[i] = new acts(); 
+		kernelobjs[i] = new actsthread_partition(); 
+	}
+	#endif 
 }
 swkernel::~swkernel(){} 
 
 #ifdef SW 
 void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results before Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
 	#endif
 	

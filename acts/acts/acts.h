@@ -1,24 +1,10 @@
 #ifndef ACTS_H
 #define ACTS_H
-#include "../include/common.h"
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
+#include "../../include/common.h"
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
-#include "/home/oj2zf/Documents/ActsOfAGraph/acts/actsutility.h"
+#include "/home/oj2zf/Documents/ActsOfAGraph/acts/actsutility/actsutility.h"
 using namespace std;
 
 // #define COLLECTCAPSULES_TYPE1
@@ -46,7 +32,6 @@ using namespace std;
 #define PVU_NUM_READ_PIPELINES 1
 #endif 
 
-#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define ENREADKEYVALUES 1
 #define ENREADKVS_COLLECTSTATS 0

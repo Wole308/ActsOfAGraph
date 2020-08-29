@@ -30,7 +30,7 @@ oclkernel::oclkernel(){
 oclkernel::~oclkernel(){} 
 
 #ifdef FPGA_IMPL 
-void oclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void oclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){		
 	std::cout << "Set the Kernel Arguments" << std::endl;
 	int nargs=0;
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){
@@ -92,7 +92,7 @@ void oclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUT
 	printf("Enqueueing Migrate Mem Object (Device to Host) calls\n");
 }
 
-void oclkernel::writeVstokernel(){
+void oclkernel::writeVstokernel(unsigned int flag){
 	/* std::cout << "Copy input data to kernel global memory" << std::endl;
 	array<cl_event, {{context['NUMINSTANCES']}}> write_events;
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){
@@ -102,7 +102,7 @@ void oclkernel::writeVstokernel(){
 	}
 	for (int ddr = 0; ddr < NUMINSTANCES; ddr++){ clWaitForEvents(1, &write_events[ddr]); } */
 }
-void oclkernel::readVsfromkernel(){
+void oclkernel::readVsfromkernel(unsigned int flag){
 	/* std::cout << "Copy input data to host global memory" << std::endl;
 	array<cl_event, {{context['NUMINSTANCES']}}> write_events;
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){
@@ -170,7 +170,6 @@ void oclkernel::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourced
 	}
 	return;
 }
-
 void oclkernel::finishOCL(){
 	cout<<"test::finish destroying memory structures... "<<endl;
 	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ clWaitForEvents(1, &kernel_events[flag]); }

@@ -132,8 +132,8 @@ print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH']))
 print ('BUNDLEFACTOR_APPLYPH: ' + str(context['BUNDLEFACTOR_APPLYPH'])) 
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
-o_path0="acts/acts.cpp"
-o_path1="acts/acts.h"
+o_path0="acts/acts/acts.cpp"
+o_path1="acts/acts/acts.h"
 o_path2="include/common.h"
 o_path3="include/common.h"
 o_path4="include/common.h"
@@ -146,8 +146,8 @@ out_path3=os.path.abspath(o_path3)
 out_path4=os.path.abspath(o_path4)
 out_path5=os.path.abspath(o_path5)
 
-templ_path0="acts/"
-templ_path1="acts/"
+templ_path0="acts/acts/"
+templ_path1="acts/acts/"
 templ_path2="include/"
 templ_path3="include/"
 templ_path4="include/"

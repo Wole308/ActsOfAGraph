@@ -36,8 +36,8 @@ public:
 	
 	#ifdef FPGA_IMPL 
 	void loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void writeVstokernel();
-	void readVsfromkernel();
+	void writeVstokernel(unsigned int flag);
+	void readVsfromkernel(unsigned int flag);
 	void finishOCL();
 	#endif 
 	

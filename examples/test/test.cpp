@@ -18,18 +18,22 @@
 #include "test.h"
 using namespace std;
 
-test::test(){
+test::test(std::string binaryFile){
 	utilityobj = new utility();
 	helperfunctionsobj = new helperfunctions(); 
 	
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[i][j] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvdestdram[i][j] = (uint512_vec_dt *) aligned_alloc(4096, (BATCH_RANGE_KVS * sizeof(uint512_vec_dt))); }}
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvstats[i][j] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }}
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}}			
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvdestdram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (BATCH_RANGE_KVS * sizeof(uint512_vec_dt))); }}}
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvstats[flag][i][j] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }}}
 	#else 
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[i][j] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvdestdram[i][j] = new uint512_vec_dt[BATCH_RANGE_KVS]; }}
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvstats[i][j] = new keyvalue_t[KVSTATSDRAMSZ]; }}
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[flag][i][j] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}}
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvdestdram[flag][i][j] = new uint512_vec_dt[BATCH_RANGE_KVS]; }}}
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvstats[flag][i][j] = new keyvalue_t[KVSTATSDRAMSZ]; }}}
+	#endif
+	
+	#ifdef FPGA_IMPL
+	helperfunctionsobj->loadOCLstructures(binaryFile, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvsourcedram, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvdestdram, kvstats); 	
 	#endif
 	
 	srand (0);
@@ -68,14 +72,14 @@ void test::run(){
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ loadsize[i] = KVDATA_BATCHSIZE; }			
 		utilityobj->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, KVDATA_BATCHSIZE);
 		
-		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram, batchoffset, batchsize);
+		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], batchoffset, batchsize);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
-		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, voffset, batchsize, runsize, kvstats);
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, voffset, batchsize, runsize, kvstats[0]);
 		
 		// Launch the Kernel
-		helperfunctionsobj->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats, 0);
+		helperfunctionsobj->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[0], 0);
 		
-		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvstats);
+		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvstats[0]);
 		globaliteration_idx += 1;
 	}
 	return;

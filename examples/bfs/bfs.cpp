@@ -137,7 +137,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 	graphobj->loadvertexdatafromfile(threadidxoffset + superthreadidx, voffset, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[superthreadidx]->writeVstokernel();
+	helperfunctionsobj[superthreadidx]->writeVstokernel(0);
 	#endif
 	
 	unsigned int fdoffset[NUMCPUTHREADS];
@@ -176,7 +176,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 	}
 
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[superthreadidx]->readVsfromkernel();
+	helperfunctionsobj[superthreadidx]->readVsfromkernel(0);
 	#endif
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->applyvertices(threadidxoffset + superthreadidx, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx);

@@ -1,21 +1,17 @@
-Burst Read/Write (C)
+HBM Simple Vector Addition
 ======================
 
-This is simple example of using AXI4-master interface for burst read and write
+This is a simple example of vector addition to describe how to use HLS kernels with HBM (High Bandwidth Memory) for achieving high throughput.
 
-***KEY CONCEPTS:*** burst access
+***KEY CONCEPTS:*** High Bandwidth Memory, Multiple HBM Banks
 
-***KEYWORDS:*** memcpy, max_read_burst_length, max_write_burst_length
+***KEYWORDS:*** HBM, XCL_MEM_TOPOLOGY, cl_mem_ext_ptr_t
 
 ## SUPPORTED PLATFORMS
 Platform | Board             | Software Version
 ---------|-------------------|-----------------
-xilinx_u200_qdma|Xilinx Alveo U200|SDx 2019.1
+xilinx_u50_xdma|Xilinx Alveo U50|SDx 2019.1
 xilinx_u280_xdma|Xilinx Alveo U280|SDx 2019.1
-xilinx_u250_qdma|Xilinx Alveo U250|SDx 2019.1
-xilinx_u200_xdma|Xilinx Alveo U200|SDx 2019.1
-xilinx_u250_xdma|Xilinx Alveo U250|SDx 2019.1
-xilinx_u280-es1_xdma|Xilinx Alveo U280|SDx 2019.1
 
 
 ##  DESIGN FILES
@@ -23,12 +19,25 @@ Application code is located in the src directory. Accelerator binary files will 
 
 ```
 src/host.cpp
-src/vadd.cpp
+src/krnl_vadd.cpp
 ```
 
 ##  COMMAND LINE ARGUMENTS
 Once the environment has been configured, the application can be executed by
 ```
-./host <vadd XCLBIN>
+./host <krnl_vadd XCLBIN>
 ```
+
+
+/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+
+make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+make all TARGET=hw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+XCL_EMULATION_MODE=sw_emu ./host xclbin/krnl_vaddmul.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+
+nohup make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+./host xclbin/krnl_vaddmul.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+
+/tools/Xilinx/SDx/2019.1/bin/xcpp -I../../..//libs/xcl2 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/Vivado/2019.1/include/ -Wall -O0 -g -std=c++14 -fmessage-length=0 ../../..//libs/xcl2/xcl2.cpp src/host.cpp  -o 'host'  -L/opt/xilinx/xrt/lib/ -lOpenCL -lpthread -lrt -lstdc++ 
+
 

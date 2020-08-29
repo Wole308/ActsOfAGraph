@@ -74,9 +74,9 @@ for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -175,11 +175,11 @@ do
 		do
 
 		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
-		for numcputhreads in $THREADCOUNT_EQ1
+		for numcputhreads in $THREADCOUNT_EQ2
 		do
 		
 		# for numcputhreads in $THREADPOW_EQ0 $THREADPOW_EQ2
-		for numsubcputhreads_pow in $THREADPOW_EQ0
+		for numsubcputhreads_pow in $THREADPOW_EQ2
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
@@ -315,23 +315,28 @@ do
 						then
 							make cleanall
 							# rm -rf host
-							make build_host
+							# make build_host
 							# make build_host_aws
 							# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
 							# make swemu
-							make swemu_ncomputeunits 
+							# make swemu_ncomputeunits 
 							# make swemu_aws
 							# make swemu_aws > $RESULTDIR_RESULT
+							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
 						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
 							make cleanall
 							# rm -rf host
-							make build_host
+							# make build_host
 							# make build_host_aws
 							# ./host kernel.awsxclbin
 							# ./host $BACKUPDIR_KERNELAWSXCLBIN
 							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
-							
+							# make host
+							# nohup make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+							# ./host xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin
+					
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"

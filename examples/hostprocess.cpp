@@ -6,19 +6,15 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <vector>
-#include "../../src/utility/utility.h"
-#include "../../src/algorithm/algorithm.h"
-#include "../../src/graphs/graph.h"
-#include "../../examples/test/test.h"
-#include "../../examples/pagerank/pagerank.h"
-#include "../../examples/bfs/bfs.h"
-#include "../../src/graphs/creategraph.h"
-#include "../../src/dataset/dataset.h"
-#include "../../include/common.h"
-#ifdef FPGA_IMPL
-// #include "xcl2.hpp"
-#include "../xcl.h"
-#endif
+#include "../src/utility/utility.h"
+#include "../src/algorithm/algorithm.h"
+#include "../src/graphs/graph.h"
+#include "../examples/test/test.h"
+#include "../examples/pagerank/pagerank.h"
+#include "../examples/bfs/bfs.h"
+#include "../src/graphs/creategraph.h"
+#include "../src/dataset/dataset.h"
+#include "../include/common.h"
 using namespace std;
 
 int main(int argc, char** argv){
@@ -47,7 +43,7 @@ int main(int argc, char** argv){
 	#endif
 	
 	#ifdef TESTKERNEL
-	test * testobj = new test();
+	test * testobj = new test(binaryFile);
 	testobj->run();
 	exit(EXIT_SUCCESS);
 	#endif

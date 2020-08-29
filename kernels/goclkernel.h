@@ -1,34 +1,49 @@
-#ifndef GOCLKERNEL_H
-#define GOCLKERNEL_H
+#ifndef GOCLKERNEL_H_
+#define GOCLKERNEL_H_
+#ifdef FPGA_IMPL
+#include <CL/cl2.hpp>
+#include <iostream>
+#include <fstream>
+#include <CL/cl_ext_xilinx.h>
+#endif 
 #include "../../src/utility/utility.h"
 #include "../../include/common.h"
+// #include "xcl2.hpp"
 
-#define NUM_KERNEL 8
-
-class oclkernel {
+class goclkernel {
 public:
-	oclkernel();
-	~oclkernel();
+	goclkernel();
+	~goclkernel();
+	
+	#ifdef FPGA_IMPL 
+	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
+	
+	void writeVstokernel(unsigned int flag);
+	void readVsfromkernel(unsigned int flag);
 	
 	void loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);			
-	
-	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
-
-	void writeVstokernel();
-	void readVsfromkernel();
-
+	void finishOCL();
+	#endif 
 private:
 	utility * utilityobj;
+	std::string binaryFile;
 	
 	size_t kvsource_size_bytes;
 	size_t kvdest_size_bytes; 
 	size_t kvstats_size_bytes;
 	
-	std::vector<cl::Buffer> buffer_kvsourcedram(NUM_KERNEL);
-    std::vector<cl::Buffer> buffer_kvdestdram(NUM_KERNEL);
-    std::vector<cl::Buffer> buffer_kvstatsdram(NUM_KERNEL);
+	cl_mem_ext_ptr_t inoutBufExt1[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl_mem_ext_ptr_t inoutBufExt2[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl_mem_ext_ptr_t inoutBufExt3[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+
+    cl::Buffer buffer_kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl::Buffer buffer_kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl::Buffer buffer_kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	
-	std::vector<cl::Kernel> krnls(NUM_KERNEL);
+	cl::Kernel krnls[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	
+	cl::CommandQueue q;
+	cl_int err;
 };
 #endif
 

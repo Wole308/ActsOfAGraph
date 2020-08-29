@@ -12,7 +12,7 @@
 
 class test {
 public:
-	test();
+	test(std::string binaryFile);
 	~test();
 	
 	void run();
@@ -24,9 +24,9 @@ private:
 	utility * utilityobj;
 	helperfunctions * helperfunctionsobj;
 
-	uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	uint512_vec_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };
 #endif
 

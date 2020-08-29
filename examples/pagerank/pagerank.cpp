@@ -94,7 +94,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned in
 	graphobj->loadvertexdatafromfile(threadidxoffset + superthreadidx, 0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[superthreadidx]->writeVstokernel();
+	helperfunctionsobj[superthreadidx]->writeVstokernel(0);
 	#endif
 	
 	for(unsigned int lbankoffset = 0; lbankoffset < graphobj->getnumedgebanks(); lbankoffset += 1){
@@ -140,7 +140,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned in
 
 	// writeback temp vertices data
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[superthreadidx]->readVsfromkernel();
+	helperfunctionsobj[superthreadidx]->readVsfromkernel(0);
 	#endif
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->applyvertices(threadidxoffset + superthreadidx, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, 0, graph_iterationidx);

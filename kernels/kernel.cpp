@@ -8,8 +8,8 @@
 #include <vector>
 #include <mutex>
 #include "swkernel.h"
-#include "oclkernel.h"
-// #include "goclkernel.h"
+// #include "oclkernel.h"
+#include "goclkernel.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 #include "kernel.h"
@@ -18,8 +18,8 @@ using namespace std;
 kernel::kernel(){
 	utilityobj = new utility();
 	#ifdef FPGA_IMPL 
-	kernelobj = new oclkernel();
-	// kernelobj = new goclkernel();
+	// kernelobj = new oclkernel();
+	kernelobj = new goclkernel();
 	#else 
 	kernelobj = new swkernel();
 	#endif
@@ -35,11 +35,11 @@ void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHRE
 void kernel::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
 }
-void kernel::writeVstokernel(){
-	kernelobj->writeVstokernel();
+void kernel::writeVstokernel(unsigned int flag){
+	kernelobj->writeVstokernel(flag);
 }
-void kernel::readVsfromkernel(){
-	kernelobj->readVsfromkernel();
+void kernel::readVsfromkernel(unsigned int flag){
+	kernelobj->readVsfromkernel(flag);
 }
 void kernel::finishOCL(){
 	kernelobj->finishOCL();

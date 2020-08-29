@@ -2,7 +2,8 @@
 #define SWKERNEL_H
 #include <mutex>
 #include <thread>
-#include "../acts/acts.h"
+#include "../acts/acts/acts.h"
+#include "../acts/parallelacts/actsthread_partition.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
@@ -19,7 +20,8 @@ public:
 private:
 	utility * utilityobj;
 	#ifdef SW 
-	acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	// acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	actsthread_partition * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
 	#endif 
 	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };

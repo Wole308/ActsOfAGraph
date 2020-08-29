@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
 ////////////////
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM
 #define _LARGEDATASET_67M 
@@ -15,7 +18,7 @@
 #define LOCKE
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL
-#define _WIDEWORD
+// #define _WIDEWORD // REMOVEME.
 #endif
 #ifndef PR_ALGORITHM
 #define ACTIVEVERTICESBASEDALGORITHM
@@ -53,8 +56,8 @@
 ////////////////
 
 #define NUMSUPERCPUTHREADS 1
-#define NUMCPUTHREADS 1 // FIXME. overridden
-#define NUMSUBCPUTHREADS_POW 0
+#define NUMCPUTHREADS 2 // FIXME. overridden
+#define NUMSUBCPUTHREADS_POW 2
 #define NUMSUBCPUTHREADS (1 << NUMSUBCPUTHREADS_POW) 
 #define NUMUTILITYTHREADS NUMCPUTHREADS
 
@@ -106,11 +109,17 @@
 
 ////////////////
 
-#ifdef TESTKERNEL
-#define KVDATA_BATCHSIZE (1 << 26)
-#else 
-#define KVDATA_BATCHSIZE (1 << 24)
-#endif 
+#if defined(ACTSMODEL)
+    #ifdef TESTKERNEL
+	#define KVDATA_BATCHSIZE (1 << 26)
+	#else 
+	#define KVDATA_BATCHSIZE (1 << 24)
+	#endif 
+#elif defined(PARALLELACTSMODEL)
+    #define KVDATA_BATCHSIZE (1 << 24)
+#else
+    #define KVDATA_BATCHSIZE (1 << 24)
+#endif
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 
 #if defined(FPGA_IMPL)
@@ -325,6 +334,10 @@ typedef struct {
 #endif
 
 typedef struct {
+	keyvalue_t data[VECTOR_SIZE];
+} uint512_vec_dt;
+
+typedef struct {
 	unsigned int offset;
     unsigned int size;
 } metadata_t;
@@ -347,10 +360,6 @@ typedef struct {
 typedef struct {
     vertexprop_t data[VECTOR_SIZE];
 } vertexpropset_t;
-
-typedef struct {
-	keyvalue_t data[VECTOR_SIZE];
-} uint512_vec_dt;
 
 typedef struct {
 	vertex_t gvid;

@@ -16,8 +16,8 @@
 #include <iomanip>
 #include <cmath>
 #include <fstream>
-#include "../src/utility/utility.h"
-#include "../include/common.h"
+#include "../../src/utility/utility.h"
+#include "../../include/common.h"
 #include "actsutility.h"
 using namespace std;
 
@@ -58,11 +58,7 @@ void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues1, keyval
 void actsutility::printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int i=0; i<size_kvs; i++){ 
-		#ifdef _WIDEWORD
-		{%for v in context['VECTOR_SIZE_seq']%}
-			cout<<"keyvalues["<<i<<"].data[{{v}}].key: "<<(unsigned int)keyvalues[i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}})<<", keyvalues["<<i<<"].data[{{v}}].value: "<<(unsigned int)keyvalues[i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}})<<endl;
-		{%endfor%}
-		#else 
+		#ifndef _WIDEWORD
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"keyvalues["<<i<<"].data["<<v<<"].key: "<<keyvalues[i].data[v].key<<", keyvalues["<<i<<"].data["<<v<<"].value: "<<keyvalues[i].data[v].value<<endl; }
 		#endif 
 	}

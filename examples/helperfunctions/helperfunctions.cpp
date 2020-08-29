@@ -105,7 +105,7 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 }
 
 void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results before Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
 	#endif
 	
@@ -180,11 +180,11 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
 }
-void helperfunctions::writeVstokernel(){
-	kernelobj->writeVstokernel();
+void helperfunctions::writeVstokernel(unsigned int flag){
+	kernelobj->writeVstokernel(flag);
 }
-void helperfunctions::readVsfromkernel(){
-	kernelobj->readVsfromkernel();
+void helperfunctions::readVsfromkernel(unsigned int flag){
+	kernelobj->readVsfromkernel(flag);
 }
 void helperfunctions::finishOCL(){
 	kernelobj->finishOCL();
