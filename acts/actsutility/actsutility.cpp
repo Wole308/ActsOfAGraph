@@ -17,6 +17,7 @@
 #include <cmath>
 #include <fstream>
 #include "../../src/utility/utility.h"
+#include "../include/actscommon.h"
 #include "../../include/common.h"
 #include "actsutility.h"
 using namespace std;
@@ -69,18 +70,6 @@ void actsutility::printvaluecount(string message, keyvalue_t * keyvalues, unsign
 	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
 	return;
 }
-unsigned int actsutility::getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
-	cout<<"getvaluecountexcept: size: "<<size<<", exceptvalue: "<<exceptvalue<<endl;
-	unsigned int totalnumkeyvalues = 0; 
-	unsigned int totalnumNOTkeyvalues = 0;
-	for(unsigned int p=0; p<size; p++){ if(keyvalues[p].key != exceptvalue){ totalnumkeyvalues += 1; } else { totalnumNOTkeyvalues += 1; }}
-	cout<<"total values counted: "<<totalnumkeyvalues<<", totalnumNOTkeyvalues: "<<totalnumNOTkeyvalues<<endl;
-	return totalnumkeyvalues;
-}
-void actsutility::setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue){
-	cout<<"setting keyvalues... "<<endl;
-	for(unsigned int i=0; i<size; i++){ keyvalues[i] = keyvalue; }
-}
 void actsutility::printparameters(){
 	cout<<endl<<"acts::printparameters: test started."<<endl;
 	cout<<"acts::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
@@ -102,9 +91,10 @@ void actsutility::printparameters(){
 	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS (total dest memory): "<<(PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS)<<endl;
 	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
 	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<endl;
-	// cout<<"acts::printparameters:: CS_NUM_READ_PIPELINES: "<<CS_NUM_READ_PIPELINES<<endl;
-	// cout<<"acts::printparameters:: PVU_NUM_READ_PIPELINES: "<<PVU_NUM_READ_PIPELINES<<endl;
-	// cout<<"acts::printparameters:: PADSKIP: "<<PADSKIP<<endl;
+	cout<<"acts::printparameters:: ALW_PADDEDDESTBUFFER_SIZE: "<<ALW_PADDEDDESTBUFFER_SIZE<<endl;
+	cout<<"acts::printparameters:: ALW_PADDEDDESTBUFFER_SIZE (KV): "<<ALW_PADDEDDESTBUFFER_SIZE * VECTOR_SIZE<<endl;
+	cout<<"acts::printparameters:: ALW_SRCBUFFER_SIZE: "<<ALW_SRCBUFFER_SIZE<<endl;
+	cout<<"acts::printparameters:: ALW_SRCBUFFER_SIZE (KV): "<<ALW_SRCBUFFER_SIZE * VECTOR_SIZE<<endl;
 }
 void actsutility::printglobalvars(){
 	cout<<"printglobalvars: "<<endl;
@@ -125,6 +115,42 @@ void actsutility::printglobalvars(){
 	cout<<"acts::printglobalvars:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
 	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
+}
+void actsutility::printglobalparameters(string message, alw_globalparams_t globalparams){
+	cout<<endl<<"actsutility::printglobalparameters: "<<message<<endl;
+	std::cout<<"Kernel Started: globalparams.runkernelcommand: "<<globalparams.runkernelcommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.processcommand: "<<globalparams.processcommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.collectstatscommand: "<<globalparams.collectstatscommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.partitioncommand: "<<globalparams.partitioncommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.reducecommand: "<<globalparams.reducecommand<<std::endl;
+	std::cout<<"Kernel Started: globalparams.vbegin: "<<globalparams.vbegin<<std::endl;
+	std::cout<<"Kernel Started: globalparams.vsize: "<<globalparams.vsize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.treedepth: "<<globalparams.treedepth<<std::endl;
+	std::cout<<"Kernel Started: globalparams.LLOPnumpartitions: "<<globalparams.LLOPnumpartitions<<std::endl;
+	std::cout<<"Kernel Started: globalparams.GraphIter: "<<globalparams.GraphIter<<std::endl;
+	std::cout<<"Kernel Started: globalparams.batchsize: "<<globalparams.batchsize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.runsize: "<<globalparams.runsize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.nextbatchoffset: "<<globalparams.nextbatchoffset<<std::endl;
+	std::cout<<"Kernel Started: globalparams.statsalreadycollected: "<<globalparams.statsalreadycollected<<std::endl;
+	std::cout<<std::endl;
+}
+
+unsigned int actsutility::ugetvaluecount(keyvalue_t * keyvalues, unsigned int size){
+	unsigned int totalnumkeyvalues = 0;
+	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
+	return totalnumkeyvalues;
+}
+unsigned int actsutility::getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
+	cout<<"getvaluecountexcept: size: "<<size<<", exceptvalue: "<<exceptvalue<<endl;
+	unsigned int totalnumkeyvalues = 0; 
+	unsigned int totalnumNOTkeyvalues = 0;
+	for(unsigned int p=0; p<size; p++){ if(keyvalues[p].key != exceptvalue){ totalnumkeyvalues += 1; } else { totalnumNOTkeyvalues += 1; }}
+	cout<<"total values counted: "<<totalnumkeyvalues<<", totalnumNOTkeyvalues: "<<totalnumNOTkeyvalues<<endl;
+	return totalnumkeyvalues;
+}
+void actsutility::setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue){
+	cout<<"setting keyvalues... "<<endl;
+	for(unsigned int i=0; i<size; i++){ keyvalues[i] = keyvalue; }
 }
 void actsutility::clearglobalvars(){
 	cout<<"clearglobalvars: "<<endl;

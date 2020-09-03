@@ -65,18 +65,18 @@ _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
 # for evaluation_type in EV_PERFORMANCEOFALGORITHM
-for evaluation_type in EV_SIMPLETEST
+# for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
-# for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
+for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
 # for evaluation_type in EV_IMPACTOFBANDWIDTH
 # for evaluation_type in EV_IMPACTOFPLATFORM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -175,11 +175,11 @@ do
 		do
 
 		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
-		for numcputhreads in $THREADCOUNT_EQ2
+		for numcputhreads in $THREADCOUNT_EQ1
 		do
 		
-		# for numcputhreads in $THREADPOW_EQ0 $THREADPOW_EQ2
-		for numsubcputhreads_pow in $THREADPOW_EQ2
+		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ2
+		for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
@@ -196,7 +196,7 @@ do
 				do
 					# for evaluation_param0 in 0 1 2 3 4 5
 					# for evaluation_param0 in 4
-					for evaluation_param0 in 5
+					for evaluation_param0 in 0
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
 						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"

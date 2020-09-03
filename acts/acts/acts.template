@@ -15,7 +15,9 @@
 #include <cmath>
 #include <fstream>
 {%endif%}
+#ifndef FPGA_IMPL
 #include "{{context['PROJECT_BASEPATH']}}/acts/actsutility/actsutility.h"
+#endif 
 #include "{{context['PROJECT_BASEPATH']}}/acts/acts/acts.h"
 using namespace std;
 
@@ -1480,7 +1482,7 @@ void {%if(context['XWARE'] == "SW")%}acts::{%endif%}partitionandreduce{{ddrs}}(u
 				savekeyvalues{{ddrs}}(kvdestdram, destbuffer0{{sw}}, globalparams.baseaddr_destkvs_kvs, ((llopparams.nextsourceoffset_kv / VECTOR_SIZE) + ({{sw}} * APPLYVERTEXBUFFERSZ_KVS)), APPLYVERTEXBUFFERSZ_KVS, BATCH_RANGE_KVS);
 				{%endfor%}
 			}
-			
+
 			// updates
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			actsutilityobj->print2("PartitionPhase{{ddrs}}:: capsulemetadata.globaloffset", "capsulemetadata.localoffset", capsulemetadata.globaloffset, capsulemetadata.localoffset);

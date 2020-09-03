@@ -119,6 +119,10 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
+	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<std::endl;
+	#ifdef ACTSMODEL_LW
+	// if(PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t) >= 256 * 1024 * 1024){ cout<<"UTILITY:ERROR: PADDEDKVSOURCEDRAMSZ is more than a single HBM bank capacity (i.e. 256MB)"<<endl; exit(EXIT_FAILURE); }
+	#endif 
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;

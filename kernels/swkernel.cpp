@@ -9,7 +9,7 @@
 #include <mutex>
 #include <thread>
 #include "../acts/acts/acts.h"
-#include "../acts/parallelacts/actsthread_partition.h"
+#include "../acts/acts_lw/actspartition.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 #include "swkernel.h"
@@ -19,8 +19,12 @@ swkernel::swkernel(){
 	utilityobj = new utility();
 	#ifdef SW 
 	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ 
-		// kernelobjs[i] = new acts(); 
-		kernelobjs[i] = new actsthread_partition(); 
+		#ifdef ACTSMODEL
+		kernelobjs[i] = new acts();
+		#endif 
+		#ifdef ACTSMODEL_LW
+		kernelobjs[i] = new actspartition(); 
+		#endif 
 	}
 	#endif 
 }
@@ -48,8 +52,16 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 }
 void swkernel::workerthread_launchkernel(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
 	#ifdef SW 
+	#ifdef ACTSMODEL
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	#endif 
+	#ifdef ACTSMODEL_LW
+	// kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvstats, kvstats, kvstats);
+	// kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvsourcedram);
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
+	#endif 
+	#endif
+	exit(EXIT_SUCCESS);
 	return;
 }
 void swkernel::finishOCL(){

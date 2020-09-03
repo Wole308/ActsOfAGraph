@@ -3,7 +3,7 @@
 #include <mutex>
 #include <thread>
 #include "../acts/acts/acts.h"
-#include "../acts/parallelacts/actsthread_partition.h"
+#include "../acts/acts_lw/actspartition.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
@@ -13,15 +13,19 @@ public:
 	~swkernel();
 	
 	#ifdef SW 
-	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);				
 	void workerthread_launchkernel(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats);
 	void finishOCL();
 	#endif 
 private:
 	utility * utilityobj;
 	#ifdef SW 
-	// acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
-	actsthread_partition * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	#ifdef ACTSMODEL
+	acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	#endif 
+	#ifdef ACTSMODEL_LW
+	actspartition * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	#endif 
 	#endif 
 	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };

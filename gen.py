@@ -26,6 +26,9 @@ print(isFile)
 
 ###
 
+# context['ALW_VECTOR_SIZE'] = 1
+# context['NUMTWINS'] = context['VECTOR_SIZE'] / context['ALW_VECTOR_SIZE']
+
 EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
@@ -58,12 +61,6 @@ if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT":
 else:
     context['NUM_PARTITIONS_POW'] = 4
     
-EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": 
-    context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
-else:
-    context['NUMSUBWORKERS'] = 4
-    
 EV_IMPACTOFBANDWIDTH = [1, 2, 4, 6, 8, 8]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFBANDWIDTH": 
     context['VECTOR_SIZE'] = EV_IMPACTOFBANDWIDTH[context['EVALUATION_PARAM0']]
@@ -76,6 +73,16 @@ if context['EVALUATION_TYPE'] == "EV_IMPACTOFPLATFORM":
     context['LOCKE'] = "NOLOCKE"
 else:
     context['DUMMY'] = 0
+    
+EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
+# context['ALW_VECTOR_SIZE'] = 1
+context['ALW_VECTOR_SIZE'] = context['VECTOR_SIZE']
+context['NUMTWINS'] = context['VECTOR_SIZE'] / context['ALW_VECTOR_SIZE']
+if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": 
+    context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
+else:
+    context['NUMSUBWORKERS'] = 1
+    # context['NUMSUBWORKERS'] = 4
 
 ###
 
@@ -86,8 +93,10 @@ else:
     
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
+    # context['NUMINSTANCES'] = 4
 else:
-	context['NUMINSTANCES'] = 1 # 4
+	context['NUMINSTANCES'] = 1
+    # context['NUMINSTANCES'] = 4
     
 if (context['PLATFORM'] == "AWS_PLATFORM"):
 	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAGraph"
@@ -130,12 +139,14 @@ print ('BUNDLEFACTOR: ' + str(context['BUNDLEFACTOR']))
 print ('NUMWORKERS_APPLYPH: ' + str(context['NUMWORKERS_APPLYPH'])) 
 print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH'])) 
 print ('BUNDLEFACTOR_APPLYPH: ' + str(context['BUNDLEFACTOR_APPLYPH'])) 
+print ('ALW_VECTOR_SIZE: ' + str(context['ALW_VECTOR_SIZE'])) 
+print ('NUMTWINS: ' + str(context['NUMTWINS'])) 
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
 o_path0="acts/acts/acts.cpp"
 o_path1="acts/acts/acts.h"
-o_path2="include/common.h"
-o_path3="include/common.h"
+o_path2="acts/acts_lw/actspartition.cpp"
+o_path3="acts/acts_lw/actspartition.h"
 o_path4="include/common.h"
 o_path5="include/common.h"
 
@@ -148,8 +159,8 @@ out_path5=os.path.abspath(o_path5)
 
 templ_path0="acts/acts/"
 templ_path1="acts/acts/"
-templ_path2="include/"
-templ_path3="include/"
+templ_path2="acts/acts_lw/"
+templ_path3="acts/acts_lw/"
 templ_path4="include/"
 templ_path5="include/"
 
@@ -248,6 +259,14 @@ for i in range (0,(context['NUM_PARTITIONS'])):
 context['NUMSUBWORKERSPERVECTOR_seq'] = []
 for i in range (0,(context['NUMSUBWORKERSPERVECTOR'])):
 		context['NUMSUBWORKERSPERVECTOR_seq'].append(i)
+        
+context['ALW_VECTOR_SIZE_seq'] = []
+for i in range (0,(context['ALW_VECTOR_SIZE'])):
+		context['ALW_VECTOR_SIZE_seq'].append(i)
+        
+context['NUMTWINS_seq'] = []
+for i in range (0,(context['NUMTWINS'])):
+		context['NUMTWINS_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
@@ -265,8 +284,8 @@ env5.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
-template2 = env2.get_template('common_h.template')
-template3 = env3.get_template('common_h.template')
+template2 = env2.get_template('actspartition.template')
+template3 = env3.get_template('actspartition_h.template')
 template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
 

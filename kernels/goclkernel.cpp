@@ -12,11 +12,14 @@
 #include <mutex>
 #include "../../src/utility/utility.h"
 #include "../../include/common.h"
+#ifdef FPGA_IMPL
 #include "xcl2.hpp"
+#endif 
 #include "goclkernel.h"
 using namespace std;
 
 #define NUM_KERNEL (NUMCPUTHREADS * NUMSUBCPUTHREADS)
+#define NUMBANKSFOREACHCU 4
 
 //HBM Banks requirements
 #define MAX_HBM_BANKCOUNT 32
@@ -49,10 +52,11 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){
 		for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){
 			//Setting the k_vadd Arguments
-			OCL_CHECK(err, err = krnls[j][k].setArg(0, buffer_kvsourcedram[flag][j][k]));
-			OCL_CHECK(err, err = krnls[j][k].setArg(1, buffer_kvdestdram[flag][j][k]));
-			OCL_CHECK(err, err = krnls[j][k].setArg(2, buffer_kvstats[flag][j][k]));
-
+			OCL_CHECK(err, err = krnls[j][k].setArg(0, buffer_kvsourceAdram[flag][j][k]));
+			OCL_CHECK(err, err = krnls[j][k].setArg(1, buffer_kvsourceBdram[flag][j][k]));
+			OCL_CHECK(err, err = krnls[j][k].setArg(2, buffer_kvsourceCdram[flag][j][k]));
+			OCL_CHECK(err, err = krnls[j][k].setArg(3, buffer_kvsourceDdram[flag][j][k]));
+			
 			//Invoking the kernel
 			OCL_CHECK(err, err = q.enqueueTask(krnls[j][k]));
 		}
@@ -76,7 +80,7 @@ void goclkernel::writeVstokernel(unsigned int flag){
 		for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){
 			OCL_CHECK(err,
 					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvdestdram[flag][j][k]},
+						  {buffer_kvsourceAdram[flag][j][k]},
 						  0 /* 0 means from host*/));
 		}
 	}
@@ -87,7 +91,7 @@ void goclkernel::readVsfromkernel(unsigned int flag){
 		for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){
 			OCL_CHECK(err,
 					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvdestdram[flag][j][k]},
+						  {buffer_kvsourceAdram[flag][j][k]},
 						  CL_MIGRATE_MEM_OBJECT_HOST));
 		}
 	}
@@ -97,9 +101,14 @@ void goclkernel::readVsfromkernel(unsigned int flag){
 void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){		
 	binaryFile = _binaryFile;
 
-	kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
+	// kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
+	kvsource_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt); // REMOVEME.
+	// kvsource_size_bytes = 8 * sizeof(uint512_vec_dt);
 	kvdest_size_bytes = 8 * sizeof(uint512_vec_dt);
 	kvstats_size_bytes = MESSAGESDRAMSZ * sizeof(keyvalue_t);
+	cout<<"goclkernel::loadOCLstructures:: kvsource_size_bytes: "<<kvsource_size_bytes<<endl;
+	cout<<"goclkernel::loadOCLstructures:: kvdest_size_bytes: "<<kvdest_size_bytes<<endl;
+	cout<<"goclkernel::loadOCLstructures:: kvstats_size_bytes: "<<kvstats_size_bytes<<endl;
 	
 	// OPENCL HOST CODE AREA START
     // The get_xil_devices will return vector of Xilinx Devices
@@ -114,6 +123,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
                                  CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE |
                                      CL_QUEUE_PROFILING_ENABLE,
                                  &err));
+								 
 	q = _q;
 
     std::string device_name = device.getInfo<CL_DEVICE_NAME>();
@@ -145,24 +155,29 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 					  krnls[j][k] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 		}
 	}
-		
+	
 	unsigned int bankindex = 0;
 	for(unsigned int flag=0; flag<NUMFLAGS; flag++){
-		bankindex = 0;
+	bankindex = 0;
 		for(unsigned int j=0; j<NUMCPUTHREADS; j++){
-			bankindex = j * 4;
 			for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){
 				inoutBufExt1[flag][j][k].obj = kvsourcedram[flag][j][k];
 				inoutBufExt1[flag][j][k].param = 0;
-				inoutBufExt1[flag][j][k].flags = bank[bankindex++];
+				inoutBufExt1[flag][j][k].flags = bank[bankindex];
 				
-				inoutBufExt2[flag][j][k].obj = kvdestdram[flag][j][k];
+				inoutBufExt2[flag][j][k].obj = kvsourcedram[flag][j][k];
 				inoutBufExt2[flag][j][k].param = 0;
-				inoutBufExt2[flag][j][k].flags = bank[bankindex++];
+				inoutBufExt2[flag][j][k].flags = bank[bankindex + 1];
 
-				inoutBufExt3[flag][j][k].obj = kvstats[flag][j][k];
+				inoutBufExt3[flag][j][k].obj = kvsourcedram[flag][j][k];
 				inoutBufExt3[flag][j][k].param = 0;
-				inoutBufExt3[flag][j][k].flags = bank[bankindex++];
+				inoutBufExt3[flag][j][k].flags = bank[bankindex + 2];
+				
+				inoutBufExt4[flag][j][k].obj = kvsourcedram[flag][j][k];
+				inoutBufExt4[flag][j][k].param = 0;
+				inoutBufExt4[flag][j][k].flags = bank[bankindex + 3];
+				
+				bankindex+=4;
 			}
 		}
 	}
@@ -174,32 +189,43 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 		for(unsigned int j=0; j<NUMCPUTHREADS; j++){
 			for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){
 				OCL_CHECK(err,
-						  buffer_kvsourcedram[flag][j][k] =
+						  buffer_kvsourceAdram[flag][j][k] =
 							  cl::Buffer(context,
-										 CL_MEM_READ_ONLY | CL_MEM_EXT_PTR_XILINX |
+										 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 											 CL_MEM_USE_HOST_PTR,
 										 kvsource_size_bytes,
 										 &inoutBufExt1[flag][j][k],
 										 &err));
 				OCL_CHECK(err,
-						  buffer_kvdestdram[flag][j][k] =
+						  buffer_kvsourceBdram[flag][j][k] =
 							  cl::Buffer(context,
-										 CL_MEM_READ_ONLY | CL_MEM_EXT_PTR_XILINX |
+										 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 											 CL_MEM_USE_HOST_PTR,
-										 kvdest_size_bytes,
+										 kvsource_size_bytes,
 										 &inoutBufExt2[flag][j][k],
 										 &err));
+										 
 				OCL_CHECK(err,
-						  buffer_kvstats[flag][j][k] =
+						  buffer_kvsourceCdram[flag][j][k] =
 							  cl::Buffer(context,
-										 CL_MEM_WRITE_ONLY | CL_MEM_EXT_PTR_XILINX |
+										 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 											 CL_MEM_USE_HOST_PTR,
-										 kvstats_size_bytes,
+										 kvsource_size_bytes,
 										 &inoutBufExt3[flag][j][k],
+										 &err));
+										 
+				OCL_CHECK(err,
+						  buffer_kvsourceDdram[flag][j][k] =
+							  cl::Buffer(context,
+										 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+											 CL_MEM_USE_HOST_PTR,
+										 kvsource_size_bytes,
+										 &inoutBufExt4[flag][j][k],
 										 &err));
 			}
 		}
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
 void goclkernel::finishOCL(){

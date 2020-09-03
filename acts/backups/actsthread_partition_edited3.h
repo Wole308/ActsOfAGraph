@@ -28,29 +28,45 @@ typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;
+typedef unsigned int buffer_stype;
 
 typedef struct {
 	unsigned int currentLOP;
 	unsigned int upperlimit;
 } sweepparams_t;
 
+typedef struct {
+	unsigned int topi_kvs;
+	unsigned int i_kvs;
+	unsigned int begin_kvs;
+	unsigned int end_kvs;
+	unsigned int skip_kvs;
+	unsigned int info;
+} atp_travstate_t;
+
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue_st;
+
 class actsthread_partition {
 public:
 	actsthread_partition();
 	~actsthread_partition();
 	
-	unsigned int allignhigher_KV(unsigned int val);
 	unsigned int checkandforce(unsigned int val, unsigned int limit);
+	unsigned int allignhigher_KV(unsigned int val);
+	buffer_type getchunksize(buffer_type buffer_size, atp_travstate_t travstate, unsigned int localoffset);
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 
 	void read(keyvalue_t * kvdram, keyvalue_t * buffer, batch_type offset_kvs, buffer_type size_kvs);
 	void save(keyvalue_t * kvdram, keyvalue_t * buffer, batch_type offset_kvs, buffer_type size_kvs);
 
-	void read(uint512_dt * kvdram, uint512_dt * buffer, batch_type offset_kvs, buffer_type size_kvs);
-	void partition(uint512_dt * sourcebuffer, uint512_dt * destbuffer, keyvalue_t * localcapsule, buffer_type size_kvs, sweepparams_t sweepparams);
-	void save(uint512_dt * kvdram, uint512_dt * buffer, keyvalue_t * globalcapsule, keyvalue_t * localcapsule, batch_type globalbaseaddress_kvs);
+	void readmany(uint512_dt * kvdram1, uint512_dt * kvdram2, uint512_dt * kvdram3, uint512_dt * buffer1, uint512_dt * buffer2, uint512_dt * buffer3, batch_type offset1_kvs, batch_type offset2_kvs, batch_type offset3_kvs, atp_travstate_t travstate);			
+	void partitionmany(uint512_dt * source1buffer, uint512_dt * source2buffer, uint512_dt * source3buffer, uint512_dt * dest1buffer, uint512_dt * dest2buffer, uint512_dt * dest3buffer, keyvalue_st * localcapsule1, keyvalue_st * localcapsule2, keyvalue_st * localcapsule3, sweepparams_t sweepparams, atp_travstate_t travstate);			
+	void saveKVS(uint512_dt * kvdram, uint512_dt * buffer, keyvalue_t * globalcapsule, keyvalue_st * localcapsule, batch_type globalbaseaddress_kvs);
 
-	void topkernel(uint512_dt * sourcevolume, uint512_dt * targetvolume, keyvalue_t * stats);
+	void topkernel(uint512_dt * sourceAvolume, uint512_dt * sourceBvolume, uint512_dt * sourceCvolume, keyvalue_t * statsA, keyvalue_t * statsB, keyvalue_t * statsC);
 private:
 	#ifndef FPGA_IMPL
 	actsutility * actsutilityobj;

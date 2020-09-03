@@ -32,18 +32,26 @@ private:
 	size_t kvdest_size_bytes; 
 	size_t kvstats_size_bytes;
 	
+	#ifdef FPGA_IMPL 
 	cl_mem_ext_ptr_t inoutBufExt1[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
     cl_mem_ext_ptr_t inoutBufExt2[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
     cl_mem_ext_ptr_t inoutBufExt3[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl_mem_ext_ptr_t inoutBufExt4[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 
-    cl::Buffer buffer_kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-    cl::Buffer buffer_kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-    cl::Buffer buffer_kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl::Buffer buffer_kvsourceAdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl::Buffer buffer_kvsourceBdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl::Buffer buffer_kvsourceCdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl::Buffer buffer_kvsourceDdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	
+    // cl::Buffer buffer_kvstatsA[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	// cl::Buffer buffer_kvstatsB[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	// cl::Buffer buffer_kvstatsC[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	
 	cl::Kernel krnls[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	
 	cl::CommandQueue q;
 	cl_int err;
+	#endif 
 };
 #endif
 

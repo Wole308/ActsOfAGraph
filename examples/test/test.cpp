@@ -23,7 +23,8 @@ test::test(std::string binaryFile){
 	helperfunctionsobj = new helperfunctions(); 
 	
 	#ifdef FPGA_IMPL
-	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}}			
+	// for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}}			
+	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}} // REMOVEME.	
 	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvdestdram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (BATCH_RANGE_KVS * sizeof(uint512_vec_dt))); }}}
 	for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvstats[flag][i][j] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }}}
 	#else 

@@ -20,7 +20,9 @@
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
+#ifndef FPGA_IMPL
 #include "{{context['PROJECT_BASEPATH']}}/acts/actsutility/actsutility.h"
+#endif 
 using namespace std;
 
 // #define COLLECTCAPSULES_TYPE1

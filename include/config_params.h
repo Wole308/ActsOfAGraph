@@ -24,7 +24,7 @@
 #define ENABLE_VOICEOUTREDUCEERRORS //
 
 // #define ACTSMODEL
-#define PARALLELACTSMODEL
+#define ACTSMODEL_LW
 #endif
 
 

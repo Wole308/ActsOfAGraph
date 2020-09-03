@@ -1,6 +1,7 @@
 #ifndef ACTSUTILITY_H
 #define ACTSUTILITY_H
 #include "../../src/utility/utility.h"
+#include "../include/actscommon.h"
 #include "../../include/common.h"
 
 class actsutility {
@@ -19,10 +20,13 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs);
 	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
-	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
-	void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue);
 	void printparameters();
 	void printglobalvars();
+	void printglobalparameters(string message, alw_globalparams_t globalparams);
+	
+	unsigned int ugetvaluecount(keyvalue_t * keyvalues, unsigned int size);
+	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
+	void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue);
 	void clearglobalvars();
 	void IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize);
 

@@ -27,9 +27,39 @@ kernel::kernel(){
 kernel::~kernel(){} 
 
 void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+	#ifdef ACTSMODEL_LW
+	updatemessagesbeforelaunch(kvsourcedram, kvstats);
+	#endif
 	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
 	return;
 }
+
+#ifdef ACTSMODEL_LW
+void kernel::updatemessagesbeforelaunch(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	cout<<"kernel::updatemessagesbeforelaunch:: updating messages before launch..."<<endl;
+	for(int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNKERNELCOMMANDID];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_BATCHSIZE];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_RUNSIZE]; 
+			kvsourcedram[i][j][BASEOFFSET2_STATSDRAM_KVS + 0].data[0] = kvstats[i][j][BASEOFFSET_STATSDRAM + 0]; 
+			
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_COLLECTSTATSCOMMANDID];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_PARTITIONCOMMANDID];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_VOFFSET];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_VSIZE];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_TREEDEPTH];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_FINALNUMPARTITIONS];
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_GRAPHITERATIONID];
+			
+			kvsourcedram[i][j][BASEOFFSET2_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0] = kvstats[i][j][BASEOFFSET_MESSAGESDRAM + MESSAGES_NEXTBATCHOFFSET]; 
+		}
+	}
+	return;
+}
+#endif 
 
 #ifdef FPGA_IMPL 
 void kernel::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
