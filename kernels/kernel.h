@@ -4,6 +4,7 @@
 // #include "oclkernel.h"
 #include "goclkernel.h"
 #include "../src/utility/utility.h"
+#include "../acts/include/actscommon.h" //
 #include "../include/common.h"
 
 class kernel {

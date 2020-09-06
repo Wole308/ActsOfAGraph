@@ -2,8 +2,13 @@
 #define SWKERNEL_H
 #include <mutex>
 #include <thread>
+#include "../include/config_params.h"
+#ifdef ACTSMODEL
 #include "../acts/acts/acts.h"
+#endif 
+#ifdef ACTSMODEL_LW
 #include "../acts/acts_lw/actspartition.h"
+#endif 
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 

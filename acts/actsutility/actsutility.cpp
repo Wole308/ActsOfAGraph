@@ -74,7 +74,6 @@ void actsutility::printparameters(){
 	cout<<endl<<"acts::printparameters: test started."<<endl;
 	cout<<"acts::printparameters:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<endl;
 	cout<<"acts::printparameters:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<endl;
-	cout<<"acts::printparameters:: PADDEDBUFFER_SIZE: "<<PADDEDBUFFER_SIZE<<endl;
 	cout<<"acts::printparameters:: KVDRAMSZ: "<<KVDRAMSZ<<endl;
 	cout<<"acts::printparameters:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<endl;
 	cout<<"acts::printparameters:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<endl;
@@ -85,16 +84,14 @@ void actsutility::printparameters(){
 	cout<<"acts::printparameters:: SRCBUFFER_SIZE * VECTOR_SIZE: "<<SRCBUFFER_SIZE * VECTOR_SIZE<<endl;
 	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;
 	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * VECTOR_SIZE: "<<PADDEDDESTBUFFER_SIZE * VECTOR_SIZE<<endl;
-	cout<<"acts::printparameters:: PADDEDBUFFER_SIZE / NUM_PARTITIONS: "<<PADDEDBUFFER_SIZE / NUM_PARTITIONS<<endl;
-	cout<<"acts::printparameters:: NFACTOR: "<<NFACTOR<<endl;
 	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * NUMSUBWORKERS (total dest_kvs memory): "<<(PADDEDDESTBUFFER_SIZE * NUMSUBWORKERS)<<endl;
 	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS (total dest memory): "<<(PADDEDDESTBUFFER_SIZE * VECTOR_SIZE * NUMSUBWORKERS)<<endl;
 	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
 	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<endl;
-	cout<<"acts::printparameters:: ALW_PADDEDDESTBUFFER_SIZE: "<<ALW_PADDEDDESTBUFFER_SIZE<<endl;
-	cout<<"acts::printparameters:: ALW_PADDEDDESTBUFFER_SIZE (KV): "<<ALW_PADDEDDESTBUFFER_SIZE * VECTOR_SIZE<<endl;
-	cout<<"acts::printparameters:: ALW_SRCBUFFER_SIZE: "<<ALW_SRCBUFFER_SIZE<<endl;
-	cout<<"acts::printparameters:: ALW_SRCBUFFER_SIZE (KV): "<<ALW_SRCBUFFER_SIZE * VECTOR_SIZE<<endl;
+	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;
+	cout<<"acts::printparameters:: PADDEDDESTBUFFER_SIZE (KV): "<<PADDEDDESTBUFFER_SIZE * VECTOR_SIZE<<endl;
+	cout<<"acts::printparameters:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<endl;
+	cout<<"acts::printparameters:: SRCBUFFER_SIZE (KV): "<<SRCBUFFER_SIZE * VECTOR_SIZE<<endl;
 }
 void actsutility::printglobalvars(){
 	cout<<"printglobalvars: "<<endl;
@@ -115,8 +112,9 @@ void actsutility::printglobalvars(){
 	cout<<"acts::printglobalvars:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
 	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
+	cout<<"acts::printglobalvars:: globalvar_errorsingetpartition: "<<globalvar_errorsingetpartition<<endl;
 }
-void actsutility::printglobalparameters(string message, alw_globalparams_t globalparams){
+void actsutility::printglobalparameters(string message, globalparams_t globalparams){
 	cout<<endl<<"actsutility::printglobalparameters: "<<message<<endl;
 	std::cout<<"Kernel Started: globalparams.runkernelcommand: "<<globalparams.runkernelcommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.processcommand: "<<globalparams.processcommand<<std::endl;
@@ -170,6 +168,7 @@ void actsutility::clearglobalvars(){
 	globalstats_totalkvsreducewritten = 0;
 	globalstats_reduce_validkvsreduced = 0;
 	globalvar_totalkvsreadV = 0;
+	globalvar_errorsingetpartition = 0;
 }
 void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize){
 	for(unsigned int i=0; i<_1stdimsize; i++){
@@ -185,6 +184,30 @@ void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int
 	}
 	cout<<"SUCCESS:IsEqual: test passed. _1stdimsize: "<<_1stdimsize<<", _2nddimsize: "<<_2nddimsize<<endl;
 	return;
+}
+void actsutility::scankeyvalues(keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition){
+	cout<<"actsutility::scankeyvalues:: numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
+	for(unsigned int i=0; i<numberofpartitions-1; i++){
+		unsigned int lowerrangeindex = i * rangeperpartition;
+		unsigned int upperrangeindex = (i+1) * rangeperpartition;
+		unsigned int begin = stats[i].key;
+		unsigned int end = stats[i].key + stats[i].value;
+		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
+		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ("<<lowerrangeindex<<" -> "<<upperrangeindex<<")("<<begin<<" -> "<<end<<")"<<endl<<endl;
+	}
+	return;
+}
+unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex){
+	unsigned int numerrorkeys = 0;
+	for(unsigned int i=begin; i<end; i++){
+		if(keyvalues[i].key != INVALIDDATA){
+			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
+				if(numerrorkeys < 8){ cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; }
+				numerrorkeys += 1;
+			}
+		}
+	}
+	return numerrorkeys;
 }
 
 void actsutility::globalstats_countkvstatsread(unsigned int count){
@@ -251,7 +274,12 @@ void actsutility::globalstats_countkvsreadV(unsigned int count){
 	globalvar_totalkvsreadV += count;
 	return;
 }
+void actsutility::globalstats_counterrorsingetpartition(unsigned int count){
+	globalvar_errorsingetpartition += count;
+	return;
+}
 
+// BATCH_RANGE / NUMLASTLEVELPARTITIONS
 
 
 

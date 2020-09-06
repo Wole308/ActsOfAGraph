@@ -1,5 +1,6 @@
 #ifndef ACTS_H
 #define ACTS_H
+#include "../../acts/include/actscommon.h"
 #include "../../include/common.h"
 #include <string>
 #include <string.h>
@@ -88,33 +89,6 @@ typedef unsigned int code_type;
 typedef unsigned int smallint_type;
 typedef unsigned int vector_type;
 typedef unsigned int code_type;
-
-typedef struct {
-	unsigned int runkernelcommand;
-	unsigned int processcommand;
-	unsigned int collectstatscommand;
-	unsigned int partitioncommand;
-	unsigned int reducecommand;
-	unsigned int baseaddr_destkvs_kvs;
-	unsigned int iteration_idx;
-	unsigned int ssdpartitonid;
-	unsigned int vsize;
-	unsigned int treedepth;
-	unsigned int LLOPnumpartitions;
-	unsigned int paddedkvdatabatchszkvs;
-	unsigned int GraphIter;
-	unsigned int IterCount;
-	unsigned int baseoffset_kvs;
-	unsigned int basesize_kvs;
-	unsigned int steps;
-	unsigned int finalnumpartitions;
-	unsigned int batchsize;
-	unsigned int runsize;
-	unsigned int nextbatchoffset;
-	unsigned int capsulebatchsz_kvs;
-	unsigned int vbegin;
-	unsigned int statsalreadycollected;
-} globalparams_t;
 
 typedef struct {
 	unsigned int baseaddr_worksourcekvs_kvs;

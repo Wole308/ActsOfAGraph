@@ -2,6 +2,7 @@
 #define UTILITY_H
 #include <string.h>
 #include <mutex>
+#include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 #ifdef FPGA_IMPL
 #include <ap_int.h>

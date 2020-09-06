@@ -26,9 +26,6 @@ print(isFile)
 
 ###
 
-# context['ALW_VECTOR_SIZE'] = 1
-# context['NUMTWINS'] = context['VECTOR_SIZE'] / context['ALW_VECTOR_SIZE']
-
 EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]

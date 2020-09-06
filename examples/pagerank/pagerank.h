@@ -8,6 +8,7 @@
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../src/stats/stats.h"
 #include "../../src/dataaccess/dataaccess.h"
+#include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 
 class pagerank {

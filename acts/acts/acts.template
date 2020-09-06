@@ -1,3 +1,4 @@
+#include "../../acts/include/actscommon.h"
 #include "{{context['PROJECT_BASEPATH']}}/include/common.h"
 {%if(context['XWARE'] != "HW")%}
 #include <string>

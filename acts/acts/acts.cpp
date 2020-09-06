@@ -1,3 +1,4 @@
+#include "../../acts/include/actscommon.h"
 #include "/home/oj2zf/Documents/ActsOfAGraph/include/common.h"
 #include <string>
 #include <string.h>

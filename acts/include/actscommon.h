@@ -14,11 +14,14 @@
 #include <iomanip>
 #include <cmath>
 #include <fstream>
-#include "../../include/common.h"
+#include "../../include/config_params.h"
+#ifdef ACTSMODEL
+#include "../../acts/include/acts_common.h"
+#endif 
+#ifdef ACTSMODEL_LW
+#include "../../acts/include/actslw_common.h"
+#endif 
 using namespace std;
-
-#define ALW_PADDEDDESTBUFFER_SIZE 512
-#define ALW_SRCBUFFER_SIZE (ALW_PADDEDDESTBUFFER_SIZE - NUM_PARTITIONS)
 
 typedef struct {
 	unsigned int runkernelcommand;
@@ -45,7 +48,7 @@ typedef struct {
 	unsigned int capsulebatchsz_kvs;
 	unsigned int vbegin;
 	unsigned int statsalreadycollected;
-} alw_globalparams_t;
+} globalparams_t;
 #endif 
 
 

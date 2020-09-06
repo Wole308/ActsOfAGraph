@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <math.h>
+#include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 #include "utility.h"
 using namespace std;
@@ -79,7 +80,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
-	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION_POW: "<<KVDATA_RANGE_PERSSDPARTITION_POW<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION: "<<KVDATA_RANGE_PERSSDPARTITION<<std::endl;
@@ -103,30 +103,34 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
-	std::cout<<"host:: CAPSULESZ: "<<CAPSULESZ<<std::endl;
-	std::cout<<"host:: CAPSULESZ_KVS: "<<CAPSULESZ_KVS<<std::endl;
 	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
-	std::cout<<"host:: CAPSULEMETADATADRAMSZ: "<<CAPSULEMETADATADRAMSZ<<std::endl;
-	std::cout<<"host:: STATSDRAMSZ: "<<STATSDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<KVDRAMWORKSPACESZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;	
-	std::cout<<"host:: BASEOFFSET_CAPSULES: "<<BASEOFFSET_CAPSULES<<std::endl;
-	std::cout<<"host:: BASEOFFSET_CAPSULES_KVS: "<<BASEOFFSET_CAPSULES_KVS<<std::endl;	
 	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
 	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<std::endl;
-	#ifdef ACTSMODEL_LW
-	// if(PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t) >= 256 * 1024 * 1024){ cout<<"UTILITY:ERROR: PADDEDKVSOURCEDRAMSZ is more than a single HBM bank capacity (i.e. 256MB)"<<endl; exit(EXIT_FAILURE); }
-	#endif 
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<std::endl;
+	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+
+	#ifdef ACTSMODEL
+	std::cout<<"=== parameters perculier to actsmodel only "<<std::endl;
+	std::cout<<"host:: CAPSULEMETADATADRAMSZ: "<<CAPSULEMETADATADRAMSZ<<std::endl;
+	std::cout<<"host:: STATSDRAMSZ: "<<STATSDRAMSZ<<std::endl;
+	std::cout<<"host:: CAPSULESZ: "<<CAPSULESZ<<std::endl;
+	std::cout<<"host:: CAPSULESZ_KVS: "<<CAPSULESZ_KVS<<std::endl;
+	std::cout<<"host:: BASEOFFSET_CAPSULES: "<<BASEOFFSET_CAPSULES<<std::endl;
+	std::cout<<"host:: BASEOFFSET_CAPSULES_KVS: "<<BASEOFFSET_CAPSULES_KVS<<std::endl;	
+	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
+	std::cout<<"host:: NFACTOR: "<<NFACTOR<<std::endl;
+	#endif 
 	return;
 }
 

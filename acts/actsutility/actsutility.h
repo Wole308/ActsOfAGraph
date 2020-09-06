@@ -3,6 +3,7 @@
 #include "../../src/utility/utility.h"
 #include "../include/actscommon.h"
 #include "../../include/common.h"
+using namespace std;
 
 class actsutility {
 public:
@@ -22,13 +23,15 @@ public:
 	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
 	void printparameters();
 	void printglobalvars();
-	void printglobalparameters(string message, alw_globalparams_t globalparams);
+	void printglobalparameters(string message, globalparams_t globalparams);
 	
 	unsigned int ugetvaluecount(keyvalue_t * keyvalues, unsigned int size);
 	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
 	void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue);
 	void clearglobalvars();
 	void IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize);
+	void scankeyvalues(keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition);
+	unsigned int geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex);
 
 	void globalstats_countkvstatsread(unsigned int count);
 	void globalvar_collectstats_counttotalkvsread(unsigned int count);
@@ -46,6 +49,9 @@ public:
 	void globalstats_countkvsreducewritten(unsigned int count);
 	void globalstats_reduce_countvalidkvsreduced(unsigned int count);
 	void globalstats_countkvsreadV(unsigned int count);
+	void globalstats_counterrorsingetpartition(unsigned int count);
+	
+	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 	
 private:
 	utility * utilityobj;
@@ -66,6 +72,7 @@ private:
 	unsigned int globalstats_totalkvsreduced;
 	unsigned int globalstats_totalkvsreducewritten;
 	unsigned int globalstats_reduce_validkvsreduced;
+	unsigned int globalvar_errorsingetpartition;
 };
 #endif
 
