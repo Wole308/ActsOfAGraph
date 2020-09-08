@@ -111,16 +111,20 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void partitionkeyvalues{{inst}}(keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit);
+	void partitionkeyvalues{{inst}}(keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit);
 	{%for n in context['4_seq']%}
-	void combineSetof1stoSetof2{{inst}}_I{{n}}(keyvalue_t buffer_setof1M[SRCBUFFER_SIZE], keyvalue_t buffer_setof1N[SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof1stoSetof2{{inst}}_I{{n}}(keyvalue_t buffer_setof1[2][SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsule[2][NUM_PARTITIONS]);
 	{%endfor%}
 	{%for n in context['2_seq']%}
-	void combineSetof2stoSetof4{{inst}}_I{{n}}(uint128_dt buffer_setof2M[SRCBUFFER_SIZE], uint128_dt buffer_setof2N[SRCBUFFER_SIZE], uint256_dt buffer_setof4[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof2stoSetof4{{inst}}_I{{n}}(uint128_dt buffer_setof2[2][SRCBUFFER_SIZE], uint256_dt buffer_setof4[SRCBUFFER_SIZE], keyvalue_t localcapsule[2][NUM_PARTITIONS]);
 	{%endfor%}
 	{%for n in context['1_seq']%}
-	void combineSetof4stoSetof8{{inst}}_I{{n}}(uint256_dt buffer_setof4M[SRCBUFFER_SIZE], uint256_dt buffer_setof4N[SRCBUFFER_SIZE], uint512_dt buffer_setof8s[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof4stoSetof8{{inst}}_I{{n}}(uint256_dt buffer_setof4s[2][SRCBUFFER_SIZE], uint512_dt buffer_setof8s[SRCBUFFER_SIZE], keyvalue_t localcapsule[2][NUM_PARTITIONS]);
 	{%endfor%}
+	{%endfor%}
+	
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void execute{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], alw_sweepparams_t sweepparams);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}

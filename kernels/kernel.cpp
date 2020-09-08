@@ -27,16 +27,16 @@ kernel::kernel(){
 }
 kernel::~kernel(){} 
 
-void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){			
 	#ifdef ACTSMODEL_LW
-	updatemessagesbeforelaunch(kvsourcedram, kvstats);
+	updatemessagesbeforelaunch((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, kvstats);
 	#endif
 	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
 	return;
 }
 
 #ifdef ACTSMODEL_LW
-void kernel::updatemessagesbeforelaunch(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void kernel::updatemessagesbeforelaunch(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	cout<<"kernel::updatemessagesbeforelaunch:: updating messages before launch..."<<endl;
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){

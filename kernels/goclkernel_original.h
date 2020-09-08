@@ -8,15 +8,12 @@
 #endif 
 #include "../../src/utility/utility.h"
 #include "../../include/common.h"
+// #include "xcl2.hpp"
 
 class goclkernel {
 public:
 	goclkernel();
 	~goclkernel();
-	
-	#define NUMACTSINSTANCESTORUN (NUMCPUTHREADS * NUMSUBCPUTHREADS) // 4
-	// #define NUMKERNELS (NUMACTSINSTANCESTORUN / NUMINSTANCES) //1
-	#define NUMKERNELS (NUMACTSINSTANCESTORUN / 4) //1
 	
 	#ifdef FPGA_IMPL 
 	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
@@ -36,11 +33,21 @@ private:
 	size_t kvstats_size_bytes;
 	
 	#ifdef FPGA_IMPL 
-	cl_mem_ext_ptr_t inoutBufExt[NUMACTSINSTANCESTORUN];
+	cl_mem_ext_ptr_t inoutBufExt1[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl_mem_ext_ptr_t inoutBufExt2[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+    cl_mem_ext_ptr_t inoutBufExt3[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl_mem_ext_ptr_t inoutBufExt4[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 
-    cl::Buffer buffer_kvsourcedram[NUMACTSINSTANCESTORUN];
+    cl::Buffer buffer_kvsourceAdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl::Buffer buffer_kvsourceBdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl::Buffer buffer_kvsourceCdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	cl::Buffer buffer_kvsourceDdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	
-	cl::Kernel krnls[NUMACTSINSTANCESTORUN];
+    // cl::Buffer buffer_kvstatsA[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	// cl::Buffer buffer_kvstatsB[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	// cl::Buffer buffer_kvstatsC[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	
+	cl::Kernel krnls[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	
 	cl::CommandQueue q;
 	cl_int err;

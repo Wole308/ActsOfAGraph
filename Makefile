@@ -54,6 +54,7 @@ LDFLAGS += $(opencl_LDFLAGS)
 
 # KERNEL_TOP += acts/acts/acts.cpp
 KERNEL_TOP += acts/acts_lw/actspartition.cpp
+KERNEL_TOP += acts/actsutility/actsutility.cpp
 HOST_TOP += examples/hostprocess.cpp
 
 # HOST_SRCS += src/host.cpp
@@ -74,7 +75,7 @@ HOST_SRCS += kernels/kernel.cpp
 HOST_SRCS += kernels/swkernel.cpp
 # HOST_SRCS += kernels/oclkernel.cpp
 HOST_SRCS += kernels/goclkernel.cpp
-HOST_SRCS += acts/actsutility/actsutility.cpp
+# HOST_SRCS += acts/actsutility/actsutility.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/
@@ -91,7 +92,9 @@ LDFLAGS += -lrt -lstdc++
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3] --sp topkernel_1.m_axi_gmem2:HBM[0:3] --sp topkernel_1.m_axi_gmem3:HBM[0:3]		
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3]
+
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3] --sp topkernel_1.m_axi_gmem2:HBM[0:3] --sp topkernel_1.m_axi_gmem3:HBM[0:3]		
 # LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[4:7] --sp topkernel_2.m_axi_gmem1:HBM[4:7] --sp topkernel_2.m_axi_gmem2:HBM[4:7] --sp topkernel_2.m_axi_gmem3:HBM[4:7]
 # LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[8:11] --sp topkernel_3.m_axi_gmem1:HBM[8:11] --sp topkernel_3.m_axi_gmem2:HBM[8:11] --sp topkernel_3.m_axi_gmem3:HBM[8:11]
 # LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[12:15] --sp topkernel_4.m_axi_gmem1:HBM[12:15] --sp topkernel_4.m_axi_gmem2:HBM[12:15] --sp topkernel_4.m_axi_gmem3:HBM[12:15]
@@ -131,11 +134,10 @@ build: $(BINARY_CONTAINERS)
 # Building kernel
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -o'$@' '$<'
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
-	# $(XOCC) $(CLFLAGS) -g --temp_dir $(BUILD_DIR_topkernel) -l --profile_kernel data:all:all:all $(LDCLFLAGS) --nk topkernel:8 -o'$@' $(+)
 
 # Building Host
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)

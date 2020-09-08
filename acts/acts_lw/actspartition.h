@@ -18,15 +18,14 @@
 #include "../../include/common.h"
 #ifndef FPGA_IMPL
 #include "../../src/utility/utility.h"
-#include "../actsutility/actsutility.h"
 #endif
+#include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;
-typedef uint512_dt atp_uint512_dt;
 
 typedef struct {
 	unsigned int currentLOP;
@@ -68,9 +67,10 @@ public:
 	void copykeyandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
 	void resetkeyandvalues(keyvalue_t * buffer, unsigned int size);
 	void resetvalues(keyvalue_t * buffer, unsigned int size);
-	void resetkeyandvalues(unsigned int enable, atp_uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE]);
-	void resetmanykeyandvalues(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size);
-	void resetmanyvalues(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size);
+	void resetkeyandvalues(unsigned int enable, uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]);
+	void resetmanykeyandvalues(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size);
+	void resetmanyvalues(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size);
+	void accumkeysandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
 	unsigned int checkandforce(unsigned int val, unsigned int limit);
 	buffer_type getchunksize(buffer_type buffer_size, alw_travstate_t travstate, unsigned int localoffset);
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
@@ -85,7 +85,7 @@ public:
 	unsigned int WithinValidRange(unsigned int val1, unsigned int val2);
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int skipspacing);
 	void customcalculateoffsets(uint512_dt * buffer, unsigned int size, unsigned int base);
-	void calculatemanyoffsets(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
+	void calculatemanyoffsets(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
 	
 	bool allowOp(unsigned int i_inloop, buffer_type chunk_size, keyvalue_t keyvalue, unsigned int command);
 	keyvalue_t get(unsigned int enable, unsigned int command, uint512_dt * buffer, buffer_type offset_kvs, buffer_type addr);
@@ -96,19 +96,24 @@ public:
 
 	void readglobalstats0(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_PARTITIONS], unsigned int offset_kvs, unsigned int currentLOP, unsigned int sourceordest);
 	
-	void saveglobalstats0(unsigned int enable, uint512_dt * kvdram, atp_uint512_dt buffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE]);
+	void saveglobalstats0(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[PADDEDDESTBUFFER_SIZE]);
 	
 	void prepareglobalstats0(unsigned int enable, uint512_dt * kvdram);
 	
-	void readKVS0(unsigned int enable, uint512_dt * kvdram, atp_uint512_dt buffer[NUMSUBWORKERS][SRCBUFFER_SIZE], batch_type offset_kvs, alw_travstate_t travstate);
+	void read0(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][SRCBUFFER_SIZE], batch_type offset_kvs, alw_travstate_t travstate);
 	
-	void execute0(unsigned int enable, unsigned int * enables, unsigned int command, atp_uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], atp_uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t _localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], buffer_type chunk_size[NUMSUBWORKERS], alw_sweepparams_t sweepparams, partition_type partition);
+	void partitionkeyvalues0(keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit);
+	void combineSetof1stoSetof20_I0(keyvalue_t buffer_setof1M[SRCBUFFER_SIZE], keyvalue_t buffer_setof1N[SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof1stoSetof20_I1(keyvalue_t buffer_setof1M[SRCBUFFER_SIZE], keyvalue_t buffer_setof1N[SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof1stoSetof20_I2(keyvalue_t buffer_setof1M[SRCBUFFER_SIZE], keyvalue_t buffer_setof1N[SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof1stoSetof20_I3(keyvalue_t buffer_setof1M[SRCBUFFER_SIZE], keyvalue_t buffer_setof1N[SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof2stoSetof40_I0(uint128_dt buffer_setof2M[SRCBUFFER_SIZE], uint128_dt buffer_setof2N[SRCBUFFER_SIZE], uint256_dt buffer_setof4[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof2stoSetof40_I1(uint128_dt buffer_setof2M[SRCBUFFER_SIZE], uint128_dt buffer_setof2N[SRCBUFFER_SIZE], uint256_dt buffer_setof4[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
+	void combineSetof4stoSetof80_I0(uint256_dt buffer_setof4M[SRCBUFFER_SIZE], uint256_dt buffer_setof4N[SRCBUFFER_SIZE], uint512_dt buffer_setof8s[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
 	
-	void launchexecute0(unsigned int enable, unsigned int collectglobalstatscmd, unsigned int collectstatsandpartitioncmd, atp_uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], atp_uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t _localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], alw_sweepparams_t sweepparams, alw_travstate_t travstate);			
+	void save0(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
 	
-	void saveKVS0(unsigned int enable, uint512_dt * kvdram, atp_uint512_dt buffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
-	
-	void dispatch0(uint512_dt * kvdram, atp_uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], atp_uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, alw_travstate_t travstate);
+	void dispatch0(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, alw_travstate_t travstate);
 	
 	void topkernel( uint512_dt * sourceAvolume );						
 private:

@@ -65,17 +65,17 @@ _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
 # for evaluation_type in EV_PERFORMANCEOFALGORITHM
-# for evaluation_type in EV_SIMPLETEST
+for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
-for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
+# for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
 # for evaluation_type in EV_IMPACTOFBANDWIDTH
 # for evaluation_type in EV_IMPACTOFPLATFORM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM

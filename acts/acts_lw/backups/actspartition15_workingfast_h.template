@@ -67,10 +67,9 @@ public:
 	void copykeyandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
 	void resetkeyandvalues(keyvalue_t * buffer, unsigned int size);
 	void resetvalues(keyvalue_t * buffer, unsigned int size);
-	void resetkeyandvalues(unsigned int enable, uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]);
-	void resetmanykeyandvalues(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size);
-	void resetmanyvalues(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size);
-	void accumkeysandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
+	void resetkeyandvalues(unsigned int enable, uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE]);
+	void resetmanykeyandvalues(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size);
+	void resetmanyvalues(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size);
 	unsigned int checkandforce(unsigned int val, unsigned int limit);
 	buffer_type getchunksize(buffer_type buffer_size, alw_travstate_t travstate, unsigned int localoffset);
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
@@ -85,7 +84,7 @@ public:
 	unsigned int WithinValidRange(unsigned int val1, unsigned int val2);
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int skipspacing);
 	void customcalculateoffsets(uint512_dt * buffer, unsigned int size, unsigned int base);
-	void calculatemanyoffsets(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
+	void calculatemanyoffsets(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
 	
 	bool allowOp(unsigned int i_inloop, buffer_type chunk_size, keyvalue_t keyvalue, unsigned int command);
 	keyvalue_t get(unsigned int enable, unsigned int command, uint512_dt * buffer, buffer_type offset_kvs, buffer_type addr);
@@ -99,7 +98,7 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void saveglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[PADDEDDESTBUFFER_SIZE]);
+	void saveglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE]);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -107,28 +106,23 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void read{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][SRCBUFFER_SIZE], batch_type offset_kvs, alw_travstate_t travstate);
+	void readKVS{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][SRCBUFFER_SIZE], batch_type offset_kvs, alw_travstate_t travstate);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void partitionkeyvalues{{inst}}(keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit);
-	{%for n in context['4_seq']%}
-	void combineSetof1stoSetof2{{inst}}_I{{n}}(keyvalue_t buffer_setof1M[SRCBUFFER_SIZE], keyvalue_t buffer_setof1N[SRCBUFFER_SIZE], uint128_dt buffer_setof2[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
-	{%endfor%}
-	{%for n in context['2_seq']%}
-	void combineSetof2stoSetof4{{inst}}_I{{n}}(uint128_dt buffer_setof2M[SRCBUFFER_SIZE], uint128_dt buffer_setof2N[SRCBUFFER_SIZE], uint256_dt buffer_setof4[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
-	{%endfor%}
-	{%for n in context['1_seq']%}
-	void combineSetof4stoSetof8{{inst}}_I{{n}}(uint256_dt buffer_setof4M[SRCBUFFER_SIZE], uint256_dt buffer_setof4N[SRCBUFFER_SIZE], uint512_dt buffer_setof8s[SRCBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS]);
-	{%endfor%}
+	void execute{{inst}}(unsigned int enable, unsigned int * enables, unsigned int command, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t _localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], buffer_type chunk_size[NUMSUBWORKERS], alw_sweepparams_t sweepparams, partition_type partition);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void save{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
+	void launchexecute{{inst}}(unsigned int enable, unsigned int collectglobalstatscmd, unsigned int collectstatsandpartitioncmd, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t _localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], alw_sweepparams_t sweepparams, alw_travstate_t travstate);			
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void dispatch{{inst}}(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, alw_travstate_t travstate);
+	void saveKVS{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
+	{%endfor%}
+	
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void dispatch{{inst}}(uint512_dt * kvdram, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, alw_travstate_t travstate);
 	{%endfor%}
 	
 	void topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}{%if(inst>0)%},{%endif%} uint512_dt * source{{inst_}}volume {%endfor%});						

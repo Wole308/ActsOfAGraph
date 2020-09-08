@@ -1,12 +1,16 @@
 #ifndef ACTSUTILITY_H
 #define ACTSUTILITY_H
+#include "../../include/config_params.h"
+#ifdef SW
 #include "../../src/utility/utility.h"
+#endif 
 #include "../include/actscommon.h"
 #include "../../include/common.h"
 using namespace std;
 
 class actsutility {
 public:
+
 	actsutility();
 	~actsutility();
 	
@@ -52,9 +56,11 @@ public:
 	void globalstats_counterrorsingetpartition(unsigned int count);
 	
 	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
-	
+
 private:
+	#ifdef SW 
 	utility * utilityobj;
+	#endif 
 	
 	unsigned int globalvar_totalkvstatsread;
 	unsigned int globalvar_totalkvsreadV;

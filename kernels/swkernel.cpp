@@ -42,7 +42,13 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	
 	// for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
 	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
+	// for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
+	
+	
+	// kernelobjs[0]->topkernel(kvsourcedram[0][0], kvsourcedram[0][1], kvsourcedram[0][2], kvsourcedram[0][3]); // FIXME. AUTOMATEME.
+	kernelobjs[0]->topkernel(kvsourcedram[0][0]); // FIXME. AUTOMATEME.
+	
+	
 	#else 
 	for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_launchkernel, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 	for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
@@ -60,9 +66,17 @@ void swkernel::workerthread_launchkernel(unsigned int ithreadidx, uint512_dt * k
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	#endif 
 	#ifdef ACTSMODEL_LW
-	// kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvstats, kvstats, kvstats);
-	// kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvsourcedram);
+	#if NUMINSTANCES == 1
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
+	#elif NUMINSTANCES == 2
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram);
+	#elif NUMINSTANCES == 3
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram);
+	#elif NUMINSTANCES == 4
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvsourcedram);
+	#else 
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvsourcedram);
+	#endif
 	#endif 
 	#endif
 	exit(EXIT_SUCCESS);

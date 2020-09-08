@@ -1,3 +1,5 @@
+#include "../../include/config_params.h"
+#ifdef SW
 #include <chrono>
 #include <stdlib.h>
 #include <ctime>
@@ -16,14 +18,19 @@
 #include <iomanip>
 #include <cmath>
 #include <fstream>
+#endif 
+#ifdef SW
 #include "../../src/utility/utility.h"
+#endif 
 #include "../include/actscommon.h"
 #include "../../include/common.h"
 #include "actsutility.h"
 using namespace std;
 
 actsutility::actsutility(){
+	#ifdef SW
 	utilityobj = new utility();
+	#endif 
 }
 actsutility::~actsutility(){} 
 
@@ -279,7 +286,6 @@ void actsutility::globalstats_counterrorsingetpartition(unsigned int count){
 	return;
 }
 
-// BATCH_RANGE / NUMLASTLEVELPARTITIONS
 
 
 

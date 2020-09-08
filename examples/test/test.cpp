@@ -71,9 +71,9 @@ void test::run(){
 		// Populate kvdrams
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ fdoffset[i] = (iteration_idx + i) * KVDATA_BATCHSIZE; }
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ loadsize[i] = KVDATA_BATCHSIZE; }			
-		utilityobj->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, KVDATA_BATCHSIZE);
+		utilityobj->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, KVDATA_BATCHSIZE); 
 		
-		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], batchoffset, batchsize);
+		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], batchoffset, batchsize); 
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
 		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, voffset, batchsize, runsize, kvstats[0]);
 		

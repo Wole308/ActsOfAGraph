@@ -72,14 +72,10 @@ else:
     context['DUMMY'] = 0
     
 EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
-# context['ALW_VECTOR_SIZE'] = 1
-context['ALW_VECTOR_SIZE'] = context['VECTOR_SIZE']
-context['NUMTWINS'] = context['VECTOR_SIZE'] / context['ALW_VECTOR_SIZE']
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": 
     context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
 else:
     context['NUMSUBWORKERS'] = 1
-    # context['NUMSUBWORKERS'] = 4
 
 ###
 
@@ -90,10 +86,12 @@ else:
     
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
-    # context['NUMINSTANCES'] = 4
+elif context['XWARE'] == "HW":
+	context['NUMINSTANCES'] = 1
+elif context['XWARE'] == "SWEMU":
+	context['NUMINSTANCES'] = 1
 else:
 	context['NUMINSTANCES'] = 1
-    # context['NUMINSTANCES'] = 4
     
 if (context['PLATFORM'] == "AWS_PLATFORM"):
 	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAGraph"
@@ -136,8 +134,6 @@ print ('BUNDLEFACTOR: ' + str(context['BUNDLEFACTOR']))
 print ('NUMWORKERS_APPLYPH: ' + str(context['NUMWORKERS_APPLYPH'])) 
 print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH'])) 
 print ('BUNDLEFACTOR_APPLYPH: ' + str(context['BUNDLEFACTOR_APPLYPH'])) 
-print ('ALW_VECTOR_SIZE: ' + str(context['ALW_VECTOR_SIZE'])) 
-print ('NUMTWINS: ' + str(context['NUMTWINS'])) 
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
 o_path0="acts/acts/acts.cpp"
@@ -257,13 +253,17 @@ context['NUMSUBWORKERSPERVECTOR_seq'] = []
 for i in range (0,(context['NUMSUBWORKERSPERVECTOR'])):
 		context['NUMSUBWORKERSPERVECTOR_seq'].append(i)
         
-context['ALW_VECTOR_SIZE_seq'] = []
-for i in range (0,(context['ALW_VECTOR_SIZE'])):
-		context['ALW_VECTOR_SIZE_seq'].append(i)
+context['4_seq'] = []
+for i in range (0,4):
+		context['4_seq'].append(i)
         
-context['NUMTWINS_seq'] = []
-for i in range (0,(context['NUMTWINS'])):
-		context['NUMTWINS_seq'].append(i)
+context['2_seq'] = []
+for i in range (0,2):
+		context['2_seq'].append(i)
+        
+context['1_seq'] = []
+for i in range (0,1):
+		context['1_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
