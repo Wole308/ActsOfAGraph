@@ -36,6 +36,9 @@ else:
     elif context['DATASET'] == "_LARGEDATASET_1M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 20
+    elif context['DATASET'] == "_LARGEDATASET_4M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['KVDATA_RANGE_POW'] = 22
     elif context['DATASET'] == "_TWITTERDATASET_67M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 26
@@ -94,9 +97,9 @@ else:
 	context['NUMINSTANCES'] = 1
     
 if (context['PLATFORM'] == "AWS_PLATFORM"):
-	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAGraph"
+	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAFastGraph"
 else:
-	context['PROJECT_BASEPATH'] = "/home/oj2zf/Documents/ActsOfAGraph"
+	context['PROJECT_BASEPATH'] = "/home/oj2zf/Documents/ActsOfAFastGraph"
     
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
@@ -138,8 +141,8 @@ context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
 o_path0="acts/acts/acts.cpp"
 o_path1="acts/acts/acts.h"
-o_path2="acts/acts_lw/actspartition.cpp"
-o_path3="acts/acts_lw/actspartition.h"
+o_path2="acts/acts_lw/actslw.cpp"
+o_path3="acts/acts_lw/actslw.h"
 o_path4="include/common.h"
 o_path5="include/common.h"
 
@@ -281,8 +284,8 @@ env5.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
-template2 = env2.get_template('actspartition.template')
-template3 = env3.get_template('actspartition_h.template')
+template2 = env2.get_template('actslw.template')
+template3 = env3.get_template('actslw_h.template')
 template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
 

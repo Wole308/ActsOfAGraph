@@ -53,7 +53,7 @@ CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
 # KERNEL_TOP += acts/acts/acts.cpp
-KERNEL_TOP += acts/acts_lw/actspartition.cpp
+KERNEL_TOP += acts/acts_lw/actslw.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
 HOST_TOP += examples/hostprocess.cpp
 
@@ -199,7 +199,7 @@ run_nimbix: all
 aws_build: check-aws_repo $(BINARY_CONTAINERS)
 	$(COMMON_REPO)/utility/aws/run_aws.py $(BINARY_CONTAINERS)
 	
-### CPU Multithreaded Implementation
+### CPU Multithreaded Implementation (-fstack-protector -fno-stack-protector)
 demo_acts_nthreads: clean build_acts_nthreads run_nthreads
 demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 

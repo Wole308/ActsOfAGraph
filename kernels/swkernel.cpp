@@ -12,7 +12,7 @@
 #include "../acts/acts/acts.h"
 #endif 
 #ifdef ACTSMODEL_LW
-#include "../acts/acts_lw/actspartition.h"
+#include "../acts/acts_lw/actslw.h"
 #endif 
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -27,7 +27,7 @@ swkernel::swkernel(){
 		kernelobjs[i] = new acts();
 		#endif 
 		#ifdef ACTSMODEL_LW
-		kernelobjs[i] = new actspartition(); 
+		kernelobjs[i] = new actslw(); 
 		#endif 
 	}
 	#endif 

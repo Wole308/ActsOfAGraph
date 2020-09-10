@@ -1,16 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
 ////////////////
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM
-#define _LARGEDATASET_67M 
+#define _LARGEDATASET_4M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -89,7 +86,7 @@
 #define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
-#define KVDATA_RANGE_POW 26
+#define KVDATA_RANGE_POW 22
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
@@ -112,7 +109,7 @@
 #endif 
 #define SRAMSZ (1 << SRAMSZ_POW)
 #define APPROXTREE_DEPTH ((BATCH_RANGE_POW - SRAMSZ_POW + NUM_PARTITIONS_POW - 1) / NUM_PARTITIONS_POW)
-#define TREE_DEPTH APPROXTREE_DEPTH
+#define TREE_DEPTH APPROXTREE_DEPTH // REMOVEME
 
 ////////////////
 
@@ -299,7 +296,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint256_dt;
+typedef ap_uint<DATAWIDTH> uint256_dt; // FIXME. WRONG.
 #else
 typedef struct {
 	keyvalue_t data[4];
@@ -307,7 +304,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint128_dt;
+typedef ap_uint<DATAWIDTH> uint128_dt; // FIXME. WRONG.
 #else
 typedef struct {
 	keyvalue_t data[2];
@@ -315,7 +312,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint64_dt;
+typedef ap_uint<DATAWIDTH> uint64_dt; // FIXME. WRONG.
 #else
 typedef struct {
 	keyvalue_t data[1];

@@ -7,7 +7,7 @@
 #include "../acts/acts/acts.h"
 #endif 
 #ifdef ACTSMODEL_LW
-#include "../acts/acts_lw/actspartition.h"
+#include "../acts/acts_lw/actslw.h"
 #endif 
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -29,7 +29,7 @@ private:
 	acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
 	#endif 
 	#ifdef ACTSMODEL_LW
-	actspartition * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	actslw * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
 	#endif 
 	#endif 
 	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
