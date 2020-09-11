@@ -75,7 +75,7 @@ void test::run(){
 		
 		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], batchoffset, batchsize); 
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
-		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, voffset, batchsize, runsize, kvstats[0]);
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvstats[0]);
 		
 		// Launch the Kernel
 		helperfunctionsobj->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[0], 0);

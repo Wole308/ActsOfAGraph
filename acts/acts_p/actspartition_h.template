@@ -41,7 +41,7 @@ typedef struct {
 	unsigned int end_kvs;
 	unsigned int skip_kvs;
 	unsigned int info;
-} alw_travstate_t;
+} travstate_t;
 
 typedef struct {
 	unsigned int collectglobalstatscmd;
@@ -71,7 +71,7 @@ public:
 	void resetmanykeyandvalues(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size);
 	void resetmanyvalues(keyvalue_t buffer[NUMSUBWORKERS][NUM_PARTITIONS], unsigned int size);
 	unsigned int checkandforce(unsigned int val, unsigned int limit);
-	buffer_type getchunksize(buffer_type buffer_size, alw_travstate_t travstate, unsigned int localoffset);
+	buffer_type getchunksize(buffer_type buffer_size, travstate_t travstate, unsigned int localoffset);
 	unsigned int getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit);
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit);
 	keyvalue_t getkeyvalue(uint512_dt * buffer, batch_type offset_kvs, batch_type addr);
@@ -106,7 +106,7 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void readKVS{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][SRCBUFFER_SIZE], batch_type offset_kvs, alw_travstate_t travstate);
+	void readKVS{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][SRCBUFFER_SIZE], batch_type offset_kvs, travstate_t travstate);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -114,7 +114,7 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void launchexecute{{inst}}(unsigned int enable, unsigned int collectglobalstatscmd, unsigned int collectstatsandpartitioncmd, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t _localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], alw_sweepparams_t sweepparams, alw_travstate_t travstate);			
+	void launchexecute{{inst}}(unsigned int enable, unsigned int collectglobalstatscmd, unsigned int collectstatsandpartitioncmd, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t _localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], alw_sweepparams_t sweepparams, travstate_t travstate);			
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -122,7 +122,7 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void dispatch{{inst}}(uint512_dt * kvdram, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, alw_travstate_t travstate);
+	void dispatch{{inst}}(uint512_dt * kvdram, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, travstate_t travstate);
 	{%endfor%}
 	
 	void topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}{%if(inst>0)%},{%endif%} uint512_dt * source{{inst_}}volume {%endfor%});						

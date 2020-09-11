@@ -176,7 +176,7 @@ buffer_type
 	#ifdef SW 
 	actspartition::
 	#endif 
-getchunksize(buffer_type buffer_size, alw_travstate_t travstate, unsigned int localoffset){
+getchunksize(buffer_type buffer_size, travstate_t travstate, unsigned int localoffset){
 	// #pragma HLS INLINE
 	buffer_type chunk_size = buffer_size;
 	batch_type i = travstate.i_kvs + localoffset;
@@ -732,7 +732,7 @@ void
 	#ifdef SW 
 	actspartition::
 	#endif 
-readKVS{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][SRCBUFFER_SIZE], batch_type offset_kvs, alw_travstate_t travstate){
+readKVS{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[NUMSUBWORKERS][SRCBUFFER_SIZE], batch_type offset_kvs, travstate_t travstate){
 	if(enable == OFF){ return; }
 	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE;
 	for(unsigned int sw=0; sw<NUMSUBWORKERS; sw++){
@@ -822,7 +822,7 @@ void
 	#ifdef SW 
 	actspartition::
 	#endif 
-launchexecute{{inst}}(unsigned int enable, unsigned int collectglobalstatscmd, unsigned int collectstatsandpartitioncmd, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], alw_sweepparams_t sweepparams, alw_travstate_t travstate){			
+launchexecute{{inst}}(unsigned int enable, unsigned int collectglobalstatscmd, unsigned int collectstatsandpartitioncmd, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], alw_sweepparams_t sweepparams, travstate_t travstate){			
 	if(enable == OFF){ return; }
 	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE * VECTOR_SIZE;
 	unsigned int enables[8];
@@ -928,7 +928,7 @@ void
 	#ifdef SW 
 	actspartition::
 	#endif 
-dispatch{{inst}}(uint512_dt * kvdram, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, alw_travstate_t travstate){
+dispatch{{inst}}(uint512_dt * kvdram, uint512_dt sourcebuffer[NUMSUBWORKERS][SRCBUFFER_SIZE], uint512_dt destbuffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUMSUBWORKERS][NUM_PARTITIONS], keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, travstate_t travstate){
 	unsigned int analysis_mainloop = KVDATA_BATCHSIZE_KVS / (NUMSUBWORKERS * SRCBUFFER_SIZE);
 	MAIN_LOOP: for(unsigned int offset_kvs=travstate.begin_kvs; offset_kvs<travstate.end_kvs; offset_kvs+=NUMSUBWORKERS * SRCBUFFER_SIZE)
 	// MAIN_LOOP: for(unsigned int offset_kvs=travstate.begin_kvs; offset_kvs<(travstate.begin_kvs + (500 * NUMSUBWORKERS * SRCBUFFER_SIZE)); offset_kvs+=NUMSUBWORKERS * SRCBUFFER_SIZE)
@@ -978,7 +978,7 @@ topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANC
 	uint512_dt dest{{inst_}}buffer[NUMSUBWORKERS][PADDEDDESTBUFFER_SIZE];
 	keyvalue_t localcapsule{{inst_}}[NUMSUBWORKERS][NUM_PARTITIONS];
 	keyvalue_t globalcapsule{{inst_}}[NUM_PARTITIONS];
-	alw_travstate_t travstate{{inst_}};
+	travstate_t travstate{{inst_}};
 	alw_sweepparams_t sweepparams{{inst_}}; 
 	{%endfor%}
 	alw_config config;

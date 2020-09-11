@@ -88,7 +88,8 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	cout<<"MESSAGES_RUNSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 	cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
 	utilityobj->printkeyvalues("kvdram workspace (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-	utilityobj->printkeyvalues("global capsule (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
+	utilityobj->printkeyvalues("printing last kvs of KVDRAMSZ::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAM_KVS + (KVDATA_BATCHSIZE_KVS - 100)]), 100*8);
+	utilityobj->printkeyvalues("printing global capsule (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 512*9);
 	return;
 }
 
@@ -136,6 +137,9 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
                                  CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE |
                                      CL_QUEUE_PROFILING_ENABLE,
                                  &err));
+	/* OCL_CHECK(
+        err,
+        cl::CommandQueue _q(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); */
 								 
 	q = _q;
 

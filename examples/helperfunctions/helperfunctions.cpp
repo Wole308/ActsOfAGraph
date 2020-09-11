@@ -119,7 +119,7 @@ void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	return;
 }
 
-void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int graph_iterationidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int graph_iterationidx, unsigned int graph_algorithmidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			if((utilityobj->runActs(globaliteration_idx) == 1)){
@@ -140,7 +140,7 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_PROCESSCOMMANDID].key = ON;
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_COLLECTSTATSCOMMANDID].key = ON;
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_PARTITIONCOMMANDID].key = ON;
-			// kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
+			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_APPLYUPDATESCOMMANDID].key = OFF; // REMOVEME.
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_VOFFSET].key = voffset + (j * BATCH_RANGE);
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_VSIZE].key = NAp;
@@ -148,6 +148,7 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			// kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_TREEDEPTH].key = 1; // REMOVEME.
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_FINALNUMPARTITIONS].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_GRAPHITERATIONID].key = graph_iterationidx;
+			kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_GRAPHALGORITHMID].key = graph_algorithmidx;
 		}
 	}
 	return;

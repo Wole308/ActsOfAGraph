@@ -59,6 +59,10 @@ void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigne
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
+void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize){
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+}
 void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"["<<keyvalues1[p].key<<":"<<keyvalues1[p].value<<"]["<<keyvalues2[p].key<<":"<<keyvalues2[p].value<<"]"<<endl; }
@@ -120,6 +124,7 @@ void actsutility::printglobalvars(){
 	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
 	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsingetpartition: "<<globalvar_errorsingetpartition<<endl;
+	cout<<"acts::printglobalvars:: globalvar_errorsinreduce: "<<globalvar_errorsinreduce<<endl;
 }
 void actsutility::printglobalparameters(string message, globalparams_t globalparams){
 	cout<<endl<<"actsutility::printglobalparameters: "<<message<<endl;
@@ -176,6 +181,7 @@ void actsutility::clearglobalvars(){
 	globalstats_reduce_validkvsreduced = 0;
 	globalvar_totalkvsreadV = 0;
 	globalvar_errorsingetpartition = 0;
+	globalvar_errorsinreduce = 0;
 }
 void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize){
 	for(unsigned int i=0; i<_1stdimsize; i++){
@@ -283,6 +289,10 @@ void actsutility::globalstats_countkvsreadV(unsigned int count){
 }
 void actsutility::globalstats_counterrorsingetpartition(unsigned int count){
 	globalvar_errorsingetpartition += count;
+	return;
+}
+void actsutility::globalstats_counterrorsinreduce(unsigned int count){
+	globalvar_errorsinreduce += count;
 	return;
 }
 

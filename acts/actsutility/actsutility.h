@@ -22,6 +22,7 @@ public:
 	void print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae);
 	void print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
+	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize);
 	void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs);
 	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
@@ -54,6 +55,7 @@ public:
 	void globalstats_reduce_countvalidkvsreduced(unsigned int count);
 	void globalstats_countkvsreadV(unsigned int count);
 	void globalstats_counterrorsingetpartition(unsigned int count);
+	void globalstats_counterrorsinreduce(unsigned int count);
 	
 	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 
@@ -79,6 +81,7 @@ private:
 	unsigned int globalstats_totalkvsreducewritten;
 	unsigned int globalstats_reduce_validkvsreduced;
 	unsigned int globalvar_errorsingetpartition;
+	unsigned int globalvar_errorsinreduce;
 };
 #endif
 

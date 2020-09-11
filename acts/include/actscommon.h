@@ -37,6 +37,7 @@ typedef struct {
 	unsigned int LLOPnumpartitions;
 	unsigned int paddedkvdatabatchszkvs;
 	unsigned int GraphIter;
+	unsigned int GraphAlgo;
 	unsigned int IterCount;
 	unsigned int baseoffset_kvs;
 	unsigned int basesize_kvs;
