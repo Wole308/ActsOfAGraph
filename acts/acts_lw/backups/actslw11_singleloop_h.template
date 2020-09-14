@@ -22,7 +22,7 @@
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
-#define NUMPIPELINES 1
+#define NUMPIPELINES 3
 #if NUMPIPELINES==2
 #define PP0
 #define PP1
@@ -33,6 +33,34 @@ using namespace std;
 #define PP2
 #endif 
 
+typedef unsigned int batch_type;
+typedef unsigned int buffer_type;
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+
+typedef struct {
+	unsigned int currentLOP;
+	unsigned int upperlimit;
+	unsigned int source_partition;
+	unsigned int worksourcebaseaddress_kvs;
+	unsigned int workdestbaseaddress_kvs;
+} sweepparams_t;
+
+typedef struct {
+	unsigned int topi_kvs;
+	unsigned int i_kvs;
+	unsigned int begin_kvs;
+	unsigned int end_kvs;
+	unsigned int skip_kvs;
+	unsigned int info;
+} travstate_t;
+
+typedef struct {
+	unsigned int enablecollectglobalstats;
+	unsigned int enablepartition;
+	unsigned int enablereduce;
+} config_t;
+
 class actslw {
 public:
 	actslw();
@@ -41,7 +69,6 @@ public:
 	unsigned int subandcap(unsigned int val1, unsigned int val2);
 	unsigned int lowercapto(unsigned int val, unsigned int capval);
 	unsigned int allignhigher_KV(unsigned int val);
-	unsigned int allignby2higher_KV(unsigned int val);
 	batch_type getskipsize(unsigned int currentLOP, unsigned int sourceORdest);
 	void copykeyandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
 	void resetkeyandvalues(keyvalue_t * buffer, unsigned int size);
@@ -61,15 +88,16 @@ public:
 	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 	unsigned int withinvalidrange(unsigned int val1, unsigned int val2);
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int skipspacing);
-	void calculateoffsets_allignby2(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int skipspacing);
 	void calculateunallignedoffsets(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
-	void calculatemanyoffsets(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
 	void calculatemanyunallignedoffsets(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
 	unsigned int get_num_source_partitions(unsigned int currentLOP);
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, unsigned int currentLOP, unsigned int source_partition);
 	config_t getconfig(unsigned int currentLOP);
 	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, config_t config, unsigned int currentLOP, unsigned int source_partition, unsigned int num_source_partitions);
+	unsigned int getcurrentLOP(unsigned int partition_index);
+	unsigned int getnum_source_partitions(unsigned int partition_index);
+	void voicepartitioninformation(config_t config, sweepparams_t sweepparams, travstate_t travstate);
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void readglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_PARTITIONS], unsigned int offset_kvs, unsigned int currentLOP, unsigned int sourceORdest);
@@ -77,10 +105,6 @@ public:
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void saveglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]);
-	{%endfor%}
-	
-	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void updateglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_PARTITIONS], unsigned int offset_kvs, unsigned int currentLOP, unsigned int sourceORdest);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -112,7 +136,7 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void partitionkeyvalues{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, travstate_t travstate);
+	void partitionkeyvalues{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}

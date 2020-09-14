@@ -92,7 +92,8 @@ LDFLAGS += -lrt -lstdc++
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3] --sp topkernel_1.m_axi_gmem2:HBM[0:3] --sp topkernel_1.m_axi_gmem3:HBM[0:3]		
 # LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[4:7] --sp topkernel_2.m_axi_gmem1:HBM[4:7] --sp topkernel_2.m_axi_gmem2:HBM[4:7] --sp topkernel_2.m_axi_gmem3:HBM[4:7]

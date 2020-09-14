@@ -29,14 +29,20 @@ public:
 	void printparameters();
 	void printglobalvars();
 	void printglobalparameters(string message, globalparams_t globalparams);
+	void printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid);
+	void printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, sweepparams_t sweepparams);
 	
 	unsigned int ugetvaluecount(keyvalue_t * keyvalues, unsigned int size);
 	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
 	void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue);
 	void clearglobalvars();
 	void IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize);
-	void scankeyvalues(keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition);
+	void scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit);
 	unsigned int geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex);
+	void setstructs(config_t _config, sweepparams_t _sweepparams, travstate_t _travstate);
+	config_t getconfig();
+	sweepparams_t getsweepparams();
+	travstate_t gettravstate();
 
 	void globalstats_countkvstatsread(unsigned int count);
 	void globalvar_collectstats_counttotalkvsread(unsigned int count);
@@ -82,6 +88,10 @@ private:
 	unsigned int globalstats_reduce_validkvsreduced;
 	unsigned int globalvar_errorsingetpartition;
 	unsigned int globalvar_errorsinreduce;
+	
+	config_t config;
+	sweepparams_t sweepparams;
+	travstate_t travstate;
 };
 #endif
 

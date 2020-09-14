@@ -507,7 +507,9 @@ gettravstate(uint512_dt * kvdram, globalparams_t globalparams, config_t config, 
 	
 	keyvalue_t nextkeyvalue;
 	nextkeyvalue.key = globalparams.runsize;
-	if(currentLOP >= 2){
+	// if(currentLOP >= 2 && source_partition < (num_source_partitions - 1)){ 
+	if(currentLOP >= 2){ 
+		// nextkeyvalue = kvdram[BASEOFFSET_STATSDRAM_KVS + ((source_partition + 1) * sourceskipsize)].data[0]; // REMOVEME?. DEPRECIATED?
 		nextkeyvalue.key = keyvalue.key + keyvalue.value;
 	}
 		
@@ -537,6 +539,7 @@ readglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buf
 		loffset_kvs += skipsize;
 	}
 	resetvalues(buffer, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("readglobalstats{{inst}}", buffer, NUM_PARTITIONS);
 	return;
 }
 {%endfor%}
@@ -566,6 +569,8 @@ saveglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buf
 		actsutilityobj->globalvar_savestats_counttotalstatswritten(VECTOR_SIZE);
 		#endif
 	}
+	// actsutilityobj->printkeyvalues("saveglobalstats{{inst}}", (keyvalue_t *)(&kvdram[BASEOFFSET_STATSDRAM_KVS]), 512 * 8);
+	// exit(EXIT_SUCCESS);
 	return;
 }
 {%endfor%}
@@ -671,7 +676,7 @@ savekeyvalues{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffe
 			#endif
 		}
 		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvspartitionswritten(realsize_kvs * VECTOR_SIZE);
+		actsutilityobj->globalstats_countkvspartitionswritten(size_kvs * VECTOR_SIZE);
 		#endif
 	}
 	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += allignhigher_KV(localcapsule[p].value); }
@@ -750,9 +755,21 @@ prepareglobalstats{{inst}}(unsigned int enable, keyvalue_t buffer[VECTOR_SIZE][P
 			buffer[0][i].value += buffer[v][i].value;
 		}
 	}
-
+	// calculateoffsets(buffer[0], PADDEDDESTBUFFER_SIZE, 0, 0);
+	// cout<<"prepareglobalstats{{inst}}:: skipsize: "<<((KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE) * VECTOR_SIZE)<<endl;
+	// exit(EXIT_SUCCESS);
+	// calculateoffsets(buffer[0], PADDEDDESTBUFFER_SIZE, 0, ((KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE) * VECTOR_SIZE));
+	// calculateoffsets(buffer[0], NUMLASTLEVELPARTITIONS, 0, ((KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE) * VECTOR_SIZE));
+	
+	// unsigned int skipsize = (KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE) * VECTOR_SIZE;
 	unsigned int skipsize = KVDRAMPADDING / NUMLASTLEVELPARTITIONS;
 	calculateoffsets(buffer[0], NUMLASTLEVELPARTITIONS, 0, skipsize);
+	
+	cout<<"prepareglobalstats{{inst}}:: skipsize: "<<((KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE) * VECTOR_SIZE)<<endl;
+	cout<<"prepareglobalstats{{inst}}:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<endl;
+	actsutilityobj->printkeyvalues("prepareglobalstats{{inst}}", buffer[0], NUMLASTLEVELPARTITIONS);
+	// exit(EXIT_SUCCESS);
+	
 	resetvalues(buffer[0], PADDEDDESTBUFFER_SIZE);
 	return;
 }
@@ -771,6 +788,7 @@ partitionkeyvalues{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_S
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
 	
 	PARTITIONKEYVALUES_LOOP1: for(unsigned int c=0; c<2; c++){
+		// PARTITIONKEYVALUES_LOOP1B: for(unsigned int i=0; i<SRCBUFFER_SIZE; i++){
 		PARTITIONKEYVALUES_LOOP1B: for(unsigned int i=0; i<chunk_size; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 		#pragma HLS PIPELINE II=2
@@ -800,12 +818,36 @@ partitionkeyvalues{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_S
 			{%endfor%}
 		}
 		if(c==0){ calculatemanyunallignedoffsets(localcapsule, NUM_PARTITIONS, 0, 0); } 
+		// if(c==0){ calculatemanyoffsets(localcapsule, NUM_PARTITIONS, 0, 0); } 
+		// if(c==0){ calculateoffsets_allignby2(localcapsule, NUM_PARTITIONS, 0, 0) }
+		
+		/* if(c==1){ 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		actsutilityobj->printkeyvalues("partitionkeyvalues{{inst}}::localcapsule: {{v}}", localcapsule[{{v}}], NUM_PARTITIONS);
+		actsutilityobj->printvaluecount("partitionkeyvalues{{inst}}::localcapsule::value count: {{v}}", localcapsule[{{v}}], NUM_PARTITIONS);
+		{%endfor%}
+		exit(EXIT_SUCCESS);
+		} */
+		
 		if(c==0){ resetmanyvalues(localcapsule, NUM_PARTITIONS); }
+		
 	}
 	
 	#ifdef _DEBUGMODE_STATS
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount(localcapsule[v], NUM_PARTITIONS)); }
 	#endif
+	
+	/* for(unsigned int i=0; i<NUM_PARTITIONS; i++){
+		
+	} */
+	
+	// {%for v in context['VECTOR_SIZE_seq']%}
+	// actsutilityobj->printkeyvalues("partitionkeyvalues{{inst}}::localcapsule: {{v}}", localcapsule[{{v}}], NUM_PARTITIONS);
+	// actsutilityobj->printvaluecount("partitionkeyvalues{{inst}}::localcapsule::value count: {{v}}", localcapsule[{{v}}], NUM_PARTITIONS);
+	// {%endfor%}
+	// exit(EXIT_SUCCESS);
+	
+	// exit(EXIT_SUCCESS);
 	return;
 }
 {%endfor%}
@@ -872,6 +914,7 @@ reduce{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFF
 		actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE);
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(keyvalue{{v}}.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		// if(keyvalue{{v}}.key != INVALIDDATA){ actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE); }
 		{%endfor%}
 		#endif
 	}
@@ -892,14 +935,22 @@ combineSetof1stoSetof2{{inst}}_I{{n}}(unsigned int enable, keyvalue_t buffer_set
 	keyvalue_t NullKV; NullKV.key = INVALIDDATA; NullKV.value = INVALIDDATA;
 	
 	resetkeyandvalues(localcapsuleR, NUM_PARTITIONS);
+	// accumkeysandvalues(localcapsuleM, localcapsuleN, localcapsuleR, NUM_PARTITIONS);
 	
 	EXECUTE_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		unsigned int counter = 0;
+		// buffer_type localbase_kvs2 = localcapsuleR[p].key / 2;
 		
 		EXECUTE_LOOP1B: for(unsigned int i=0; i<2; i++){
 			if(i==0){ begin = localcapsuleM[p].key; end = localcapsuleM[p].key + localcapsuleM[p].value; }
 			else { begin = localcapsuleN[p].key; end = localcapsuleN[p].key + localcapsuleN[p].value; }
-		
+			
+			// cout<<endl;
+			// if(i==0){ cout<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: localcapsuleM["<<p<<"].key: "<<localcapsuleM[p].key<<", localcapsuleM["<<p<<"].value: "<<localcapsuleM[p].value<<endl; }
+			// else{ cout<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: localcapsuleN["<<p<<"].key: "<<localcapsuleN[p].key<<", localcapsuleN["<<p<<"].value: "<<localcapsuleN[p].value<<endl; }
+			// cout<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: begin: "<<begin<<", end: "<<end<<endl;
+			// cout<<endl;
+			
 			EXECUTE_LOOP1C: for(unsigned int k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 			#pragma HLS PIPELINE II=1
@@ -907,35 +958,79 @@ combineSetof1stoSetof2{{inst}}_I{{n}}(unsigned int enable, keyvalue_t buffer_set
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof2{{inst}}_I{{n}} 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof2{{inst}}_I{{n}} 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				#endif
+				// cout<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: index: "<<index<<endl;
 				if(i==0){
 					if(counter % 2 == 0){
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 0"<<", buffer_setof1M["<<k<<"].key: "<<buffer_setof1M[k].key<<endl;
 						buffer_setof2[index].data[0] = buffer_setof1M[k];
 					} else {
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 1"<<", buffer_setof1M["<<k<<"].key: "<<buffer_setof1M[k].key<<endl;
 						buffer_setof2[index].data[1] = buffer_setof1M[k];
 					}
 				} else {
 					if(counter % 2 == 0){
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 0"<<", buffer_setof1N["<<k<<"].key: "<<buffer_setof1N[k].key<<endl;
 						buffer_setof2[index].data[0] = buffer_setof1N[k];
 					} else {
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 1"<<", buffer_setof1N["<<k<<"].key: "<<buffer_setof1N[k].key<<endl;
 						buffer_setof2[index].data[1] = buffer_setof1N[k];
 					}
 				}
 				counter+=1; if(counter % 2 == 0){ index++; }
 			}
+			// if(((index - baseindex) * 2) < (end-begin)){ buffer_setof2[index].data[1] = NullKV }; // FIXME?
+			// index++;
 		}
 		
+		// cout<<"[LAST IN SET]combineSetof1stoSetof2{{inst}}_I{{n}}:: counter: "<<counter<<endl;
+		
+		// if(counter % 2 == 0){ index += 1; } // edge conditions
+		// if(counter % 2 == 1){ index += 1; } // edge conditions
 		localcapsuleR[p].value = localcapsuleM[p].value + localcapsuleN[p].value; 
 		if(counter % 2 != 0){ buffer_setof2[index].data[1] = NullKV; localcapsuleR[p].value += 1; index += 1; } // edge conditions
 		#ifdef _DEBUGMODE_STATS
 		if(counter % 2 != 0){ actsutilityobj->globalvar_savepartitions_countinvalids(1); }
 		#endif 
+		// counter = 0;
+		
+		// cout<<"[LAST IN SET]combineSetof1stoSetof2{{inst}}_I{{n}}:: index: "<<index<<endl;
+		// if(p>=3){break;} // REMOVEME.
 	}
 	
+	// resetkeyandvalues(localcapsuleR, NUM_PARTITIONS);
+	// accumkeysandvalues(localcapsuleM, localcapsuleN, localcapsuleR, NUM_PARTITIONS);
+	
+	// calculateoffsets_allignby2(localcapsuleR, NUM_PARTITIONS, 0, 0);
 	calculateunallignedoffsets(localcapsuleR, NUM_PARTITIONS, 0, 0);
+	if(localcapsuleR[NUM_PARTITIONS-1].key + localcapsuleR[NUM_PARTITIONS-1].value > PADDEDDESTBUFFER_SIZE*VECTOR_SIZE){ 
+		cout<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: ERROR 234. out of bounds. localcapsuleR["<<NUM_PARTITIONS-1<<"].key: "<<localcapsuleR[NUM_PARTITIONS-1].key<<", localcapsuleR["<<NUM_PARTITIONS-1<<"].value: "<<localcapsuleR[NUM_PARTITIONS-1].value<<", sum: "<<(localcapsuleR[NUM_PARTITIONS-1].key + localcapsuleR[NUM_PARTITIONS-1].value)<<endl; 
+		exit(EXIT_FAILURE);
+	}
+	
+	// cout<<"--------- combineSetof1stoSetof2{{inst}}_I{{n}}:: scanning and printing at combineSetof1stoSetof2{{inst}}_I{{n}} --------- "<<endl;
+	// actsutilityobj->scankeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::buffer_setof2M", (keyvalue_t *)buffer_setof1M, localcapsuleM, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS);
+	// for(unsigned int p=0;p<NUM_PARTITIONS;p++){ 
+		// cout<<endl<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: printing buffer_setof1M: partition: "<<p<<", size: "<<localcapsuleM[p].value<<", begin range: "<<((p) * (BATCH_RANGE / NUM_PARTITIONS))<<", end range: "<<((p+1) * (BATCH_RANGE / NUM_PARTITIONS))<<endl;
+		// actsutilityobj->printkeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}. printing buffer_setof1M", (keyvalue_t *)(&buffer_setof1M[localcapsuleM[p].key]), localcapsuleM[p].value); 
+	// }
+	
+	// keyvalue_t mylocalcapsuleR[NUM_PARTITIONS];
+	// actsutilityobj->scankeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::buffer_setof2", (keyvalue_t *)buffer_setof2, localcapsuleR, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS);
+	// for(unsigned int p=0;p<NUM_PARTITIONS;p++){ 
+		// cout<<endl<<"combineSetof1stoSetof2{{inst}}_I{{n}}:: printing buffer_setof2: partition: "<<p<<", size: "<<localcapsuleR[p].value<<", begin range: "<<((p) * (BATCH_RANGE / NUM_PARTITIONS))<<", end range: "<<((p+1) * (BATCH_RANGE / NUM_PARTITIONS))<<endl;
+		// actsutilityobj->printkeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}. printing buffer_setof2", (keyvalue_t *)(&buffer_setof2[localcapsuleR[p].key/2]), localcapsuleR[p].value); 
+	// }
+	
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->scankeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::buffer_setof2M", (keyvalue_t *)buffer_setof1M, localcapsuleM, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	actsutilityobj->scankeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::buffer_setof2", (keyvalue_t *)buffer_setof2, localcapsuleR, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
-	#endif
+	#endif 
+	
+	// actsutilityobj->printkeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::localcapsuleM", localcapsuleM, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::localcapsuleN", localcapsuleN, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("combineSetof1stoSetof2{{inst}}_I{{n}}::localcapsuleR", localcapsuleR, NUM_PARTITIONS);
+	// actsutilityobj->printvaluecount("combineSetof1stoSetof2{{inst}}_I{{n}}::localcapsuleR::value count", localcapsuleR, NUM_PARTITIONS);
+	// exit(EXIT_SUCCESS);
 	return;
 }
 {%endfor%}
@@ -960,6 +1055,18 @@ combineSetof2stoSetof4{{inst}}_I{{n}}(unsigned int enable, uint128_dt buffer_set
 			if(i==0){ begin = localcapsuleM[p].key / 2; end = (localcapsuleM[p].key + localcapsuleM[p].value) / 2; }
 			else { begin = localcapsuleN[p].key / 2; end = (localcapsuleN[p].key + localcapsuleN[p].value) / 2; }
 			
+			// if(i==0){
+			// cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: localcapsuleM["<<p<<"].key: "<<localcapsuleM[p].key<<", localcapsuleM["<<p<<"].value: "<<localcapsuleM[p].value<<endl;
+			// cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: localcapsuleN["<<p<<"].key: "<<localcapsuleN[p].key<<", localcapsuleN["<<p<<"].value: "<<localcapsuleN[p].value<<endl;
+			// cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: begin: "<<begin<<", end: "<<end<<endl;
+			// }
+			
+			// cout<<endl;
+			// if(i==0){ cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: localcapsuleM["<<p<<"].key: "<<localcapsuleM[p].key<<", localcapsuleM["<<p<<"].value: "<<localcapsuleM[p].value<<endl; }
+			// else{ cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: localcapsuleN["<<p<<"].key: "<<localcapsuleN[p].key<<", localcapsuleN["<<p<<"].value: "<<localcapsuleN[p].value<<endl; }
+			// cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: begin: "<<begin<<", end: "<<end<<endl;
+			// cout<<endl;
+			
 			EXECUTE_LOOP1C: for(unsigned int k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 			#pragma HLS PIPELINE II=1
@@ -969,17 +1076,21 @@ combineSetof2stoSetof4{{inst}}_I{{n}}(unsigned int enable, uint128_dt buffer_set
 				#endif
 				if(i==0){
 					if(counter % 2 == 0){
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 0"<<", buffer_setof2M["<<k<<"].data[0].key: "<<buffer_setof2M[k].data[0].key<<endl;
 						buffer_setof4[index].data[0] = buffer_setof2M[k].data[0];
 						buffer_setof4[index].data[1] = buffer_setof2M[k].data[1]; 
 					} else {
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 1"<<", buffer_setof2M["<<k<<"].data[0].key: "<<buffer_setof2M[k].data[0].key<<endl;
 						buffer_setof4[index].data[2] = buffer_setof2M[k].data[0];
 						buffer_setof4[index].data[3] = buffer_setof2M[k].data[1]; 
 					}
 				} else {
 					if(counter % 2 == 0){
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 0"<<", buffer_setof2N["<<k<<"].data[0].key: "<<buffer_setof2N[k].data[0].key<<endl;
 						buffer_setof4[index].data[0] = buffer_setof2N[k].data[0];
 						buffer_setof4[index].data[1] = buffer_setof2N[k].data[1]; 
 					} else {
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 1"<<", buffer_setof2N["<<k<<"].data[0].key: "<<buffer_setof2N[k].data[0].key<<endl;
 						buffer_setof4[index].data[2] = buffer_setof2N[k].data[0];
 						buffer_setof4[index].data[3] = buffer_setof2N[k].data[1]; 
 					}
@@ -996,11 +1107,27 @@ combineSetof2stoSetof4{{inst}}_I{{n}}(unsigned int enable, uint128_dt buffer_set
 	}
 	
 	calculateunallignedoffsets(localcapsuleR, NUM_PARTITIONS, 0, 0);
+	if(localcapsuleR[NUM_PARTITIONS-1].key + localcapsuleR[NUM_PARTITIONS-1].value > PADDEDDESTBUFFER_SIZE*VECTOR_SIZE){ 
+		cout<<"combineSetof2stoSetof4{{inst}}_I{{n}}:: ERROR 234. out of bounds. localcapsuleR["<<NUM_PARTITIONS-1<<"].key: "<<localcapsuleR[NUM_PARTITIONS-1].key<<", localcapsuleR["<<NUM_PARTITIONS-1<<"].value: "<<localcapsuleR[NUM_PARTITIONS-1].value<<", sum: "<<(localcapsuleR[NUM_PARTITIONS-1].key + localcapsuleR[NUM_PARTITIONS-1].value)<<endl; 
+		exit(EXIT_FAILURE);
+	}
+
+	// resetkeyandvalues(localcapsuleR, NUM_PARTITIONS);
+	// accumkeysandvalues(localcapsuleM, localcapsuleN, localcapsuleR, NUM_PARTITIONS);
+	
+	// actsutilityobj->printkeyvalues("combineSetof2stoSetof4{{inst}}_I{{n}}::localcapsuleM", localcapsuleM, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("combineSetof2stoSetof4{{inst}}_I{{n}}::localcapsuleN", localcapsuleN, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("combineSetof2stoSetof4{{inst}}_I{{n}}::localcapsuleR", localcapsuleR, NUM_PARTITIONS);
+	// actsutilityobj->printvaluecount("combineSetof2stoSetof4{{inst}}_I{{n}}::localcapsuleR (value count)", localcapsuleR, NUM_PARTITIONS);
+	// exit(EXIT_SUCCESS);
+	
+	// cout<<" --------- combineSetof2stoSetof4{{inst}}_I{{n}}:: scanning and printing at combineSetof2stoSetof4{{inst}}_I{{n}} --------- "<<endl;
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->scankeyvalues("combineSetof2stoSetof4{{inst}}_I{{n}}::buffer_setof2M", (keyvalue_t *)buffer_setof2M, localcapsuleM, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	actsutilityobj->scankeyvalues("combineSetof2stoSetof4{{inst}}_I{{n}}::buffer_setof2N", (keyvalue_t *)buffer_setof2N, localcapsuleN, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	actsutilityobj->scankeyvalues("combineSetof2stoSetof4{{inst}}_I{{n}}::buffer_setof4", (keyvalue_t *)buffer_setof4, localcapsuleR, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
-	#endif
+	#endif 
+	// exit(EXIT_SUCCESS);
 	return;
 }
 {%endfor%}
@@ -1033,11 +1160,13 @@ combineSetof4stoSetof8{{inst}}_I{{n}}(unsigned int enable, uint256_dt buffer_set
 				#endif 
 				if(i==0){
 					if(counter % 2 == 0){
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 0"<<", buffer_setof4M["<<k<<"].data[0].key: "<<buffer_setof4M[k].data[0].key<<endl;
 						buffer_setof8[index].data[0] = buffer_setof4M[k].data[0];
 						buffer_setof8[index].data[1] = buffer_setof4M[k].data[1]; 
 						buffer_setof8[index].data[2] = buffer_setof4M[k].data[2]; 
 						buffer_setof8[index].data[3] = buffer_setof4M[k].data[3];
 					} else {
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 1"<<", buffer_setof4M["<<k<<"].data[0].key: "<<buffer_setof4M[k].data[0].key<<endl;
 						buffer_setof8[index].data[4] = buffer_setof4M[k].data[0];
 						buffer_setof8[index].data[5] = buffer_setof4M[k].data[1]; 
 						buffer_setof8[index].data[6] = buffer_setof4M[k].data[2]; 
@@ -1045,11 +1174,13 @@ combineSetof4stoSetof8{{inst}}_I{{n}}(unsigned int enable, uint256_dt buffer_set
 					}
 				} else {
 					if(counter % 2 == 0){
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 0"<<", buffer_setof4N["<<k<<"].data[0].key: "<<buffer_setof4N[k].data[0].key<<endl;
 						buffer_setof8[index].data[0] = buffer_setof4N[k].data[0];
 						buffer_setof8[index].data[1] = buffer_setof4N[k].data[1]; 
 						buffer_setof8[index].data[2] = buffer_setof4N[k].data[2]; 
 						buffer_setof8[index].data[3] = buffer_setof4N[k].data[3];
 					} else {
+						// cout<<"Insert in index: "<<index<<", counter: "<<counter<<", v: 1"<<", buffer_setof4N["<<k<<"].data[0].key: "<<buffer_setof4N[k].data[0].key<<endl;
 						buffer_setof8[index].data[4] = buffer_setof4N[k].data[0];
 						buffer_setof8[index].data[5] = buffer_setof4N[k].data[1]; 
 						buffer_setof8[index].data[6] = buffer_setof4N[k].data[2]; 
@@ -1070,9 +1201,22 @@ combineSetof4stoSetof8{{inst}}_I{{n}}(unsigned int enable, uint256_dt buffer_set
 	}
 	
 	calculateunallignedoffsets(localcapsuleR, NUM_PARTITIONS, 0, 0);
+	if(localcapsuleR[NUM_PARTITIONS-1].key + localcapsuleR[NUM_PARTITIONS-1].value > PADDEDDESTBUFFER_SIZE*VECTOR_SIZE){ 
+		cout<<"combineSetof4stoSetof8{{inst}}_I{{n}}:: ERROR 234. out of bounds. localcapsuleR["<<NUM_PARTITIONS-1<<"].key: "<<localcapsuleR[NUM_PARTITIONS-1].key<<", localcapsuleR["<<NUM_PARTITIONS-1<<"].value: "<<localcapsuleR[NUM_PARTITIONS-1].value<<", sum: "<<(localcapsuleR[NUM_PARTITIONS-1].key + localcapsuleR[NUM_PARTITIONS-1].value)<<endl; 
+		exit(EXIT_FAILURE);
+	}
+	// resetkeyandvalues(localcapsuleR, NUM_PARTITIONS);
+	// accumkeysandvalues(localcapsuleM, localcapsuleN, localcapsuleR, NUM_PARTITIONS);
+	
+	// cout<<"combineSetof4stoSetof8{{inst}}_I{{n}}:: scanning and printing at combineSetof4stoSetof8{{inst}}_I{{n}}"<<endl;
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->scankeyvalues("combineSetof4stoSetof8{{inst}}_I{{n}}::buffer_setof2M", (keyvalue_t *)buffer_setof8, localcapsuleR, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
-	#endif
+	#endif 
+	// actsutilityobj->printkeyvalues("combineSetof4stoSetof8{{inst}}_I{{n}}::localcapsuleM", localcapsuleM, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("combineSetof4stoSetof8{{inst}}_I{{n}}::localcapsuleN", localcapsuleN, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("combineSetof4stoSetof8{{inst}}_I{{n}}::localcapsuleR", localcapsuleR, NUM_PARTITIONS);
+	// actsutilityobj->printvaluecount("combineSetof4stoSetof8{{inst}}_I{{n}}::localcapsuleR (value count)", localcapsuleR, NUM_PARTITIONS);
+	// exit(EXIT_SUCCESS);
 	return;
 }
 {%endfor%}
@@ -1176,6 +1320,8 @@ dispatch{{inst}}(uint512_dt * kvdram){
 			readvertices{{inst}}(config.enablereduce, kvdram, buffer_setof1, (BASEOFFSET_VERTICESDATA_KVS + sweepparams.upperlimit));
 			
 			MAIN_LOOP1C: for(unsigned int offset_kvs=travstate.begin_kvs; offset_kvs<travstate.end_kvs; offset_kvs+=travstate.skip_kvs){
+			// MAIN_LOOP1C: for(unsigned int offset_kvs=travstate.begin_kvs; offset_kvs<400 * travstate.skip_kvs; offset_kvs+=travstate.skip_kvs){
+			// MAIN_LOOP1C: for(unsigned int offset_kvs=131936; offset_kvs<133920; offset_kvs+=travstate.skip_kvs){	
 				
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_mainloop avg=analysis_mainloop	
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1244,6 +1390,8 @@ dispatch{{inst}}(uint512_dt * kvdram){
 				collectglobalstats{{inst}}(config.enablecollectglobalstats, sourcebuffer, buffer_setof1, sweepparams.upperlimit);
 				
 				reduce{{inst}}(config.enablereduce, sourcebuffer, buffer_setof1, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo);
+				// break;
+				if(config.enablereduce == ON){ continue; } // REMOVEME.
 			}
 			
 			prepareglobalstats{{inst}}(config.enablecollectglobalstats, buffer_setof1);
@@ -1254,11 +1402,17 @@ dispatch{{inst}}(uint512_dt * kvdram){
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			actsutilityobj->printpartitionresult(OFF, kvdram, globaldestoffsets, sweepparams);
 			#endif
+			// resetvalues(globaldestoffsets, NUM_PARTITIONS); //
+			
+			// if(currentLOP==2 && source_partition == 1){ break; }// REMOVEME.
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->printglobalvars();
 		actsutilityobj->clearglobalvars();
-		#endif
+		#endif 
+		// #ifdef _DEBUGMODE_KERNELPRINTS2
+		// actsutilityobj->printpartitionresult(kvdram, globaldestoffsets, sweepparams);
+		// #endif
 	}
 	return;
 }

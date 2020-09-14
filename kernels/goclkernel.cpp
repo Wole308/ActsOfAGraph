@@ -42,7 +42,9 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	utilityobj->printkeyvalues("global capsule (before kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
 	
 	// Copy input data to Device Global Memory
+	#ifdef HW
 	writeVstokernel(flag); // FIXME. THEISSUE. why swemu is not running correctly
+	#endif 
 
     double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
@@ -89,7 +91,8 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
 	utilityobj->printkeyvalues("kvdram workspace (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
 	utilityobj->printkeyvalues("printing last kvs of KVDRAMSZ::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAM_KVS + (KVDATA_BATCHSIZE_KVS - 100)]), 100*8);
-	utilityobj->printkeyvalues("printing global capsule (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 512*9);
+	utilityobj->printkeyvalues("printing global capsule (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 64*9);
+	utilityobj->printkeyvalues("printing parameter saves (after kernel launch)::", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_VERTICESDATA_KVS]), 8*8);
 	return;
 }
 
@@ -115,6 +118,7 @@ void goclkernel::readVsfromkernel(unsigned int flag){
 void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){		
 	binaryFile = _binaryFile;
 
+	// kvsource_size_bytes = 2048 * sizeof(uint512_vec_dt);
 	// kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
 	kvsource_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt); // REMOVEME.
 	// kvsource_size_bytes = 8 * sizeof(uint512_vec_dt);

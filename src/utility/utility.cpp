@@ -131,6 +131,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NFACTOR: "<<NFACTOR<<std::endl;
 	#endif 
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

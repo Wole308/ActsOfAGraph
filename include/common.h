@@ -122,6 +122,7 @@
 	#endif 
 #elif defined(ACTSMODEL_LW)
 	#define KVDATA_BATCHSIZE 10000000
+	// #define KVDATA_BATCHSIZE (1 << 14)
     // #define KVDATA_BATCHSIZE (1 << 23)
 	// #define KVDATA_BATCHSIZE (1 << 24)
 #else
@@ -388,10 +389,10 @@ typedef struct {
 } kvresults_t;
 
 // HBM EXAMPLE
-#define VDATA_SIZE 16
+/* #define VDATA_SIZE 16
 const unsigned int c_dt_size = VDATA_SIZE;
 typedef struct v_datatype {
     unsigned int data[VDATA_SIZE];
-} v_dt;
+} v_dt; */
 #endif
 

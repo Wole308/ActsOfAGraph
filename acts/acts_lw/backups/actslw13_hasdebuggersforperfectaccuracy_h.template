@@ -80,10 +80,6 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void updateglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_PARTITIONS], unsigned int offset_kvs, unsigned int currentLOP, unsigned int sourceORdest);
-	{%endfor%}
-	
-	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void prepareglobalstats{{inst}}(unsigned int enable, uint512_dt * kvdram);
 	{%endfor%}
 	

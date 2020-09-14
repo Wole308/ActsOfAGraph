@@ -60,6 +60,7 @@ void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigne
 	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
 void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize){
+	if(skipsize == 0){ cout<<endl<<"printkeyvalues:ERROR: skipsize CANNOT be zero. exiting... "<<endl; exit(EXIT_FAILURE); }
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
@@ -144,6 +145,29 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.statsalreadycollected: "<<globalparams.statsalreadycollected<<std::endl;
 	std::cout<<std::endl;
 }
+void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid){
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	string message; string message2;
+	if(config.enablecollectglobalstats == ON) { message = "collectglobalstats"; } else if (config.enablepartition == ON){ message = "partition"; } else if (config.enablereduce == ON){ message = "reduce"; }
+	message2 = "### dispatch"+to_string(instanceid)+"::" + message + ":: source partition";
+	print6(message2, "upperlimit", "travstate.begin", "travstate.end", "destination range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, travstate.begin_kvs * VECTOR_SIZE, travstate.end_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP);				
+	#endif
+	return;
+}
+void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, sweepparams_t sweepparams){
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(enable == OFF){ return; }
+	// printglobalvars();
+	// clearglobalvars();
+	if(sweepparams.currentLOP==0){ printkeyvalues("actslw::topkernel::globalstats", (keyvalue_t *)(&kvdram[BASEOFFSET_STATSDRAM_KVS]), 16 * 8, 8); } // NUMLASTLEVELPARTITIONS
+	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ printkeyvalues("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
+	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ printvaluecount("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
+	if(sweepparams.currentLOP >= 1 && sweepparams.currentLOP <= TREE_DEPTH){ 
+		// scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP));// (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP))); 
+		scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
+	}
+	#endif
+}
 
 unsigned int actsutility::ugetvaluecount(keyvalue_t * keyvalues, unsigned int size){
 	unsigned int totalnumkeyvalues = 0;
@@ -198,15 +222,15 @@ void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int
 	cout<<"SUCCESS:IsEqual: test passed. _1stdimsize: "<<_1stdimsize<<", _2nddimsize: "<<_2nddimsize<<endl;
 	return;
 }
-void actsutility::scankeyvalues(keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition){
-	cout<<"actsutility::scankeyvalues:: numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
+void actsutility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit){
+	cout<<"actsutility::scankeyvalues::"<<message<<" numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
 	for(unsigned int i=0; i<numberofpartitions-1; i++){
-		unsigned int lowerrangeindex = i * rangeperpartition;
-		unsigned int upperrangeindex = (i+1) * rangeperpartition;
+		unsigned int lowerrangeindex = upperlimit + (i * rangeperpartition);
+		unsigned int upperrangeindex = upperlimit + ((i+1) * rangeperpartition);
 		unsigned int begin = stats[i].key;
 		unsigned int end = stats[i].key + stats[i].value;
 		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
-		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ("<<lowerrangeindex<<" -> "<<upperrangeindex<<")("<<begin<<" -> "<<end<<")"<<endl<<endl;
+		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ("<<lowerrangeindex<<" -> "<<upperrangeindex<<")("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
 	}
 	return;
 }
@@ -222,6 +246,14 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 	}
 	return numerrorkeys;
 }
+void actsutility::setstructs(config_t _config, sweepparams_t _sweepparams, travstate_t _travstate){
+	config = _config;
+	sweepparams = _sweepparams;
+	travstate = _travstate;
+}
+config_t actsutility::getconfig(){ return config; }
+sweepparams_t actsutility::getsweepparams(){ return sweepparams; }
+travstate_t actsutility::gettravstate(){ return travstate; }
 
 void actsutility::globalstats_countkvstatsread(unsigned int count){
 	globalvar_totalkvstatsread += count;

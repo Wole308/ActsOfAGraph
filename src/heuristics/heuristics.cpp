@@ -21,7 +21,6 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <math.h>
-#include "/home/oj2zf/Documents/ActsOfAGraph/include/includeall.h"
 #include "heuristics.h"
 using namespace std;
 

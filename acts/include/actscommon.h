@@ -15,6 +15,7 @@
 #include <cmath>
 #include <fstream>
 #include "../../include/config_params.h"
+#include "../../include/common.h"
 #ifdef ACTSMODEL
 #include "../../acts/include/acts_common.h"
 #endif 
@@ -22,6 +23,34 @@
 #include "../../acts/include/actslw_common.h"
 #endif 
 using namespace std;
+
+typedef unsigned int batch_type;
+typedef unsigned int buffer_type;
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+
+typedef struct {
+	unsigned int currentLOP;
+	unsigned int upperlimit;
+	unsigned int source_partition;
+	unsigned int worksourcebaseaddress_kvs;
+	unsigned int workdestbaseaddress_kvs;
+} sweepparams_t;
+
+typedef struct {
+	unsigned int topi_kvs;
+	unsigned int i_kvs;
+	unsigned int begin_kvs;
+	unsigned int end_kvs;
+	unsigned int skip_kvs;
+	unsigned int info;
+} travstate_t;
+
+typedef struct {
+	unsigned int enablecollectglobalstats;
+	unsigned int enablepartition;
+	unsigned int enablereduce;
+} config_t;
 
 typedef struct {
 	unsigned int runkernelcommand;

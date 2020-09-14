@@ -33,34 +33,6 @@ using namespace std;
 #define PP2
 #endif 
 
-typedef unsigned int batch_type;
-typedef unsigned int buffer_type;
-typedef unsigned int partition_type;
-typedef unsigned int vector_type;
-
-typedef struct {
-	unsigned int currentLOP;
-	unsigned int upperlimit;
-	unsigned int source_partition;
-	unsigned int worksourcebaseaddress_kvs;
-	unsigned int workdestbaseaddress_kvs;
-} alw_sweepparams_t;
-
-typedef struct {
-	unsigned int topi_kvs;
-	unsigned int i_kvs;
-	unsigned int begin_kvs;
-	unsigned int end_kvs;
-	unsigned int skip_kvs;
-	unsigned int info;
-} travstate_t;
-
-typedef struct {
-	unsigned int enablecollectglobalstats;
-	unsigned int enablepartition;
-	unsigned int enablereduce;
-} alw_config;
-
 class actslw {
 public:
 	actslw();
@@ -69,8 +41,8 @@ public:
 	unsigned int subandcap(unsigned int val1, unsigned int val2);
 	unsigned int lowercapto(unsigned int val, unsigned int capval);
 	unsigned int allignhigher_KV(unsigned int val);
+	unsigned int allignby2higher_KV(unsigned int val);
 	batch_type getskipsize(unsigned int currentLOP, unsigned int sourceORdest);
-	void getglobalparams(uint512_dt * sourcevolume, globalparams_t * globalparams);
 	void copykeyandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size);
 	void resetkeyandvalues(keyvalue_t * buffer, unsigned int size);
 	void resetvalues(keyvalue_t * buffer, unsigned int size);
@@ -89,13 +61,21 @@ public:
 	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 	unsigned int withinvalidrange(unsigned int val1, unsigned int val2);
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int skipspacing);
+	void calculateoffsets_allignby2(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int skipspacing);
 	void calculateunallignedoffsets(keyvalue_t buffer[NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
+	void calculatemanyoffsets(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
 	void calculatemanyunallignedoffsets(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], unsigned int size, unsigned int base, unsigned int skipspacing);
 	unsigned int get_num_source_partitions(unsigned int currentLOP);
+	globalparams_t getglobalparams(uint512_dt * kvdram);
+	sweepparams_t getsweepparams(globalparams_t globalparams, unsigned int currentLOP, unsigned int source_partition);
+	config_t getconfig(unsigned int currentLOP);
+	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, config_t config, unsigned int currentLOP, unsigned int source_partition, unsigned int num_source_partitions);
 	
 	void readglobalstats0(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_PARTITIONS], unsigned int offset_kvs, unsigned int currentLOP, unsigned int sourceORdest);
 	
 	void saveglobalstats0(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]);
+	
+	void updateglobalstats0(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_PARTITIONS], unsigned int offset_kvs, unsigned int currentLOP, unsigned int sourceORdest);
 	
 	void prepareglobalstats0(unsigned int enable, uint512_dt * kvdram);
 	
@@ -111,7 +91,7 @@ public:
 	
 	void prepareglobalstats0(unsigned int enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]);
 	
-	void partitionkeyvalues0(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit);
+	void partitionkeyvalues0(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, travstate_t travstate);
 	
 	void reduce0(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, unsigned int GraphIter, unsigned int GraphAlgo);
 	
@@ -127,7 +107,7 @@ public:
 	void combineSetof2stoSetof4s0(unsigned int enable, uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]);
 	void combineSetof4stoSetof8s0(unsigned int enable, uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]);
 	
-	void dispatch0(uint512_dt * kvdram, keyvalue_t globalcapsule[NUM_PARTITIONS], alw_config config, alw_sweepparams_t sweepparams, globalparams_t globalparams, travstate_t travstate);
+	void dispatch0(uint512_dt * kvdram);
 	
 	void topkernel( uint512_dt * sourceAvolume );						
 private:
