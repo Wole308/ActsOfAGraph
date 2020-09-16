@@ -47,13 +47,13 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
     double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
 
-	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
+	cout<<"goclkernel::launchkernel:: Launching "<<NUMKERNELS<<" Kernels..."<<endl;
     auto kernel_start = std::chrono::high_resolution_clock::now();
 	
 	unsigned int bufferid = 0;
-	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
+	for(unsigned int i=0; i<NUMKERNELS; i++){
 		//Setting the k_vadd Arguments
-		for(unsigned int j=0; j<NUMACTIVEINSTANCES; j++){ 
+		for(unsigned int j=0; j<NUMINSTANCES; j++){ 
 			OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[bufferid++]));
 		}
 		
@@ -67,7 +67,7 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	std::cout<<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<<std::endl;
 
     kernel_time_in_sec = kernel_time.count();
-    kernel_time_in_sec /= NUMACTIVEKERNELS;
+    kernel_time_in_sec /= NUMKERNELS;
 	
 	// Checks
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -95,7 +95,7 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 }
 
 void goclkernel::writeVstokernel(unsigned int flag){
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ // TOTALNUMACTCUSTORUN
+	for(unsigned int i=0; i<NUMACTCUSPERAPP; i++){ // NUMACTCUSPERAPP
 			OCL_CHECK(err,
 					  err = q.enqueueMigrateMemObjects(
 						  {buffer_kvsourcedram[i]},
@@ -104,7 +104,7 @@ void goclkernel::writeVstokernel(unsigned int flag){
     q.finish();
 }
 void goclkernel::readVsfromkernel(unsigned int flag){
-	for(unsigned int i=0; i<1; i++){ // TOTALNUMACTCUSTORUN
+	for(unsigned int i=0; i<1; i++){ // NUMACTCUSPERAPP
 			OCL_CHECK(err,
 					  err = q.enqueueMigrateMemObjects(
 						  {buffer_kvsourcedram[i]},
@@ -123,17 +123,6 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 	cout<<"goclkernel::loadOCLstructures:: kvsource_size_bytes: "<<kvsource_size_bytes<<endl;
 	cout<<"goclkernel::loadOCLstructures:: kvdest_size_bytes: "<<kvdest_size_bytes<<endl;
 	cout<<"goclkernel::loadOCLstructures:: kvstats_size_bytes: "<<kvstats_size_bytes<<endl;
-	
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	cout<<"goclkernel::loadOCLstructures: printing OCL parameters"<<endl;
-	cout<<"TOTALNUMKERNELS: "<<TOTALNUMKERNELS<<endl;
-	cout<<"NUMHBMSPERKERNEL: "<<NUMHBMSPERKERNEL<<endl;
-	cout<<"TOTALNUMACTCUSTORUN: "<<TOTALNUMACTCUSTORUN<<endl;
-	cout<<"NUMACTSCUSPERKERNEL: "<<NUMACTSCUSPERKERNEL<<endl;
-	cout<<"TOTALAVAILABLEACTSCUS: "<<TOTALAVAILABLEACTSCUS<<endl;
-	cout<<"NUMACTIVEKERNELS: "<<NUMACTIVEKERNELS<<endl;
-	cout<<"NUMACTIVEINSTANCES: "<<NUMACTIVEINSTANCES<<endl;
-	#endif 
 	
 	// OPENCL HOST CODE AREA START
     // The get_xil_devices will return vector of Xilinx Devices
@@ -164,7 +153,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 	
     // Creating Kernel object using Compute unit names
 	std::string krnl_name = "topkernel";
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){
+	for(unsigned int i=0; i<NUMKERNELS; i++){
 			std::string cu_id = std::to_string((i+1));
 			 std::string krnl_name_full =
 				krnl_name + ":{" + "topkernel_" + cu_id + "}";
@@ -179,10 +168,11 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 					  krnls[i] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 	}
 	
+	cout<<"---------- goclkernel:: NUMACTCUSPERAPP: "<<NUMACTCUSPERAPP<<", NUMKERNELS: "<<NUMKERNELS<<", NUMACTSCUSPERKERNEL: "<<NUMACTSCUSPERKERNEL<<endl;
 	unsigned int flag=0;
 	unsigned int counter = 0;
 	uint512_dt ** kvsourcedramarr = (uint512_dt **)kvsourcedram;
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ 
+	for(unsigned int i=0; i<NUMKERNELS; i++){ 
 		for(unsigned int j=0; j<NUMACTSCUSPERKERNEL; j++){ 
 			inoutBufExt[i*NUMACTSCUSPERKERNEL + j].obj = kvsourcedramarr[counter++];
 			inoutBufExt[i*NUMACTSCUSPERKERNEL + j].param = 0;
@@ -193,7 +183,8 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can
     // be used to reference the memory locations on the device.
     //Creating Buffers
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+	for(unsigned int i=0; i<NUMACTCUSPERAPP; i++){
+		cout<<"SEEN HERE 1."<<endl;
 		OCL_CHECK(err,
 				  buffer_kvsourcedram[i] =
 					  cl::Buffer(context,
@@ -203,6 +194,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 								 &inoutBufExt[i],
 								 &err));
 	}
+	cout<<"SEEN HERE 2."<<endl;
 	return;
 }
 void goclkernel::finishOCL(){

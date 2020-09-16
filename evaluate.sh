@@ -11,8 +11,14 @@ set -e # Courtesy : Jinja 2.0
 ON=1
 OFF=0
 
-ROOTDIR="/home/centos/src/project_data/oj2zf"
-# ROOTDIR="/home/oj2zf/Documents"
+# ROOTDIR="/home/centos/src/project_data/oj2zf"
+ROOTDIR="/home/oj2zf/Documents"
+
+# KERNELTYPE="ACTSMODEL"
+KERNELTYPE="ACTSMODEL_LW"
+
+# KERNELTYPE=0
+# KERNELTYPE=1
 
 XWARE="" 
 SETUP="" 
@@ -75,8 +81,8 @@ for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -102,45 +108,85 @@ do
 		then 
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			SETUP_NAME="actgraph_pr_sw"
+			ALGORITHM="PR_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_sw"
+			else 
+				SETUP_NAME="actgraph_pr_sw"
+			fi
+			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 		then
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM" 
-			SETUP_NAME="actgraph_bfs_sw"
+			ALGORITHM="BFS_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_sw"
+			else 
+				SETUP_NAME="actgraph_bfs_sw"
+			fi
+			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 		then
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BC_ALGORITHM" 
-			SETUP_NAME="actgraph_bc_sw"
+			ALGORITHM="BC_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bc_sw"
+			else 
+				SETUP_NAME="actgraph_bc_sw"
+			fi
+			
 		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="SWEMU" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			SETUP_NAME="actgraph_pr_swemu"
+			ALGORITHM="PR_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_swemu"
+			else 
+				SETUP_NAME="actgraph_pr_swemu"
+			fi
+			
 		elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="PR_ALGORITHM" 
-			SETUP_NAME="actgraph_pr_hw"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_hw"
+			else 
+				SETUP_NAME="actgraph_pr_hw"
+			fi
 		elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BFS_ALGORITHM" 
-			SETUP_NAME="actgraph_bfs_hw"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_hw"
+			else 
+				SETUP_NAME="actgraph_bfs_hw"
+			fi
 			
 		elif [ $setup == $HW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BC_ALGORITHM" 
-			SETUP_NAME="actgraph_bc_hw"
+			ALGORITHM="BC_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bc_hw"
+			else 
+				SETUP_NAME="actgraph_bc_hw"
+			fi
+			
 		elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="SW" 
@@ -179,8 +225,9 @@ do
 		for numcputhreads in $THREADCOUNT_EQ1
 		do
 		
-		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ2
-		for numsubcputhreads_pow in $THREADPOW_EQ2
+		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
+		for numsubcputhreads_pow in $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
+		# for numsubcputhreads_pow in $THREADPOW_EQ1
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
@@ -203,9 +250,9 @@ do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
 						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
 						
-						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph/results"
-						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
-						PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Results"
+						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
 						
 						if [ $dataset == $LARGEDATASET_1M ]  
 						then	
@@ -343,11 +390,15 @@ do
 						then
 							make cleanall
 							# rm -rf host
-							# make build_host
+							
+							make host
+							# ./host $BACKUPDIR_KERNELXCLBIN
+							./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							
 							# make build_host_aws
-							# ./host kernel.awsxclbin
 							# ./host $BACKUPDIR_KERNELAWSXCLBIN
 							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							
 							# make host
 							# nohup make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
 							# ./host xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin

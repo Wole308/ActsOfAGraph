@@ -1,6 +1,6 @@
 #ifndef ACTS_H
 #define ACTS_H
-#include "../../acts/include/actscommon.h"
+#include "../include/actscommon.h"
 #include "../../include/common.h"
 {%if(context['XWARE'] != "HW")%}
 #include <string>
@@ -22,7 +22,7 @@
 #include <ap_int.h>
 #endif
 #ifndef FPGA_IMPL
-#include "{{context['PROJECT_BASEPATH']}}/acts/actsutility/actsutility.h"
+#include "../actsutility/actsutility.h"
 #endif 
 using namespace std;
 
@@ -119,15 +119,6 @@ typedef struct {
 	unsigned int step_kvs;
 	unsigned int end_kvs;
 } partitionparams_t;
-
-typedef struct {
-	unsigned int topi_kvs;
-	unsigned int i_kvs;
-	unsigned int begin_kvs;
-	unsigned int end_kvs;
-	unsigned int skip_kvs;
-	unsigned int info;
-} travstate_t;
 
 typedef struct {
 	unsigned int globaloffset;

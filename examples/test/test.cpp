@@ -11,6 +11,7 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/edgeprocess/edge_process.h"
+#include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../src/stats/stats.h"
 #include "../../src/dataaccess/dataaccess.h"
@@ -21,6 +22,9 @@ using namespace std;
 test::test(std::string binaryFile){
 	utilityobj = new utility();
 	helperfunctionsobj = new helperfunctions(); 
+	dataset * datasetobj = new dataset();
+	graphobj = new graph(datasetobj->getdatasetid());
+	statsobj = new stats(graphobj);
 	
 	#ifdef FPGA_IMPL
 	// for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int i=0; i<NUMCPUTHREADS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ kvsourcedram[flag][i][j] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}}			
@@ -66,6 +70,9 @@ void test::run(){
 	utilityobj->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
 	utilityobj->setarray(runsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
 	
+	long double totaltime_ms = 0;
+	long double noisetime_ms = 64438; // FIXME.
+	
 	for(unsigned int iteration_idx=0; iteration_idx<1; iteration_idx++){
 		
 		// Populate kvdrams
@@ -75,14 +82,38 @@ void test::run(){
 		
 		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], batchoffset, batchsize); 
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
-		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvstats[0]);
+		#ifdef ACTSMODEL_LW
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
+		#endif 
+		
+		#ifdef FPGA_IMPL
+		helperfunctionsobj->writeVstokernel(0);
+		#endif
 		
 		// Launch the Kernel
+		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 		helperfunctionsobj->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[0], 0);
+		totaltime_ms += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count() - noisetime_ms);
+		cout<<"test::run current totaltime_ms: "<<totaltime_ms<<endl;
 		
-		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvstats[0]);
+		#ifdef FPGA_IMPL
+		helperfunctionsobj->readVsfromkernel(0);
+		#endif
+	
+		#ifdef ACTSMODEL_LW
+		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
+		#endif 
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS2
+		utilityobj->printmessages("test::run:: messages (after kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
+		utilityobj->printkeyvalues("test::run:: kvdram (after kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
+		utilityobj->printkeyvalues("test::run:: kvdram workspace (after kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		utilityobj->printkeyvalues("test::run:: kvstatsdram (after kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
+		#endif
+		
 		globaliteration_idx += 1;
 	}
+	statsobj->timingandsummary(NAp, totaltime_ms);
 	return;
 }
 void test::finish(){
@@ -98,6 +129,7 @@ void test::loadkvdram(keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsig
 			voffset = j * BATCH_RANGE;
 			for(unsigned int k=0; k<batchsize[i][j]; k++){ batch[i][j][batchoffset[i][j] + k].key = voffset + (rand() % BATCH_RANGE); batch[i][j][batchoffset[i][j] + k].value = 0; }
 			batchsize[i][j] = KVDATA_BATCHSIZE;
+			statsobj->appendkeyvaluecount(0, 0, KVDATA_BATCHSIZE);
 		}
 	}
 	return;

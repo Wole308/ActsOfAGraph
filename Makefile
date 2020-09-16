@@ -76,6 +76,8 @@ HOST_SRCS += kernels/swkernel.cpp
 # HOST_SRCS += kernels/oclkernel.cpp
 HOST_SRCS += kernels/goclkernel.cpp
 # HOST_SRCS += acts/actsutility/actsutility.cpp
+HOST_SRCS += src/graphs/creategraph.cpp
+HOST_SRCS += src/graphs/create2Dgraph.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/
@@ -92,17 +94,17 @@ LDFLAGS += -lrt -lstdc++
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3]
 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3] --sp topkernel_1.m_axi_gmem2:HBM[0:3] --sp topkernel_1.m_axi_gmem3:HBM[0:3]		
-# LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[4:7] --sp topkernel_2.m_axi_gmem1:HBM[4:7] --sp topkernel_2.m_axi_gmem2:HBM[4:7] --sp topkernel_2.m_axi_gmem3:HBM[4:7]
-# LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[8:11] --sp topkernel_3.m_axi_gmem1:HBM[8:11] --sp topkernel_3.m_axi_gmem2:HBM[8:11] --sp topkernel_3.m_axi_gmem3:HBM[8:11]
-# LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[12:15] --sp topkernel_4.m_axi_gmem1:HBM[12:15] --sp topkernel_4.m_axi_gmem2:HBM[12:15] --sp topkernel_4.m_axi_gmem3:HBM[12:15]
-# LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[16:19] --sp topkernel_5.m_axi_gmem1:HBM[16:19] --sp topkernel_5.m_axi_gmem2:HBM[16:19] --sp topkernel_5.m_axi_gmem3:HBM[16:19]
-# LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[20:23] --sp topkernel_6.m_axi_gmem1:HBM[20:23] --sp topkernel_6.m_axi_gmem2:HBM[20:23] --sp topkernel_6.m_axi_gmem3:HBM[20:23]
-# LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[24:27] --sp topkernel_7.m_axi_gmem1:HBM[24:27] --sp topkernel_7.m_axi_gmem2:HBM[24:27] --sp topkernel_7.m_axi_gmem3:HBM[24:27]							
-# LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[28:31] --sp topkernel_8.m_axi_gmem1:HBM[28:31] --sp topkernel_8.m_axi_gmem2:HBM[28:31] --sp topkernel_8.m_axi_gmem3:HBM[28:31]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3]
+LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[4:7] --sp topkernel_2.m_axi_gmem1:HBM[4:7]
+LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[8:11] --sp topkernel_3.m_axi_gmem1:HBM[8:11]
+LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[12:15] --sp topkernel_4.m_axi_gmem1:HBM[12:15]
+LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[16:19] --sp topkernel_5.m_axi_gmem1:HBM[16:19]
+LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[20:23] --sp topkernel_6.m_axi_gmem1:HBM[20:23]
+LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[24:27] --sp topkernel_7.m_axi_gmem1:HBM[24:27]					
+LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[28:31] --sp topkernel_8.m_axi_gmem1:HBM[28:31]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3] --sp topkernel_1.m_axi_gmem2:HBM[0:3]
 # LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[4:7] --sp topkernel_2.m_axi_gmem1:HBM[4:7] --sp topkernel_2.m_axi_gmem2:HBM[4:7]
@@ -112,6 +114,15 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
 # LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[20:23] --sp topkernel_6.m_axi_gmem1:HBM[20:23] --sp topkernel_6.m_axi_gmem2:HBM[20:23]
 # LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[24:27] --sp topkernel_7.m_axi_gmem1:HBM[24:27] --sp topkernel_7.m_axi_gmem2:HBM[24:27]						
 # LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[28:31] --sp topkernel_8.m_axi_gmem1:HBM[28:31] --sp topkernel_8.m_axi_gmem2:HBM[28:31]
+
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3] --sp topkernel_1.m_axi_gmem1:HBM[0:3] --sp topkernel_1.m_axi_gmem2:HBM[0:3] --sp topkernel_1.m_axi_gmem3:HBM[0:3]		
+# LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[4:7] --sp topkernel_2.m_axi_gmem1:HBM[4:7] --sp topkernel_2.m_axi_gmem2:HBM[4:7] --sp topkernel_2.m_axi_gmem3:HBM[4:7]
+# LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[8:11] --sp topkernel_3.m_axi_gmem1:HBM[8:11] --sp topkernel_3.m_axi_gmem2:HBM[8:11] --sp topkernel_3.m_axi_gmem3:HBM[8:11]
+# LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[12:15] --sp topkernel_4.m_axi_gmem1:HBM[12:15] --sp topkernel_4.m_axi_gmem2:HBM[12:15] --sp topkernel_4.m_axi_gmem3:HBM[12:15]
+# LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[16:19] --sp topkernel_5.m_axi_gmem1:HBM[16:19] --sp topkernel_5.m_axi_gmem2:HBM[16:19] --sp topkernel_5.m_axi_gmem3:HBM[16:19]
+# LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[20:23] --sp topkernel_6.m_axi_gmem1:HBM[20:23] --sp topkernel_6.m_axi_gmem2:HBM[20:23] --sp topkernel_6.m_axi_gmem3:HBM[20:23]
+# LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[24:27] --sp topkernel_7.m_axi_gmem1:HBM[24:27] --sp topkernel_7.m_axi_gmem2:HBM[24:27] --sp topkernel_7.m_axi_gmem3:HBM[24:27]							
+# LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[28:31] --sp topkernel_8.m_axi_gmem1:HBM[28:31] --sp topkernel_8.m_axi_gmem2:HBM[28:31] --sp topkernel_8.m_axi_gmem3:HBM[28:31]
 
 EXECUTABLE = host
 CMD_ARGS = $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin
@@ -138,7 +149,7 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:8 -o'$@' $(+)
 
 # Building Host
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
@@ -147,7 +158,7 @@ $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:
 	emconfigutil --platform $(DEVICE) --od $(EMCONFIG_DIR)
-
+	
 check: all
 ifeq ($(findstring xilinx_u200_xdma, $(DEVICE)), xilinx_u200_xdma)
 $(error Nothing to be done for make)

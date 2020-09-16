@@ -6,13 +6,14 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/heuristics/heuristics.h"
 #include "../../include/common.h"
+#include "create2Dgraph.h"
 
 class creategraph {
 public:	
 	creategraph();
 	~creategraph();
 	
-	void create2Dgraph(unsigned int algorithmid, unsigned int datasetid);
+	void create2Dgraf(unsigned int algorithmid, unsigned int datasetid);
 };
 #endif
 

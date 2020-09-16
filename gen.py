@@ -90,7 +90,7 @@ else:
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
 elif context['XWARE'] == "HW":
-	context['NUMINSTANCES'] = 1
+	context['NUMINSTANCES'] = 2
 elif context['XWARE'] == "SWEMU":
 	context['NUMINSTANCES'] = 1
 else:

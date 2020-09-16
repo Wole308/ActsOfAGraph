@@ -60,6 +60,28 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; }
 }
+void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize){
+	if(skipsize == 0){ cout<<endl<<"utility::printkeyvalues:ERROR: skipsize CANNOT be zero. exiting... "<<endl; exit(EXIT_FAILURE); }
+	cout<<endl<<"printkeyvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+}
+void utility::printmessages(string message, uint512_vec_dt * keyvalues){
+	cout<<"utility::printmessages::"<<message<<":: printing messages (after kernel launch) "<<endl;
+	cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
+	cout<<"MESSAGES_PROCESSCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0].key<<endl;
+	cout<<"MESSAGES_COLLECTSTATSCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key<<endl;
+	cout<<"MESSAGES_PARTITIONCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key<<endl;
+	cout<<"MESSAGES_APPLYUPDATESCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key<<endl;
+	cout<<"MESSAGES_VOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0].key<<endl;
+	cout<<"MESSAGES_VSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0].key<<endl;
+	cout<<"MESSAGES_TREEDEPTH: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key<<endl;
+	cout<<"MESSAGES_FINALNUMPARTITIONS: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key<<endl;
+	cout<<"MESSAGES_GRAPHITERATIONID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key<<endl;
+	cout<<"MESSAGES_BATCHSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
+	cout<<"MESSAGES_RUNSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
+	cout<<"MESSAGES_NEXTBATCHOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
+	return;
+}
 void utility::printallparameters(){
 	std::cout<<"host:: NUMDRAMBANKS: "<<NUMDRAMBANKS<<std::endl;
 	std::cout<<"host:: NUMWORKERS: "<<NUMWORKERS<<std::endl;

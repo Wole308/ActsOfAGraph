@@ -167,12 +167,16 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 		utilityobj[superthreadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
 		retrieveupdates(superthreadidx, threadidxoffset + superthreadidx, fdoffset, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], batchoffset, batchsize, loadsize, voffset);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
-		helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, BREADTHFIRSTSEARCH, voffset, batchsize, runsize, kvstats[superthreadidx][flag]);
-
+		#ifdef ACTSMODEL
+		helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, BREADTHFIRSTSEARCH, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+		#endif 
+		
 		// launch kernel
 		helperfunctionsobj[superthreadidx]->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][flag], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[superthreadidx][flag], flag);
 		
-		helperfunctionsobj[superthreadidx]->updatemessagesafterlaunch(globaliteration_idx, kvstats[superthreadidx][flag]);
+		#ifdef ACTSMODEL
+		helperfunctionsobj[superthreadidx]->updatemessagesafterlaunch(globaliteration_idx, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+		#endif 
 		globaliteration_idx += 1;
 	}
 
@@ -180,7 +184,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 	helperfunctionsobj[superthreadidx]->readVsfromkernel(0);
 	#endif
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	helperfunctionsobj[superthreadidx]->applyvertices(threadidxoffset + superthreadidx, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx);
+	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx); // FIXME. CHECKME.
 	graphobj->savevertexdatatofile(threadidxoffset + superthreadidx, 0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED
 	return;
 }

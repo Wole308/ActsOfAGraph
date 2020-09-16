@@ -75,7 +75,7 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 		
 		unsigned int edgeoffsetbit = utilityobj->RetrieveBit((unsigned int *)vertexpointerbuffer[ithreadidx], i);
 		if(edgeoffsetbit==1){
-			utilityobj->checkoutofbounds("edge_process::generatekeyvalues_stream 1", tempcurrentvid, KVDATA_RANGE_PERSSDPARTITION, i, tempcurrentvid, NAp);
+			utilityobj->checkoutofbounds("edge_process::generatekeyvalues_stream 1", tempcurrentvid, KVDATA_RANGE, i, tempcurrentvid, NAp);
 			vertexprop = vertexpropertybuffer[bank][tempcurrentvid];
 			tempcurrentvid+=1;
 		}

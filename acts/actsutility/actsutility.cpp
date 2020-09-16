@@ -156,6 +156,7 @@ void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams,
 }
 void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, sweepparams_t sweepparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef ACTSMODEL_LW
 	if(enable == OFF){ return; }
 	// printglobalvars();
 	// clearglobalvars();
@@ -167,6 +168,7 @@ void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram,
 		scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
 	}
 	#endif
+	#endif 
 }
 
 unsigned int actsutility::ugetvaluecount(keyvalue_t * keyvalues, unsigned int size){

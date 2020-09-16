@@ -12,7 +12,7 @@
 
 class graph {
 public:
-	graph(unsigned int datasetid, vertex_t batchsz);
+	graph(unsigned int datasetid);
 	graph(algorithm * algorithmobj, unsigned int datasetid, unsigned int numvertexbanks, unsigned int numedgebanks);
 	~graph();
 	
@@ -29,13 +29,20 @@ public:
 	void configureactivevertexreaders();
 
 	void openfilesforreading();
+	void openfilesforwriting();
+	
+	void closefilesforreading();
+	void closefilesforwriting();
+	
 	void opentemporaryfilesforreading();
 	void opentemporaryfilesforwriting();
-	void closefilesforreading();
+	
 	void closetemporaryfilesforreading();
 	void closetemporaryfilesforwriting();
+	
 	void openactiveverticesfilesforreading(unsigned int graph_iterationidx);
 	void openactiveverticesfilesforwriting(unsigned int graph_iterationidx);
+	
 	void closeactiveverticesfilesforreading();
 	void closeactiveverticesfilesforwriting();
 	
@@ -64,8 +71,12 @@ public:
 	int * getnvmeFd_vertexproperties_w2();	
 	int ** getnvmeFd_edgeproperties_r2();
 	int ** getnvmeFd_edgeproperties_w2();
+	FILE *** getnvmeFd_edgeproperties_r();
+	FILE *** getnvmeFd_edgeproperties_w();
 	int ** getnvmeFd_edgeoffsets_r2();
 	int ** getnvmeFd_edgeoffsets_w2();
+	FILE *** getnvmeFd_edgeoffsets_r();
+	FILE *** getnvmeFd_edgeoffsets_w();
 	int getnvmeFd_activevertexids_r2();
 	int getnvmeFd_activevertexids_w2();
 	FILE * getnvmeFd_activevertexids_w();
@@ -120,8 +131,12 @@ private:
 	int * nvmeFd_vertexproperties_w2;	
 	int ** nvmeFd_edgeproperties_r2; 
 	int ** nvmeFd_edgeproperties_w2;
+	FILE *** nvmeFd_edgeproperties_r;
+	FILE *** nvmeFd_edgeproperties_w;	
 	int ** nvmeFd_edgeoffsets_r2; 
 	int ** nvmeFd_edgeoffsets_w2;
+	FILE *** nvmeFd_edgeoffsets_r;
+	FILE *** nvmeFd_edgeoffsets_w;
 	int nvmeFd_activevertexids_r2; 
 	int nvmeFd_activevertexids_w2; 
 	FILE * nvmeFd_activevertexids_w;	

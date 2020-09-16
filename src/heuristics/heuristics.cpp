@@ -70,12 +70,7 @@ heuristicstype_t heuristics::gettype(unsigned int algorithmID, unsigned int grap
 }
 
 unsigned int heuristics::getdefaultnumvertexbanks(){
-	#ifdef ACTGRAPH_SETUP
-	return NUMSSDPARTITIONS; // vertex banks should be the same in bfs or pr due to hybrid implementation
-	#endif 
-	#ifdef GRAFBOOST_SETUP
 	return 1;
-	#endif
 }
 unsigned int heuristics::getdefaultnumedgebanks(){	
 	#ifdef ACTGRAPH_SETUP
