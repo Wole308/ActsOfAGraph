@@ -79,6 +79,7 @@ graph::graph(algorithm * _algorithmobj, unsigned int datasetid, unsigned int _nu
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ vertexpropertybuffer[i] = new vertexprop_t[KVDATA_RANGE]; }
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ vertexdatabuffer[i] = new value_t[KVDATA_RANGE]; }
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[i][j] = new unsigned long[1]; }}
+	for(unsigned int i=0; i<getnumvertexbanks(); i++){ for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[i][j][0] = 0; }}
 	unsigned int isactivevertexinfo = (KVDATA_RANGE / getnumvertexbanks()) / NUMBITSINUNSIGNEDINT;
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ 
 		vertexisactivebitbuffer[i] = new unsigned int[isactivevertexinfo]; 
@@ -95,6 +96,7 @@ graph::graph(unsigned int datasetid){
 	numverticespervertexbank = KVDATA_RANGE / numvertexbanks;
 	
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[i][j] = new unsigned long[1]; }}
+	for(unsigned int i=0; i<getnumvertexbanks(); i++){ for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[i][j][0] = 0; }}
 }
 graph::~graph(){}
 
@@ -561,10 +563,11 @@ void graph::loadvertexdatafromfile(int bank, vertex_t fdoffset, keyvalue_t * buf
 	return;
 }
 void graph::loadvertexdatafromfile(int bank, vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size){
-	#ifndef EXTERNALGRAPHPROCESSING
-	return;
-	#endif
+	#ifdef EXTERNALGRAPHPROCESSING
 	if(size > 0){ if(pread(nvmeFd_verticesdata_r2[bank], &buffer[bufferoffset], (size_t)(size * sizeof(value_t)), (size_t)(fdoffset * sizeof(value_t))) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
+	#else
+	for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i] = vertexdatabuffer[bank][i]; }
+	#endif 
 	return;
 }
 void graph::savevertexdatatofile(int bank, vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size){

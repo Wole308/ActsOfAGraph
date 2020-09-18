@@ -2,6 +2,20 @@
 #define ACTS_H
 #include "../include/actscommon.h"
 #include "../../include/common.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
@@ -35,6 +49,7 @@ using namespace std;
 #define PVU_NUM_READ_PIPELINES 1
 #endif 
 
+#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define ENREADKEYVALUES 1
 #define ENREADKVS_COLLECTSTATS 0
@@ -157,49 +172,30 @@ public:
 	
 	void resetcapsules(keyvalue_t capsule0[NUM_PARTITIONS],  int dummy);
 	void appendinvalids0(unsigned int workerID  ,uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE]  ,keyvalue_t capsule0[NUM_PARTITIONS]);
-	void appendinvalids1(unsigned int workerID  ,uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE]  ,keyvalue_t capsule0[NUM_PARTITIONS]);
 	
 	void readkeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
-	void readkeyvalues1(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
 	void readkeyvalues0(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
-	void readkeyvalues1(keyvalue_t * dram, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
 	void readkeyvalues0(uint512_dt * kvdram  ,keyvalue_t * buffer00  ,keyvalue_t * buffer01  ,keyvalue_t * buffer02  ,keyvalue_t * buffer03  ,keyvalue_t * buffer04  ,keyvalue_t * buffer05  ,keyvalue_t * buffer06  ,keyvalue_t * buffer07  ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
-	void readkeyvalues1(uint512_dt * kvdram  ,keyvalue_t * buffer00  ,keyvalue_t * buffer01  ,keyvalue_t * buffer02  ,keyvalue_t * buffer03  ,keyvalue_t * buffer04  ,keyvalue_t * buffer05  ,keyvalue_t * buffer06  ,keyvalue_t * buffer07  ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
 	void readkeyvalues0(unsigned int enable, unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,batch_type baseaddress ,batch_type offset_kvs, travstate_t travstate, batch_type maxaddress_kvs);
-	void readkeyvalues1(unsigned int enable, unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,batch_type baseaddress ,batch_type offset_kvs, travstate_t travstate, batch_type maxaddress_kvs);
 	void readkeyvalues0(unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,batch_type baseaddress, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, batch_type maxaddress_kvs);
-	void readkeyvalues1(unsigned int workerID, uint512_dt * kvdram  ,uint512_dt * buffer0  ,batch_type baseaddress, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, batch_type maxaddress_kvs);
 	offset_t readcapsules0(unsigned int workerID, uint512_dt * kvdram,  uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], keyvalue_t capsule0[NUM_PARTITIONS],  batch_type baseaddress, batch_type offset, int enable, offset_t capsulemetadata);
-	offset_t readcapsules1(unsigned int workerID, uint512_dt * kvdram,  uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE], keyvalue_t capsule0[NUM_PARTITIONS],  batch_type baseaddress, batch_type offset, int enable, offset_t capsulemetadata);
 	
 	void collectstats00(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], clopparams_t llopparams, travstate_t travstate);
-	void collectstats10(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], clopparams_t llopparams, travstate_t travstate);
 	void partitionkeyvalues00(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE] , uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], travstate_t travstate, clopparams_t llopparams);
-	void partitionkeyvalues10(unsigned int enable, unsigned int workerID , uint512_dt sourcebuffer0[SRCBUFFER_SIZE] , uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], travstate_t travstate, clopparams_t llopparams);
 	void reducepartitions0(unsigned int enable, unsigned int workerID  ,uint512_dt sourcebuffer0[SRCBUFFER_SIZE]   ,uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE]  ,batch_type voffset, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams);
-	void reducepartitions1(unsigned int enable, unsigned int workerID  ,uint512_dt sourcebuffer0[SRCBUFFER_SIZE]   ,uint512_dt destbuffer0[PADDEDDESTBUFFER_SIZE]  ,batch_type voffset, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams);
 	
 	void savekeyvalues0(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
-	void savekeyvalues1(uint512_dt * kvdram, uint512_dt * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
 	void savekeyvalues0(keyvalue_t * kvstats, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
-	void savekeyvalues1(keyvalue_t * kvstats, keyvalue_t * buffer, batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs);
 	void savekeyvalues0(uint512_dt * kvdram  ,keyvalue_t * buffer00  ,keyvalue_t * buffer01  ,keyvalue_t * buffer02  ,keyvalue_t * buffer03  ,keyvalue_t * buffer04  ,keyvalue_t * buffer05  ,keyvalue_t * buffer06  ,keyvalue_t * buffer07  ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
-	void savekeyvalues1(uint512_dt * kvdram  ,keyvalue_t * buffer00  ,keyvalue_t * buffer01  ,keyvalue_t * buffer02  ,keyvalue_t * buffer03  ,keyvalue_t * buffer04  ,keyvalue_t * buffer05  ,keyvalue_t * buffer06  ,keyvalue_t * buffer07  ,batch_type baseaddress, batch_type offset_kvs, buffer_type size_kvs, batch_type maxaddress_kvs);
 	offset_t savecapsules0(unsigned int workerID, uint512_dt * kvdram , uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], keyvalue_t kvdeststats3_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata);
-	offset_t savecapsules1(unsigned int workerID, uint512_dt * kvdram , uint512_dt BIGcapsule0[CAPSULEBUFFER_SIZE] , keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], keyvalue_t kvdeststats3_tmp[NUM_PARTITIONS], batch_type baseaddress_kvs, batch_type offset, travstate_t travstate, offset_t capsulemetadata);
 	void savepartitions0(unsigned int workerID, uint512_dt * kvdram ,uint512_dt result_local0[PADDEDBUFFER_SIZE] ,keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], clopparams_t llopparams);
-	void savepartitions1(unsigned int workerID, uint512_dt * kvdram ,uint512_dt result_local0[PADDEDBUFFER_SIZE] ,keyvalue_t capsule0[NUM_PARTITIONS], keyvalue_t kvdeststats_tmp[NUM_PARTITIONS], clopparams_t llopparams);
 	
 	void partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
-	void partitionandreduce1(uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats, globalparams_t globalparams);
 	
 	void topkernel(
 uint512_dt * kvsourcedramA
-,uint512_dt * kvsourcedramB
 		,uint512_dt * kvdestdramA
-		,uint512_dt * kvdestdramB
 		,keyvalue_t * kvstatsA
-		,keyvalue_t * kvstatsB
         );
 private:
 	actsutility * actsutilityobj;

@@ -18,9 +18,9 @@ public:
 	edge_process(graph * _graphobj);
 	~edge_process();
 	
-	void generateupdates(unsigned int bank, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS]);			
-	unsigned int generateupdates_stream(int ithreadidx, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize);			
-	unsigned int generatekeyvalues_stream(int ithreadidx, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize);
+	void generateupdates(unsigned int bank, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset);			
+	unsigned int generateupdates_stream(int ithreadidx, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset);			
+	unsigned int generatekeyvalues_stream(int ithreadidx, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset);
 	
 	void generateupdates(unsigned int readerbank, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], kvresults_t * results);
 	void generateupdates_random(int resultbank, unsigned int readerbank, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], kvresults_t * results);

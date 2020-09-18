@@ -40,13 +40,13 @@ else:
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 22
     elif context['DATASET'] == "_TWITTERDATASET_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_268M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
         context['KVDATA_RANGE_POW'] = 28
     elif context['DATASET'] == "_LARGEDATASET_1B":
         context['MAXNUMSSDPARTITIONS_POW'] = 4

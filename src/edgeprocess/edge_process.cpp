@@ -45,24 +45,24 @@ edge_process::edge_process(graph * _graphobj){
 }
 edge_process::~edge_process(){} 
 
-void edge_process::generateupdates(unsigned int bank, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS]){			
+void edge_process::generateupdates(unsigned int bank, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset){							
 	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_stream(i, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i]); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_stream(i, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	#else
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_stream, this, i, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i]); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_stream, this, i, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
 	#endif
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, datasize[i]); }
 	return;
 }
-unsigned int edge_process::generateupdates_stream(int ithreadidx, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize){			
+unsigned int edge_process::generateupdates_stream(int ithreadidx, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){			
 	graphobj->loadedgepropertyfromfile(bank, col, fdoffset, edgebuffer[ithreadidx], 0, datasize);
 	graphobj->loadvertexpointersfromfile(bank, col, fdoffset, vertexpointerbuffer[ithreadidx], 0, datasize);
 	
-	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, bank, batch, batchoffset, batchsize, datasize);
+	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, bank, batch, batchoffset, batchsize, datasize, voffset);
 	return kvcount;
 }
-unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize){
+unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){
 	unsigned int tempbatchoffset[NUMSUBCPUTHREADS]; // LEARNFROMME. avoids significant bottleneck
 	unsigned int tempbatchsize[NUMSUBCPUTHREADS];
 	utilityobj->copy(tempbatchoffset, batchoffset, NUMSUBCPUTHREADS);
@@ -97,13 +97,13 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 		data.value = edgeval;
 		utilityobj->checkoutofbounds("edge_process::generatekeyvalues_stream 2", i, KVDATA_BATCHSIZE, NAp, NAp, NAp);
 		
-		#ifdef FATMAN
-		insertkeyvaluetobuffer(batch, tempbatchoffset, tempbatchsize, data, 0);
+		#ifdef ACTSMODEL_LW
+		insertkeyvaluetobuffer(batch, tempbatchoffset, tempbatchsize, data, voffset);
 		#else 
 		batch[0][tempbatchoffset[0] + i] = data;
 		#endif
 	}
-	#ifndef FATMAN
+	#ifndef ACTSMODEL_LW
 	tempbatchsize[0] = datasize;
 	#endif 
 	currentvid[ithreadidx] = tempcurrentvid;
@@ -182,7 +182,7 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 		data.value = edgeval;
 		
 		// insertkeyvaluetobuffer(batch, batchoffset, batchsize, data); // NEWCHANGE.
-		#ifdef FATMAN
+		#ifdef ACTSMODEL_LW
 		insertkeyvaluetobuffer(batch, tempbatchoffset, tempbatchsize, data, 0);
 		#else 
 		batch[0][tempbatchoffset[0] + i] = data;
@@ -267,9 +267,8 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 unsigned int edge_process::insertkeyvaluetobuffer(keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], keyvalue_t keyvalue, unsigned int voffset){
 	unsigned int rangeperpartition = (KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS;
 	
-	unsigned int partition = 0;
-	
-	/** if(keyvalue.key >= 0 && keyvalue.key < (1 * ((KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS))){ partition = 0; }
+	/** unsigned int partition = 0;
+	if(keyvalue.key >= 0 && keyvalue.key < (1 * ((KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS))){ partition = 0; }
 	else if(keyvalue.key >= 0 && keyvalue.key < (2 * ((KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS))){ partition = 1; }
 	else if(keyvalue.key >= 0 && keyvalue.key < (3 * ((KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS))){ partition = 2; }
 	else if(keyvalue.key >= 0 && keyvalue.key < (4 * ((KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS))){ partition = 3; }
@@ -279,9 +278,9 @@ unsigned int edge_process::insertkeyvaluetobuffer(keyvalue_t * batch[NUMSUBCPUTH
 	else if(keyvalue.key >= 0 && keyvalue.key < (8 * ((KVDATA_RANGE / NUMSSDPARTITIONS) / NUMSUBCPUTHREADS))){ partition = 7; }
 	else { partition = 0; } */
 	
-	partition = (keyvalue.key - voffset) / rangeperpartition;
+	unsigned int partition = (keyvalue.key - voffset) / rangeperpartition;
 	
-	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 2", partition, NUMSUBCPUTHREADS, keyvalue.key, rangeperpartition, NAp);
+	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 2", partition, NUMSUBCPUTHREADS, keyvalue.key, rangeperpartition, voffset);
 	batch[partition][batchoffset[partition] + batchsize[partition]] = keyvalue;
 	batchsize[partition] += 1;
 	return partition;

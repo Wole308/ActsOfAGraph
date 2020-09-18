@@ -232,7 +232,7 @@ void actsutility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue
 		unsigned int begin = stats[i].key;
 		unsigned int end = stats[i].key + stats[i].value;
 		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
-		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ("<<lowerrangeindex<<" -> "<<upperrangeindex<<")("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
+		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ["<<lowerrangeindex<<" -> "<<upperrangeindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
 	}
 	return;
 }

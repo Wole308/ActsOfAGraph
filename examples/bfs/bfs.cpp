@@ -135,8 +135,11 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 	unsigned int globaliteration_idx = 0;
 	unsigned int voffset = (threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION;
 	
+	#ifdef ACTSMODEL
 	graphobj->loadvertexdatafromfile(threadidxoffset + superthreadidx, voffset, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	#endif 
+	// FIXME. do for ACTSMODEL_LW
 	#ifdef FPGA_IMPL
 	helperfunctionsobj[superthreadidx]->writeVstokernel(0);
 	#endif
@@ -170,6 +173,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 		#ifdef ACTSMODEL
 		helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, BREADTHFIRSTSEARCH, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
 		#endif 
+		// FIXME. do for ACTSMODEL_LW
 		
 		// launch kernel
 		helperfunctionsobj[superthreadidx]->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][flag], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[superthreadidx][flag], flag);
@@ -177,14 +181,18 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 		#ifdef ACTSMODEL
 		helperfunctionsobj[superthreadidx]->updatemessagesafterlaunch(globaliteration_idx, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
 		#endif 
+		// FIXME. do for ACTSMODEL_LW
 		globaliteration_idx += 1;
 	}
 
 	#ifdef FPGA_IMPL
 	helperfunctionsobj[superthreadidx]->readVsfromkernel(0);
 	#endif
+	#ifdef ACTSMODEL
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx); // FIXME. CHECKME.
+	#endif 
+	// FIXME. do for ACTSMODEL_LW
 	graphobj->savevertexdatatofile(threadidxoffset + superthreadidx, 0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED
 	return;
 }

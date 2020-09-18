@@ -215,10 +215,8 @@ getpartition(keyvalue_t keyvalue, unsigned int currentLOP, vertex_t upperlimit){
 	
 	#ifdef ENABLE_PERFECTACCURACY
 		#ifdef _DEBUGMODE_CHECKS2
-		// if(partition >= NUM_PARTITIONS && keyvalue.key != INVALIDDATA){ cout<<"getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<endl; exit(EXIT_FAILURE); }				
 		if(partition >= NUM_PARTITIONS){ cout<<"getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<endl; exit(EXIT_FAILURE); }
 		#endif
-		// if(keyvalue.key == INVALIDDATA){ partition = 0; } // FIXME
 	#endif 
 	#ifndef ENABLE_PERFECTACCURACY
 		// partition = checkandforce(partition, NUM_PARTITIONS); 
@@ -745,7 +743,7 @@ collectglobalstats{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_S
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("collectglobalstats{{inst}}. out of bounds for destbuffer[{{v}}]", p{{v}}, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+		actsutilityobj->checkoutofbounds("collectglobalstats{{inst}}. out of bounds for destbuffer[{{v}}]", p{{v}}, PADDEDDESTBUFFER_SIZE, keyvalue{{v}}.key, BATCH_RANGE, NAp);
 		#endif 
 		destbuffer[{{v}}][p{{v}}].value += 1;
 		{%endfor%}
@@ -832,11 +830,12 @@ void
 	#ifdef SW 
 	actslw::
 	#endif
-reduce{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, unsigned int GraphIter, unsigned int GraphAlgo){
+reduce{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate){
 	if(enable == OFF){ return; }
 	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE;
+	buffer_type chunk_size = getchunksize(SRCBUFFER_SIZE, travstate, 0);
 
-	REDUCE_LOOP: for(unsigned int i=0; i<SRCBUFFER_SIZE; i++){
+	REDUCE_LOOP: for(unsigned int i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 	#pragma HLS PIPELINE II=2
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -1165,7 +1164,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 	uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE];
 	
 	keyvalue_t globaldestoffsets[NUM_PARTITIONS];
-	keyvalue_t globalstatsbuffer[PADDEDDESTBUFFER_SIZE]; // NUMLASTLEVELPARTITIONS // REMOVEME. // PADDEDDESTBUFFER_SIZE
+	keyvalue_t globalstatsbuffer[PADDEDDESTBUFFER_SIZE];
 	
 	globalparams_t globalparams = getglobalparams(kvdram);
 	sweepparams_t sweepparams;
@@ -1264,7 +1263,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 				
 				collectglobalstats{{inst}}(config.enablecollectglobalstats, sourcebuffer, buffer_setof1, sweepparams.upperlimit);
 				
-				reduce{{inst}}(config.enablereduce, sourcebuffer, buffer_setof1, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo);
+				reduce{{inst}}(config.enablereduce, sourcebuffer, buffer_setof1, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, travstate);
 			}
 			
 			prepareglobalstats{{inst}}(config.enablecollectglobalstats, buffer_setof1);
@@ -1307,6 +1306,11 @@ topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANC
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"Light weight ACTS started."<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	cout<<"... Acts Launched... size: "<<source{{inst_}}volume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+	{%endfor%}
 	#endif 
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}

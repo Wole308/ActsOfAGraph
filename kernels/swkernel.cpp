@@ -37,7 +37,8 @@ swkernel::~swkernel(){}
 #ifdef SW 
 void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results before Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("swkernel::launchkernel:: print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("swkernel::launchkernel:: print messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
 	#endif
 	// exit(EXIT_SUCCESS);
 	
@@ -45,18 +46,11 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
 	#endif 
 	#ifdef LOCKE
-		#ifdef ACTSMODEL
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
-		#endif
-		#ifdef ACTSMODEL_LW
-		// kernelobjs[0]->topkernel(kvsourcedram[0][0], kvsourcedram[0][1], kvsourcedram[0][2], kvsourcedram[0][3]); // FIXME. AUTOMATEME.
-		kernelobjs[0]->topkernel(kvsourcedram[0][0]); // FIXME. AUTOMATEME.
-		#endif
 	#else 
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_launchkernel, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
 	#endif
-	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results after Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
@@ -65,26 +59,27 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	return;
 }
 void swkernel::workerthread_launchkernel(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
+	
+	#ifndef TESTKERNEL
+	return; // REMOVEME.
+	#endif 
+	
+	
 	#ifdef SW 
 	#ifdef ACTSMODEL
-	// return; // REMOVEME.
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
+		kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	#endif 
 	#ifdef ACTSMODEL_LW
-	#if NUMINSTANCES == 1
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
-	#elif NUMINSTANCES == 2
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram);
-	#elif NUMINSTANCES == 3
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram);
-	#elif NUMINSTANCES == 4
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvsourcedram);
-	#else 
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvsourcedram, kvsourcedram, kvsourcedram);
-	#endif
+		kernelobjs[ithreadidx]->topkernel(kvsourcedram);
 	#endif 
 	#endif
-	// exit(EXIT_SUCCESS);
+	
+	
+	#ifdef TESTKERNEL
+	exit(EXIT_SUCCESS); // REMOVEME.
+	#endif 
+	
+	
 	return;
 }
 void swkernel::finishOCL(){

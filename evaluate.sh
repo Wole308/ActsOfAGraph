@@ -81,8 +81,8 @@ for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -223,11 +223,14 @@ do
 
 		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
 		for numcputhreads in $THREADCOUNT_EQ1
+		# for numcputhreads in $THREADCOUNT_EQ4
+		# for numcputhreads in $THREADCOUNT_EQ16
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ1
+		for numsubcputhreads_pow in $THREADPOW_EQ4
+		# for numsubcputhreads_pow in $THREADPOW_EQ2
+		# for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
@@ -236,9 +239,9 @@ do
 			do
 				### >>> LOOP3: datasets
 				# for dataset in $LARGEDATASET_1M
-				for dataset in $LARGEDATASET_4M
+				# for dataset in $LARGEDATASET_4M
 				# for dataset in $TWITTERDATASET_67M
-				# for dataset in $LARGEDATASET_67M
+				for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
 				# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B

@@ -119,10 +119,7 @@ void create2Dgraph::start(){
 			if(srcv > graphobj->getdataset().num_vertices){ cout<<"create2Dgraph::start:: source vertex found greater than number of vertices spacified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
 			if(dstv > graphobj->getdataset().num_vertices){ cout<<"create2Dgraph::start:: destination vertex found greater than number of vertices spacified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
 	
-			// unsigned int bank = getbank(srcv);
 			unsigned int col = getbank(dstv);
-			
-			// vertex_t local_srcvid = getlocalvid(bank, srcv);
 			
 			if (linecount < 16){ cout<<"create2Dgraph:: gedge: ["<<srcv<<","<<dstv<<"]"<<endl; }
 			
