@@ -29,6 +29,7 @@ helperfunctions::helperfunctions(){
 }
 helperfunctions::~helperfunctions(){} 
 
+// replicate vertices data
 #ifdef ACTSMODEL
 void helperfunctions::replicateverticesdata(keyvalue_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
 	#ifdef LOCKE
@@ -70,6 +71,7 @@ void helperfunctions::workerthread_replicateverticesdata(int threadidx, value_t 
 }
 #endif 
 
+// cummulate vertices data
 #ifdef ACTSMODEL
 void helperfunctions::cummulateverticesdata(keyvalue_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
 	#ifdef LOCKE
@@ -121,6 +123,7 @@ void helperfunctions::workerthread_cummulateverticesdata(int threadidx, value_t 
 }
 #endif 
 
+// apply vertices
 #ifdef ACTSMODEL
 void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx){
 	#ifdef LOCKE
@@ -215,6 +218,7 @@ void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	return;
 }
 
+// update messages before & after launch
 #ifdef ACTSMODEL
 void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int graph_iterationidx, unsigned int graph_algorithmidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset, unsigned int kvstatsbaseoffset){			
 	for(int i = 0; i < NUMCPUTHREADS; i++){
@@ -302,8 +306,8 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			#ifdef ACTSMODEL
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH;
 			#else 
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH + 1;
-			// kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_TREEDEPTH].data[0].key = 2; // REMOVEME.
+			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH + 1;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 2; // REMOVEME.
 			#endif
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = graph_iterationidx;

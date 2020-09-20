@@ -7,7 +7,7 @@
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM
-#define _LARGEDATASET_67M 
+#define _LARGEDATASET_4M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -60,8 +60,8 @@
 ////////////////
 
 #define NUMSUPERCPUTHREADS 1
-#define NUMCPUTHREADS 1 // FIXME. overridden
-#define NUMSUBCPUTHREADS_POW 4
+#define NUMCPUTHREADS 2 // FIXME. overridden
+#define NUMSUBCPUTHREADS_POW 2
 #define NUMSUBCPUTHREADS (1 << NUMSUBCPUTHREADS_POW) 
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
@@ -69,6 +69,7 @@
 
 #define DATAWIDTH 512 
 #define VECTOR_SIZE 8
+#define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
 
 #define NUMDRAMBANKS 4
@@ -77,16 +78,16 @@
 #define NUM_PARTITIONS_POW 4
 #define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
 
-#define MAXNUMSSDPARTITIONS 16
-#define NUMSSDPARTITIONS_POW 4
+#define MAXNUMSSDPARTITIONS 4
+#define NUMSSDPARTITIONS_POW 2
 #define NUMSSDPARTITIONS (1 << NUMSSDPARTITIONS_POW)
 
-#define MAXNUMVERTEXBANKS 16
-#define MAXNUMEDGEBANKS 16
+#define MAXNUMVERTEXBANKS 4
+#define MAXNUMEDGEBANKS 4
 #define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
-#define KVDATA_RANGE_POW 26
+#define KVDATA_RANGE_POW 22
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
@@ -294,6 +295,14 @@ typedef struct {
 } edgeprop2_t;
 
 #ifdef _WIDEWORD
+typedef ap_uint<1024> uint1024_dt;
+#else
+typedef struct {
+	keyvalue_t data[16];
+} uint1024_dt;
+#endif
+
+#ifdef _WIDEWORD
 typedef ap_uint<DATAWIDTH> uint512_dt;
 #else
 typedef struct {
@@ -302,7 +311,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint256_dt; // FIXME. WRONG.
+typedef ap_uint<256> uint256_dt;
 #else
 typedef struct {
 	keyvalue_t data[4];
@@ -310,7 +319,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint128_dt; // FIXME. WRONG.
+typedef ap_uint<128> uint128_dt;
 #else
 typedef struct {
 	keyvalue_t data[2];
@@ -318,7 +327,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint64_dt; // FIXME. WRONG.
+typedef ap_uint<64> uint64_dt;
 #else
 typedef struct {
 	keyvalue_t data[1];

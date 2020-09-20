@@ -53,7 +53,8 @@ CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
 # KERNEL_TOP += acts/acts/acts.cpp
-KERNEL_TOP += acts/acts_lw/actslw.cpp
+# KERNEL_TOP += acts/acts_lw/actslw.cpp
+KERNEL_TOP += acts/acts_lw2/actslw.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
 HOST_TOP += examples/hostprocess.cpp
 

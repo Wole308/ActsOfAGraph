@@ -40,6 +40,15 @@ void actsutility::checkoutofbounds(string message, unsigned int data, unsigned i
 void actsutility::checkforequal(string message, unsigned int data1, unsigned int data2){
 	if(data1 == data2){ cout<<"acts::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
 }
+void actsutility::checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size){
+	unsigned int totalnumkeyvalues = 0;
+	for(unsigned int i=0; i<size-1; i++){
+		if(keyvalues[i].key + keyvalues[i].value >= keyvalues[i+1].key){ 
+			cout<<"aactsutility::checkforoverlap: ERROR. overlap found message: "<<message<<", i: "<<i<<", keyvalues[i].key: "<<keyvalues[i].key<<", keyvalues[i].value: "<<keyvalues[i].value<<", keyvalues[i+1].key: "<<keyvalues[i+1].key<<endl; exit(EXIT_FAILURE); 
+		}								
+	}
+	return;
+}
 void actsutility::print1(string messagea, unsigned int dataa){
 	cout<<messagea<<": "<<dataa<<endl;
 }
@@ -154,18 +163,23 @@ void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams,
 	#endif
 	return;
 }
-void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, sweepparams_t sweepparams){
+void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef ACTSMODEL_LW
 	if(enable == OFF){ return; }
 	// printglobalvars();
 	// clearglobalvars();
-	if(sweepparams.currentLOP==0){ printkeyvalues("actslw::topkernel::globalstats", (keyvalue_t *)(&kvdram[BASEOFFSET_STATSDRAM_KVS]), 16 * 8, 8); } // NUMLASTLEVELPARTITIONS
+	if(sweepparams.currentLOP==0){ printkeyvalues("actslw::topkernel::globalstats", globalstatsbuffer, 16); } // NUMLASTLEVELPARTITIONS, 16
+	if(sweepparams.currentLOP==0){  checkforoverlap("actslw::topkernel::actsutility::printpartitionresult::globalstats", globalstatsbuffer, NUMLASTLEVELPARTITIONS); }
+	// if(sweepparams.currentLOP==0){ printkeyvalues("actslw::topkernel::globalstats", (keyvalue_t *)(&kvdram[BASEOFFSET_STATSDRAM_KVS]), 16 * 8, 8); } // NUMLASTLEVELPARTITIONS
 	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ printkeyvalues("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
 	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ printvaluecount("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
+	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ checkforoverlap("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
 	if(sweepparams.currentLOP >= 1 && sweepparams.currentLOP <= TREE_DEPTH){ 
+		#if not (defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2))
 		// scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP));// (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP))); 
 		scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
+		#endif 
 	}
 	#endif
 	#endif 
@@ -226,7 +240,7 @@ void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int
 }
 void actsutility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit){
 	cout<<"actsutility::scankeyvalues::"<<message<<" numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
-	for(unsigned int i=0; i<numberofpartitions-1; i++){
+	for(unsigned int i=0; i<numberofpartitions; i++){
 		unsigned int lowerrangeindex = upperlimit + (i * rangeperpartition);
 		unsigned int upperrangeindex = upperlimit + ((i+1) * rangeperpartition);
 		unsigned int begin = stats[i].key;

@@ -1584,41 +1584,43 @@ combineSetof4stoSetof80_I0(unsigned int enable, uint256_dt buffer_setof4M[PADDED
 	return;
 }
 
+// group functions
 void 
 	#ifdef SW 
 	actslw::
 	#endif
-combineSetof1stoSetof2s0(unsigned int enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]){
+combineSetof1stoSetof2s0(unsigned int enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS]){
 	#pragma HLS INLINE
 	// 1s->2s
-	combineSetof1stoSetof20_I0(enable, buffer_setof1[0], buffer_setof1[1], buffer_setof2[0], templocalcapsule[0], templocalcapsule[1], templocalcapsule[8]);
-	combineSetof1stoSetof20_I1(enable, buffer_setof1[2], buffer_setof1[3], buffer_setof2[1], templocalcapsule[2], templocalcapsule[3], templocalcapsule[9]);
-	combineSetof1stoSetof20_I2(enable, buffer_setof1[4], buffer_setof1[5], buffer_setof2[2], templocalcapsule[4], templocalcapsule[5], templocalcapsule[10]);
-	combineSetof1stoSetof20_I3(enable, buffer_setof1[6], buffer_setof1[7], buffer_setof2[3], templocalcapsule[6], templocalcapsule[7], templocalcapsule[11]);
+	combineSetof1stoSetof20_I0(enable, buffer_setof1[0], buffer_setof1[1], buffer_setof2[0], templocalcapsule_so1[0], templocalcapsule_so1[1], templocalcapsule_so2[0]);
+	combineSetof1stoSetof20_I1(enable, buffer_setof1[2], buffer_setof1[3], buffer_setof2[1], templocalcapsule_so1[2], templocalcapsule_so1[3], templocalcapsule_so2[1]);
+	combineSetof1stoSetof20_I2(enable, buffer_setof1[4], buffer_setof1[5], buffer_setof2[2], templocalcapsule_so1[4], templocalcapsule_so1[5], templocalcapsule_so2[2]);
+	combineSetof1stoSetof20_I3(enable, buffer_setof1[6], buffer_setof1[7], buffer_setof2[3], templocalcapsule_so1[6], templocalcapsule_so1[7], templocalcapsule_so2[3]);
 	return;
 }
 void 
 	#ifdef SW 
 	actslw::
 	#endif
-combineSetof2stoSetof4s0(unsigned int enable, uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]){
+combineSetof2stoSetof4s0(unsigned int enable, uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS]){
 	#pragma HLS INLINE
 	// 2s->4s
-	combineSetof2stoSetof40_I0(enable, buffer_setof2[0], buffer_setof2[1], buffer_setof4[0], templocalcapsule[8], templocalcapsule[9], templocalcapsule[12]);
-	combineSetof2stoSetof40_I1(enable, buffer_setof2[2], buffer_setof2[3], buffer_setof4[1], templocalcapsule[10], templocalcapsule[11], templocalcapsule[13]);
+	combineSetof2stoSetof40_I0(enable, buffer_setof2[0], buffer_setof2[1], buffer_setof4[0], templocalcapsule_so2[0], templocalcapsule_so2[1], templocalcapsule_so4[0]);
+	combineSetof2stoSetof40_I1(enable, buffer_setof2[2], buffer_setof2[3], buffer_setof4[1], templocalcapsule_so2[2], templocalcapsule_so2[3], templocalcapsule_so4[1]);
 	return;
 }
 void 
 	#ifdef SW 
 	actslw::
 	#endif
-combineSetof4stoSetof8s0(unsigned int enable, uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]){
+combineSetof4stoSetof8s0(unsigned int enable, uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], keyvalue_t templocalcapsule_so8[NUM_PARTITIONS]){
 	#pragma HLS INLINE
 	// 4s->8s
-	combineSetof4stoSetof80_I0(enable, buffer_setof4[0], buffer_setof4[1], destbuffer, templocalcapsule[12], templocalcapsule[13], templocalcapsule[14]);
+	combineSetof4stoSetof80_I0(enable, buffer_setof4[0], buffer_setof4[1], destbuffer, templocalcapsule_so4[0], templocalcapsule_so4[1], templocalcapsule_so8);
 	return;
 }
 
+// main function
 void 
 	#ifdef SW 
 	actslw::
@@ -1638,18 +1640,22 @@ dispatch0(uint512_dt * kvdram){
 	
 	keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
+	keyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule_so1
 	
 	uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof2
+	keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule_so2
 	
 	uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof4
-	
-	keyvalue_t templocalcapsule[15][NUM_PARTITIONS];
-	#pragma HLS array_partition variable = templocalcapsule
+	keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule_so4
 	
 	uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE];
-	
+	keyvalue_t templocalcapsule_so8[NUM_PARTITIONS];
+
 	keyvalue_t globaldestoffsets[NUM_PARTITIONS];
 	keyvalue_t globalstatsbuffer[PADDEDDESTBUFFER_SIZE];
 	
@@ -1693,58 +1699,58 @@ dispatch0(uint512_dt * kvdram){
 				
 				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), travstate);
 				#ifdef PP1 // pipeline overflow from bottom
-				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule[14], sweepparams.workdestbaseaddress_kvs); 
+				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs); 
 				#endif 
 				#ifdef PP2 // pipeline overflow from bottom
-				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule); 
+				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule_so4, templocalcapsule_so8); 
 				#endif
 			
-				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule, sweepparams.currentLOP, sweepparams.upperlimit, travstate);
+				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, travstate);
 				#ifdef PP1
 				readkeyvalues0(config.enablepartition, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), travstatepp1);
 				#endif 
 				#ifdef PP2 // pipeline overflow from bottom
-				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule[14], sweepparams.workdestbaseaddress_kvs);
+				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs);
 				#endif 
 
 				// 1s->2s
-				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule);
+				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2);
 				#ifdef PP1
-				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule, sweepparams.currentLOP, sweepparams.upperlimit, travstatepp1);
+				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, travstatepp1);
 				#endif 
 				#ifdef PP2
 				readkeyvalues0(config.enablepartition, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), travstatepp2);
 				#endif 
 
 				// 2s->4s
-				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule);
+				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4);
 				#ifdef PP1
-				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule);
+				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2);
 				#endif 
 				#ifdef PP2
-				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule, sweepparams.currentLOP, sweepparams.upperlimit, travstatepp2); 
+				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, travstatepp2); 
 				#endif 
 				
 				// 4s->8s
-				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule);
+				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule_so4, templocalcapsule_so8);
 				#ifdef PP1
-				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule);
+				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4);
 				#endif 
 				#ifdef PP2
-				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule);
+				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2);
 				#endif 
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS
-				actsutilityobj->printkeyvalues("(fin) dispatch0:: templocalcapsule[0]::", templocalcapsule[14], NUM_PARTITIONS);
-				actsutilityobj->printvaluecount("(fin) dispatch0:: templocalcapsule[0]", templocalcapsule[14], NUM_PARTITIONS);
+				actsutilityobj->printkeyvalues("(fin) dispatch0:: templocalcapsule_so8::", templocalcapsule_so8, NUM_PARTITIONS);
+				actsutilityobj->printvaluecount("(fin) dispatch0:: templocalcapsule_so8", templocalcapsule_so8, NUM_PARTITIONS);
 				#endif 
 			
-				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule[14], sweepparams.workdestbaseaddress_kvs);
+				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs);
 				#ifdef PP1
-				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule);
+				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule_so4, templocalcapsule_so8);
 				#endif
 				#ifdef PP2
-				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule);
+				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4);
 				#endif
 				///// overflow. pipeline continuing from top...
 				
@@ -1770,6 +1776,7 @@ dispatch0(uint512_dt * kvdram){
 	return;
 }
 
+// top
 extern "C" {
 void 
 	#ifdef SW 
@@ -1795,7 +1802,6 @@ topkernel( uint512_dt * sourceAvolume ){
 	return;
 }
 }
-
 
 
 

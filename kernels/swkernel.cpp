@@ -10,9 +10,14 @@
 #include <thread>
 #ifdef ACTSMODEL
 #include "../acts/acts/acts.h"
-#endif 
+#endif
 #ifdef ACTSMODEL_LW
-#include "../acts/acts_lw/actslw.h"
+	#ifdef ACTSMODEL_LWTYPE1
+	#include "../acts/acts_lw/actslw.h"
+	#endif 
+	#ifdef ACTSMODEL_LWTYPE2
+	#include "../acts/acts_lw2/actslw.h"
+	#endif
 #endif 
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -45,11 +50,30 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#ifdef ACTSMODEL
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
 	#endif 
+	
+	#ifdef ACTSMODEL
 	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_acts(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 	#else 
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_launchkernel, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
+	#endif
+	#endif 
+	
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
+	#ifdef LOCKE
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
+	#else 
+		// FIXME.
+	#endif
+	#endif 
+	
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2)
+	#ifdef LOCKE
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ for (int i = 0; i < NUMCPUTHREADS; i+=2){ workerthread_launchkernel_actslwtype2(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvsourcedram[i+1][j]); }}
+	#else 
+		// FIXME.
+	#endif
 	#endif
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -58,30 +82,51 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#endif
 	return;
 }
-void swkernel::workerthread_launchkernel(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
-	
+
+// worker threads
+#ifdef ACTSMODEL
+void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
 	#ifndef TESTKERNEL
 	return; // REMOVEME.
 	#endif 
 	
-	
-	#ifdef SW 
-	#ifdef ACTSMODEL
-		kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
-	#endif 
-	#ifdef ACTSMODEL_LW
-		kernelobjs[ithreadidx]->topkernel(kvsourcedram);
-	#endif 
-	#endif
-	
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	
 	#ifdef TESTKERNEL
 	exit(EXIT_SUCCESS); // REMOVEME.
-	#endif 
-	
-	
+	#endif
 	return;
 }
+#endif
+#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
+void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, uint512_dt * kvsourcedram){
+	#ifndef TESTKERNEL
+	return; // REMOVEME.
+	#endif 
+	
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
+	
+	#ifdef TESTKERNEL
+	exit(EXIT_SUCCESS); // REMOVEME.
+	#endif
+	return;
+}
+#endif
+#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2)
+void swkernel::workerthread_launchkernel_actslwtype2(unsigned int ithreadidx, uint512_dt * kvsourcedram1, uint512_dt * kvsourcedram2){
+	#ifndef TESTKERNEL
+	return; // REMOVEME.
+	#endif 
+
+	kernelobjs[ithreadidx]->topkernel(kvsourcedram1, kvsourcedram2);
+	
+	#ifdef TESTKERNEL
+	exit(EXIT_SUCCESS); // REMOVEME.
+	#endif
+	return;
+}
+#endif 
+
 void swkernel::finishOCL(){
 	return;
 }

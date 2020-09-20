@@ -145,6 +145,8 @@ o_path2="acts/acts_lw/actslw.cpp"
 o_path3="acts/acts_lw/actslw.h"
 o_path4="include/common.h"
 o_path5="include/common.h"
+o_path6="acts/acts_lw2/actslw.cpp"
+o_path7="acts/acts_lw2/actslw.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -152,6 +154,8 @@ out_path2=os.path.abspath(o_path2)
 out_path3=os.path.abspath(o_path3)
 out_path4=os.path.abspath(o_path4)
 out_path5=os.path.abspath(o_path5)
+out_path6=os.path.abspath(o_path6)
+out_path7=os.path.abspath(o_path7)
 
 templ_path0="acts/acts/"
 templ_path1="acts/acts/"
@@ -159,6 +163,8 @@ templ_path2="acts/acts_lw/"
 templ_path3="acts/acts_lw/"
 templ_path4="include/"
 templ_path5="include/"
+templ_path6="acts/acts_lw2/"
+templ_path7="acts/acts_lw2/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -256,6 +262,14 @@ context['NUMSUBWORKERSPERVECTOR_seq'] = []
 for i in range (0,(context['NUMSUBWORKERSPERVECTOR'])):
 		context['NUMSUBWORKERSPERVECTOR_seq'].append(i)
         
+context['16_seq'] = []
+for i in range (0,16):
+		context['16_seq'].append(i)
+        
+context['8_seq'] = []
+for i in range (0,8):
+		context['8_seq'].append(i)
+        
 context['4_seq'] = []
 for i in range (0,4):
 		context['4_seq'].append(i)
@@ -278,6 +292,8 @@ env2 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path2)), trim_b
 env3 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path3)), trim_blocks=True, lstrip_blocks=True)
 env4 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path4)), trim_blocks=True, lstrip_blocks=True)
 env5 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path5)), trim_blocks=True, lstrip_blocks=True)
+env6 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path6)), trim_blocks=True, lstrip_blocks=True)
+env7 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path7)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -285,6 +301,8 @@ env2.globals.update(zip=zip)
 env3.globals.update(zip=zip)
 env4.globals.update(zip=zip)
 env5.globals.update(zip=zip)
+env6.globals.update(zip=zip)
+env7.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -292,6 +310,8 @@ template2 = env2.get_template('actslw.template')
 template3 = env3.get_template('actslw_h.template')
 template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
+template6 = env6.get_template('actslw.template')
+template7 = env7.get_template('actslw_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -299,6 +319,8 @@ rendered_file2 = template2.render(context=context)
 rendered_file3 = template3.render(context=context)
 rendered_file4 = template4.render(context=context)
 rendered_file5 = template5.render(context=context)
+rendered_file6 = template6.render(context=context)
+rendered_file7 = template7.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -312,6 +334,10 @@ with open(out_path4, 'w') as outFile4:
 	outFile4.write(rendered_file4) 
 with open(out_path5, 'w') as outFile5:
 	outFile5.write(rendered_file5)
+with open(out_path6, 'w') as outFile6:
+	outFile6.write(rendered_file6)
+with open(out_path7, 'w') as outFile7:
+	outFile7.write(rendered_file7)
 
 print ("successful!")
 print ("...")

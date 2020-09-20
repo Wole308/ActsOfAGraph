@@ -134,9 +134,9 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void combineSetof1stoSetof2s{{inst}}(unsigned int enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS]);
-	void combineSetof2stoSetof4s{{inst}}(unsigned int enable, uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS]);
-	void combineSetof4stoSetof8s{{inst}}(unsigned int enable, uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], keyvalue_t templocalcapsule_so8[NUM_PARTITIONS]);
+	void combineSetof1stoSetof2s{{inst}}(unsigned int enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]);
+	void combineSetof2stoSetof4s{{inst}}(unsigned int enable, uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]);
+	void combineSetof4stoSetof8s{{inst}}(unsigned int enable, uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule[14][NUM_PARTITIONS]);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}

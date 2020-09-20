@@ -152,6 +152,16 @@ void utility::printallparameters(){
 	std::cout<<"host:: BASEOFFSET_CAPSULES_KVS: "<<BASEOFFSET_CAPSULES_KVS<<std::endl;	
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NFACTOR: "<<NFACTOR<<std::endl;
+	#endif
+	
+	#ifdef ACTSMODEL
+	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL"<<std::endl;
+	#endif 
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
+	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWTYPE1"<<std::endl;
+	#endif 
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2)
+	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWTYPE2"<<std::endl;
 	#endif 
 	// exit(EXIT_SUCCESS);
 	return;

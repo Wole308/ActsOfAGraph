@@ -35,6 +35,9 @@ using namespace std;
 
 #define USEBRAMFORGLOBALSTATS
 
+// #define MOVEBY2S
+#define MOVEBY4S
+
 class actslw {
 public:
 	actslw();
@@ -91,6 +94,7 @@ public:
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void readkeyvalues{{inst}}(unsigned int enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][SRCBUFFER_SIZE], batch_type offset_kvs, travstate_t travstate);
+	void readkeyvalues{{inst}}(unsigned int enable, uint512_dt * kvdram1, uint512_dt * kvdram2, keyvalue_t buffer[16][SRCBUFFER_SIZE], batch_type offset_kvs, travstate_t travstate);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -99,6 +103,11 @@ public:
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void savekeyvalues{{inst}}(unsigned int enable, uint512_dt * kvdram, uint512_dt buffer[PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
+	{%endfor%}
+	
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void savekeyvalues{{inst}}(unsigned int enable, uint512_dt * kvdram, uint1024_dt buffer[PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
+	void savekeyvalues{{inst}}(unsigned int enable, uint512_dt * kvdram1, uint512_dt * kvdram2, uint1024_dt buffer[PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -115,6 +124,7 @@ public:
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void partitionkeyvalues{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, travstate_t travstate);
+	void partitionkeyvaluesII{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[16][SRCBUFFER_SIZE], keyvalue_t destbuffer[16][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[16][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, travstate_t travstate);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -134,16 +144,34 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	{%for n in context['4_seq']%}
+	void combineSetof1stoSetof4{{inst}}_I{{n}}(unsigned int enable, keyvalue_t buffer_setof1M[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1N[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1O[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1P[PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsuleM[NUM_PARTITIONS], keyvalue_t localcapsuleN[NUM_PARTITIONS], keyvalue_t localcapsuleO[NUM_PARTITIONS], keyvalue_t localcapsuleP[NUM_PARTITIONS], keyvalue_t localcapsuleR[NUM_PARTITIONS]);
+	{%endfor%}
+	{%for n in context['1_seq']%}
+	void combineSetof4stoSetof16{{inst}}_I{{n}}(unsigned int enable, uint256_dt buffer_setof4M[PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4N[PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4O[PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4P[PADDEDDESTBUFFER_SIZE], uint1024_dt buffer_setof16[PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule4M[NUM_PARTITIONS], keyvalue_t localcapsule4N[NUM_PARTITIONS], keyvalue_t localcapsule4O[NUM_PARTITIONS], keyvalue_t localcapsule4P[NUM_PARTITIONS], keyvalue_t localcapsuleR[NUM_PARTITIONS]);				
+	{%endfor%}
+	{%endfor%}
+	
+	// group functions
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void combineSetof1stoSetof2s{{inst}}(unsigned int enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS]);
 	void combineSetof2stoSetof4s{{inst}}(unsigned int enable, uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS]);
 	void combineSetof4stoSetof8s{{inst}}(unsigned int enable, uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], keyvalue_t templocalcapsule_so8[NUM_PARTITIONS]);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	void combineSetof1stoSetof4s{{inst}}(unsigned int enable, keyvalue_t buffer_setof1[16][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[4][PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so1[16][NUM_PARTITIONS], keyvalue_t templocalcapsule_so4[4][NUM_PARTITIONS]);
+	void combineSetof4stoSetof16s{{inst}}(unsigned int enable, uint256_dt buffer_setof4[4][PADDEDDESTBUFFER_SIZE], uint1024_dt buffer_setof16[PADDEDDESTBUFFER_SIZE], keyvalue_t templocalcapsule_so4[4][NUM_PARTITIONS], keyvalue_t templocalcapsule_so16[NUM_PARTITIONS]);
+	{%endfor%}
+	
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void dispatch{{inst}}(uint512_dt * kvdram);
+	void dispatchII{{inst}}(uint512_dt * kvdram1, uint512_dt * kvdram2);
 	{%endfor%}
 	
 	void topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}{%if(inst>0)%},{%endif%} uint512_dt * source{{inst_}}volume {%endfor%});						
+	void topkernelII({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}{%if(inst>0)%},{%endif%} uint512_dt * source{{inst_}}volume0, uint512_dt * source{{inst_}}volume1 {%endfor%});
+	
 private:
 	#ifndef FPGA_IMPL
 	actsutility * actsutilityobj;

@@ -25,6 +25,8 @@
 
 // #define ACTSMODEL
 #define ACTSMODEL_LW
+	// #define ACTSMODEL_LWTYPE1
+	#define ACTSMODEL_LWTYPE2
 #endif
 
 

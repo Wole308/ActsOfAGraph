@@ -16,6 +16,7 @@ public:
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	void checkforequal(string message, unsigned int data1, unsigned int data2);
+	void checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size);
 	void print1(string messagea, unsigned int dataa);
 	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
 	void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad);
@@ -30,7 +31,7 @@ public:
 	void printglobalvars();
 	void printglobalparameters(string message, globalparams_t globalparams);
 	void printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid);
-	void printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, sweepparams_t sweepparams);
+	void printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
 	
 	unsigned int ugetvaluecount(keyvalue_t * keyvalues, unsigned int size);
 	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);

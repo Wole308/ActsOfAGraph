@@ -96,6 +96,7 @@
 
 #define DATAWIDTH {{context['DATAWIDTH']}} 
 #define VECTOR_SIZE {{context['VECTOR_SIZE']}}
+#define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
 
 #define NUMDRAMBANKS {{context['NUMDRAMBANKS']}}
@@ -321,6 +322,14 @@ typedef struct {
 } edgeprop2_t;
 
 #ifdef _WIDEWORD
+typedef ap_uint<1024> uint1024_dt;
+#else
+typedef struct {
+	keyvalue_t data[16];
+} uint1024_dt;
+#endif
+
+#ifdef _WIDEWORD
 typedef ap_uint<DATAWIDTH> uint512_dt;
 #else
 typedef struct {
@@ -329,7 +338,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint256_dt; // FIXME. WRONG.
+typedef ap_uint<256> uint256_dt;
 #else
 typedef struct {
 	keyvalue_t data[4];
@@ -337,7 +346,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint128_dt; // FIXME. WRONG.
+typedef ap_uint<128> uint128_dt;
 #else
 typedef struct {
 	keyvalue_t data[2];
@@ -345,7 +354,7 @@ typedef struct {
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<DATAWIDTH> uint64_dt; // FIXME. WRONG.
+typedef ap_uint<64> uint64_dt;
 #else
 typedef struct {
 	keyvalue_t data[1];
