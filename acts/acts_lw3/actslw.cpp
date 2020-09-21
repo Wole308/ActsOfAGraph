@@ -511,6 +511,9 @@ config_t
 getconfig(unsigned int currentLOP){
 	config_t config;
 	
+	config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; // REMOVEME.
+	return config;
+	
 	if(currentLOP == 0){ config.enablecollectglobalstats = ON; config.enablepartition = OFF; config.enablereduce = OFF; } 
 	else if(currentLOP > 0 && currentLOP <= TREE_DEPTH){ config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; }
 	else { config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = ON; }
@@ -837,7 +840,8 @@ void
 	#endif
 partitionkeyvalues0(unsigned int enable, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, travstate_t travstate){
 	if(enable == OFF){ return; }
-	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE;
+	// unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE;
+	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE / 2; // REMOVEME.
 	buffer_type chunk_size = getchunksize(SRCBUFFER_SIZE, travstate, 0);
 
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
@@ -1627,7 +1631,8 @@ void
 	#endif 
 dispatch0(uint512_dt * kvdram){
 	unsigned int analysis_mainloop = KVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
-	unsigned int analysis_numllops = TREE_DEPTH;
+	// unsigned int analysis_mainloop = KVDATA_BATCHSIZE_KVS / (6 * SRCBUFFER_SIZE); // REMOVEME.
+	unsigned int analysis_numllops = 1;//TREE_DEPTH;
 	unsigned int analysis_numsourcepartitions = 1;
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printparameters();
@@ -1704,6 +1709,9 @@ dispatch0(uint512_dt * kvdram){
 				#ifdef PP2 // pipeline overflow from bottom
 				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule_so4, templocalcapsule_so8); 
 				#endif
+				#ifdef PP3 // pipeline overflow from bottom
+				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4);
+				#endif 
 			
 				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, travstate);
 				#ifdef PP1
@@ -1711,7 +1719,10 @@ dispatch0(uint512_dt * kvdram){
 				#endif 
 				#ifdef PP2 // pipeline overflow from bottom
 				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs);
-				#endif 
+				#endif
+				#ifdef PP3 // pipeline overflow from bottom
+				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule_so4, templocalcapsule_so8); 
+				#endif				
 
 				// 1s->2s
 				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2);
@@ -1721,6 +1732,9 @@ dispatch0(uint512_dt * kvdram){
 				#ifdef PP2
 				readkeyvalues0(config.enablepartition, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), travstatepp2);
 				#endif 
+				#ifdef PP3 // pipeline overflow from bottom
+				savekeyvalues0(config.enablepartition, kvdram, destbuffer, globaldestoffsets, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs);
+				#endif
 
 				// 2s->4s
 				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4);
@@ -1730,6 +1744,9 @@ dispatch0(uint512_dt * kvdram){
 				#ifdef PP2
 				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, travstatepp2); 
 				#endif 
+				#ifdef PP3
+				readkeyvalues0(config.enablepartition, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), travstatepp1);
+				#endif 
 				
 				// 4s->8s
 				combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, destbuffer, templocalcapsule_so4, templocalcapsule_so8);
@@ -1738,6 +1755,9 @@ dispatch0(uint512_dt * kvdram){
 				#endif 
 				#ifdef PP2
 				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2);
+				#endif 
+				#ifdef PP3
+				partitionkeyvalues0(config.enablepartition, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, travstatepp1);
 				#endif 
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1752,6 +1772,9 @@ dispatch0(uint512_dt * kvdram){
 				#ifdef PP2
 				combineSetof2stoSetof4s0(config.enablepartition, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4);
 				#endif
+				#ifdef PP3
+				combineSetof1stoSetof2s0(config.enablepartition, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2);
+				#endif 
 				///// overflow. pipeline continuing from top...
 				
 				collectglobalstats0(config.enablecollectglobalstats, sourcebuffer, buffer_setof1, sweepparams.upperlimit);

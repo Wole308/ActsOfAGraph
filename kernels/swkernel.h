@@ -9,9 +9,11 @@
 #ifdef ACTSMODEL_LW
 	#ifdef ACTSMODEL_LWTYPE1
 	#include "../acts/acts_lw/actslw.h"
+	// #include "../acts/acts_lw3/actslw.h"
 	#endif 
 	#ifdef ACTSMODEL_LWTYPE2
 	#include "../acts/acts_lw2/actslw.h"
+	// #include "../acts/acts_lw3/actslw.h"
 	#endif
 #endif 
 #include "../src/utility/utility.h"

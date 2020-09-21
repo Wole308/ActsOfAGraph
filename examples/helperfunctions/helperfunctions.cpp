@@ -306,8 +306,8 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			#ifdef ACTSMODEL
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH;
 			#else 
-			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH + 1;
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 2; // REMOVEME.
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH + 1;
+			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 1; // REMOVEME.
 			#endif
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, TREE_DEPTH);
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = graph_iterationidx;

@@ -524,9 +524,6 @@ getglobalparams(uint512_dt * sourcevolume1, uint512_dt * sourcevolume2){
 	globalparams.baseaddr_destkvs_kvs = 0;
 	#endif 
 	globalparams.runsize = globalparams.runsize * 2; //
-	
-	// globalparams.runsize = 11000000;
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalparameters("actslw::getglobalparams:: printing global parameters", globalparams);
 	#endif
@@ -950,7 +947,7 @@ partitionkeyvalues0(unsigned int enable, keyvalue_t sourcebuffer[16][SRCBUFFER_S
 	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE;
 	buffer_type chunk_size = getchunksize(SRCBUFFER_SIZE, travstate, 0);
 
-	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
+	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS); 
 	
 	PARTITIONKEYVALUES_LOOP1: for(unsigned int c=0; c<2; c++){
 		PARTITIONKEYVALUES_LOOP1B: for(unsigned int i=0; i<chunk_size; i++){
@@ -2219,7 +2216,7 @@ dispatch0(uint512_dt * kvdram1, uint512_dt * kvdram2){
 			savevertices0(config.enablereduce, kvdram1, kvdram2, buffer_setof1, (BASEOFFSET_VERTICESDATA_KVS + sweepparams.upperlimit));
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			actsutilityobj->printpartitionresult(ON, kvdram1, globaldestoffsets, globalstatsbuffer, sweepparams);
+			actsutilityobj->printpartitionresult(OFF, kvdram1, globaldestoffsets, globalstatsbuffer, sweepparams);
 			#endif
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -2249,7 +2246,7 @@ topkernel( uint512_dt * sourceAvolume0, uint512_dt * sourceAvolume1 ){
 #pragma HLS DATA_PACK variable = sourceAvolume1
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"Light weight ACTS started."<<endl;
+	cout<<"Light weight ACTS started (ACTSLW2)."<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"... Acts Launched... size (v0): "<<sourceAvolume0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 

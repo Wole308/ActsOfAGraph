@@ -459,9 +459,6 @@ getglobalparams(uint512_dt * sourcevolume1, uint512_dt * sourcevolume2){
 	globalparams.baseaddr_destkvs_kvs = 0;
 	#endif 
 	globalparams.runsize = globalparams.runsize * 2; //
-	
-	// globalparams.runsize = 11000000;
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalparameters("actslw::getglobalparams:: printing global parameters", globalparams);
 	#endif
@@ -802,7 +799,7 @@ partitionkeyvalues{{inst}}(unsigned int enable, keyvalue_t sourcebuffer[16][SRCB
 	unsigned int analysis_srcbuffersz = SRCBUFFER_SIZE;
 	buffer_type chunk_size = getchunksize(SRCBUFFER_SIZE, travstate, 0);
 
-	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
+	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS); 
 	
 	PARTITIONKEYVALUES_LOOP1: for(unsigned int c=0; c<2; c++){
 		PARTITIONKEYVALUES_LOOP1B: for(unsigned int i=0; i<chunk_size; i++){
@@ -1358,7 +1355,7 @@ topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANC
 {%endfor%}
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"Light weight ACTS started."<<endl;
+	cout<<"Light weight ACTS started (ACTSLW2)."<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
