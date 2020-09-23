@@ -104,7 +104,7 @@ else:
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
 context['NUMDRAMBANKS'] = 4
-context['NUMWORKERS'] = ACTSACCEL1_params[0]
+context['NUMWORKERS'] = 2
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
 context['NUMPEFUNCS'] = 8
 context['NUMWORKERS_APPLYPH'] = 1
@@ -147,8 +147,12 @@ o_path4="include/common.h"
 o_path5="include/common.h"
 o_path6="acts/acts_lw2/actslw.cpp"
 o_path7="acts/acts_lw2/actslw.h"
-o_path8="acts/acts_lw3/actslw.cpp"
-o_path9="acts/acts_lw3/actslw.h"
+o_path8="acts/acts_lw/actslw.cpp"
+o_path9="acts/acts_lw/actslw.h"
+o_path10="acts/acts_lw/actslw.cpp"
+o_path11="acts/acts_lw/actslw.h"
+o_path12="acts/acts_lw/actslw.cpp"
+o_path13="acts/acts_lw/actslw.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -160,6 +164,10 @@ out_path6=os.path.abspath(o_path6)
 out_path7=os.path.abspath(o_path7)
 out_path8=os.path.abspath(o_path8)
 out_path9=os.path.abspath(o_path9)
+out_path10=os.path.abspath(o_path10)
+out_path11=os.path.abspath(o_path11)
+out_path12=os.path.abspath(o_path12)
+out_path13=os.path.abspath(o_path13)
 
 templ_path0="acts/acts/"
 templ_path1="acts/acts/"
@@ -169,8 +177,12 @@ templ_path4="include/"
 templ_path5="include/"
 templ_path6="acts/acts_lw2/"
 templ_path7="acts/acts_lw2/"
-templ_path8="acts/acts_lw3/"
-templ_path9="acts/acts_lw3/"
+templ_path8="acts/acts_lw/"
+templ_path9="acts/acts_lw/"
+templ_path10="acts/acts_lw/"
+templ_path11="acts/acts_lw/"
+templ_path12="acts/acts_lw/"
+templ_path13="acts/acts_lw/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -276,9 +288,21 @@ context['8_seq'] = []
 for i in range (0,8):
 		context['8_seq'].append(i)
         
+context['7_seq'] = []
+for i in range (0,7):
+		context['7_seq'].append(i)
+        
+context['6_seq'] = []
+for i in range (0,6):
+		context['6_seq'].append(i)
+        
 context['4_seq'] = []
 for i in range (0,4):
 		context['4_seq'].append(i)
+        
+context['3_seq'] = []
+for i in range (0,3):
+		context['3_seq'].append(i)
         
 context['2_seq'] = []
 for i in range (0,2):
@@ -302,6 +326,10 @@ env6 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path6)), trim_b
 env7 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path7)), trim_blocks=True, lstrip_blocks=True)
 env8 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path8)), trim_blocks=True, lstrip_blocks=True)
 env9 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path9)), trim_blocks=True, lstrip_blocks=True)
+env10 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path10)), trim_blocks=True, lstrip_blocks=True)
+env11 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path11)), trim_blocks=True, lstrip_blocks=True)
+env12 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path12)), trim_blocks=True, lstrip_blocks=True)
+env13 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path13)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -313,6 +341,10 @@ env6.globals.update(zip=zip)
 env7.globals.update(zip=zip)
 env8.globals.update(zip=zip)
 env9.globals.update(zip=zip)
+env10.globals.update(zip=zip)
+env11.globals.update(zip=zip)
+env12.globals.update(zip=zip)
+env13.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -324,6 +356,10 @@ template6 = env6.get_template('actslw.template')
 template7 = env7.get_template('actslw_h.template')
 template8 = env8.get_template('actslw.template')
 template9 = env9.get_template('actslw_h.template')
+template10 = env10.get_template('actslw.template')
+template11 = env11.get_template('actslw_h.template')
+template12 = env12.get_template('actslw.template')
+template13 = env13.get_template('actslw_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -335,6 +371,10 @@ rendered_file6 = template6.render(context=context)
 rendered_file7 = template7.render(context=context)
 rendered_file8 = template8.render(context=context)
 rendered_file9 = template9.render(context=context)
+rendered_file10 = template10.render(context=context)
+rendered_file11 = template11.render(context=context)
+rendered_file12 = template12.render(context=context)
+rendered_file13 = template13.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -356,6 +396,14 @@ with open(out_path8, 'w') as outFile8:
 	outFile8.write(rendered_file8)
 with open(out_path9, 'w') as outFile9:
 	outFile9.write(rendered_file9)
+with open(out_path10, 'w') as outFile10:
+	outFile10.write(rendered_file10)
+with open(out_path11, 'w') as outFile11:
+	outFile11.write(rendered_file11)
+with open(out_path12, 'w') as outFile12:
+	outFile12.write(rendered_file12)
+with open(out_path13, 'w') as outFile13:
+	outFile13.write(rendered_file13)
 
 print ("successful!")
 print ("...")

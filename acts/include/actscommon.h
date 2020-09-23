@@ -26,8 +26,19 @@ using namespace std;
 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
-typedef unsigned int partition_type;
-typedef unsigned int vector_type;
+// typedef unsigned int partition_type;
+// typedef unsigned int vector_type;
+
+// typedef short buffer_type; // REMOVEME.?
+typedef short partition_type;
+typedef short vector_type;
+
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+	// short key;
+	// short value;
+} skeyvalue_t;
 
 typedef struct {
 	unsigned int currentLOP;

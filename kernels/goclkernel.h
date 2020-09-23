@@ -14,7 +14,7 @@ public:
 	goclkernel();
 	~goclkernel();
 
-	#define TOTALNUMKERNELS 8
+	#define TOTALNUMKERNELS 1 // 8
 	
 	#define NUMHBMSPERKERNEL 4
 	

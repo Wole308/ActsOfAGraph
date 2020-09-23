@@ -86,6 +86,13 @@ void test::run(){
 		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
 		#endif 
 		
+		#ifdef _DEBUGMODE_HOSTPRINTS2
+		utilityobj->printmessages("test::run:: messages (BEFORE kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
+		utilityobj->printkeyvalues("test::run:: kvdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
+		utilityobj->printkeyvalues("test::run:: kvdram workspace (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		utilityobj->printkeyvalues("test::run:: kvstatsdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
+		#endif
+		
 		#ifdef FPGA_IMPL
 		helperfunctionsobj->writeVstokernel(0);
 		#endif
@@ -105,10 +112,10 @@ void test::run(){
 		#endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS2
-		utilityobj->printmessages("test::run:: messages (after kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
-		utilityobj->printkeyvalues("test::run:: kvdram (after kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
-		utilityobj->printkeyvalues("test::run:: kvdram workspace (after kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		utilityobj->printkeyvalues("test::run:: kvstatsdram (after kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
+		utilityobj->printmessages("test::run:: messages (AFTER kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
+		utilityobj->printkeyvalues("test::run:: kvdram (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
+		utilityobj->printkeyvalues("test::run:: kvdram workspace (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		utilityobj->printkeyvalues("test::run:: kvstatsdram (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
 		#endif
 		
 		globaliteration_idx += 1;
