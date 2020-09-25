@@ -61,6 +61,24 @@ create2Dgraph::create2Dgraph(graph * _graphobj){
 	utilityobj = new utility();
 	cout<<"create2Dgraph::create2Dgraph: constructor finished"<<endl;
 }
+create2Dgraph::create2Dgraph(graph * _graphobj, unsigned int dummy){
+	graphobj = _graphobj;
+	
+	cout<<"create2Dgraph:: constructor called: "<<endl;
+	cout<<"create2Dgraph:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;
+	cout<<"create2Dgraph::  dataset.vertices_path: "<<graphobj->getdataset().vertices_path<<endl;
+	cout<<"create2Dgraph::  dataset.vertices_path_bin: "<<graphobj->getdataset().vertices_path_bin<<endl;
+	cout<<"create2Dgraph::  dataset.edges_path: "<<graphobj->getdataset().edges_path<<endl;
+	cout<<"create2Dgraph::  dataset.edges_path_bin: "<<graphobj->getdataset().edges_path_bin<<endl;
+	cout<<"create2Dgraph::  dataset.graphorder: "<<graphobj->getdataset().graphorder<<endl;
+	cout<<endl;
+	
+	cout<<"create2Dgraph::create2Dgraph: opening files..."<<endl;
+	graphobj->openfilesforreading();
+	
+	utilityobj = new utility();
+	cout<<"create2Dgraph::create2Dgraph: constructor finished"<<endl;
+}
 create2Dgraph::~create2Dgraph() {
 	cout<<"~create2Dgraph:: destructor called... "<<endl;
 	cout<<"create2Dgraph::~create2Dgraph deleting dynamic memories... "<<endl;
@@ -172,6 +190,64 @@ void create2Dgraph::start(){
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){ fclose(graphobj->getnvmeFd_edgeproperties_r()[0][j]); }
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){ fclose(graphobj->getnvmeFd_edgeoffsets_r()[0][j]); }
 	cout<<"create2Dgraph:: finished creating 2D graph from "<<graphobj->getdataset().graph_path<<endl;
+	return;
+}
+void create2Dgraph::analyzegraph(){
+	cout<<"create2Dgraph::analyzegraph: analyzing graph started"<<endl;
+	std::ifstream file_graph(graphobj->getdataset().graph_path);
+	
+	cout<<"create2Dgraph::analyzegraph: initializing vertex out-degrees"<<endl;
+	vertexoutdegrees = new unsigned int[graphobj->getdataset().num_vertices];
+	vertexindegrees = new unsigned int[graphobj->getdataset().num_vertices];
+	for(unsigned int i=0; i<graphobj->getdataset().num_vertices; i++){ vertexoutdegrees[i] = 0; }
+	for(unsigned int i=0; i<graphobj->getdataset().num_vertices; i++){ vertexindegrees[i] = 0; }
+	
+	vertex_t srcv = 0;
+	vertex_t dstv = 0;
+	edge_t linecount = 0;
+	
+	if (file_graph.is_open()) {
+		std::string line;
+		while (getline(file_graph, line)) {
+			if (line.find("%") == 0){ continue; }
+			if (linecount == 0){ linecount++; continue; } // first entry for flickr is stats
+			if ((linecount % 1000000) == 0){ cout<<"create2Dgraph:: edge: ["<<srcv<<", "<<dstv<<"]. linecount: "<<linecount<<endl; }
+			
+			if(graphobj->getdataset().graphorder == SRC_DST){
+				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
+			} else {
+				sscanf(line.c_str(), "%i %i", &dstv, &srcv);
+			}
+			#ifdef _DEBUGMODE_CHECKS
+			cout<<"create2Dgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl;
+			#endif 
+			
+			if(srcv > graphobj->getdataset().num_vertices){ cout<<"create2Dgraph::start:: source vertex found greater than number of vertices spacified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			if(dstv > graphobj->getdataset().num_vertices){ cout<<"create2Dgraph::start:: destination vertex found greater than number of vertices spacified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+	
+			vertexoutdegrees[srcv] += 1;
+			vertexindegrees[dstv] += 1;
+			
+			if (linecount < 16){ cout<<"create2Dgraph:: gedge: ["<<srcv<<", "<<dstv<<"]"<<endl; }
+			linecount += 1;
+			
+			// if(linecount >= THRESHOLDLINECNT){ break; }
+			// if(linecount >= 100000000){ break; }
+		}
+	}
+	cout<<"create2Dgraph:: closing vertices files... "<<endl;
+	file_graph.close(); 
+	
+	cout<<"create2Dgraph:: vertexoutdegrees[1]: "<<vertexoutdegrees[1]<<endl;
+	
+	// analyze
+	utilityobj->printvaluesgreaterthan("create2Dgraph::collectstats. vertexoutdegrees::", vertexoutdegrees, graphobj->getdataset().num_vertices, 1000);
+	utilityobj->printvalueslessthan("create2Dgraph::collectstats. vertexoutdegrees::", vertexoutdegrees, graphobj->getdataset().num_vertices, 100);
+	
+	utilityobj->printvaluesgreaterthan("create2Dgraph::collectstats. vertexindegrees::", vertexindegrees, graphobj->getdataset().num_vertices, 1000);
+	utilityobj->printvalueslessthan("create2Dgraph::collectstats. vertexindegrees::", vertexindegrees, graphobj->getdataset().num_vertices, 100);
+	
+	cout<<"create2Dgraph:: finished analyzing "<<graphobj->getdataset().graph_path<<endl;
 	return;
 }
 void create2Dgraph::summary(){

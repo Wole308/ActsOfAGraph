@@ -82,15 +82,21 @@ void test::run(){
 		
 		loadkvdram((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], batchoffset, batchsize); 
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
+		
+		#ifdef ACTSMODEL
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+		#endif
 		#ifdef ACTSMODEL_LW
 		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
 		#endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS2
+		#ifdef ACTSMODEL_LW
 		utilityobj->printmessages("test::run:: messages (BEFORE kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
+		utilityobj->printkeyvalues("test::run:: kvstatsdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
+		#endif 
 		utilityobj->printkeyvalues("test::run:: kvdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
 		utilityobj->printkeyvalues("test::run:: kvdram workspace (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		utilityobj->printkeyvalues("test::run:: kvstatsdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
 		#endif
 		
 		#ifdef FPGA_IMPL
@@ -107,15 +113,21 @@ void test::run(){
 		helperfunctionsobj->readVsfromkernel(0);
 		#endif
 	
+		#ifdef ACTSMODEL
+		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+		#endif
 		#ifdef ACTSMODEL_LW
 		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
 		#endif 
 		
+		// #if defined(_DEBUGMODE_HOSTPRINTS2) && defined(ACTSMODEL_LW)
 		#ifdef _DEBUGMODE_HOSTPRINTS2
+		#ifdef ACTSMODEL_LW
 		utilityobj->printmessages("test::run:: messages (AFTER kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
+		utilityobj->printkeyvalues("test::run:: kvstatsdram (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
+		#endif
 		utilityobj->printkeyvalues("test::run:: kvdram (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
 		utilityobj->printkeyvalues("test::run:: kvdram workspace (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		utilityobj->printkeyvalues("test::run:: kvstatsdram (AFTER kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
 		#endif
 		
 		globaliteration_idx += 1;

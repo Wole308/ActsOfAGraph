@@ -37,14 +37,14 @@ using namespace std;
 #define WRITEPARTITION_TYPE3
 // #define WRITEPARTITION_TYPE4
 
-#define COLLECTCAPSULES_2READPIPELINES
+// #define COLLECTCAPSULES_2READPIPELINES
 #ifdef COLLECTCAPSULES_2READPIPELINES
 #define CS_NUM_READ_PIPELINES 2
 #else 
 #define CS_NUM_READ_PIPELINES 1
 #endif 
 
-#define PARTITIONKEYVALUES_2READPIPELINES
+// #define PARTITIONKEYVALUES_2READPIPELINES
 #ifdef PARTITIONKEYVALUES_2READPIPELINES
 #define PVU_NUM_READ_PIPELINES 2
 #else 
@@ -86,13 +86,13 @@ using namespace std;
 #endif
 #endif
 
-typedef unsigned int batch_type;
+/* typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
 typedef unsigned int partition_type;
 typedef unsigned int code_type;
 typedef unsigned int smallint_type;
 typedef unsigned int vector_type;
-typedef unsigned int code_type;
+typedef unsigned int code_type; */
 
 typedef struct {
 	unsigned int baseaddr_worksourcekvs_kvs;
@@ -199,14 +199,10 @@ public:
 	{%endfor%}
 	
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	{%for w in context['NUMWORKERS_seq']%}
-	void collectstats{{ddrs}}{{w}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, clopparams_t llopparams, travstate_t travstate);
-	{%endfor%}
+	void collectstats{{ddrs}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, clopparams_t llopparams, travstate_t travstate);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	{%for w in context['NUMWORKERS_seq']%}
-	void partitionkeyvalues{{ddrs}}{{w}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, travstate_t travstate, clopparams_t llopparams);
-	{%endfor%}
+	void partitionkeyvalues{{ddrs}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE]{%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%}, keyvalue_t capsule{{sw}}[NUM_PARTITIONS]{%endfor%}, travstate_t travstate, clopparams_t llopparams);
 	{%endfor%}
 	{%for ddrs, ddrs_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	void reducepartitions{{ddrs}}(unsigned int enable, unsigned int workerID {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt sourcebuffer{{sw}}[SRCBUFFER_SIZE] {%endfor%} {%for sw in context['NUMSUBWORKERS_seq']%} ,uint512_dt destbuffer{{sw}}[PADDEDDESTBUFFER_SIZE] {%endfor%} ,batch_type voffset, keyvalue_t sourcestats[NUMSUBWORKERS], travstate_t travstate, globalparams_t globalparams);

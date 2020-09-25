@@ -74,7 +74,7 @@ runsummary_t pagerank::run() {
 			cout<<">>> pagerank::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<<endl;
 			for (int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread(i, i_batch, graph_iterationidx); }
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-			break;
+			// break;
 		}
 	}
 	

@@ -31,7 +31,7 @@ actslw::~actslw(){}
 actsutility * actsutilityobj = new actsutility();
 #endif
 
-// kernel utilities
+// kernel utility functions
 buffer_type
 	#ifdef SW 
 	actslw::
@@ -517,7 +517,7 @@ gettravstate(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUMLASTLEVELPARTI
 	return travstate;	
 }
 
-// functions 
+// functions - dispatch
 void 
 	#ifdef SW 
 	actslw::
@@ -1525,6 +1525,550 @@ combineSetof4stoSetof80_I0(bool_type enable, uint256_dt buffer_setof4M[PADDEDDES
 	return;
 }
 
+// functions - merge 
+void 
+	#ifdef SW 
+	actslw::
+	#endif 
+readmany(unsigned int offset_kvs  ,uint512_dt * kvdram0 ,keyvalue_t source0buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram1 ,keyvalue_t source1buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram2 ,keyvalue_t source2buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram3 ,keyvalue_t source3buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram4 ,keyvalue_t source4buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram5 ,keyvalue_t source5buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram6 ,keyvalue_t source6buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram7 ,keyvalue_t source7buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram8 ,keyvalue_t source8buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram9 ,keyvalue_t source9buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram10 ,keyvalue_t source10buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram11 ,keyvalue_t source11buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram12 ,keyvalue_t source12buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram13 ,keyvalue_t source13buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram14 ,keyvalue_t source14buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ,uint512_dt * kvdram15 ,keyvalue_t source15buffer[VECTOR_SIZE][SRCBUFFER_SIZE]  ){
+	for(unsigned int i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=1
+
+		source0buffer[0][i] = kvdram0[offset_kvs + i].data[0]; 
+		source0buffer[1][i] = kvdram0[offset_kvs + i].data[1]; 
+		source0buffer[2][i] = kvdram0[offset_kvs + i].data[2]; 
+		source0buffer[3][i] = kvdram0[offset_kvs + i].data[3]; 
+		source0buffer[4][i] = kvdram0[offset_kvs + i].data[4]; 
+		source0buffer[5][i] = kvdram0[offset_kvs + i].data[5]; 
+		source0buffer[6][i] = kvdram0[offset_kvs + i].data[6]; 
+		source0buffer[7][i] = kvdram0[offset_kvs + i].data[7]; 
+		source1buffer[0][i] = kvdram1[offset_kvs + i].data[0]; 
+		source1buffer[1][i] = kvdram1[offset_kvs + i].data[1]; 
+		source1buffer[2][i] = kvdram1[offset_kvs + i].data[2]; 
+		source1buffer[3][i] = kvdram1[offset_kvs + i].data[3]; 
+		source1buffer[4][i] = kvdram1[offset_kvs + i].data[4]; 
+		source1buffer[5][i] = kvdram1[offset_kvs + i].data[5]; 
+		source1buffer[6][i] = kvdram1[offset_kvs + i].data[6]; 
+		source1buffer[7][i] = kvdram1[offset_kvs + i].data[7]; 
+		source2buffer[0][i] = kvdram2[offset_kvs + i].data[0]; 
+		source2buffer[1][i] = kvdram2[offset_kvs + i].data[1]; 
+		source2buffer[2][i] = kvdram2[offset_kvs + i].data[2]; 
+		source2buffer[3][i] = kvdram2[offset_kvs + i].data[3]; 
+		source2buffer[4][i] = kvdram2[offset_kvs + i].data[4]; 
+		source2buffer[5][i] = kvdram2[offset_kvs + i].data[5]; 
+		source2buffer[6][i] = kvdram2[offset_kvs + i].data[6]; 
+		source2buffer[7][i] = kvdram2[offset_kvs + i].data[7]; 
+		source3buffer[0][i] = kvdram3[offset_kvs + i].data[0]; 
+		source3buffer[1][i] = kvdram3[offset_kvs + i].data[1]; 
+		source3buffer[2][i] = kvdram3[offset_kvs + i].data[2]; 
+		source3buffer[3][i] = kvdram3[offset_kvs + i].data[3]; 
+		source3buffer[4][i] = kvdram3[offset_kvs + i].data[4]; 
+		source3buffer[5][i] = kvdram3[offset_kvs + i].data[5]; 
+		source3buffer[6][i] = kvdram3[offset_kvs + i].data[6]; 
+		source3buffer[7][i] = kvdram3[offset_kvs + i].data[7]; 
+		source4buffer[0][i] = kvdram4[offset_kvs + i].data[0]; 
+		source4buffer[1][i] = kvdram4[offset_kvs + i].data[1]; 
+		source4buffer[2][i] = kvdram4[offset_kvs + i].data[2]; 
+		source4buffer[3][i] = kvdram4[offset_kvs + i].data[3]; 
+		source4buffer[4][i] = kvdram4[offset_kvs + i].data[4]; 
+		source4buffer[5][i] = kvdram4[offset_kvs + i].data[5]; 
+		source4buffer[6][i] = kvdram4[offset_kvs + i].data[6]; 
+		source4buffer[7][i] = kvdram4[offset_kvs + i].data[7]; 
+		source5buffer[0][i] = kvdram5[offset_kvs + i].data[0]; 
+		source5buffer[1][i] = kvdram5[offset_kvs + i].data[1]; 
+		source5buffer[2][i] = kvdram5[offset_kvs + i].data[2]; 
+		source5buffer[3][i] = kvdram5[offset_kvs + i].data[3]; 
+		source5buffer[4][i] = kvdram5[offset_kvs + i].data[4]; 
+		source5buffer[5][i] = kvdram5[offset_kvs + i].data[5]; 
+		source5buffer[6][i] = kvdram5[offset_kvs + i].data[6]; 
+		source5buffer[7][i] = kvdram5[offset_kvs + i].data[7]; 
+		source6buffer[0][i] = kvdram6[offset_kvs + i].data[0]; 
+		source6buffer[1][i] = kvdram6[offset_kvs + i].data[1]; 
+		source6buffer[2][i] = kvdram6[offset_kvs + i].data[2]; 
+		source6buffer[3][i] = kvdram6[offset_kvs + i].data[3]; 
+		source6buffer[4][i] = kvdram6[offset_kvs + i].data[4]; 
+		source6buffer[5][i] = kvdram6[offset_kvs + i].data[5]; 
+		source6buffer[6][i] = kvdram6[offset_kvs + i].data[6]; 
+		source6buffer[7][i] = kvdram6[offset_kvs + i].data[7]; 
+		source7buffer[0][i] = kvdram7[offset_kvs + i].data[0]; 
+		source7buffer[1][i] = kvdram7[offset_kvs + i].data[1]; 
+		source7buffer[2][i] = kvdram7[offset_kvs + i].data[2]; 
+		source7buffer[3][i] = kvdram7[offset_kvs + i].data[3]; 
+		source7buffer[4][i] = kvdram7[offset_kvs + i].data[4]; 
+		source7buffer[5][i] = kvdram7[offset_kvs + i].data[5]; 
+		source7buffer[6][i] = kvdram7[offset_kvs + i].data[6]; 
+		source7buffer[7][i] = kvdram7[offset_kvs + i].data[7]; 
+		source8buffer[0][i] = kvdram8[offset_kvs + i].data[0]; 
+		source8buffer[1][i] = kvdram8[offset_kvs + i].data[1]; 
+		source8buffer[2][i] = kvdram8[offset_kvs + i].data[2]; 
+		source8buffer[3][i] = kvdram8[offset_kvs + i].data[3]; 
+		source8buffer[4][i] = kvdram8[offset_kvs + i].data[4]; 
+		source8buffer[5][i] = kvdram8[offset_kvs + i].data[5]; 
+		source8buffer[6][i] = kvdram8[offset_kvs + i].data[6]; 
+		source8buffer[7][i] = kvdram8[offset_kvs + i].data[7]; 
+		source9buffer[0][i] = kvdram9[offset_kvs + i].data[0]; 
+		source9buffer[1][i] = kvdram9[offset_kvs + i].data[1]; 
+		source9buffer[2][i] = kvdram9[offset_kvs + i].data[2]; 
+		source9buffer[3][i] = kvdram9[offset_kvs + i].data[3]; 
+		source9buffer[4][i] = kvdram9[offset_kvs + i].data[4]; 
+		source9buffer[5][i] = kvdram9[offset_kvs + i].data[5]; 
+		source9buffer[6][i] = kvdram9[offset_kvs + i].data[6]; 
+		source9buffer[7][i] = kvdram9[offset_kvs + i].data[7]; 
+		source10buffer[0][i] = kvdram10[offset_kvs + i].data[0]; 
+		source10buffer[1][i] = kvdram10[offset_kvs + i].data[1]; 
+		source10buffer[2][i] = kvdram10[offset_kvs + i].data[2]; 
+		source10buffer[3][i] = kvdram10[offset_kvs + i].data[3]; 
+		source10buffer[4][i] = kvdram10[offset_kvs + i].data[4]; 
+		source10buffer[5][i] = kvdram10[offset_kvs + i].data[5]; 
+		source10buffer[6][i] = kvdram10[offset_kvs + i].data[6]; 
+		source10buffer[7][i] = kvdram10[offset_kvs + i].data[7]; 
+		source11buffer[0][i] = kvdram11[offset_kvs + i].data[0]; 
+		source11buffer[1][i] = kvdram11[offset_kvs + i].data[1]; 
+		source11buffer[2][i] = kvdram11[offset_kvs + i].data[2]; 
+		source11buffer[3][i] = kvdram11[offset_kvs + i].data[3]; 
+		source11buffer[4][i] = kvdram11[offset_kvs + i].data[4]; 
+		source11buffer[5][i] = kvdram11[offset_kvs + i].data[5]; 
+		source11buffer[6][i] = kvdram11[offset_kvs + i].data[6]; 
+		source11buffer[7][i] = kvdram11[offset_kvs + i].data[7]; 
+		source12buffer[0][i] = kvdram12[offset_kvs + i].data[0]; 
+		source12buffer[1][i] = kvdram12[offset_kvs + i].data[1]; 
+		source12buffer[2][i] = kvdram12[offset_kvs + i].data[2]; 
+		source12buffer[3][i] = kvdram12[offset_kvs + i].data[3]; 
+		source12buffer[4][i] = kvdram12[offset_kvs + i].data[4]; 
+		source12buffer[5][i] = kvdram12[offset_kvs + i].data[5]; 
+		source12buffer[6][i] = kvdram12[offset_kvs + i].data[6]; 
+		source12buffer[7][i] = kvdram12[offset_kvs + i].data[7]; 
+		source13buffer[0][i] = kvdram13[offset_kvs + i].data[0]; 
+		source13buffer[1][i] = kvdram13[offset_kvs + i].data[1]; 
+		source13buffer[2][i] = kvdram13[offset_kvs + i].data[2]; 
+		source13buffer[3][i] = kvdram13[offset_kvs + i].data[3]; 
+		source13buffer[4][i] = kvdram13[offset_kvs + i].data[4]; 
+		source13buffer[5][i] = kvdram13[offset_kvs + i].data[5]; 
+		source13buffer[6][i] = kvdram13[offset_kvs + i].data[6]; 
+		source13buffer[7][i] = kvdram13[offset_kvs + i].data[7]; 
+		source14buffer[0][i] = kvdram14[offset_kvs + i].data[0]; 
+		source14buffer[1][i] = kvdram14[offset_kvs + i].data[1]; 
+		source14buffer[2][i] = kvdram14[offset_kvs + i].data[2]; 
+		source14buffer[3][i] = kvdram14[offset_kvs + i].data[3]; 
+		source14buffer[4][i] = kvdram14[offset_kvs + i].data[4]; 
+		source14buffer[5][i] = kvdram14[offset_kvs + i].data[5]; 
+		source14buffer[6][i] = kvdram14[offset_kvs + i].data[6]; 
+		source14buffer[7][i] = kvdram14[offset_kvs + i].data[7]; 
+		source15buffer[0][i] = kvdram15[offset_kvs + i].data[0]; 
+		source15buffer[1][i] = kvdram15[offset_kvs + i].data[1]; 
+		source15buffer[2][i] = kvdram15[offset_kvs + i].data[2]; 
+		source15buffer[3][i] = kvdram15[offset_kvs + i].data[3]; 
+		source15buffer[4][i] = kvdram15[offset_kvs + i].data[4]; 
+		source15buffer[5][i] = kvdram15[offset_kvs + i].data[5]; 
+		source15buffer[6][i] = kvdram15[offset_kvs + i].data[6]; 
+		source15buffer[7][i] = kvdram15[offset_kvs + i].data[7]; 
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
+void 
+	#ifdef SW 
+	actslw::
+	#endif 
+saveone(unsigned int offset_kvs, uint512_dt * kvdram, uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]){
+	for(unsigned int i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=1
+		kvdram[offset_kvs + i] = destbuffer[i];
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_reduce_countvalidkvsreduced(VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
+keyvalue_t 
+	#ifdef SW 
+	actslw::
+	#endif
+mergefunc(keyvalue_t keyvalue1, keyvalue_t keyvalue2, keyvalue_t keyvalue3, keyvalue_t keyvalue4){
+	#pragma HLS INLINE
+	keyvalue_t keyvalue;
+	keyvalue.key = keyvalue1.key + keyvalue2.key + keyvalue3.key + keyvalue4.key;
+	keyvalue.value = keyvalue1.value + keyvalue2.value + keyvalue3.value + keyvalue4.value;
+	return keyvalue;
+}
+
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I0(unsigned int enable, keyvalue_t source1buffer[8][SRCBUFFER_SIZE], keyvalue_t source2buffer[8][SRCBUFFER_SIZE], keyvalue_t source3buffer[8][SRCBUFFER_SIZE], keyvalue_t source4buffer[8][SRCBUFFER_SIZE], keyvalue_t destbuffer[8][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		keyvalue_t source1keyvalue0 = source1buffer[0][i];
+		keyvalue_t source2keyvalue0 = source2buffer[0][i];
+		keyvalue_t source3keyvalue0 = source3buffer[0][i];
+		keyvalue_t source4keyvalue0 = source4buffer[0][i];
+		keyvalue_t destkeyvalue0;
+		keyvalue_t source1keyvalue1 = source1buffer[1][i];
+		keyvalue_t source2keyvalue1 = source2buffer[1][i];
+		keyvalue_t source3keyvalue1 = source3buffer[1][i];
+		keyvalue_t source4keyvalue1 = source4buffer[1][i];
+		keyvalue_t destkeyvalue1;
+		keyvalue_t source1keyvalue2 = source1buffer[2][i];
+		keyvalue_t source2keyvalue2 = source2buffer[2][i];
+		keyvalue_t source3keyvalue2 = source3buffer[2][i];
+		keyvalue_t source4keyvalue2 = source4buffer[2][i];
+		keyvalue_t destkeyvalue2;
+		keyvalue_t source1keyvalue3 = source1buffer[3][i];
+		keyvalue_t source2keyvalue3 = source2buffer[3][i];
+		keyvalue_t source3keyvalue3 = source3buffer[3][i];
+		keyvalue_t source4keyvalue3 = source4buffer[3][i];
+		keyvalue_t destkeyvalue3;
+		keyvalue_t source1keyvalue4 = source1buffer[4][i];
+		keyvalue_t source2keyvalue4 = source2buffer[4][i];
+		keyvalue_t source3keyvalue4 = source3buffer[4][i];
+		keyvalue_t source4keyvalue4 = source4buffer[4][i];
+		keyvalue_t destkeyvalue4;
+		keyvalue_t source1keyvalue5 = source1buffer[5][i];
+		keyvalue_t source2keyvalue5 = source2buffer[5][i];
+		keyvalue_t source3keyvalue5 = source3buffer[5][i];
+		keyvalue_t source4keyvalue5 = source4buffer[5][i];
+		keyvalue_t destkeyvalue5;
+		keyvalue_t source1keyvalue6 = source1buffer[6][i];
+		keyvalue_t source2keyvalue6 = source2buffer[6][i];
+		keyvalue_t source3keyvalue6 = source3buffer[6][i];
+		keyvalue_t source4keyvalue6 = source4buffer[6][i];
+		keyvalue_t destkeyvalue6;
+		keyvalue_t source1keyvalue7 = source1buffer[7][i];
+		keyvalue_t source2keyvalue7 = source2buffer[7][i];
+		keyvalue_t source3keyvalue7 = source3buffer[7][i];
+		keyvalue_t source4keyvalue7 = source4buffer[7][i];
+		keyvalue_t destkeyvalue7;
+		
+		destkeyvalue0 = mergefunc(source1keyvalue0, source2keyvalue0, source3keyvalue0, source4keyvalue0);
+		destkeyvalue1 = mergefunc(source1keyvalue1, source2keyvalue1, source3keyvalue1, source4keyvalue1);
+		destkeyvalue2 = mergefunc(source1keyvalue2, source2keyvalue2, source3keyvalue2, source4keyvalue2);
+		destkeyvalue3 = mergefunc(source1keyvalue3, source2keyvalue3, source3keyvalue3, source4keyvalue3);
+		destkeyvalue4 = mergefunc(source1keyvalue4, source2keyvalue4, source3keyvalue4, source4keyvalue4);
+		destkeyvalue5 = mergefunc(source1keyvalue5, source2keyvalue5, source3keyvalue5, source4keyvalue5);
+		destkeyvalue6 = mergefunc(source1keyvalue6, source2keyvalue6, source3keyvalue6, source4keyvalue6);
+		destkeyvalue7 = mergefunc(source1keyvalue7, source2keyvalue7, source3keyvalue7, source4keyvalue7);
+		
+		destbuffer[0][i] = destkeyvalue0;
+		destbuffer[1][i] = destkeyvalue1;
+		destbuffer[2][i] = destkeyvalue2;
+		destbuffer[3][i] = destkeyvalue3;
+		destbuffer[4][i] = destkeyvalue4;
+		destbuffer[5][i] = destkeyvalue5;
+		destbuffer[6][i] = destkeyvalue6;
+		destbuffer[7][i] = destkeyvalue7;
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I1(unsigned int enable, keyvalue_t source1buffer[8][SRCBUFFER_SIZE], keyvalue_t source2buffer[8][SRCBUFFER_SIZE], keyvalue_t source3buffer[8][SRCBUFFER_SIZE], keyvalue_t source4buffer[8][SRCBUFFER_SIZE], keyvalue_t destbuffer[8][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		keyvalue_t source1keyvalue0 = source1buffer[0][i];
+		keyvalue_t source2keyvalue0 = source2buffer[0][i];
+		keyvalue_t source3keyvalue0 = source3buffer[0][i];
+		keyvalue_t source4keyvalue0 = source4buffer[0][i];
+		keyvalue_t destkeyvalue0;
+		keyvalue_t source1keyvalue1 = source1buffer[1][i];
+		keyvalue_t source2keyvalue1 = source2buffer[1][i];
+		keyvalue_t source3keyvalue1 = source3buffer[1][i];
+		keyvalue_t source4keyvalue1 = source4buffer[1][i];
+		keyvalue_t destkeyvalue1;
+		keyvalue_t source1keyvalue2 = source1buffer[2][i];
+		keyvalue_t source2keyvalue2 = source2buffer[2][i];
+		keyvalue_t source3keyvalue2 = source3buffer[2][i];
+		keyvalue_t source4keyvalue2 = source4buffer[2][i];
+		keyvalue_t destkeyvalue2;
+		keyvalue_t source1keyvalue3 = source1buffer[3][i];
+		keyvalue_t source2keyvalue3 = source2buffer[3][i];
+		keyvalue_t source3keyvalue3 = source3buffer[3][i];
+		keyvalue_t source4keyvalue3 = source4buffer[3][i];
+		keyvalue_t destkeyvalue3;
+		keyvalue_t source1keyvalue4 = source1buffer[4][i];
+		keyvalue_t source2keyvalue4 = source2buffer[4][i];
+		keyvalue_t source3keyvalue4 = source3buffer[4][i];
+		keyvalue_t source4keyvalue4 = source4buffer[4][i];
+		keyvalue_t destkeyvalue4;
+		keyvalue_t source1keyvalue5 = source1buffer[5][i];
+		keyvalue_t source2keyvalue5 = source2buffer[5][i];
+		keyvalue_t source3keyvalue5 = source3buffer[5][i];
+		keyvalue_t source4keyvalue5 = source4buffer[5][i];
+		keyvalue_t destkeyvalue5;
+		keyvalue_t source1keyvalue6 = source1buffer[6][i];
+		keyvalue_t source2keyvalue6 = source2buffer[6][i];
+		keyvalue_t source3keyvalue6 = source3buffer[6][i];
+		keyvalue_t source4keyvalue6 = source4buffer[6][i];
+		keyvalue_t destkeyvalue6;
+		keyvalue_t source1keyvalue7 = source1buffer[7][i];
+		keyvalue_t source2keyvalue7 = source2buffer[7][i];
+		keyvalue_t source3keyvalue7 = source3buffer[7][i];
+		keyvalue_t source4keyvalue7 = source4buffer[7][i];
+		keyvalue_t destkeyvalue7;
+		
+		destkeyvalue0 = mergefunc(source1keyvalue0, source2keyvalue0, source3keyvalue0, source4keyvalue0);
+		destkeyvalue1 = mergefunc(source1keyvalue1, source2keyvalue1, source3keyvalue1, source4keyvalue1);
+		destkeyvalue2 = mergefunc(source1keyvalue2, source2keyvalue2, source3keyvalue2, source4keyvalue2);
+		destkeyvalue3 = mergefunc(source1keyvalue3, source2keyvalue3, source3keyvalue3, source4keyvalue3);
+		destkeyvalue4 = mergefunc(source1keyvalue4, source2keyvalue4, source3keyvalue4, source4keyvalue4);
+		destkeyvalue5 = mergefunc(source1keyvalue5, source2keyvalue5, source3keyvalue5, source4keyvalue5);
+		destkeyvalue6 = mergefunc(source1keyvalue6, source2keyvalue6, source3keyvalue6, source4keyvalue6);
+		destkeyvalue7 = mergefunc(source1keyvalue7, source2keyvalue7, source3keyvalue7, source4keyvalue7);
+		
+		destbuffer[0][i] = destkeyvalue0;
+		destbuffer[1][i] = destkeyvalue1;
+		destbuffer[2][i] = destkeyvalue2;
+		destbuffer[3][i] = destkeyvalue3;
+		destbuffer[4][i] = destkeyvalue4;
+		destbuffer[5][i] = destkeyvalue5;
+		destbuffer[6][i] = destkeyvalue6;
+		destbuffer[7][i] = destkeyvalue7;
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I2(unsigned int enable, keyvalue_t source1buffer[8][SRCBUFFER_SIZE], keyvalue_t source2buffer[8][SRCBUFFER_SIZE], keyvalue_t source3buffer[8][SRCBUFFER_SIZE], keyvalue_t source4buffer[8][SRCBUFFER_SIZE], keyvalue_t destbuffer[8][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		keyvalue_t source1keyvalue0 = source1buffer[0][i];
+		keyvalue_t source2keyvalue0 = source2buffer[0][i];
+		keyvalue_t source3keyvalue0 = source3buffer[0][i];
+		keyvalue_t source4keyvalue0 = source4buffer[0][i];
+		keyvalue_t destkeyvalue0;
+		keyvalue_t source1keyvalue1 = source1buffer[1][i];
+		keyvalue_t source2keyvalue1 = source2buffer[1][i];
+		keyvalue_t source3keyvalue1 = source3buffer[1][i];
+		keyvalue_t source4keyvalue1 = source4buffer[1][i];
+		keyvalue_t destkeyvalue1;
+		keyvalue_t source1keyvalue2 = source1buffer[2][i];
+		keyvalue_t source2keyvalue2 = source2buffer[2][i];
+		keyvalue_t source3keyvalue2 = source3buffer[2][i];
+		keyvalue_t source4keyvalue2 = source4buffer[2][i];
+		keyvalue_t destkeyvalue2;
+		keyvalue_t source1keyvalue3 = source1buffer[3][i];
+		keyvalue_t source2keyvalue3 = source2buffer[3][i];
+		keyvalue_t source3keyvalue3 = source3buffer[3][i];
+		keyvalue_t source4keyvalue3 = source4buffer[3][i];
+		keyvalue_t destkeyvalue3;
+		keyvalue_t source1keyvalue4 = source1buffer[4][i];
+		keyvalue_t source2keyvalue4 = source2buffer[4][i];
+		keyvalue_t source3keyvalue4 = source3buffer[4][i];
+		keyvalue_t source4keyvalue4 = source4buffer[4][i];
+		keyvalue_t destkeyvalue4;
+		keyvalue_t source1keyvalue5 = source1buffer[5][i];
+		keyvalue_t source2keyvalue5 = source2buffer[5][i];
+		keyvalue_t source3keyvalue5 = source3buffer[5][i];
+		keyvalue_t source4keyvalue5 = source4buffer[5][i];
+		keyvalue_t destkeyvalue5;
+		keyvalue_t source1keyvalue6 = source1buffer[6][i];
+		keyvalue_t source2keyvalue6 = source2buffer[6][i];
+		keyvalue_t source3keyvalue6 = source3buffer[6][i];
+		keyvalue_t source4keyvalue6 = source4buffer[6][i];
+		keyvalue_t destkeyvalue6;
+		keyvalue_t source1keyvalue7 = source1buffer[7][i];
+		keyvalue_t source2keyvalue7 = source2buffer[7][i];
+		keyvalue_t source3keyvalue7 = source3buffer[7][i];
+		keyvalue_t source4keyvalue7 = source4buffer[7][i];
+		keyvalue_t destkeyvalue7;
+		
+		destkeyvalue0 = mergefunc(source1keyvalue0, source2keyvalue0, source3keyvalue0, source4keyvalue0);
+		destkeyvalue1 = mergefunc(source1keyvalue1, source2keyvalue1, source3keyvalue1, source4keyvalue1);
+		destkeyvalue2 = mergefunc(source1keyvalue2, source2keyvalue2, source3keyvalue2, source4keyvalue2);
+		destkeyvalue3 = mergefunc(source1keyvalue3, source2keyvalue3, source3keyvalue3, source4keyvalue3);
+		destkeyvalue4 = mergefunc(source1keyvalue4, source2keyvalue4, source3keyvalue4, source4keyvalue4);
+		destkeyvalue5 = mergefunc(source1keyvalue5, source2keyvalue5, source3keyvalue5, source4keyvalue5);
+		destkeyvalue6 = mergefunc(source1keyvalue6, source2keyvalue6, source3keyvalue6, source4keyvalue6);
+		destkeyvalue7 = mergefunc(source1keyvalue7, source2keyvalue7, source3keyvalue7, source4keyvalue7);
+		
+		destbuffer[0][i] = destkeyvalue0;
+		destbuffer[1][i] = destkeyvalue1;
+		destbuffer[2][i] = destkeyvalue2;
+		destbuffer[3][i] = destkeyvalue3;
+		destbuffer[4][i] = destkeyvalue4;
+		destbuffer[5][i] = destkeyvalue5;
+		destbuffer[6][i] = destkeyvalue6;
+		destbuffer[7][i] = destkeyvalue7;
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I3(unsigned int enable, keyvalue_t source1buffer[8][SRCBUFFER_SIZE], keyvalue_t source2buffer[8][SRCBUFFER_SIZE], keyvalue_t source3buffer[8][SRCBUFFER_SIZE], keyvalue_t source4buffer[8][SRCBUFFER_SIZE], keyvalue_t destbuffer[8][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		keyvalue_t source1keyvalue0 = source1buffer[0][i];
+		keyvalue_t source2keyvalue0 = source2buffer[0][i];
+		keyvalue_t source3keyvalue0 = source3buffer[0][i];
+		keyvalue_t source4keyvalue0 = source4buffer[0][i];
+		keyvalue_t destkeyvalue0;
+		keyvalue_t source1keyvalue1 = source1buffer[1][i];
+		keyvalue_t source2keyvalue1 = source2buffer[1][i];
+		keyvalue_t source3keyvalue1 = source3buffer[1][i];
+		keyvalue_t source4keyvalue1 = source4buffer[1][i];
+		keyvalue_t destkeyvalue1;
+		keyvalue_t source1keyvalue2 = source1buffer[2][i];
+		keyvalue_t source2keyvalue2 = source2buffer[2][i];
+		keyvalue_t source3keyvalue2 = source3buffer[2][i];
+		keyvalue_t source4keyvalue2 = source4buffer[2][i];
+		keyvalue_t destkeyvalue2;
+		keyvalue_t source1keyvalue3 = source1buffer[3][i];
+		keyvalue_t source2keyvalue3 = source2buffer[3][i];
+		keyvalue_t source3keyvalue3 = source3buffer[3][i];
+		keyvalue_t source4keyvalue3 = source4buffer[3][i];
+		keyvalue_t destkeyvalue3;
+		keyvalue_t source1keyvalue4 = source1buffer[4][i];
+		keyvalue_t source2keyvalue4 = source2buffer[4][i];
+		keyvalue_t source3keyvalue4 = source3buffer[4][i];
+		keyvalue_t source4keyvalue4 = source4buffer[4][i];
+		keyvalue_t destkeyvalue4;
+		keyvalue_t source1keyvalue5 = source1buffer[5][i];
+		keyvalue_t source2keyvalue5 = source2buffer[5][i];
+		keyvalue_t source3keyvalue5 = source3buffer[5][i];
+		keyvalue_t source4keyvalue5 = source4buffer[5][i];
+		keyvalue_t destkeyvalue5;
+		keyvalue_t source1keyvalue6 = source1buffer[6][i];
+		keyvalue_t source2keyvalue6 = source2buffer[6][i];
+		keyvalue_t source3keyvalue6 = source3buffer[6][i];
+		keyvalue_t source4keyvalue6 = source4buffer[6][i];
+		keyvalue_t destkeyvalue6;
+		keyvalue_t source1keyvalue7 = source1buffer[7][i];
+		keyvalue_t source2keyvalue7 = source2buffer[7][i];
+		keyvalue_t source3keyvalue7 = source3buffer[7][i];
+		keyvalue_t source4keyvalue7 = source4buffer[7][i];
+		keyvalue_t destkeyvalue7;
+		
+		destkeyvalue0 = mergefunc(source1keyvalue0, source2keyvalue0, source3keyvalue0, source4keyvalue0);
+		destkeyvalue1 = mergefunc(source1keyvalue1, source2keyvalue1, source3keyvalue1, source4keyvalue1);
+		destkeyvalue2 = mergefunc(source1keyvalue2, source2keyvalue2, source3keyvalue2, source4keyvalue2);
+		destkeyvalue3 = mergefunc(source1keyvalue3, source2keyvalue3, source3keyvalue3, source4keyvalue3);
+		destkeyvalue4 = mergefunc(source1keyvalue4, source2keyvalue4, source3keyvalue4, source4keyvalue4);
+		destkeyvalue5 = mergefunc(source1keyvalue5, source2keyvalue5, source3keyvalue5, source4keyvalue5);
+		destkeyvalue6 = mergefunc(source1keyvalue6, source2keyvalue6, source3keyvalue6, source4keyvalue6);
+		destkeyvalue7 = mergefunc(source1keyvalue7, source2keyvalue7, source3keyvalue7, source4keyvalue7);
+		
+		destbuffer[0][i] = destkeyvalue0;
+		destbuffer[1][i] = destkeyvalue1;
+		destbuffer[2][i] = destkeyvalue2;
+		destbuffer[3][i] = destkeyvalue3;
+		destbuffer[4][i] = destkeyvalue4;
+		destbuffer[5][i] = destkeyvalue5;
+		destbuffer[6][i] = destkeyvalue6;
+		destbuffer[7][i] = destkeyvalue7;
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I0(unsigned int enable, keyvalue_t source1buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t source2buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t source3buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t source4buffer[8][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		keyvalue_t source1keyvalue0 = source1buffer[0][i];
+		keyvalue_t source2keyvalue0 = source2buffer[0][i];
+		keyvalue_t source3keyvalue0 = source3buffer[0][i];
+		keyvalue_t source4keyvalue0 = source4buffer[0][i];
+		keyvalue_t destkeyvalue0;
+		keyvalue_t source1keyvalue1 = source1buffer[1][i];
+		keyvalue_t source2keyvalue1 = source2buffer[1][i];
+		keyvalue_t source3keyvalue1 = source3buffer[1][i];
+		keyvalue_t source4keyvalue1 = source4buffer[1][i];
+		keyvalue_t destkeyvalue1;
+		keyvalue_t source1keyvalue2 = source1buffer[2][i];
+		keyvalue_t source2keyvalue2 = source2buffer[2][i];
+		keyvalue_t source3keyvalue2 = source3buffer[2][i];
+		keyvalue_t source4keyvalue2 = source4buffer[2][i];
+		keyvalue_t destkeyvalue2;
+		keyvalue_t source1keyvalue3 = source1buffer[3][i];
+		keyvalue_t source2keyvalue3 = source2buffer[3][i];
+		keyvalue_t source3keyvalue3 = source3buffer[3][i];
+		keyvalue_t source4keyvalue3 = source4buffer[3][i];
+		keyvalue_t destkeyvalue3;
+		keyvalue_t source1keyvalue4 = source1buffer[4][i];
+		keyvalue_t source2keyvalue4 = source2buffer[4][i];
+		keyvalue_t source3keyvalue4 = source3buffer[4][i];
+		keyvalue_t source4keyvalue4 = source4buffer[4][i];
+		keyvalue_t destkeyvalue4;
+		keyvalue_t source1keyvalue5 = source1buffer[5][i];
+		keyvalue_t source2keyvalue5 = source2buffer[5][i];
+		keyvalue_t source3keyvalue5 = source3buffer[5][i];
+		keyvalue_t source4keyvalue5 = source4buffer[5][i];
+		keyvalue_t destkeyvalue5;
+		keyvalue_t source1keyvalue6 = source1buffer[6][i];
+		keyvalue_t source2keyvalue6 = source2buffer[6][i];
+		keyvalue_t source3keyvalue6 = source3buffer[6][i];
+		keyvalue_t source4keyvalue6 = source4buffer[6][i];
+		keyvalue_t destkeyvalue6;
+		keyvalue_t source1keyvalue7 = source1buffer[7][i];
+		keyvalue_t source2keyvalue7 = source2buffer[7][i];
+		keyvalue_t source3keyvalue7 = source3buffer[7][i];
+		keyvalue_t source4keyvalue7 = source4buffer[7][i];
+		keyvalue_t destkeyvalue7;
+		
+		destkeyvalue0 = mergefunc(source1keyvalue0, source2keyvalue0, source3keyvalue0, source4keyvalue0);
+		destkeyvalue1 = mergefunc(source1keyvalue1, source2keyvalue1, source3keyvalue1, source4keyvalue1);
+		destkeyvalue2 = mergefunc(source1keyvalue2, source2keyvalue2, source3keyvalue2, source4keyvalue2);
+		destkeyvalue3 = mergefunc(source1keyvalue3, source2keyvalue3, source3keyvalue3, source4keyvalue3);
+		destkeyvalue4 = mergefunc(source1keyvalue4, source2keyvalue4, source3keyvalue4, source4keyvalue4);
+		destkeyvalue5 = mergefunc(source1keyvalue5, source2keyvalue5, source3keyvalue5, source4keyvalue5);
+		destkeyvalue6 = mergefunc(source1keyvalue6, source2keyvalue6, source3keyvalue6, source4keyvalue6);
+		destkeyvalue7 = mergefunc(source1keyvalue7, source2keyvalue7, source3keyvalue7, source4keyvalue7);
+		
+		destbuffer[i].data[0] = destkeyvalue0;
+		destbuffer[i].data[1] = destkeyvalue1;
+		destbuffer[i].data[2] = destkeyvalue2;
+		destbuffer[i].data[3] = destkeyvalue3;
+		destbuffer[i].data[4] = destkeyvalue4;
+		destbuffer[i].data[5] = destkeyvalue5;
+		destbuffer[i].data[6] = destkeyvalue6;
+		destbuffer[i].data[7] = destkeyvalue7;
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+
 // group functions
 void 
 	#ifdef SW 
@@ -1561,12 +2105,12 @@ combineSetof4stoSetof8s0(bool_type enable, uint256_dt buffer_setof4[2][PADDEDDES
 	return;
 }
 
-// main function
+// main function - dispatch
 void 
 	#ifdef SW 
 	actslw::
 	#endif 
-dispatch0(uint512_dt * kvdram){
+dispatch0(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]){
 	analysis_type analysis_mainloop = KVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -1576,25 +2120,25 @@ dispatch0(uint512_dt * kvdram){
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE];
-	#pragma HLS array_partition variable = sourcebuffer
+	// keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE];
+	// #pragma HLS array_partition variable = sourcebuffer
 	
-	keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer_setof1
+	// keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE];
+	// #pragma HLS array_partition variable = buffer_setof1
 	skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so1
 	
-	uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer_setof2
+	// uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE];
+	// #pragma HLS array_partition variable = buffer_setof2
 	skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so2
 	
-	uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer_setof4
+	// uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE];
+	// #pragma HLS array_partition variable = buffer_setof4
 	skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so4
 	
-	uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE];
+	// uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]; // 
 	skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS];
 
 	keyvalue_t globaldestoffsets[NUM_PARTITIONS];
@@ -1739,7 +2283,58 @@ topkernel( uint512_dt * sourceAvolume ){
 	cout<<"... Acts Launched... size: "<<sourceAvolume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
 	#endif 
 	
-	dispatch0(sourceAvolume);
+	keyvalue_t source0buffer[VECTOR_SIZE][SRCBUFFER_SIZE]; // SRCBUFFER_SIZE
+	#pragma HLS array_partition variable = source0buffer
+	
+	keyvalue_t buffer0_setof1[8][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof1
+	
+	uint128_dt buffer0_setof2[4][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof2
+	
+	uint256_dt buffer0_setof4[2][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof4
+	
+	uint512_dt dest0buffer[PADDEDDESTBUFFER_SIZE];
+	
+	// dispatch
+	#ifdef ENABLEPARTITIONANDREDUCE
+	dispatch0(sourceAvolume, source0buffer, buffer0_setof1, buffer0_setof2, buffer0_setof4, dest0buffer);
+	
+	// exit(EXIT_SUCCESS);
+	
+	#endif 
+	
+	// merge
+	#ifdef ENABLEMERGER
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->print4("### merge begin_kvs", "end_kvs", "skip", "NAp", 0, BATCH_RANGE_KVS, SRCBUFFER_SIZE, NAp);	
+	#endif
+	for(unsigned int offset_kvs=0; offset_kvs<BATCH_RANGE_KVS; offset_kvs+=PADDEDDESTBUFFER_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		actsutilityobj->print4("### merge:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, 0, BATCH_RANGE_KVS, SRCBUFFER_SIZE);
+		#endif
+		readmany(BASEOFFSET_VERTICESDATA_KVS + offset_kvs  ,sourceAvolume ,source0buffer  );
+
+		merge_I0(ON, source0buffer, source1buffer, source2buffer, source3buffer, buffer0_setof1);
+		merge_I1(ON, source4buffer, source5buffer, source6buffer, source7buffer, buffer4_setof1);
+		merge_I2(ON, source8buffer, source9buffer, source10buffer, source11buffer, buffer8_setof1);
+		merge_I3(ON, source12buffer, source13buffer, source14buffer, source15buffer, buffer12_setof1);
+		
+		merge_I0(ON, buffer0_setof1, buffer4_setof1, buffer8_setof1, buffer12_setof1, dest0buffer);
+
+		saveone(BASEOFFSET_VERTICESDATA_KVS + offset_kvs, sourceAvolume, dest0buffer);
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	actsutilityobj->clearglobalvars();
+	#endif
+	#endif 
 	return;
 }
 }

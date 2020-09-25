@@ -8,6 +8,7 @@
 class create2Dgraph {
 public:
 	create2Dgraph(graph * _graphobj);
+	create2Dgraph(graph * _graphobj, unsigned int dummy);
 	~create2Dgraph();
 	
 	unsigned int getbank(vertex_t vertexid);
@@ -16,6 +17,7 @@ public:
 	size_t hceildiv(size_t val1, size_t val2);
 	
 	void start();
+	void analyzegraph();
 	void summary();
 	
 	template <class T>
@@ -40,6 +42,10 @@ private:
 	xvertexoffset_t * edgeoffsets[MAXNUMEDGEBANKS];	
 	unsigned int * edgeoffsetbits[MAXNUMEDGEBANKS]; // smaller precision structures
 	edge_t totalnumedgeswritten[MAXNUMEDGEBANKS];
+	
+	// analyze graph 
+	unsigned int * vertexoutdegrees;
+	unsigned int * vertexindegrees;
 
 	utility * utilityobj;
 };

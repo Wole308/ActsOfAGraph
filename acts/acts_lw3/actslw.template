@@ -31,7 +31,7 @@ actslw::~actslw(){}
 actsutility * actsutilityobj = new actsutility();
 #endif
 
-// kernel utilities
+// kernel utility functions
 buffer_type
 	#ifdef SW 
 	actslw::
@@ -492,7 +492,7 @@ gettravstate(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUMLASTLEVELPARTI
 	return travstate;	
 }
 
-// functions 
+// functions - dispatch
 {%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 void 
 	#ifdef SW 
@@ -1065,6 +1065,121 @@ combineSetof4stoSetof8{{inst}}_I{{n}}(bool_type enable, uint256_dt buffer_setof4
 {%endfor%}
 {%endfor%}
 
+// functions - merge 
+void 
+	#ifdef SW 
+	actslw::
+	#endif 
+readmany(unsigned int offset_kvs {%for v in context['16_seq']%} ,uint512_dt * kvdram{{v}} ,keyvalue_t source{{v}}buffer[VECTOR_SIZE][SRCBUFFER_SIZE] {%endfor%} ){
+	for(unsigned int i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=1
+
+		{%for i in context['16_seq']%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		source{{i}}buffer[{{v}}][i] = kvdram{{i}}[offset_kvs + i].data[{{v}}]; 
+		{%endfor%}
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
+void 
+	#ifdef SW 
+	actslw::
+	#endif 
+saveone(unsigned int offset_kvs, uint512_dt * kvdram, uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]){
+	for(unsigned int i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=1
+		kvdram[offset_kvs + i] = destbuffer[i];
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_reduce_countvalidkvsreduced(VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
+keyvalue_t 
+	#ifdef SW 
+	actslw::
+	#endif
+mergefunc(keyvalue_t keyvalue1, keyvalue_t keyvalue2, keyvalue_t keyvalue3, keyvalue_t keyvalue4){
+	#pragma HLS INLINE
+	keyvalue_t keyvalue;
+	keyvalue.key = keyvalue1.key + keyvalue2.key + keyvalue3.key + keyvalue4.key;
+	keyvalue.value = keyvalue1.value + keyvalue2.value + keyvalue3.value + keyvalue4.value;
+	return keyvalue;
+}
+
+{%for n in context['4_seq']%}
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I{{n}}(unsigned int enable, keyvalue_t source1buffer[8][SRCBUFFER_SIZE], keyvalue_t source2buffer[8][SRCBUFFER_SIZE], keyvalue_t source3buffer[8][SRCBUFFER_SIZE], keyvalue_t source4buffer[8][SRCBUFFER_SIZE], keyvalue_t destbuffer[8][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t source1keyvalue{{v}} = source1buffer[{{v}}][i];
+		keyvalue_t source2keyvalue{{v}} = source2buffer[{{v}}][i];
+		keyvalue_t source3keyvalue{{v}} = source3buffer[{{v}}][i];
+		keyvalue_t source4keyvalue{{v}} = source4buffer[{{v}}][i];
+		keyvalue_t destkeyvalue{{v}};
+		{%endfor%}
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		destkeyvalue{{v}} = mergefunc(source1keyvalue{{v}}, source2keyvalue{{v}}, source3keyvalue{{v}}, source4keyvalue{{v}});
+		{%endfor%}
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		destbuffer[{{v}}][i] = destkeyvalue{{v}};
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+{%endfor%}
+
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+merge_I0(unsigned int enable, keyvalue_t source1buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t source2buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t source3buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t source4buffer[8][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	MERGE_LOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS PIPELINE II=2
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t source1keyvalue{{v}} = source1buffer[{{v}}][i];
+		keyvalue_t source2keyvalue{{v}} = source2buffer[{{v}}][i];
+		keyvalue_t source3keyvalue{{v}} = source3buffer[{{v}}][i];
+		keyvalue_t source4keyvalue{{v}} = source4buffer[{{v}}][i];
+		keyvalue_t destkeyvalue{{v}};
+		{%endfor%}
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		destkeyvalue{{v}} = mergefunc(source1keyvalue{{v}}, source2keyvalue{{v}}, source3keyvalue{{v}}, source4keyvalue{{v}});
+		{%endfor%}
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		destbuffer[i].data[{{v}}] = destkeyvalue{{v}};
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsmerged(VECTOR_SIZE * 4);
+		#endif
+	}
+	return;
+}
+
 // group functions
 {%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 void 
@@ -1103,13 +1218,13 @@ combineSetof4stoSetof8s{{inst}}(bool_type enable, uint256_dt buffer_setof4[2][PA
 }
 {%endfor%}
 
-// main function
+// main function - dispatch
 {%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 void 
 	#ifdef SW 
 	actslw::
 	#endif 
-dispatch{{inst}}(uint512_dt * kvdram){
+dispatch{{inst}}(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE], keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE], uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE], uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]){
 	analysis_type analysis_mainloop = KVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -1119,25 +1234,25 @@ dispatch{{inst}}(uint512_dt * kvdram){
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE];
-	#pragma HLS array_partition variable = sourcebuffer
+	// keyvalue_t sourcebuffer[VECTOR_SIZE][SRCBUFFER_SIZE];
+	// #pragma HLS array_partition variable = sourcebuffer
 	
-	keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer_setof1
+	// keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE];
+	// #pragma HLS array_partition variable = buffer_setof1
 	skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so1
 	
-	uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer_setof2
+	// uint128_dt buffer_setof2[4][PADDEDDESTBUFFER_SIZE];
+	// #pragma HLS array_partition variable = buffer_setof2
 	skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so2
 	
-	uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer_setof4
+	// uint256_dt buffer_setof4[2][PADDEDDESTBUFFER_SIZE];
+	// #pragma HLS array_partition variable = buffer_setof4
 	skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so4
 	
-	uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE];
+	// uint512_dt destbuffer[PADDEDDESTBUFFER_SIZE]; // 
 	skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS];
 
 	keyvalue_t globaldestoffsets[NUM_PARTITIONS];
@@ -1292,8 +1407,61 @@ topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANC
 	#endif 
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	dispatch{{inst}}(source{{inst_}}volume);
+	keyvalue_t source{{inst}}buffer[VECTOR_SIZE][SRCBUFFER_SIZE]; // SRCBUFFER_SIZE
+	#pragma HLS array_partition variable = source{{inst}}buffer
+	
+	keyvalue_t buffer{{inst}}_setof1[8][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer{{inst}}_setof1
+	
+	uint128_dt buffer{{inst}}_setof2[4][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer{{inst}}_setof2
+	
+	uint256_dt buffer{{inst}}_setof4[2][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer{{inst}}_setof4
+	
+	uint512_dt dest{{inst}}buffer[PADDEDDESTBUFFER_SIZE];
 	{%endfor%}
+	
+	// dispatch
+	#ifdef ENABLEPARTITIONANDREDUCE
+	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
+	dispatch{{inst}}(source{{inst_}}volume, source{{inst}}buffer, buffer{{inst}}_setof1, buffer{{inst}}_setof2, buffer{{inst}}_setof4, dest{{inst}}buffer);
+	
+	// exit(EXIT_SUCCESS);
+	
+	{%endfor%}
+	#endif 
+	
+	// merge
+	#ifdef ENABLEMERGER
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->print4("### merge begin_kvs", "end_kvs", "skip", "NAp", 0, BATCH_RANGE_KVS, SRCBUFFER_SIZE, NAp);	
+	#endif
+	for(unsigned int offset_kvs=0; offset_kvs<BATCH_RANGE_KVS; offset_kvs+=PADDEDDESTBUFFER_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		actsutilityobj->print4("### merge:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, 0, BATCH_RANGE_KVS, SRCBUFFER_SIZE);
+		#endif
+		readmany(BASEOFFSET_VERTICESDATA_KVS + offset_kvs {%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%} ,source{{inst_}}volume ,source{{inst}}buffer {%endfor%} );
+
+		merge_I0(ON, source0buffer, source1buffer, source2buffer, source3buffer, buffer0_setof1);
+		merge_I1(ON, source4buffer, source5buffer, source6buffer, source7buffer, buffer4_setof1);
+		merge_I2(ON, source8buffer, source9buffer, source10buffer, source11buffer, buffer8_setof1);
+		merge_I3(ON, source12buffer, source13buffer, source14buffer, source15buffer, buffer12_setof1);
+		
+		merge_I0(ON, buffer0_setof1, buffer4_setof1, buffer8_setof1, buffer12_setof1, dest0buffer);
+
+		saveone(BASEOFFSET_VERTICESDATA_KVS + offset_kvs, sourceAvolume, dest0buffer);
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	actsutilityobj->clearglobalvars();
+	#endif
+	#endif 
 	return;
 }
 }

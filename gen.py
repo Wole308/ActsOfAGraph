@@ -40,7 +40,7 @@ else:
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 22
     elif context['DATASET'] == "_TWITTERDATASET_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
+        context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_67M":
         context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
@@ -89,8 +89,10 @@ else:
     
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
+    # context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
 elif context['XWARE'] == "HW":
-	context['NUMINSTANCES'] = 1
+	# context['NUMINSTANCES'] = 4
+    context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
 elif context['XWARE'] == "SWEMU":
 	context['NUMINSTANCES'] = 1
 else:
@@ -104,7 +106,7 @@ else:
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
 context['NUMDRAMBANKS'] = 4
-context['NUMWORKERS'] = 2
+context['NUMWORKERS'] = 1 #2
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
 context['NUMPEFUNCS'] = 8
 context['NUMWORKERS_APPLYPH'] = 1
@@ -147,8 +149,8 @@ o_path4="include/common.h"
 o_path5="include/common.h"
 o_path6="acts/acts_lw2/actslw.cpp"
 o_path7="acts/acts_lw2/actslw.h"
-o_path8="acts/acts_lw/actslw.cpp"
-o_path9="acts/acts_lw/actslw.h"
+o_path8="acts/acts_lw3/actslw.cpp"
+o_path9="acts/acts_lw3/actslw.h"
 o_path10="acts/acts_lw/actslw.cpp"
 o_path11="acts/acts_lw/actslw.h"
 o_path12="acts/acts_lw/actslw.cpp"
@@ -177,8 +179,8 @@ templ_path4="include/"
 templ_path5="include/"
 templ_path6="acts/acts_lw2/"
 templ_path7="acts/acts_lw2/"
-templ_path8="acts/acts_lw/"
-templ_path9="acts/acts_lw/"
+templ_path8="acts/acts_lw3/"
+templ_path9="acts/acts_lw3/"
 templ_path10="acts/acts_lw/"
 templ_path11="acts/acts_lw/"
 templ_path12="acts/acts_lw/"
@@ -295,6 +297,10 @@ for i in range (0,7):
 context['6_seq'] = []
 for i in range (0,6):
 		context['6_seq'].append(i)
+        
+context['5_seq'] = []
+for i in range (0,5):
+		context['5_seq'].append(i)
         
 context['4_seq'] = []
 for i in range (0,4):

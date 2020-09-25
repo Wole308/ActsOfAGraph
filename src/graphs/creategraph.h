@@ -14,6 +14,7 @@ public:
 	~creategraph();
 	
 	void create2Dgraf(unsigned int algorithmid, unsigned int datasetid);
+	void analyzegraf(unsigned int algorithmid, unsigned int datasetid);
 };
 #endif
 

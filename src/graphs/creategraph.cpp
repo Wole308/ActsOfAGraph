@@ -30,4 +30,15 @@ void creategraph::create2Dgraf(unsigned int algorithmid, unsigned int datasetid)
 	cout<<"creategraph:: finished generating 2D graph."<<endl;
 }
 
+void creategraph::analyzegraf(unsigned int algorithmid, unsigned int datasetid){
+	algorithm * algorithmobj = new algorithm();
+	heuristics * heuristicsobj = new heuristics();
+	graph * graphobj = new graph(algorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
+	
+	cout<<"graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl;
+	create2Dgraph * create2Dgraphobj = new create2Dgraph(graphobj, NAp);
+	create2Dgraphobj->analyzegraph();
+	cout<<"creategraph:: finished analyzing graph."<<endl;
+}
+
 

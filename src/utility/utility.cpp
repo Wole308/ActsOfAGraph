@@ -66,6 +66,7 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
 void utility::printmessages(string message, uint512_vec_dt * keyvalues){
+	#ifdef ACTSMODEL_LW
 	cout<<"utility::printmessages::"<<message<<":: printing messages (after kernel launch) "<<endl;
 	cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
 	cout<<"MESSAGES_PROCESSCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0].key<<endl;
@@ -80,6 +81,7 @@ void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 	cout<<"MESSAGES_BATCHSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
 	cout<<"MESSAGES_RUNSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 	cout<<"MESSAGES_NEXTBATCHOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
+	#endif 
 	return;
 }
 void utility::printallparameters(){
@@ -165,6 +167,28 @@ void utility::printallparameters(){
 	#endif 
 	// exit(EXIT_SUCCESS);
 	return;
+}
+void utility::printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
+	unsigned int count = 0;
+	unsigned int totalsize = 0;
+	for(unsigned int i=0; i<size; i++){
+		if(values[i] >= threshold){ 
+			count += 1; 
+			totalsize += values[i];
+			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
+		}
+	}
+	cout<<"utility::printvaluesgreaterthan::"<<message<<":: keyvalues with value greater than "<<threshold<<": "<<count<<", total size: "<<totalsize<<endl<<endl;
+}
+void utility::printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
+	unsigned int count = 0;
+	for(unsigned int i=0; i<size; i++){
+		if(values[i] < threshold){ 
+			count += 1; 
+			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
+		}
+	}
+	cout<<"utility::printvalueslessthan::"<<message<<":: keyvalues with value less than "<<threshold<<": "<<count<<endl<<endl;
 }
 
 void utility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){

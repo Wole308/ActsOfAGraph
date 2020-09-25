@@ -27,6 +27,8 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize);
 	void printmessages(string message, uint512_vec_dt * keyvalues);
 	void printallparameters();
+	void printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
+	void printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	

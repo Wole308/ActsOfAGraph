@@ -38,6 +38,11 @@ int main(int argc, char** argv){
 	creategraphobj->create2Dgraf(NAp, datasetobj->getdatasetid());
 	exit(EXIT_SUCCESS);
 	#endif
+	#ifdef _ANALYZEGRAPH
+	creategraph * creategraphobj = new creategraph();
+	creategraphobj->analyzegraf(NAp, datasetobj->getdatasetid());
+	exit(EXIT_SUCCESS);
+	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS2
 	std::chrono::steady_clock::time_point begintime_overallexecution = std::chrono::steady_clock::now();
