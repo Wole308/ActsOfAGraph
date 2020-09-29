@@ -32,6 +32,8 @@ private:
 	uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	uint512_vec_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	
+	hostglobalparams_t globalparams;
 };
 #endif
 

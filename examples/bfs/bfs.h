@@ -17,8 +17,8 @@ public:
 	~bfs();
 	
 	runsummary_t run();
-	void WorkerThread1(int threadidx, unsigned int graph_iterationidx);
-	void WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx);
+	void WorkerThread1(int threadidx, hostglobalparams_t globalparams);
+	void WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams);
 	
 	void partitionupdates(unsigned int threadidx, keyvalue_t * buffer, unsigned int vbegin, unsigned int datasize);
 	void appendupdatestobuffer(vector<keyvalue_t> (&sourcebuffer)[NUMSSDPARTITIONS], vector<keyvalue_t> (&destinationbuffer)[NUMSSDPARTITIONS]);
@@ -42,6 +42,8 @@ private:
 	vector<keyvalue_t> VUbuffer[NUMSSDPARTITIONS];
 	vector<keyvalue_t> intermediateVUbuffer[NUMSUPERCPUTHREADS][NUMSSDPARTITIONS];
 	std::thread mythread[NUMSUPERCPUTHREADS][NUMCPUTHREADS];
+	
+	hostglobalparams_t globalparams;
 };
 #endif
 

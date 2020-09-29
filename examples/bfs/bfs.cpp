@@ -59,7 +59,7 @@ bfs::~bfs(){
 }
 
 runsummary_t bfs::run() {
-	graphobj->openfilesforreading();
+	graphobj->openfilesforreading(0);
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	graphobj->generateverticesdata();
@@ -70,9 +70,15 @@ runsummary_t bfs::run() {
 	graphobj->loadvertexdatafromfile();
 	graphobj->writerootvertextoactiveverticesfiles(12, 0);
 	
+	globalparams.groupbasevoffset = 0;
+	globalparams.groupid = 0;
+	globalparams.graph_algorithmidx = BREADTHFIRSTSEARCH;
+	
 	// for(unsigned int graph_iterationidx=0; graph_iterationidx<64; graph_iterationidx++){
 	for(unsigned int graph_iterationidx=0; graph_iterationidx<24; graph_iterationidx++){
 		cout<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<graph_iterationidx<<" of breadth-first-search started"<< RESET <<endl;
+		
+		globalparams.graph_iterationidx = graph_iterationidx;
 		
 		graphobj->openactiveverticesfilesforreading(graph_iterationidx);
 		graphobj->openactiveverticesfilesforwriting((graph_iterationidx + 1));
@@ -81,12 +87,12 @@ runsummary_t bfs::run() {
 		if(numactivevertices == 0){ cout<<"actgraph_bfs_sw::run: no more active vertices to process. exiting..."<<endl; break; }
 		graphobj->configureactivevertexreaders(); // important
 		
-		for(unsigned int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread1(i, graph_iterationidx); }
+		for(unsigned int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread1(i, globalparams); }
 		for(unsigned int i = 0; i < NUMSSDPARTITIONS; i++) { cout<<"=== bfs::run: number of active vertices in ssdpartition "<<i<<": "<<VUbuffer[i].size()<<" ==="<<endl; }
 		
 		for(unsigned int i_batch=0; i_batch<NUMSSDPARTITIONS; i_batch += NUMSUPERCPUTHREADS){
 			cout<<">>> actgraph_bfs_sw::start: super iteration: [i_batch: "<<i_batch<<"][size: "<<NUMSSDPARTITIONS<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<<endl;
-			for (int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread2(i, i_batch, graph_iterationidx); }
+			for (int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread2(i, i_batch, globalparams); }
 			cout<<">>> bfs::run Finished: all threads joined..."<<endl;
 		}
 
@@ -105,7 +111,7 @@ runsummary_t bfs::run() {
 	
 	return edgeprocessobj[0]->timingandsummary(NAp, totaltime_ms);
 }
-void bfs::WorkerThread1(int threadidx, unsigned int graph_iterationidx){
+void bfs::WorkerThread1(int threadidx, hostglobalparams_t globalparams){
 	kvresults_t results[NUMCPUTHREADS];
 	unsigned int iteration_size = 256;
 	
@@ -131,7 +137,7 @@ void bfs::WorkerThread1(int threadidx, unsigned int graph_iterationidx){
 	}
 	return;
 }
-void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx){
+void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams){
 	unsigned int globaliteration_idx = 0;
 	unsigned int voffset = (threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION;
 	
@@ -171,7 +177,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 		retrieveupdates(superthreadidx, threadidxoffset + superthreadidx, fdoffset, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], batchoffset, batchsize, loadsize, voffset);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
 		#ifdef ACTSMODEL
-		helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, BREADTHFIRSTSEARCH, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+		helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM, globalparams);
 		#endif 
 		// FIXME. do for ACTSMODEL_LW
 		
@@ -190,7 +196,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, unsigned int gr
 	#endif
 	#ifdef ACTSMODEL
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, graph_iterationidx); // FIXME. CHECKME.
+	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, globalparams.graph_iterationidx); // FIXME. CHECKME.
 	#endif 
 	// FIXME. do for ACTSMODEL_LW
 	graphobj->savevertexdatatofile(threadidxoffset + superthreadidx, 0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED

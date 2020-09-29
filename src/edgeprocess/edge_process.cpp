@@ -16,6 +16,7 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/dataaccess/dataaccess.h"
 #include "../../src/stats/stats.h"
+#include "../../src/graphs/create2Dgraph.h" // REMOVEME. just for debugging.
 #include "../../include/common.h"
 #include "edge_process.h"
 using namespace std;
@@ -42,6 +43,12 @@ edge_process::edge_process(graph * _graphobj){
 	mp_edge_buffer = aligned_alloc(512, m_buffer_alloc_bytes);
 	m_index_blocks_read = 0;
 	m_edge_blocks_read = 0;
+	
+	#ifdef _DEBUGMODE_CHECKS // REMOVEME. just for debugging.
+	create2Dgraphobj = new create2Dgraph(graphobj);
+	create2Dgraphobj->analyzegraph();
+	create2Dgraphobj->rehashhighindegreevertices();
+	#endif 
 }
 edge_process::~edge_process(){} 
 
@@ -57,9 +64,26 @@ void edge_process::generateupdates(unsigned int bank, unsigned int col, unsigned
 }
 unsigned int edge_process::generateupdates_stream(int ithreadidx, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){			
 	graphobj->loadedgepropertyfromfile(bank, col, fdoffset, edgebuffer[ithreadidx], 0, datasize);
+	
 	graphobj->loadvertexpointersfromfile(bank, col, fdoffset, vertexpointerbuffer[ithreadidx], 0, datasize);
 	
 	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, bank, batch, batchoffset, batchsize, datasize, voffset);
+	
+	#ifdef _DEBUGMODE_CHECKS // REMOVEME.
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	for(unsigned int i=0; i<kvcount; i++){
+		if(i<16){ cout<<"edge_process::generateupdates_stream: edgebuffer["<<ithreadidx<<"]["<<i<<"].dstvid: "<<edgebuffer[ithreadidx][i].dstvid<<", destv indegree: "<<create2Dgraphobj->getvertexindegrees()[(edgebuffer[ithreadidx][i].dstvid)]<<endl; }
+		if(create2Dgraphobj->getvertexindegrees()[(edgebuffer[ithreadidx][i].dstvid)] >= 1000){ 
+		// if(create2Dgraphobj->getvertexindegrees()[(edgebuffer[ithreadidx][i].dstvid)] < 1000){ 
+			// cout<<"HIGH INDEGREE"<<endl; 
+		}
+		else { cout<<"ERROR: LOW INDEGREE"<<endl; exit(EXIT_FAILURE); }
+	}
+	// return 0;
+	// exit(EXIT_SUCCESS);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	#endif 
+	
 	return kvcount;
 }
 unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){

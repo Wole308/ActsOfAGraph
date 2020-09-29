@@ -95,6 +95,13 @@ typedef struct {
 	unsigned int capsulebatchsz_kvs;
 	unsigned int vbegin;
 	unsigned int statsalreadycollected;
+	unsigned int groupid;
+	unsigned int beginLOP;
+	unsigned int endLOP;
+	unsigned int batch_range;
+	unsigned int batch_range_pow;
+	unsigned int applyvertexbuffersz;
+	unsigned int applyvertexbuffersz_kvs;
 } globalparams_t;
 #endif 
 

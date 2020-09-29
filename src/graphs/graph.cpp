@@ -106,6 +106,9 @@ size_t graph::get_num_vertices(){
 size_t graph::get_num_edges(){
 	return thisdataset.num_edges;
 }
+void graph::setnumvertices(unsigned int num_vertices){
+	thisdataset.num_vertices = num_vertices;
+}
 
 size_t graph::getnumedgebanks(){
 	return numedgebanks;
@@ -140,12 +143,12 @@ void graph::configureactivevertexreaders(){
 	return;
 }
 
-void graph::openfilesforreading(){
+void graph::openfilesforreading(unsigned int groupid){
 	cout<<"graph::openfilesforreading : opening files for reading"<<endl;
 	// vertex offsets (pread)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgeoffsets(i, j); 	
+			string path = getpath_edgeoffsets(groupid, i, j); 	
 			nvmeFd_edgeoffsets_r2[i][j] = open(path.c_str(), O_RDONLY);
 			if (nvmeFd_edgeoffsets_r2[i][j] < 0) {
 				cout << "ERR: open " << path << " failed: "
@@ -159,7 +162,7 @@ void graph::openfilesforreading(){
 	// vertex offsets (fread)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgeoffsets(i,j); 
+			string path = getpath_edgeoffsets(groupid, i,j); 
 			nvmeFd_edgeoffsets_r[i][j] = fopen(path.c_str(), "r"); 
 			if (nvmeFd_edgeoffsets_r[i][j] == NULL) {
 				cout << "ERR: open " << path << " failed: "
@@ -173,7 +176,7 @@ void graph::openfilesforreading(){
 	// edge properties (pread)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgesproperties(i, j);
+			string path = getpath_edgesproperties(groupid, i, j);
 			nvmeFd_edgeproperties_r2[i][j] = open(path.c_str(), O_RDONLY); 
 			if (nvmeFd_edgeproperties_r2[i][j] < 0) {
 				cout << "ERR: open " << path << " failed: "
@@ -187,7 +190,7 @@ void graph::openfilesforreading(){
 	// edge properties (fread)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgesproperties(i,j);
+			string path = getpath_edgesproperties(groupid, i,j);
 			nvmeFd_edgeproperties_r[i][j] = fopen(path.c_str(), "r"); 
 			if (nvmeFd_edgeproperties_r[i][j] == NULL) {
 				cout << "ERR: open " << path << " failed: "
@@ -199,12 +202,12 @@ void graph::openfilesforreading(){
 	}
 	return;
 }
-void graph::openfilesforwriting(){
+void graph::openfilesforwriting(unsigned int groupid){
 	cout<<"graph::openfilesforreading : opening files for writing"<<endl;
 	// vertex offsets (pwrite)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgeoffsets(i, j); 
+			string path = getpath_edgeoffsets(groupid, i, j); 
 			std::ofstream ofs; ofs.open(path.c_str(), std::ofstream::out | std::ofstream::trunc); ofs.close();				
 			nvmeFd_edgeoffsets_w2[i][j] = open(path.c_str(), O_WRONLY);
 			if (nvmeFd_edgeoffsets_w2[i][j] < 0) {
@@ -219,7 +222,7 @@ void graph::openfilesforwriting(){
 	// vertex offsets (fwrite)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgeoffsets(i,j); 
+			string path = getpath_edgeoffsets(groupid, i,j); 
 			std::ofstream ofs; ofs.open(path.c_str(), std::ofstream::out | std::ofstream::trunc); ofs.close();	
 			nvmeFd_edgeoffsets_w[i][j] = fopen(path.c_str(), "w"); 
 			if (nvmeFd_edgeoffsets_w[i][j] == NULL) {
@@ -234,7 +237,7 @@ void graph::openfilesforwriting(){
 	// edge properties (pwrite)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgesproperties(i, j);
+			string path = getpath_edgesproperties(groupid, i, j);
 			std::ofstream ofs; ofs.open(path.c_str(), std::ofstream::out | std::ofstream::trunc); ofs.close();	
 			nvmeFd_edgeproperties_w2[i][j] = open(path.c_str(), O_WRONLY); 
 			if (nvmeFd_edgeproperties_w2[i][j] < 0) {
@@ -249,7 +252,7 @@ void graph::openfilesforwriting(){
 	// edge properties (fwrite)
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){
-			string path = getpath_edgesproperties(i,j);
+			string path = getpath_edgesproperties(groupid, i,j);
 			std::ofstream ofs; ofs.open(path.c_str(), std::ofstream::out | std::ofstream::trunc); ofs.close();	
 			nvmeFd_edgeproperties_w[i][j] = fopen(path.c_str(), "w"); 
 			if (nvmeFd_edgeproperties_w[i][j] == NULL) {
@@ -267,7 +270,9 @@ void graph::closefilesforreading(){
 	cout<<"graph::closefilesforreading : close files for reading..."<<endl;
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_edgeoffsets_r2[i][j]); }
+		for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_edgeoffsets_r[i][j]); }
 		for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_edgeproperties_r2[i][j]); }
+		for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_edgeproperties_r[i][j]); }
 	}
 	return;
 }
@@ -275,7 +280,9 @@ void graph::closefilesforwriting(){
 	cout<<"graph::closefilesforreading : close files for writing..."<<endl;
 	for(unsigned int i=0; i<numvertexbanks; i++){
 		for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_edgeoffsets_w2[i][j]); }
+		for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_edgeoffsets_w[i][j]); }
 		for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_edgeproperties_w2[i][j]); }
+		for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_edgeproperties_w[i][j]); }
 	}
 	return;
 }
@@ -459,11 +466,11 @@ string graph::getpath_tempvertexdata(unsigned int i){
 string graph::getpath_vertexproperties(unsigned int i){
 	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(numvertexbanks) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(i) + ".vproperties";		
 }
-string graph::getpath_edgesproperties(unsigned int i, unsigned int j){
-	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(numvertexbanks) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(i) + "_" + std::to_string(j) + ".edges";		
+string graph::getpath_edgesproperties(unsigned int groupid, unsigned int i, unsigned int j){
+	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(numvertexbanks) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".edges";		
 }
-string graph::getpath_edgeoffsets(unsigned int i, unsigned int j){
-	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(numvertexbanks) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(i) + "_" + std::to_string(j) + ".edgeoffsets";		
+string graph::getpath_edgeoffsets(unsigned int groupid, unsigned int i, unsigned int j){
+	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(numvertexbanks) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".edgeoffsets";		
 }
 string graph::getpath_activevertices(unsigned int graph_iterationidx){
 	return datasetRootDir + "datasets" + "/" + thisdataset.graphname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices"; // CORRECTONE.		
@@ -681,6 +688,7 @@ void graph::loadalldatasets(){
 	_datasets[0].num_edges = 0;
 	_datasets[0].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[0].graphorder = SRC_DST;
+	_datasets[0].skewratio = SKEWRATIO;
 	
 	_datasets[1].graphname = "flickr";
 	_datasets[1].graph_path = rootDir + "datasets/flickr/flickr.graph";
@@ -694,6 +702,7 @@ void graph::loadalldatasets(){
 	_datasets[1].num_edges = 9837214;
 	_datasets[1].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[1].graphorder = DST_SRC;
+	_datasets[1].skewratio = SKEWRATIO;
 	
 	_datasets[2].graphname = "twitter";
 	_datasets[2].graph_path = rootDir + "datasets/twitter/twitter.graph";
@@ -709,6 +718,7 @@ void graph::loadalldatasets(){
 	_datasets[2].num_edges = 1468365184; // 1468365184
 	_datasets[2].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[2].graphorder = DST_SRC;
+	_datasets[2].skewratio = SKEWRATIO;
 	
 	_datasets[4].graphname = "kronecker26";
 	_datasets[4].graph_path = rootDir + "datasets/kronecker26/kronecker26.graph";
@@ -722,6 +732,7 @@ void graph::loadalldatasets(){
 	_datasets[4].num_edges = 1073741824; // 1073741824
 	_datasets[4].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[4].graphorder = SRC_DST;
+	_datasets[4].skewratio = SKEWRATIO;
 	
 	_datasets[5].graphname = "kronecker28";
 	_datasets[5].graph_path = rootDir + "datasets/kronecker28/kronecker28.graph";
@@ -735,6 +746,7 @@ void graph::loadalldatasets(){
 	_datasets[5].num_edges = 4294967290;
 	_datasets[5].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[5].graphorder = SRC_DST;
+	_datasets[5].skewratio = SKEWRATIO;
 	
 	_datasets[6].graphname = "kronecker30";
 	_datasets[6].graph_path = rootDir + "datasets/kronecker30/kronecker30.graph";
@@ -748,6 +760,7 @@ void graph::loadalldatasets(){
 	_datasets[6].num_edges = 17179869184;
 	_datasets[6].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[6].graphorder = SRC_DST;
+	_datasets[6].skewratio = SKEWRATIO;
 	
 	_datasets[7].graphname = "kronecker32";
 	_datasets[7].graph_path = rootDir + "datasets/kronecker32/kronecker32.graph";
@@ -761,6 +774,7 @@ void graph::loadalldatasets(){
 	_datasets[7].num_edges = 68719476736;
 	_datasets[7].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[7].graphorder = SRC_DST;
+	_datasets[7].skewratio = SKEWRATIO;
 	
 	_datasets[10].graphname = "wdc";
 	_datasets[10].graph_path = rootDir + "datasets/wdc/wdc.graph";
@@ -774,6 +788,13 @@ void graph::loadalldatasets(){
 	_datasets[10].num_edges = 0;
 	_datasets[10].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[10].graphorder = SRC_DST;
+	_datasets[10].skewratio = SKEWRATIO;
+	
+	for(unsigned int i=0; i<32; i++){
+		_datasets[i].groupvoffset[0] = 0;
+		_datasets[i].groupvoffset[1] = _datasets[i].num_vertices;
+	}
+	
 	cout<<"graph::loadalldatasets finished. "<<endl;
 	return;
 }

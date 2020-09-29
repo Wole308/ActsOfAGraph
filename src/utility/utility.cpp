@@ -101,12 +101,17 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
+	std::cout<<"host:: BATCH_RANGE2: "<<BATCH_RANGE2<<std::endl;
+	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
 	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
+	std::cout<<"host:: TREE_DEPTH2: "<<TREE_DEPTH2<<std::endl;
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION_POW: "<<KVDATA_RANGE_PERSSDPARTITION_POW<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION: "<<KVDATA_RANGE_PERSSDPARTITION<<std::endl;
+	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION2_POW: "<<KVDATA_RANGE_PERSSDPARTITION2_POW<<std::endl;
+	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION2: "<<KVDATA_RANGE_PERSSDPARTITION2<<std::endl;
 	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
 	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;
@@ -178,7 +183,7 @@ void utility::printvaluesgreaterthan(string message, unsigned int * values, unsi
 			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
 		}
 	}
-	cout<<"utility::printvaluesgreaterthan::"<<message<<":: keyvalues with value greater than "<<threshold<<": "<<count<<", total size: "<<totalsize<<endl<<endl;
+	cout<<"utility::printvaluesgreaterthan::"<<message<<":: datas with value greater than "<<threshold<<": "<<count<<", (<threshold: "<<(size - count)<<") total size: "<<totalsize<<endl<<endl;
 }
 void utility::printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
 	unsigned int count = 0;
@@ -188,7 +193,7 @@ void utility::printvalueslessthan(string message, unsigned int * values, unsigne
 			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
 		}
 	}
-	cout<<"utility::printvalueslessthan::"<<message<<":: keyvalues with value less than "<<threshold<<": "<<count<<endl<<endl;
+	cout<<"utility::printvalueslessthan::"<<message<<":: datas with value less than "<<threshold<<": "<<count<<endl<<endl;
 }
 
 void utility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
@@ -284,6 +289,19 @@ void utility::countkeyvalueswithvalueequalto(string message, keyvalue_t * keyval
 	unsigned int count = 0;
 	for(unsigned int i=0; i<size; i++){ if(keyvalues[i].value == value){ count += 1; } }
 	cout<<"utility::countkeyvalueswithvalueequalto::"<<message<<":: keyvalues with value equal to "<<value<<": "<<count<<endl;
+}
+unsigned int utility::countvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
+	unsigned int count = 0;
+	unsigned int totalsize = 0;
+	for(unsigned int i=0; i<size; i++){
+		if(values[i] >= threshold){ 
+			count += 1; 
+			totalsize += values[i];
+			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
+		}
+	}
+	cout<<"utility::printvaluesgreaterthan::"<<message<<":: datas with value greater than "<<threshold<<": "<<count<<", (> threshold: "<<(size - count)<<") total size: "<<totalsize<<endl<<endl;
+	return count;
 }
 
 #ifdef FPGA_IMPL

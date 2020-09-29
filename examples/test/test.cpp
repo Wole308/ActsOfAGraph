@@ -57,6 +57,12 @@ test::~test(){
 }
 
 void test::run(){
+	hostglobalparams_t globalparams;
+	globalparams.groupbasevoffset = 0;
+	globalparams.groupid = 0;
+	globalparams.graph_algorithmidx = PAGERANK;
+	globalparams.graph_iterationidx = 0;
+	
 	unsigned int globaliteration_idx = 0;
 	unsigned int voffset = 0; 
 	
@@ -84,10 +90,10 @@ void test::run(){
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
 		
 		#ifdef ACTSMODEL
-		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM, globalparams);
 		#endif
 		#ifdef ACTSMODEL_LW
-		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, 0, PAGERANK, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS, globalparams);
 		#endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS2

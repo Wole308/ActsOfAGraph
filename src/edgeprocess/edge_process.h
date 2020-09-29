@@ -10,6 +10,7 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/dataaccess/dataaccess.h"
 #include "../../src/stats/stats.h"
+#include "../../src/graphs/create2Dgraph.h" // REMOVEME. just for debugging.
 #include "../../include/common.h"
 using namespace std;
 
@@ -58,6 +59,10 @@ private:
 	static const size_t m_buffer_alloc_bytes = (1024*2);
 	std::atomic<size_t> m_index_blocks_read;
 	std::atomic<size_t> m_edge_blocks_read;
+	
+	// #ifdef _DEBUGMODE_CHECKS // REMOVEME. just for debugging.
+	create2Dgraph * create2Dgraphobj;
+	// #endif 
 };
 #endif
 

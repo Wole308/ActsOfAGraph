@@ -2,7 +2,6 @@
 #define CONFIG_PARAMS_H
 
 // #define _GENERATE2DGRAPH //
-#define _ANALYZEGRAPH
 // #define _GENERATEACTIVEVERTICES
 
 #define RUNALLITERATIONS
@@ -27,11 +26,11 @@
 // #define ENABLE_APPROXIMATEPARTITIONWRITES // FPGA hangs if this is disabled
 #define HBMBUGCOMPLANT
 
-#define ACTSMODEL
-// #define ACTSMODEL_LW
-	// #define ACTSMODEL_LWTYPE1
+// #define ACTSMODEL
+#define ACTSMODEL_LW
+	#define ACTSMODEL_LWTYPE1
 	// #define ACTSMODEL_LWTYPE2
-	#define ACTSMODEL_LWTYPE3
+	// #define ACTSMODEL_LWTYPE3
 #endif
 
 

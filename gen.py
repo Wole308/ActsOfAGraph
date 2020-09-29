@@ -30,17 +30,14 @@ EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
 else:
-    if context['DATASET'] == "_EQUALDATASET_X":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
-        context['KVDATA_RANGE_POW'] = 24
-    elif context['DATASET'] == "_LARGEDATASET_1M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
+    if context['DATASET'] == "_LARGEDATASET_1M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 1
         context['KVDATA_RANGE_POW'] = 20
     elif context['DATASET'] == "_LARGEDATASET_4M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
         context['KVDATA_RANGE_POW'] = 22
     elif context['DATASET'] == "_TWITTERDATASET_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
+        context['MAXNUMSSDPARTITIONS_POW'] = 4
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_67M":
         context['MAXNUMSSDPARTITIONS_POW'] = 4 #2

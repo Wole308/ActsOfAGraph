@@ -8,6 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -17,6 +18,7 @@
 using namespace std;
 
 helperfunctions::helperfunctions(graph * _graphobj){
+	parametersobj = new parameters();
 	utilityobj = new utility();
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
@@ -201,11 +203,13 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 #endif 
 
 void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTS2
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
+	#ifdef ACTSMODEL_LW
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("helperfunctions::launchkernel:: messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
 	#endif
-
+	#endif
+	
 	#ifdef ACTSMODEL
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
 	#endif
@@ -220,7 +224,7 @@ void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 
 // update messages before & after launch
 #ifdef ACTSMODEL
-void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int graph_iterationidx, unsigned int graph_algorithmidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset, unsigned int kvstatsbaseoffset){			
+void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset, unsigned int kvstatsbaseoffset, hostglobalparams_t globalparams){											
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			if((utilityobj->runActs(globaliteration_idx) == 1)){
@@ -242,18 +246,19 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset + MESSAGES_COLLECTSTATSCOMMANDID].key = ON;
 			kvstats[i][j][messagesbaseoffset + MESSAGES_PARTITIONCOMMANDID].key = ON;
 			kvstats[i][j][messagesbaseoffset + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
-			kvstats[i][j][messagesbaseoffset + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
-			kvstats[i][j][messagesbaseoffset + MESSAGES_VOFFSET].key = voffset + (j * BATCH_RANGE);
+			kvstats[i][j][messagesbaseoffset + MESSAGES_VOFFSET].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid)); 
 			kvstats[i][j][messagesbaseoffset + MESSAGES_VSIZE].key = NAp;
-			#ifdef ACTSMODEL
-			kvstats[i][j][messagesbaseoffset + MESSAGES_TREEDEPTH].key = TREE_DEPTH;
-			#else 
-			kvstats[i][j][messagesbaseoffset + MESSAGES_TREEDEPTH].key = TREE_DEPTH + 1;
-			// kvstats[i][j][HOSTBASEOFFSET_MESSAGESDRAM + MESSAGES_TREEDEPTH].key = 2; // REMOVEME.
-			#endif
-			kvstats[i][j][messagesbaseoffset + MESSAGES_FINALNUMPARTITIONS].key = pow(NUM_PARTITIONS, TREE_DEPTH);
-			kvstats[i][j][messagesbaseoffset + MESSAGES_GRAPHITERATIONID].key = graph_iterationidx;
-			kvstats[i][j][messagesbaseoffset + MESSAGES_GRAPHALGORITHMID].key = graph_algorithmidx;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_TREEDEPTH].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); 
+			kvstats[i][j][messagesbaseoffset + MESSAGES_FINALNUMPARTITIONS].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid)); 
+			kvstats[i][j][messagesbaseoffset + MESSAGES_GRAPHITERATIONID].key = globalparams.graph_iterationidx;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_GRAPHALGORITHMID].key = globalparams.graph_algorithmidx;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_GROUPID].key = globalparams.groupid;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_BEGINLOP].key = 1;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_ENDLOP].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_BATCHRANGE].key = parametersobj->GET_BATCH_RANGE(globalparams.groupid); 
+			kvstats[i][j][messagesbaseoffset + MESSAGES_BATCHRANGE_POW].key = parametersobj->GET_BATCH_RANGE_POW(globalparams.groupid);
+			kvstats[i][j][messagesbaseoffset + MESSAGES_APPLYVERTEXBUFFERSZ].key = parametersobj->GET_APPLYVERTEXBUFFERSZ(globalparams.groupid); 
+			kvstats[i][j][messagesbaseoffset + MESSAGES_APPLYVERTEXBUFFERSZ_KVS].key = parametersobj->GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid); 
 		}
 	}
 	return;
@@ -276,7 +281,7 @@ void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx
 }
 #endif 
 #ifdef ACTSMODEL_LW
-void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int graph_iterationidx, unsigned int graph_algorithmidx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs){			
+void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs, hostglobalparams_t globalparams){			
 	unsigned int totalkeyvalueslaunched = 0;
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -300,18 +305,20 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key = ON;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_PARTITIONCOMMANDID].data[0].key = ON;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key = ON;
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key = ON;
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VOFFSET].data[0].key = voffset + (j * BATCH_RANGE);
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VOFFSET].data[0].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid));
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VSIZE].data[0].key = NAp;
-			#ifdef ACTSMODEL
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH;
-			#else 
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = TREE_DEPTH + 1;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
 			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 1; // REMOVEME.
-			#endif
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, TREE_DEPTH);
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = graph_iterationidx;
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHALGORITHMID].data[0].key = graph_algorithmidx;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid));
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = globalparams.graph_iterationidx;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHALGORITHMID].data[0].key = globalparams.graph_algorithmidx;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GROUPID].data[0].key = globalparams.groupid;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BEGINLOP].data[0].key = 0;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_ENDLOP].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHRANGE].data[0].key = parametersobj->GET_BATCH_RANGE(globalparams.groupid); 
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHRANGE_POW].data[0].key = parametersobj->GET_BATCH_RANGE_POW(globalparams.groupid);
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYVERTEXBUFFERSZ].data[0].key = parametersobj->GET_APPLYVERTEXBUFFERSZ(globalparams.groupid); 
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYVERTEXBUFFERSZ_KVS].data[0].key = parametersobj->GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid);
 		}
 	}
 	cout<<"...running Acts... total size: "<<totalkeyvalueslaunched<<endl; 

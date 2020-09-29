@@ -24,9 +24,9 @@ void creategraph::create2Dgraf(unsigned int algorithmid, unsigned int datasetid)
 	heuristics * heuristicsobj = new heuristics();
 	graph * graphobj = new graph(algorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
 	
-	cout<<"graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl;
-	create2Dgraph * create2Dgraphobj = new create2Dgraph(graphobj);
-	create2Dgraphobj->start();
+	create2Dgraph * create2Dgraphobj = new create2Dgraph(graphobj, NAp);
+	create2Dgraphobj->run();
+
 	cout<<"creategraph:: finished generating 2D graph."<<endl;
 }
 
@@ -36,8 +36,9 @@ void creategraph::analyzegraf(unsigned int algorithmid, unsigned int datasetid){
 	graph * graphobj = new graph(algorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
 	
 	cout<<"graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl;
-	create2Dgraph * create2Dgraphobj = new create2Dgraph(graphobj, NAp);
+	create2Dgraph * create2Dgraphobj = new create2Dgraph(graphobj);
 	create2Dgraphobj->analyzegraph();
+	create2Dgraphobj->transformgraph();
 	cout<<"creategraph:: finished analyzing graph."<<endl;
 }
 

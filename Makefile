@@ -52,8 +52,8 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-KERNEL_TOP += acts/acts/acts.cpp
-# KERNEL_TOP += acts/acts_lw/actslw.cpp
+# KERNEL_TOP += acts/acts/acts.cpp
+KERNEL_TOP += acts/acts_lw/actslw.cpp
 # KERNEL_TOP += acts/acts_lw2/actslw.cpp
 # KERNEL_TOP += acts/acts_lw3/actslw.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
@@ -72,6 +72,7 @@ HOST_SRCS += src/graphs/graph.cpp
 HOST_SRCS += src/heuristics/heuristics.cpp
 HOST_SRCS += src/stats/stats.cpp
 HOST_SRCS += src/utility/utility.cpp
+HOST_SRCS += src/parameters/parameters.cpp
 HOST_SRCS += src/dataset/dataset.cpp
 HOST_SRCS += kernels/kernel.cpp
 HOST_SRCS += kernels/swkernel.cpp

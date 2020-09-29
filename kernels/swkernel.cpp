@@ -70,6 +70,7 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
 	#ifdef LOCKE
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
+		exit(EXIT_SUCCESS); // REMOVEME.
 	#else 
 		// FIXME.
 	#endif
@@ -117,9 +118,6 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 // worker threads
 #ifdef ACTSMODEL
 void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats){
-	#ifndef TESTKERNEL
-	return; // REMOVEME.
-	#endif 
 	
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	
@@ -131,15 +129,15 @@ void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_d
 #endif
 #if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
 void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, uint512_dt * kvsourcedram){
-	#ifndef TESTKERNEL
+	/* #ifndef TESTKERNEL
 	return; // REMOVEME.
-	#endif 
+	#endif  */
 	
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
 	
-	#ifdef TESTKERNEL
-	exit(EXIT_SUCCESS); // REMOVEME.
-	#endif
+	// #ifdef TESTKERNEL
+	// exit(EXIT_SUCCESS); // REMOVEME.
+	// #endif
 	return;
 }
 #endif

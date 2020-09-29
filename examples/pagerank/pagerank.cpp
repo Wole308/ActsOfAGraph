@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <vector>
 #include <mutex>
+#include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -23,6 +24,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i] = new helperfunctions(graphobj); }
@@ -31,7 +33,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){
 		#ifdef FPGA_IMPL
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvsourcedram[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}}
-		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvdestdram[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (BATCH_RANGE_KVS * sizeof(uint512_vec_dt))); }}} // KVDATA_RANGE_PERSSDPARTITION_KVS
+		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvdestdram[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (BATCH_RANGE_KVS * sizeof(uint512_vec_dt))); }}}
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvstats[i][flag][j][k] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }}}
 		#else 
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvsourcedram[i][flag][j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}}
@@ -56,8 +58,7 @@ pagerank::~pagerank(){
 	}
 }
 
-runsummary_t pagerank::run() {
-	graphobj->openfilesforreading();
+runsummary_t pagerank::run(){
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	graphobj->generateverticesdata();
@@ -67,37 +68,53 @@ runsummary_t pagerank::run() {
 	graphobj->loadvertexpropertiesfromfile();
 	graphobj->loadvertexdatafromfile();
 	
-	for(unsigned int graph_iterationidx=0; graph_iterationidx<1; graph_iterationidx++){
-		cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<graph_iterationidx<<" of pagerank started"<< RESET <<endl;
+	vertex_t basevoffset = 0;
+	
+	for(unsigned int groupid = 0; groupid < 2; groupid++){
+		graphobj->openfilesforreading(groupid); //
 		
-		for(unsigned int i_batch=0; i_batch<graphobj->getnumedgebanks(); i_batch += NUMSUPERCPUTHREADS){
-			cout<<">>> pagerank::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<<endl;
-			for (int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread(i, i_batch, graph_iterationidx); }
-			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-			// break;
+		globalparams.groupbasevoffset = 0;
+		globalparams.groupid = groupid;
+		globalparams.graph_algorithmidx = PAGERANK;
+		
+		for(unsigned int graph_iterationidx=0; graph_iterationidx<1; graph_iterationidx++){
+			cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<graph_iterationidx<<" of pagerank started"<< RESET <<endl;
+			
+			globalparams.graph_iterationidx = graph_iterationidx;
+			
+			for(unsigned int i_batch=0; i_batch<graphobj->getnumedgebanks(); i_batch += NUMSUPERCPUTHREADS){
+			// for(unsigned int i_batch=0; i_batch<1; i_batch += NUMSUPERCPUTHREADS){
+				cout<<">>> pagerank::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<<endl;
+				for (int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread(i, i_batch, globalparams); }
+				cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
+				break; // REMOVEME.
+			}
 		}
+		
+		graphobj->closefilesforreading();
+		break; // REMOVEME.
 	}
 	
 	utilityobj[0]->stopTIME("pagerank::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
-	graphobj->closefilesforreading();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	
 	return edgeprocessobj[0]->timingandsummary(NAp, totaltime_ms);
 }
-void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx){
+void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams){ 
 	unsigned int globaliteration_idx = 0;
-	unsigned int voffset = (threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION;
+	unsigned int voffset = (threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid);
+	
 	edgeprocessobj[superthreadidx]->resetstatevariables();
 	
 	#ifdef ACTSMODEL
-	graphobj->loadvertexdatafromfile(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	graphobj->loadvertexdatafromfile(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid));
+	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid));
 	#endif 
 	#ifdef ACTSMODEL_LW
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ graphobj->loadvertexdatafromfile(0, (((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION) + (i * BATCH_RANGE)), (value_t *)kvsourcedram[superthreadidx][0][0][i], BASEOFFSET_VERTICESDATA, BATCH_RANGE); }
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ graphobj->loadvertexdatafromfile(0, (((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)) + (i * BATCH_RANGE)), (value_t *)kvsourcedram[superthreadidx][0][0][i], BASEOFFSET_VERTICESDATA, BATCH_RANGE); }
 	helperfunctionsobj[superthreadidx]->replicateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE);
 	#endif
 	
@@ -123,7 +140,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned in
 		
 		for (unsigned int iteration_idx = 0; iteration_idx < iteration_size; iteration_idx += NUMCPUTHREADS){
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<"PP&A:: [superthreadidx:"<<(threadidxoffset + superthreadidx)<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [lbankoffset:"<<lbankoffset<<"][size:"<<graphobj->getnumvertexbanks()<<"][step:1], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:"<<NUMCPUTHREADS<<"]"<<endl;		
+			cout<<"PP&A:: [groupid:"<<globalparams.groupid<<"][superthreadidx:"<<(threadidxoffset + superthreadidx)<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [lbankoffset:"<<lbankoffset<<"][size:"<<graphobj->getnumvertexbanks()<<"][step:1], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:"<<NUMCPUTHREADS<<"]"<<endl;		
 			#endif
 			
 			int flag = helperfunctionsobj[superthreadidx]->getflag(globaliteration_idx);
@@ -137,10 +154,10 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned in
 			
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
 			#ifdef ACTSMODEL
-			helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, PAGERANK, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
+			helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM, globalparams);
 			#endif 
 			#ifdef ACTSMODEL_LW
-			helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, graph_iterationidx, PAGERANK, voffset, batchsize, runsize, kvsourcedram[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
+			helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvsourcedram[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS, globalparams);
 			#endif 
 			
 			// Launch the Kernel
@@ -153,10 +170,10 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned in
 			helperfunctionsobj[superthreadidx]->updatemessagesafterlaunch(globaliteration_idx, kvsourcedram[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
 			#endif 
 			globaliteration_idx += 1;
-			// break;
+			break; // REMOVEME.
 			// exit(EXIT_SUCCESS);
 		}
-		// break;
+		break; // REMOVEME.
 		// exit(EXIT_SUCCESS);
 	}
 
@@ -165,14 +182,14 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, unsigned in
 	helperfunctionsobj[superthreadidx]->readVsfromkernel(0);
 	#endif
 	#ifdef ACTSMODEL
-	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, 0, graph_iterationidx);
+	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid));
+	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid), 0, globalparams.graph_iterationidx);
 	#endif 
 	#ifdef ACTSMODEL_LW
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE);
-	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE, 0, graph_iterationidx);
+	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE, 0, globalparams.graph_iterationidx);
 	#endif
-	graphobj->savevertexdatatofile(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
+	graphobj->savevertexdatatofile(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid));
 	return;
 }
 

@@ -18,6 +18,7 @@ public:
 	
 	size_t get_num_vertices();
 	size_t get_num_edges();
+	void setnumvertices(unsigned int num_vertices);
 	
 	size_t getnumedgebanks();
 	void setnumedgebanks(unsigned int _numedgebanks);
@@ -28,8 +29,8 @@ public:
 
 	void configureactivevertexreaders();
 
-	void openfilesforreading();
-	void openfilesforwriting();
+	void openfilesforreading(unsigned int groupid);
+	void openfilesforwriting(unsigned int groupid);
 	
 	void closefilesforreading();
 	void closefilesforwriting();
@@ -49,8 +50,8 @@ public:
 	string getpath_vertexdata(unsigned int i);
 	string getpath_tempvertexdata(unsigned int i);
 	string getpath_vertexproperties(unsigned int i);
-	string getpath_edgesproperties(unsigned int i, unsigned int j);
-	string getpath_edgeoffsets(unsigned int i, unsigned int j);
+	string getpath_edgesproperties(unsigned int groupid, unsigned int i, unsigned int j);
+	string getpath_edgeoffsets(unsigned int groupid, unsigned int i, unsigned int j);
 	string getpath_activevertexids(unsigned int i);
 	string getpath_activevertices(unsigned int graph_iterationidx);
 	string getpath_activeverticesW(unsigned int graph_iterationidx);
@@ -150,6 +151,8 @@ private:
 	SortReduceUtils::FileKvReader<uint32_t,uint32_t>* reader_activevertexids_r2[NUMCPUTHREADS];
 	unsigned int * vertexisactivebitbuffer[MAXNUMVERTEXBANKS];
 	std::thread mythread[MAXNUMVERTEXBANKS];
+	
+	// unsigned int groupid;
 };
 #endif
 

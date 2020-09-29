@@ -1,6 +1,7 @@
 #ifndef PAGERANK_H
 #define PAGERANK_H
 #include <mutex>
+#include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -17,10 +18,11 @@ public:
 	~pagerank();
 	
 	runsummary_t run();
-	void WorkerThread(int superthreadidx, int threadidxoffset, unsigned int graph_iterationidx);
+	void WorkerThread(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams);
 	
 private:
 	graph * graphobj;
+	parameters * parametersobj[NUMSUPERCPUTHREADS];
 	utility * utilityobj[NUMSUPERCPUTHREADS];
 	edge_process * edgeprocessobj[NUMSUPERCPUTHREADS];
 	helperfunctions * helperfunctionsobj[NUMSUPERCPUTHREADS];
@@ -30,6 +32,8 @@ private:
 	uint512_vec_dt * kvsourcedram[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	uint512_vec_dt * kvdestdram[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	keyvalue_t * kvstats[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	
+	hostglobalparams_t globalparams;
 };
 #endif
 

@@ -229,9 +229,9 @@ do
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ4
+		for numsubcputhreads_pow in $THREADPOW_EQ4
 		# for numsubcputhreads_pow in $THREADPOW_EQ2
-		for numsubcputhreads_pow in $THREADPOW_EQ0
+		# for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE

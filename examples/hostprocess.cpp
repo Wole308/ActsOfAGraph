@@ -36,11 +36,7 @@ int main(int argc, char** argv){
 	#ifdef _GENERATE2DGRAPH
 	creategraph * creategraphobj = new creategraph();
 	creategraphobj->create2Dgraf(NAp, datasetobj->getdatasetid());
-	exit(EXIT_SUCCESS);
-	#endif
-	#ifdef _ANALYZEGRAPH
-	creategraph * creategraphobj = new creategraph();
-	creategraphobj->analyzegraf(NAp, datasetobj->getdatasetid());
+	// creategraphobj->analyzegraf(NAp, datasetobj->getdatasetid());
 	exit(EXIT_SUCCESS);
 	#endif
 	
