@@ -150,7 +150,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ loadsize[i] = utilityobj[superthreadidx]->hmin(KVDATA_BATCHSIZE, utilityobj[superthreadidx]->hsub((size_t)edgepropertyfilesize, (size_t)((size_t)(iteration_idx + i) * (size_t)KVDATA_BATCHSIZE))); }			
 			utilityobj[superthreadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
 			
-			edgeprocessobj[superthreadidx]->generateupdates(lbankoffset, threadidxoffset + superthreadidx, fdoffset, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], batchoffset, batchsize, loadsize, voffset);
+			edgeprocessobj[superthreadidx]->generateupdates(globalparams.groupid, lbankoffset, threadidxoffset + superthreadidx, fdoffset, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], batchoffset, batchsize, loadsize, voffset);
 			
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
 			#ifdef ACTSMODEL
@@ -187,7 +187,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 	#endif 
 	#ifdef ACTSMODEL_LW
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE);
-	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE, 0, globalparams.graph_iterationidx);
+	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE, 0, globalparams);
 	#endif
 	graphobj->savevertexdatatofile(0, ((threadidxoffset + superthreadidx) * parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid)), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid));
 	return;

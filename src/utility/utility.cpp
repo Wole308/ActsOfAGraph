@@ -138,6 +138,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<KVDRAMWORKSPACESZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;	
 	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
+	std::cout<<"host:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
+	std::cout<<"host:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
 	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
@@ -147,7 +149,10 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<std::endl;
+	std::cout<<"host:: APPLYVERTEXBUFFERSZ2: "<<APPLYVERTEXBUFFERSZ2<<std::endl;
+	std::cout<<"host:: APPLYVERTEXBUFFERSZ2_KVS: "<<APPLYVERTEXBUFFERSZ2_KVS<<std::endl;
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+	std::cout<<"host:: NUMLASTLEVELPARTITIONS2: "<<NUMLASTLEVELPARTITIONS2<<std::endl;
 
 	#ifdef ACTSMODEL
 	std::cout<<"=== parameters perculier to actsmodel only "<<std::endl;

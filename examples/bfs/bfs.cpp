@@ -234,7 +234,7 @@ void bfs::retrieveupdates(unsigned int superthreadidx, unsigned int bank, unsign
 void bfs::workerthread_retrieveupdates(int ithreadidx, unsigned int superthreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], unsigned int datasize, unsigned int voffset){
 	unsigned int partition;
 	for(unsigned int k=0; k<datasize; k++){ 
-		partition = edgeprocessobj[superthreadidx]->insertkeyvaluetobuffer(batch, batchoffset, batchsize, VUbuffer[bank][fdoffset + k], voffset);
+		partition = edgeprocessobj[superthreadidx]->insertkeyvaluetobuffer(batch, batchoffset, batchsize, VUbuffer[bank][fdoffset + k], voffset, globalparams.groupid);
 	}
 	return;
 }

@@ -82,14 +82,6 @@ using namespace std;
 #endif
 #endif
 
-/* typedef unsigned int batch_type;
-typedef unsigned int buffer_type;
-typedef unsigned int partition_type;
-typedef unsigned int code_type;
-typedef unsigned int smallint_type;
-typedef unsigned int vector_type;
-typedef unsigned int code_type; */
-
 typedef struct {
 	unsigned int baseaddr_worksourcekvs_kvs;
 	unsigned int baseaddr_workdestkvs_kvs;

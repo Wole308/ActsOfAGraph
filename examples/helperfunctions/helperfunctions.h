@@ -39,8 +39,8 @@ public:
 	void workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx);						
 	#endif 
 	#ifdef ACTSMODEL_LW
-	void applyvertices(unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx);
-	void workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx);						
+	void applyvertices(unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, hostglobalparams_t globalparams);
+	void workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, hostglobalparams_t globalparams);						
 	#endif 
 	
 	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);

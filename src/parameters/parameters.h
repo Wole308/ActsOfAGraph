@@ -24,6 +24,8 @@ public:
 	unsigned int GET_APPLYVERTEXBUFFERSZ(unsigned int groupid);
 	unsigned int GET_APPLYVERTEXBUFFERSZ_KVS(unsigned int groupid);
 	
+	unsigned int GET_NUMLASTLEVELPARTITIONS(unsigned int groupid);
+	
 private:
 };
 #endif

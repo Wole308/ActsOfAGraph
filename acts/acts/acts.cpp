@@ -53,7 +53,7 @@ unsigned int acts::GET_BATCH_RANGE_POW(unsigned int groupid){
 }
 unsigned int acts::GET_BATCH_RANGE(unsigned int groupid){
 	if(groupid == LOWINDEGREESGROUPID){ return BATCH_RANGE; }
-	else if(groupid == HIGHINDEGREESGROUPID){ return BATCH_RANGE; }
+	else if(groupid == HIGHINDEGREESGROUPID){ return BATCH_RANGE2; }
 	else{ return BATCH_RANGE; }
 }
 unsigned int acts::GET_BATCH_RANGE_KVS(unsigned int groupid){

@@ -86,7 +86,6 @@ void helperfunctions::cummulateverticesdata(keyvalue_t * buffer[NUMCPUTHREADS][N
 }
 void helperfunctions::workerthread_cummulateverticesdata(int threadidx, keyvalue_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
 	unsigned int min;
-	// cout<<"====== helperfunctions::workerthread_cummulateverticesdata: offset: "<<offset<<", offset + size: "<<offset + size<<", BATCH_RANGE: "<<BATCH_RANGE<<", NUMCPUTHREADS: "<<NUMCPUTHREADS<<", NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<endl;
 	for(unsigned int k=offset; k<(offset + size); k++){
 		min = buffer[0][0][k].value;
 		for(unsigned int i=1; i<NUMCPUTHREADS; i++){
@@ -163,16 +162,16 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 }
 #endif 
 #ifdef ACTSMODEL_LW
-void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx){
+void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, hostglobalparams_t globalparams){
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }
 	#else 
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, graphobj->getvertexdatabuffer(bank), graphobj->getvertexisactivebuffer(bank), buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }		
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
 }
-void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset, unsigned int graph_iterationidx){
+void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset, hostglobalparams_t globalparams){
 	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer(bank);
 	unsigned int * vertexisactivebuffer = graphobj->getvertexisactivebuffer(bank);
 	
@@ -180,9 +179,9 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 		for(unsigned int k=bufferoffset; k<bufferoffset + datasize; k++){
 			value_t kvtempdata = buffer[0][j][k];
-			value_t vdata = vertexdatabuffer[fdoffset + j*BATCH_RANGE + k];
+			value_t vdata = vertexdatabuffer[fdoffset + j*parametersobj->GET_BATCH_RANGE(globalparams.groupid) + k];
 			value_t temp = algorithmobj->apply(kvtempdata, vdata);
-			vertexdatabuffer[fdoffset + j*BATCH_RANGE + k] = temp;
+			vertexdatabuffer[fdoffset + j*parametersobj->GET_BATCH_RANGE(globalparams.groupid) + k] = temp;
 			#ifndef PR_ALGORITHM // FIXME. use algorithmobj instead
 			if(temp != vdata){
 				keyvalue_t kv;
@@ -195,7 +194,7 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 		}
 	}
 	
-	graphobj->saveactiveverticestofile(activeverticesbuffer, (graph_iterationidx + 1));
+	graphobj->saveactiveverticestofile(activeverticesbuffer, (globalparams.graph_iterationidx + 1));
 	activeverticesbuffer.clear();
 	cout<<"... Applying vertex datas [ithreadidx: "<<ithreadidx<<"]...: "<<datasize * NUMSUBCPUTHREADS<<" vertex data values applied. "<<endl;
 	return;

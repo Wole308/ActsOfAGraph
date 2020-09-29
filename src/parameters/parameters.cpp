@@ -69,6 +69,12 @@ unsigned int parameters::GET_APPLYVERTEXBUFFERSZ_KVS(unsigned int groupid){
 	else{ return APPLYVERTEXBUFFERSZ_KVS; }
 }
 
+unsigned int parameters::GET_NUMLASTLEVELPARTITIONS(unsigned int groupid){
+	if(groupid == LOWINDEGREESGROUPID){ return NUMLASTLEVELPARTITIONS; }
+	else if(groupid == HIGHINDEGREESGROUPID){ return NUMLASTLEVELPARTITIONS2; }
+	else{ return NUMLASTLEVELPARTITIONS; }
+}
+
 
 
 

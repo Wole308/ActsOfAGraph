@@ -70,7 +70,8 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
 	#ifdef LOCKE
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
-		exit(EXIT_SUCCESS); // REMOVEME.
+		// workerthread_launchkernel_actslwtype1(0*NUMSUBCPUTHREADS + 0, kvsourcedram[0][0]);
+		// exit(EXIT_SUCCESS); // REMOVEME.
 	#else 
 		// FIXME.
 	#endif
