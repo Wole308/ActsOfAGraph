@@ -50,11 +50,13 @@ int main(int argc, char** argv){
 	exit(EXIT_SUCCESS);
 	#endif
 	
-	#if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM) & defined(SW))
+	// #if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM) & defined(SW))
+	#if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM))
 	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);
 	pagerankobj->run();
 	#endif
-	#if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM) & defined(SW))
+	// #if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM) & defined(SW))
+	#if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM))
 	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
 	bfsobj->run();
 	#endif

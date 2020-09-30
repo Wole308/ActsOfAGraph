@@ -38,24 +38,17 @@ const int bank[MAX_HBM_BANKCOUNT] = {
     BANK_NAME(30), BANK_NAME(31)};
 
 void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	utilityobj->printkeyvalues("goclkernel::launchkernel:: kvdram workspace (before kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAM_KVS]), 16);
-	utilityobj->printkeyvalues("goclkernel::launchkernel:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-	utilityobj->printkeyvalues("goclkernel::launchkernel:: global capsule (before kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
-	#endif
-
-    double kernel_time_in_sec = 0, result = 0;
+	// writeVstokernel(0, kvsourcedram, 0, 0);
+	double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
-
+	
 	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
     auto kernel_start = std::chrono::high_resolution_clock::now();
 	
 	unsigned int bufferid = 0;
 	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
 		//Setting the k_vadd Arguments
-		for(unsigned int j=0; j<NUMACTIVEINSTANCES; j++){ 
-			OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[bufferid++]));
-		}
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
 		
 		//Invoking the kernel
 		OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
@@ -64,51 +57,45 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	
     auto kernel_end = std::chrono::high_resolution_clock::now();
     kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
-	std::cout<<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<<std::endl;
-
-    kernel_time_in_sec = kernel_time.count();
-    kernel_time_in_sec /= NUMACTIVEKERNELS;
-	
-	// Checks
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][0];
-	cout<<"launchkernel:: printing messages (after kernel launch) "<<endl;
-	cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
-	cout<<"MESSAGES_PROCESSCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0].key<<endl;
-	cout<<"MESSAGES_COLLECTSTATSCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key<<endl;
-	cout<<"MESSAGES_PARTITIONCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key<<endl;
-	cout<<"MESSAGES_APPLYUPDATESCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key<<endl;
-	cout<<"MESSAGES_VOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0].key<<endl;
-	cout<<"MESSAGES_VSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0].key<<endl;
-	cout<<"MESSAGES_TREEDEPTH: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key<<endl;
-	cout<<"MESSAGES_FINALNUMPARTITIONS: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key<<endl;
-	cout<<"MESSAGES_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key<<endl;
-	cout<<"MESSAGES_BATCHSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
-	cout<<"MESSAGES_RUNSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
-	cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
-	
-	utilityobj->printkeyvalues("goclkernel::launchkernel:: kvdram workspace (after kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAM_KVS]), 16);
-	utilityobj->printkeyvalues("goclkernel::launchkernel:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-	utilityobj->printkeyvalues("goclkernel::launchkernel:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
-	#endif 
+	std::cout<< TIMINGRESULTSCOLOR <<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<< RESET <<std::endl;
+	// readVsfromkernel(0, kvsourcedram, 0, 0);
 	return;
 }
 
-void goclkernel::writeVstokernel(unsigned int flag){
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ // TOTALNUMACTCUSTORUN
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  0 /* 0 means from host*/));
+#ifdef THT
+void goclkernel::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		// OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS])); // 0, kvsource_size_bytes
+		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i])); // 0, kvsource_size_bytes
 	}
     q.finish();
 }
-void goclkernel::readVsfromkernel(unsigned int flag){
-	for(unsigned int i=0; i<1; i++){ // TOTALNUMACTCUSTORUN
+void goclkernel::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){		  
+		// OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS])); // 0, kvsource_size_bytes
+		OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i])); // 0, kvsource_size_bytes
+	}
+    q.finish();
+}
+#endif 
+
+void goclkernel::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ 
+			OCL_CHECK(err,
+					  err = q.enqueueMigrateMemObjects(
+						  {buffer_kvsourcedram[i]},
+						  0));
+			// OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
+	}
+    q.finish();
+}
+void goclkernel::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ 
 			OCL_CHECK(err,
 					  err = q.enqueueMigrateMemObjects(
 						  {buffer_kvsourcedram[i]},
 						  CL_MIGRATE_MEM_OBJECT_HOST));
+			// OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
 	}
     q.finish();
 }
@@ -182,23 +169,24 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 	unsigned int flag=0;
 	unsigned int counter = 0;
 	uint512_dt ** kvsourcedramarr = (uint512_dt **)kvsourcedram;
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ 
-		for(unsigned int j=0; j<NUMACTSCUSPERKERNEL; j++){ 
-			inoutBufExt[i*NUMACTSCUSPERKERNEL + j].obj = kvsourcedramarr[counter++];
-			inoutBufExt[i*NUMACTSCUSPERKERNEL + j].param = 0;
-			inoutBufExt[i*NUMACTSCUSPERKERNEL + j].flags = bank[i*NUMHBMSPERKERNEL + j];
-		}
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
+		inoutBufExt[i].obj = kvsourcedramarr[counter++];
+		inoutBufExt[i].param = 0;
+		inoutBufExt[i].flags = bank[i];
 	}
 	
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can
     // be used to reference the memory locations on the device.
     //Creating Buffers
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		cout<<"creating buffer for ACTS: "<<i<<endl;
 		OCL_CHECK(err,
 				  buffer_kvsourcedram[i] =
 					  cl::Buffer(context,
 								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 									 CL_MEM_USE_HOST_PTR,
+								 // CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_COPY_HOST_PTR, // REMOVEME?
 								 kvsource_size_bytes,
 								 &inoutBufExt[i],
 								 &err));

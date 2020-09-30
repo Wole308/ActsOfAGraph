@@ -43,7 +43,8 @@ SW__GRAFBOOST_SETUP__PR_ALGORITHM=21
 SW__GRAFBOOST_SETUP__BFS_ALGORITHM=22
 SW__GRAFBOOST_SETUP__BC_ALGORITHM=23
 
-HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=24
+CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=24
+AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=25
 
 LARGEDATASET_1M=1
 LARGEDATASET_4M=2
@@ -81,8 +82,8 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -91,7 +92,8 @@ do
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 
-	# for setup in $HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -206,12 +208,28 @@ do
 			SETUP="GRAFBOOST_SETUP" 
 			ALGORITHM="BC_ALGORITHM" 
 			SETUP_NAME="grafboost_bc_sw"
-		elif [ $setup == $HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			SETUP_NAME="actgraph_pr_hw"
+			ALGORITHM="PR_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_hw"
+			else 
+				SETUP_NAME="actgraph_pr_hw"
+			fi
+		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="PR_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_hw"
+			else 
+				SETUP_NAME="actgraph_pr_hw"
+			fi
 		else 
 			XWARE="" 
 			SETUP="" 
@@ -395,8 +413,8 @@ do
 							make cleanall
 							# rm -rf host
 							
-							# make host
-							# ./host $BACKUPDIR_KERNELXCLBIN
+							make host
+							./host $BACKUPDIR_KERNELXCLBIN
 							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
 							
 							# make build_host_aws
@@ -459,7 +477,26 @@ do
 							# make demo_grafboost_nthreads
 							make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							
-						elif [ $setup == $HWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+						then
+							make cleanall
+							rm -rf xclbin
+							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+							
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							if test -f "host"; then
+								# cp host $BACKUPDIR_HOST
+								# cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo $BACKUPDIR_KERNELXO
+								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+								# cp nohupsyn.out $BACKUPDIR_NOHUP
+								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+							fi
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
 							source /opt/xilinx/xrt/setup.sh 
 							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 

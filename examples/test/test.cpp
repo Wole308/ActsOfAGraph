@@ -106,7 +106,7 @@ void test::run(){
 		#endif
 		
 		#ifdef FPGA_IMPL
-		helperfunctionsobj->writeVstokernel(0);
+		helperfunctionsobj->writeVstokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
 		#endif
 		
 		// Launch the Kernel
@@ -116,7 +116,7 @@ void test::run(){
 		cout<<"test::run current totaltime_ms: "<<totaltime_ms<<endl;
 		
 		#ifdef FPGA_IMPL
-		helperfunctionsobj->readVsfromkernel(0);
+		helperfunctionsobj->readVsfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
 		#endif
 	
 		#ifdef ACTSMODEL

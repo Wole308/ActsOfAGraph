@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
 ////////////////
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM
 #define _TWITTERDATASET_67M 
@@ -142,7 +145,8 @@
     #ifdef TESTKERNEL
 	#define KVDATA_BATCHSIZE (1 << 26)
 	#else 
-	#define KVDATA_BATCHSIZE (1 << 24)
+	// #define KVDATA_BATCHSIZE (1 << 24)
+	#define KVDATA_BATCHSIZE 10000000
 	#endif 
 #elif defined(ACTSMODEL_LW)
 	#define KVDATA_BATCHSIZE 10000000

@@ -29,6 +29,8 @@ public:
 	void printallparameters();
 	void printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
+	void printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	

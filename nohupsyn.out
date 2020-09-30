@@ -1,0 +1,487 @@
+/tools/Xilinx/SDx/2019.1/bin/xcpp -I/home/oj2zf/Documents/SDAccel_Examples//libs/xcl2 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/Vivado/2019.1/include/ -Wall -O0 -g -std=c++14 -fmessage-length=0 examples/hostprocess.cpp /home/oj2zf/Documents/SDAccel_Examples//libs/xcl2/xcl2.cpp src/algorithm/algorithm.cpp src/dataaccess/dataaccess.cpp src/edgeprocess/edge_process.cpp examples/helperfunctions/helperfunctions.cpp examples/pagerank/pagerank.cpp examples/bfs/bfs.cpp examples/test/test.cpp src/graphs/graph.cpp src/heuristics/heuristics.cpp src/stats/stats.cpp src/utility/utility.cpp src/parameters/parameters.cpp src/dataset/dataset.cpp kernels/kernel.cpp kernels/swkernel.cpp kernels/goclkernel.cpp src/graphs/creategraph.cpp src/graphs/create2Dgraph.cpp	sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -lsortreduce -pthread -laio -march=native -lrt  -o 'host'  -L/opt/xilinx/xrt/lib/ -lOpenCL -lpthread -lrt -lstdc++ 
+mkdir -p ./xclbin
+/tools/Xilinx/SDx/2019.1/bin/xocc -t hw --platform /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --save-temps --temp_dir ./_x.hw.xilinx_u280_xdma_201910_1/topkernel -c -k topkernel -I'acts/acts_lw' -I'acts/actsutility/' -o'xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo' acts/acts_lw/actslw.cpp acts/actsutility/actsutility.cpp
+Option Map File Used: '/tools/Xilinx/SDx/2019.1/data/sdx/xocc/optMap.xml'
+
+****** xocc v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+Attempting to get a license: ap_opencl
+INFO: [XOCC 17-1540] The version limit for your license is '2020.08' and has expired for new software. A version limit expiration means that, although you may be able to continue to use the current version of tools or IP with this license, you will not be eligible for any updates or new releases.
+Feature available: ap_opencl
+INFO: [XOCC 60-1306] Additional information associated with this xocc compile can be found at:
+	Reports: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/topkernel.hw.xilinx_u280_xdma_201910_1
+	Log files: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/logs/topkernel.hw.xilinx_u280_xdma_201910_1
+INFO: [XOCC 60-585] Compiling for hardware target
+INFO: [XOCC 60-1316] Initiating connection to rulecheck server, at Tue Sep 29 19:31:54 2020
+Running Rule Check Server on port:40329
+INFO: [XOCC 60-1315] Creating rulecheck session with output '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/topkernel.hw.xilinx_u280_xdma_201910_1/xocc_compile_topkernel.hw.xilinx_u280_xdma_201910_1_guidance.html', at Tue Sep 29 19:31:55 2020
+INFO: [XOCC 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+INFO: [XOCC 60-423]   Target device: xilinx_u280_xdma_201910_1
+INFO: [XOCC 60-242] Creating kernel: 'topkernel'
+
+===>The following messages were generated while  performing high-level synthesis for kernel: topkernel Log file: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/topkernel.hw.xilinx_u280_xdma_201910_1/topkernel/vivado_hls.log :
+INFO: [XOCC 204-61] Option 'relax_ii_for_timing' is enabled, will increase II to preserve clock frequency constraints.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'READGLOBALSTATS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'READVERTICES_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'READKVS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'PARTITIONKEYVALUES_LOOP1B'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 2, Final II = 2, Depth = 5.
+INFO: [XOCC 204-61] Pipelining loop 'PARTITIONKEYVALUES_LOOP1.2'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'PARTITIONKEYVALUES_LOOP1.3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'EXECUTE_LOOP1C'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 2, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEPARTITIONS_LOOP1B'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEPARTITIONS_LOOP2'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'COLLECTGLOBALSTATS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 2, Final II = 2, Depth = 4.
+INFO: [XOCC 204-61] Pipelining loop 'REDUCE_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 2, Final II = 2, Depth = 4.
+INFO: [XOCC 204-61] Pipelining loop 'PREPAREGLOBALSTATS_LOOP1_PREPAREGLOBALSTATS_LOOP1B'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 2'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 3, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 3'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEVERTICES_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'MAIN_LOOP1.1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEGLOBALSTATS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'READGLOBALSTATS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 60-594] Finished kernel compilation
+INFO: [XOCC 60-244] Generating system estimate report...
+INFO: [XOCC 60-1092] Generated system estimate report: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/topkernel.hw.xilinx_u280_xdma_201910_1/system_estimate_topkernel.hw.xilinx_u280_xdma_201910_1.xtxt
+Add Instance dispatch0 grp_dispatch0_fu_44 44
+Add Instance partitionkeyvalues0 grp_partitionkeyvalues0_fu_1009 1009
+Add Instance reduce0 grp_reduce0_fu_1069 1069
+Add Instance getglobalparams grp_getglobalparams_fu_1111 1111
+Add Instance savekeyvalues0 grp_savekeyvalues0_fu_1119 1119
+Add Instance combineSetof4stoSetof80_I0 grp_combineSetof4stoSetof80_I0_fu_1148 1148
+Add Instance collectglobalstats0 grp_collectglobalstats0_fu_1191 1191
+Add Instance savevertices0 grp_savevertices0_fu_1215 1215
+Add Instance readkeyvalues0 grp_readkeyvalues0_fu_1240 1240
+Add Instance combineSetof2stoSetof40_I0 grp_combineSetof2stoSetof40_I0_fu_1267 1267
+Add Instance combineSetof2stoSetof40_I1 grp_combineSetof2stoSetof40_I1_fu_1294 1294
+Add Instance prepareglobalstats0 grp_prepareglobalstats0_fu_1321 1321
+Add Instance readvertices0 grp_readvertices0_fu_1336 1336
+Add Instance combineSetof1stoSetof20_I0 grp_combineSetof1stoSetof20_I0_fu_1361 1361
+Add Instance combineSetof1stoSetof20_I1 grp_combineSetof1stoSetof20_I1_fu_1380 1380
+Add Instance combineSetof1stoSetof20_I2 grp_combineSetof1stoSetof20_I2_fu_1399 1399
+Add Instance combineSetof1stoSetof20_I3 grp_combineSetof1stoSetof20_I3_fu_1418 1418
+Add Instance readglobalstats0 grp_readglobalstats0_fu_1437 1437
+Add Instance getskipsize grp_getskipsize_fu_1450 1450
+INFO: [XOCC 60-586] Created xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo
+INFO: [XOCC 60-791] Total elapsed time: 0h 1m 29s
+mkdir -p ./xclbin
+/tools/Xilinx/SDx/2019.1/bin/xocc -t hw --platform /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --save-temps --temp_dir ./_x.hw.xilinx_u280_xdma_201910_1/topkernel -l --sp topkernel_1.m_axi_gmem0:HBM[0]  --sp topkernel_2.m_axi_gmem0:HBM[1]  --sp topkernel_3.m_axi_gmem0:HBM[2]  --sp topkernel_4.m_axi_gmem0:HBM[3] --sp topkernel_5.m_axi_gmem0:HBM[4] --sp topkernel_6.m_axi_gmem0:HBM[5] --sp topkernel_7.m_axi_gmem0:HBM[6] --sp topkernel_8.m_axi_gmem0:HBM[7] --sp topkernel_9.m_axi_gmem0:HBM[8] --sp topkernel_10.m_axi_gmem0:HBM[9] --sp topkernel_11.m_axi_gmem0:HBM[10] --sp topkernel_12.m_axi_gmem0:HBM[11] --sp topkernel_13.m_axi_gmem0:HBM[12] --sp topkernel_14.m_axi_gmem0:HBM[13] --sp topkernel_15.m_axi_gmem0:HBM[14] --sp topkernel_16.m_axi_gmem0:HBM[15] --nk topkernel:16 -o'xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin' xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo
+Option Map File Used: '/tools/Xilinx/SDx/2019.1/data/sdx/xocc/optMap.xml'
+
+****** xocc v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+Attempting to get a license: ap_opencl
+INFO: [XOCC 17-1540] The version limit for your license is '2020.08' and has expired for new software. A version limit expiration means that, although you may be able to continue to use the current version of tools or IP with this license, you will not be eligible for any updates or new releases.
+Feature available: ap_opencl
+INFO: [XOCC 60-1306] Additional information associated with this xocc link can be found at:
+	Reports: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link
+	Log files: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/logs/link
+INFO: [XOCC 60-629] Linking for hardware target
+INFO: [XOCC 60-1316] Initiating connection to rulecheck server, at Tue Sep 29 19:33:26 2020
+Running Rule Check Server on port:41979
+INFO: [XOCC 60-1315] Creating rulecheck session with output '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link/xocc_link_topkernel.hw.xilinx_u280_xdma_201910_1_guidance.html', at Tue Sep 29 19:33:27 2020
+INFO: [XOCC 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+INFO: [XOCC 60-423]   Target device: xilinx_u280_xdma_201910_1
+INFO: [XOCC 60-1332] Run 'xocc_link' status: Not started
+INFO: [XOCC 60-1443] [19:33:35] Run xocc_link: Step sdx_link: Started
+INFO: [XOCC 60-1453] Command Line: sdx_link --xo /home/oj2zf/Documents/ActsOfAGraph/xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo --nk topkernel:16 -keep -sp topkernel_1.m_axi_gmem0:HBM[0] -sp topkernel_2.m_axi_gmem0:HBM[1] -sp topkernel_3.m_axi_gmem0:HBM[2] -sp topkernel_4.m_axi_gmem0:HBM[3] -sp topkernel_5.m_axi_gmem0:HBM[4] -sp topkernel_6.m_axi_gmem0:HBM[5] -sp topkernel_7.m_axi_gmem0:HBM[6] -sp topkernel_8.m_axi_gmem0:HBM[7] -sp topkernel_9.m_axi_gmem0:HBM[8] -sp topkernel_10.m_axi_gmem0:HBM[9] -sp topkernel_11.m_axi_gmem0:HBM[10] -sp topkernel_12.m_axi_gmem0:HBM[11] -sp topkernel_13.m_axi_gmem0:HBM[12] -sp topkernel_14.m_axi_gmem0:HBM[13] -sp topkernel_15.m_axi_gmem0:HBM[14] -sp topkernel_16.m_axi_gmem0:HBM[15] --xpfm /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --target hw --output_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int --temp_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/sys_link
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/xocc_link
+using /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+extracting xo v3 file /home/oj2zf/Documents/ActsOfAGraph/xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo
+Creating IP database /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/sys_link/_sds/.cdb/xd_ip_db.xml
+processing accelerators: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/sys_link/iprepo/xilinx_com_hls_topkernel_1_0
+ip_dir: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/sys_link/iprepo/xilinx_com_hls_topkernel_1_0
+/tools/Xilinx/SDx/2019.1/bin/xsltproc --stringparam xpath "spirit:component/spirit:name/text()" /tools/Xilinx/SDx/2019.1/scripts/xdcc/xpathValueOf.xsl /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/sys_link/iprepo/xilinx_com_hls_topkernel_1_0/component.xml
+ip_name: topkernel
+Creating apsys_0.xml
+INFO: [CFGEN 83-0] Kernel Specs: 
+INFO: [CFGEN 83-0]   kernel: topkernel, num: 16  {topkernel_1 topkernel_2 topkernel_3 topkernel_4 topkernel_5 topkernel_6 topkernel_7 topkernel_8 topkernel_9 topkernel_10 topkernel_11 topkernel_12 topkernel_13 topkernel_14 topkernel_15 topkernel_16}
+INFO: [CFGEN 83-0] Port Specs: 
+INFO: [CFGEN 83-0]   kernel: topkernel_1, k_port: m_axi_gmem0, sptag: HBM[0]
+INFO: [CFGEN 83-0]   kernel: topkernel_2, k_port: m_axi_gmem0, sptag: HBM[1]
+INFO: [CFGEN 83-0]   kernel: topkernel_3, k_port: m_axi_gmem0, sptag: HBM[2]
+INFO: [CFGEN 83-0]   kernel: topkernel_4, k_port: m_axi_gmem0, sptag: HBM[3]
+INFO: [CFGEN 83-0]   kernel: topkernel_5, k_port: m_axi_gmem0, sptag: HBM[4]
+INFO: [CFGEN 83-0]   kernel: topkernel_6, k_port: m_axi_gmem0, sptag: HBM[5]
+INFO: [CFGEN 83-0]   kernel: topkernel_7, k_port: m_axi_gmem0, sptag: HBM[6]
+INFO: [CFGEN 83-0]   kernel: topkernel_8, k_port: m_axi_gmem0, sptag: HBM[7]
+INFO: [CFGEN 83-0]   kernel: topkernel_9, k_port: m_axi_gmem0, sptag: HBM[8]
+INFO: [CFGEN 83-0]   kernel: topkernel_10, k_port: m_axi_gmem0, sptag: HBM[9]
+INFO: [CFGEN 83-0]   kernel: topkernel_11, k_port: m_axi_gmem0, sptag: HBM[10]
+INFO: [CFGEN 83-0]   kernel: topkernel_12, k_port: m_axi_gmem0, sptag: HBM[11]
+INFO: [CFGEN 83-0]   kernel: topkernel_13, k_port: m_axi_gmem0, sptag: HBM[12]
+INFO: [CFGEN 83-0]   kernel: topkernel_14, k_port: m_axi_gmem0, sptag: HBM[13]
+INFO: [CFGEN 83-0]   kernel: topkernel_15, k_port: m_axi_gmem0, sptag: HBM[14]
+INFO: [CFGEN 83-0]   kernel: topkernel_16, k_port: m_axi_gmem0, sptag: HBM[15]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_1.sourceAvolume to HBM[0] for directive topkernel_1.m_axi_gmem0:HBM[0]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_2.sourceAvolume to HBM[1] for directive topkernel_2.m_axi_gmem0:HBM[1]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_3.sourceAvolume to HBM[2] for directive topkernel_3.m_axi_gmem0:HBM[2]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_4.sourceAvolume to HBM[3] for directive topkernel_4.m_axi_gmem0:HBM[3]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_5.sourceAvolume to HBM[4] for directive topkernel_5.m_axi_gmem0:HBM[4]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_6.sourceAvolume to HBM[5] for directive topkernel_6.m_axi_gmem0:HBM[5]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_7.sourceAvolume to HBM[6] for directive topkernel_7.m_axi_gmem0:HBM[6]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_8.sourceAvolume to HBM[7] for directive topkernel_8.m_axi_gmem0:HBM[7]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_9.sourceAvolume to HBM[8] for directive topkernel_9.m_axi_gmem0:HBM[8]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_10.sourceAvolume to HBM[9] for directive topkernel_10.m_axi_gmem0:HBM[9]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_11.sourceAvolume to HBM[10] for directive topkernel_11.m_axi_gmem0:HBM[10]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_12.sourceAvolume to HBM[11] for directive topkernel_12.m_axi_gmem0:HBM[11]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_13.sourceAvolume to HBM[12] for directive topkernel_13.m_axi_gmem0:HBM[12]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_14.sourceAvolume to HBM[13] for directive topkernel_14.m_axi_gmem0:HBM[13]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_15.sourceAvolume to HBM[14] for directive topkernel_15.m_axi_gmem0:HBM[14]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernel_16.sourceAvolume to HBM[15] for directive topkernel_16.m_axi_gmem0:HBM[15]
+
+Creating dr.bd.tcl
+INFO: [XOCC 60-1441] [19:33:56] Run xocc_link: Step sdx_link: Completed
+Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 651.637 ; gain = 0.000 ; free physical = 200577 ; free virtual = 248429
+INFO: [XOCC 60-1443] [19:33:56] Run xocc_link: Step vpl: Started
+INFO: [XOCC 60-1453] Command Line: vpl -t hw -f /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --nk topkernel:16 -s --xp param:compiler.enablePerformanceTrace=1 --xp vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high} --xp misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10} --xp misc:report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10} --xp misc:BinaryName=topkernel.hw.xilinx_u280_xdma_201910_1 --output_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int --log_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/logs/link --report_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link -k /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/kernel_info.dat --webtalk_flag SDAccel --temp_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link --no-info --tlog_dir /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/.tlog/xocc_link_topkernel.hw.xilinx_u280_xdma_201910_1 --iprepo /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/xo/ip_repo/xilinx_com_hls_topkernel_1_0 --messageDb /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/xocc_link/vpl.pb /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/dr.bd.tcl
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/xocc_link
+
+****** vpl v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+Attempting to get a license: ap_opencl
+INFO: [VPL 17-1540] The version limit for your license is '2020.08' and has expired for new software. A version limit expiration means that, although you may be able to continue to use the current version of tools or IP with this license, you will not be eligible for any updates or new releases.
+Feature available: ap_opencl
+INFO: [VPL 60-839] Read in kernel information from file '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/kernel_info.dat'.
+INFO: [VPL 60-423]   Target device: xilinx_u280_xdma_201910_1
+INFO: [VPL 60-1032] Extracting DSA to /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/vivado/vpl/.local/dsa
+[19:34:22] Run vpl: Step create_project: Started
+Creating Vivado project.
+[19:34:23] Run vpl: Step create_project: Completed
+[19:34:23] Run vpl: Step create_bd: Started
+[19:35:39] Run vpl: Step create_bd: RUNNING...
+[19:36:02] Run vpl: Step create_bd: Completed
+[19:36:02] Run vpl: Step update_bd: Started
+[19:36:03] Run vpl: Step update_bd: Completed
+[19:36:03] Run vpl: Step generate_target: Started
+[19:37:19] Run vpl: Step generate_target: RUNNING...
+[19:38:34] Run vpl: Step generate_target: RUNNING...
+[19:39:49] Run vpl: Step generate_target: RUNNING...
+[19:39:57] Run vpl: Step generate_target: Completed
+[19:39:57] Run vpl: Step config_hw_runs: Started
+[19:40:25] Run vpl: Step config_hw_runs: Completed
+[19:40:25] Run vpl: Step synth: Started
+[19:40:56] Block-level synthesis in progress, 0 of 129 jobs complete, 8 jobs running.
+[19:41:26] Block-level synthesis in progress, 0 of 129 jobs complete, 8 jobs running.
+[19:41:56] Block-level synthesis in progress, 0 of 129 jobs complete, 8 jobs running.
+[19:42:27] Block-level synthesis in progress, 0 of 129 jobs complete, 8 jobs running.
+[19:42:57] Block-level synthesis in progress, 2 of 129 jobs complete, 6 jobs running.
+[19:43:28] Block-level synthesis in progress, 7 of 129 jobs complete, 5 jobs running.
+[19:43:58] Block-level synthesis in progress, 9 of 129 jobs complete, 7 jobs running.
+[19:44:28] Block-level synthesis in progress, 16 of 129 jobs complete, 2 jobs running.
+[19:44:59] Block-level synthesis in progress, 21 of 129 jobs complete, 5 jobs running.
+[19:45:29] Block-level synthesis in progress, 25 of 129 jobs complete, 5 jobs running.
+[19:46:00] Block-level synthesis in progress, 27 of 129 jobs complete, 7 jobs running.
+[19:46:30] Block-level synthesis in progress, 29 of 129 jobs complete, 7 jobs running.
+[19:47:01] Block-level synthesis in progress, 32 of 129 jobs complete, 6 jobs running.
+[19:47:31] Block-level synthesis in progress, 36 of 129 jobs complete, 5 jobs running.
+[19:48:02] Block-level synthesis in progress, 38 of 129 jobs complete, 8 jobs running.
+[19:48:32] Block-level synthesis in progress, 38 of 129 jobs complete, 8 jobs running.
+[19:49:03] Block-level synthesis in progress, 39 of 129 jobs complete, 7 jobs running.
+[19:49:34] Block-level synthesis in progress, 42 of 129 jobs complete, 5 jobs running.
+[19:50:04] Block-level synthesis in progress, 46 of 129 jobs complete, 6 jobs running.
+[19:50:35] Block-level synthesis in progress, 49 of 129 jobs complete, 7 jobs running.
+[19:51:05] Block-level synthesis in progress, 50 of 129 jobs complete, 7 jobs running.
+[19:51:36] Block-level synthesis in progress, 52 of 129 jobs complete, 7 jobs running.
+[19:52:07] Block-level synthesis in progress, 52 of 129 jobs complete, 8 jobs running.
+[19:52:37] Block-level synthesis in progress, 53 of 129 jobs complete, 7 jobs running.
+[19:53:08] Block-level synthesis in progress, 55 of 129 jobs complete, 6 jobs running.
+[19:53:39] Block-level synthesis in progress, 58 of 129 jobs complete, 6 jobs running.
+[19:54:09] Block-level synthesis in progress, 59 of 129 jobs complete, 7 jobs running.
+[19:54:40] Block-level synthesis in progress, 59 of 129 jobs complete, 8 jobs running.
+[19:55:11] Block-level synthesis in progress, 63 of 129 jobs complete, 5 jobs running.
+[19:55:41] Block-level synthesis in progress, 65 of 129 jobs complete, 6 jobs running.
+[19:56:12] Block-level synthesis in progress, 67 of 129 jobs complete, 7 jobs running.
+[19:56:43] Block-level synthesis in progress, 67 of 129 jobs complete, 8 jobs running.
+[19:57:14] Block-level synthesis in progress, 68 of 129 jobs complete, 7 jobs running.
+[19:57:44] Block-level synthesis in progress, 68 of 129 jobs complete, 8 jobs running.
+[19:58:15] Block-level synthesis in progress, 71 of 129 jobs complete, 5 jobs running.
+[19:58:46] Block-level synthesis in progress, 75 of 129 jobs complete, 6 jobs running.
+[19:59:17] Block-level synthesis in progress, 76 of 129 jobs complete, 5 jobs running.
+[19:59:48] Block-level synthesis in progress, 76 of 129 jobs complete, 5 jobs running.
+[20:00:18] Block-level synthesis in progress, 79 of 129 jobs complete, 2 jobs running.
+[20:00:49] Block-level synthesis in progress, 93 of 129 jobs complete, 0 jobs running.
+[20:01:20] Block-level synthesis in progress, 103 of 129 jobs complete, 0 jobs running.
+[20:01:51] Block-level synthesis in progress, 118 of 129 jobs complete, 0 jobs running.
+[20:02:22] Block-level synthesis in progress, 129 of 129 jobs complete, 0 jobs running.
+[20:02:53] Top-level synthesis in progress.
+[20:03:23] Top-level synthesis in progress.
+[20:03:54] Top-level synthesis in progress.
+[20:04:25] Top-level synthesis in progress.
+[20:04:55] Top-level synthesis in progress.
+[20:05:26] Top-level synthesis in progress.
+[20:05:57] Top-level synthesis in progress.
+[20:06:28] Top-level synthesis in progress.
+[20:06:58] Top-level synthesis in progress.
+[20:07:29] Top-level synthesis in progress.
+[20:08:00] Top-level synthesis in progress.
+[20:08:31] Top-level synthesis in progress.
+[20:09:01] Top-level synthesis in progress.
+[20:09:32] Top-level synthesis in progress.
+[20:10:03] Top-level synthesis in progress.
+[20:10:34] Top-level synthesis in progress.
+[20:11:04] Top-level synthesis in progress.
+[20:11:35] Top-level synthesis in progress.
+[20:12:06] Top-level synthesis in progress.
+[20:12:36] Top-level synthesis in progress.
+[20:13:07] Top-level synthesis in progress.
+[20:13:38] Top-level synthesis in progress.
+[20:14:09] Top-level synthesis in progress.
+[20:14:24] Run vpl: Step synth: Completed
+[20:14:24] Run vpl: Step impl: Started
+[20:29:44] Finished 2nd of 6 tasks (FPGA linking synthesized kernels to platform). Elapsed time: 00h 55m 46s 
+
+[20:29:44] Starting logic optimization..
+[20:30:45] Phase 1 Generate And Synthesize Debug Cores
+[20:34:51] Phase 2 Retarget
+[20:35:21] Phase 3 Constant propagation
+[20:35:52] Phase 4 Sweep
+[20:42:31] Phase 5 BUFG optimization
+[20:43:01] Phase 6 Shift Register Optimization
+[20:43:32] Phase 7 Post Processing Netlist
+[20:45:04] Finished 3rd of 6 tasks (FPGA logic optimization). Elapsed time: 00h 15m 20s 
+
+[20:45:04] Starting logic placement..
+[20:46:36] Phase 1 Placer Initialization
+[20:46:36] Phase 1.1 Placer Initialization Netlist Sorting
+[20:49:40] Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+[20:52:44] Phase 1.3 Build Placer Netlist Model
+[20:56:19] Phase 1.4 Constrain Clocks/Macros
+[20:57:51] Phase 2 Global Placement
+[20:57:51] Phase 2.1 Floorplanning
+[21:14:45] Phase 2.2 Global Placement Core
+[21:30:09] Phase 2.2.1 Physical Synthesis In Placer
+[21:38:21] Phase 3 Detail Placement
+[21:38:21] Phase 3.1 Commit Multi Column Macros
+[21:38:21] Phase 3.2 Commit Most Macros & LUTRAMs
+[21:39:53] Phase 3.3 Area Swap Optimization
+[21:40:55] Phase 3.4 Pipeline Register Optimization
+[21:40:55] Phase 3.5 IO Cut Optimizer
+[21:41:26] Phase 3.6 Fast Optimization
+[21:42:58] Phase 3.7 Small Shape Clustering
+[21:44:30] Phase 3.8 Flow Legalize Slice Clusters
+[21:44:30] Phase 3.9 Slice Area Swap
+[21:47:04] Phase 3.10 Commit Slice Clusters
+[21:48:06] Phase 3.11 Place Remaining
+[21:48:06] Phase 3.12 Re-assign LUT pins
+[21:50:09] Phase 3.13 Pipeline Register Optimization
+[21:50:09] Phase 3.14 Fast Optimization
+[21:53:14] Phase 4 Post Placement Optimization and Clean-Up
+[21:53:14] Phase 4.1 Post Commit Optimization
+[21:55:17] Phase 4.1.1 Post Placement Optimization
+[21:55:17] Phase 4.1.1.1 BUFG Insertion
+[21:56:49] Phase 4.1.1.2 BUFG Replication
+[22:02:28] Phase 4.1.1.3 Replication
+[22:04:00] Phase 4.2 Post Placement Cleanup
+[22:06:34] Phase 4.3 Placer Reporting
+[22:07:04] Phase 4.4 Final Placement Cleanup
+[22:14:46] Finished 4th of 6 tasks (FPGA logic placement). Elapsed time: 01h 29m 41s 
+
+[22:14:46] Starting logic routing..
+[22:16:18] Phase 1 Build RT Design
+[22:21:56] Phase 2 Router Initialization
+[22:21:56] Phase 2.1 Fix Topology Constraints
+[22:22:27] Phase 2.2 Pre Route Cleanup
+[22:22:58] Phase 2.3 Global Clock Net Routing
+[22:24:00] Phase 2.4 Update Timing
+[22:29:08] Phase 2.5 Update Timing for Bus Skew
+[22:29:08] Phase 2.5.1 Update Timing
+[22:31:42] Phase 3 Initial Routing
+[22:31:42] Phase 3.1 Global Routing
+[22:38:23] Phase 4 Rip-up And Reroute
+[22:38:23] Phase 4.1 Global Iteration 0
+[23:12:19] Phase 4.2 Global Iteration 1
+[23:18:29] Phase 4.3 Global Iteration 2
+[23:43:09] Phase 4.4 Global Iteration 3
+[23:57:01] Phase 4.5 Global Iteration 4
+[00:02:09] Phase 4.6 Global Iteration 5
+[00:16:32] Phase 5 Delay and Skew Optimization
+[00:16:32] Phase 5.1 Delay CleanUp
+[00:16:32] Phase 5.1.1 Update Timing
+[00:18:35] Phase 5.1.2 Update Timing
+[00:21:09] Phase 5.2 Clock Skew Optimization
+[00:21:40] Phase 6 Post Hold Fix
+[00:21:40] Phase 6.1 Hold Fix Iter
+[00:21:40] Phase 6.1.1 Update Timing
+[00:23:43] Phase 6.1.2 Lut RouteThru Assignment for hold
+[00:24:45] Phase 6.2 Additional Hold Fix
+[00:28:21] Phase 7 Leaf Clock Prog Delay Opt
+[00:34:31] Phase 7.1 Delay CleanUp
+[00:35:02] Phase 7.1.1 Update Timing
+[00:37:06] Phase 7.1.2 Update Timing
+[00:39:40] Phase 7.2 Hold Fix Iter
+[00:39:40] Phase 7.2.1 Update Timing
+[00:41:13] Phase 7.2.2 Lut RouteThru Assignment for hold
+[00:42:15] Phase 7.3 Additional Hold Fix
+[00:47:54] Phase 8 Route finalize
+[00:48:25] Phase 9 Verifying routed nets
+[00:48:56] Phase 10 Depositing Routes
+[00:50:59] Phase 11 Post Router Timing
+[00:52:31] Phase 12 Physical Synthesis in Router
+[00:52:31] Phase 12.1 Physical Synthesis Initialization
+[00:56:07] Phase 12.2 Critical Path Optimization
+[00:58:42] Finished 5th of 6 tasks (FPGA routing). Elapsed time: 02h 43m 56s 
+
+[00:58:42] Starting bitstream generation..
+[01:20:49] Creating bitmap...
+[01:30:05] Writing bitstream ./pfm_top_i_dynamic_region_my_rm_partial.bit...
+[01:30:05] Finished 6th of 6 tasks (FPGA bitstream generation). Elapsed time: 00h 31m 23s 
+[01:30:59] Run vpl: Step impl: Completed
+[01:31:00] Run vpl: FINISHED. Run Status: impl Complete!
+INFO: [XOCC 60-1441] [01:31:00] Run xocc_link: Step vpl: Completed
+Time (s): cpu = 00:08:00 ; elapsed = 05:57:04 . Memory (MB): peak = 651.637 ; gain = 0.000 ; free physical = 195360 ; free virtual = 247194
+INFO: [XOCC 60-1443] [01:31:00] Run xocc_link: Step rtdgen: Started
+INFO: [XOCC 60-1453] Command Line: rtdgen
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/xocc_link
+INFO: [XOCC 60-991] clock name 'clkwiz_kernel_clk_out1' (clock ID '0') is being mapped to clock name 'DATA_CLK' in the xclbin
+INFO: [XOCC 60-991] clock name 'clkwiz_kernel2_clk_out1' (clock ID '1') is being mapped to clock name 'KERNEL_CLK' in the xclbin
+INFO: [XOCC 60-991] clock name 'clk_out1_pfm_top_clkwiz_hbm_aclk_0' (clock ID '') is being mapped to clock name 'clk_out1_pfm_top_clkwiz_hbm_aclk_0' in the xclbin
+INFO: [XOCC 60-1230] The compiler selected the following frequencies for the runtime controllable kernel clock(s) and scalable system clock(s): System (SYSTEM) clock: clk_out1_pfm_top_clkwiz_hbm_aclk_0 = 421, Kernel (DATA) clock: clkwiz_kernel_clk_out1 = 205, Kernel (KERNEL) clock: clkwiz_kernel2_clk_out1 = 500
+INFO: [XOCC 60-1453] Command Line: cf2sw -a /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/address_map.xml -sdsl /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/sdsl.dat -xclbin /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/xclbin_orig.xml -rtd /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.rtd -o /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xml
+INFO: [XOCC 60-1441] [01:31:12] Run xocc_link: Step rtdgen: Completed
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 651.637 ; gain = 0.000 ; free physical = 195350 ; free virtual = 247184
+INFO: [XOCC 60-1443] [01:31:12] Run xocc_link: Step xclbinutil: Started
+INFO: [XOCC 60-1453] Command Line: xclbinutil --add-section BITSTREAM:RAW:/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/partial.bit --force --key-value SYS:mode:hw_pr --add-section :JSON:/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.rtd --append-section :JSON:/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/appendSection.rtd --add-section CLOCK_FREQ_TOPOLOGY:JSON:/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1_xml.rtd --add-section BUILD_METADATA:JSON:/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1_build.rtd --add-section EMBEDDED_METADATA:RAW:/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xml --output /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/xocc_link
+XRT Build Version: 2.2.2249
+       Build Date: 2019-08-15 22:22:52
+          Hash ID: da87ac894a037d7e11c0496361458efed4bab438
+Creating a default 'in-memory' xclbin image.
+
+Section: 'BITSTREAM'(0) was successfully added.
+Size   : 68844005 bytes
+Format : RAW
+File   : '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/partial.bit'
+
+Section: 'MEM_TOPOLOGY'(6) was successfully added.
+Format : JSON
+File   : 'mem_topology'
+
+Section: 'IP_LAYOUT'(8) was successfully added.
+Format : JSON
+File   : 'ip_layout'
+
+Section: 'CONNECTIVITY'(7) was successfully added.
+Format : JSON
+File   : 'connectivity'
+
+Section: 'CLOCK_FREQ_TOPOLOGY'(11) was successfully added.
+Size   : 410 bytes
+Format : JSON
+File   : '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1_xml.rtd'
+
+Section: 'BUILD_METADATA'(14) was successfully added.
+Size   : 3395 bytes
+Format : JSON
+File   : '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1_build.rtd'
+
+Section: 'EMBEDDED_METADATA'(2) was successfully added.
+Size   : 58104 bytes
+Format : RAW
+File   : '/home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xml'
+
+Section: 'IP_LAYOUT'(8) was successfully appended to.
+Format : JSON
+File   : 'ip_layout'
+Successfully wrote (68930269 bytes) to the output file: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin
+Leaving xclbinutil.
+INFO: [XOCC 60-1441] [01:31:12] Run xocc_link: Step xclbinutil: Completed
+Time (s): cpu = 00:00:00.10 ; elapsed = 00:00:00.25 . Memory (MB): peak = 651.637 ; gain = 0.000 ; free physical = 195291 ; free virtual = 247191
+INFO: [XOCC 60-1443] [01:31:12] Run xocc_link: Step xclbinutilinfo: Started
+INFO: [XOCC 60-1453] Command Line: xclbinutil --quiet --info /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin.info --input /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/int/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/link/xocc_link
+INFO: [XOCC 60-1441] [01:31:13] Run xocc_link: Step xclbinutilinfo: Completed
+Time (s): cpu = 00:00:00.60 ; elapsed = 00:00:00.72 . Memory (MB): peak = 651.637 ; gain = 0.000 ; free physical = 195290 ; free virtual = 247190
+INFO: [XOCC 60-244] Generating system estimate report...
+INFO: [XOCC 60-1092] Generated system estimate report: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link/system_estimate_topkernel.hw.xilinx_u280_xdma_201910_1.xtxt
+INFO: [XOCC 60-586] Created /home/oj2zf/Documents/ActsOfAGraph/xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.ltx
+INFO: [XOCC 60-586] Created xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin
+INFO: [XOCC 60-1307] Run completed. Additional information can be found in:
+	Guidance: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link/xocc_link_topkernel.hw.xilinx_u280_xdma_201910_1_guidance.html
+	Timing Report: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link/imp/xilinx_u280_xdma_201910_1_bb_locked_timing_summary_routed.rpt
+	Utilizations Report: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/reports/link/imp/kernel_util_routed.rpt
+	Vivado Log: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/logs/link/vivado.log
+	Steps Log File: /home/oj2zf/Documents/ActsOfAGraph/_x.hw.xilinx_u280_xdma_201910_1/topkernel/logs/link/link.steps.log
+
+INFO: [XOCC 60-791] Total elapsed time: 5h 57m 47s
+emconfigutil --platform /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --od ./xclbin/xilinx_u280_xdma_201910_1
+
+****** configutil v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+INFO: [ConfigUtil 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+emulation configuration file `emconfig.json` is created in ./xclbin/xilinx_u280_xdma_201910_1 directory 

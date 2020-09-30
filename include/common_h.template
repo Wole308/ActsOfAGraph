@@ -170,7 +170,8 @@
     #ifdef TESTKERNEL
 	#define KVDATA_BATCHSIZE (1 << 26)
 	#else 
-	#define KVDATA_BATCHSIZE (1 << 24)
+	// #define KVDATA_BATCHSIZE (1 << 24)
+	#define KVDATA_BATCHSIZE 10000000
 	#endif 
 #elif defined(ACTSMODEL_LW)
 	#define KVDATA_BATCHSIZE 10000000

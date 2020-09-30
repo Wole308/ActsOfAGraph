@@ -107,15 +107,8 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 		data.value = edgeval;
 		utilityobj->checkoutofbounds("edge_process::generatekeyvalues_stream 2", i, KVDATA_BATCHSIZE, NAp, NAp, NAp);
 		
-		#ifdef ACTSMODEL_LW
 		insertkeyvaluetobuffer(batch, tempbatchoffset, tempbatchsize, data, voffset, groupid);
-		#else 
-		batch[0][tempbatchoffset[0] + i] = data;
-		#endif
 	}
-	#ifndef ACTSMODEL_LW
-	tempbatchsize[0] = datasize;
-	#endif 
 	currentvid[ithreadidx] = tempcurrentvid;
 	utilityobj->copy(batchsize, tempbatchsize, NUMSUBCPUTHREADS);
 	return datasize;
@@ -191,13 +184,8 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 		data.key = neighbor;
 		data.value = edgeval;
 		
-		// insertkeyvaluetobuffer(batch, batchoffset, batchsize, data); // NEWCHANGE.
-		#ifdef ACTSMODEL_LW
 		insertkeyvaluetobuffer(batch, tempbatchoffset, tempbatchsize, data, 0, groupid);
-		#else 
-		batch[0][tempbatchoffset[0] + i] = data;
-		tempbatchsize[0] += 1;
-		#endif
+		
 		*keyvaluesread += 1;
 	}
 	utilityobj->copy(batchsize, tempbatchsize, NUMSUBCPUTHREADS);
@@ -277,7 +265,15 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 unsigned int edge_process::insertkeyvaluetobuffer(keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], keyvalue_t keyvalue, unsigned int voffset, unsigned int groupid){
 	unsigned int partition = (keyvalue.key - voffset) / parametersobj->GET_BATCH_RANGE(groupid);
 	
-	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 2", partition, NUMSUBCPUTHREADS, keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset);
+	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 2", partition, NUMSUBCPUTHREADS, keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); //  (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)
+	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 3", batchoffset[partition] + batchsize[partition], (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ), keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); // REMOVEME.
+	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 4", batchsize[partition], KVDRAMSZ, keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); // REMOVEME.
+	
+	// if(partition == 0){ return partition; }// REMOVEME.
+	// return partition;
+	// batch[partition][batchoffset[partition] + batchsize[partition]] = keyvalue;
+	// return partition;
+	
 	batch[partition][batchoffset[partition] + batchsize[partition]] = keyvalue;
 	batchsize[partition] += 1;
 	return partition;

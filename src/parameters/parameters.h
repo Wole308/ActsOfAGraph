@@ -18,6 +18,8 @@ public:
 	unsigned int GET_BATCH_RANGE_POW(unsigned int groupid);
 	unsigned int GET_BATCH_RANGE(unsigned int groupid);
 	unsigned int GET_BATCH_RANGE_KVS(unsigned int groupid);
+	
+	unsigned int GET_MYBATCH_RANGE(unsigned int groupid);
 
 	unsigned int GET_TREE_DEPTH(unsigned int groupid);
 	

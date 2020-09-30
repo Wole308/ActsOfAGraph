@@ -30,11 +30,19 @@ typedef ap_uint<12> buffer_type;
 #else 
 typedef unsigned int buffer_type;
 #endif
-typedef short partition_type;
-typedef short vector_type;
-typedef short step_type;
-typedef short bool_type;
-typedef short bool_type;
+
+// typedef short partition_type;
+// typedef short vector_type;
+// typedef short step_type;
+// typedef short bool_type;
+// typedef short bool_type;
+
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+typedef unsigned int step_type;
+typedef unsigned int bool_type;
+typedef unsigned int bool_type;
+
 typedef unsigned int analysis_type;
 typedef unsigned int code_type;
 typedef unsigned int smallint_type;

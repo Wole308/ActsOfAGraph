@@ -411,11 +411,15 @@ getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	} else if(realsize_kvs >= 23*PADSKIP && realsize_kvs < 24*PADSKIP){
 		size_kvs = 24*PADSKIP;
 	} else {
+		#ifdef ENABLE_PERFECTACCURACY
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<endl; 
+		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
 		exit(EXIT_FAILURE);
 		#endif
-		size_kvs = PADDEDDESTBUFFER_SIZE;
+		#else 
+		// size_kvs = PADDEDDESTBUFFER_SIZE;
+		size_kvs = OPTIMALSIZE;
+		#endif 
 	}
 	#ifdef SW 
 	if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
@@ -439,7 +443,9 @@ void
 	actslw::
 	#endif 
 calculateoffsets(keyvalue_t * buffer, buffer_type size, buffer_type base, buffer_type skipspacing){
+	unsigned int analysis_size = NUMLASTLEVELPARTITIONS;
 	for(partition_type i=1; i<size; i++){ 
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_size avg=analysis_size	
 		buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing); 
 	}
 	return;

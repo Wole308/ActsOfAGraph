@@ -202,7 +202,7 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 #endif 
 
 void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
 	#ifdef ACTSMODEL_LW
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("helperfunctions::launchkernel:: messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
@@ -224,8 +224,10 @@ void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 // update messages before & after launch
 #ifdef ACTSMODEL
 void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset, unsigned int kvstatsbaseoffset, hostglobalparams_t globalparams){											
+	unsigned int totalkeyvalueslaunched = 0;
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			totalkeyvalueslaunched += keyvaluecount[i][j];
 			if((utilityobj->runActs(globaliteration_idx) == 1)){
 				kvstats[i][j][messagesbaseoffset + MESSAGES_RUNKERNELCOMMANDID].key = ON;
 				kvstats[i][j][messagesbaseoffset + MESSAGES_BATCHSIZE].key = batchsize[i][j];
@@ -260,6 +262,7 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset + MESSAGES_APPLYVERTEXBUFFERSZ_KVS].key = parametersobj->GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid); 
 		}
 	}
+	cout<<"...running Acts... total size: "<<totalkeyvalueslaunched<<endl; 
 	return;
 }
 void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx, keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset, unsigned int kvstatsbaseoffset){
@@ -354,11 +357,17 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
 }
-void helperfunctions::writeVstokernel(unsigned int flag){
-	kernelobj->writeVstokernel(flag);
+void helperfunctions::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	if(size >= (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)){ utilityobj->printstructuresbeforekernelrun("helperfunctions::writeVstokernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram); }
+	#endif
+	kernelobj->writeVstokernel(flag, kvsourcedram, beginoffset, size);
 }
-void helperfunctions::readVsfromkernel(unsigned int flag){
-	kernelobj->readVsfromkernel(flag);
+void helperfunctions::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	kernelobj->readVsfromkernel(flag, kvsourcedram, beginoffset, size);
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	if(size >= (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)){ utilityobj->printstructuresafterkernelrun("helperfunctions::readVsfromkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram); }
+	#endif
 }
 void helperfunctions::finishOCL(){
 	kernelobj->finishOCL();

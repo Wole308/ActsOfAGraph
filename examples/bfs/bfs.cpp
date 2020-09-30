@@ -31,7 +31,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){
 		#ifdef FPGA_IMPL
-		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvsourcedram[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt))); }}}
+		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvsourcedram[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}}
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvdestdram[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (BATCH_RANGE_KVS * sizeof(uint512_vec_dt))); }}} // KVDATA_RANGE_PERSSDPARTITION_KVS  
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvstats[i][flag][j][k] = (keyvalue_t *) aligned_alloc(4096, (KVSTATSDRAMSZ * sizeof(keyvalue_t))); }}}
 		#else 
@@ -147,7 +147,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparam
 	#endif 
 	// FIXME. do for ACTSMODEL_LW
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[superthreadidx]->writeVstokernel(0);
+	helperfunctionsobj[superthreadidx]->writeVstokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], 0, PADDEDKVSOURCEDRAMSZ);
 	#endif
 	
 	unsigned int fdoffset[NUMCPUTHREADS];
@@ -192,7 +192,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparam
 	}
 
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[superthreadidx]->readVsfromkernel(0);
+	helperfunctionsobj[superthreadidx]->readVsfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], 0, PADDEDKVSOURCEDRAMSZ);
 	#endif
 	#ifdef ACTSMODEL
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);

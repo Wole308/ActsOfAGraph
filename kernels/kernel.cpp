@@ -36,11 +36,11 @@ void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHRE
 void kernel::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
 }
-void kernel::writeVstokernel(unsigned int flag){
-	kernelobj->writeVstokernel(flag);
+void kernel::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	kernelobj->writeVstokernel(flag, kvsourcedram, beginoffset, size);
 }
-void kernel::readVsfromkernel(unsigned int flag){
-	kernelobj->readVsfromkernel(flag);
+void kernel::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	kernelobj->readVsfromkernel(flag, kvsourcedram, beginoffset, size);
 }
 void kernel::finishOCL(){
 	kernelobj->finishOCL();

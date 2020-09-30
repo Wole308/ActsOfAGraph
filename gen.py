@@ -88,8 +88,8 @@ if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
     # context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
 elif context['XWARE'] == "HW":
-	# context['NUMINSTANCES'] = 4
-    context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
+	context['NUMINSTANCES'] = 1
+    # context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
 elif context['XWARE'] == "SWEMU":
 	context['NUMINSTANCES'] = 1
 else:
@@ -103,7 +103,7 @@ else:
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
 context['NUMDRAMBANKS'] = 4
-context['NUMWORKERS'] = 1 #2
+context['NUMWORKERS'] = 1
 context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
 context['NUMPEFUNCS'] = 8
 context['NUMWORKERS_APPLYPH'] = 1

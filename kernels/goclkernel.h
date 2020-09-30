@@ -13,10 +13,10 @@ class goclkernel {
 public:
 	goclkernel();
 	~goclkernel();
-
-	#define TOTALNUMKERNELS 1 // 8
 	
-	#define NUMHBMSPERKERNEL 4
+	#define TOTALNUMKERNELS 16
+	
+	#define NUMHBMSPERKERNEL 1
 	
 	#define TOTALNUMACTCUSTORUN (NUMCPUTHREADS * NUMSUBCPUTHREADS)
 	
@@ -26,17 +26,18 @@ public:
 	
 	#define NUMACTIVEKERNELS ((TOTALNUMACTCUSTORUN + (NUMACTSCUSPERKERNEL - 1)) / NUMACTSCUSPERKERNEL)
 
-	#if TOTALNUMACTCUSTORUN<NUMINSTANCES
 	#define NUMACTIVEINSTANCES 1
-	#else 
-	#define NUMACTIVEINSTANCES NUMINSTANCES
-	#endif 
+	// #if TOTALNUMACTCUSTORUN<NUMINSTANCES
+	// #define NUMACTIVEINSTANCES 1
+	// #else 
+	// #define NUMACTIVEINSTANCES NUMINSTANCES
+	// #endif 
 	
 	#ifdef FPGA_IMPL 
 	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	
-	void writeVstokernel(unsigned int flag);
-	void readVsfromkernel(unsigned int flag);
+	void writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size);
+	void readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size);
 	
 	void loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);			
 	void finishOCL();
