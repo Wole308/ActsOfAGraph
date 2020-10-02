@@ -105,9 +105,9 @@ void test::run(){
 		utilityobj->printkeyvalues("test::run:: kvdram workspace (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
 		#endif
 		
-		#ifdef FPGA_IMPL
-		helperfunctionsobj->writeVstokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
-		#endif
+		// #ifdef FPGA_IMPL
+		// helperfunctionsobj->writetokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
+		// #endif
 		
 		// Launch the Kernel
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -115,9 +115,9 @@ void test::run(){
 		totaltime_ms += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count() - noisetime_ms);
 		cout<<"test::run current totaltime_ms: "<<totaltime_ms<<endl;
 		
-		#ifdef FPGA_IMPL
-		helperfunctionsobj->readVsfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
-		#endif
+		// #ifdef FPGA_IMPL
+		// helperfunctionsobj->readfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
+		// #endif
 	
 		#ifdef ACTSMODEL
 		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);

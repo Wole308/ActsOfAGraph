@@ -1,13 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
 ////////////////
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM
 #define _TWITTERDATASET_67M 
@@ -52,6 +49,7 @@
 #endif
 // #define _DEBUGMODE_HOSTPRINTS
 #define _DEBUGMODE_HOSTPRINTS2 //
+#define _DEBUGMODE_HOSTPRINTS3 //
 // #define _DEBUGMODE_TIMERS
 #define _DEBUGMODE_TIMERS2
 

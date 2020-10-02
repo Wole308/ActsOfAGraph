@@ -14,10 +14,7 @@
 using namespace std;
 
 
-parameters::parameters(){
-	// utilityobj = new utility();
-	// algorithmobj = new algorithm();
-}
+parameters::parameters(){}
 parameters::~parameters(){} 
 
 unsigned int parameters::GET_KVDATA_RANGE_PERSSDPARTITION_POW(unsigned int groupid){
@@ -80,11 +77,3 @@ unsigned int parameters::GET_NUMLASTLEVELPARTITIONS(unsigned int groupid){
 	else if(groupid == HIGHINDEGREESGROUPID){ return NUMLASTLEVELPARTITIONS2; }
 	else{ return NUMLASTLEVELPARTITIONS; }
 }
-
-
-
-
-
-
-
-

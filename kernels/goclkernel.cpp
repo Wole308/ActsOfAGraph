@@ -62,40 +62,42 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	return;
 }
 
-#ifdef THT
-void goclkernel::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+void goclkernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
-		// OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS])); // 0, kvsource_size_bytes
-		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i])); // 0, kvsource_size_bytes
+		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
 	}
     q.finish();
 }
-void goclkernel::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){		  
-		// OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS])); // 0, kvsource_size_bytes
-		OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i])); // 0, kvsource_size_bytes
+void goclkernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
+		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS] * sizeof(keyvalue_t), size[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS] * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
+		#else 
+		OCL_CHECK(err,
+				  err = q.enqueueMigrateMemObjects(
+					  {buffer_kvsourcedram[i]},
+					  0));
+		#endif
 	}
     q.finish();
 }
-#endif 
 
-void goclkernel::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ 
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  0));
-			// OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
+void goclkernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
 	}
     q.finish();
 }
-void goclkernel::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ 
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  CL_MIGRATE_MEM_OBJECT_HOST));
-			// OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
+void goclkernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
+		OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS] * sizeof(keyvalue_t), size[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS] * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
+		#else 
+		OCL_CHECK(err,
+				  err = q.enqueueMigrateMemObjects(
+					  {buffer_kvsourcedram[i]},
+					  CL_MIGRATE_MEM_OBJECT_HOST));	
+		#endif
 	}
     q.finish();
 }
@@ -103,13 +105,8 @@ void goclkernel::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[N
 void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){		
 	binaryFile = _binaryFile;
 
-	// kvsource_size_bytes = KVDATA_BATCHSIZE_KVS * sizeof(uint512_vec_dt);
-	kvsource_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt); // REMOVEME.
-	kvdest_size_bytes = 8 * sizeof(uint512_vec_dt);
-	kvstats_size_bytes = MESSAGESDRAMSZ * sizeof(keyvalue_t);
-	cout<<"goclkernel::loadOCLstructures:: kvsource_size_bytes: "<<kvsource_size_bytes<<endl;
-	cout<<"goclkernel::loadOCLstructures:: kvdest_size_bytes: "<<kvdest_size_bytes<<endl;
-	cout<<"goclkernel::loadOCLstructures:: kvstats_size_bytes: "<<kvstats_size_bytes<<endl;
+	inputdata_size_bytes = INPUTDATASZ_KVS * sizeof(uint512_vec_dt);
+	cout<<"goclkernel::loadOCLstructures:: inputdata_size_bytes: "<<inputdata_size_bytes<<endl;
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"goclkernel::loadOCLstructures: printing OCL parameters"<<endl;
@@ -186,8 +183,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 					  cl::Buffer(context,
 								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 									 CL_MEM_USE_HOST_PTR,
-								 // CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX | CL_MEM_COPY_HOST_PTR, // REMOVEME?
-								 kvsource_size_bytes,
+								 inputdata_size_bytes,
 								 &inoutBufExt[i],
 								 &err));
 	}

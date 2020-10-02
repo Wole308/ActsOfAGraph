@@ -233,7 +233,9 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 				kvstats[i][j][messagesbaseoffset + MESSAGES_BATCHSIZE].key = batchsize[i][j];
 				kvstats[i][j][messagesbaseoffset + MESSAGES_RUNSIZE].key = keyvaluecount[i][j]; 
 				kvstats[i][j][kvstatsbaseoffset + 0].value = keyvaluecount[i][j]; 
+				#ifdef _DEBUGMODE_HOSTPRINTS2
 				cout<<"...running Acts... size: "<<keyvaluecount[i][j]<<endl; 
+				#endif 
 				keyvaluecount[i][j] = 0;
 			} else { 
 				kvstats[i][j][messagesbaseoffset + MESSAGES_RUNKERNELCOMMANDID].key = OFF; 
@@ -293,7 +295,9 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = batchsize[i][j];
 				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNSIZE].data[0].key = keyvaluecount[i][j]; 
 				kvstats[i][j][kvstatsbaseoffset_kvs + 0].data[0].value = keyvaluecount[i][j]; 
+				#ifdef _DEBUGMODE_HOSTPRINTS2
 				cout<<"...running Acts... size["<<i<<"]["<<j<<"]: "<<keyvaluecount[i][j]<<endl; 
+				#endif 
 				keyvaluecount[i][j] = 0;
 			} else { 
 				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNKERNELCOMMANDID].data[0].key = OFF; 
@@ -310,7 +314,10 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VOFFSET].data[0].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid));
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VSIZE].data[0].key = NAp;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
-			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 1; // REMOVEME.
+			
+			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); // REMOVEME.
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 3; // REMOVEME.
+			
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid));
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = globalparams.graph_iterationidx;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHALGORITHMID].data[0].key = globalparams.graph_algorithmidx;
@@ -346,7 +353,7 @@ void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx
 
 unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 	#ifdef FPGA_IMPL
-	int flag = globaliteration_idx % 2;
+	int flag = globaliteration_idx % NUMFLAGS;
 	#else 
 	int flag = 0;
 	#endif 
@@ -357,17 +364,11 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
 }
-void helperfunctions::writeVstokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	if(size >= (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)){ utilityobj->printstructuresbeforekernelrun("helperfunctions::writeVstokernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram); }
-	#endif
-	kernelobj->writeVstokernel(flag, kvsourcedram, beginoffset, size);
+void helperfunctions::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	kernelobj->writetokernel(flag, kvsourcedram, beginoffset, size);
 }
-void helperfunctions::readVsfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	kernelobj->readVsfromkernel(flag, kvsourcedram, beginoffset, size);
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	if(size >= (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)){ utilityobj->printstructuresafterkernelrun("helperfunctions::readVsfromkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram); }
-	#endif
+void helperfunctions::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
+	kernelobj->readfromkernel(flag, kvsourcedram, beginoffset, size);
 }
 void helperfunctions::finishOCL(){
 	kernelobj->finishOCL();

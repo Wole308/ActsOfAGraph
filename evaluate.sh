@@ -82,8 +82,8 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -241,14 +241,11 @@ do
 
 		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
 		for numcputhreads in $THREADCOUNT_EQ1
-		# for numcputhreads in $THREADCOUNT_EQ2
-		# for numcputhreads in $THREADCOUNT_EQ4
 		# for numcputhreads in $THREADCOUNT_EQ16
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
 		for numsubcputhreads_pow in $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ2
 		# for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -413,8 +410,8 @@ do
 							make cleanall
 							# rm -rf host
 							
-							make host
-							./host $BACKUPDIR_KERNELXCLBIN
+							# make host
+							# ./host $BACKUPDIR_KERNELXCLBIN
 							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
 							
 							# make build_host_aws

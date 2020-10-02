@@ -2,6 +2,20 @@
 #define ACTS_H
 #include "../include/actscommon.h"
 #include "../../include/common.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
@@ -35,6 +49,7 @@ using namespace std;
 #define PVU_NUM_READ_PIPELINES 1
 #endif 
 
+#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define ENREADKEYVALUES 1
 #define ENREADKVS_COLLECTSTATS 0

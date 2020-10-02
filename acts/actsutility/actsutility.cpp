@@ -160,7 +160,7 @@ void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams,
 	string message; string message2;
 	if(config.enablecollectglobalstats == ON) { message = "collectglobalstats"; } else if (config.enablepartition == ON){ message = "partition"; } else if (config.enablereduce == ON){ message = "reduce"; }
 	message2 = "### dispatch"+to_string(instanceid)+"::" + message + ":: source partition";
-	print6(message2, "upperlimit", "travstate.begin", "travstate.end", "destination range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, travstate.begin_kvs * VECTOR_SIZE, travstate.end_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP);				
+	print6(message2, "upperlimit", "travst.begin", "travst.end", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, travstate.begin_kvs * VECTOR_SIZE, travstate.end_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP);				
 	#endif
 	return;
 }
@@ -171,17 +171,27 @@ void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram,
 	// printglobalvars();
 	// clearglobalvars();
 	if(sweepparams.currentLOP==0){ printkeyvalues("actslw::topkernel::globalstats", globalstatsbuffer, 16); } // NUMLASTLEVELPARTITIONS, 16
-	if(sweepparams.currentLOP==0){  checkforoverlap("actslw::topkernel::actsutility::printpartitionresult::globalstats", globalstatsbuffer, NUMLASTLEVELPARTITIONS); }
+	if(sweepparams.currentLOP==0){  checkforoverlap("actslw::topkernel::actsutility::printpartitionresult::globalstats", globalstatsbuffer, 256); } // REMOVEME // NUMLASTLEVELPARTITIONS
 	// if(sweepparams.currentLOP==0){ printkeyvalues("actslw::topkernel::globalstats", (keyvalue_t *)(&kvdram[BASEOFFSET_STATSDRAM_KVS]), 16 * 8, 8); } // NUMLASTLEVELPARTITIONS
 	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ printkeyvalues("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
 	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ printvaluecount("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
 	if(sweepparams.currentLOP > 0 && sweepparams.currentLOP <= TREE_DEPTH){ checkforoverlap("actslw::topkernel::globaldestoffsets", (keyvalue_t *)globaldestoffsets, NUM_PARTITIONS); }
 	if(sweepparams.currentLOP >= 1 && sweepparams.currentLOP <= TREE_DEPTH){ 
 		#if not (defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2))
-		// scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP));// (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP))); 
 		scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globaldestoffsets, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
 		#endif 
 	}
+	#endif
+	#endif 
+}
+void actsutility::printpartitionresult2(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef ACTSMODEL_LW
+	if(enable == OFF){ return; }
+	
+	printkeyvalues("actslw::topkernel::globalstats", globalstatsbuffer, 16);
+	printvaluecount("actslw::topkernel::globalstats", globalstatsbuffer, 16);
+	scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globalstatsbuffer, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
 	#endif
 	#endif 
 }

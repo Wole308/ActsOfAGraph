@@ -32,6 +32,7 @@ public:
 	void printglobalparameters(string message, globalparams_t globalparams);
 	void printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid);
 	void printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
+	void printpartitionresult2(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
 	
 	unsigned int ugetvaluecount(keyvalue_t * keyvalues, unsigned int size);
 	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);

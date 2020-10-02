@@ -264,16 +264,8 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 
 unsigned int edge_process::insertkeyvaluetobuffer(keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], keyvalue_t keyvalue, unsigned int voffset, unsigned int groupid){
 	unsigned int partition = (keyvalue.key - voffset) / parametersobj->GET_BATCH_RANGE(groupid);
-	
 	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 2", partition, NUMSUBCPUTHREADS, keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); //  (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)
-	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 3", batchoffset[partition] + batchsize[partition], (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ), keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); // REMOVEME.
-	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 4", batchsize[partition], KVDRAMSZ, keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); // REMOVEME.
-	
-	// if(partition == 0){ return partition; }// REMOVEME.
-	// return partition;
-	// batch[partition][batchoffset[partition] + batchsize[partition]] = keyvalue;
-	// return partition;
-	
+
 	batch[partition][batchoffset[partition] + batchsize[partition]] = keyvalue;
 	batchsize[partition] += 1;
 	return partition;
