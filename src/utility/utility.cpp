@@ -62,6 +62,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
 	std::cout<<"host:: MYBATCH_RANGE: "<<MYBATCH_RANGE<<std::endl;
 	std::cout<<"host:: MYBATCH_RANGE2: "<<MYBATCH_RANGE2<<std::endl;
+	std::cout<<"host:: MYIDEALBATCH_RANGE: "<<MYIDEALBATCH_RANGE<<std::endl;
+	std::cout<<"host:: MYIDEALBATCH_RANGE2: "<<MYIDEALBATCH_RANGE2<<std::endl;
 	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;

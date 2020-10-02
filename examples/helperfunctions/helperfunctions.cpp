@@ -316,7 +316,7 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
 			
 			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); // REMOVEME.
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 3; // REMOVEME.
+			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 3; // REMOVEME.
 			
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid));
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = globalparams.graph_iterationidx;
