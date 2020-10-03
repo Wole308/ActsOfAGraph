@@ -1864,12 +1864,9 @@ dispatch0(uint512_dt * kvdram){
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if(config.enablereduce == ON){ actsutilityobj->print7("### dispatch0::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, Rtravstate.begin_kvs * VECTOR_SIZE, Rtravstate.end_kvs * VECTOR_SIZE, (Rtravstate.end_kvs - Rtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }							
 			#endif
-			// readvertices0(config.enablereduce, kvdram, buffer_setof1, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid))));
 			
-			// if((source_partition % 8) == 0){ readvertices0(config.enablereduce, kvdram, sourcebuffer, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid)))); }
 			if((source_partition % 8) == 0){ readvertices0(config.enablereduce, kvdram, sourcebuffer, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid) / 2)))); }
 			replicatedata0(config.enablereduce, sourcebuffer, buffer_setof2, 0); // FIXME '0'
-			
 			MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=Rtravstate.begin_kvs; offset_kvs<Rtravstate.end_kvs; offset_kvs+=Rtravstate.skip_kvs){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_mainloop avg=analysis_mainloop
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1877,19 +1874,12 @@ dispatch0(uint512_dt * kvdram){
 				#endif
 				
 				Rtravstate.i_kvs = offset_kvs;
-				
-				// readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), Rtravstate);
-			
-				// reduce0(ON, sourcebuffer, buffer_setof1, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, Rtravstate, globalparams);
-				
+	
 				readkeyvalues0(ON, kvdram, buffer_setof1, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), Rtravstate);
 			
 				reduce0(ON, buffer_setof1, buffer_setof2, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, Rtravstate, globalparams);
 			}
-			// savevertices0(config.enablereduce, kvdram, buffer_setof1, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid))));
-			
 			unifydata0(config.enablereduce, buffer_setof2, buffer_setof4, 0); // FIXME '0'
-			// if((source_partition % 8) == 7){ savevertices0(config.enablereduce, kvdram, buffer_setof4, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid)))); }
 			if((source_partition % 8) == 7){ savevertices0(config.enablereduce, kvdram, buffer_setof4, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid) / 2)))); }
 			
 			sourcestatsmarker += 1;

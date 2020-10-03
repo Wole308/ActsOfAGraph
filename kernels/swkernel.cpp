@@ -12,18 +12,15 @@
 #include "../acts/acts/acts.h"
 #endif
 #ifdef ACTSMODEL_LW
-	#ifdef ACTSMODEL_LWTYPE1
+	#ifdef ACTSMODEL_LWGROUP1
 	// #include "../acts/acts_lw/actslw.h"
-	// #include "../acts/acts_lw3/actslw.h"
-	#include "../acts/acts_lw4/actslw.h"
-	// #include "../acts/acts_lw5/actslw.h"
+	#include "../acts/acts_lw1/actslw.h"
 	#endif 
-	#ifdef ACTSMODEL_LWTYPE2
-	#include "../acts/acts_lw2/actslw.h"
-	// #include "../acts/acts_lw3/actslw.h"
+	#ifdef ACTSMODEL_LWGROUP2
+	#include "../acts/acts_lw10/actslw.h"
 	#endif
-	#ifdef ACTSMODEL_LWTYPE3
-	#include "../acts/acts_lw3/actslw.h"
+	#ifdef ACTSMODEL_LWGROUP3
+	#include "../acts/acts_lw11/actslw.h"
 	#endif 
 #endif 
 #include "../src/utility/utility.h"
@@ -68,7 +65,7 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#endif
 	#endif 
 	
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
 	#ifdef LOCKE
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
 		// workerthread_launchkernel_actslwtype1(0*NUMSUBCPUTHREADS + 0, kvsourcedram[0][0]);
@@ -78,7 +75,7 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#endif
 	#endif 
 	
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2)
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
 	#ifdef LOCKE
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ for (int i = 0; i < NUMCPUTHREADS; i+=2){ workerthread_launchkernel_actslwtype2(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvsourcedram[i+1][j]); }}
 	#else 
@@ -86,7 +83,7 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#endif
 	#endif
 	
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE3)
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP3)
 	#ifdef LOCKE
 		workerthread_launchkernel_actslwtype3(0, 
 							kvsourcedram[0][0], 
@@ -129,7 +126,7 @@ void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_d
 	return;
 }
 #endif
-#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
+#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
 void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, uint512_dt * kvsourcedram){
 	
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
@@ -140,7 +137,7 @@ void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, ui
 	return;
 }
 #endif
-#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2)
+#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
 void swkernel::workerthread_launchkernel_actslwtype2(unsigned int ithreadidx, uint512_dt * kvsourcedram1, uint512_dt * kvsourcedram2){
 	#ifndef TESTKERNEL
 	return; // REMOVEME.
@@ -154,7 +151,7 @@ void swkernel::workerthread_launchkernel_actslwtype2(unsigned int ithreadidx, ui
 	return;
 }
 #endif 
-#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE3)
+#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP3)
 void swkernel::workerthread_launchkernel_actslwtype3(unsigned int ithreadidx, 
 										uint512_dt * kvsourcedram0, 
 										uint512_dt * kvsourcedram1,

@@ -141,11 +141,11 @@ void utility::printallparameters(){
 	#ifdef ACTSMODEL
 	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL"<<std::endl;
 	#endif 
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE1)
-	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWTYPE1"<<std::endl;
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
+	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWGROUP1"<<std::endl;
 	#endif 
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWTYPE2)
-	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWTYPE2"<<std::endl;
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
+	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWGROUP2"<<std::endl;
 	#endif 
 	// exit(EXIT_SUCCESS);
 	return;
@@ -217,7 +217,7 @@ void utility::printvalueslessthan(string message, unsigned int * values, unsigne
 }
 void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	cout<<"utility::printstructuresbeforekernelrun:: printing structures (before kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<2; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
 		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
@@ -226,7 +226,7 @@ void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsour
 }
 void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	cout<<"utility::printstructuresafterkernelrun:: printing structures (after kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<2; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
 		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][i];
 		cout<<"utility::printstructuresafterkernelrun:: printing messages (after kernel launch) for subthread: "<<i<<endl;
 		cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;

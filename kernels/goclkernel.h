@@ -9,18 +9,18 @@
 #include "../../src/utility/utility.h"
 #include "../../include/common.h"
 
-#define ACCESSFPGABY_ENQUEUEWRITEBUFFER
+// #define ACCESSFPGABY_ENQUEUEWRITEBUFFER
 
 class goclkernel {
 public:
 	goclkernel();
 	~goclkernel();
 	
-	#define TOTALNUMKERNELS 16
+	#define TOTALNUMKERNELS 1//16
 	
 	#define NUMHBMSPERKERNEL 1
 	
-	#define TOTALNUMACTCUSTORUN (NUMCPUTHREADS * NUMSUBCPUTHREADS)
+	#define TOTALNUMACTCUSTORUN 1//(NUMCPUTHREADS * NUMSUBCPUTHREADS)
 	
 	#define NUMACTSCUSPERKERNEL NUMINSTANCES
 	

@@ -45,8 +45,18 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
     auto kernel_start = std::chrono::high_resolution_clock::now();
 	
-	unsigned int bufferid = 0;
+	/* unsigned int bufferid = 0;
 	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
+		//Setting the k_vadd Arguments
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
+		
+		//Invoking the kernel
+		OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
+	}
+    q.finish(); */
+	
+	unsigned int bufferid = 0;
+	for(unsigned int i=0; i<1; i++){
 		//Setting the k_vadd Arguments
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
 		
@@ -64,12 +74,14 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 
 void goclkernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		cout<<"goclkernel::writetokernel::23 beginoffset "<<beginoffset<<" size: "<<size<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
 		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
 	}
     q.finish();
 }
 void goclkernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
+		cout<<"goclkernel::writetokernel::24 beginoffset["<<i<<"] "<<beginoffset[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS]<<" size["<<i<<"]: "<<size[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
 		#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
 		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_TRUE, beginoffset[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS] * sizeof(keyvalue_t), size[i / NUMSUBCPUTHREADS][i % NUMSUBCPUTHREADS] * sizeof(keyvalue_t), (uint512_vec_dt *)kvsourcedram[0][i]));
 		#else 

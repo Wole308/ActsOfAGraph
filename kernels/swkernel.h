@@ -7,18 +7,15 @@
 #include "../acts/acts/acts.h"
 #endif
 #ifdef ACTSMODEL_LW
-	#ifdef ACTSMODEL_LWTYPE1
+	#ifdef ACTSMODEL_LWGROUP1
 	// #include "../acts/acts_lw/actslw.h"
-	// #include "../acts/acts_lw3/actslw.h"
-	#include "../acts/acts_lw4/actslw.h"
-	// #include "../acts/acts_lw5/actslw.h"
+	#include "../acts/acts_lw1/actslw.h"
 	#endif 
-	#ifdef ACTSMODEL_LWTYPE2
-	#include "../acts/acts_lw2/actslw.h"
-	// #include "../acts/acts_lw3/actslw.h"
+	#ifdef ACTSMODEL_LWGROUP2
+	#include "../acts/acts_lw10/actslw.h"
 	#endif
-	#ifdef ACTSMODEL_LWTYPE3
-	#include "../acts/acts_lw3/actslw.h"
+	#ifdef ACTSMODEL_LWGROUP3
+	#include "../acts/acts_lw11/actslw.h"
 	#endif 
 #endif 
 #include "../src/utility/utility.h"
