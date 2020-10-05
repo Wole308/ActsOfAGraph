@@ -60,7 +60,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2: "<<BATCH_RANGE2<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
-	std::cout<<"host:: MYBATCH_RANGE: "<<MYBATCH_RANGE<<std::endl;
+	// std::cout<<"host:: MYBATCH_RANGE: "<<MYBATCH_RANGE<<std::endl;
 	std::cout<<"host:: MYBATCH_RANGE2: "<<MYBATCH_RANGE2<<std::endl;
 	std::cout<<"host:: MYIDEALBATCH_RANGE: "<<MYIDEALBATCH_RANGE<<std::endl;
 	std::cout<<"host:: MYIDEALBATCH_RANGE2: "<<MYIDEALBATCH_RANGE2<<std::endl;
@@ -112,9 +112,10 @@ void utility::printallparameters(){
 	std::cout<<">> host:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: (BATCH_RANGE/2) (bytes): "<<(BATCH_RANGE/2) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: MYBATCH_RANGE (bytes): "<<MYBATCH_RANGE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	// std::cout<<">> host:: MYBATCH_RANGE (bytes): "<<MYBATCH_RANGE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
 	std::cout<<">> host:: minimum PADDEDKVSOURCEDRAMSZ (bytes): "<<(MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ + KVDRAMWORKSPACESZ + KVSTATSDRAMSZ + (BATCH_RANGE/2)) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
@@ -137,6 +138,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NFACTOR: "<<NFACTOR<<std::endl;
 	#endif
+	std::cout<<"host:: PADSKIP: "<<PADSKIP<<std::endl;
 	
 	#ifdef ACTSMODEL
 	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL"<<std::endl;
@@ -217,7 +219,7 @@ void utility::printvalueslessthan(string message, unsigned int * values, unsigne
 }
 void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	cout<<"utility::printstructuresbeforekernelrun:: printing structures (before kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<2; i++){ // NUMSUBCPUTHREADS
 		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
@@ -226,7 +228,7 @@ void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsour
 }
 void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	cout<<"utility::printstructuresafterkernelrun:: printing structures (after kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<2; i++){ // NUMSUBCPUTHREADS
 		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][i];
 		cout<<"utility::printstructuresafterkernelrun:: printing messages (after kernel launch) for subthread: "<<i<<endl;
 		cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;

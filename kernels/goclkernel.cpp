@@ -45,7 +45,7 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
     auto kernel_start = std::chrono::high_resolution_clock::now();
 	
-	/* unsigned int bufferid = 0;
+	unsigned int bufferid = 0;
 	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
 		//Setting the k_vadd Arguments
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
@@ -53,9 +53,9 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 		//Invoking the kernel
 		OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
 	}
-    q.finish(); */
+    q.finish();
 	
-	unsigned int bufferid = 0;
+	/* unsigned int bufferid = 0;
 	for(unsigned int i=0; i<1; i++){
 		//Setting the k_vadd Arguments
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
@@ -63,7 +63,7 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 		//Invoking the kernel
 		OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
 	}
-    q.finish();
+    q.finish(); */
 	
     auto kernel_end = std::chrono::high_resolution_clock::now();
     kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);

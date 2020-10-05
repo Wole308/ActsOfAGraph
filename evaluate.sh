@@ -240,13 +240,13 @@ do
 		do
 
 		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
-		for numcputhreads in $THREADCOUNT_EQ1
-		# for numcputhreads in $THREADCOUNT_EQ16
+		# for numcputhreads in $THREADCOUNT_EQ1
+		for numcputhreads in $THREADCOUNT_EQ16
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ0
+		# for numsubcputhreads_pow in $THREADPOW_EQ4
+		for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE

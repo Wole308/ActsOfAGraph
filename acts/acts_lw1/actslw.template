@@ -323,6 +323,22 @@ reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, u
 	else {} */
 	return ret;
 }
+value_t 
+	#ifdef SW 
+	actslw::
+	#endif 
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+	// #pragma HLS INLINE
+	value_t ret = 0;
+	#ifdef PR_ALGORITHM
+	ret = value1 + value2;
+	#elif defined(BFS_ALGORITHM)
+	ret = min(value1, value2);
+	#elif defined(BC_ALGORITHM)
+	ret = min(value1, value2);
+	#endif
+	return ret;
+}
 void 
 	#ifdef SW 
 	actslw::
@@ -334,63 +350,21 @@ buffer_type
 	#ifdef SW 
 	actslw::
 	#endif 
-getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
-	#pragma HLS INLINE
+getpartitionwritesz_original(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	#pragma HLS INLINE // REMOVEME.
+	// #pragma HLS INLINE OFF
 	buffer_type size_kvs;
 	
 	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
-	if(realsize_kvs >= 0*PADSKIP && realsize_kvs < 1*PADSKIP){
-		size_kvs = 1*PADSKIP;
-	} else if(realsize_kvs >= 1*PADSKIP && realsize_kvs < 2*PADSKIP){
-		size_kvs = 2*PADSKIP;
-	} else if(realsize_kvs >= 2*PADSKIP && realsize_kvs < 3*PADSKIP){
-		size_kvs = 3*PADSKIP;
-	} else if(realsize_kvs >= 3*PADSKIP && realsize_kvs < 4*PADSKIP){
-		size_kvs = 4*PADSKIP;
-	} else if(realsize_kvs >= 4*PADSKIP && realsize_kvs < 5*PADSKIP){
-		size_kvs = 5*PADSKIP;
-	} else if(realsize_kvs >= 5*PADSKIP && realsize_kvs < 6*PADSKIP){
-		size_kvs = 6*PADSKIP;
-	} else if(realsize_kvs >= 6*PADSKIP && realsize_kvs < 7*PADSKIP){
-		size_kvs = 7*PADSKIP;
-	} else if(realsize_kvs >= 7*PADSKIP && realsize_kvs < 8*PADSKIP){
-		size_kvs = 8*PADSKIP;
-	} else if(realsize_kvs >= 8*PADSKIP && realsize_kvs < 9*PADSKIP){
-		size_kvs = 9*PADSKIP;
-	} else if(realsize_kvs >= 9*PADSKIP && realsize_kvs < 10*PADSKIP){
-		size_kvs = 10*PADSKIP;
-	} else if(realsize_kvs >= 10*PADSKIP && realsize_kvs < 11*PADSKIP){
-		size_kvs = 11*PADSKIP;
-	} else if(realsize_kvs >= 11*PADSKIP && realsize_kvs < 12*PADSKIP){
-		size_kvs = 12*PADSKIP;
-	} else if(realsize_kvs >= 12*PADSKIP && realsize_kvs < 13*PADSKIP){
-		size_kvs = 13*PADSKIP;
-	} else if(realsize_kvs >= 13*PADSKIP && realsize_kvs < 14*PADSKIP){
-		size_kvs = 14*PADSKIP;
-	} else if(realsize_kvs >= 14*PADSKIP && realsize_kvs < 15*PADSKIP){
-		size_kvs = 15*PADSKIP;
-	} else if(realsize_kvs >= 15*PADSKIP && realsize_kvs < 16*PADSKIP){
-		size_kvs = 16*PADSKIP;
-	} else if(realsize_kvs >= 16*PADSKIP && realsize_kvs < 17*PADSKIP){
-		size_kvs = 17*PADSKIP;
-	} else if(realsize_kvs >= 17*PADSKIP && realsize_kvs < 18*PADSKIP){
-		size_kvs = 18*PADSKIP;
-	} else if(realsize_kvs >= 18*PADSKIP && realsize_kvs < 19*PADSKIP){
-		size_kvs = 19*PADSKIP;
-	} else if(realsize_kvs >= 19*PADSKIP && realsize_kvs < 20*PADSKIP){
-		size_kvs = 20*PADSKIP;
-	} else if(realsize_kvs >= 20*PADSKIP && realsize_kvs < 21*PADSKIP){
-		size_kvs = 21*PADSKIP;
-	} else if(realsize_kvs >= 21*PADSKIP && realsize_kvs < 22*PADSKIP){
-		size_kvs = 22*PADSKIP;
-	} else if(realsize_kvs >= 22*PADSKIP && realsize_kvs < 23*PADSKIP){
-		size_kvs = 23*PADSKIP;
-	} else if(realsize_kvs >= 23*PADSKIP && realsize_kvs < 24*PADSKIP){
-		size_kvs = 24*PADSKIP;
-	} else {
+	{%for n in context['64_seq']%}
+	{%if(n>0)%}else {%endif%}if(realsize_kvs >= {{n}}*PADSKIP && realsize_kvs < {{n+1}}*PADSKIP){
+		size_kvs = {{n+1}}*PADSKIP;
+	}
+	{%endfor%}
+	else {
 		#ifdef ENABLE_PERFECTACCURACY
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
 		exit(EXIT_FAILURE);
 		#endif
 		#else 
@@ -403,6 +377,97 @@ getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	#endif 
 	#else 
 	size_kvs = realsize_kvs;
+	#endif
+	return size_kvs;
+}
+buffer_type 
+	#ifdef SW 
+	actslw::
+	#endif 
+getpartitionwritesz_original2(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	#pragma HLS INLINE // REMOVEME.
+	// #pragma HLS INLINE OFF
+	buffer_type size_kvs;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+	{%for n in context['64_seq']%}
+	{%if(n>0)%}else {%endif%}if(realsize_kvs >= {{n}}*8 && realsize_kvs < {{n+1}}*8){
+		size_kvs = {{n+1}}*8;
+	}
+	{%endfor%}
+	else {
+		#ifdef ENABLE_PERFECTACCURACY
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+		exit(EXIT_FAILURE);
+		#endif
+		#else 
+		// size_kvs = PADDEDDESTBUFFER_SIZE;
+		size_kvs = OPTIMALSIZE;
+		#endif 
+	}
+	#ifdef SW 
+	if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
+	#endif 
+	#else 
+	size_kvs = realsize_kvs;
+	#endif
+	return size_kvs;
+}
+buffer_type 
+	#ifdef SW 
+	actslw::
+	#endif 
+getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	#pragma HLS INLINE
+	buffer_type size_kvs = 0;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+		{% set my_variable = 2 %}
+		{% set my_base = 0 %} // SECOND SET:: (my_variable): {{my_variable}}, (my_base): {{my_base}}
+		
+		{%for n in context['32_seq']%}
+		{%if(n>0)%}else {%endif%}if(realsize_kvs >= {{(n * my_variable)}} && realsize_kvs < {{((n+1) * my_variable)}}){ size_kvs = {{((n+1) * my_variable)}}; }
+		{%endfor%}
+		
+		{% set my_variable = my_variable + 2 %}
+		{% set my_base = my_base + (32 * 2) %} // SECOND SET:: (my_variable): {{my_variable}}, (my_base): {{my_base}}
+		
+		{%for n in context['16_seq']%}
+		else if(realsize_kvs >= {{(my_base + n * my_variable)}} && realsize_kvs < {{(my_base + (n+1) * my_variable)}}){ size_kvs = {{(my_base + (n+1) * my_variable)}}; }
+		{%endfor%}
+		
+		{% set my_variable = my_variable + 4 %}
+		{% set my_base = my_base + (16 * 4) %} // THIRD SET:: (my_variable): {{my_variable}}, (my_base): {{my_base}}
+		
+		{%for n in context['16_seq']%}
+		else if(realsize_kvs >= {{(my_base + n * my_variable)}} && realsize_kvs < {{(my_base + (n+1) * my_variable)}}){ size_kvs = {{(my_base + (n+1) * my_variable)}}; }
+		{%endfor%}
+		
+		{% set my_variable = my_variable + 8 %}
+		{% set my_base = my_base + (16 * 8) %} // FOURTH SET:: (my_variable): {{my_variable}}, (my_base): {{my_base}}
+		
+		{%for n in context['16_seq']%}
+		else if(realsize_kvs >= {{(my_base + n * my_variable)}} && realsize_kvs < {{(my_base + (n+1) * my_variable)}}){ size_kvs = {{(my_base + (n+1) * my_variable)}}; }
+		{%endfor%}
+		
+		else {
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+			
+			#ifdef ENABLE_PERFECTACCURACY
+			#ifdef _DEBUGMODE_CHECKS2
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+			exit(EXIT_FAILURE);
+			#endif
+			#else
+			size_kvs = OPTIMALSIZE;
+			#endif 
+		}
+		#ifdef SW 
+		if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
+		#endif
+	#else 
+		size_kvs = realsize_kvs;
 	#endif
 	return size_kvs;
 }
@@ -880,7 +945,6 @@ replicatedata{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 	}
 	return;
 }
-
 {%endfor%}
 
 {%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
@@ -958,12 +1022,14 @@ void
 	#ifdef SW 
 	actslw::
 	#endif
-unifydata{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int destbank){
+unifydata{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int destbank, unsigned int GraphAlgo){
 	if(enable == OFF){ return; }
 
 	UNIFYDATA_LOOP1: for(vector_type v=0; v<VECTOR_SIZE; v++){
-		UNIFYDATA_LOOP1B: for(buffer_type i=0; i<NUM_PARTITIONS; i++){
-			destbuffer[destbank][i].value += sourcebuffer[v][i].value;
+		UNIFYDATA_LOOP1B: for(buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+		// #pragma HLS PIPELINE II=1
+			// destbuffer[destbank][i].value += sourcebuffer[v][i].value;
+			destbuffer[destbank][i].value = mergefunc(destbuffer[destbank][i].value, sourcebuffer[v][i].value, GraphAlgo);
 		}
 	}
 	return;
@@ -1247,7 +1313,7 @@ void
 	actslw::
 	#endif 
 dispatch{{inst}}(uint512_dt * kvdram){
-	analysis_type analysis_mainloop = KVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
+	analysis_type analysis_mainloop = MAXKVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
 	#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -1295,7 +1361,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		
 		resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE);
-		resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS); // REMOVEME?
+		// resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS); // REMOVEME?
 		
 		destoffset = 0;
 		
@@ -1379,7 +1445,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 			#endif
 			
 			if((source_partition % 8) == 0){ readvertices{{inst}}(config.enablereduce, kvdram, sourcebuffer, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid) / 2)))); }
-			replicatedata{{inst}}(config.enablereduce, sourcebuffer, buffer_setof2, 0); // FIXME '0'
+			replicatedata{{inst}}(config.enablereduce, sourcebuffer, buffer_setof2, (source_partition % 8)); // FIXME '0' // (source_partition % 8)
 			MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=Rtravstate.begin_kvs; offset_kvs<Rtravstate.end_kvs; offset_kvs+=Rtravstate.skip_kvs){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_mainloop avg=analysis_mainloop
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1392,7 +1458,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 			
 				reduce{{inst}}(ON, buffer_setof1, buffer_setof2, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, Rtravstate, globalparams);
 			}
-			unifydata{{inst}}(config.enablereduce, buffer_setof2, buffer_setof4, 0); // FIXME '0'
+			unifydata{{inst}}(config.enablereduce, buffer_setof2, buffer_setof4, (source_partition % 8), globalparams.GraphAlgo); // FIXME '0' // (source_partition % 8)
 			if((source_partition % 8) == 7){ savevertices{{inst}}(config.enablereduce, kvdram, buffer_setof4, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid) / 2)))); }
 			
 			sourcestatsmarker += 1;

@@ -279,6 +279,18 @@ context['NUMSUBWORKERSPERVECTOR_seq'] = []
 for i in range (0,(context['NUMSUBWORKERSPERVECTOR'])):
 		context['NUMSUBWORKERSPERVECTOR_seq'].append(i)
         
+context['64_seq'] = []
+for i in range (0,64):
+		context['64_seq'].append(i)
+        
+context['32_seq'] = []
+for i in range (0,32):
+		context['32_seq'].append(i)
+        
+context['24_seq'] = []
+for i in range (0,24):
+		context['24_seq'].append(i)
+        
 context['16_seq'] = []
 for i in range (0,16):
 		context['16_seq'].append(i)

@@ -65,9 +65,6 @@ void kernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUT
 	kernelobj->readfromkernel(flag, kvsourcedram, beginoffset, size);
 }
 void kernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	// #ifdef _DEBUGMODE_HOSTPRINTS2
-	// utilityobj->printstructuresafterkernelrun("helperfunctions::readfromkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram);
-	// #endif
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
 			beginoffset[i][j] = 0;

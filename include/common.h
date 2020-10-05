@@ -65,8 +65,8 @@
 ////////////////
 
 #define NUMSUPERCPUTHREADS 1
-#define NUMCPUTHREADS 1 // FIXME. overridden
-#define NUMSUBCPUTHREADS_POW 4
+#define NUMCPUTHREADS 16 // FIXME. overridden
+#define NUMSUBCPUTHREADS_POW 0
 #define NUMSUBCPUTHREADS (1 << NUMSUBCPUTHREADS_POW) 
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
@@ -143,6 +143,15 @@
 ////////////////
 
 #if defined(ACTSMODEL)
+    #define MAXKVDATA_BATCHSIZE (1 << 26)
+#elif defined(ACTSMODEL_LW)
+	#define MAXKVDATA_BATCHSIZE 12000000
+#else
+    #define MAXKVDATA_BATCHSIZE (1 << 26)
+#endif
+#define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
+
+#if defined(ACTSMODEL)
     #ifdef TESTKERNEL
 	#define KVDATA_BATCHSIZE (1 << 26)
 	#else 
@@ -150,7 +159,9 @@
 	#define KVDATA_BATCHSIZE 10000000
 	#endif 
 #elif defined(ACTSMODEL_LW)
-	#define KVDATA_BATCHSIZE 10000000
+	// #define KVDATA_BATCHSIZE 10000000
+	#define KVDATA_BATCHSIZE 12000000
+	// #define KVDATA_BATCHSIZE (1 << 24)
 #else
     #define KVDATA_BATCHSIZE (1 << 24)
 #endif

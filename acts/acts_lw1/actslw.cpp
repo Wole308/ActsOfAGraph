@@ -338,6 +338,22 @@ reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, u
 	else {} */
 	return ret;
 }
+value_t 
+	#ifdef SW 
+	actslw::
+	#endif 
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+	// #pragma HLS INLINE
+	value_t ret = 0;
+	#ifdef PR_ALGORITHM
+	ret = value1 + value2;
+	#elif defined(BFS_ALGORITHM)
+	ret = min(value1, value2);
+	#elif defined(BC_ALGORITHM)
+	ret = min(value1, value2);
+	#endif
+	return ret;
+}
 void 
 	#ifdef SW 
 	actslw::
@@ -349,63 +365,208 @@ buffer_type
 	#ifdef SW 
 	actslw::
 	#endif 
-getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
-	#pragma HLS INLINE
+getpartitionwritesz_original(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	#pragma HLS INLINE // REMOVEME.
+	// #pragma HLS INLINE OFF
 	buffer_type size_kvs;
 	
 	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
-	if(realsize_kvs >= 0*PADSKIP && realsize_kvs < 1*PADSKIP){
+if(realsize_kvs >= 0*PADSKIP && realsize_kvs < 1*PADSKIP){
 		size_kvs = 1*PADSKIP;
-	} else if(realsize_kvs >= 1*PADSKIP && realsize_kvs < 2*PADSKIP){
+	}
+else if(realsize_kvs >= 1*PADSKIP && realsize_kvs < 2*PADSKIP){
 		size_kvs = 2*PADSKIP;
-	} else if(realsize_kvs >= 2*PADSKIP && realsize_kvs < 3*PADSKIP){
+	}
+else if(realsize_kvs >= 2*PADSKIP && realsize_kvs < 3*PADSKIP){
 		size_kvs = 3*PADSKIP;
-	} else if(realsize_kvs >= 3*PADSKIP && realsize_kvs < 4*PADSKIP){
+	}
+else if(realsize_kvs >= 3*PADSKIP && realsize_kvs < 4*PADSKIP){
 		size_kvs = 4*PADSKIP;
-	} else if(realsize_kvs >= 4*PADSKIP && realsize_kvs < 5*PADSKIP){
+	}
+else if(realsize_kvs >= 4*PADSKIP && realsize_kvs < 5*PADSKIP){
 		size_kvs = 5*PADSKIP;
-	} else if(realsize_kvs >= 5*PADSKIP && realsize_kvs < 6*PADSKIP){
+	}
+else if(realsize_kvs >= 5*PADSKIP && realsize_kvs < 6*PADSKIP){
 		size_kvs = 6*PADSKIP;
-	} else if(realsize_kvs >= 6*PADSKIP && realsize_kvs < 7*PADSKIP){
+	}
+else if(realsize_kvs >= 6*PADSKIP && realsize_kvs < 7*PADSKIP){
 		size_kvs = 7*PADSKIP;
-	} else if(realsize_kvs >= 7*PADSKIP && realsize_kvs < 8*PADSKIP){
+	}
+else if(realsize_kvs >= 7*PADSKIP && realsize_kvs < 8*PADSKIP){
 		size_kvs = 8*PADSKIP;
-	} else if(realsize_kvs >= 8*PADSKIP && realsize_kvs < 9*PADSKIP){
+	}
+else if(realsize_kvs >= 8*PADSKIP && realsize_kvs < 9*PADSKIP){
 		size_kvs = 9*PADSKIP;
-	} else if(realsize_kvs >= 9*PADSKIP && realsize_kvs < 10*PADSKIP){
+	}
+else if(realsize_kvs >= 9*PADSKIP && realsize_kvs < 10*PADSKIP){
 		size_kvs = 10*PADSKIP;
-	} else if(realsize_kvs >= 10*PADSKIP && realsize_kvs < 11*PADSKIP){
+	}
+else if(realsize_kvs >= 10*PADSKIP && realsize_kvs < 11*PADSKIP){
 		size_kvs = 11*PADSKIP;
-	} else if(realsize_kvs >= 11*PADSKIP && realsize_kvs < 12*PADSKIP){
+	}
+else if(realsize_kvs >= 11*PADSKIP && realsize_kvs < 12*PADSKIP){
 		size_kvs = 12*PADSKIP;
-	} else if(realsize_kvs >= 12*PADSKIP && realsize_kvs < 13*PADSKIP){
+	}
+else if(realsize_kvs >= 12*PADSKIP && realsize_kvs < 13*PADSKIP){
 		size_kvs = 13*PADSKIP;
-	} else if(realsize_kvs >= 13*PADSKIP && realsize_kvs < 14*PADSKIP){
+	}
+else if(realsize_kvs >= 13*PADSKIP && realsize_kvs < 14*PADSKIP){
 		size_kvs = 14*PADSKIP;
-	} else if(realsize_kvs >= 14*PADSKIP && realsize_kvs < 15*PADSKIP){
+	}
+else if(realsize_kvs >= 14*PADSKIP && realsize_kvs < 15*PADSKIP){
 		size_kvs = 15*PADSKIP;
-	} else if(realsize_kvs >= 15*PADSKIP && realsize_kvs < 16*PADSKIP){
+	}
+else if(realsize_kvs >= 15*PADSKIP && realsize_kvs < 16*PADSKIP){
 		size_kvs = 16*PADSKIP;
-	} else if(realsize_kvs >= 16*PADSKIP && realsize_kvs < 17*PADSKIP){
+	}
+else if(realsize_kvs >= 16*PADSKIP && realsize_kvs < 17*PADSKIP){
 		size_kvs = 17*PADSKIP;
-	} else if(realsize_kvs >= 17*PADSKIP && realsize_kvs < 18*PADSKIP){
+	}
+else if(realsize_kvs >= 17*PADSKIP && realsize_kvs < 18*PADSKIP){
 		size_kvs = 18*PADSKIP;
-	} else if(realsize_kvs >= 18*PADSKIP && realsize_kvs < 19*PADSKIP){
+	}
+else if(realsize_kvs >= 18*PADSKIP && realsize_kvs < 19*PADSKIP){
 		size_kvs = 19*PADSKIP;
-	} else if(realsize_kvs >= 19*PADSKIP && realsize_kvs < 20*PADSKIP){
+	}
+else if(realsize_kvs >= 19*PADSKIP && realsize_kvs < 20*PADSKIP){
 		size_kvs = 20*PADSKIP;
-	} else if(realsize_kvs >= 20*PADSKIP && realsize_kvs < 21*PADSKIP){
+	}
+else if(realsize_kvs >= 20*PADSKIP && realsize_kvs < 21*PADSKIP){
 		size_kvs = 21*PADSKIP;
-	} else if(realsize_kvs >= 21*PADSKIP && realsize_kvs < 22*PADSKIP){
+	}
+else if(realsize_kvs >= 21*PADSKIP && realsize_kvs < 22*PADSKIP){
 		size_kvs = 22*PADSKIP;
-	} else if(realsize_kvs >= 22*PADSKIP && realsize_kvs < 23*PADSKIP){
+	}
+else if(realsize_kvs >= 22*PADSKIP && realsize_kvs < 23*PADSKIP){
 		size_kvs = 23*PADSKIP;
-	} else if(realsize_kvs >= 23*PADSKIP && realsize_kvs < 24*PADSKIP){
+	}
+else if(realsize_kvs >= 23*PADSKIP && realsize_kvs < 24*PADSKIP){
 		size_kvs = 24*PADSKIP;
-	} else {
+	}
+else if(realsize_kvs >= 24*PADSKIP && realsize_kvs < 25*PADSKIP){
+		size_kvs = 25*PADSKIP;
+	}
+else if(realsize_kvs >= 25*PADSKIP && realsize_kvs < 26*PADSKIP){
+		size_kvs = 26*PADSKIP;
+	}
+else if(realsize_kvs >= 26*PADSKIP && realsize_kvs < 27*PADSKIP){
+		size_kvs = 27*PADSKIP;
+	}
+else if(realsize_kvs >= 27*PADSKIP && realsize_kvs < 28*PADSKIP){
+		size_kvs = 28*PADSKIP;
+	}
+else if(realsize_kvs >= 28*PADSKIP && realsize_kvs < 29*PADSKIP){
+		size_kvs = 29*PADSKIP;
+	}
+else if(realsize_kvs >= 29*PADSKIP && realsize_kvs < 30*PADSKIP){
+		size_kvs = 30*PADSKIP;
+	}
+else if(realsize_kvs >= 30*PADSKIP && realsize_kvs < 31*PADSKIP){
+		size_kvs = 31*PADSKIP;
+	}
+else if(realsize_kvs >= 31*PADSKIP && realsize_kvs < 32*PADSKIP){
+		size_kvs = 32*PADSKIP;
+	}
+else if(realsize_kvs >= 32*PADSKIP && realsize_kvs < 33*PADSKIP){
+		size_kvs = 33*PADSKIP;
+	}
+else if(realsize_kvs >= 33*PADSKIP && realsize_kvs < 34*PADSKIP){
+		size_kvs = 34*PADSKIP;
+	}
+else if(realsize_kvs >= 34*PADSKIP && realsize_kvs < 35*PADSKIP){
+		size_kvs = 35*PADSKIP;
+	}
+else if(realsize_kvs >= 35*PADSKIP && realsize_kvs < 36*PADSKIP){
+		size_kvs = 36*PADSKIP;
+	}
+else if(realsize_kvs >= 36*PADSKIP && realsize_kvs < 37*PADSKIP){
+		size_kvs = 37*PADSKIP;
+	}
+else if(realsize_kvs >= 37*PADSKIP && realsize_kvs < 38*PADSKIP){
+		size_kvs = 38*PADSKIP;
+	}
+else if(realsize_kvs >= 38*PADSKIP && realsize_kvs < 39*PADSKIP){
+		size_kvs = 39*PADSKIP;
+	}
+else if(realsize_kvs >= 39*PADSKIP && realsize_kvs < 40*PADSKIP){
+		size_kvs = 40*PADSKIP;
+	}
+else if(realsize_kvs >= 40*PADSKIP && realsize_kvs < 41*PADSKIP){
+		size_kvs = 41*PADSKIP;
+	}
+else if(realsize_kvs >= 41*PADSKIP && realsize_kvs < 42*PADSKIP){
+		size_kvs = 42*PADSKIP;
+	}
+else if(realsize_kvs >= 42*PADSKIP && realsize_kvs < 43*PADSKIP){
+		size_kvs = 43*PADSKIP;
+	}
+else if(realsize_kvs >= 43*PADSKIP && realsize_kvs < 44*PADSKIP){
+		size_kvs = 44*PADSKIP;
+	}
+else if(realsize_kvs >= 44*PADSKIP && realsize_kvs < 45*PADSKIP){
+		size_kvs = 45*PADSKIP;
+	}
+else if(realsize_kvs >= 45*PADSKIP && realsize_kvs < 46*PADSKIP){
+		size_kvs = 46*PADSKIP;
+	}
+else if(realsize_kvs >= 46*PADSKIP && realsize_kvs < 47*PADSKIP){
+		size_kvs = 47*PADSKIP;
+	}
+else if(realsize_kvs >= 47*PADSKIP && realsize_kvs < 48*PADSKIP){
+		size_kvs = 48*PADSKIP;
+	}
+else if(realsize_kvs >= 48*PADSKIP && realsize_kvs < 49*PADSKIP){
+		size_kvs = 49*PADSKIP;
+	}
+else if(realsize_kvs >= 49*PADSKIP && realsize_kvs < 50*PADSKIP){
+		size_kvs = 50*PADSKIP;
+	}
+else if(realsize_kvs >= 50*PADSKIP && realsize_kvs < 51*PADSKIP){
+		size_kvs = 51*PADSKIP;
+	}
+else if(realsize_kvs >= 51*PADSKIP && realsize_kvs < 52*PADSKIP){
+		size_kvs = 52*PADSKIP;
+	}
+else if(realsize_kvs >= 52*PADSKIP && realsize_kvs < 53*PADSKIP){
+		size_kvs = 53*PADSKIP;
+	}
+else if(realsize_kvs >= 53*PADSKIP && realsize_kvs < 54*PADSKIP){
+		size_kvs = 54*PADSKIP;
+	}
+else if(realsize_kvs >= 54*PADSKIP && realsize_kvs < 55*PADSKIP){
+		size_kvs = 55*PADSKIP;
+	}
+else if(realsize_kvs >= 55*PADSKIP && realsize_kvs < 56*PADSKIP){
+		size_kvs = 56*PADSKIP;
+	}
+else if(realsize_kvs >= 56*PADSKIP && realsize_kvs < 57*PADSKIP){
+		size_kvs = 57*PADSKIP;
+	}
+else if(realsize_kvs >= 57*PADSKIP && realsize_kvs < 58*PADSKIP){
+		size_kvs = 58*PADSKIP;
+	}
+else if(realsize_kvs >= 58*PADSKIP && realsize_kvs < 59*PADSKIP){
+		size_kvs = 59*PADSKIP;
+	}
+else if(realsize_kvs >= 59*PADSKIP && realsize_kvs < 60*PADSKIP){
+		size_kvs = 60*PADSKIP;
+	}
+else if(realsize_kvs >= 60*PADSKIP && realsize_kvs < 61*PADSKIP){
+		size_kvs = 61*PADSKIP;
+	}
+else if(realsize_kvs >= 61*PADSKIP && realsize_kvs < 62*PADSKIP){
+		size_kvs = 62*PADSKIP;
+	}
+else if(realsize_kvs >= 62*PADSKIP && realsize_kvs < 63*PADSKIP){
+		size_kvs = 63*PADSKIP;
+	}
+else if(realsize_kvs >= 63*PADSKIP && realsize_kvs < 64*PADSKIP){
+		size_kvs = 64*PADSKIP;
+	}
+	else {
 		#ifdef ENABLE_PERFECTACCURACY
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
 		exit(EXIT_FAILURE);
 		#endif
 		#else 
@@ -418,6 +579,348 @@ getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	#endif 
 	#else 
 	size_kvs = realsize_kvs;
+	#endif
+	return size_kvs;
+}
+buffer_type 
+	#ifdef SW 
+	actslw::
+	#endif 
+getpartitionwritesz_original2(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	#pragma HLS INLINE // REMOVEME.
+	// #pragma HLS INLINE OFF
+	buffer_type size_kvs;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+if(realsize_kvs >= 0*8 && realsize_kvs < 1*8){
+		size_kvs = 1*8;
+	}
+else if(realsize_kvs >= 1*8 && realsize_kvs < 2*8){
+		size_kvs = 2*8;
+	}
+else if(realsize_kvs >= 2*8 && realsize_kvs < 3*8){
+		size_kvs = 3*8;
+	}
+else if(realsize_kvs >= 3*8 && realsize_kvs < 4*8){
+		size_kvs = 4*8;
+	}
+else if(realsize_kvs >= 4*8 && realsize_kvs < 5*8){
+		size_kvs = 5*8;
+	}
+else if(realsize_kvs >= 5*8 && realsize_kvs < 6*8){
+		size_kvs = 6*8;
+	}
+else if(realsize_kvs >= 6*8 && realsize_kvs < 7*8){
+		size_kvs = 7*8;
+	}
+else if(realsize_kvs >= 7*8 && realsize_kvs < 8*8){
+		size_kvs = 8*8;
+	}
+else if(realsize_kvs >= 8*8 && realsize_kvs < 9*8){
+		size_kvs = 9*8;
+	}
+else if(realsize_kvs >= 9*8 && realsize_kvs < 10*8){
+		size_kvs = 10*8;
+	}
+else if(realsize_kvs >= 10*8 && realsize_kvs < 11*8){
+		size_kvs = 11*8;
+	}
+else if(realsize_kvs >= 11*8 && realsize_kvs < 12*8){
+		size_kvs = 12*8;
+	}
+else if(realsize_kvs >= 12*8 && realsize_kvs < 13*8){
+		size_kvs = 13*8;
+	}
+else if(realsize_kvs >= 13*8 && realsize_kvs < 14*8){
+		size_kvs = 14*8;
+	}
+else if(realsize_kvs >= 14*8 && realsize_kvs < 15*8){
+		size_kvs = 15*8;
+	}
+else if(realsize_kvs >= 15*8 && realsize_kvs < 16*8){
+		size_kvs = 16*8;
+	}
+else if(realsize_kvs >= 16*8 && realsize_kvs < 17*8){
+		size_kvs = 17*8;
+	}
+else if(realsize_kvs >= 17*8 && realsize_kvs < 18*8){
+		size_kvs = 18*8;
+	}
+else if(realsize_kvs >= 18*8 && realsize_kvs < 19*8){
+		size_kvs = 19*8;
+	}
+else if(realsize_kvs >= 19*8 && realsize_kvs < 20*8){
+		size_kvs = 20*8;
+	}
+else if(realsize_kvs >= 20*8 && realsize_kvs < 21*8){
+		size_kvs = 21*8;
+	}
+else if(realsize_kvs >= 21*8 && realsize_kvs < 22*8){
+		size_kvs = 22*8;
+	}
+else if(realsize_kvs >= 22*8 && realsize_kvs < 23*8){
+		size_kvs = 23*8;
+	}
+else if(realsize_kvs >= 23*8 && realsize_kvs < 24*8){
+		size_kvs = 24*8;
+	}
+else if(realsize_kvs >= 24*8 && realsize_kvs < 25*8){
+		size_kvs = 25*8;
+	}
+else if(realsize_kvs >= 25*8 && realsize_kvs < 26*8){
+		size_kvs = 26*8;
+	}
+else if(realsize_kvs >= 26*8 && realsize_kvs < 27*8){
+		size_kvs = 27*8;
+	}
+else if(realsize_kvs >= 27*8 && realsize_kvs < 28*8){
+		size_kvs = 28*8;
+	}
+else if(realsize_kvs >= 28*8 && realsize_kvs < 29*8){
+		size_kvs = 29*8;
+	}
+else if(realsize_kvs >= 29*8 && realsize_kvs < 30*8){
+		size_kvs = 30*8;
+	}
+else if(realsize_kvs >= 30*8 && realsize_kvs < 31*8){
+		size_kvs = 31*8;
+	}
+else if(realsize_kvs >= 31*8 && realsize_kvs < 32*8){
+		size_kvs = 32*8;
+	}
+else if(realsize_kvs >= 32*8 && realsize_kvs < 33*8){
+		size_kvs = 33*8;
+	}
+else if(realsize_kvs >= 33*8 && realsize_kvs < 34*8){
+		size_kvs = 34*8;
+	}
+else if(realsize_kvs >= 34*8 && realsize_kvs < 35*8){
+		size_kvs = 35*8;
+	}
+else if(realsize_kvs >= 35*8 && realsize_kvs < 36*8){
+		size_kvs = 36*8;
+	}
+else if(realsize_kvs >= 36*8 && realsize_kvs < 37*8){
+		size_kvs = 37*8;
+	}
+else if(realsize_kvs >= 37*8 && realsize_kvs < 38*8){
+		size_kvs = 38*8;
+	}
+else if(realsize_kvs >= 38*8 && realsize_kvs < 39*8){
+		size_kvs = 39*8;
+	}
+else if(realsize_kvs >= 39*8 && realsize_kvs < 40*8){
+		size_kvs = 40*8;
+	}
+else if(realsize_kvs >= 40*8 && realsize_kvs < 41*8){
+		size_kvs = 41*8;
+	}
+else if(realsize_kvs >= 41*8 && realsize_kvs < 42*8){
+		size_kvs = 42*8;
+	}
+else if(realsize_kvs >= 42*8 && realsize_kvs < 43*8){
+		size_kvs = 43*8;
+	}
+else if(realsize_kvs >= 43*8 && realsize_kvs < 44*8){
+		size_kvs = 44*8;
+	}
+else if(realsize_kvs >= 44*8 && realsize_kvs < 45*8){
+		size_kvs = 45*8;
+	}
+else if(realsize_kvs >= 45*8 && realsize_kvs < 46*8){
+		size_kvs = 46*8;
+	}
+else if(realsize_kvs >= 46*8 && realsize_kvs < 47*8){
+		size_kvs = 47*8;
+	}
+else if(realsize_kvs >= 47*8 && realsize_kvs < 48*8){
+		size_kvs = 48*8;
+	}
+else if(realsize_kvs >= 48*8 && realsize_kvs < 49*8){
+		size_kvs = 49*8;
+	}
+else if(realsize_kvs >= 49*8 && realsize_kvs < 50*8){
+		size_kvs = 50*8;
+	}
+else if(realsize_kvs >= 50*8 && realsize_kvs < 51*8){
+		size_kvs = 51*8;
+	}
+else if(realsize_kvs >= 51*8 && realsize_kvs < 52*8){
+		size_kvs = 52*8;
+	}
+else if(realsize_kvs >= 52*8 && realsize_kvs < 53*8){
+		size_kvs = 53*8;
+	}
+else if(realsize_kvs >= 53*8 && realsize_kvs < 54*8){
+		size_kvs = 54*8;
+	}
+else if(realsize_kvs >= 54*8 && realsize_kvs < 55*8){
+		size_kvs = 55*8;
+	}
+else if(realsize_kvs >= 55*8 && realsize_kvs < 56*8){
+		size_kvs = 56*8;
+	}
+else if(realsize_kvs >= 56*8 && realsize_kvs < 57*8){
+		size_kvs = 57*8;
+	}
+else if(realsize_kvs >= 57*8 && realsize_kvs < 58*8){
+		size_kvs = 58*8;
+	}
+else if(realsize_kvs >= 58*8 && realsize_kvs < 59*8){
+		size_kvs = 59*8;
+	}
+else if(realsize_kvs >= 59*8 && realsize_kvs < 60*8){
+		size_kvs = 60*8;
+	}
+else if(realsize_kvs >= 60*8 && realsize_kvs < 61*8){
+		size_kvs = 61*8;
+	}
+else if(realsize_kvs >= 61*8 && realsize_kvs < 62*8){
+		size_kvs = 62*8;
+	}
+else if(realsize_kvs >= 62*8 && realsize_kvs < 63*8){
+		size_kvs = 63*8;
+	}
+else if(realsize_kvs >= 63*8 && realsize_kvs < 64*8){
+		size_kvs = 64*8;
+	}
+	else {
+		#ifdef ENABLE_PERFECTACCURACY
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+		exit(EXIT_FAILURE);
+		#endif
+		#else 
+		// size_kvs = PADDEDDESTBUFFER_SIZE;
+		size_kvs = OPTIMALSIZE;
+		#endif 
+	}
+	#ifdef SW 
+	if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
+	#endif 
+	#else 
+	size_kvs = realsize_kvs;
+	#endif
+	return size_kvs;
+}
+buffer_type 
+	#ifdef SW 
+	actslw::
+	#endif 
+getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	#pragma HLS INLINE
+	buffer_type size_kvs = 0;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+ // SECOND SET:: (my_variable): 2, (my_base): 0
+		
+if(realsize_kvs >= 0 && realsize_kvs < 2){ size_kvs = 2; }
+else if(realsize_kvs >= 2 && realsize_kvs < 4){ size_kvs = 4; }
+else if(realsize_kvs >= 4 && realsize_kvs < 6){ size_kvs = 6; }
+else if(realsize_kvs >= 6 && realsize_kvs < 8){ size_kvs = 8; }
+else if(realsize_kvs >= 8 && realsize_kvs < 10){ size_kvs = 10; }
+else if(realsize_kvs >= 10 && realsize_kvs < 12){ size_kvs = 12; }
+else if(realsize_kvs >= 12 && realsize_kvs < 14){ size_kvs = 14; }
+else if(realsize_kvs >= 14 && realsize_kvs < 16){ size_kvs = 16; }
+else if(realsize_kvs >= 16 && realsize_kvs < 18){ size_kvs = 18; }
+else if(realsize_kvs >= 18 && realsize_kvs < 20){ size_kvs = 20; }
+else if(realsize_kvs >= 20 && realsize_kvs < 22){ size_kvs = 22; }
+else if(realsize_kvs >= 22 && realsize_kvs < 24){ size_kvs = 24; }
+else if(realsize_kvs >= 24 && realsize_kvs < 26){ size_kvs = 26; }
+else if(realsize_kvs >= 26 && realsize_kvs < 28){ size_kvs = 28; }
+else if(realsize_kvs >= 28 && realsize_kvs < 30){ size_kvs = 30; }
+else if(realsize_kvs >= 30 && realsize_kvs < 32){ size_kvs = 32; }
+else if(realsize_kvs >= 32 && realsize_kvs < 34){ size_kvs = 34; }
+else if(realsize_kvs >= 34 && realsize_kvs < 36){ size_kvs = 36; }
+else if(realsize_kvs >= 36 && realsize_kvs < 38){ size_kvs = 38; }
+else if(realsize_kvs >= 38 && realsize_kvs < 40){ size_kvs = 40; }
+else if(realsize_kvs >= 40 && realsize_kvs < 42){ size_kvs = 42; }
+else if(realsize_kvs >= 42 && realsize_kvs < 44){ size_kvs = 44; }
+else if(realsize_kvs >= 44 && realsize_kvs < 46){ size_kvs = 46; }
+else if(realsize_kvs >= 46 && realsize_kvs < 48){ size_kvs = 48; }
+else if(realsize_kvs >= 48 && realsize_kvs < 50){ size_kvs = 50; }
+else if(realsize_kvs >= 50 && realsize_kvs < 52){ size_kvs = 52; }
+else if(realsize_kvs >= 52 && realsize_kvs < 54){ size_kvs = 54; }
+else if(realsize_kvs >= 54 && realsize_kvs < 56){ size_kvs = 56; }
+else if(realsize_kvs >= 56 && realsize_kvs < 58){ size_kvs = 58; }
+else if(realsize_kvs >= 58 && realsize_kvs < 60){ size_kvs = 60; }
+else if(realsize_kvs >= 60 && realsize_kvs < 62){ size_kvs = 62; }
+else if(realsize_kvs >= 62 && realsize_kvs < 64){ size_kvs = 64; }
+		
+ // SECOND SET:: (my_variable): 4, (my_base): 64
+		
+		else if(realsize_kvs >= 64 && realsize_kvs < 68){ size_kvs = 68; }
+		else if(realsize_kvs >= 68 && realsize_kvs < 72){ size_kvs = 72; }
+		else if(realsize_kvs >= 72 && realsize_kvs < 76){ size_kvs = 76; }
+		else if(realsize_kvs >= 76 && realsize_kvs < 80){ size_kvs = 80; }
+		else if(realsize_kvs >= 80 && realsize_kvs < 84){ size_kvs = 84; }
+		else if(realsize_kvs >= 84 && realsize_kvs < 88){ size_kvs = 88; }
+		else if(realsize_kvs >= 88 && realsize_kvs < 92){ size_kvs = 92; }
+		else if(realsize_kvs >= 92 && realsize_kvs < 96){ size_kvs = 96; }
+		else if(realsize_kvs >= 96 && realsize_kvs < 100){ size_kvs = 100; }
+		else if(realsize_kvs >= 100 && realsize_kvs < 104){ size_kvs = 104; }
+		else if(realsize_kvs >= 104 && realsize_kvs < 108){ size_kvs = 108; }
+		else if(realsize_kvs >= 108 && realsize_kvs < 112){ size_kvs = 112; }
+		else if(realsize_kvs >= 112 && realsize_kvs < 116){ size_kvs = 116; }
+		else if(realsize_kvs >= 116 && realsize_kvs < 120){ size_kvs = 120; }
+		else if(realsize_kvs >= 120 && realsize_kvs < 124){ size_kvs = 124; }
+		else if(realsize_kvs >= 124 && realsize_kvs < 128){ size_kvs = 128; }
+		
+ // THIRD SET:: (my_variable): 8, (my_base): 128
+		
+		else if(realsize_kvs >= 128 && realsize_kvs < 136){ size_kvs = 136; }
+		else if(realsize_kvs >= 136 && realsize_kvs < 144){ size_kvs = 144; }
+		else if(realsize_kvs >= 144 && realsize_kvs < 152){ size_kvs = 152; }
+		else if(realsize_kvs >= 152 && realsize_kvs < 160){ size_kvs = 160; }
+		else if(realsize_kvs >= 160 && realsize_kvs < 168){ size_kvs = 168; }
+		else if(realsize_kvs >= 168 && realsize_kvs < 176){ size_kvs = 176; }
+		else if(realsize_kvs >= 176 && realsize_kvs < 184){ size_kvs = 184; }
+		else if(realsize_kvs >= 184 && realsize_kvs < 192){ size_kvs = 192; }
+		else if(realsize_kvs >= 192 && realsize_kvs < 200){ size_kvs = 200; }
+		else if(realsize_kvs >= 200 && realsize_kvs < 208){ size_kvs = 208; }
+		else if(realsize_kvs >= 208 && realsize_kvs < 216){ size_kvs = 216; }
+		else if(realsize_kvs >= 216 && realsize_kvs < 224){ size_kvs = 224; }
+		else if(realsize_kvs >= 224 && realsize_kvs < 232){ size_kvs = 232; }
+		else if(realsize_kvs >= 232 && realsize_kvs < 240){ size_kvs = 240; }
+		else if(realsize_kvs >= 240 && realsize_kvs < 248){ size_kvs = 248; }
+		else if(realsize_kvs >= 248 && realsize_kvs < 256){ size_kvs = 256; }
+		
+ // FOURTH SET:: (my_variable): 16, (my_base): 256
+		
+		else if(realsize_kvs >= 256 && realsize_kvs < 272){ size_kvs = 272; }
+		else if(realsize_kvs >= 272 && realsize_kvs < 288){ size_kvs = 288; }
+		else if(realsize_kvs >= 288 && realsize_kvs < 304){ size_kvs = 304; }
+		else if(realsize_kvs >= 304 && realsize_kvs < 320){ size_kvs = 320; }
+		else if(realsize_kvs >= 320 && realsize_kvs < 336){ size_kvs = 336; }
+		else if(realsize_kvs >= 336 && realsize_kvs < 352){ size_kvs = 352; }
+		else if(realsize_kvs >= 352 && realsize_kvs < 368){ size_kvs = 368; }
+		else if(realsize_kvs >= 368 && realsize_kvs < 384){ size_kvs = 384; }
+		else if(realsize_kvs >= 384 && realsize_kvs < 400){ size_kvs = 400; }
+		else if(realsize_kvs >= 400 && realsize_kvs < 416){ size_kvs = 416; }
+		else if(realsize_kvs >= 416 && realsize_kvs < 432){ size_kvs = 432; }
+		else if(realsize_kvs >= 432 && realsize_kvs < 448){ size_kvs = 448; }
+		else if(realsize_kvs >= 448 && realsize_kvs < 464){ size_kvs = 464; }
+		else if(realsize_kvs >= 464 && realsize_kvs < 480){ size_kvs = 480; }
+		else if(realsize_kvs >= 480 && realsize_kvs < 496){ size_kvs = 496; }
+		else if(realsize_kvs >= 496 && realsize_kvs < 512){ size_kvs = 512; }
+		
+		else {
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+			
+			#ifdef ENABLE_PERFECTACCURACY
+			#ifdef _DEBUGMODE_CHECKS2
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+			exit(EXIT_FAILURE);
+			#endif
+			#else
+			size_kvs = OPTIMALSIZE;
+			#endif 
+		}
+		#ifdef SW 
+		if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
+		#endif
+	#else 
+		size_kvs = realsize_kvs;
 	#endif
 	return size_kvs;
 }
@@ -996,7 +1499,6 @@ replicatedata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 	return;
 }
 
-
 void 
 	#ifdef SW 
 	actslw::
@@ -1212,12 +1714,14 @@ void
 	#ifdef SW 
 	actslw::
 	#endif
-unifydata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int destbank){
+unifydata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int destbank, unsigned int GraphAlgo){
 	if(enable == OFF){ return; }
 
 	UNIFYDATA_LOOP1: for(vector_type v=0; v<VECTOR_SIZE; v++){
-		UNIFYDATA_LOOP1B: for(buffer_type i=0; i<NUM_PARTITIONS; i++){
-			destbuffer[destbank][i].value += sourcebuffer[v][i].value;
+		UNIFYDATA_LOOP1B: for(buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+		// #pragma HLS PIPELINE II=1
+			// destbuffer[destbank][i].value += sourcebuffer[v][i].value;
+			destbuffer[destbank][i].value = mergefunc(destbuffer[destbank][i].value, sourcebuffer[v][i].value, GraphAlgo);
 		}
 	}
 	return;
@@ -1734,7 +2238,7 @@ void
 	actslw::
 	#endif 
 dispatch0(uint512_dt * kvdram){
-	analysis_type analysis_mainloop = KVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
+	analysis_type analysis_mainloop = MAXKVDATA_BATCHSIZE_KVS / (NUMPIPELINES * SRCBUFFER_SIZE);
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
 	#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -1782,7 +2286,7 @@ dispatch0(uint512_dt * kvdram){
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		
 		resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE);
-		resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS); // REMOVEME?
+		// resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS); // REMOVEME?
 		
 		destoffset = 0;
 		
@@ -1866,7 +2370,7 @@ dispatch0(uint512_dt * kvdram){
 			#endif
 			
 			if((source_partition % 8) == 0){ readvertices0(config.enablereduce, kvdram, sourcebuffer, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid) / 2)))); }
-			replicatedata0(config.enablereduce, sourcebuffer, buffer_setof2, 0); // FIXME '0'
+			replicatedata0(config.enablereduce, sourcebuffer, buffer_setof2, (source_partition % 8)); // FIXME '0' // (source_partition % 8)
 			MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=Rtravstate.begin_kvs; offset_kvs<Rtravstate.end_kvs; offset_kvs+=Rtravstate.skip_kvs){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_mainloop avg=analysis_mainloop
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1879,7 +2383,7 @@ dispatch0(uint512_dt * kvdram){
 			
 				reduce0(ON, buffer_setof1, buffer_setof2, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, Rtravstate, globalparams);
 			}
-			unifydata0(config.enablereduce, buffer_setof2, buffer_setof4, 0); // FIXME '0'
+			unifydata0(config.enablereduce, buffer_setof2, buffer_setof4, (source_partition % 8), globalparams.GraphAlgo); // FIXME '0' // (source_partition % 8)
 			if((source_partition % 8) == 7){ savevertices0(config.enablereduce, kvdram, buffer_setof4, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid) / 2)))); }
 			
 			sourcestatsmarker += 1;
