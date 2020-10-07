@@ -15,7 +15,7 @@
 #define FPGA_IMPL
 #endif 
 #define CRABTREE_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
-#define LOCKE
+#define NOLOCKE
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL
 // #define _WIDEWORD // REMOVEME.
@@ -50,8 +50,10 @@
 #define _DEBUGMODE_CHECKS2 //
 #define _DEBUGMODE_KERNELPRINTS2 //
 #endif
+// #define _DEBUGMODE_HOSTCHECKS
+// #define _DEBUGMODE_HOSTCHECKS2 //
 // #define _DEBUGMODE_HOSTPRINTS
-#define _DEBUGMODE_HOSTPRINTS2 //
+// #define _DEBUGMODE_HOSTPRINTS2 //
 #define _DEBUGMODE_HOSTPRINTS3 //
 // #define _DEBUGMODE_TIMERS
 #define _DEBUGMODE_TIMERS2
@@ -152,15 +154,14 @@
 #define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
 
 #if defined(ACTSMODEL)
-    #ifdef TESTKERNEL
-	#define KVDATA_BATCHSIZE (1 << 26)
-	#else 
-	// #define KVDATA_BATCHSIZE (1 << 24)
-	#define KVDATA_BATCHSIZE 10000000
-	#endif 
+    // #define KVDATA_BATCHSIZE (1 << 24)
+	#define KVDATA_BATCHSIZE 10000000 //
 #elif defined(ACTSMODEL_LW)
+	// #define KVDATA_BATCHSIZE 16
+	#define KVDATA_BATCHSIZE 1000000
+	// #define KVDATA_BATCHSIZE 5000000
 	// #define KVDATA_BATCHSIZE 10000000
-	#define KVDATA_BATCHSIZE 12000000
+	// #define KVDATA_BATCHSIZE 12000000 //
 	// #define KVDATA_BATCHSIZE (1 << 24)
 #else
     #define KVDATA_BATCHSIZE (1 << 24)
@@ -168,9 +169,9 @@
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 
 #if defined(FPGA_IMPL)
-#define DRAMBATCHFACTOR 1 // 4
+#define DRAMBATCHFACTOR 10
 #else
-#define DRAMBATCHFACTOR 1
+#define DRAMBATCHFACTOR 1//1
 #endif
 
 ////////////////
@@ -298,20 +299,7 @@ typedef edge_t bfsvertexoffset_t;
 typedef prvertexoffset_t xvertexoffset_t;
 #else 
 typedef bfsvertexoffset_t xvertexoffset_t;
-#endif 
-
-#ifdef FPGA_IMPL
-#ifdef FORCDFINISH
-typedef unsigned int dramsz_dtype;
-typedef unsigned int kvbuffersz_dtype;
-#else 
-typedef ap_uint<30> dramsz_dtype;
-typedef ap_uint<16> kvbuffersz_dtype;
-#endif 
-#else 
-typedef unsigned int dramsz_dtype;
-typedef unsigned int kvbuffersz_dtype;
-#endif 
+#endif
 
 typedef struct {
 	unsigned int key;

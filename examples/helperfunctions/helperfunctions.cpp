@@ -34,6 +34,9 @@ helperfunctions::~helperfunctions(){}
 // replicate vertices data
 #ifdef ACTSMODEL
 void helperfunctions::replicateverticesdata(keyvalue_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... replicating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
 	#ifdef LOCKE
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_replicateverticesdata(i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
 	#else 
@@ -48,12 +51,14 @@ void helperfunctions::workerthread_replicateverticesdata(int threadidx, keyvalue
 			memcpy(&buffer[i][j][offset], &buffer[0][0][offset], (size * sizeof(keyvalue_t))); 
 		}
 	}
-	cout<<"... Replicating vertex datas...: "<<size * NUMSUBCPUTHREADS<<" vertex data values replicated. "<<endl;
 	return;
 }
 #endif 
 #ifdef ACTSMODEL_LW
 void helperfunctions::replicateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... Replicating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
 	#ifdef LOCKE
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_replicateverticesdata(i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
 	#else 
@@ -68,7 +73,6 @@ void helperfunctions::workerthread_replicateverticesdata(int threadidx, value_t 
 			memcpy(&buffer[i][j][offset], &buffer[0][0][offset], (size * sizeof(keyvalue_t))); 
 		}
 	}
-	cout<<"... Replicating vertex datas [ithreadidx: "<<threadidx<<"]...: "<<size * NUMSUBCPUTHREADS<<" vertex data values replicated. "<<endl;
 	return;
 }
 #endif 
@@ -76,11 +80,14 @@ void helperfunctions::workerthread_replicateverticesdata(int threadidx, value_t 
 // cummulate vertices data
 #ifdef ACTSMODEL
 void helperfunctions::cummulateverticesdata(keyvalue_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... cummulating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
 	#ifdef LOCKE
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_cummulateverticesdata(i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_cummulateverticesdata, this, i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i][j].join(); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i] = std::thread(&helperfunctions::workerthread_cummulateverticesdata, this, i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i].join(); }
 	#endif 
 	return;
 }
@@ -100,11 +107,14 @@ void helperfunctions::workerthread_cummulateverticesdata(int threadidx, keyvalue
 #endif 
 #ifdef ACTSMODEL_LW
 void helperfunctions::cummulateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... cummulating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
 	#ifdef LOCKE
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_cummulateverticesdata(i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_cummulateverticesdata, this, i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i][j].join(); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i] = std::thread(&helperfunctions::workerthread_cummulateverticesdata, this, i, buffer, offset + (i * (size / NUMUTILITYTHREADS)), (size / NUMUTILITYTHREADS)); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i].join(); }
 	#endif 
 	return;
 }
@@ -119,7 +129,6 @@ void helperfunctions::workerthread_cummulateverticesdata(int threadidx, value_t 
 			buffer[0][j][k] = min;
 		}
 	}
-	cout<<"... Cummulating vertex datas [ithreadidx: "<<threadidx<<"]...: "<<size * NUMSUBCPUTHREADS<<" vertex data values cummulated. "<<endl;
 	return;
 }
 #endif 
@@ -127,10 +136,13 @@ void helperfunctions::workerthread_cummulateverticesdata(int threadidx, value_t 
 // apply vertices
 #ifdef ACTSMODEL
 void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
 	#ifdef LOCKE
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, graphobj->getvertexdatabuffer(bank), graphobj->getvertexisactivebuffer(bank), buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }		
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }		
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
@@ -163,10 +175,13 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 #endif 
 #ifdef ACTSMODEL_LW
 void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, hostglobalparams_t globalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
 	#ifdef LOCKE
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, graphobj->getvertexdatabuffer(bank), graphobj->getvertexisactivebuffer(bank), buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }		
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }	
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
@@ -196,7 +211,6 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 	
 	graphobj->saveactiveverticestofile(activeverticesbuffer, (globalparams.graph_iterationidx + 1));
 	activeverticesbuffer.clear();
-	cout<<"... Applying vertex datas [ithreadidx: "<<ithreadidx<<"]...: "<<datasize * NUMSUBCPUTHREADS<<" vertex data values applied. "<<endl;
 	return;
 }
 #endif 
@@ -216,7 +230,7 @@ void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results (after Kernel run)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
-	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("helperfunctions::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}			
+	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("helperfunctions::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}		
 	#endif
 	return;
 }
@@ -285,28 +299,11 @@ void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx
 }
 #endif 
 #ifdef ACTSMODEL_LW
-void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs, hostglobalparams_t globalparams){			
+void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_idx, bool forcerunacts, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs, hostglobalparams_t globalparams){			
 	unsigned int totalkeyvalueslaunched = 0;
 	for(int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			totalkeyvalueslaunched += keyvaluecount[i][j];
-			if((utilityobj->runActs(globaliteration_idx) == 1)){
-				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNKERNELCOMMANDID].data[0].key = ON;
-				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = batchsize[i][j];
-				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNSIZE].data[0].key = keyvaluecount[i][j]; 
-				kvstats[i][j][kvstatsbaseoffset_kvs + 0].data[0].value = keyvaluecount[i][j]; 
-				#ifdef _DEBUGMODE_HOSTPRINTS2
-				cout<<"...running Acts... size["<<i<<"]["<<j<<"]: "<<keyvaluecount[i][j]<<endl; 
-				#endif 
-				keyvaluecount[i][j] = 0;
-			} else { 
-				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNKERNELCOMMANDID].data[0].key = OFF; 
-				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = batchsize[i][j]; 
-				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNSIZE].data[0].key = 0;
-				kvstats[i][j][kvstatsbaseoffset_kvs + 0].data[0].value = 0; 
-				cout<<"...loading KvDRAM... size["<<i<<"]["<<j<<"]: "<<batchsize[i][j]<<endl; 
-			}
-			
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_PROCESSCOMMANDID].data[0].key = ON;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key = ON;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_PARTITIONCOMMANDID].data[0].key = ON;
@@ -316,7 +313,7 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
 			
 			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); // REMOVEME.
-			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 3; // REMOVEME.
+			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 2; // REMOVEME.
 			
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid));
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = globalparams.graph_iterationidx;
@@ -328,13 +325,36 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHRANGE_POW].data[0].key = parametersobj->GET_BATCH_RANGE_POW(globalparams.groupid);
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYVERTEXBUFFERSZ].data[0].key = parametersobj->GET_APPLYVERTEXBUFFERSZ(globalparams.groupid); 
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYVERTEXBUFFERSZ_KVS].data[0].key = parametersobj->GET_APPLYVERTEXBUFFERSZ_KVS(globalparams.groupid);
+			
+			if((utilityobj->runActs(globaliteration_idx, forcerunacts) == 1)){
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNKERNELCOMMANDID].data[0].key = ON;
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = batchsize[i][j];
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNSIZE].data[0].key = keyvaluecount[i][j]; 
+				kvstats[i][j][kvstatsbaseoffset_kvs + 0].data[0].value = keyvaluecount[i][j]; 
+				#ifdef _DEBUGMODE_HOSTPRINTS2
+				cout<<"...running Acts... offset: "<<kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_NEXTBATCHOFFSET].data[0].key<<", size["<<i<<"]["<<j<<"]: "<<keyvaluecount[i][j]<<endl; 
+				#endif 
+				keyvaluecount[i][j] = 0;
+			} else { 
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNKERNELCOMMANDID].data[0].key = OFF; 
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = batchsize[i][j]; 
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNSIZE].data[0].key = 0;
+				kvstats[i][j][kvstatsbaseoffset_kvs + 0].data[0].value = 0; 
+				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 0;
+				#ifdef _DEBUGMODE_HOSTPRINTS2
+				cout<<"...loading KvDRAM... offset: "<<kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_NEXTBATCHOFFSET].data[0].key<<", size["<<i<<"]["<<j<<"]: "<<batchsize[i][j]<<endl; 
+				#endif 
+			}
 		}
 	}
-	cout<<"...running Acts... total size: "<<totalkeyvalueslaunched<<endl; 
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	if((utilityobj->runActs(globaliteration_idx, forcerunacts) == 1)){ cout<<"...running Acts... total size: "<<totalkeyvalueslaunched<<", TREE_DEPTH: "<<parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1<<", BATCH_RANGE: "<<parametersobj->GET_BATCH_RANGE(globalparams.groupid)<<endl; }
+	else { cout<<"...loading Acts... total size: "<<totalkeyvalueslaunched<<", TREE_DEPTH: "<<parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1<<", BATCH_RANGE: "<<parametersobj->GET_BATCH_RANGE(globalparams.groupid)<<endl; }
+	#endif 
 	return;
 }
-void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx, uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs){
-	if((utilityobj->runActs(globaliteration_idx) == 1)){
+void helperfunctions::updatemessagesafterlaunch(unsigned int globaliteration_idx, bool forcerunacts, uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs){
+	if((utilityobj->runActs(globaliteration_idx, forcerunacts) == 1)){
 		for(int i = 0; i < NUMCPUTHREADS; i++){
 			for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_NEXTBATCHOFFSET].data[0].key = 0; 
@@ -364,11 +384,11 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
 }
-void helperfunctions::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	kernelobj->writetokernel(flag, kvsourcedram, beginoffset, size);
+void helperfunctions::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
+	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
-void helperfunctions::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size){
-	kernelobj->readfromkernel(flag, kvsourcedram, beginoffset, size);
+void helperfunctions::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
+	kernelobj->readfromkernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
 void helperfunctions::finishOCL(){
 	kernelobj->finishOCL();

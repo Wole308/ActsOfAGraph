@@ -29,8 +29,8 @@ public:
 	void printallparameters();
 	void printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
-	void printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);
+	void printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	
@@ -44,14 +44,18 @@ public:
 	void InsertBit(unsigned int * edgeoffsetbits, size_t index, unsigned int bit);
 	unsigned int RetrieveBit(unsigned int * edgeoffsetbits, size_t index);
 	int runActs(unsigned int IterCount);
+	int runActs(unsigned int IterCount, bool forcetrue);
 	unsigned int GETKVDATA_RANGEOFFSET_FORSSDPARTITION_(unsigned int ssdpartitonid);
 	void resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
+	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
 	void allignandappendinvalids(keyvalue_t * buffer, unsigned int size);
 	unsigned int allignhigher_KV(unsigned int val);
 	void setarray(unsigned int array[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int _1dimsize, unsigned int _2dimsize, unsigned int value);
 	void copy(unsigned int * array1, unsigned int * array2, unsigned int size);
 	void countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value);
 	unsigned int countvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
+	void scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit);
+	unsigned int geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);

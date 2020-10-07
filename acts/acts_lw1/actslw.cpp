@@ -1167,7 +1167,7 @@ collectglobalstats0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	if(enable == OFF){ return; }
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
 
-	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){ // REMOVEME? this should be a variable
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 	#pragma HLS PIPELINE II=2
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
@@ -1179,28 +1179,20 @@ collectglobalstats0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 		keyvalue_t keyvalue6 = sourcebuffer[6][i];
 		keyvalue_t keyvalue7 = sourcebuffer[7][i];
 		
-		// partition_type p0 = getglobalpartition(keyvalue0, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p0 = 0;
 		if(keyvalue0.key != INVALIDDATA){ p0 = getpartition(keyvalue0, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p1 = getglobalpartition(keyvalue1, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p1 = 0;
 		if(keyvalue1.key != INVALIDDATA){ p1 = getpartition(keyvalue1, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p2 = getglobalpartition(keyvalue2, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p2 = 0;
 		if(keyvalue2.key != INVALIDDATA){ p2 = getpartition(keyvalue2, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p3 = getglobalpartition(keyvalue3, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p3 = 0;
 		if(keyvalue3.key != INVALIDDATA){ p3 = getpartition(keyvalue3, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p4 = getglobalpartition(keyvalue4, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p4 = 0;
 		if(keyvalue4.key != INVALIDDATA){ p4 = getpartition(keyvalue4, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p5 = getglobalpartition(keyvalue5, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p5 = 0;
 		if(keyvalue5.key != INVALIDDATA){ p5 = getpartition(keyvalue5, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p6 = getglobalpartition(keyvalue6, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p6 = 0;
 		if(keyvalue6.key != INVALIDDATA){ p6 = getpartition(keyvalue6, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
-		// partition_type p7 = getglobalpartition(keyvalue7, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p7 = 0;
 		if(keyvalue7.key != INVALIDDATA){ p7 = getpartition(keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
 		
@@ -1278,7 +1270,8 @@ saveglobalstats0(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbu
 	for (buffer_type i=0; i<NUM_PARTITIONS; i++){
 		if(i < (NUM_PARTITIONS-1)){ if(globalstatsbuffer[i].key + globalstatsbuffer[i].value >= globalstatsbuffer[i+1].key){ cout<<"saveglobalstats0::ERROR. overlap at "<<i<<" and "<<i+1<<endl; exit(EXIT_FAILURE); }}
 	}
-	#endif  */
+	#endif 
+	exit(EXIT_SUCCESS); */
 	return;
 }
 
@@ -1411,7 +1404,7 @@ savekeyvalues0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDE
 	actsutilityobj->printvaluecount("savekeyvalues0::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->scankeyvalues("savekeyvalues0::buffer", (keyvalue_t *)buffer, localcapsule, NUM_PARTITIONS, GET_BATCH_RANGE(globalparams.groupid) / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	#endif 
-
+	
 	analysis_type analysis_destpartitionsz = PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS;
 	SAVEPARTITIONS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
@@ -2278,6 +2271,8 @@ dispatch0(uint512_dt * kvdram){
 	config_t config;
 	globalparams_t globalparams = getglobalparams(kvdram);
 	sweepparams_t sweepparams;
+	
+	actsutilityobj->printkeyvalues("dispatch0.kvdram", (keyvalue_t *)(&kvdram[BASEOFFSET_KVDRAM_KVS]), 16); // REMOVEME.
 
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=1; currentLOP<=globalparams.treedepth; currentLOP++){
@@ -2285,7 +2280,7 @@ dispatch0(uint512_dt * kvdram){
 	
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		
-		resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE);
+		// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE); // FIXME? shouldn't this be within MAIN_LOOP1B???
 		// resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS); // REMOVEME?
 		
 		destoffset = 0;
@@ -2293,6 +2288,7 @@ dispatch0(uint512_dt * kvdram){
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions	
 		
+			resetmanykeyandvalues(buffer_setof1, NUM_PARTITIONS); // FIXME? small bug when this is outside [resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE);]
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);

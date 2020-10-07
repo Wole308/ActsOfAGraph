@@ -217,18 +217,18 @@ void utility::printvalueslessthan(string message, unsigned int * values, unsigne
 	}
 	cout<<"utility::printvalueslessthan::"<<message<<":: datas with value less than "<<threshold<<": "<<count<<endl<<endl;
 }
-void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size){
 	cout<<"utility::printstructuresbeforekernelrun:: printing structures (before kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<2; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<size; i++){ // NUMSUBCPUTHREADS
 		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		printkeyvalues("utility::printstructuresbeforekernelrun:: global capsule (before kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16);
+		printkeyvalues("utility::printstructuresbeforekernelrun:: global capsule (before kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
 	}
 }
-void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size){
 	cout<<"utility::printstructuresafterkernelrun:: printing structures (after kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<2; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<size; i++){ // NUMSUBCPUTHREADS
 		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][i];
 		cout<<"utility::printstructuresafterkernelrun:: printing messages (after kernel launch) for subthread: "<<i<<endl;
 		cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
@@ -241,13 +241,14 @@ void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourc
 		cout<<"MESSAGES_TREEDEPTH: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key<<endl;
 		cout<<"MESSAGES_FINALNUMPARTITIONS: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key<<endl;
 		cout<<"MESSAGES_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key<<endl;
+		cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
 		cout<<"MESSAGES_BATCHSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_RUNSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
 		
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16);
+		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
 	}
 }
 
@@ -312,11 +313,18 @@ int utility::runActs(unsigned int IterCount){
 	if((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)){ return 1; }
 	else { return 0; }
 }
+int utility::runActs(unsigned int IterCount, bool forcetrue){
+	if(((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)) || (forcetrue == true)){ return 1; }
+	else { return 0; }
+}
 unsigned int utility::GETKVDATA_RANGEOFFSET_FORSSDPARTITION_(unsigned int ssdpartitonid){
 	return (ssdpartitonid * KVDATA_RANGE_PERSSDPARTITION);
 }
 void utility::resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<"utility::resetkeyvalues:"<<message<<endl;
+	for(unsigned int i=0; i<size; i++){ keyvalues[i].key = 0; keyvalues[i].value = 0; }
+}
+void utility::resetkeyvalues(keyvalue_t * keyvalues, unsigned int size){
 	for(unsigned int i=0; i<size; i++){ keyvalues[i].key = 0; keyvalues[i].value = 0; }
 }
 void utility::allignandappendinvalids(keyvalue_t * buffer, unsigned int size){
@@ -357,6 +365,30 @@ unsigned int utility::countvaluesgreaterthan(string message, unsigned int * valu
 	}
 	cout<<"utility::printvaluesgreaterthan::"<<message<<":: datas with value greater than "<<threshold<<": "<<count<<", (> threshold: "<<(size - count)<<") total size: "<<totalsize<<endl<<endl;
 	return count;
+}
+void utility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit){
+	cout<<"utility::scankeyvalues::"<<message<<" numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
+	for(unsigned int i=0; i<numberofpartitions; i++){
+		unsigned int lowerrangeindex = upperlimit + (i * rangeperpartition);
+		unsigned int upperrangeindex = upperlimit + ((i+1) * rangeperpartition);
+		unsigned int begin = stats[i].key;
+		unsigned int end = stats[i].key + stats[i].value;
+		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
+		cout<<"utility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ["<<lowerrangeindex<<" -> "<<upperrangeindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
+	}
+	return;
+}
+unsigned int utility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex){
+	unsigned int numerrorkeys = 0;
+	for(unsigned int i=begin; i<end; i++){
+		if(keyvalues[i].key != INVALIDDATA){
+			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
+				if(numerrorkeys < 8){ cout<<"utility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; }
+				numerrorkeys += 1;
+			}
+		}
+	}
+	return numerrorkeys;
 }
 
 #ifdef FPGA_IMPL

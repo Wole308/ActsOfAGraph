@@ -25,17 +25,7 @@
 using namespace std;
 
 typedef unsigned int batch_type;
-#ifdef FPGA_IMPL
-typedef ap_uint<12> buffer_type;
-#else 
 typedef unsigned int buffer_type;
-#endif
-
-// typedef short partition_type;
-// typedef short vector_type;
-// typedef short step_type;
-// typedef short bool_type;
-// typedef short bool_type;
 
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;

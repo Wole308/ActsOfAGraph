@@ -58,7 +58,7 @@ void edge_process::generateupdates(unsigned int groupid, unsigned int bank, unsi
 	#ifdef LOCKE
 	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_stream(i, groupid, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	#else
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_stream, this, i, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_stream, this, i, groupid, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
 	#endif
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, datasize[i]); }
@@ -116,12 +116,14 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 
 void edge_process::generateupdates(unsigned int readerbank, unsigned int groupid, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], kvresults_t * results){
 	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, groupid, bank, col, batch[i], batchoffset[i], batchsize[i], results); }
-	/** #ifdef LOCKE
+	#ifdef XXX
+	#ifdef LOCKE
 	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, bank, col, batch[i], batchoffset[i], batchsize[i], results); }
 	#else
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_random, this, i, readerbank, bank, col, batch[i], batchoffset[i], batchsize[i], results); }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
-	#endif */
+	#endif
+	#endif 
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, results[i].datasize); }
 	return;
 }
@@ -194,12 +196,14 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 
 void edge_process::generateupdates(unsigned int readerbank, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMCPUTHREADS], vertex_t batchoffset, kvresults_t * results){
 	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, bank, col, batch[i], batchoffset, results); }
-	/** #ifdef LOCKE
+	#ifdef XXX
+	#ifdef LOCKE
 	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, bank, col, batch[i], batchoffset, results); }
 	#else
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_random, this, i, readerbank, bank, col, batch[i], batchoffset, results); }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
-	#endif */
+	#endif
+	#endif 
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, results[i].datasize); }
 	return;
 }
@@ -263,7 +267,12 @@ void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned 
 }
 
 unsigned int edge_process::insertkeyvaluetobuffer(keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], keyvalue_t keyvalue, unsigned int voffset, unsigned int groupid){
+	#if NUMSUBCPUTHREADS == 1
+	unsigned int partition = 0;
+	#else 
 	unsigned int partition = (keyvalue.key - voffset) / parametersobj->GET_BATCH_RANGE(groupid);
+	#endif 
+	
 	utilityobj->checkoutofbounds("edge_process::insertkeyvaluetobuffer 2", partition, NUMSUBCPUTHREADS, keyvalue.key, parametersobj->GET_BATCH_RANGE(groupid), voffset); //  (MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ)
 
 	batch[partition][batchoffset[partition] + batchsize[partition]] = keyvalue;

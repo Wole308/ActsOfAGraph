@@ -249,8 +249,8 @@ do
 		for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
-			# for locke in $_NOLOCKE
-			for locke in $_LOCKE
+			for locke in $_NOLOCKE
+			# for locke in $_LOCKE
 			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
@@ -267,7 +267,8 @@ do
 					for evaluation_param0 in 0
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Results"
 						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"

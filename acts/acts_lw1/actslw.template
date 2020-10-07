@@ -707,7 +707,7 @@ collectglobalstats{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE
 	if(enable == OFF){ return; }
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
 
-	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){ // REMOVEME? this should be a variable
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 	#pragma HLS PIPELINE II=2
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -715,7 +715,6 @@ collectglobalstats{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		// partition_type p{{v}} = getglobalpartition(keyvalue{{v}}, upperlimit, globalparams.batch_range_pow, globalparams.groupid);
 		partition_type p{{v}} = 0;
 		if(keyvalue{{v}}.key != INVALIDDATA){ p{{v}} = getpartition(keyvalue{{v}}, currentLOP, upperlimit, globalparams.batch_range_pow, globalparams.groupid); }
 		{%endfor%}
@@ -772,7 +771,8 @@ saveglobalstats{{inst}}(bool_type enable, uint512_dt * kvdram, keyvalue_t global
 	for (buffer_type i=0; i<NUM_PARTITIONS; i++){
 		if(i < (NUM_PARTITIONS-1)){ if(globalstatsbuffer[i].key + globalstatsbuffer[i].value >= globalstatsbuffer[i+1].key){ cout<<"saveglobalstats{{inst}}::ERROR. overlap at "<<i<<" and "<<i+1<<endl; exit(EXIT_FAILURE); }}
 	}
-	#endif  */
+	#endif 
+	exit(EXIT_SUCCESS); */
 	return;
 }
 {%endfor%}
@@ -869,7 +869,7 @@ savekeyvalues{{inst}}(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8
 	actsutilityobj->printvaluecount("savekeyvalues{{inst}}::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->scankeyvalues("savekeyvalues{{inst}}::buffer", (keyvalue_t *)buffer, localcapsule, NUM_PARTITIONS, GET_BATCH_RANGE(globalparams.groupid) / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	#endif 
-
+	
 	analysis_type analysis_destpartitionsz = PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS;
 	SAVEPARTITIONS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
@@ -1353,6 +1353,8 @@ dispatch{{inst}}(uint512_dt * kvdram){
 	config_t config;
 	globalparams_t globalparams = getglobalparams(kvdram);
 	sweepparams_t sweepparams;
+	
+	actsutilityobj->printkeyvalues("dispatch{{inst}}.kvdram", (keyvalue_t *)(&kvdram[BASEOFFSET_KVDRAM_KVS]), 16); // REMOVEME.
 
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=1; currentLOP<=globalparams.treedepth; currentLOP++){
@@ -1360,7 +1362,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 	
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		
-		resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE);
+		// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE); // FIXME? shouldn't this be within MAIN_LOOP1B???
 		// resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS); // REMOVEME?
 		
 		destoffset = 0;
@@ -1368,6 +1370,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions	
 		
+			resetmanykeyandvalues(buffer_setof1, NUM_PARTITIONS); // FIXME? small bug when this is outside [resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE);]
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);

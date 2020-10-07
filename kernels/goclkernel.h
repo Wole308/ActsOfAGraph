@@ -9,20 +9,20 @@
 #include "../../src/utility/utility.h"
 #include "../../include/common.h"
 
-// #define ACCESSFPGABY_ENQUEUEWRITEBUFFER
+#define ACCESSFPGABY_ENQUEUEWRITEBUFFER
 
 class goclkernel {
 public:
 	goclkernel();
 	~goclkernel();
 	
-	#define TOTALNUMKERNELS 16
-	// #define TOTALNUMKERNELS 1
+	// #define TOTALNUMKERNELS 16
+	#define TOTALNUMKERNELS 1
 	
 	#define NUMHBMSPERKERNEL 1
 	
-	#define TOTALNUMACTCUSTORUN (NUMCPUTHREADS * NUMSUBCPUTHREADS)
-	// #define TOTALNUMACTCUSTORUN 1
+	// #define TOTALNUMACTCUSTORUN (NUMCPUTHREADS * NUMSUBCPUTHREADS)
+	#define TOTALNUMACTCUSTORUN 1
 	
 	#define NUMACTSCUSPERKERNEL NUMINSTANCES
 	
@@ -35,11 +35,11 @@ public:
 	#ifdef FPGA_IMPL 
 	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	
-	void writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size);
-	void writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
+	void writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS],  unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	
-	void readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size);
-	void readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
+	void readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	
 	void loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);			
 	void finishOCL();

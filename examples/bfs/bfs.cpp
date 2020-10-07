@@ -146,9 +146,9 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparam
 	helperfunctionsobj[superthreadidx]->replicateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	#endif 
 	// FIXME. do for ACTSMODEL_LW
-	#ifdef FPGA_IMPL
+	/* #ifdef FPGA_IMPL
 	helperfunctionsobj[superthreadidx]->writetokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], 0, PADDEDKVSOURCEDRAMSZ);
-	#endif
+	#endif */
 	
 	unsigned int fdoffset[NUMCPUTHREADS];
 	unsigned int loadsize[NUMCPUTHREADS];
@@ -191,9 +191,9 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparam
 		globaliteration_idx += 1;
 	}
 
-	#ifdef FPGA_IMPL
+	/* #ifdef FPGA_IMPL
 	helperfunctionsobj[superthreadidx]->readfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], 0, PADDEDKVSOURCEDRAMSZ);
-	#endif
+	#endif */
 	#ifdef ACTSMODEL
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, KVDATA_RANGE_PERSSDPARTITION);
 	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, globalparams.graph_iterationidx); // FIXME. CHECKME.

@@ -93,37 +93,20 @@ void test::run(){
 		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM, globalparams);
 		#endif
 		#ifdef ACTSMODEL_LW
-		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS, globalparams);
-		#endif 
-		
-		#ifdef _DEBUGMODE_HOSTPRINTS2
-		#ifdef ACTSMODEL_LW
-		utilityobj->printmessages("test::run:: messages (BEFORE kernel launch)", (&kvsourcedram[0][0][0][BASEOFFSET_MESSAGESDRAM_KVS]));
-		utilityobj->printkeyvalues("test::run:: kvstatsdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_STATSDRAM_KVS]), 16);
-		#endif 
-		utilityobj->printkeyvalues("test::run:: kvdram (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAM_KVS]), 16);
-		utilityobj->printkeyvalues("test::run:: kvdram workspace (BEFORE kernel launch)", (keyvalue_t *)(&kvsourcedram[0][0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		helperfunctionsobj->updatemessagesbeforelaunch(globaliteration_idx, true, voffset, batchsize, runsize, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS, globalparams);
 		#endif
-		
-		// #ifdef FPGA_IMPL
-		// helperfunctionsobj->writetokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
-		// #endif
-		
+
 		// Launch the Kernel
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 		helperfunctionsobj->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[0], 0);
 		totaltime_ms += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count() - noisetime_ms);
 		cout<<"test::run current totaltime_ms: "<<totaltime_ms<<endl;
-		
-		// #ifdef FPGA_IMPL
-		// helperfunctionsobj->readfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], 0, PADDEDKVSOURCEDRAMSZ);
-		// #endif
 	
 		#ifdef ACTSMODEL
 		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvstats[0], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
 		#endif
 		#ifdef ACTSMODEL_LW
-		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
+		helperfunctionsobj->updatemessagesafterlaunch(globaliteration_idx, true, kvsourcedram[0], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS);
 		#endif 
 		
 		// #if defined(_DEBUGMODE_HOSTPRINTS2) && defined(ACTSMODEL_LW)

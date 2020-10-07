@@ -158,7 +158,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.statsalreadycollected: "<<globalparams.statsalreadycollected<<std::endl;
 	std::cout<<std::endl;
 }
-void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid){
+/* void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	string message; string message2;
 	if(config.enablecollectglobalstats == ON) { message = "collectglobalstats"; } else if (config.enablepartition == ON){ message = "partition"; } else if (config.enablereduce == ON){ message = "reduce"; }
@@ -166,7 +166,7 @@ void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams,
 	print6(message2, "upperlimit", "travst.begin", "travst.end", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, travstate.begin_kvs * VECTOR_SIZE, travstate.end_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP);				
 	#endif
 	return;
-}
+} */
 void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef ACTSMODEL_LW

@@ -50,8 +50,8 @@ public:
 	void updatemessagesafterlaunch(unsigned int globaliteration_idx, keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset, unsigned int kvstatsbaseoffset);
 	#endif 
 	#ifdef ACTSMODEL_LW
-	void updatemessagesbeforelaunch(unsigned int globaliteration_idx, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs, hostglobalparams_t globalparams);												
-	void updatemessagesafterlaunch(unsigned int globaliteration_idx, uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs);
+	void updatemessagesbeforelaunch(unsigned int globaliteration_idx, bool forcerunacts, unsigned int voffset, unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int keyvaluecount[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs, hostglobalparams_t globalparams);												
+	void updatemessagesafterlaunch(unsigned int globaliteration_idx, bool forcerunacts, uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs);
 	#endif 
 	
 	void loadvertexpropertiesfromfile();
@@ -61,8 +61,8 @@ public:
 	
 	#ifdef FPGA_IMPL 
 	void loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size);
-	void readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset, unsigned int size);
+	void writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
+	void readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
 	void finishOCL();
 	#endif 
 	
@@ -72,8 +72,8 @@ private:
 	utility * utilityobj;
 	graph * graphobj;
 	algorithm * algorithmobj;
-	std::thread mythread[NUMCPUTHREADS];
-	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	std::thread mythread[NUMUTILITYTHREADS];
+	std::thread mykernelthread[NUMUTILITYTHREADS];
 };
 #endif
 
