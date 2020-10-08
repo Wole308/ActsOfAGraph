@@ -9,7 +9,7 @@
 #include <mutex>
 #include <thread>
 #ifdef ACTSMODEL
-#include "../acts/acts/acts.h"
+#include "../acts/acts1/acts.h"
 #endif
 #ifdef ACTSMODEL_LW
 	#ifdef ACTSMODEL_LWGROUP1
@@ -49,7 +49,6 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("swkernel::launchkernel:: print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("swkernel::launchkernel:: print messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
 	#endif
-	// exit(EXIT_SUCCESS);
 	
 	#ifdef ACTSMODEL
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
@@ -58,9 +57,8 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#ifdef ACTSMODEL
 	#ifdef LOCKE
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_acts(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
-		// exit(EXIT_SUCCESS); // REMOVEME.
 	#else 
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&helperfunctions::workerthread_launchkernel, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&swkernel::workerthread_launchkernel_acts, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
 	#endif
 	#endif 
@@ -68,10 +66,9 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
 	#ifdef LOCKE
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
-		// workerthread_launchkernel_actslwtype1(0*NUMSUBCPUTHREADS + 0, kvsourcedram[0][0]);
-		// exit(EXIT_SUCCESS); // REMOVEME.
 	#else 
 		// FIXME.
+		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);
 	#endif
 	#endif 
 	
@@ -108,8 +105,8 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#endif
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results after Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
-	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("helperfunctions::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}			
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("swkernel::launchkernel:: Print results after Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
+	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("swkernel::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}			
 	#endif
 	return;
 }
@@ -120,9 +117,9 @@ void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_d
 	
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram, kvdestdram, kvstats);
 	
-	#ifdef TESTKERNEL
-	exit(EXIT_SUCCESS); // REMOVEME.
-	#endif
+	// #ifdef TESTKERNEL
+	// exit(EXIT_SUCCESS); // REMOVEME.
+	// #endif
 	return;
 }
 #endif
@@ -132,7 +129,7 @@ void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, ui
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
 	
 	// #ifdef TESTKERNEL
-	// exit(EXIT_SUCCESS); // REMOVEME.
+	exit(EXIT_SUCCESS); // REMOVEME.
 	// #endif
 	return;
 }

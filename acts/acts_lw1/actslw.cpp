@@ -122,12 +122,12 @@ GET_NUMLASTLEVELPARTITIONS(unsigned int groupid){
 	else if(groupid == HIGHINDEGREESGROUPID){ return NUMLASTLEVELPARTITIONS2; }
 	else{ return NUMLASTLEVELPARTITIONS; }
 }
-buffer_type
+batch_type
 	#ifdef SW 
 	actslw::
 	#endif 
-allignhigher_KV(buffer_type val){
-	buffer_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+allignhigher_KV(batch_type val){
+	batch_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
 batch_type
@@ -147,13 +147,6 @@ getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalp
 		result = result / NUM_PARTITIONS;
 	}
 	return result;
-}
-void 
-	#ifdef SW 
-	actslw::
-	#endif 
-copykeyandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size){
-	for(partition_type i=0; i<size; i++){ buffer1[i] = buffer2[i]; }
 }
 void 
 	#ifdef SW 
@@ -227,37 +220,6 @@ resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type siz
 		buffer[5][i].value = 0;
 		buffer[6][i].value = 0;
 		buffer[7][i].value = 0;
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	actslw::
-	#endif
-accumkeysandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size){
-	for(partition_type i=0; i<size; i++){
-	#pragma HLS PIPELINE II=1
-		keyvalue_t keyvalue1 = buffer1[i];
-		keyvalue_t keyvalue2 = buffer2[i];
-		keyvalue1.key += keyvalue2.key;
-		keyvalue1.value += keyvalue2.value;
-		buffer1[i] = keyvalue1;
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	actslw::
-	#endif
-accumkeysandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, keyvalue_t * buffer3, buffer_type size){
-	for(partition_type i=0; i<size; i++){
-	#pragma HLS PIPELINE II=1
-		keyvalue_t keyvalue1 = buffer1[i];
-		keyvalue_t keyvalue2 = buffer2[i];
-		keyvalue_t keyvalue3 = buffer3[i];
-		keyvalue3.key = keyvalue1.key + keyvalue2.key;
-		keyvalue3.value = keyvalue1.value + keyvalue2.value;
-		buffer3[i] = keyvalue3;
 	}
 	return;
 }
@@ -365,448 +327,6 @@ buffer_type
 	#ifdef SW 
 	actslw::
 	#endif 
-getpartitionwritesz_original(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
-	#pragma HLS INLINE // REMOVEME.
-	// #pragma HLS INLINE OFF
-	buffer_type size_kvs;
-	
-	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
-if(realsize_kvs >= 0*PADSKIP && realsize_kvs < 1*PADSKIP){
-		size_kvs = 1*PADSKIP;
-	}
-else if(realsize_kvs >= 1*PADSKIP && realsize_kvs < 2*PADSKIP){
-		size_kvs = 2*PADSKIP;
-	}
-else if(realsize_kvs >= 2*PADSKIP && realsize_kvs < 3*PADSKIP){
-		size_kvs = 3*PADSKIP;
-	}
-else if(realsize_kvs >= 3*PADSKIP && realsize_kvs < 4*PADSKIP){
-		size_kvs = 4*PADSKIP;
-	}
-else if(realsize_kvs >= 4*PADSKIP && realsize_kvs < 5*PADSKIP){
-		size_kvs = 5*PADSKIP;
-	}
-else if(realsize_kvs >= 5*PADSKIP && realsize_kvs < 6*PADSKIP){
-		size_kvs = 6*PADSKIP;
-	}
-else if(realsize_kvs >= 6*PADSKIP && realsize_kvs < 7*PADSKIP){
-		size_kvs = 7*PADSKIP;
-	}
-else if(realsize_kvs >= 7*PADSKIP && realsize_kvs < 8*PADSKIP){
-		size_kvs = 8*PADSKIP;
-	}
-else if(realsize_kvs >= 8*PADSKIP && realsize_kvs < 9*PADSKIP){
-		size_kvs = 9*PADSKIP;
-	}
-else if(realsize_kvs >= 9*PADSKIP && realsize_kvs < 10*PADSKIP){
-		size_kvs = 10*PADSKIP;
-	}
-else if(realsize_kvs >= 10*PADSKIP && realsize_kvs < 11*PADSKIP){
-		size_kvs = 11*PADSKIP;
-	}
-else if(realsize_kvs >= 11*PADSKIP && realsize_kvs < 12*PADSKIP){
-		size_kvs = 12*PADSKIP;
-	}
-else if(realsize_kvs >= 12*PADSKIP && realsize_kvs < 13*PADSKIP){
-		size_kvs = 13*PADSKIP;
-	}
-else if(realsize_kvs >= 13*PADSKIP && realsize_kvs < 14*PADSKIP){
-		size_kvs = 14*PADSKIP;
-	}
-else if(realsize_kvs >= 14*PADSKIP && realsize_kvs < 15*PADSKIP){
-		size_kvs = 15*PADSKIP;
-	}
-else if(realsize_kvs >= 15*PADSKIP && realsize_kvs < 16*PADSKIP){
-		size_kvs = 16*PADSKIP;
-	}
-else if(realsize_kvs >= 16*PADSKIP && realsize_kvs < 17*PADSKIP){
-		size_kvs = 17*PADSKIP;
-	}
-else if(realsize_kvs >= 17*PADSKIP && realsize_kvs < 18*PADSKIP){
-		size_kvs = 18*PADSKIP;
-	}
-else if(realsize_kvs >= 18*PADSKIP && realsize_kvs < 19*PADSKIP){
-		size_kvs = 19*PADSKIP;
-	}
-else if(realsize_kvs >= 19*PADSKIP && realsize_kvs < 20*PADSKIP){
-		size_kvs = 20*PADSKIP;
-	}
-else if(realsize_kvs >= 20*PADSKIP && realsize_kvs < 21*PADSKIP){
-		size_kvs = 21*PADSKIP;
-	}
-else if(realsize_kvs >= 21*PADSKIP && realsize_kvs < 22*PADSKIP){
-		size_kvs = 22*PADSKIP;
-	}
-else if(realsize_kvs >= 22*PADSKIP && realsize_kvs < 23*PADSKIP){
-		size_kvs = 23*PADSKIP;
-	}
-else if(realsize_kvs >= 23*PADSKIP && realsize_kvs < 24*PADSKIP){
-		size_kvs = 24*PADSKIP;
-	}
-else if(realsize_kvs >= 24*PADSKIP && realsize_kvs < 25*PADSKIP){
-		size_kvs = 25*PADSKIP;
-	}
-else if(realsize_kvs >= 25*PADSKIP && realsize_kvs < 26*PADSKIP){
-		size_kvs = 26*PADSKIP;
-	}
-else if(realsize_kvs >= 26*PADSKIP && realsize_kvs < 27*PADSKIP){
-		size_kvs = 27*PADSKIP;
-	}
-else if(realsize_kvs >= 27*PADSKIP && realsize_kvs < 28*PADSKIP){
-		size_kvs = 28*PADSKIP;
-	}
-else if(realsize_kvs >= 28*PADSKIP && realsize_kvs < 29*PADSKIP){
-		size_kvs = 29*PADSKIP;
-	}
-else if(realsize_kvs >= 29*PADSKIP && realsize_kvs < 30*PADSKIP){
-		size_kvs = 30*PADSKIP;
-	}
-else if(realsize_kvs >= 30*PADSKIP && realsize_kvs < 31*PADSKIP){
-		size_kvs = 31*PADSKIP;
-	}
-else if(realsize_kvs >= 31*PADSKIP && realsize_kvs < 32*PADSKIP){
-		size_kvs = 32*PADSKIP;
-	}
-else if(realsize_kvs >= 32*PADSKIP && realsize_kvs < 33*PADSKIP){
-		size_kvs = 33*PADSKIP;
-	}
-else if(realsize_kvs >= 33*PADSKIP && realsize_kvs < 34*PADSKIP){
-		size_kvs = 34*PADSKIP;
-	}
-else if(realsize_kvs >= 34*PADSKIP && realsize_kvs < 35*PADSKIP){
-		size_kvs = 35*PADSKIP;
-	}
-else if(realsize_kvs >= 35*PADSKIP && realsize_kvs < 36*PADSKIP){
-		size_kvs = 36*PADSKIP;
-	}
-else if(realsize_kvs >= 36*PADSKIP && realsize_kvs < 37*PADSKIP){
-		size_kvs = 37*PADSKIP;
-	}
-else if(realsize_kvs >= 37*PADSKIP && realsize_kvs < 38*PADSKIP){
-		size_kvs = 38*PADSKIP;
-	}
-else if(realsize_kvs >= 38*PADSKIP && realsize_kvs < 39*PADSKIP){
-		size_kvs = 39*PADSKIP;
-	}
-else if(realsize_kvs >= 39*PADSKIP && realsize_kvs < 40*PADSKIP){
-		size_kvs = 40*PADSKIP;
-	}
-else if(realsize_kvs >= 40*PADSKIP && realsize_kvs < 41*PADSKIP){
-		size_kvs = 41*PADSKIP;
-	}
-else if(realsize_kvs >= 41*PADSKIP && realsize_kvs < 42*PADSKIP){
-		size_kvs = 42*PADSKIP;
-	}
-else if(realsize_kvs >= 42*PADSKIP && realsize_kvs < 43*PADSKIP){
-		size_kvs = 43*PADSKIP;
-	}
-else if(realsize_kvs >= 43*PADSKIP && realsize_kvs < 44*PADSKIP){
-		size_kvs = 44*PADSKIP;
-	}
-else if(realsize_kvs >= 44*PADSKIP && realsize_kvs < 45*PADSKIP){
-		size_kvs = 45*PADSKIP;
-	}
-else if(realsize_kvs >= 45*PADSKIP && realsize_kvs < 46*PADSKIP){
-		size_kvs = 46*PADSKIP;
-	}
-else if(realsize_kvs >= 46*PADSKIP && realsize_kvs < 47*PADSKIP){
-		size_kvs = 47*PADSKIP;
-	}
-else if(realsize_kvs >= 47*PADSKIP && realsize_kvs < 48*PADSKIP){
-		size_kvs = 48*PADSKIP;
-	}
-else if(realsize_kvs >= 48*PADSKIP && realsize_kvs < 49*PADSKIP){
-		size_kvs = 49*PADSKIP;
-	}
-else if(realsize_kvs >= 49*PADSKIP && realsize_kvs < 50*PADSKIP){
-		size_kvs = 50*PADSKIP;
-	}
-else if(realsize_kvs >= 50*PADSKIP && realsize_kvs < 51*PADSKIP){
-		size_kvs = 51*PADSKIP;
-	}
-else if(realsize_kvs >= 51*PADSKIP && realsize_kvs < 52*PADSKIP){
-		size_kvs = 52*PADSKIP;
-	}
-else if(realsize_kvs >= 52*PADSKIP && realsize_kvs < 53*PADSKIP){
-		size_kvs = 53*PADSKIP;
-	}
-else if(realsize_kvs >= 53*PADSKIP && realsize_kvs < 54*PADSKIP){
-		size_kvs = 54*PADSKIP;
-	}
-else if(realsize_kvs >= 54*PADSKIP && realsize_kvs < 55*PADSKIP){
-		size_kvs = 55*PADSKIP;
-	}
-else if(realsize_kvs >= 55*PADSKIP && realsize_kvs < 56*PADSKIP){
-		size_kvs = 56*PADSKIP;
-	}
-else if(realsize_kvs >= 56*PADSKIP && realsize_kvs < 57*PADSKIP){
-		size_kvs = 57*PADSKIP;
-	}
-else if(realsize_kvs >= 57*PADSKIP && realsize_kvs < 58*PADSKIP){
-		size_kvs = 58*PADSKIP;
-	}
-else if(realsize_kvs >= 58*PADSKIP && realsize_kvs < 59*PADSKIP){
-		size_kvs = 59*PADSKIP;
-	}
-else if(realsize_kvs >= 59*PADSKIP && realsize_kvs < 60*PADSKIP){
-		size_kvs = 60*PADSKIP;
-	}
-else if(realsize_kvs >= 60*PADSKIP && realsize_kvs < 61*PADSKIP){
-		size_kvs = 61*PADSKIP;
-	}
-else if(realsize_kvs >= 61*PADSKIP && realsize_kvs < 62*PADSKIP){
-		size_kvs = 62*PADSKIP;
-	}
-else if(realsize_kvs >= 62*PADSKIP && realsize_kvs < 63*PADSKIP){
-		size_kvs = 63*PADSKIP;
-	}
-else if(realsize_kvs >= 63*PADSKIP && realsize_kvs < 64*PADSKIP){
-		size_kvs = 64*PADSKIP;
-	}
-	else {
-		#ifdef ENABLE_PERFECTACCURACY
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
-		exit(EXIT_FAILURE);
-		#endif
-		#else 
-		// size_kvs = PADDEDDESTBUFFER_SIZE;
-		size_kvs = OPTIMALSIZE;
-		#endif 
-	}
-	#ifdef SW 
-	if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
-	#endif 
-	#else 
-	size_kvs = realsize_kvs;
-	#endif
-	return size_kvs;
-}
-buffer_type 
-	#ifdef SW 
-	actslw::
-	#endif 
-getpartitionwritesz_original2(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
-	#pragma HLS INLINE // REMOVEME.
-	// #pragma HLS INLINE OFF
-	buffer_type size_kvs;
-	
-	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
-if(realsize_kvs >= 0*8 && realsize_kvs < 1*8){
-		size_kvs = 1*8;
-	}
-else if(realsize_kvs >= 1*8 && realsize_kvs < 2*8){
-		size_kvs = 2*8;
-	}
-else if(realsize_kvs >= 2*8 && realsize_kvs < 3*8){
-		size_kvs = 3*8;
-	}
-else if(realsize_kvs >= 3*8 && realsize_kvs < 4*8){
-		size_kvs = 4*8;
-	}
-else if(realsize_kvs >= 4*8 && realsize_kvs < 5*8){
-		size_kvs = 5*8;
-	}
-else if(realsize_kvs >= 5*8 && realsize_kvs < 6*8){
-		size_kvs = 6*8;
-	}
-else if(realsize_kvs >= 6*8 && realsize_kvs < 7*8){
-		size_kvs = 7*8;
-	}
-else if(realsize_kvs >= 7*8 && realsize_kvs < 8*8){
-		size_kvs = 8*8;
-	}
-else if(realsize_kvs >= 8*8 && realsize_kvs < 9*8){
-		size_kvs = 9*8;
-	}
-else if(realsize_kvs >= 9*8 && realsize_kvs < 10*8){
-		size_kvs = 10*8;
-	}
-else if(realsize_kvs >= 10*8 && realsize_kvs < 11*8){
-		size_kvs = 11*8;
-	}
-else if(realsize_kvs >= 11*8 && realsize_kvs < 12*8){
-		size_kvs = 12*8;
-	}
-else if(realsize_kvs >= 12*8 && realsize_kvs < 13*8){
-		size_kvs = 13*8;
-	}
-else if(realsize_kvs >= 13*8 && realsize_kvs < 14*8){
-		size_kvs = 14*8;
-	}
-else if(realsize_kvs >= 14*8 && realsize_kvs < 15*8){
-		size_kvs = 15*8;
-	}
-else if(realsize_kvs >= 15*8 && realsize_kvs < 16*8){
-		size_kvs = 16*8;
-	}
-else if(realsize_kvs >= 16*8 && realsize_kvs < 17*8){
-		size_kvs = 17*8;
-	}
-else if(realsize_kvs >= 17*8 && realsize_kvs < 18*8){
-		size_kvs = 18*8;
-	}
-else if(realsize_kvs >= 18*8 && realsize_kvs < 19*8){
-		size_kvs = 19*8;
-	}
-else if(realsize_kvs >= 19*8 && realsize_kvs < 20*8){
-		size_kvs = 20*8;
-	}
-else if(realsize_kvs >= 20*8 && realsize_kvs < 21*8){
-		size_kvs = 21*8;
-	}
-else if(realsize_kvs >= 21*8 && realsize_kvs < 22*8){
-		size_kvs = 22*8;
-	}
-else if(realsize_kvs >= 22*8 && realsize_kvs < 23*8){
-		size_kvs = 23*8;
-	}
-else if(realsize_kvs >= 23*8 && realsize_kvs < 24*8){
-		size_kvs = 24*8;
-	}
-else if(realsize_kvs >= 24*8 && realsize_kvs < 25*8){
-		size_kvs = 25*8;
-	}
-else if(realsize_kvs >= 25*8 && realsize_kvs < 26*8){
-		size_kvs = 26*8;
-	}
-else if(realsize_kvs >= 26*8 && realsize_kvs < 27*8){
-		size_kvs = 27*8;
-	}
-else if(realsize_kvs >= 27*8 && realsize_kvs < 28*8){
-		size_kvs = 28*8;
-	}
-else if(realsize_kvs >= 28*8 && realsize_kvs < 29*8){
-		size_kvs = 29*8;
-	}
-else if(realsize_kvs >= 29*8 && realsize_kvs < 30*8){
-		size_kvs = 30*8;
-	}
-else if(realsize_kvs >= 30*8 && realsize_kvs < 31*8){
-		size_kvs = 31*8;
-	}
-else if(realsize_kvs >= 31*8 && realsize_kvs < 32*8){
-		size_kvs = 32*8;
-	}
-else if(realsize_kvs >= 32*8 && realsize_kvs < 33*8){
-		size_kvs = 33*8;
-	}
-else if(realsize_kvs >= 33*8 && realsize_kvs < 34*8){
-		size_kvs = 34*8;
-	}
-else if(realsize_kvs >= 34*8 && realsize_kvs < 35*8){
-		size_kvs = 35*8;
-	}
-else if(realsize_kvs >= 35*8 && realsize_kvs < 36*8){
-		size_kvs = 36*8;
-	}
-else if(realsize_kvs >= 36*8 && realsize_kvs < 37*8){
-		size_kvs = 37*8;
-	}
-else if(realsize_kvs >= 37*8 && realsize_kvs < 38*8){
-		size_kvs = 38*8;
-	}
-else if(realsize_kvs >= 38*8 && realsize_kvs < 39*8){
-		size_kvs = 39*8;
-	}
-else if(realsize_kvs >= 39*8 && realsize_kvs < 40*8){
-		size_kvs = 40*8;
-	}
-else if(realsize_kvs >= 40*8 && realsize_kvs < 41*8){
-		size_kvs = 41*8;
-	}
-else if(realsize_kvs >= 41*8 && realsize_kvs < 42*8){
-		size_kvs = 42*8;
-	}
-else if(realsize_kvs >= 42*8 && realsize_kvs < 43*8){
-		size_kvs = 43*8;
-	}
-else if(realsize_kvs >= 43*8 && realsize_kvs < 44*8){
-		size_kvs = 44*8;
-	}
-else if(realsize_kvs >= 44*8 && realsize_kvs < 45*8){
-		size_kvs = 45*8;
-	}
-else if(realsize_kvs >= 45*8 && realsize_kvs < 46*8){
-		size_kvs = 46*8;
-	}
-else if(realsize_kvs >= 46*8 && realsize_kvs < 47*8){
-		size_kvs = 47*8;
-	}
-else if(realsize_kvs >= 47*8 && realsize_kvs < 48*8){
-		size_kvs = 48*8;
-	}
-else if(realsize_kvs >= 48*8 && realsize_kvs < 49*8){
-		size_kvs = 49*8;
-	}
-else if(realsize_kvs >= 49*8 && realsize_kvs < 50*8){
-		size_kvs = 50*8;
-	}
-else if(realsize_kvs >= 50*8 && realsize_kvs < 51*8){
-		size_kvs = 51*8;
-	}
-else if(realsize_kvs >= 51*8 && realsize_kvs < 52*8){
-		size_kvs = 52*8;
-	}
-else if(realsize_kvs >= 52*8 && realsize_kvs < 53*8){
-		size_kvs = 53*8;
-	}
-else if(realsize_kvs >= 53*8 && realsize_kvs < 54*8){
-		size_kvs = 54*8;
-	}
-else if(realsize_kvs >= 54*8 && realsize_kvs < 55*8){
-		size_kvs = 55*8;
-	}
-else if(realsize_kvs >= 55*8 && realsize_kvs < 56*8){
-		size_kvs = 56*8;
-	}
-else if(realsize_kvs >= 56*8 && realsize_kvs < 57*8){
-		size_kvs = 57*8;
-	}
-else if(realsize_kvs >= 57*8 && realsize_kvs < 58*8){
-		size_kvs = 58*8;
-	}
-else if(realsize_kvs >= 58*8 && realsize_kvs < 59*8){
-		size_kvs = 59*8;
-	}
-else if(realsize_kvs >= 59*8 && realsize_kvs < 60*8){
-		size_kvs = 60*8;
-	}
-else if(realsize_kvs >= 60*8 && realsize_kvs < 61*8){
-		size_kvs = 61*8;
-	}
-else if(realsize_kvs >= 61*8 && realsize_kvs < 62*8){
-		size_kvs = 62*8;
-	}
-else if(realsize_kvs >= 62*8 && realsize_kvs < 63*8){
-		size_kvs = 63*8;
-	}
-else if(realsize_kvs >= 63*8 && realsize_kvs < 64*8){
-		size_kvs = 64*8;
-	}
-	else {
-		#ifdef ENABLE_PERFECTACCURACY
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
-		exit(EXIT_FAILURE);
-		#endif
-		#else 
-		// size_kvs = PADDEDDESTBUFFER_SIZE;
-		size_kvs = OPTIMALSIZE;
-		#endif 
-	}
-	#ifdef SW 
-	if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
-	#endif 
-	#else 
-	size_kvs = realsize_kvs;
-	#endif
-	return size_kvs;
-}
-buffer_type 
-	#ifdef SW 
-	actslw::
-	#endif 
 getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	#pragma HLS INLINE
 	buffer_type size_kvs = 0;
@@ -905,15 +425,15 @@ else if(realsize_kvs >= 62 && realsize_kvs < 64){ size_kvs = 64; }
 		else if(realsize_kvs >= 496 && realsize_kvs < 512){ size_kvs = 512; }
 		
 		else {
-			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
 			
 			#ifdef ENABLE_PERFECTACCURACY
 			#ifdef _DEBUGMODE_CHECKS2
-			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", last size_kvs: "<<(64*PADSKIP)<<", OPTIMALSIZE: "<<OPTIMALSIZE<<", PADSKIP: "<<PADSKIP<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;				 
 			exit(EXIT_FAILURE);
 			#endif
 			#else
-			size_kvs = OPTIMALSIZE;
+			size_kvs = PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS;
 			#endif 
 		}
 		#ifdef SW 
@@ -937,25 +457,11 @@ void
 	#ifdef SW 
 	actslw::
 	#endif 
-calculateoffsets(keyvalue_t * buffer, buffer_type size, buffer_type base, buffer_type skipspacing){
+calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type skipspacing[NUM_PARTITIONS]){
 	unsigned int analysis_size = NUMLASTLEVELPARTITIONS;
 	
 	buffer[0].key += base;
-	for(partition_type i=1; i<size; i++){ 
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_size avg=analysis_size	
-		buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing); 
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	actslw::
-	#endif 
-calculateoffsets(keyvalue_t * buffer, buffer_type size, buffer_type base, buffer_type skipspacing[NUM_PARTITIONS]){
-	unsigned int analysis_size = NUMLASTLEVELPARTITIONS;
-	
-	buffer[0].key += base;
-	for(partition_type i=1; i<size; i++){ 
+	for(buffer_type i=1; i<size; i++){ 
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_size avg=analysis_size	
 		buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); 
 	}
@@ -965,8 +471,8 @@ void
 	#ifdef SW 
 	actslw::
 	#endif 
-calculateunallignedoffsets(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size, buffer_type base, buffer_type skipspacing){
-	for(partition_type i=1; i<size; i++){ 
+calculateunallignedoffsets(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+	for(buffer_type i=1; i<size; i++){ 
 		buffer[i].key = buffer[i-1].key + buffer[i-1].value + skipspacing; 
 	}
 	return;
@@ -975,8 +481,8 @@ void
 	#ifdef SW 
 	actslw::
 	#endif 
-calculatemanyoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, buffer_type base, buffer_type skipspacing){
-	for(partition_type i=1; i<size; i++){ 
+calculatemanyoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = allignhigher_KV(buffer[0][i-1].key + buffer[0][i-1].value + skipspacing); 
 		buffer[1][i].key = allignhigher_KV(buffer[1][i-1].key + buffer[1][i-1].value + skipspacing); 
 		buffer[2][i].key = allignhigher_KV(buffer[2][i-1].key + buffer[2][i-1].value + skipspacing); 
@@ -992,8 +498,8 @@ void
 	#ifdef SW 
 	actslw::
 	#endif 
-calculatemanyunallignedoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, buffer_type base, buffer_type skipspacing){
-	for(partition_type i=1; i<size; i++){ 
+calculatemanyunallignedoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
 		buffer[2][i].key = buffer[2][i-1].key + buffer[2][i-1].value + skipspacing; 
@@ -1524,113 +1030,113 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		
 		if(loc0 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue0.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc0 = 0;
 		} // REMOVEME.
 		if(loc1 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue1.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc1 = 0;
 		} // REMOVEME.
 		if(loc2 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue2.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc2 = 0;
 		} // REMOVEME.
 		if(loc3 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue3.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc3: "<<loc3<<", keyvalue3.key: "<<keyvalue3.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc3 = 0;
 		} // REMOVEME.
 		if(loc4 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue4.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc4: "<<loc4<<", keyvalue4.key: "<<keyvalue4.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc4 = 0;
 		} // REMOVEME.
 		if(loc5 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue5.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc5 = 0;
 		} // REMOVEME.
 		if(loc6 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue6.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc6 = 0;
 		} // REMOVEME.
 		if(loc7 >= GET_APPLYVERTEXBUFFERSZ(globalparams.groupid) && keyvalue7.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinreduce(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
 			#ifdef ENABLE_VOICEOUTREDUCEERRORS
 			cout<<"ERROR SEEN @ reduce0:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<GET_APPLYVERTEXBUFFERSZ(globalparams.groupid)<<endl; 
 			#endif 
 			#ifdef ENABLE_PERFECTACCURACY
-			exit(EXIT_FAILURE); // FIXME. PERFECTIONTEST.
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 20){ exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			loc7 = 0;
 		} // REMOVEME.
@@ -2272,8 +1778,6 @@ dispatch0(uint512_dt * kvdram){
 	globalparams_t globalparams = getglobalparams(kvdram);
 	sweepparams_t sweepparams;
 	
-	actsutilityobj->printkeyvalues("dispatch0.kvdram", (keyvalue_t *)(&kvdram[BASEOFFSET_KVDRAM_KVS]), 16); // REMOVEME.
-
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=1; currentLOP<=globalparams.treedepth; currentLOP++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numllops avg=analysis_numllops	
@@ -2320,42 +1824,136 @@ dispatch0(uint512_dt * kvdram){
 			}
 			prepareglobalstats0(config.enablecollectglobalstats, buffer_setof1, globalstatsbuffer, globalparams);
 			for(unsigned int i=0; i<NUM_PARTITIONS; i++){ skipsizes[i] = ((((globalstatsbuffer[i].value / VECTOR_SIZE) + 1) / SRCBUFFER_SIZE) * (NUM_PARTITIONS * VECTOR_SIZE * 2)) + 128; } //'128' is safety padd
+			// actsutilityobj->printkeyvalues("before calculateoffsets::globalstatsbuffer 45", globalstatsbuffer, NUM_PARTITIONS); // REMOVEME.
 			calculateoffsets(globalstatsbuffer, NUM_PARTITIONS, destoffset, skipsizes);
+			// actsutilityobj->printkeyvalues("after calculateoffsets::globalstatsbuffer 45", globalstatsbuffer, NUM_PARTITIONS); // REMOVEME.
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS);
 			saveglobalstats0(config.enablecollectglobalstats, kvdram, globalstatsbuffer, BASEOFFSET_STATSDRAM_KVS + deststatsmarker);
 			
 			// partition
 			if(currentLOP >= 0 && currentLOP <= GET_TREE_DEPTH(globalparams.groupid)){ config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; } 
 			else { Ptravstate.begin_kvs = 0; Ptravstate.end_kvs = 0; config.enablepartition = OFF; }
+			travstate_t Ptravstatepp0 = Ptravstate;
+			travstate_t Ptravstatepp1 = Ptravstate;
+			travstate_t Ptravstatepp2 = Ptravstate;
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if(config.enablepartition == ON){ actsutilityobj->print7("### dispatch0::partition:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, Ptravstate.begin_kvs * VECTOR_SIZE, Ptravstate.end_kvs * VECTOR_SIZE, (Ptravstate.end_kvs - Ptravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP);	}				
 			#endif
 			readglobalstats0(config.enablepartition, kvdram, globalstatsbuffer, BASEOFFSET_STATSDRAM_KVS + deststatsmarker);
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS);
-			MAIN_LOOP1D_PARTITION: for(batch_type offset_kvs=Ptravstate.begin_kvs; offset_kvs<Ptravstate.end_kvs; offset_kvs+=Ptravstate.skip_kvs){
+			MAIN_LOOP1D_PARTITION: for(batch_type offset_kvs=Ptravstate.begin_kvs; offset_kvs<Ptravstate.end_kvs; offset_kvs+=NUMPIPELINES * Ptravstate.skip_kvs){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_mainloop avg=analysis_mainloop
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print4("### dispatch0::partition:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, Ptravstate.begin_kvs, Ptravstate.end_kvs, SRCBUFFER_SIZE);
 				#endif
 				
-				Ptravstate.i_kvs = offset_kvs;
-				
-				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), Ptravstate);
+				/** Ptravstate.i_kvs = offset_kvs;
+				Ptravstatepp0.i_kvs = offset_kvs;
+				Ptravstatepp1.i_kvs = offset_kvs + SRCBUFFER_SIZE; */
+				/** readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), Ptravstatepp0);
 			
-				partitionkeyvalues0(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, Ptravstate, globalparams);
-
+				partitionkeyvalues0(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, Ptravstatepp0, globalparams);
+				#ifdef PP1
+				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), Ptravstatepp1);
+				#endif
+				
 				// 1s->2s
 				combineSetof1stoSetof2s0(ON, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2, globalparams);
-
+				#ifdef PP1
+				partitionkeyvalues0(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, Ptravstatepp1, globalparams);
+				#endif
+				
 				// 2s->4s
 				combineSetof2stoSetof4s0(ON, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4, globalparams);
+				#ifdef PP1
+				combineSetof1stoSetof2s0(ON, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2, globalparams);
+				#endif
 				
 				// 4s->8s
 				combineSetof4stoSetof8s0(ON, buffer_setof4, buffer_setof8, templocalcapsule_so4, templocalcapsule_so8, globalparams);
+				#ifdef PP1
+				combineSetof2stoSetof4s0(ON, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4, globalparams);
+				#endif
 				
 				savekeyvalues0(ON, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+				#ifdef PP1
+				combineSetof4stoSetof8s0(ON, buffer_setof4, buffer_setof8, templocalcapsule_so4, templocalcapsule_so8, globalparams);
+				#endif
+				
+				#ifdef PP1 // pipeline overflow from bottom
+				savekeyvalues0(ON, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+				#endif 
+				///// overflow. pipeline continuing from top... */
+				
+				Ptravstate.i_kvs = offset_kvs;
+				Ptravstatepp0.i_kvs = offset_kvs;
+				Ptravstatepp1.i_kvs = offset_kvs + SRCBUFFER_SIZE;
+				Ptravstatepp2.i_kvs = offset_kvs + (2 * SRCBUFFER_SIZE);
+				unsigned int en; if(offset_kvs == Ptravstate.begin_kvs){ en = OFF; } else { en = ON; }
+				
+				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), Ptravstatepp0);
+				#ifdef PP1 // pipeline overflow from bottom
+				savekeyvalues0(en, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+				#endif
+				#ifdef PP2 // pipeline overflow from bottom
+				combineSetof4stoSetof8s0(en, buffer_setof4, buffer_setof8, templocalcapsule_so4, templocalcapsule_so8, globalparams);
+				#endif
+				
+				partitionkeyvalues0(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, Ptravstatepp0, globalparams);
+				#ifdef PP1
+				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs + SRCBUFFER_SIZE), Ptravstatepp1);
+				#endif
+				#ifdef PP2 // pipeline overflow from bottom
+				savekeyvalues0(en, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+				#endif
+				
+				// 1s->2s
+				combineSetof1stoSetof2s0(ON, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2, globalparams);
+				#ifdef PP1
+				partitionkeyvalues0(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, Ptravstatepp1, globalparams);
+				#endif
+				#ifdef PP2
+				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs + SRCBUFFER_SIZE + SRCBUFFER_SIZE), Ptravstatepp2);
+				#endif
+				
+				// 2s->4s
+				combineSetof2stoSetof4s0(ON, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4, globalparams);
+				#ifdef PP1
+				combineSetof1stoSetof2s0(ON, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2, globalparams);
+				#endif
+				#ifdef PP2
+				partitionkeyvalues0(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, Ptravstatepp2, globalparams);
+				#endif
+				
+				// 4s->8s
+				combineSetof4stoSetof8s0(ON, buffer_setof4, buffer_setof8, templocalcapsule_so4, templocalcapsule_so8, globalparams);
+				#ifdef PP1
+				combineSetof2stoSetof4s0(ON, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4, globalparams);
+				#endif
+				#ifdef PP2
+				combineSetof1stoSetof2s0(ON, buffer_setof1, buffer_setof2, templocalcapsule_so1, templocalcapsule_so2, globalparams);
+				#endif
+				
+				savekeyvalues0(ON, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+				#ifdef PP1
+				combineSetof4stoSetof8s0(ON, buffer_setof4, buffer_setof8, templocalcapsule_so4, templocalcapsule_so8, globalparams);
+				#endif
+				#ifdef PP2
+				combineSetof2stoSetof4s0(ON, buffer_setof2, buffer_setof4, templocalcapsule_so2, templocalcapsule_so4, globalparams);
+				#endif
 				///// overflow. pipeline continuing from top...
 			}
+			#ifdef PP1 // pipeline overflow from bottom
+			savekeyvalues0(config.enablepartition, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+			#endif
+			#ifdef PP2 // pipeline overflow from bottom
+			combineSetof4stoSetof8s0(config.enablepartition, buffer_setof4, buffer_setof8, templocalcapsule_so4, templocalcapsule_so8, globalparams);
+			#endif
+			
+			#ifdef PP2 // pipeline overflow from bottom
+			savekeyvalues0(config.enablepartition, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+			#endif
+			
 			saveglobalstats0(config.enablepartition, kvdram, globalstatsbuffer, BASEOFFSET_STATSDRAM_KVS + deststatsmarker);
 			
 			// reduce 

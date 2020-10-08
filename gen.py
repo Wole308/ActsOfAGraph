@@ -138,8 +138,8 @@ print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH']))
 print ('BUNDLEFACTOR_APPLYPH: ' + str(context['BUNDLEFACTOR_APPLYPH'])) 
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
-o_path0="acts/acts/acts.cpp"
-o_path1="acts/acts/acts.h"
+o_path0="acts/acts_____DONTUSE/acts.cpp"
+o_path1="acts/acts_____DONTUSE/acts.h"
 o_path2="acts/acts_lw/actslw.cpp"
 o_path3="acts/acts_lw/actslw.h"
 o_path4="include/common.h"
@@ -152,6 +152,8 @@ o_path10="acts/acts_lw1/actslw.cpp"
 o_path11="acts/acts_lw1/actslw.h"
 o_path12="acts/acts_lw/actslw.cpp"
 o_path13="acts/acts_lw/actslw.h"
+o_path14="acts/acts1/acts.cpp"
+o_path15="acts/acts1/acts.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -167,9 +169,11 @@ out_path10=os.path.abspath(o_path10)
 out_path11=os.path.abspath(o_path11)
 out_path12=os.path.abspath(o_path12)
 out_path13=os.path.abspath(o_path13)
+out_path14=os.path.abspath(o_path14)
+out_path15=os.path.abspath(o_path15)
 
-templ_path0="acts/acts/"
-templ_path1="acts/acts/"
+templ_path0="acts/acts_____DONTUSE/"
+templ_path1="acts/acts_____DONTUSE/"
 templ_path2="acts/acts_lw/"
 templ_path3="acts/acts_lw/"
 templ_path4="include/"
@@ -182,6 +186,8 @@ templ_path10="acts/acts_lw1/"
 templ_path11="acts/acts_lw1/"
 templ_path12="acts/acts_lw/"
 templ_path13="acts/acts_lw/"
+templ_path14="acts/acts1/"
+templ_path15="acts/acts1/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -345,6 +351,8 @@ env10 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path10)), trim
 env11 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path11)), trim_blocks=True, lstrip_blocks=True)
 env12 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path12)), trim_blocks=True, lstrip_blocks=True)
 env13 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path13)), trim_blocks=True, lstrip_blocks=True)
+env14 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path14)), trim_blocks=True, lstrip_blocks=True)
+env15 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path15)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -360,6 +368,8 @@ env10.globals.update(zip=zip)
 env11.globals.update(zip=zip)
 env12.globals.update(zip=zip)
 env13.globals.update(zip=zip)
+env14.globals.update(zip=zip)
+env15.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -375,6 +385,8 @@ template10 = env10.get_template('actslw.template')
 template11 = env11.get_template('actslw_h.template')
 template12 = env12.get_template('actslw.template')
 template13 = env13.get_template('actslw_h.template')
+template14 = env14.get_template('acts.template')
+template15 = env15.get_template('acts_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -390,6 +402,8 @@ rendered_file10 = template10.render(context=context)
 rendered_file11 = template11.render(context=context)
 rendered_file12 = template12.render(context=context)
 rendered_file13 = template13.render(context=context)
+rendered_file14 = template14.render(context=context)
+rendered_file15 = template15.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -419,6 +433,10 @@ with open(out_path12, 'w') as outFile12:
 	outFile12.write(rendered_file12)
 with open(out_path13, 'w') as outFile13:
 	outFile13.write(rendered_file13)
+with open(out_path14, 'w') as outFile14:
+	outFile14.write(rendered_file14)
+with open(out_path15, 'w') as outFile15:
+	outFile15.write(rendered_file15)
 
 print ("successful!")
 print ("...")

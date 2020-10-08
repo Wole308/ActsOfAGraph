@@ -32,11 +32,6 @@ using namespace std;
 // #define APPENDINVALIDS_TYPE1
 #define APPENDINVALIDS_TYPE2 //
 
-// #define WRITEPARTITION_TYPE1
-// #define WRITEPARTITION_TYPE2 // 
-#define WRITEPARTITION_TYPE3
-// #define WRITEPARTITION_TYPE4
-
 // #define COLLECTCAPSULES_2READPIPELINES
 #ifdef COLLECTCAPSULES_2READPIPELINES
 #define CS_NUM_READ_PIPELINES 2
@@ -85,37 +80,6 @@ using namespace std;
     #define PADSKIP (OPTIMALSIZE / 6)
 #endif
 #endif
-
-typedef struct {
-	unsigned int baseaddr_worksourcekvs_kvs;
-	unsigned int baseaddr_workdestkvs_kvs;
-	unsigned int baseaddr_capsule_kvs;
-	unsigned int baseaddr_stats;
-	unsigned int num_source_partitions;
-	unsigned int nextsourceoffset_partition;
-	unsigned int nextdestoffset_partition;
-	unsigned int nextsourceoffset_kv;
-	unsigned int nextdestoffset_kv;
-	unsigned int sourceskipsize_partition;
-	unsigned int destskipsize_partition;
-	unsigned int sourceskipsize_kv;
-	unsigned int destskipsize_kv;
-	unsigned int destpartitionrange;
-	unsigned int currentLOP;
-	unsigned int upperlimit;
-} clopparams_t;
-
-typedef struct {
-	unsigned int begin_kvs;
-	unsigned int size_kvs;
-	unsigned int step_kvs;
-	unsigned int end_kvs;
-} partitionparams_t;
-
-typedef struct {
-	unsigned int globaloffset;
-	unsigned int localoffset;
-} offset_t;
 
 #ifndef FPGA_IMPL
 class acts {

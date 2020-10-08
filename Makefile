@@ -52,19 +52,11 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-# KERNEL_TOP += acts/acts/acts.cpp
-
-# KERNEL_TOP += acts/acts_lw/actslw.cpp
+HOST_TOP += examples/hostprocess.cpp
 KERNEL_TOP += acts/acts_lw1/actslw.cpp
 
-# KERNEL_TOP += acts/acts_lw10/actslw.cpp
-# KERNEL_TOP += acts/acts_lw11/actslw.cpp
-
-KERNEL_TOP += acts/actsutility/actsutility.cpp
-HOST_TOP += examples/hostprocess.cpp
-
-# HOST_SRCS += src/host.cpp
-# HOST_SRCS += examples/hostprocess.cpp
+HOST_SRCS += acts/acts1/acts.cpp
+HOST_SRCS += acts/actsutility/actsutility.cpp
 HOST_SRCS += src/algorithm/algorithm.cpp
 HOST_SRCS += src/dataaccess/dataaccess.cpp
 HOST_SRCS += src/edgeprocess/edge_process.cpp
@@ -80,7 +72,6 @@ HOST_SRCS += src/parameters/parameters.cpp
 HOST_SRCS += src/dataset/dataset.cpp
 HOST_SRCS += kernels/kernel.cpp
 HOST_SRCS += kernels/swkernel.cpp
-# HOST_SRCS += kernels/oclkernel.cpp
 HOST_SRCS += kernels/goclkernel.cpp
 # HOST_SRCS += acts/actsutility/actsutility.cpp
 HOST_SRCS += src/graphs/creategraph.cpp
@@ -106,21 +97,21 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3]
 
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-# LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
-# LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[2] 
-# LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[3]
-# LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[4]
-# LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[5]
-# LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[6]
-# LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[7]
-# LDCLFLAGS += --sp topkernel_9.m_axi_gmem0:HBM[8]
-# LDCLFLAGS += --sp topkernel_10.m_axi_gmem0:HBM[9]
-# LDCLFLAGS += --sp topkernel_11.m_axi_gmem0:HBM[10]
-# LDCLFLAGS += --sp topkernel_12.m_axi_gmem0:HBM[11]
-# LDCLFLAGS += --sp topkernel_13.m_axi_gmem0:HBM[12]
-# LDCLFLAGS += --sp topkernel_14.m_axi_gmem0:HBM[13]
-# LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
-# LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
+LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
+LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[2] 
+LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[3]
+LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[4]
+LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[5]
+LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[6]
+LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[7]
+LDCLFLAGS += --sp topkernel_9.m_axi_gmem0:HBM[8]
+LDCLFLAGS += --sp topkernel_10.m_axi_gmem0:HBM[9]
+LDCLFLAGS += --sp topkernel_11.m_axi_gmem0:HBM[10]
+LDCLFLAGS += --sp topkernel_12.m_axi_gmem0:HBM[11]
+LDCLFLAGS += --sp topkernel_13.m_axi_gmem0:HBM[12]
+LDCLFLAGS += --sp topkernel_14.m_axi_gmem0:HBM[13]
+LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
+LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
@@ -164,11 +155,16 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:16 -o'$@' $(+)
 
 # Building Host
+# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
+	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
+# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
+	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
-	$(CXX) $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS)	$(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
+	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt
+
 
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:
@@ -226,12 +222,14 @@ run_nimbix: all
 aws_build: check-aws_repo $(BINARY_CONTAINERS)
 	$(COMMON_REPO)/utility/aws/run_aws.py $(BINARY_CONTAINERS)
 	
-### CPU Multithreaded Implementation (-fstack-protector -fno-stack-protector)
+### CPU Multithreaded Implementation (-fstack-protector -fno-stack-protector)  -O3
 demo_acts_nthreads: clean build_acts_nthreads run_nthreads
 demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 
+# build_acts_nthreads:
+	# g++ -O3 $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
 build_acts_nthreads:
-	g++ -O3 $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
+	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
 
 run_nthreads:
 	./acts_nthreads

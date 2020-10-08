@@ -256,7 +256,9 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 				kvstats[i][j][messagesbaseoffset + MESSAGES_BATCHSIZE].key = batchsize[i][j]; 
 				kvstats[i][j][messagesbaseoffset + MESSAGES_RUNSIZE].key = 0;
 				kvstats[i][j][kvstatsbaseoffset + 0].value = 0; 
+				#ifdef _DEBUGMODE_HOSTPRINTS2
 				cout<<"...loading KvDRAM... size: "<<batchsize[i][j]<<endl; 
+				#endif 
 			}
 			
 			kvstats[i][j][messagesbaseoffset + MESSAGES_PROCESSCOMMANDID].key = ON;
@@ -313,7 +315,7 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
 			
 			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); // REMOVEME.
-			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 2; // REMOVEME.
+			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 4; // REMOVEME.
 			
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_FINALNUMPARTITIONS].data[0].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid));
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_GRAPHITERATIONID].data[0].key = globalparams.graph_iterationidx;
@@ -331,6 +333,9 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = batchsize[i][j];
 				kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_RUNSIZE].data[0].key = keyvaluecount[i][j]; 
 				kvstats[i][j][kvstatsbaseoffset_kvs + 0].data[0].value = keyvaluecount[i][j]; 
+				if(kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key == 0){ 
+					kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_BATCHSIZE].data[0].key = 64;
+					kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = 0; }
 				#ifdef _DEBUGMODE_HOSTPRINTS2
 				cout<<"...running Acts... offset: "<<kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_NEXTBATCHOFFSET].data[0].key<<", size["<<i<<"]["<<j<<"]: "<<keyvaluecount[i][j]<<endl; 
 				#endif 

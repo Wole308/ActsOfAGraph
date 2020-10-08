@@ -3,8 +3,9 @@
 #include <mutex>
 #include <thread>
 #include "../include/config_params.h"
+#include "../include/common.h"
 #ifdef ACTSMODEL
-#include "../acts/acts/acts.h"
+#include "../acts/acts1/acts.h"
 #endif
 #ifdef ACTSMODEL_LW
 	#ifdef ACTSMODEL_LWGROUP1
@@ -19,7 +20,6 @@
 	#endif 
 #endif 
 #include "../src/utility/utility.h"
-#include "../include/common.h"
 
 class swkernel {
 public:

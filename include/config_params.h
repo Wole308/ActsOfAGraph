@@ -25,12 +25,6 @@
 #define FPGABUGCOMPLANT
 #define ENABLE_APPROXIMATEPARTITIONWRITES // FPGA hangs if this is disabled
 #define HBMBUGCOMPLANT
-
-// #define ACTSMODEL
-#define ACTSMODEL_LW
-	#define ACTSMODEL_LWGROUP1
-	// #define ACTSMODEL_LWGROUP2
-	// #define ACTSMODEL_LWGROUP3
 #endif
 
 

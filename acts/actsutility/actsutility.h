@@ -67,6 +67,8 @@ public:
 	void globalstats_counterrorsinreduce(unsigned int count);
 	void globalstats_countkvsmerged(unsigned int count);
 	
+	unsigned int globalstats_getcounterrorsinreduce();
+	
 	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 
 private:

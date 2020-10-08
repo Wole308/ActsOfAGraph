@@ -363,7 +363,9 @@ void actsutility::globalstats_countkvsmerged(unsigned int count){
 	return;
 }
 
-
+unsigned int actsutility::globalstats_getcounterrorsinreduce(){
+	return globalvar_errorsinreduce;
+}
 
 
 

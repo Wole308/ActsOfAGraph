@@ -49,16 +49,13 @@ unsigned int parameters::GET_BATCH_RANGE_KVS(unsigned int groupid){
 	else{ return BATCH_RANGE_KVS; }
 }
 
-/* unsigned int parameters::GET_MYBATCH_RANGE(unsigned int groupid){
-	if(groupid == LOWINDEGREESGROUPID){ return MYBATCH_RANGE; }
-	else if(groupid == HIGHINDEGREESGROUPID){ return MYBATCH_RANGE2; }
-	else{ return MYBATCH_RANGE; }
-} */
+#ifdef ACTSMODEL_LW
 unsigned int parameters::GET_MYBATCH_RANGE(unsigned int groupid){
 	if(groupid == LOWINDEGREESGROUPID){ return MYIDEALBATCH_RANGE; }
 	else if(groupid == HIGHINDEGREESGROUPID){ return MYIDEALBATCH_RANGE2; }
 	else{ return MYIDEALBATCH_RANGE; }
 }
+#endif 
 
 unsigned int parameters::GET_TREE_DEPTH(unsigned int groupid){
 	if(groupid == LOWINDEGREESGROUPID){ return TREE_DEPTH; }

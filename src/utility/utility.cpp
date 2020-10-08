@@ -60,10 +60,12 @@ void utility::printallparameters(){
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2: "<<BATCH_RANGE2<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
-	// std::cout<<"host:: MYBATCH_RANGE: "<<MYBATCH_RANGE<<std::endl;
-	std::cout<<"host:: MYBATCH_RANGE2: "<<MYBATCH_RANGE2<<std::endl;
+	
+	#ifdef ACTSMODEL_LW
 	std::cout<<"host:: MYIDEALBATCH_RANGE: "<<MYIDEALBATCH_RANGE<<std::endl;
 	std::cout<<"host:: MYIDEALBATCH_RANGE2: "<<MYIDEALBATCH_RANGE2<<std::endl;
+	#endif
+	
 	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
@@ -138,7 +140,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
 	std::cout<<"host:: NFACTOR: "<<NFACTOR<<std::endl;
 	#endif
-	std::cout<<"host:: PADSKIP: "<<PADSKIP<<std::endl;
 	
 	#ifdef ACTSMODEL
 	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL"<<std::endl;
@@ -223,12 +224,15 @@ void utility::printstructuresbeforekernelrun(string message, uint512_dt * kvsour
 		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		#ifdef ACTSMODEL_LW
 		printkeyvalues("utility::printstructuresbeforekernelrun:: global capsule (before kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
+		#endif 
 	}
 }
 void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size){
 	cout<<"utility::printstructuresafterkernelrun:: printing structures (after kernel launch). "<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ // NUMSUBCPUTHREADS
+		#ifdef ACTSMODEL_LW
 		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][i];
 		cout<<"utility::printstructuresafterkernelrun:: printing messages (after kernel launch) for subthread: "<<i<<endl;
 		cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
@@ -245,10 +249,13 @@ void utility::printstructuresafterkernelrun(string message, uint512_dt * kvsourc
 		cout<<"MESSAGES_BATCHSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_RUNSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
+		#endif 
 		
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		#ifdef ACTSMODEL_LW
 		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
+		#endif 
 	}
 }
 

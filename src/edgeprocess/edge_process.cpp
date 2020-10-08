@@ -65,11 +65,11 @@ void edge_process::generateupdates(unsigned int groupid, unsigned int bank, unsi
 	return;
 }
 unsigned int edge_process::generateupdates_stream(int ithreadidx, unsigned int groupid, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){			
-	graphobj->loadedgepropertyfromfile(bank, col, fdoffset, edgebuffer[ithreadidx], 0, datasize);
+	graphobj->loadedgepropertyfromfile(bank, col, fdoffset, edgebuffer[ithreadidx], 0, datasize); 
 	
-	graphobj->loadvertexpointersfromfile(bank, col, fdoffset, vertexpointerbuffer[ithreadidx], 0, datasize);
+	graphobj->loadvertexpointersfromfile(bank, col, fdoffset, vertexpointerbuffer[ithreadidx], 0, datasize); 
 	
-	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, groupid, bank, batch, batchoffset, batchsize, datasize, voffset);
+	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, groupid, bank, batch, batchoffset, batchsize, datasize, voffset); 
 	return kvcount;
 }
 unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int groupid, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){
@@ -83,10 +83,10 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 	for(unsigned int i=0; i<datasize; i++){
 		edgeprop1_t edge = edgebuffer[ithreadidx][i];
 		
-		unsigned int edgeoffsetbit = utilityobj->RetrieveBit((unsigned int *)vertexpointerbuffer[ithreadidx], i);
+		unsigned int edgeoffsetbit = utilityobj->RetrieveBit((unsigned int *)vertexpointerbuffer[ithreadidx], i); 
 		if(edgeoffsetbit==1){
 			utilityobj->checkoutofbounds("edge_process::generatekeyvalues_stream 1", tempcurrentvid, KVDATA_RANGE, i, tempcurrentvid, NAp);
-			vertexprop = vertexpropertybuffer[bank][tempcurrentvid];
+			vertexprop = vertexpropertybuffer[bank][tempcurrentvid]; 
 			tempcurrentvid+=1;
 		}
 

@@ -1,7 +1,22 @@
 #ifndef ACTS_H
 #define ACTS_H
-#include "../include/actscommon.h"
+// #include "../include/actscommon.h"
 #include "../../include/common.h"
+#include "../include/acts_common.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #ifdef FPGA_IMPL
 #include <ap_int.h>
 #endif
@@ -35,6 +50,7 @@ using namespace std;
 #define PVU_NUM_READ_PIPELINES 1
 #endif 
 
+#define _LDEBUGMODE_HEADER _DEBUGMODE_HEADER
 
 #define ENREADKEYVALUES 1
 #define ENREADKVS_COLLECTSTATS 0
@@ -66,6 +82,24 @@ using namespace std;
     #define PADSKIP (OPTIMALSIZE / 6)
 #endif
 #endif
+
+// #ifdef FPGA_IMPL
+// typedef unsigned int batch_type;
+// typedef ap_uint<13> buffer_type;
+// typedef ap_uint<8> partition_type;
+// typedef ap_uint<8> vector_type;
+// typedef ap_uint<8> step_type;
+// typedef ap_uint<8> bool_type;
+// typedef unsigned int analysis_type;
+// #else 
+// typedef unsigned int batch_type;
+// typedef unsigned int buffer_type;
+// typedef unsigned int partition_type;
+// typedef unsigned int vector_type;
+// typedef unsigned int step_type;
+// typedef unsigned int bool_type;
+// typedef unsigned int analysis_type;
+// #endif
 
 typedef struct {
 	unsigned int baseaddr_worksourcekvs_kvs;
@@ -120,7 +154,8 @@ public:
 	unsigned int max(unsigned int val1, unsigned int val2);
 	unsigned int min(unsigned int A, unsigned int B);
 	unsigned int hsub(unsigned int A, unsigned int B);
-	void checkandforce(unsigned int data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval);
+	void checkandforce(buffer_type data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval);
+	void checkandforce(batch_type data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval);
 	int WithinValidRange(unsigned int val1, unsigned int val2);
 	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 

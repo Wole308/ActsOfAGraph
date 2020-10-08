@@ -14,15 +14,16 @@
 #include <iomanip>
 #include <cmath>
 #include <fstream>
-#include "../include/actscommon.h"
 #include "../../include/common.h"
+#include "../include/actscommon.h"
+// #include "../include/actslw_common.h"
 #ifndef FPGA_IMPL
 #include "../../src/utility/utility.h"
 #endif
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
-#define NUMPIPELINES 1
+#define NUMPIPELINES 3
 #if NUMPIPELINES==2
 #define PP0
 #define PP1
@@ -48,17 +49,14 @@ public:
 	unsigned int GET_APPLYVERTEXBUFFERSZ(unsigned int groupid);
 	unsigned int GET_APPLYVERTEXBUFFERSZ_KVS(unsigned int groupid);
 	unsigned int GET_NUMLASTLEVELPARTITIONS(unsigned int groupid);
-	buffer_type allignhigher_KV(buffer_type val);
+	batch_type allignhigher_KV(batch_type val);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
-	void copykeyandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size);
 	void resetvalues(keyvalue_t * buffer, buffer_type size);
 	void resetmanykeyandvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size);
 	void resetmanykeyandvalues(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type size);
 	void resetmanykeyandvalues(keyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
 	void resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size);
-	void accumkeysandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size);
-	void accumkeysandvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, keyvalue_t * buffer3, buffer_type size);
 	unsigned int checkandforce(unsigned int val, unsigned int limit);
 	buffer_type getchunksize(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
 	partition_type getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int groupid);
@@ -66,15 +64,12 @@ public:
 	unsigned int reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, unsigned int GraphAlgo);
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	void copykeyvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size);
-	buffer_type getpartitionwritesz_original(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
-	buffer_type getpartitionwritesz_original2(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 	unsigned int withinvalidrange(buffer_type val1, buffer_type val2);
-	void calculateoffsets(keyvalue_t * buffer, buffer_type size, buffer_type base, buffer_type skipspacing);
-	void calculateoffsets(keyvalue_t * buffer, buffer_type size, buffer_type base, buffer_type skipspacing[NUM_PARTITIONS]);
-	void calculateunallignedoffsets(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size, buffer_type base, buffer_type skipspacing);
-	void calculatemanyoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, buffer_type base, buffer_type skipspacing);
-	void calculatemanyunallignedoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, buffer_type base, buffer_type skipspacing);
+	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type skipspacing[NUM_PARTITIONS]);
+	void calculateunallignedoffsets(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing);
+	void calculatemanyoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing);
+	void calculatemanyunallignedoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing);
 	batch_type getvaluecount(keyvalue_t * keyvalues, unsigned int size);
 	batch_type get_num_source_partitions(step_type currentLOP);
 	globalparams_t getglobalparams(uint512_dt * kvdram);

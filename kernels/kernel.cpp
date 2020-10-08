@@ -28,26 +28,26 @@ kernel::kernel(){
 kernel::~kernel(){} 
 
 void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){			
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
 	#endif
 	
 	#ifdef FPGA_IMPL
 	writetokernel(flag, kvsourcedram, beginoffset, size);
-	#endif 
+	#endif
 	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
+	
 	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
 	readfromkernel(flag, kvsourcedram, beginoffset, size);
 	#endif
-	
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
 	#endif
 	#ifdef _DEBUGMODE_HOSTCHECKS // verify
 	keyvalue_t stats[NUM_PARTITIONS];
 	for(unsigned int i=0; i<NUM_PARTITIONS; i++){ stats[i] = kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS + 1 + i].data[0]; }
 	utilityobj->scankeyvalues("kernel::launchkernel", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), stats, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, 0);
-	#endif 
+	#endif
 	return;
 }
 
@@ -68,6 +68,7 @@ void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTH
 	}
 	kernelobj->writetokernel(flag, kvsourcedram, BASEOFFSET_MESSAGESDRAM, BASEOFFSET_MESSAGESDRAM, MESSAGESDRAMSZ); // messages
 	kernelobj->writetokernel(flag, kvsourcedram, beginoffset, beginoffset, size);
+	return;
 }
 
 void kernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){

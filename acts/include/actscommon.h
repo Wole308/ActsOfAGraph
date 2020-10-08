@@ -24,18 +24,41 @@
 #endif 
 using namespace std;
 
+#if defined(SW) || defined(ACTSMODEL)
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
-
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;
 typedef unsigned int step_type;
 typedef unsigned int bool_type;
-typedef unsigned int bool_type;
-
 typedef unsigned int analysis_type;
-typedef unsigned int code_type;
-typedef unsigned int smallint_type;
+#else 
+typedef unsigned int batch_type;
+typedef ap_uint<13> buffer_type;
+typedef ap_uint<8> partition_type;
+typedef ap_uint<8> vector_type;
+typedef ap_uint<8> step_type;
+typedef ap_uint<8> bool_type;
+typedef unsigned int analysis_type;
+#endif 
+
+#ifdef FPGA_IMPL
+typedef unsigned int batch_type;
+typedef ap_uint<13> buffer_type;
+typedef ap_uint<8> partition_type;
+typedef ap_uint<8> vector_type;
+typedef ap_uint<8> step_type;
+typedef ap_uint<8> bool_type;
+typedef unsigned int analysis_type;
+#else 
+typedef unsigned int batch_type;
+typedef unsigned int buffer_type;
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+typedef unsigned int step_type;
+typedef unsigned int bool_type;
+typedef unsigned int analysis_type;
+#endif
 
 typedef struct {
 	unsigned int key;
@@ -101,6 +124,37 @@ typedef struct {
 	unsigned int applyvertexbuffersz;
 	unsigned int applyvertexbuffersz_kvs;
 } globalparams_t;
+
+typedef struct {
+	unsigned int baseaddr_worksourcekvs_kvs;
+	unsigned int baseaddr_workdestkvs_kvs;
+	unsigned int baseaddr_capsule_kvs;
+	unsigned int baseaddr_stats;
+	unsigned int num_source_partitions;
+	unsigned int nextsourceoffset_partition;
+	unsigned int nextdestoffset_partition;
+	unsigned int nextsourceoffset_kv;
+	unsigned int nextdestoffset_kv;
+	unsigned int sourceskipsize_partition;
+	unsigned int destskipsize_partition;
+	unsigned int sourceskipsize_kv;
+	unsigned int destskipsize_kv;
+	unsigned int destpartitionrange;
+	unsigned int currentLOP;
+	unsigned int upperlimit;
+} clopparams_t;
+
+typedef struct {
+	unsigned int begin_kvs;
+	unsigned int size_kvs;
+	unsigned int step_kvs;
+	unsigned int end_kvs;
+} partitionparams_t;
+
+typedef struct {
+	unsigned int globaloffset;
+	unsigned int localoffset;
+} offset_t;
 #endif 
 
 

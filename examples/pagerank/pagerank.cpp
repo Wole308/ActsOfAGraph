@@ -44,8 +44,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i]->loadOCLstructures(binaryFile, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvsourcedram[i], (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvdestdram[i], kvstats[i]); }
-	#endif 
-	// exit(EXIT_SUCCESS);
+	#endif
 }
 pagerank::~pagerank(){
 	cout<<"pagerank::~pagerank:: finish destroying memory structures... "<<endl;
@@ -96,6 +95,9 @@ runsummary_t pagerank::run(){
 		graphobj->closefilesforreading();
 		// break; // REMOVEME.
 	}
+	#ifdef FPGA_IMPL
+	helperfunctionsobj[0]->finishOCL();
+	#endif
 	
 	utilityobj[0]->stopTIME("pagerank::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
@@ -120,7 +122,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 	helperfunctionsobj[superthreadidx]->replicateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BATCH_RANGE);
 	#endif
 	
-	#ifdef FPGA_IMPL
+	#ifdef FPGA_IMPL // REMOVEME. CHANGEMEBACK.
 	helperfunctionsobj[superthreadidx]->writetokernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, parametersobj[superthreadidx]->GET_MYBATCH_RANGE(globalparams.groupid));
 	#endif
 	
@@ -157,18 +159,18 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 			utilityobj[superthreadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
 			
 			edgeprocessobj[superthreadidx]->generateupdates(globalparams.groupid, lbankoffset, threadidxoffset + superthreadidx, fdoffset, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], batchoffset, batchsize, loadsize, voffset);
-		
+			
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ runsize[i][j] += batchsize[i][j]; }}
 			#ifdef ACTSMODEL
 			helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, voffset, batchsize, runsize, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM, globalparams);
-			#endif 
+			#endif
 			#ifdef ACTSMODEL_LW
 			helperfunctionsobj[superthreadidx]->updatemessagesbeforelaunch(globaliteration_idx, (iteration_idx + NUMCPUTHREADS >= iteration_size), voffset, batchsize, runsize, kvsourcedram[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM_KVS, BASEOFFSET_STATSDRAM_KVS, globalparams);
-			#endif 
+			#endif
 			
 			// Launch the Kernel
-			helperfunctionsobj[superthreadidx]->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][flag], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[superthreadidx][flag], flag);
-	
+			helperfunctionsobj[superthreadidx]->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][flag], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][flag], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[superthreadidx][flag], 0);
+			
 			#ifdef ACTSMODEL
 			helperfunctionsobj[superthreadidx]->updatemessagesafterlaunch(globaliteration_idx, kvstats[superthreadidx][flag], BASEOFFSET_MESSAGESDRAM, BASEOFFSET_STATSDRAM);
 			#endif
@@ -184,7 +186,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 	}
 
 	// writeback temp vertices data
-	#ifdef FPGA_IMPL
+	#ifdef FPGA_IMPL // REMOVEME. CHANGEMEBACK.
 	helperfunctionsobj[superthreadidx]->readfromkernel(0, (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, parametersobj[superthreadidx]->GET_MYBATCH_RANGE(globalparams.groupid));
 	#endif
 	#ifdef ACTSMODEL

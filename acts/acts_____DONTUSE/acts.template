@@ -1,5 +1,3 @@
-#include "../include/actscommon.h"
-#include "../../include/common.h"
 {%if(context['XWARE'] != "HW")%}
 #include <string>
 #include <string.h>
@@ -16,6 +14,8 @@
 #include <cmath>
 #include <fstream>
 {%endif%}
+#include "../../include/common.h"
+#include "../include/actscommon.h"
 #ifndef FPGA_IMPL
 #include "../actsutility/actsutility.h"
 #endif 
@@ -104,7 +104,16 @@ unsigned int {%if(context['XWARE'] == "SW")%}acts::{%endif%}hsub(unsigned int A,
 	if(A < B){ return 0; }
 	else { return A - B; }
 }
-void {%if(context['XWARE'] == "SW")%}acts::{%endif%}checkandforce(unsigned int data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval){
+void {%if(context['XWARE'] == "SW")%}acts::{%endif%}checkandforce(buffer_type data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval){
+	#pragma HLS INLINE
+	#ifdef BC_ALGORITHM // FIXME. REMOVEME.
+	if(data >= upper_bound){ *datatoforce = forceval; }
+	return;
+	#else 
+	return;
+	#endif 
+}
+void {%if(context['XWARE'] == "SW")%}acts::{%endif%}checkandforce(batch_type data, unsigned int upper_bound, unsigned int * datatoforce, unsigned int forceval){
 	#pragma HLS INLINE
 	#ifdef BC_ALGORITHM // FIXME. REMOVEME.
 	if(data >= upper_bound){ *datatoforce = forceval; }
