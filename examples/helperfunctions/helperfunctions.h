@@ -6,13 +6,14 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
+#include "../../src/stats/stats.h"
 #include "../../kernels/kernel.h"
 #include "../../include/common.h"
 using namespace std;
 
 class helperfunctions {
 public:
-	helperfunctions(graph * graphobj);
+	helperfunctions(graph * graphobj, stats * _statsobj);
 	helperfunctions();
 	~helperfunctions();
 	
@@ -54,6 +55,19 @@ public:
 	void updatemessagesafterlaunch(unsigned int globaliteration_idx, bool forcerunacts, uint512_vec_dt * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int messagesbaseoffset_kvs, unsigned int kvstatsbaseoffset_kvs);
 	#endif 
 	
+	void createmessages(
+			uint512_vec_dt * kvstats,
+			unsigned int voffset,
+			unsigned int vsize,
+			unsigned int treedepth,
+			unsigned int GraphIter,
+			unsigned int GraphAlgo,
+			unsigned int runsize,
+			unsigned int batch_range,
+			unsigned int batch_range_pow,
+			unsigned int applyvertexbuffersz,
+			unsigned int applyvertexbuffersz_kvs);
+	
 	void loadvertexpropertiesfromfile();
 	void workerthread_loadvertexpropertiesfromfile(int ithreadidx, int fd, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t size);
 	
@@ -72,6 +86,8 @@ private:
 	utility * utilityobj;
 	graph * graphobj;
 	algorithm * algorithmobj;
+	stats * statsobj;
+	
 	std::thread mythread[NUMUTILITYTHREADS];
 	std::thread mykernelthread[NUMUTILITYTHREADS];
 };

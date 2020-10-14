@@ -12,17 +12,20 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
+#include "../../src/stats/stats.h"
 #include "../../kernels/kernel.h"
 #include "../../include/common.h"
 #include "helperfunctions.h"
 using namespace std;
 
-helperfunctions::helperfunctions(graph * _graphobj){
+helperfunctions::helperfunctions(graph * _graphobj, stats * _statsobj){
 	parametersobj = new parameters();
 	utilityobj = new utility();
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
+	// statsobj = new stats(graphobj);
+	statsobj = _statsobj;
 }
 helperfunctions::helperfunctions(){
 	utilityobj = new utility();
@@ -222,12 +225,19 @@ void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("helperfunctions::launchkernel:: messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
 	#endif
 	#endif
+	#ifdef _DEBUGMODE_TIMERS
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
 	
 	#ifdef ACTSMODEL
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
 	#endif
 	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
 	
+	#ifdef _DEBUGMODE_TIMERS
+	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
+	#endif
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print results (after Kernel run)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
 	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("helperfunctions::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}		
@@ -387,7 +397,7 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 
 #ifdef FPGA_IMPL 
 void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
+	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);
 }
 void helperfunctions::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);

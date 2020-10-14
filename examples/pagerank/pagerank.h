@@ -26,8 +26,9 @@ private:
 	utility * utilityobj[NUMSUPERCPUTHREADS];
 	edge_process * edgeprocessobj[NUMSUPERCPUTHREADS];
 	helperfunctions * helperfunctionsobj[NUMSUPERCPUTHREADS];
-	stats * statsobj[NUMSUPERCPUTHREADS];
+	// stats * statsobj[NUMSUPERCPUTHREADS];
 	dataaccess * dataaccessobj[NUMSUPERCPUTHREADS];
+	stats * statsobj;
 	
 	uint512_vec_dt * kvsourcedram[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	uint512_vec_dt * kvdestdram[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];

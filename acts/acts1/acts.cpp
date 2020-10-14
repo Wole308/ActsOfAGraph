@@ -15,7 +15,10 @@
 #include <cmath>
 #include <fstream>
 #ifndef FPGA_IMPL
-#include "../actsutility/actsutility.h"
+#include "../../src/utility/utility.h"
+#endif 
+#ifndef HW
+#include "../../acts/actsutility/actsutility.h"
 #endif 
 #include "acts.h"
 using namespace std;
@@ -24,11 +27,12 @@ unsigned int GVcurrentLOP;
 unsigned int GVsource_partition;
 unsigned int GVi;
 
-#ifndef FPGA_IMPL
-acts::acts(){
-	actsutilityobj = new actsutility();
-}
+#ifdef SW
+acts::acts(){ actsutilityobj = new actsutility(); }
 acts::~acts(){}
+#endif
+#ifdef SWEMU
+actsutility * actsutilityobj = new actsutility();
 #endif
 
 unsigned int acts::GET_KVDATA_RANGE_PERSSDPARTITION_POW(unsigned int groupid){
@@ -1487,8 +1491,8 @@ void acts::partitionandreduce0(uint512_dt * kvsourcedram, uint512_dt * kvdestdra
 			else { llopparams.nextsourceoffset_kv += llopparams.sourceskipsize_kv; }
 			if(IsReducePhase(currentLOP, globalparams.treedepth, globalparams) == 0 && globalparams.statsalreadycollected == 0){ destoffset += (getvaluecount(kvdeststats_tmp, NUM_PARTITIONS) + (NUM_PARTITIONS * skipspacing)); }
 			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("acts::partitionandreduce0 35", sourcestatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
-			actsutilityobj->checkoutofbounds("acts::partitionandreduce0 36", deststatsmarker, STATSDRAMSZ, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("acts::partitionandreduce0 35", sourcestatsmarker, KVSTATS_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("acts::partitionandreduce0 36", deststatsmarker, KVSTATS_SIZE, NAp, NAp, NAp);
 			#endif
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS2

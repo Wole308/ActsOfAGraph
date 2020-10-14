@@ -84,6 +84,8 @@ graph::graph(algorithm * _algorithmobj, unsigned int datasetid, unsigned int _nu
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ 
 		vertexisactivebitbuffer[i] = new unsigned int[isactivevertexinfo]; 
 		for(unsigned int k=0; k<isactivevertexinfo; k++){ vertexisactivebitbuffer[i][k] = 0; }}
+		
+	srand (0);
 }
 graph::graph(unsigned int datasetid){
 	cout<<"graph::graph:: datasetid: "<<datasetid<<endl;
@@ -97,6 +99,8 @@ graph::graph(unsigned int datasetid){
 	
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[i][j] = new unsigned long[1]; }}
 	for(unsigned int i=0; i<getnumvertexbanks(); i++){ for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[i][j][0] = 0; }}
+	
+	srand (0);
 }
 graph::~graph(){}
 
@@ -589,6 +593,11 @@ void graph::savevertexdatatofile(int bank, vertex_t fdoffset, keyvalue_t * buffe
 }
 void graph::loadedgepropertyfromfile(int bank, int col, size_t fdoffset, edgeprop1_t * buffer, vertex_t bufferoffset, vertex_t size){
 	if(size > 0){ if(pread(nvmeFd_edgeproperties_r2[bank][col], &buffer[bufferoffset], (size * sizeof(edgeprop1_t)), fdoffset * sizeof(edgeprop1_t)) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
+	return;
+}
+void graph::loadedgesfromfile(int bank, int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size){
+	// if(size > 0){ if(pread(nvmeFd_edgeproperties_r2[bank][col], &buffer[bufferoffset], (size * sizeof(edge_type)), fdoffset * sizeof(edge_type)) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}			
+	if(size > 0){ for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].srcvid = NAp; buffer[bufferoffset + i].dstvid = rand() % BATCH_RANGE; }}
 	return;
 }
 void graph::loadvertexpointersfromfile(int bank, int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t size){

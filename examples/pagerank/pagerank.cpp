@@ -24,10 +24,11 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
+	statsobj = new stats(graphobj);
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i] = new helperfunctions(graphobj); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj, statsobj); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i] = new helperfunctions(graphobj, statsobj); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ dataaccessobj[i] = new dataaccess(); }
 	
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){
@@ -105,7 +106,8 @@ runsummary_t pagerank::run(){
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	
-	return edgeprocessobj[0]->timingandsummary(NAp, totaltime_ms);
+	// return edgeprocessobj[0]->timingandsummary(NAp, totaltime_ms);
+	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams){ 
 	unsigned int globaliteration_idx = 0;

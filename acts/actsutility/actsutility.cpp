@@ -155,7 +155,15 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.batchsize: "<<globalparams.batchsize<<std::endl;
 	std::cout<<"Kernel Started: globalparams.runsize: "<<globalparams.runsize<<std::endl;
 	std::cout<<"Kernel Started: globalparams.nextbatchoffset: "<<globalparams.nextbatchoffset<<std::endl;
-	std::cout<<"Kernel Started: globalparams.statsalreadycollected: "<<globalparams.statsalreadycollected<<std::endl;
+	std::cout<<"Kernel Started: globalparams.groupid: "<<globalparams.groupid<<std::endl;
+	std::cout<<"Kernel Started: globalparams.beginLOP: "<<globalparams.beginLOP<<std::endl;
+	std::cout<<"Kernel Started: globalparams.endLOP: "<<globalparams.endLOP<<std::endl;
+	std::cout<<"Kernel Started: globalparams.numLOPs: "<<globalparams.numLOPs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.batch_range: "<<globalparams.batch_range<<std::endl;
+	std::cout<<"Kernel Started: globalparams.batch_range_pow: "<<globalparams.batch_range_pow<<std::endl;
+	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz: "<<globalparams.applyvertexbuffersz<<std::endl;
+	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz_kvs: "<<globalparams.applyvertexbuffersz_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseaddr_destkvs_kvs: "<<globalparams.baseaddr_destkvs_kvs<<std::endl;
 	std::cout<<std::endl;
 }
 /* void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid){

@@ -137,6 +137,39 @@ void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	#endif 
 	return;
 }
+void goclkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+	// return; // REMOVEME.
+	double kernel_time_in_sec = 0, result = 0;
+    std::chrono::duration<double> kernel_time(0);
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
+	#endif
+	
+    auto kernel_start = std::chrono::high_resolution_clock::now();
+	
+	unsigned int bufferid = 0;
+	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
+		//Setting the k_vadd Arguments
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
+
+		//Invoking the kernel
+		std::vector<cl::Event> waitList;
+        waitList.push_back(write_event[i]);
+		OCL_CHECK(err,
+                  err = q.enqueueNDRangeKernel(
+                      krnls[i], 0, 1, 1, &waitList, &kernel_events[flag*i]));
+	}
+	#ifdef LOCKE
+    q.finish();
+	#endif
+	
+    auto kernel_end = std::chrono::high_resolution_clock::now();
+    kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	std::cout<< TIMINGRESULTSCOLOR <<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<< RESET <<std::endl;
+	#endif 
+	return;
+}
 
 void goclkernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -221,7 +254,7 @@ void goclkernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUM
     q.finish();
 }
 
-void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){		
+void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){		
 	binaryFile = _binaryFile;
 
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);

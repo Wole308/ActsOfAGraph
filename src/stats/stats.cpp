@@ -14,11 +14,15 @@ using namespace std;
 
 stats::stats(graph * _graphobj){
 	graphobj = _graphobj;
+	totalkerneltime_ms = 0;
 }
 stats::~stats(){} 
 
 void stats::appendkeyvaluecount(int bank, int col, unsigned int batchsize){
 	graphobj->appendkeyvaluesread(bank, col, batchsize);
+}
+void stats::appendkerneltimeelapsed(long double timeelapsed_ms){
+	totalkerneltime_ms += timeelapsed_ms;
 }
 unsigned long stats::gettotalkeyvaluesread(){
 	unsigned long totalsize = 0;
@@ -39,6 +43,9 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (OCL data transfers): "<< totaltime_OCLtransfers_ms << " milliseconds" << RESET <<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (OCL data transfers): "<< totaltime_OCLtransfers_ms / 1000 << " seconds" << RESET <<endl;
+	
+	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Kernel execution): "<< totalkerneltime_ms << " milliseconds" << RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Kernel execution): "<< totalkerneltime_ms / 1000 << " seconds" << RESET <<endl;
 	
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Overall processing): "<<totaltime_ms<< " milliseconds" << RESET <<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Overall processing): "<<totaltime_ms / 1000<< " seconds" << RESET <<endl;

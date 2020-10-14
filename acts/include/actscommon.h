@@ -24,24 +24,6 @@
 #endif 
 using namespace std;
 
-#if defined(SW) || defined(ACTSMODEL)
-typedef unsigned int batch_type;
-typedef unsigned int buffer_type;
-typedef unsigned int partition_type;
-typedef unsigned int vector_type;
-typedef unsigned int step_type;
-typedef unsigned int bool_type;
-typedef unsigned int analysis_type;
-#else 
-typedef unsigned int batch_type;
-typedef ap_uint<13> buffer_type;
-typedef ap_uint<8> partition_type;
-typedef ap_uint<8> vector_type;
-typedef ap_uint<8> step_type;
-typedef ap_uint<8> bool_type;
-typedef unsigned int analysis_type;
-#endif 
-
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;
@@ -80,6 +62,7 @@ typedef struct {
 	unsigned int i_kvs;
 	unsigned int begin_kvs;
 	unsigned int end_kvs;
+	unsigned int size_kvs;
 	unsigned int skip_kvs;
 	unsigned int info;
 } travstate_t;
@@ -88,6 +71,7 @@ typedef struct {
 	unsigned int enablecollectglobalstats;
 	unsigned int enablepartition;
 	unsigned int enablereduce;
+	unsigned int enableprocessedges;
 } config_t;
 
 typedef struct {
@@ -119,7 +103,9 @@ typedef struct {
 	unsigned int groupid;
 	unsigned int beginLOP;
 	unsigned int endLOP;
+	unsigned int numLOPs;
 	unsigned int batch_range;
+	unsigned int batch_range_kvs;
 	unsigned int batch_range_pow;
 	unsigned int applyvertexbuffersz;
 	unsigned int applyvertexbuffersz_kvs;

@@ -17,7 +17,7 @@ using namespace std;
 
 class edge_process {
 public:
-	edge_process(graph * _graphobj);
+	edge_process(graph * _graphobj, stats * _statsobj);
 	~edge_process();
 	
 	void generateupdates(unsigned int bank, unsigned int groupid, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset);			

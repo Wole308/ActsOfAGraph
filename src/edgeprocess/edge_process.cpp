@@ -22,14 +22,15 @@
 #include "edge_process.h"
 using namespace std;
 
-edge_process::edge_process(graph * _graphobj){		
+edge_process::edge_process(graph * _graphobj, stats * _statsobj){		
 	cout<<"edge_process::edge_process:: constructor called. "<<endl;
 	graphobj = _graphobj;
 	parametersobj = new parameters();
 	utilityobj = new utility();
 	algorithmobj = new algorithm();
 	dataaccessobj = new dataaccess();
-	statsobj = new stats(graphobj);
+	// statsobj = new stats(graphobj);
+	statsobj = _statsobj;
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edgebuffer[i] = new edgeprop1_t[KVDATA_BATCHSIZE]; }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ vertexpointerbuffer[i] = new prvertexoffset_t[KVDATA_BATCHSIZE]; }
@@ -287,7 +288,6 @@ void edge_process::resetstatevariables(){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ currentvid[i] = 0; }
 	return;
 }
-
 
 
 

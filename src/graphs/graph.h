@@ -97,6 +97,7 @@ public:
 	void loadvertexdatafromfile(int bank, vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void savevertexdatatofile(int bank, vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadedgepropertyfromfile(int bank, int col, size_t fdoffset, edgeprop1_t * buffer, vertex_t bufferoffset, vertex_t datasize);
+	void loadedgesfromfile(int bank, int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadvertexpointersfromfile(int bank, int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t datasize);
 	
 	void generateverticesdata();

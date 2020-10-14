@@ -10,7 +10,8 @@
 #ifdef ACTSMODEL_LW
 	#ifdef ACTSMODEL_LWGROUP1
 	// #include "../acts/acts_lw/actslw.h"
-	#include "../acts/acts_lw1/actslw.h"
+	// #include "../acts/acts_lw1/actslw.h"
+	#include "../acts/acts_lw2/actslw.h"
 	#endif 
 	#ifdef ACTSMODEL_LWGROUP2
 	#include "../acts/acts_lw10/actslw.h"
@@ -28,6 +29,7 @@ public:
 	
 	#ifdef SW 
 	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);				
+	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	
 	void workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_dt * kvsourcedram, uint512_dt * kvdestdram, keyvalue_t * kvstats);
 	void workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, uint512_dt * kvsourcedram);

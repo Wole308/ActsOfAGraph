@@ -14,7 +14,8 @@
 #ifdef ACTSMODEL_LW
 	#ifdef ACTSMODEL_LWGROUP1
 	// #include "../acts/acts_lw/actslw.h"
-	#include "../acts/acts_lw1/actslw.h"
+	// #include "../acts/acts_lw1/actslw.h"
+	#include "../acts/acts_lw2/actslw.h"
 	#endif 
 	#ifdef ACTSMODEL_LWGROUP2
 	#include "../acts/acts_lw10/actslw.h"
@@ -110,6 +111,17 @@ void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTH
 	#endif
 	return;
 }
+void swkernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
+	#ifdef LOCKE
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
+	#else 
+		// FIXME.
+		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);
+	#endif
+	#endif 
+	return;
+}
 
 // worker threads
 #ifdef ACTSMODEL
@@ -126,6 +138,7 @@ void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_d
 #if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
 void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, uint512_dt * kvsourcedram){
 	
+	cout<<"------------------------------------ "<<endl;
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
 	
 	// #ifdef TESTKERNEL

@@ -23,7 +23,7 @@
 #define ENABLE_VOICEOUTREDUCEERRORS //
 
 #define FPGABUGCOMPLANT
-#define ENABLE_APPROXIMATEPARTITIONWRITES // FPGA hangs if this is disabled
+// #define ENABLE_APPROXIMATEPARTITIONWRITES // FPGA hangs if this is disabled
 #define HBMBUGCOMPLANT
 #endif
 

@@ -26,8 +26,8 @@ private:
 	graph * graphobj;
 	algorithm * algorithmobj;
 	dataaccess * dataaccessobj;
-	stats * statsobj;
 	helperfunctions * helperfunctionsobj;
+	stats * statsobj;
 
 	uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	uint512_vec_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];

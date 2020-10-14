@@ -97,9 +97,9 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
 	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<std::endl;
-	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<KVDRAMSZ_KVS<<std::endl;
-	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<KVDRAMWORKSPACESZ<<std::endl;
-	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;	
+	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<BASEOFFSET_KVDRAM_KVS<<std::endl;
+	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<std::endl;
+	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<BASEOFFSET_KVDRAMWORKSPACE_KVS<<std::endl;	
 	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;

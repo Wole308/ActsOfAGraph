@@ -12,6 +12,7 @@
 #include "../examples/test/test.h"
 #include "../examples/pagerank/pagerank.h"
 #include "../examples/bfs/bfs.h"
+#include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraph.h"
 #include "../src/graphs/create2Dgraph.h"
 #include "../src/dataset/dataset.h"
@@ -50,15 +51,17 @@ int main(int argc, char** argv){
 	exit(EXIT_SUCCESS);
 	#endif
 	
-	// #if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM) & defined(SW))
-	#if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM))
+	#if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);
 	pagerankobj->run();
 	#endif
-	// #if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM) & defined(SW))
-	#if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM))
+	#if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
 	bfsobj->run();
+	#endif
+	#if (defined(ACTGRAPH_SETUP) & defined(ADVANCE_ALGORITHM))
+	advance_op * advanceobj = new advance_op(NAp, datasetobj->getdatasetid(), binaryFile);
+	advanceobj->run();
 	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS2

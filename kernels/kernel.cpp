@@ -33,12 +33,12 @@ void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHRE
 	#endif
 	
 	#ifdef FPGA_IMPL
-	writetokernel(flag, kvsourcedram, beginoffset, size);
+	writetokernel(flag, kvsourcedram);
 	#endif
 	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
 	
 	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
-	readfromkernel(flag, kvsourcedram, beginoffset, size);
+	readfromkernel(flag, kvsourcedram);
 	#endif
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
@@ -50,16 +50,34 @@ void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHRE
 	#endif
 	return;
 }
+void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){			
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
+	#endif
+	
+	#ifdef FPGA_IMPL
+	writetokernel(flag, kvsourcedram);
+	#endif
+	kernelobj->launchkernel(kvsourcedram, flag);
+	
+	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
+	readfromkernel(flag, kvsourcedram);
+	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
+	#endif
+	return;
+}
 
 #ifdef FPGA_IMPL 
-void kernel::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	kernelobj->loadOCLstructures(binaryFile, kvsourcedram, kvdestdram, kvstats);
+void kernel::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);
 }
 
 void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
-void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
 			beginoffset[i][j] = BASEOFFSET_KVDRAM + kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key;
@@ -74,7 +92,7 @@ void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTH
 void kernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->readfromkernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
-void kernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void kernel::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
 			beginoffset[i][j] = 0;
