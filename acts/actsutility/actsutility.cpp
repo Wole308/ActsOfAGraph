@@ -138,6 +138,7 @@ void actsutility::printglobalvars(){
 	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsingetpartition: "<<globalvar_errorsingetpartition<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsinreduce: "<<globalvar_errorsinreduce<<endl;
+	cout<<"acts::printglobalvars:: globalvar_errorsinprocessedges: "<<globalvar_errorsinprocessedges<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvsmerged: "<<globalstats_totalkvsmerged<<endl;
 }
 void actsutility::printglobalparameters(string message, globalparams_t globalparams){
@@ -244,6 +245,7 @@ void actsutility::clearglobalvars(){
 	globalvar_totalkvsreadV = 0;
 	globalvar_errorsingetpartition = 0;
 	globalvar_errorsinreduce = 0;
+	globalvar_errorsinprocessedges = 0;
 	globalstats_totalkvsmerged = 0;
 }
 void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize){
@@ -366,6 +368,10 @@ void actsutility::globalstats_counterrorsinreduce(unsigned int count){
 	globalvar_errorsinreduce += count;
 	return;
 }
+void actsutility::globalstats_counterrorsinprocessedges(unsigned int count){
+	globalvar_errorsinprocessedges += count;
+	return;
+}
 void actsutility::globalstats_countkvsmerged(unsigned int count){
 	globalstats_totalkvsmerged += count;
 	return;
@@ -373,6 +379,9 @@ void actsutility::globalstats_countkvsmerged(unsigned int count){
 
 unsigned int actsutility::globalstats_getcounterrorsinreduce(){
 	return globalvar_errorsinreduce;
+}
+unsigned int actsutility::globalstats_getcounterrorsinprocessedges(){
+	return globalvar_errorsinprocessedges;
 }
 
 

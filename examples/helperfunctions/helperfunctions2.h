@@ -26,10 +26,8 @@ public:
 			unsigned int GraphAlgo,
 			unsigned int runsize,
 			unsigned int batch_range,
-			unsigned int batch_range_kvs,
 			unsigned int batch_range_pow,
 			unsigned int applyvertexbuffersz,
-			unsigned int applyvertexbuffersz_kvs,
 			unsigned int numlastlevelpartitions);
 
 	void launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);

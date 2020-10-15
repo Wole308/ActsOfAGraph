@@ -9,8 +9,6 @@
 #include "../../src/utility/utility.h"
 #include "../../include/common.h"
 
-#define ACCESSFPGABY_ENQUEUEWRITEBUFFER
-
 class goclkernel {
 public:
 	goclkernel();
@@ -62,6 +60,10 @@ private:
 	
 	cl::CommandQueue q;
 	cl_int err;
+	
+	vector<cl::Event> read_events;
+	vector<cl::Event> kernel_events;
+	vector<cl::Event> write_event;
 	#endif 
 };
 #endif

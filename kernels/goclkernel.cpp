@@ -22,12 +22,6 @@ using namespace std;
 #define MAX_HBM_BANKCOUNT 32
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
 
-#ifdef FPGA_IMPL 
-vector<cl::Event> read_events((2 * NUMACTIVEKERNELS));
-vector<cl::Event> kernel_events((2 * NUMACTIVEKERNELS));
-vector<cl::Event> write_event(NUMACTIVEKERNELS);
-#endif 
-
 goclkernel::goclkernel(){
 	utilityobj = new utility();
 }
@@ -259,6 +253,11 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_dt * kvsourc
 
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
 	cout<<"goclkernel::loadOCLstructures:: inputdata_size_bytes: "<<inputdata_size_bytes<<endl;
+	
+	// read_events.resize((2 * NUMACTIVEKERNELS));
+	read_events.resize((2 * NUMACTIVEKERNELS));
+	kernel_events.resize((2 * NUMACTIVEKERNELS));
+	write_event.resize(NUMACTIVEKERNELS);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"goclkernel::loadOCLstructures: printing OCL parameters"<<endl;

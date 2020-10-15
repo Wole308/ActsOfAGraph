@@ -43,6 +43,7 @@ void kernel::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHRE
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
 	#endif
+	exit(EXIT_SUCCESS);
 	#ifdef _DEBUGMODE_HOSTCHECKS // verify
 	keyvalue_t stats[NUM_PARTITIONS];
 	for(unsigned int i=0; i<NUM_PARTITIONS; i++){ stats[i] = kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS + 1 + i].data[0]; }
@@ -78,6 +79,7 @@ void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTH
 	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
 void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
 			beginoffset[i][j] = BASEOFFSET_KVDRAM + kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key;
@@ -86,6 +88,15 @@ void kernel::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTH
 	}
 	kernelobj->writetokernel(flag, kvsourcedram, BASEOFFSET_MESSAGESDRAM, BASEOFFSET_MESSAGESDRAM, MESSAGESDRAMSZ); // messages
 	kernelobj->writetokernel(flag, kvsourcedram, beginoffset, beginoffset, size);
+	#else
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
+		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
+			beginoffset[i][j] = 0;
+			size[i][j] = PADDEDKVSOURCEDRAMSZ;
+		}
+	}
+	kernelobj->writetokernel(flag, kvsourcedram, beginoffset, beginoffset, size);
+	#endif 
 	return;
 }
 

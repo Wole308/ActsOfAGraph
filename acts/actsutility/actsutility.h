@@ -65,9 +65,11 @@ public:
 	void globalstats_countkvsreadV(unsigned int count);
 	void globalstats_counterrorsingetpartition(unsigned int count);
 	void globalstats_counterrorsinreduce(unsigned int count);
+	void globalstats_counterrorsinprocessedges(unsigned int count);
 	void globalstats_countkvsmerged(unsigned int count);
 	
 	unsigned int globalstats_getcounterrorsinreduce();
+	unsigned int globalstats_getcounterrorsinprocessedges();
 	
 	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 
@@ -94,6 +96,7 @@ private:
 	unsigned int globalstats_reduce_validkvsreduced;
 	unsigned int globalvar_errorsingetpartition;
 	unsigned int globalvar_errorsinreduce;
+	unsigned int globalvar_errorsinprocessedges;
 	unsigned int globalstats_totalkvsmerged;
 	
 	config_t config;

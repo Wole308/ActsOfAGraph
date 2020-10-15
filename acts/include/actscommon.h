@@ -84,6 +84,7 @@ typedef struct {
 	unsigned int iteration_idx;
 	unsigned int ssdpartitonid;
 	unsigned int vsize;
+	unsigned int vsize_kvs;
 	unsigned int treedepth;
 	unsigned int LLOPnumpartitions;
 	unsigned int paddedkvdatabatchszkvs;
@@ -96,6 +97,7 @@ typedef struct {
 	unsigned int finalnumpartitions;
 	unsigned int batchsize;
 	unsigned int runsize;
+	unsigned int runsize_kvs;
 	unsigned int nextbatchoffset;
 	unsigned int capsulebatchsz_kvs;
 	unsigned int vbegin;

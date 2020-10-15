@@ -597,7 +597,13 @@ void graph::loadedgepropertyfromfile(int bank, int col, size_t fdoffset, edgepro
 }
 void graph::loadedgesfromfile(int bank, int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size){
 	// if(size > 0){ if(pread(nvmeFd_edgeproperties_r2[bank][col], &buffer[bufferoffset], (size * sizeof(edge_type)), fdoffset * sizeof(edge_type)) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}			
-	if(size > 0){ for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].srcvid = NAp; buffer[bufferoffset + i].dstvid = rand() % BATCH_RANGE; }}
+	// if(size > 0){ for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].srcvid = NAp; buffer[bufferoffset + i].dstvid = rand() % BATCH_RANGE; }}
+	
+	// if(size > 0){ for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].srcvid = i; buffer[bufferoffset + i].dstvid = rand() % BATCH_RANGE; }} // REMOVEME. just-for-test
+	
+	if(size > 0){ for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].srcvid = i; buffer[bufferoffset + i].dstvid = rand() % BATCH_RANGE; }} // REMOVEME. just-for-test
+	// if(size > 0){ for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].srcvid = 7777777777; buffer[bufferoffset + i].dstvid = rand() % BATCH_RANGE; }} // REMOVEME. just-for-test
+	
 	return;
 }
 void graph::loadvertexpointersfromfile(int bank, int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t size){

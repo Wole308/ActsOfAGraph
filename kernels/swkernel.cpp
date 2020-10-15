@@ -142,7 +142,7 @@ void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, ui
 	kernelobjs[ithreadidx]->topkernel(kvsourcedram);
 	
 	// #ifdef TESTKERNEL
-	exit(EXIT_SUCCESS); // REMOVEME.
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	// #endif
 	return;
 }

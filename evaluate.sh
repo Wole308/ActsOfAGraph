@@ -45,7 +45,8 @@ SW__GRAFBOOST_SETUP__BFS_ALGORITHM=22
 SW__GRAFBOOST_SETUP__BC_ALGORITHM=23
 
 CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=24
-AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=25
+CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=25
+AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=26
 
 SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM=31
 SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=32
@@ -96,11 +97,12 @@ do
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -264,6 +266,18 @@ do
 				SETUP_NAME="actgraphlw_pr_hw"
 			else 
 				SETUP_NAME="actgraph_pr_hw"
+			fi
+			
+		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="ADVANCE_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_adv_hw"
+			else 
+				SETUP_NAME="actgraph_adv_hw"
 			fi
 			
 		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
@@ -529,8 +543,8 @@ do
 							make cleanall
 							# rm -rf host
 							
-							# make host
-							# ./host $BACKUPDIR_KERNELXCLBIN
+							make host
+							./host $BACKUPDIR_KERNELXCLBIN
 							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
 							
 							# make build_host_aws
@@ -570,6 +584,25 @@ do
 							make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+						then
+							make cleanall
+							rm -rf xclbin
+							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+							
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							if test -f "host"; then
+								# cp host $BACKUPDIR_HOST
+								# cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo $BACKUPDIR_KERNELXO
+								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+								# cp nohupsyn.out $BACKUPDIR_NOHUP
+								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+							fi
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 						then
 							make cleanall
 							rm -rf xclbin
