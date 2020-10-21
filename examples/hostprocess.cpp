@@ -11,10 +11,10 @@
 #include "../src/graphs/graph.h"
 #include "../examples/test/test.h"
 #include "../examples/pagerank/pagerank.h"
-#include "../examples/bfs/bfs.h"
+// #include "../examples/bfs/bfs.h"
 #include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraph.h"
-#include "../src/graphs/create2Dgraph.h"
+#include "../src/graphs/createNDgraph.h"
 #include "../src/dataset/dataset.h"
 #include "../include/common.h"
 using namespace std;
@@ -36,8 +36,8 @@ int main(int argc, char** argv){
 
 	#ifdef _GENERATE2DGRAPH
 	creategraph * creategraphobj = new creategraph();
-	creategraphobj->create2Dgraf(NAp, datasetobj->getdatasetid());
-	// creategraphobj->analyzegraf(NAp, datasetobj->getdatasetid());
+	creategraphobj->create2Dgraf(datasetobj->getdatasetid());
+	// creategraphobj->analyzegraf(datasetobj->getdatasetid());
 	exit(EXIT_SUCCESS);
 	#endif
 	

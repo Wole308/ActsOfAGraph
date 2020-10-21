@@ -12,9 +12,13 @@
 
 class graph {
 public:
-	graph(unsigned int datasetid);
-	graph(algorithm * algorithmobj, unsigned int datasetid, unsigned int numvertexbanks, unsigned int numedgebanks);
+	// graph(unsigned int datasetid);
+	graph(algorithm * _algorithmobj, unsigned int datasetid, unsigned int _numedgebanks, bool _initfiles, bool _initgraphstructures, bool _initstatstructures);						
 	~graph();
+	
+	void initializefiles();
+	void initgraphstructures();
+	void initstatstructures();
 	
 	size_t get_num_vertices();
 	size_t get_num_edges();
@@ -23,9 +27,7 @@ public:
 	size_t getnumedgebanks();
 	void setnumedgebanks(unsigned int _numedgebanks);
 	
-	size_t getnumvertexbanks();
-	void setnumvertexbanks(unsigned int _numvertexbanks);
-	void setbanks(unsigned int _numvertexbanks, unsigned int _numedgebanks);
+	void setbanks(unsigned int _numedgebanks);
 
 	void configureactivevertexreaders();
 
@@ -47,37 +49,37 @@ public:
 	void closeactiveverticesfilesforreading();
 	void closeactiveverticesfilesforwriting();
 	
-	string getpath_vertexdata(unsigned int i);
-	string getpath_tempvertexdata(unsigned int i);
-	string getpath_vertexproperties(unsigned int i);
-	string getpath_edgesproperties(unsigned int groupid, unsigned int i, unsigned int j);
-	string getpath_edgeoffsets(unsigned int groupid, unsigned int i, unsigned int j);
-	string getpath_activevertexids(unsigned int i);
+	string getpath_vertexdata();
+	string getpath_tempvertexdata();
+	string getpath_vertexproperties();
+	string getpath_edges(unsigned int groupid, unsigned int j);
+	string getpath_vertexptrs(unsigned int groupid, unsigned int j);
+	string getpath_activevertexids();
 	string getpath_activevertices(unsigned int graph_iterationidx);
 	string getpath_activeverticesW(unsigned int graph_iterationidx);
 	string getpath_vertexisactive(unsigned int graph_iterationidx);
-	string getpath_vertexupdates(unsigned int i);
+	string getpath_vertexupdates();
 	string gettmp_dir();
 	string getidx_path();
 	string getmat_path();	
 	string gettmppath_parentvid(); // files for createsmartgraph.cpp
 	string gettmppath_childrenstats();
 	
-	int * getnvmeFd_verticesdata_r2();
-	int * getnvmeFd_verticesdata_w2();
-	int * getnvmeFd_tempverticesdata_r2(); 
-	int * getnvmeFd_tempverticesdata_w2();
-	int * getnvmeFd_vertexoutdegrees_r2();
-	int * getnvmeFd_vertexproperties_r2();
-	int * getnvmeFd_vertexproperties_w2();	
-	int ** getnvmeFd_edgeproperties_r2();
-	int ** getnvmeFd_edgeproperties_w2();
-	FILE *** getnvmeFd_edgeproperties_r();
-	FILE *** getnvmeFd_edgeproperties_w();
-	int ** getnvmeFd_edgeoffsets_r2();
-	int ** getnvmeFd_edgeoffsets_w2();
-	FILE *** getnvmeFd_edgeoffsets_r();
-	FILE *** getnvmeFd_edgeoffsets_w();
+	int getnvmeFd_verticesdata_r2();
+	int getnvmeFd_verticesdata_w2();
+	int getnvmeFd_tempverticesdata_r2(); 
+	int getnvmeFd_tempverticesdata_w2();
+	int getnvmeFd_vertexoutdegrees_r2();
+	int getnvmeFd_vertexproperties_r2();
+	int getnvmeFd_vertexproperties_w2();	
+	int * getnvmeFd_edges_r2();
+	int * getnvmeFd_edges_w2();
+	FILE ** getnvmeFd_edges_r();
+	FILE ** getnvmeFd_edges_w();
+	int * getnvmeFd_vertexptrs_r2();
+	int * getnvmeFd_vertexptrs_w2();
+	FILE ** getnvmeFd_vertexptrs_r();
+	FILE ** getnvmeFd_vertexptrs_w();
 	int getnvmeFd_activevertexids_r2();
 	int getnvmeFd_activevertexids_w2();
 	FILE * getnvmeFd_activevertexids_w();
@@ -85,24 +87,25 @@ public:
 	int getnvmeFd_vertexisactive_w2();
 	SortReduceUtils::FileKvReader<uint32_t,uint32_t>* getreader_activevertexids(unsigned int i);
 	
-	vertexprop_t * getvertexpropertybuffer(unsigned int id);
-	value_t * getvertexdatabuffer(unsigned int id);
-	unsigned int * getvertexisactivebuffer(unsigned int id);
+	vertexprop_t * getvertexpropertybuffer();
+	value_t * getvertexdatabuffer();
+	unsigned int * getvertexisactivebuffer();
 	
 	void loadvertexpropertiesfromfile();
-	void workerthread_loadvertexpropertiesfromfile(int ithreadidx, int fd, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void workerthread_loadvertexpropertiesfromfile(int fd, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadvertexdatafromfile();
-	void workerthread_loadvertexdatafromfile(int ithreadidx, int fd, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexdatafromfile(int bank, vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexdatafromfile(int bank, vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void savevertexdatatofile(int bank, vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadedgepropertyfromfile(int bank, int col, size_t fdoffset, edgeprop1_t * buffer, vertex_t bufferoffset, vertex_t datasize);
-	void loadedgesfromfile(int bank, int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexpointersfromfile(int bank, int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t datasize);
+	void workerthread_loadvertexdatafromfile(int fd, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void loadvertexdatafromfile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void loadvertexdatafromfile(vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void savevertexdatatofile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
+	void loadedgesfromfile(int col, size_t fdoffset, edgeprop1_t * buffer, vertex_t bufferoffset, vertex_t datasize);
+	void loadvertexpointersfromfile(int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t datasize);
+	void loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
+	void loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, vertex_t bufferoffset, vertex_t size);
 	
 	void generateverticesdata();
 	void generatetempverticesdata();
-	void generatevertexoutdegrees(vertex_t * vertexoutdegrees, unsigned int bank);
+	void generatevertexoutdegrees(vertex_t * vertexoutdegrees);
 	void generatevertexproperties();
 	vertex_t getnumactivevertices();
 	void saveactiveverticestofile(vector<keyvalue_t> & activeverticesbuffer, unsigned int graph_iterationidx);
@@ -111,8 +114,8 @@ public:
 	void loadalldatasets();
 	void setdataset(unsigned int id);
 	dataset_t getdataset();
-	unsigned long gettotalkeyvaluesread(unsigned int bank, unsigned int col);
-	void appendkeyvaluesread(unsigned int bank, unsigned int col, unsigned int value);
+	unsigned long gettotalkeyvaluesread(unsigned int col);
+	void appendkeyvaluesread(unsigned int col, unsigned int value);
 	
 private:
 	algorithm * algorithmobj;
@@ -121,24 +124,23 @@ private:
 	dataset_t _datasets[32];
 	dataset_t thisdataset;
 	unsigned int numedgebanks;
-	unsigned int numvertexbanks;
 	unsigned int numverticespervertexbank;
 	
-	int * nvmeFd_verticesdata_r2;
-	int * nvmeFd_verticesdata_w2;
-	int * nvmeFd_tempverticesdata_r2; 
-	int * nvmeFd_tempverticesdata_w2;
-	int * nvmeFd_vertexoutdegrees_r2; 
-	int * nvmeFd_vertexproperties_r2;
-	int * nvmeFd_vertexproperties_w2;	
-	int ** nvmeFd_edgeproperties_r2; 
-	int ** nvmeFd_edgeproperties_w2;
-	FILE *** nvmeFd_edgeproperties_r;
-	FILE *** nvmeFd_edgeproperties_w;	
-	int ** nvmeFd_edgeoffsets_r2; 
-	int ** nvmeFd_edgeoffsets_w2;
-	FILE *** nvmeFd_edgeoffsets_r;
-	FILE *** nvmeFd_edgeoffsets_w;
+	int nvmeFd_verticesdata_r2;
+	int nvmeFd_verticesdata_w2;
+	int nvmeFd_tempverticesdata_r2; 
+	int nvmeFd_tempverticesdata_w2;
+	int nvmeFd_vertexoutdegrees_r2; 
+	int nvmeFd_vertexproperties_r2;
+	int nvmeFd_vertexproperties_w2;	
+	int * nvmeFd_edges_r2;
+	int * nvmeFd_edges_w2;
+	FILE ** nvmeFd_edges_r;
+	FILE ** nvmeFd_edges_w;	
+	int * nvmeFd_vertexptrs_r2; 
+	int * nvmeFd_vertexptrs_w2;
+	FILE ** nvmeFd_vertexptrs_r;
+	FILE ** nvmeFd_vertexptrs_w;
 	int nvmeFd_activevertexids_r2; 
 	int nvmeFd_activevertexids_w2; 
 	FILE * nvmeFd_activevertexids_w;	
@@ -146,14 +148,12 @@ private:
 	int nvmeFd_vertexisactive_w2;	
 	FILE ** nvmeFd_vertexupdates_w;
 	
-	value_t * vertexdatabuffer[MAXNUMVERTEXBANKS];
-	vertexprop_t * vertexpropertybuffer[MAXNUMVERTEXBANKS];
-	unsigned long * totalkeyvaluesread[MAXNUMSSDPARTITIONS][MAXNUMSSDPARTITIONS];
+	value_t * vertexdatabuffer;
+	vertexprop_t * vertexpropertybuffer;
+	unsigned long * totalkeyvaluesread[MAXNUMSSDPARTITIONS];
 	SortReduceUtils::FileKvReader<uint32_t,uint32_t>* reader_activevertexids_r2[NUMCPUTHREADS];
-	unsigned int * vertexisactivebitbuffer[MAXNUMVERTEXBANKS];
-	std::thread mythread[MAXNUMVERTEXBANKS];
-	
-	// unsigned int groupid;
+	unsigned int * vertexisactivebitbuffer;
+	std::thread mythread;
 };
 #endif
 

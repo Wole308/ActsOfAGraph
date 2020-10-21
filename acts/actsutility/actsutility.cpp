@@ -40,6 +40,9 @@ void actsutility::checkoutofbounds(string message, unsigned int data, unsigned i
 void actsutility::checkforequal(string message, unsigned int data1, unsigned int data2){
 	if(data1 == data2){ cout<<"acts::checkforequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
 }
+void actsutility::checkfornotequal(string message, unsigned int data1, unsigned int data2){
+	if(data1 != data2){ cout<<"acts::checkfornotequal: ERROR. data1 == data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
 void actsutility::checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size){
 	unsigned int totalnumkeyvalues = 0;
 	for(unsigned int i=0; i<size-1; i++){
@@ -134,8 +137,10 @@ void actsutility::printglobalvars(){
 	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten_actual: "<<globalstats_totalkvspartitionswritten_actual<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten (valids): "<<globalstats_totalkvspartitionswritten - globalvar_savepartitions_invalids<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
 	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvsprocessed: "<<globalstats_totalkvsprocessed<<endl;
+	cout<<"acts::printglobalvars:: globalstats_processedges_validkvsprocessed (valids): "<<globalstats_processedges_validkvsprocessed<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsingetpartition: "<<globalvar_errorsingetpartition<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsinreduce: "<<globalvar_errorsinreduce<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsinprocessedges: "<<globalvar_errorsinprocessedges<<endl;
@@ -148,8 +153,10 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.collectstatscommand: "<<globalparams.collectstatscommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.partitioncommand: "<<globalparams.partitioncommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.reducecommand: "<<globalparams.reducecommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.vbegin: "<<globalparams.vbegin<<std::endl;
+	std::cout<<"Kernel Started: globalparams.voffset: "<<globalparams.voffset<<std::endl;
 	std::cout<<"Kernel Started: globalparams.vsize: "<<globalparams.vsize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.vsize_kvs: "<<globalparams.vsize_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.beginvid: "<<globalparams.beginvid<<std::endl;
 	std::cout<<"Kernel Started: globalparams.treedepth: "<<globalparams.treedepth<<std::endl;
 	std::cout<<"Kernel Started: globalparams.LLOPnumpartitions: "<<globalparams.LLOPnumpartitions<<std::endl;
 	std::cout<<"Kernel Started: globalparams.GraphIter: "<<globalparams.GraphIter<<std::endl;
@@ -167,15 +174,6 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.baseaddr_destkvs_kvs: "<<globalparams.baseaddr_destkvs_kvs<<std::endl;
 	std::cout<<std::endl;
 }
-/* void actsutility::printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid){
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	string message; string message2;
-	if(config.enablecollectglobalstats == ON) { message = "collectglobalstats"; } else if (config.enablepartition == ON){ message = "partition"; } else if (config.enablereduce == ON){ message = "reduce"; }
-	message2 = "### dispatch"+to_string(instanceid)+"::" + message + ":: source partition";
-	print6(message2, "upperlimit", "travst.begin", "travst.end", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, travstate.begin_kvs * VECTOR_SIZE, travstate.end_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP);				
-	#endif
-	return;
-} */
 void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef ACTSMODEL_LW
@@ -240,8 +238,10 @@ void actsutility::clearglobalvars(){
 	globalvar_savepartitions_invalids = 0;
 	globalvar_inmemory_totalvalidkeyvalues = 0;
 	globalstats_totalkvsreduced = 0;
-	globalstats_totalkvsreducewritten = 0;
 	globalstats_reduce_validkvsreduced = 0;
+	globalstats_totalkvsreducewritten = 0;
+	globalstats_totalkvsprocessed = 0;
+	globalstats_processedges_validkvsprocessed = 0;
 	globalvar_totalkvsreadV = 0;
 	globalvar_errorsingetpartition = 0;
 	globalvar_errorsinreduce = 0;
@@ -348,12 +348,20 @@ void actsutility::globalstats_countkvsreduced(unsigned int count){
 	globalstats_totalkvsreduced += count;
 	return;
 }
+void actsutility::globalstats_reduce_countvalidkvsreduced(unsigned int count){
+	globalstats_reduce_validkvsreduced += count;
+	return;
+}
 void actsutility::globalstats_countkvsreducewritten(unsigned int count){
 	globalstats_totalkvsreducewritten += count;
 	return;
 }
-void actsutility::globalstats_reduce_countvalidkvsreduced(unsigned int count){
-	globalstats_reduce_validkvsreduced += count;
+void actsutility::globalstats_countkvsprocessed(unsigned int count){
+	globalstats_totalkvsprocessed += count;
+	return;
+}
+void actsutility::globalstats_processedges_countvalidkvsprocessed(unsigned int count){
+	globalstats_processedges_validkvsprocessed += count;
 	return;
 }
 void actsutility::globalstats_countkvsreadV(unsigned int count){
@@ -383,7 +391,9 @@ unsigned int actsutility::globalstats_getcounterrorsinreduce(){
 unsigned int actsutility::globalstats_getcounterrorsinprocessedges(){
 	return globalvar_errorsinprocessedges;
 }
-
+unsigned int actsutility::globalstats_getcountnumvalidprocessedges(){
+	return globalstats_processedges_validkvsprocessed;
+}
 
 
 

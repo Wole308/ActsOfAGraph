@@ -8,7 +8,7 @@ public:
 	stats(graph * graphobj);
 	~stats();
 	
-	void appendkeyvaluecount(int bank, int col, unsigned int batchsize);
+	void appendkeyvaluecount(int col, unsigned int batchsize);
 	void appendkerneltimeelapsed(long double timeelapsed_ms);
 	unsigned long gettotalkeyvaluesread();
 	runsummary_t timingandsummary(unsigned int graph_iterationidx, long double totaltime_ms);

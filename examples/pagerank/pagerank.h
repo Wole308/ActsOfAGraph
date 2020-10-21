@@ -8,7 +8,6 @@
 #include "../../src/edgeprocess/edge_process.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../src/stats/stats.h"
-#include "../../src/dataaccess/dataaccess.h"
 #include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 
@@ -27,7 +26,6 @@ private:
 	edge_process * edgeprocessobj[NUMSUPERCPUTHREADS];
 	helperfunctions * helperfunctionsobj[NUMSUPERCPUTHREADS];
 	// stats * statsobj[NUMSUPERCPUTHREADS];
-	dataaccess * dataaccessobj[NUMSUPERCPUTHREADS];
 	stats * statsobj;
 	
 	uint512_vec_dt * kvsourcedram[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];

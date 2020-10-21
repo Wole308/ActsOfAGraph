@@ -16,6 +16,7 @@ public:
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	void checkforequal(string message, unsigned int data1, unsigned int data2);
+	void checkfornotequal(string message, unsigned int data1, unsigned int data2);
 	void checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size);
 	void print1(string messagea, unsigned int dataa);
 	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
@@ -31,7 +32,6 @@ public:
 	void printparameters();
 	void printglobalvars();
 	void printglobalparameters(string message, globalparams_t globalparams);
-	void printpartitionstep(config_t config, sweepparams_t sweepparams, travstate_t travstate, unsigned int instanceid);
 	void printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
 	void printpartitionresult2(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
 	
@@ -60,8 +60,10 @@ public:
 	void globalstats_countkvspartitionswritten_actual(unsigned int count);
 	void globalstats_countkvspartitioned(unsigned int count);
 	void globalstats_countkvsreduced(unsigned int count);
-	void globalstats_countkvsreducewritten(unsigned int count);
 	void globalstats_reduce_countvalidkvsreduced(unsigned int count);
+	void globalstats_countkvsreducewritten(unsigned int count);
+	void globalstats_countkvsprocessed(unsigned int count);
+	void globalstats_processedges_countvalidkvsprocessed(unsigned int count);
 	void globalstats_countkvsreadV(unsigned int count);
 	void globalstats_counterrorsingetpartition(unsigned int count);
 	void globalstats_counterrorsinreduce(unsigned int count);
@@ -70,6 +72,7 @@ public:
 	
 	unsigned int globalstats_getcounterrorsinreduce();
 	unsigned int globalstats_getcounterrorsinprocessedges();
+	unsigned int globalstats_getcountnumvalidprocessedges();
 	
 	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 
@@ -92,8 +95,10 @@ private:
 	unsigned int globalstats_totalkvspartitionswritten;
 	unsigned int globalstats_totalkvspartitionswritten_actual;
 	unsigned int globalstats_totalkvsreduced;
-	unsigned int globalstats_totalkvsreducewritten;
 	unsigned int globalstats_reduce_validkvsreduced;
+	unsigned int globalstats_totalkvsprocessed;
+	unsigned int globalstats_processedges_validkvsprocessed;
+	unsigned int globalstats_totalkvsreducewritten;
 	unsigned int globalvar_errorsingetpartition;
 	unsigned int globalvar_errorsinreduce;
 	unsigned int globalvar_errorsinprocessedges;

@@ -97,8 +97,8 @@ do
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
@@ -316,9 +316,9 @@ do
 			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
-				# for dataset in $LARGEDATASET_1M
+				# for dataset in $LARGEDATASET_1M #
 				# for dataset in $LARGEDATASET_4M
-				for dataset in $TWITTERDATASET_67M
+				for dataset in $TWITTERDATASET_67M #
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
@@ -607,6 +607,7 @@ do
 							make cleanall
 							rm -rf xclbin
 							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+							# make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
 							
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120
@@ -618,8 +619,8 @@ do
 								# cp nohupsyn.out $BACKUPDIR_NOHUP
 								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
+							# echo "sleeping for 2 minuites before continuing ...."
+							# sleep 120
 							
 						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then

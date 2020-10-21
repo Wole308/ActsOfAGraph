@@ -7,7 +7,6 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../src/stats/stats.h"
-#include "../../src/dataaccess/dataaccess.h"
 #include "../../include/common.h"
 #include "test.h"
 
@@ -25,7 +24,6 @@ private:
 	utility * utilityobj;
 	graph * graphobj;
 	algorithm * algorithmobj;
-	dataaccess * dataaccessobj;
 	helperfunctions * helperfunctionsobj;
 	stats * statsobj;
 

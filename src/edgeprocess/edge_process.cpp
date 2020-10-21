@@ -15,9 +15,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
-#include "../../src/dataaccess/dataaccess.h"
 #include "../../src/stats/stats.h"
-#include "../../src/graphs/create2Dgraph.h" // REMOVEME. just for debugging.
 #include "../../include/common.h"
 #include "edge_process.h"
 using namespace std;
@@ -28,14 +26,12 @@ edge_process::edge_process(graph * _graphobj, stats * _statsobj){
 	parametersobj = new parameters();
 	utilityobj = new utility();
 	algorithmobj = new algorithm();
-	dataaccessobj = new dataaccess();
-	// statsobj = new stats(graphobj);
 	statsobj = _statsobj;
 	
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ edgebuffer[i] = new edgeprop1_t[KVDATA_BATCHSIZE]; }
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ vertexpointerbuffer[i] = new prvertexoffset_t[KVDATA_BATCHSIZE]; }
-	for(unsigned int i=0; i<MAXNUMVERTEXBANKS; i++){ vertexpropertybuffer[i] = graphobj->getvertexpropertybuffer(i); }
-	for(unsigned int i=0; i<MAXNUMVERTEXBANKS; i++){ vertexdatabuffer[i] = graphobj->getvertexdatabuffer(i); }
+	vertexpropertybuffer = graphobj->getvertexpropertybuffer();
+	vertexdatabuffer = graphobj->getvertexdatabuffer();
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){ currentvid[i] = 0; }
 	
 	m_idx_buffer_offset = 0;
@@ -46,34 +42,28 @@ edge_process::edge_process(graph * _graphobj, stats * _statsobj){
 	mp_edge_buffer = aligned_alloc(512, m_buffer_alloc_bytes);
 	m_index_blocks_read = 0;
 	m_edge_blocks_read = 0;
-	
-	#ifdef _DEBUGMODE_CHECKSXXX // REMOVEME. just for debugging.
-	create2Dgraphobj = new create2Dgraph(graphobj);
-	create2Dgraphobj->analyzegraph();
-	create2Dgraphobj->rehashhighindegreevertices();
-	#endif 
 }
 edge_process::~edge_process(){} 
 
-void edge_process::generateupdates(unsigned int groupid, unsigned int bank, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset){							
+void edge_process::generateupdates(unsigned int groupid, unsigned int col, unsigned int fdoffset[NUMCPUTHREADS], keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int datasize[NUMCPUTHREADS], unsigned int voffset){							
 	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_stream(i, groupid, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_stream(i, groupid, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	#else
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_stream, this, i, groupid, bank, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
+	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_stream, this, i, groupid, col, fdoffset[i], batch[i], batchoffset[i], batchsize[i], datasize[i], voffset); }
 	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
 	#endif
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, datasize[i]); }
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(col, datasize[i]); }
 	return;
 }
-unsigned int edge_process::generateupdates_stream(int ithreadidx, unsigned int groupid, unsigned int bank, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){			
-	graphobj->loadedgepropertyfromfile(bank, col, fdoffset, edgebuffer[ithreadidx], 0, datasize); 
+unsigned int edge_process::generateupdates_stream(int ithreadidx, unsigned int groupid, unsigned int col, unsigned int fdoffset, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){			
+	graphobj->loadedgesfromfile(col, fdoffset, edgebuffer[ithreadidx], 0, datasize); 
 	
-	graphobj->loadvertexpointersfromfile(bank, col, fdoffset, vertexpointerbuffer[ithreadidx], 0, datasize); 
+	graphobj->loadvertexpointersfromfile(col, fdoffset, vertexpointerbuffer[ithreadidx], 0, datasize); 
 	
-	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, groupid, bank, batch, batchoffset, batchsize, datasize, voffset); 
+	unsigned int kvcount = generatekeyvalues_stream(ithreadidx, groupid, batch, batchoffset, batchsize, datasize, voffset); 
 	return kvcount;
 }
-unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int groupid, unsigned int bank, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){
+unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int groupid, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], vertex_t datasize, unsigned int voffset){
 	unsigned int tempbatchoffset[NUMSUBCPUTHREADS]; // LEARNFROMME. avoids significant bottleneck
 	unsigned int tempbatchsize[NUMSUBCPUTHREADS];
 	utilityobj->copy(tempbatchoffset, batchoffset, NUMSUBCPUTHREADS);
@@ -87,7 +77,7 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 		unsigned int edgeoffsetbit = utilityobj->RetrieveBit((unsigned int *)vertexpointerbuffer[ithreadidx], i); 
 		if(edgeoffsetbit==1){
 			utilityobj->checkoutofbounds("edge_process::generatekeyvalues_stream 1", tempcurrentvid, KVDATA_RANGE, i, tempcurrentvid, NAp);
-			vertexprop = vertexpropertybuffer[bank][tempcurrentvid]; 
+			vertexprop = vertexpropertybuffer[tempcurrentvid]; 
 			tempcurrentvid+=1;
 		}
 
@@ -113,158 +103,6 @@ unsigned int edge_process::generatekeyvalues_stream(int ithreadidx, unsigned int
 	currentvid[ithreadidx] = tempcurrentvid;
 	utilityobj->copy(batchsize, tempbatchsize, NUMSUBCPUTHREADS);
 	return datasize;
-}
-
-void edge_process::generateupdates(unsigned int readerbank, unsigned int groupid, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], kvresults_t * results){
-	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, groupid, bank, col, batch[i], batchoffset[i], batchsize[i], results); }
-	#ifdef XXX
-	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, bank, col, batch[i], batchoffset[i], batchsize[i], results); }
-	#else
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_random, this, i, readerbank, bank, col, batch[i], batchoffset[i], batchsize[i], results); }
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
-	#endif
-	#endif 
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, results[i].datasize); }
-	return;
-}
-void edge_process::generateupdates_random(int resultbank, unsigned int readerbank, unsigned int groupid, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], kvresults_t * results){
-	unsigned int kvthreshold = (KVDATA_BATCHSIZE / 10) * 9; // FIXME. REMOVEME. might not work for scale-free graphs
-	unsigned int keyvaluesread = 0;
-	
-	std::tuple<uint32_t,uint32_t,bool> res = graphobj->getreader_activevertexids(readerbank)->Next();
-	while ( std::get<2>(res) ) {
-		uint32_t key = std::get<0>(res);
-		uint32_t val = std::get<1>(res);
-		
-		res = graphobj->getreader_activevertexids(readerbank)->Next();
-		generatekeyvalues_random(key, val, groupid, bank, col, batch, batchoffset, batchsize, &keyvaluesread); 
-		
-		if(keyvaluesread > kvthreshold){  
-			cout<<"edge_process::generateupdates_random reached threshold. keyvaluesread: "<<keyvaluesread<<", status: NOTFINISHED "<<endl;
-			results[resultbank].datasize = keyvaluesread;
-			results[resultbank].message = NOTFINISHED;
-			return;
-		}
-	}
-	cout<<"edge_process::generateupdates_random. reached end-of-file. keyvaluesread: "<<keyvaluesread<<", status: FINISHED. "<<endl;
-	results[resultbank].datasize = keyvaluesread;
-	results[resultbank].message = FINISHED;
-	return; 
-}
-void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned int groupid, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], unsigned int * keyvaluesread){
-	unsigned int tempbatchoffset[NUMSUBCPUTHREADS]; // LEARNFROMME. avoids significant bottleneck
-	unsigned int tempbatchsize[NUMSUBCPUTHREADS];
-	utilityobj->copy(tempbatchoffset, batchoffset, NUMSUBCPUTHREADS);
-	utilityobj->copy(tempbatchsize, batchsize, NUMSUBCPUTHREADS);
-	
-	size_t edge_element_bytes = sizeof(edgeprop2_t);
-	size_t byte_offset = ((size_t)key)*sizeof(bfsvertexoffset_t);
-	bfsvertexoffset_t mp_vidx_buffer[2];
-	pread(graphobj->getnvmeFd_edgeoffsets_r2()[bank][col], mp_vidx_buffer, (2 * sizeof(bfsvertexoffset_t)), byte_offset);
-
-	bfsvertexoffset_t byte_offset_1 = mp_vidx_buffer[0];
-	uint32_t fanout = mp_vidx_buffer[1] - mp_vidx_buffer[0];
-	if(key >= (graphobj->get_num_vertices()-1)){ fanout = 0; } // FIXME. EDGE CONDITIONS
-	
-	value_t edgeval = algorithmobj->edge_program(key, val, fanout);
-	
-	for (vertex_t i = 0; i < fanout; i++){
-		uint64_t edge_offset = (byte_offset_1*edge_element_bytes)+(i*edge_element_bytes);
-		if ((edge_offset < m_edge_buffer_offset) || ((edge_offset + edge_element_bytes) > (m_edge_buffer_offset+m_edge_buffer_bytes))){
-			uint64_t byte_offset_aligned = edge_offset&(~0x3ff); // 1 KB alignment
-	
-			pread(graphobj->getnvmeFd_edgeproperties_r2()[bank][col], mp_edge_buffer, m_buffer_alloc_bytes, byte_offset_aligned);
-			m_edge_blocks_read++;
-			m_edge_buffer_offset = byte_offset_aligned;
-			m_edge_buffer_bytes = m_buffer_alloc_bytes;
-		}
-		
-		uint64_t internal_offset = edge_offset - m_edge_buffer_offset;		
-		vertex_t neighbor = *((vertex_t*)(((uint8_t*)mp_edge_buffer)+internal_offset));
-		
-		keyvalue_t data;
-		data.key = neighbor;
-		data.value = edgeval;
-		
-		insertkeyvaluetobuffer(batch, tempbatchoffset, tempbatchsize, data, 0, groupid);
-		
-		*keyvaluesread += 1;
-	}
-	utilityobj->copy(batchsize, tempbatchsize, NUMSUBCPUTHREADS);
-	return;
-}
-
-void edge_process::generateupdates(unsigned int readerbank, unsigned int bank, unsigned int col, keyvalue_t * batch[NUMCPUTHREADS], vertex_t batchoffset, kvresults_t * results){
-	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, bank, col, batch[i], batchoffset, results); }
-	#ifdef XXX
-	#ifdef LOCKE
-	for (int i = 0; i < NUMCPUTHREADS; i++){ generateupdates_random(i, readerbank, bank, col, batch[i], batchoffset, results); }
-	#else
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i] = std::thread(&edge_process::generateupdates_random, this, i, readerbank, bank, col, batch[i], batchoffset, results); }
-	for (int i = 0; i < NUMCPUTHREADS; i++){ mythread[i].join(); }
-	#endif
-	#endif 
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(bank, col, results[i].datasize); }
-	return;
-}
-void edge_process::generateupdates_random(int resultbank, unsigned int readerbank, unsigned int bank, unsigned int col, keyvalue_t * batch, vertex_t batchoffset, kvresults_t * results){
-	unsigned int kvthreshold = (KVDATA_BATCHSIZE / 10) * 9; // FIXME. REMOVEME. might not work for scale-free graphs
-	unsigned int keyvaluesread = 0;
-	
-	std::tuple<uint32_t,uint32_t,bool> res = graphobj->getreader_activevertexids(readerbank)->Next();
-	while ( std::get<2>(res) ) {
-		uint32_t key = std::get<0>(res);
-		uint32_t val = std::get<1>(res);
-		
-		res = graphobj->getreader_activevertexids(readerbank)->Next();
-		generatekeyvalues_random(key, val, bank, col, batch, batchoffset, &keyvaluesread); 
-		
-		if(keyvaluesread > kvthreshold){  
-			cout<<"edge_process::generateupdates_random reached threshold. keyvaluesread: "<<keyvaluesread<<", status: NOTFINISHED "<<endl;
-			results[resultbank].datasize = keyvaluesread;
-			results[resultbank].message = NOTFINISHED;
-			return;
-		}
-	}
-	cout<<"edge_process::generateupdates_random. reached end-of-file. keyvaluesread: "<<keyvaluesread<<", status: FINISHED. "<<endl;
-	results[resultbank].datasize = keyvaluesread;
-	results[resultbank].message = FINISHED;
-	return; 
-}
-void edge_process::generatekeyvalues_random(vertex_t key, value_t val, unsigned int bank, unsigned int col, keyvalue_t * batch, vertex_t batchoffset, unsigned int * keyvaluesread){
-	size_t edge_element_bytes = sizeof(edgeprop2_t);
-	size_t byte_offset = ((size_t)key)*sizeof(bfsvertexoffset_t);
-	bfsvertexoffset_t mp_vidx_buffer[2];
-	pread(graphobj->getnvmeFd_edgeoffsets_r2()[bank][col], mp_vidx_buffer, (2 * sizeof(bfsvertexoffset_t)), byte_offset);
-
-	bfsvertexoffset_t byte_offset_1 = mp_vidx_buffer[0];
-	uint32_t fanout = mp_vidx_buffer[1] - mp_vidx_buffer[0];
-	if(key >= (graphobj->get_num_vertices()-1)){ fanout = 0; } // FIXME. EDGE CONDITIONS
-	
-	value_t edgeval = algorithmobj->edge_program(key, val, fanout);
-	
-	for (vertex_t i = 0; i < fanout; i++){
-		uint64_t edge_offset = (byte_offset_1*edge_element_bytes)+(i*edge_element_bytes);
-		if ((edge_offset < m_edge_buffer_offset) || ((edge_offset + edge_element_bytes) > (m_edge_buffer_offset+m_edge_buffer_bytes))){
-			uint64_t byte_offset_aligned = edge_offset&(~0x3ff); // 1 KB alignment
-	
-			pread(graphobj->getnvmeFd_edgeproperties_r2()[bank][col], mp_edge_buffer, m_buffer_alloc_bytes, byte_offset_aligned);
-			m_edge_blocks_read++;
-			m_edge_buffer_offset = byte_offset_aligned;
-			m_edge_buffer_bytes = m_buffer_alloc_bytes;
-		}
-		
-		uint64_t internal_offset = edge_offset - m_edge_buffer_offset;		
-		vertex_t neighbor = *((vertex_t*)(((uint8_t*)mp_edge_buffer)+internal_offset));
-		
-		keyvalue_t kv;
-		kv.key = neighbor;
-		kv.value = edgeval;
-		
-		batch[batchoffset + *keyvaluesread] = kv;
-		*keyvaluesread += 1;
-	}
 }
 
 unsigned int edge_process::insertkeyvaluetobuffer(keyvalue_t * batch[NUMSUBCPUTHREADS], unsigned int batchoffset[NUMSUBCPUTHREADS], unsigned int batchsize[NUMSUBCPUTHREADS], keyvalue_t keyvalue, unsigned int voffset, unsigned int groupid){

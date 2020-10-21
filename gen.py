@@ -31,7 +31,7 @@ if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
 else:
     if context['DATASET'] == "_LARGEDATASET_1M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 1
+        context['MAXNUMSSDPARTITIONS_POW'] = 0#1
         context['KVDATA_RANGE_POW'] = 20
     elif context['DATASET'] == "_LARGEDATASET_4M":
         context['MAXNUMSSDPARTITIONS_POW'] = 2
@@ -40,10 +40,10 @@ else:
         context['MAXNUMSSDPARTITIONS_POW'] = 4
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
+        context['MAXNUMSSDPARTITIONS_POW'] = 4
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_268M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4 #2
+        context['MAXNUMSSDPARTITIONS_POW'] = 4
         context['KVDATA_RANGE_POW'] = 28
     elif context['DATASET'] == "_LARGEDATASET_1B":
         context['MAXNUMSSDPARTITIONS_POW'] = 4

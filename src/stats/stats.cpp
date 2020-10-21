@@ -18,15 +18,15 @@ stats::stats(graph * _graphobj){
 }
 stats::~stats(){} 
 
-void stats::appendkeyvaluecount(int bank, int col, unsigned int batchsize){
-	graphobj->appendkeyvaluesread(bank, col, batchsize);
+void stats::appendkeyvaluecount(int col, unsigned int batchsize){
+	graphobj->appendkeyvaluesread(col, batchsize);
 }
 void stats::appendkerneltimeelapsed(long double timeelapsed_ms){
 	totalkerneltime_ms += timeelapsed_ms;
 }
 unsigned long stats::gettotalkeyvaluesread(){
 	unsigned long totalsize = 0;
-	for (int i = 0; i < graphobj->getnumvertexbanks(); i++){ for (int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalsize += graphobj->gettotalkeyvaluesread(i, j); }}
+	for (int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalsize += graphobj->gettotalkeyvaluesread(j); }
 	return totalsize;
 }
 runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long double totaltime_ms){
@@ -35,7 +35,7 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	long double totaltime_SSDtransfers_ms = 0;
 	long double totaltime_OCLtransfers_ms = 0;
 	
-	for (int j = 0; j < NUMSSDPARTITIONS; j++){ cout<<">>> stats::summary Total number of kvReads in bank [0]["<<j<<"]: "<<graphobj->gettotalkeyvaluesread(0, j)<<endl; }
+	for (int j = 0; j < NUMSSDPARTITIONS; j++){ cout<<">>> stats::summary Total number of kvReads in bank ["<<j<<"]: "<<graphobj->gettotalkeyvaluesread(j)<<endl; }
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total number of kvReads for all threads: "<<gettotalkeyvaluesread()<< RESET <<endl;
 	
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms << " milliseconds" << RESET <<endl;

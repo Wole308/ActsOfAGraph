@@ -138,21 +138,21 @@ void helperfunctions::workerthread_cummulateverticesdata(int threadidx, value_t 
 
 // apply vertices
 #ifdef ACTSMODEL
-void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx){
+void helperfunctions::applyvertices(unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, unsigned int graph_iterationidx){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif 
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }		
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, graph_iterationidx); }		
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
 }
-void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize, unsigned int voffset, unsigned int graph_iterationidx){
-	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer(bank);
-	unsigned int * vertexisactivebuffer = graphobj->getvertexisactivebuffer(bank);
+void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t datasize, unsigned int voffset, unsigned int graph_iterationidx){
+	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer();
+	unsigned int * vertexisactivebuffer = graphobj->getvertexisactivebuffer();
 	
 	vector<keyvalue_t> activeverticesbuffer;
 	for(unsigned int i=bufferoffset; i<bufferoffset + datasize; i++){
@@ -177,21 +177,21 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 }
 #endif 
 #ifdef ACTSMODEL_LW
-void helperfunctions::applyvertices(unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, hostglobalparams_t globalparams){
+void helperfunctions::applyvertices(unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize,  unsigned int voffset, hostglobalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif 
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, bank, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }	
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions::workerthread_applyvertices, this, i, fdoffset, buffer, bufferoffset + (i * (datasize / NUMUTILITYTHREADS)), (datasize / NUMUTILITYTHREADS), voffset, globalparams); }	
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
 }
-void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int bank, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset, hostglobalparams_t globalparams){
-	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer(bank);
-	unsigned int * vertexisactivebuffer = graphobj->getvertexisactivebuffer(bank);
+void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset, hostglobalparams_t globalparams){
+	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer();
+	unsigned int * vertexisactivebuffer = graphobj->getvertexisactivebuffer();
 	
 	vector<keyvalue_t> activeverticesbuffer;
 	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -218,7 +218,7 @@ void helperfunctions::workerthread_applyvertices(int ithreadidx, unsigned int ba
 }
 #endif 
 
-void helperfunctions::launchkernel(uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void helperfunctions::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("helperfunctions::launchkernel:: Print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
 	#ifdef ACTSMODEL_LW
@@ -396,13 +396,13 @@ unsigned int helperfunctions::getflag(unsigned int globaliteration_idx){
 }
 
 #ifdef FPGA_IMPL 
-void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void helperfunctions::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvdestdram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);
 }
-void helperfunctions::writetokernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
+void helperfunctions::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
-void helperfunctions::readfromkernel(unsigned int flag, uint512_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
+void helperfunctions::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->readfromkernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
 void helperfunctions::finishOCL(){

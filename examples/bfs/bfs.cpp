@@ -23,7 +23,7 @@ std::mutex mutex_bufferupdates;
 bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
-	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
+	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks());
 	statsobj = new stats(graphobj);
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ edgeprocessobj[i] = new edge_process(graphobj, statsobj); }
@@ -122,7 +122,7 @@ void bfs::WorkerThread1(int threadidx, hostglobalparams_t globalparams){
 		#endif
 		
 		// Populate kvdrams
-		edgeprocessobj[threadidx]->generateupdates(threadidx, 0, 0, (keyvalue_t **)kvintermediatedram[threadidx], BASEOFFSET_KVDRAMBUFFER, results);
+		// edgeprocessobj[threadidx]->generateupdates(threadidx, 0, 0, (keyvalue_t **)kvintermediatedram[threadidx], BASEOFFSET_KVDRAMBUFFER, results);
 		
 		// Partition updates
 		for(int i = 0; i < NUMCPUTHREADS; i++){ partitionupdates(threadidx, (keyvalue_t *)kvintermediatedram[threadidx][i], 0, results[i].datasize); }
@@ -166,7 +166,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparam
 
 	for (unsigned int iteration_idx = 0; iteration_idx < iteration_size; iteration_idx += NUMCPUTHREADS){
 		#ifdef _DEBUGMODE_HOSTPRINTS2
-		cout<<"PP&A:: [superthreadidx:"<<(threadidxoffset + superthreadidx)<<"][size:"<<graphobj->getnumvertexbanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
+		cout<<"PP&A:: [superthreadidx:"<<(threadidxoffset + superthreadidx)<<"][size:1][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
 		#endif
 		
 		int flag = helperfunctionsobj[superthreadidx]->getflag(globaliteration_idx);
@@ -200,7 +200,7 @@ void bfs::WorkerThread2(int superthreadidx, int threadidxoffset, hostglobalparam
 	helperfunctionsobj[superthreadidx]->applyvertices(0, ((threadidxoffset + superthreadidx) * KVDATA_RANGE_PERSSDPARTITION), (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION, voffset, globalparams.graph_iterationidx); // FIXME. CHECKME.
 	#endif 
 	// FIXME. do for ACTSMODEL_LW
-	graphobj->savevertexdatatofile(threadidxoffset + superthreadidx, 0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED
+	graphobj->savevertexdatatofile(0, (keyvalue_t *)kvdestdram[superthreadidx][0][0][0], 0, KVDATA_RANGE_PERSSDPARTITION); // NOT USED
 	return;
 }
 

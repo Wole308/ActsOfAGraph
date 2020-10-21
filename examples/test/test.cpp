@@ -14,7 +14,6 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../src/stats/stats.h"
-#include "../../src/dataaccess/dataaccess.h"
 #include "../../include/common.h"
 #include "test.h"
 using namespace std;
@@ -23,7 +22,12 @@ test::test(std::string binaryFile){
 	utilityobj = new utility();
 	helperfunctionsobj = new helperfunctions(); 
 	dataset * datasetobj = new dataset();
-	graphobj = new graph(datasetobj->getdatasetid());
+	// graphobj = new graph(datasetobj->getdatasetid());
+	
+	algorithm * thisalgorithmobj = new algorithm();
+	heuristics * heuristicsobj = new heuristics();
+	graphobj = new graph(thisalgorithmobj, NAp, heuristicsobj->getdefaultnumedgebanks(), false, false, true);
+	
 	statsobj = new stats(graphobj);
 	
 	#ifdef FPGA_IMPL
@@ -38,7 +42,7 @@ test::test(std::string binaryFile){
 	#endif
 	
 	#ifdef FPGA_IMPL
-	helperfunctionsobj->loadOCLstructures(binaryFile, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvsourcedram, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvdestdram, kvstats); 	
+	helperfunctionsobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvsourcedram, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvdestdram, kvstats); 	
 	#endif
 	
 	srand (0);
@@ -98,7 +102,7 @@ void test::run(){
 
 		// Launch the Kernel
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-		helperfunctionsobj->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], (uint512_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[0], 0);
+		helperfunctionsobj->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[0], (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvdestdram[0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvstats[0], 0);
 		totaltime_ms += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count() - noisetime_ms);
 		cout<<"test::run current totaltime_ms: "<<totaltime_ms<<endl;
 	
@@ -137,7 +141,7 @@ void test::loadkvdram(keyvalue_t * batch[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsig
 			voffset = j * BATCH_RANGE;
 			for(unsigned int k=0; k<batchsize[i][j]; k++){ batch[i][j][batchoffset[i][j] + k].key = voffset + (rand() % BATCH_RANGE); batch[i][j][batchoffset[i][j] + k].value = 0; }
 			batchsize[i][j] = KVDATA_BATCHSIZE;
-			statsobj->appendkeyvaluecount(0, 0, KVDATA_BATCHSIZE);
+			statsobj->appendkeyvaluecount(0, KVDATA_BATCHSIZE);
 		}
 	}
 	return;

@@ -75,32 +75,29 @@ typedef struct {
 } config_t;
 
 typedef struct {
+	unsigned int command;
 	unsigned int runkernelcommand;
 	unsigned int processcommand;
 	unsigned int collectstatscommand;
 	unsigned int partitioncommand;
 	unsigned int reducecommand;
-	unsigned int baseaddr_destkvs_kvs;
-	unsigned int iteration_idx;
-	unsigned int ssdpartitonid;
+	unsigned int finalnumpartitions;
+	unsigned int treedepthid;
+	unsigned int ssdpartitionid;
+	unsigned int voffset;
 	unsigned int vsize;
 	unsigned int vsize_kvs;
+	unsigned int beginvid;
+	unsigned int beginkey;
+	unsigned int beginvalue;
 	unsigned int treedepth;
 	unsigned int LLOPnumpartitions;
-	unsigned int paddedkvdatabatchszkvs;
-	unsigned int GraphIter;
-	unsigned int GraphAlgo;
-	unsigned int IterCount;
-	unsigned int baseoffset_kvs;
-	unsigned int basesize_kvs;
-	unsigned int steps;
-	unsigned int finalnumpartitions;
 	unsigned int batchsize;
 	unsigned int runsize;
 	unsigned int runsize_kvs;
 	unsigned int nextbatchoffset;
-	unsigned int capsulebatchsz_kvs;
-	unsigned int vbegin;
+	unsigned int GraphIter;
+	unsigned int GraphAlgo;
 	unsigned int statsalreadycollected;
 	unsigned int groupid;
 	unsigned int beginLOP;
@@ -111,6 +108,7 @@ typedef struct {
 	unsigned int batch_range_pow;
 	unsigned int applyvertexbuffersz;
 	unsigned int applyvertexbuffersz_kvs;
+	unsigned int baseaddr_destkvs_kvs;
 } globalparams_t;
 
 typedef struct {

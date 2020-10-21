@@ -15,7 +15,6 @@
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../examples/helperfunctions/helperfunctions2.h"
 #include "../../src/stats/stats.h"
-#include "../../src/dataaccess/dataaccess.h"
 #include "../../include/common.h"
 #include "advance_op.h"
 using namespace std;
@@ -36,7 +35,7 @@ using namespace std;
 advance_op::advance_op(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
-	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumvertexbanks(), heuristicsobj->getdefaultnumedgebanks());
+	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
 	statsobj = new stats(graphobj);
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
@@ -49,15 +48,16 @@ advance_op::advance_op(unsigned int algorithmid, unsigned int datasetid, std::st
 	
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){
 		#ifdef FPGA_IMPL
-		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}}
+		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[i][flag][j][k] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}}					
 		#else
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[i][flag][j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}}
 		#endif
-		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edgesbuffer[i][flag][j][k] = new edge_type[KVDATA_BATCHSIZE]; }}}
+		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edgesbuffer[i][flag][j][k] = new edge_type[KVDATA_BATCHSIZE+1]; }}}
+		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[i][flag][j][k] = new edge_t[KVDATA_BATCHSIZE+1]; }}}
 	}
 	
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i]->loadOCLstructures(binaryFile, (uint512_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
 	#endif
 }
 advance_op::~advance_op(){
@@ -65,38 +65,236 @@ advance_op::~advance_op(){
 	delete [] edgesbuffer;
 	delete [] kvbuffer;
 }
+void advance_op::finish(){
+	#if (defined(FPGA_IMPL) && defined(PR_ALGORITHM))
+	helperfunctionsobj[0]->finishOCL();
+	#endif
+}
 
-void advance_op::run(){
+/** runsummary_t advance_op::run(){
 	cout<<"advance_op::run:: advance_op algorithm started. "<<endl;
+	graphobj->openfilesforreading(0);
+	graphobj->opentemporaryfilesforwriting();
+	graphobj->opentemporaryfilesforreading();
+	graphobj->generateverticesdata();
+	graphobj->generatevertexproperties(); 
+	graphobj->loadvertexpropertiesfromfile(); 
+	graphobj->loadvertexdatafromfile();
+	vertexpropertybuffer = graphobj->getvertexpropertybuffer();
+	vertexdatabuffer = graphobj->getvertexdatabuffer();
+
+	// load it
+	loadgraphdata(0, 0, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], vsize[0][0]);
+	loadactsvertices(vertexdatabuffer, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], vsize[0][0]);
+	loadactskeyvalues((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0]);
+	loadactsmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], vsize[0][0]);
 	
+	// acts it!
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0);
+	utilityobj[0]->stopTIME("advance_op:: finished. Time Elapsed: ", begintime, NAp);
+	
+	graphobj->closetemporaryfilesforwriting();
+	graphobj->closetemporaryfilesforreading();
+	graphobj->closefilesforreading();
+	return;
+} */
+
+runsummary_t advance_op::run(){
+	cout<<"advance_op::run:: advance algorithm started. "<<endl;
+	graphobj->opentemporaryfilesforwriting();
+	graphobj->opentemporaryfilesforreading();
+	graphobj->generateverticesdata();
+	graphobj->generatevertexproperties(); 
+	graphobj->loadvertexpropertiesfromfile(); 
+	graphobj->loadvertexdatafromfile();
+	vertexpropertybuffer = graphobj->getvertexpropertybuffer();
+	vertexdatabuffer = graphobj->getvertexdatabuffer();
+	
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	
+	vertex_t basevoffset = 0;
+	
+	for(unsigned int groupid = 0; groupid < 2; groupid++){
+		graphobj->openfilesforreading(groupid); //
+		
+		globalparams.groupbasevoffset = 0;
+		globalparams.groupid = groupid;
+		globalparams.graph_algorithmidx = PAGERANK;
+		
+		for(unsigned int graph_iterationidx=0; graph_iterationidx<1; graph_iterationidx++){
+			cout<< TIMINGRESULTSCOLOR <<">>> advance_op::run: graph iteration "<<graph_iterationidx<<" of advance started"<< RESET <<endl;
+			
+			globalparams.graph_iterationidx = graph_iterationidx;
+			
+			for(unsigned int i_batch=0; i_batch<graphobj->getnumedgebanks(); i_batch += NUMSUPERCPUTHREADS){
+				cout<<endl<< TIMINGRESULTSCOLOR << ">>> advance_op::start2: super iteration: [i_batch: "<<i_batch<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
+				for (int i = 0; i < NUMSUPERCPUTHREADS; i++) { WorkerThread(i, i_batch, globalparams); }
+				cout<<">>> advance_op::start2 Finished: all threads joined..."<<endl;
+				// break; // REMOVEME.
+			}
+		}
+		
+		graphobj->closefilesforreading();
+		// break; // REMOVEME.
+	}
+	#ifdef FPGA_IMPL
+	helperfunctionsobj[0]->finishOCL();
+	#endif
+	
+	utilityobj[0]->stopTIME("advance::start2: finished start2. Time Elapsed: ", begintime, NAp);
+	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	
+	graphobj->closetemporaryfilesforwriting();
+	graphobj->closetemporaryfilesforreading();
+	return statsobj->timingandsummary(NAp, totaltime_ms);
+}
+void advance_op::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams){
+	unsigned int fdoffset[NUMCPUTHREADS];
+	unsigned int loadsize[NUMCPUTHREADS];
+	unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int runsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]; 
+	utilityobj[superthreadidx]->setarray(batchoffset, NUMCPUTHREADS, NUMSUBCPUTHREADS, BASEOFFSET_KVDRAMBUFFER);
+	utilityobj[superthreadidx]->setarray(batchsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
+	utilityobj[superthreadidx]->setarray(runsize, NUMCPUTHREADS, NUMSUBCPUTHREADS, 0);
+	edge_t edgepropertyfilesize = lseek(graphobj->getnvmeFd_edges_r2()[threadidxoffset + superthreadidx], 0, SEEK_END) / sizeof(edge_type);			
+	unsigned int iteration_size = utilityobj[superthreadidx]->hceildiv((lseek(graphobj->getnvmeFd_edges_r2()[threadidxoffset + superthreadidx], 0, SEEK_END) / sizeof(edge_type)), KVDATA_BATCHSIZE);
+	
+	// for (unsigned int iteration_idx = 0; iteration_idx < iteration_size; iteration_idx += NUMCPUTHREADS){
+	for (unsigned int iteration_idx = 0*NUMCPUTHREADS; iteration_idx < 4*NUMCPUTHREADS; iteration_idx += NUMCPUTHREADS){
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		cout<<endl<<"PP&A:: [groupid:"<<globalparams.groupid<<"][superthreadidx:"<<(threadidxoffset + superthreadidx)<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:"<<NUMCPUTHREADS<<"]"<<endl;		
+		#endif
+		
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ fdoffset[i] = (iteration_idx + i) * KVDATA_BATCHSIZE; }
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ loadsize[i] = utilityobj[superthreadidx]->hmin(KVDATA_BATCHSIZE, utilityobj[superthreadidx]->hsub((size_t)edgepropertyfilesize, (size_t)((size_t)(iteration_idx + i) * (size_t)KVDATA_BATCHSIZE))); }			
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ statsobj->appendkeyvaluecount(threadidxoffset + superthreadidx, loadsize[i]); }
+	
+		// load it
+		loadgraphdata(threadidxoffset + superthreadidx, fdoffset, loadsize, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], voffset[0][0], vsize[0][0]);
+		loadvariables((edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], voffset[0][0], vsize[0][0]);
+		loadactsvertices(vertexdatabuffer, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], vsize[0][0]);
+		loadvariables2(fdoffset, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], beginvid[0][0], beginkeyvalue[0][0]);
+		loadactskeyvalues((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0]);
+		loadactsmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], beginkeyvalue[0][0], voffset[0][0], vsize[0][0]);
+
+		// acts it!
+		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+		helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0);
+		utilityobj[0]->stopTIME("advance_op:: finished. Time Elapsed: ", begintime, NAp);
+		// break; // REMOVEME.
+		// exit(EXIT_SUCCESS);
+	}
+	// break; // REMOVEME.
+	exit(EXIT_SUCCESS);
+	return;
+}
+
+void advance_op::loadgraphdata(unsigned int col, edge_t edgeoffset[NUMCPUTHREADS], edge_t edgesize[NUMCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
 	// load edges from file
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ 
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
-			graphobj->loadedgesfromfile(0, 0, 0, edgesbuffer[0][0][i][j], 0, KVDATA_BATCHSIZE); 
+			graphobj->loadedgesfromfile(col, edgeoffset[i], edgesbuffer[i][j], 0, KVDATA_BATCHSIZE+1); 
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadgraphdata: first edge in edgesbuffer(*fdoffset:"<<edgeoffset[i]<<"): (srcvid: "<<edgesbuffer[i][j][0].srcvid<<", dstvid: "<<edgesbuffer[i][j][0].dstvid<<")"<<endl;
+			cout<<">>> loadgraphdata: last edge in edgesbuffer(*fdoffset:"<<edgeoffset[i]+KVDATA_BATCHSIZE+1<<"): (srcvid: "<<edgesbuffer[i][j][KVDATA_BATCHSIZE].srcvid<<", dstvid: "<<edgesbuffer[i][j][KVDATA_BATCHSIZE].dstvid<<")"<<endl;
+			#endif 
 		}
 	}
 	
-	// generate random idxs (test)
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ 
+	// load vertex pointers
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			keyvalue_t * _kvbuffer = (keyvalue_t *)(&kvbuffer[0][0][i][j][BASEOFFSET_VERTICESDATA_KVS]);
-			for(unsigned int k = 0; k < BATCH_RANGE; k++){
-					_kvbuffer[k].key = k; 
-					_kvbuffer[k].value = 10000000 + k;
-			}
+			vertex_t beginptr = edgesbuffer[i][j][0].srcvid;
+			vertex_t lastsrcvid = edgesbuffer[i][j][KVDATA_BATCHSIZE].srcvid;
+			vertex_t endptr = lastsrcvid + 1; //"+1 is for edge-conditions"
+			vertex_t sizetoload = endptr - beginptr + 1;
+			
+			graphobj->loadvertexptrsfromfile(col, beginptr, vertexptrs[i][j], 0, sizetoload);
+			vertexptrs[i][j][0] = edgeoffset[i]; // FIXME? is this correct?
+			vertexptrs[i][j][sizetoload-1] = edgeoffset[i] + edgesize[i]; // FIXME? is this correct?
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadgraphdata: beginptr: "<<beginptr<<endl;
+			cout<<">>> loadgraphdata: lastsrcvid: "<<lastsrcvid<<endl;
+			cout<<">>> loadgraphdata: endptr: "<<endptr<<endl;
+			cout<<">>> loadgraphdata: number of vertexptrs to load : "<<sizetoload<<endl;
+			cout<<">>> loadgraphdata: first data in vertexptrs(*fdoffset:"<<beginptr<<"): vertexptrs["<<i<<"]["<<j<<"][0]: "<<vertexptrs[i][j][0]<<endl;
+			cout<<">>> loadgraphdata: second data in vertexptrs(*fdoffset:"<<beginptr+1<<"): vertexptrs["<<i<<"]["<<j<<"][1]: "<<vertexptrs[i][j][1]<<endl;
+			cout<<">>> loadgraphdata: last data in vertexptrs(*fdoffset:"<<endptr<<"): vertexptrs["<<i<<"]["<<j<<"]["<<sizetoload-1<<"]: "<<vertexptrs[i][j][sizetoload-1]<<endl;
+			#endif
 		}
 	}
-	
-	// >>>
-	// >>> kernel computation of advance
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	// create messages
+	return;
+}
+void advance_op::loadvariables(edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			voffset[i][j] = edgesbuffer[i][j][0].srcvid;
+			vsize[i][j] = ((edgesbuffer[i][j][KVDATA_BATCHSIZE].srcvid + 1) - edgesbuffer[i][j][0].srcvid) + 1;
+			beginvid[i][j] = edgesbuffer[i][j][0].srcvid;
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadvariables: voffset["<<i<<"]["<<j<<"]: "<<voffset[i][j]<<endl;
+			cout<<">>> loadvariables: vsize["<<i<<"]["<<j<<"]: "<<vsize[i][j]<<endl;
+			cout<<">>> loadvariables: beginvid["<<i<<"]["<<j<<"]: "<<beginvid[i][j]<<endl;
+			#endif 
+		}
+	}
+	return;
+}
+void advance_op::loadactsvertices(value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			for(unsigned int vid = 0; vid < vsize[i][j]; vid++){
+				kvbuffer[i][j][BASEOFFSET_VERTICESDATA + vid].key = vertexptrs[i][j][vid];
+				kvbuffer[i][j][BASEOFFSET_VERTICESDATA + vid].value = vertexdatabuffer[beginvid[i][j] + vid]; // 10000000 + vid; // vertexdatabuffer[vid]; // 10000000 + k;
+			}
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadactsvertices: first data in kvbuffer->vertices[0]: key: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA].value<<" (vertex data)"<<endl;
+			cout<<">>> loadactsvertices: last data in kvbuffer->vertices["<<vsize[i][j] - 1<<"]: key: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA + vsize[i][j] - 1].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA + vsize[i][j] - 1].value<<" (vertex data)"<<endl;
+			#endif 
+		}
+	}
+	return;
+}
+void advance_op::loadvariables2(edge_t edgeoffset[NUMCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			beginkeyvalue[i][j].key = vertexptrs[i][j][0];
+			beginkeyvalue[i][j].value = vertexdatabuffer[beginvid[i][j]];
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadvariables2: beginkeyvalue["<<i<<"]["<<j<<"].key: "<<beginkeyvalue[i][j].key<<endl;
+			cout<<">>> loadvariables2: beginkeyvalue["<<i<<"]["<<j<<"].value: "<<beginkeyvalue[i][j].value<<endl;
+			#endif 
+		}
+	}
+	return;
+}
+void advance_op::loadactskeyvalues(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			for(unsigned int k=0; k<KVDATA_BATCHSIZE; k++){
+				kvbuffer[i][j][BASEOFFSET_KVDRAM + k].key = edgesbuffer[i][j][k].dstvid;
+				kvbuffer[i][j][BASEOFFSET_KVDRAM + k].value = edgesbuffer[i][j][k].srcvid;
+			}
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadactskeyvalues: first data in kvbuffer->keyvalues: kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].key<<" (edge dstvid), kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].value<<" (edges srcvid)"<<endl;
+			#endif 
+		}
+	}
+	return;
+}
+void advance_op::loadactsmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ 
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
+			if(vsize[i][j] >= BATCH_RANGE){ cout<<"advance_op::run::ERROR: fix this. vsize is greater than allowed. vsize["<<i<<"]["<<j<<"]: "<<vsize[i][j]<<", BATCH_RANGE: "<<BATCH_RANGE<<endl; exit(EXIT_FAILURE); }
 			helperfunctionsobj[0]->createmessages(
-					kvbuffer[0][0][i][j],
-					0, // unsigned int voffset,
-					BATCH_RANGE, //NAp, // unsigned int vsize,
+					kvbuffer[i][j],
+					voffset[i][j], // 0, // FIXME.REMOVEME. //0, // unsigned int voffset,
+					vsize[i][j], // BATCH_RANGE, // NAp, // unsigned int vsize,
+					beginvid[i][j], // unsigned int beginvid,
+					beginkeyvalue[i][j].key, // unsigned int beginkey,
+					beginkeyvalue[i][j].value, // unsigned int beginvalue,
 					TREE_DEPTH, // unsigned int treedepth,
 					0, // unsigned int GraphIter,
 					PAGERANK, // unsigned int GraphAlgo,
@@ -107,30 +305,9 @@ void advance_op::run(){
 					NUMLASTLEVELPARTITIONS); // unsigned int numlastlevelpartitions
 		}
 	}
-	
-	// generate keyvalues [key:src, value:dest]
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			keyvalue_t * _kvbuffer = (keyvalue_t *)(&kvbuffer[0][0][i][j][BASEOFFSET_KVDRAM_KVS]);
-			for(unsigned int k=0; k<KVDATA_BATCHSIZE; k++){
-				_kvbuffer[k].key = edgesbuffer[0][0][i][j][k].dstvid;
-				_kvbuffer[k].value = edgesbuffer[0][0][i][j][k].srcvid;
-			}
-		}
-	}
-		
-	// acts it!
-	helperfunctionsobj[0]->launchkernel((uint512_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0);
-	utilityobj[0]->stopTIME("advance_op:: finished. Time Elapsed: ", begintime, NAp);
-	// >>> kernel computation of advance
-	// >>>
 	return;
 }
-void advance_op::finish(){
-	#if (defined(FPGA_IMPL) && defined(PR_ALGORITHM))
-	helperfunctionsobj[0]->finishOCL();
-	#endif
-}
+
 
 
 

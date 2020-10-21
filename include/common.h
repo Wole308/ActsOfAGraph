@@ -1,13 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
 ////////////////
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define ADVANCE_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _TWITTERDATASET_67M 
@@ -32,7 +29,7 @@
 #define LOCKE
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL
-// #define _WIDEWORD // REMOVEME.
+#define _WIDEWORD // REMOVEME.
 #endif
 #ifndef PR_ALGORITHM
 #define ACTIVEVERTICESBASEDALGORITHM
@@ -174,7 +171,9 @@
 	// #define KVDATA_BATCHSIZE 1000000 //
 	#define KVDATA_BATCHSIZE 10000000 //
 	#else 
-	#define KVDATA_BATCHSIZE 10000000	
+	#define KVDATA_BATCHSIZE 10000000
+	// #define KVDATA_BATCHSIZE 1000	// REMOVEME
+	// #define KVDATA_BATCHSIZE 1000000	// REMOVEME
 	#endif 
 #else
     #define KVDATA_BATCHSIZE (1 << 24)
@@ -203,7 +202,10 @@
 #define MESSAGES_VOFFSET (MESSAGES_SSDPARTITIONID + 1)
 #define MESSAGES_VSIZE (MESSAGES_VOFFSET + 1)
 #define MESSAGES_VSIZE_KVS (MESSAGES_VSIZE + 1)
-#define MESSAGES_TREEDEPTH (MESSAGES_VSIZE_KVS + 1)
+#define MESSAGES_BEGINVID (MESSAGES_VSIZE_KVS + 1)
+#define MESSAGES_BEGINKEY (MESSAGES_BEGINVID + 1)
+#define MESSAGES_BEGINVALUE (MESSAGES_BEGINKEY + 1)
+#define MESSAGES_TREEDEPTH (MESSAGES_BEGINVALUE + 1)
 #define MESSAGES_FINALNUMPARTITIONS (MESSAGES_TREEDEPTH + 1)
 #define MESSAGES_BATCHSIZE (MESSAGES_FINALNUMPARTITIONS + 1)
 #define MESSAGES_RUNSIZE (MESSAGES_BATCHSIZE + 1)
@@ -225,7 +227,7 @@
 ////////////////
 
 #ifdef FPGA_IMPL
-#define NUMFLAGS 2
+#define NUMFLAGS 1//2
 #else 
 #define NUMFLAGS 1
 #endif
@@ -341,6 +343,10 @@ typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid; 
 } edge_type;
+
+typedef struct {
+	keyy_t dstvid; 
+} edge2_type;
 
 #ifdef _WIDEWORD
 typedef ap_uint<1024> uint1024_dt;
