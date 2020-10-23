@@ -175,7 +175,7 @@ value_t
 	actslw::
 	#endif 
 reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, unsigned int GraphAlgo){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	value_t ret = 0;
 	#ifdef PR_ALGORITHM
 	ret = value + edgeval;
@@ -212,7 +212,7 @@ value_t
 	actslw::
 	#endif 
 mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
-	// #pragma HLS INLINE
+	// // #pragma HLS INLINE
 	value_t ret = 0;
 	#ifdef PR_ALGORITHM
 	ret = value1 + value2;
@@ -235,7 +235,7 @@ buffer_type
 	actslw::
 	#endif 
 getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	buffer_type size_kvs = 0;
 	
 	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
@@ -343,7 +343,7 @@ else if(realsize_kvs >= 62 && realsize_kvs < 64){ size_kvs = 64; }
 			size_kvs = PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS;
 			#endif 
 		}
-		#ifdef SW 
+		#if defined(SW) || defined(SWEMU) 
 		if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
 		#endif
 	#else 
@@ -356,7 +356,7 @@ buffer_type
 	actslw::
 	#endif 
 withinvalidrange(buffer_type val1, buffer_type val2){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	if(val1 < val2){ return 1; }
 	else { return 0; }
 }
@@ -432,7 +432,7 @@ batch_type
 	actslw::
 	#endif 
 get_num_source_partitions(step_type currentLOP){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -582,7 +582,7 @@ readglobalstats0(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbu
 	#endif
 	
 	READGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
-	#pragma HLS PIPELINE II=1
+	// #pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		globalstatsbuffer[i].key = kvdram[offset_kvs + i].range(31, 0);
 		globalstatsbuffer[i].value = kvdram[offset_kvs + i].range(63, 32);
@@ -603,7 +603,7 @@ collectglobalstats0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 
 	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){ // REMOVEME? this should be a variable
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
+	// #pragma HLS PIPELINE II=2
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_t keyvalue1 = sourcebuffer[1][i];
 		keyvalue_t keyvalue2 = sourcebuffer[2][i];
@@ -692,7 +692,7 @@ saveglobalstats0(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbu
 	#endif
 	
 	SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
-	#pragma HLS PIPELINE II=1
+	// #pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		kvdram[offset_kvs + i].range(31, 0) = globalstatsbuffer[i].key;
 		kvdram[offset_kvs + i].range(63, 32) = globalstatsbuffer[i].value;
@@ -718,7 +718,7 @@ readkeyvalues0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_S
 
 	READKVS_LOOP: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=1
+	// #pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		buffer[0][i].key = kvdram[offset_kvs + i].range(31, 0);
 		buffer[0][i].value = kvdram[offset_kvs + i].range(63, 32);
@@ -767,7 +767,7 @@ partitionkeyvalues0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	PARTITIONKEYVALUES_LOOP1: for(step_type c=0; c<2; c++){
 		PARTITIONKEYVALUES_LOOP1B: for(buffer_type i=0; i<chunk_size; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-		#pragma HLS PIPELINE II=2
+		// #pragma HLS PIPELINE II=2
 			keyvalue_t keyvalue0 = sourcebuffer[0][i];
 			keyvalue_t keyvalue1 = sourcebuffer[1][i];
 			keyvalue_t keyvalue2 = sourcebuffer[2][i];
@@ -868,7 +868,7 @@ savekeyvalues0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDE
 		#endif
 		SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
-		#pragma HLS PIPELINE II=1
+		// #pragma HLS PIPELINE II=1
 			#ifdef _WIDEWORD
 			kvdram[dramoffset_kvs + i].range(31, 0) = buffer[0][bramoffset_kvs + i].key; 
 			kvdram[dramoffset_kvs + i].range(63, 32) = buffer[0][bramoffset_kvs + i].value; 
@@ -922,7 +922,7 @@ readvertices0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 	if(enable == OFF){ return; }
 		
 	READVERTICES_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS PIPELINE II=1
+	// #pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		buffer[0][i].key = kvdram[offset_kvs + i].range(31, 0); 
 		buffer[0][i].value = kvdram[offset_kvs + i].range(63, 32); 
@@ -955,7 +955,9 @@ readvertices0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	// cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	// cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_KVDRAMWORKSPACE_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<offset_kvs * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
 	return;
 }
@@ -973,7 +975,7 @@ replicatedata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 	buffer_type sourceoffset_kvs = sourceoffset / VECTOR_SIZE;
 	REPLICATEDATA_LOOP: for(buffer_type i=0; i<size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE
+	// #pragma HLS PIPELINE
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("replicatedata0.1", i, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, sourceoffset, sourceoffset_kvs, size);
 		actsutilityobj->checkoutofbounds("replicatedata0.2", sourceoffset + src_i, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, sourceoffset, sourceoffset_kvs, size);
@@ -1005,7 +1007,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 
 	REDUCE_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz
-	#pragma HLS PIPELINE II=2
+	// #pragma HLS PIPELINE II=2
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_t keyvalue1 = sourcebuffer[1][i];
 		keyvalue_t keyvalue2 = sourcebuffer[2][i];
@@ -1218,7 +1220,7 @@ unifydata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
 	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE
+	// #pragma HLS PIPELINE
 		value_t value = 0;
 		for(vector_type v=0; v<VECTOR_SIZE; v++){ // unify multple sources
 			#ifdef _DEBUGMODE_CHECKS2
@@ -1243,7 +1245,7 @@ savevertices0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 	
 	SAVEVERTICES_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
+	// #pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		kvdram[offset_kvs + i].range(31, 0) = buffer[0][i].key; 
 		kvdram[offset_kvs + i].range(63, 32) = buffer[0][i].value; 
@@ -1294,7 +1296,7 @@ process_edges0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 	
 	PROCESSEDGES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
+	// #pragma HLS PIPELINE II=2
 		keyvalue_t edge0 = destbuffer[0][i];
 		keyvalue_t edge1 = destbuffer[1][i];
 		keyvalue_t edge2 = destbuffer[2][i];
@@ -1484,7 +1486,7 @@ combineSetof1stoSetof20_I0(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDE
 		
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I0 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I0 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -1543,7 +1545,7 @@ combineSetof1stoSetof20_I1(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDE
 		
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I1 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I1 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -1602,7 +1604,7 @@ combineSetof1stoSetof20_I2(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDE
 		
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I2 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I2 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -1661,7 +1663,7 @@ combineSetof1stoSetof20_I3(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDE
 		
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I3 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof1stoSetof20_I3 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -1721,7 +1723,7 @@ combineSetof2stoSetof40_I0(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDE
 			
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof2stoSetof40_I0 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof2stoSetof40_I0 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -1786,7 +1788,7 @@ combineSetof2stoSetof40_I1(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDE
 			
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof2stoSetof40_I1 1", index, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof2stoSetof40_I1 2", k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -1850,7 +1852,7 @@ combineSetof4stoSetof80_I0(bool_type enable, keyvalue_t buffer_setof4M0[PADDEDDE
 			
 			EXECUTE_LOOP1C: for(buffer_type k=begin; k<end; k++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-			#pragma HLS PIPELINE II=1
+			// #pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("combineSetof4stoSetof80_I0 1", index, PADDEDDESTBUFFER_SIZE, p, counter, NAp);
 				actsutilityobj->checkoutofbounds("combineSetof4stoSetof80_I0 2", k, PADDEDDESTBUFFER_SIZE, p, counter, NAp);
@@ -1906,7 +1908,7 @@ void
 	actslw::
 	#endif
 combineSetof1stoSetof2s0(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	// 1s->2s
 	combineSetof1stoSetof20_I0(enable, buffer_setof1[0], buffer_setof1[1], buffer_setof2[0], buffer_setof2[1], templocalcapsule_so1[0], templocalcapsule_so1[1], templocalcapsule_so2[0], globalparams);
 	combineSetof1stoSetof20_I1(enable, buffer_setof1[2], buffer_setof1[3], buffer_setof2[2], buffer_setof2[3], templocalcapsule_so1[2], templocalcapsule_so1[3], templocalcapsule_so2[1], globalparams);
@@ -1919,7 +1921,7 @@ void
 	actslw::
 	#endif
 combineSetof2stoSetof4s0(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	// 2s->4s
 	combineSetof2stoSetof40_I0(enable, buffer_setof2[0], buffer_setof2[1], buffer_setof2[2], buffer_setof2[3], buffer_setof4[0], buffer_setof4[1], buffer_setof4[2], buffer_setof4[3], templocalcapsule_so2[0], templocalcapsule_so2[1], templocalcapsule_so4[0], globalparams);
 	combineSetof2stoSetof40_I1(enable, buffer_setof2[4], buffer_setof2[5], buffer_setof2[6], buffer_setof2[7], buffer_setof4[4], buffer_setof4[5], buffer_setof4[6], buffer_setof4[7], templocalcapsule_so2[2], templocalcapsule_so2[3], templocalcapsule_so4[1], globalparams);
@@ -1930,7 +1932,7 @@ void
 	actslw::
 	#endif
 combineSetof4stoSetof8s0(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS], globalparams_t globalparams){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	// 4s->8s
 	combineSetof4stoSetof80_I0(enable, buffer_setof4[0], buffer_setof4[1], buffer_setof4[2], buffer_setof4[3], buffer_setof4[4], buffer_setof4[5], buffer_setof4[6], buffer_setof4[7], 
 												buffer_setof8[0], buffer_setof8[1], buffer_setof8[2], buffer_setof8[3], buffer_setof8[4], buffer_setof8[5], buffer_setof8[6], buffer_setof8[7], 
@@ -2026,7 +2028,7 @@ dispatch0(uint512_dt * kvdram){
 				PEtravstate.i_kvs = voffset_kvs;
 				buffer_type vchunk_size = getchunksize(SRCBUFFER_SIZE, PEtravstate, 0);
 				
-				readvertices0(ON, kvdram, sourcebuffer, BASEOFFSET_VERTICESDATA_KVS + voffset_kvs, SRCBUFFER_SIZE + 1);
+				readvertices0(ON, kvdram, sourcebuffer, BASEOFFSET_KVDRAMWORKSPACE_KVS + voffset_kvs, SRCBUFFER_SIZE + 1);
 				for(batch_type v=0; v<VECTOR_SIZE; v+=1){
 					replicatedata0(ON, sourcebuffer, buffer_setof2, v * SRCBUFFER_SIZE, SRCBUFFER_SIZE + 1);
 					
@@ -2042,7 +2044,7 @@ dispatch0(uint512_dt * kvdram){
 					if((vchunk_size * VECTOR_SIZE) < (v * SRCBUFFER_SIZE)){ ecdiff = 0; } // check-and-shut-down
 					else{ ecdiff = (vchunk_size * VECTOR_SIZE) - (v * SRCBUFFER_SIZE); }
 					
-					if(ecdiff < SRCBUFFER_SIZE){ if(ecdiff < (ecovdiff+1)){ lastvoffset = 0; } else { lastvoffset = buffer_setof2[0][ecdiff-ecovdiff-1].key; }} // check-and-shut-down
+					if(((voffset_kvs + SRCBUFFER_SIZE) >= PEtravstate.end_kvs) && (ecdiff <= SRCBUFFER_SIZE)){ if(ecdiff < (ecovdiff+1)){ lastvoffset = 0; } else { lastvoffset = buffer_setof2[0][ecdiff-ecovdiff-1].key; }} // check-and-shut-down
 					else { lastvoffset = buffer_setof2[0][SRCBUFFER_SIZE].key; }
 					
 					if(lastvoffset < globalparams.beginkey){ beginvoffset = 0; endvoffset = 0; sizev = 0; } // check-and-shut-down
@@ -2076,7 +2078,7 @@ dispatch0(uint512_dt * kvdram){
 				}
 			}
 			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)
-			actsutilityobj->checkfornotequal("dispatch0", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize);
+			if(config.enableprocessedges == ON){ actsutilityobj->checkfornotequalbyerrorwindow("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
 			#endif
 			#endif
 			
@@ -2230,7 +2232,7 @@ dispatch0(uint512_dt * kvdram){
 			if(config.enablereduce == OFF){ actsutilityobj->printpartitionresult2(OFF, kvdram, globalstatsbuffer, sweepparams); }
 			#endif
 		}
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 		actsutilityobj->printglobalvars();
 		actsutilityobj->clearglobalvars();
 		#endif
@@ -2256,8 +2258,8 @@ topkernel( uint512_dt * sourceAvolume ){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"Light weight ACTS (L2) started."<<endl;
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"... Acts Launched... size: "<<sourceAvolume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"... Acts (L2) Launched... size: "<<sourceAvolume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
 	#endif
 	
 	dispatch0(sourceAvolume);
