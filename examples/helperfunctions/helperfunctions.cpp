@@ -275,8 +275,8 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset + MESSAGES_COLLECTSTATSCOMMANDID].key = ON;
 			kvstats[i][j][messagesbaseoffset + MESSAGES_PARTITIONCOMMANDID].key = ON;
 			kvstats[i][j][messagesbaseoffset + MESSAGES_APPLYUPDATESCOMMANDID].key = ON;
-			kvstats[i][j][messagesbaseoffset + MESSAGES_VOFFSET].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid)); 
-			kvstats[i][j][messagesbaseoffset + MESSAGES_VSIZE].key = NAp;
+			kvstats[i][j][messagesbaseoffset + MESSAGES_SRCVOFFSET].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid)); 
+			kvstats[i][j][messagesbaseoffset + MESSAGES_SRCVSIZE].key = NAp;
 			kvstats[i][j][messagesbaseoffset + MESSAGES_TREEDEPTH].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); 
 			kvstats[i][j][messagesbaseoffset + MESSAGES_FINALNUMPARTITIONS].key = pow(NUM_PARTITIONS, parametersobj->GET_TREE_DEPTH(globalparams.groupid)); 
 			kvstats[i][j][messagesbaseoffset + MESSAGES_GRAPHITERATIONID].key = globalparams.graph_iterationidx;
@@ -320,8 +320,8 @@ void helperfunctions::updatemessagesbeforelaunch(unsigned int globaliteration_id
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key = ON;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_PARTITIONCOMMANDID].data[0].key = ON;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key = ON;
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VOFFSET].data[0].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid));
-			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_VSIZE].data[0].key = NAp;
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_SRCVOFFSET].data[0].key = globalparams.groupbasevoffset + voffset + (j * parametersobj->GET_BATCH_RANGE(globalparams.groupid));
+			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_SRCVSIZE].data[0].key = NAp;
 			kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid) + 1;
 			
 			// kvstats[i][j][messagesbaseoffset_kvs + MESSAGES_TREEDEPTH].data[0].key = parametersobj->GET_TREE_DEPTH(globalparams.groupid); // REMOVEME.

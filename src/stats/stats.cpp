@@ -57,9 +57,14 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Throughput (Overall processing): "<<(unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Throughput (Overall processing): "<<((unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_ms / 1000)) / 1000000<<" million keyvalues per second"<< RESET <<endl;
 	
+	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary throughput (kernel processing): "<<(unsigned long)gettotalkeyvaluesread() / (long double)(totalkerneltime_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary throughput (kernel processing): "<<((unsigned long)gettotalkeyvaluesread() / (long double)(totalkerneltime_ms / 1000)) / 1000000<<" million keyvalues per second"<< RESET <<endl;
+	
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second"<< RESET <<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<((unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)) / 1000000<<" million keyvalues per second"<< RESET <<endl;
 	cout<<endl;
+	
+	graphobj->printdataset();
 	
 	runsummary_t runsummary; 
 	runsummary.totalsize = gettotalkeyvaluesread(); 

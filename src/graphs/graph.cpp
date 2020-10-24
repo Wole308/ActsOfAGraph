@@ -23,6 +23,12 @@
 #include <math.h>
 #include <algorithm>
 #include <iterator>
+
+#include <bits/stdc++.h> 
+#include <iostream> 
+#include <sys/stat.h> 
+#include <sys/types.h> 
+
 #include "EdgeProcess.h" 
 #include "VertexValues.h" 
 #include "sortreduce.h" 
@@ -176,7 +182,9 @@ void graph::openfilesforreading(unsigned int groupid){
 	return;
 }
 void graph::openfilesforwriting(unsigned int groupid){
-	cout<<"graph::openfilesforreading : opening files for writing"<<endl;
+	cout<<"graph::openfilesforwriting : opening files for writing"<<endl;
+	utilityobj->createdirectory(getdatasetdir().c_str());
+	
 	// vertex pointers (pwrite)
 	for(unsigned int j=0; j<numedgebanks; j++){
 		string path = getpath_vertexptrs(groupid, j); 
@@ -185,10 +193,10 @@ void graph::openfilesforwriting(unsigned int groupid){
 		if (nvmeFd_vertexptrs_w2[j] < 0) {
 			cout << "ERR: open " << path << " failed: "
 				<< strerror(errno) << endl;
-			exit(EXIT_FAILURE);
 		}
 		cout << "INFO: Successfully opened " << path << endl;
 	}
+	// exit(EXIT_SUCCESS);
 	
 	// vertex pointers (fwrite)
 	for(unsigned int j=0; j<numedgebanks; j++){
@@ -285,6 +293,8 @@ void graph::opentemporaryfilesforreading(){
 }
 void graph::opentemporaryfilesforwriting(){
 	cout<<"graph::opentemporaryfilesforwriting : opening temporary files for writing..."<<endl;
+	utilityobj->createdirectory(getdatasetdir().c_str());
+	
 	// vertex data (pwrite)
 	string path1 = getpath_vertexdata(); 
 	std::ofstream ofs1; ofs1.open(path1.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	
@@ -371,6 +381,8 @@ void graph::openactiveverticesfilesforreading(unsigned int graph_iterationidx){
 }
 void graph::openactiveverticesfilesforwriting(unsigned int graph_iterationidx){
 	cout<<"graph::openactiveverticesfilesforwriting : open active vertices (iteration "<<graph_iterationidx<<") files for writing..."<<endl;
+	utilityobj->createdirectory(getdatasetdir().c_str());
+	
 	string path1 = getpath_activeverticesW(graph_iterationidx);
 	std::ofstream ofs1; ofs1.open(path1.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();
 	nvmeFd_activevertexids_w = fopen(path1.c_str(), "w"); 
@@ -406,6 +418,9 @@ void graph::closeactiveverticesfilesforwriting(){
 	return;
 }
 
+string graph::getdatasetdir(){
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname  + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks);// + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".vertexptrs";		
+}
 string graph::getpath_vertexdata(){
 	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vdata";		
 }
@@ -619,34 +634,106 @@ void graph::loadalldatasets(){
 	string rootDir = "/localtmp/oj2zf/";
 	#endif
 	
-	_datasets[0].graphname = "holes";
-	_datasets[0].graph_path = rootDir + "dataset/holes/holes.mtx";
-	_datasets[0].vertices_path = rootDir + "dataset/holes/holes.vertices";
-	_datasets[0].edges_path =rootDir + "dataset/holes/holes.edges";	
-	_datasets[0].vertices_path_bin = rootDir + "dataset/holes/holes_bin.vertices";
-	_datasets[0].edges_path_bin = rootDir + "dataset/holes/holes_bin.edges";
-	_datasets[0].min_vertex = 0;
-	_datasets[0].max_vertex = 0;
-	_datasets[0].num_vertices = 0;
-	_datasets[0].num_edges = 0;
-	_datasets[0].graphdirectiontype = DIRECTEDGRAPH;
-	_datasets[0].graphorder = SRC_DST;
-	_datasets[0].skewratio = SKEWRATIO;
+	// small dataset
+	_datasets[30].graphname = "soc-orkut";
+	_datasets[30].graph_path = rootDir + "dataset/soc-orkut/soc-orkut.mtx";
+	_datasets[30].vertices_path = rootDir + "dataset/soc-orkut/soc-orkut.vertices";
+	_datasets[30].edges_path = rootDir + "dataset/soc-orkut/soc-orkut.edges";	
+	_datasets[30].vertices_path_bin = rootDir + "dataset/soc-orkut/soc-orkut_bin.vertices";
+	_datasets[30].edges_path_bin = rootDir + "dataset/soc-orkut/soc-orkut_bin.edges";
+	_datasets[30].min_vertex = 0;
+	_datasets[30].max_vertex = 2997166; 
+	_datasets[30].num_vertices = 2997166;
+	_datasets[30].num_edges = 106349209;
+	_datasets[30].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[30].graphorder = DST_SRC;
+	_datasets[30].skewratio = SKEWRATIO;
 	
-	_datasets[1].graphname = "flickr";
-	_datasets[1].graph_path = rootDir + "dataset/flickr/flickr.mtx";
-	_datasets[1].vertices_path = rootDir + "dataset/flickr/flickr.vertices";
-	_datasets[1].edges_path = rootDir + "dataset/flickr/flickr.edges";
-	_datasets[1].vertices_path_bin = rootDir + "dataset/flickr/flickr_bin.vertices";
-	_datasets[1].edges_path_bin = rootDir + "dataset/flickr/flickr_bin.edges";
-	_datasets[1].min_vertex = 0;
-	_datasets[1].max_vertex = 820878;
-	_datasets[1].num_vertices = 820879;
-	_datasets[1].num_edges = 9837214;
-	_datasets[1].graphdirectiontype = DIRECTEDGRAPH;
-	_datasets[1].graphorder = DST_SRC;
-	_datasets[1].skewratio = SKEWRATIO;
+	_datasets[31].graphname = "hollywood-2009";
+	_datasets[31].graph_path = rootDir + "dataset/hollywood-2009/hollywood-2009.mtx";
+	_datasets[31].vertices_path = rootDir + "dataset/hollywood-2009/hollywood-2009.vertices";
+	_datasets[31].edges_path = rootDir + "dataset/hollywood-2009/hollywood-2009.edges";	
+	_datasets[31].vertices_path_bin = rootDir + "dataset/hollywood-2009/hollywood-2009_bin.vertices";
+	_datasets[31].edges_path_bin = rootDir + "dataset/hollywood-2009/hollywood-2009_bin.edges";
+	_datasets[31].min_vertex = 0;
+	_datasets[31].max_vertex = 1139905; 
+	_datasets[31].num_vertices = 1139905;
+	_datasets[31].num_edges = 57515616;
+	_datasets[31].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[31].graphorder = DST_SRC;
+	_datasets[31].skewratio = SKEWRATIO;
 	
+	_datasets[32].graphname = "indochina-04";
+	_datasets[32].graph_path = rootDir + "dataset/indochina-04/indochina-2004.mtx";
+	_datasets[32].vertices_path = rootDir + "dataset/indochina-04/indochina-2004.vertices";
+	_datasets[32].edges_path = rootDir + "dataset/indochina-04/indochina-2004.edges";	
+	_datasets[32].vertices_path_bin = rootDir + "dataset/indochina-04/indochina-2004_bin.vertices";
+	_datasets[32].edges_path_bin = rootDir + "dataset/indochina-04/indochina-2004_bin.edges";
+	_datasets[32].min_vertex = 0;
+	_datasets[32].max_vertex = 7414866; 
+	_datasets[32].num_vertices = 7414866;
+	_datasets[32].num_edges = 194109311;
+	_datasets[32].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[32].graphorder = DST_SRC;
+	_datasets[32].skewratio = SKEWRATIO;
+	
+	_datasets[33].graphname = "kron-g500-logn21";
+	_datasets[33].graph_path = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21.mtx";
+	_datasets[33].vertices_path = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21.vertices";
+	_datasets[33].edges_path = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21.edges";	
+	_datasets[33].vertices_path_bin = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21_bin.vertices";
+	_datasets[33].edges_path_bin = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21_bin.edges";
+	_datasets[33].min_vertex = 0;
+	_datasets[33].max_vertex = 2097152; 
+	_datasets[33].num_vertices = 2097152;
+	_datasets[33].num_edges = 91042010;
+	_datasets[33].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[33].graphorder = DST_SRC;
+	_datasets[33].skewratio = SKEWRATIO;
+	
+	_datasets[34].graphname = "rgg_n_2_24_s0";
+	_datasets[34].graph_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx";
+	_datasets[34].vertices_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.vertices";
+	_datasets[34].edges_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.edges";	
+	_datasets[34].vertices_path_bin = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0_bin.vertices";
+	_datasets[34].edges_path_bin = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0_bin.edges";
+	_datasets[34].min_vertex = 0;
+	_datasets[34].max_vertex = 16777216; 
+	_datasets[34].num_vertices = 16777216;
+	_datasets[34].num_edges = 132557200;
+	_datasets[34].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[34].graphorder = DST_SRC;
+	_datasets[34].skewratio = SKEWRATIO;
+	
+	_datasets[35].graphname = "roadNet-CA";
+	_datasets[35].graph_path = rootDir + "dataset/roadNet-CA/roadNet-CA.mtx";
+	_datasets[35].vertices_path = rootDir + "dataset/roadNet-CA/roadNet-CA.vertices";
+	_datasets[35].edges_path = rootDir + "dataset/roadNet-CA/roadNet-CA.edges";	
+	_datasets[35].vertices_path_bin = rootDir + "dataset/roadNet-CA/roadNet-CA_bin.vertices";
+	_datasets[35].edges_path_bin = rootDir + "dataset/roadNet-CA/roadNet-CA_bin.edges";
+	_datasets[35].min_vertex = 0;
+	_datasets[35].max_vertex = 1971281; 
+	_datasets[35].num_vertices = 1971281;
+	_datasets[35].num_edges = 2766607;
+	_datasets[35].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[35].graphorder = DST_SRC;
+	_datasets[35].skewratio = SKEWRATIO;
+	
+	_datasets[36].graphname = "flickr";
+	_datasets[36].graph_path = rootDir + "dataset/flickr/flickr.mtx";
+	_datasets[36].vertices_path = rootDir + "dataset/flickr/flickr.vertices";
+	_datasets[36].edges_path = rootDir + "dataset/flickr/flickr.edges";
+	_datasets[36].vertices_path_bin = rootDir + "dataset/flickr/flickr_bin.vertices";
+	_datasets[36].edges_path_bin = rootDir + "dataset/flickr/flickr_bin.edges";
+	_datasets[36].min_vertex = 0;
+	_datasets[36].max_vertex = 820878;
+	_datasets[36].num_vertices = 820879;
+	_datasets[36].num_edges = 9837214;
+	_datasets[36].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[36].graphorder = DST_SRC;
+	_datasets[36].skewratio = SKEWRATIO;
+	
+	// large dataset
 	_datasets[2].graphname = "twitter";
 	_datasets[2].graph_path = rootDir + "dataset/twitter/twitter.mtx";
 	_datasets[2].vertices_path = rootDir + "dataset/twitter/twitter.vertices";
@@ -756,7 +843,14 @@ void graph::setdataset(unsigned int id){
 	if(id != 7){ cout<<"WARNING:DATASETS GRAPH "<<id<<"'S SIZE DOES NOT MATCH SPECIFIED CONFIGURATION. PLEASE SET CORRECT CONFIGURATION OR USE CORRECT GRAPH SIZE"<<endl; exit(EXIT_FAILURE); }
 	#endif
 	thisdataset = _datasets[id];
-	cout<<"graph::setdataset: printing dataset parameters..."<<endl;
+	printdataset();
+	return;
+}
+dataset_t graph::getdataset(){
+	return thisdataset;
+}
+void graph::printdataset(){
+	cout<<"graph::printdataset: printing dataset parameters..."<<endl;
 	cout<<">>> graphname: "<<thisdataset.graphname<<endl;
 	cout<<">>> graph_path: "<<thisdataset.graph_path<<endl;
 	cout<<">>> vertices_path: "<<thisdataset.vertices_path<<endl;
@@ -771,9 +865,6 @@ void graph::setdataset(unsigned int id){
 	cout<<">>> graphorder: "<<thisdataset.graphorder<<endl;
 	cout<<">>> skewratio: "<<thisdataset.skewratio<<endl;
 	return;
-}
-dataset_t graph::getdataset(){
-	return thisdataset;
 }
 
 vertexprop_t * graph::getvertexpropertybuffer(){

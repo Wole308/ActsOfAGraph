@@ -21,6 +21,12 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <math.h>
+
+#include <bits/stdc++.h> 
+#include <iostream> 
+#include <sys/stat.h> 
+#include <sys/types.h> 
+
 #include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 #include "utility.h"
@@ -60,12 +66,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2: "<<BATCH_RANGE2<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
-	
-	#ifdef ACTSMODEL_LW
-	std::cout<<"host:: MYIDEALBATCH_RANGE: "<<MYIDEALBATCH_RANGE<<std::endl;
-	std::cout<<"host:: MYIDEALBATCH_RANGE2: "<<MYIDEALBATCH_RANGE2<<std::endl;
-	#endif
-	
+
 	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
@@ -117,7 +118,9 @@ void utility::printallparameters(){
 	// std::cout<<">> host:: MYBATCH_RANGE (bytes): "<<MYBATCH_RANGE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	#ifndef _GENERATE2DGRAPH
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	#endif 
 	std::cout<<">> host:: minimum PADDEDKVSOURCEDRAMSZ (bytes): "<<(MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ + KVDRAMWORKSPACESZ + KVSTATSDRAMSZ + (BATCH_RANGE/2)) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
@@ -189,8 +192,9 @@ void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 	cout<<"MESSAGES_COLLECTSTATSCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key<<endl;
 	cout<<"MESSAGES_PARTITIONCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key<<endl;
 	cout<<"MESSAGES_APPLYUPDATESCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key<<endl;
-	cout<<"MESSAGES_VOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0].key<<endl;
-	cout<<"MESSAGES_VSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0].key<<endl;
+	cout<<"MESSAGES_SRCVOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key<<endl;
+	cout<<"MESSAGES_SRCVSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key<<endl;
+	cout<<"MESSAGES_DESTVOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key<<endl;
 	cout<<"MESSAGES_TREEDEPTH: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key<<endl;
 	cout<<"MESSAGES_FINALNUMPARTITIONS: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key<<endl;
 	cout<<"MESSAGES_GRAPHITERATIONID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key<<endl;
@@ -235,8 +239,9 @@ void utility::printstructuresbeforekernelrun(string message, uint512_vec_dt * kv
 		cout<<"MESSAGES_COLLECTSTATSCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key<<endl;
 		cout<<"MESSAGES_PARTITIONCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key<<endl;
 		cout<<"MESSAGES_APPLYUPDATESCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key<<endl;
-		cout<<"MESSAGES_VOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0].key<<endl;
-		cout<<"MESSAGES_VSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0].key<<endl;
+		cout<<"MESSAGES_SRCVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key<<endl;
+		cout<<"MESSAGES_SRCVSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key<<endl;
+		cout<<"MESSAGES_DESTVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key<<endl;
 		cout<<"MESSAGES_TREEDEPTH: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key<<endl;
 		cout<<"MESSAGES_FINALNUMPARTITIONS: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key<<endl;
 		cout<<"MESSAGES_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key<<endl;
@@ -266,8 +271,9 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		cout<<"MESSAGES_COLLECTSTATSCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key<<endl;
 		cout<<"MESSAGES_PARTITIONCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key<<endl;
 		cout<<"MESSAGES_APPLYUPDATESCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key<<endl;
-		cout<<"MESSAGES_VOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0].key<<endl;
-		cout<<"MESSAGES_VSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0].key<<endl;
+		cout<<"MESSAGES_SRCVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key<<endl;
+		cout<<"MESSAGES_SRCVSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key<<endl;
+		cout<<"MESSAGES_DESTVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key<<endl;
 		cout<<"MESSAGES_TREEDEPTH: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key<<endl;
 		cout<<"MESSAGES_FINALNUMPARTITIONS: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key<<endl;
 		cout<<"MESSAGES_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key<<endl;
@@ -425,6 +431,13 @@ unsigned int utility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int beg
 		}
 	}
 	return numerrorkeys;
+}
+void utility::createdirectory(const char* directory){
+	if (mkdir(directory, 0777) == -1) 
+        cerr << "Error :  " << strerror(errno) << endl;
+    else
+        cout << "Directory created"; 
+	return;
 }
 
 #ifdef FPGA_IMPL

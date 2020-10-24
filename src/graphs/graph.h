@@ -49,6 +49,7 @@ public:
 	void closeactiveverticesfilesforreading();
 	void closeactiveverticesfilesforwriting();
 	
+	string getdatasetdir();
 	string getpath_vertexdata();
 	string getpath_tempvertexdata();
 	string getpath_vertexproperties();
@@ -114,6 +115,7 @@ public:
 	void loadalldatasets();
 	void setdataset(unsigned int id);
 	dataset_t getdataset();
+	void printdataset();
 	unsigned long gettotalkeyvaluesread(unsigned int col);
 	void appendkeyvaluesread(unsigned int col, unsigned int value);
 	
@@ -121,7 +123,7 @@ private:
 	algorithm * algorithmobj;
 	utility * utilityobj;
 
-	dataset_t _datasets[32];
+	dataset_t _datasets[128];
 	dataset_t thisdataset;
 	unsigned int numedgebanks;
 	unsigned int numverticespervertexbank;

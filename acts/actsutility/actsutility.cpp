@@ -156,9 +156,10 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.collectstatscommand: "<<globalparams.collectstatscommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.partitioncommand: "<<globalparams.partitioncommand<<std::endl;
 	std::cout<<"Kernel Started: globalparams.reducecommand: "<<globalparams.reducecommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.voffset: "<<globalparams.voffset<<std::endl;
-	std::cout<<"Kernel Started: globalparams.vsize: "<<globalparams.vsize<<std::endl;
-	std::cout<<"Kernel Started: globalparams.vsize_kvs: "<<globalparams.vsize_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.srcvoffset: "<<globalparams.srcvoffset<<std::endl;
+	std::cout<<"Kernel Started: globalparams.srcvsize: "<<globalparams.srcvsize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.srcvsize_kvs: "<<globalparams.srcvsize_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.destvoffset: "<<globalparams.destvoffset<<std::endl;
 	std::cout<<"Kernel Started: globalparams.beginvid: "<<globalparams.beginvid<<std::endl;
 	std::cout<<"Kernel Started: globalparams.treedepth: "<<globalparams.treedepth<<std::endl;
 	std::cout<<"Kernel Started: globalparams.LLOPnumpartitions: "<<globalparams.LLOPnumpartitions<<std::endl;

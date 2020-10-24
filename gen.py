@@ -30,13 +30,29 @@ EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
 else:
-    if context['DATASET'] == "_LARGEDATASET_1M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0#1
-        context['KVDATA_RANGE_POW'] = 20
-    elif context['DATASET'] == "_LARGEDATASET_4M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 2
+    if context['DATASET'] == "_ORKUT_3M_106M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0 #{0,1,2,3,4}
         context['KVDATA_RANGE_POW'] = 22
-    elif context['DATASET'] == "_TWITTERDATASET_67M":
+    elif context['DATASET'] == "_HOLLYWOOD_1M_57M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0
+        context['KVDATA_RANGE_POW'] = 21
+    elif context['DATASET'] == "_INDOCHINA_7M_194M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0
+        context['KVDATA_RANGE_POW'] = 23
+    elif context['DATASET'] == "_KRON21_2M_91M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0
+        context['KVDATA_RANGE_POW'] = 21
+    elif context['DATASET'] == "_RGG_17M_132M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0
+        context['KVDATA_RANGE_POW'] = 25
+    elif context['DATASET'] == "_ROADNET_2M_3M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0
+        context['KVDATA_RANGE_POW'] = 21
+    elif context['DATASET'] == "_FLICKR_1M_10M":
+        context['MAXNUMSSDPARTITIONS_POW'] = 0
+        context['KVDATA_RANGE_POW'] = 20
+
+    elif context['DATASET'] == "_TWITTER_67M":
         context['MAXNUMSSDPARTITIONS_POW'] = 4
         context['KVDATA_RANGE_POW'] = 26
     elif context['DATASET'] == "_LARGEDATASET_67M":
@@ -76,6 +92,10 @@ if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS":
     context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
 else:
     context['NUMSUBWORKERS'] = 1
+    
+EV_CREATENDGRAPH = [0, 1, 2, 3, 4]
+if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
+    context['MAXNUMSSDPARTITIONS_POW'] = EV_CREATENDGRAPH[context['EVALUATION_PARAM0']]
 
 ###
 

@@ -33,6 +33,7 @@ int main(int argc, char** argv){
     binaryFile = argv[1];
 	#endif
 	utilityobj->printallparameters();
+	// exit(EXIT_SUCCESS);
 
 	#ifdef _GENERATE2DGRAPH
 	creategraph * creategraphobj = new creategraph();

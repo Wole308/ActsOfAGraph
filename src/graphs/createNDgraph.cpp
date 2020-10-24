@@ -106,6 +106,7 @@ void createNDgraph::resetdatastructures(unsigned int _groupid){
 
 void createNDgraph::start(){
 	cout<<"createNDgraph::start: opening files..."<<endl;
+	utilityobj->createdirectory(graphobj->getdatasetdir().c_str());
 	graphobj->openfilesforwriting(groupid);
 	graphobj->openfilesforreading(groupid);
 	std::ifstream file_graph(graphobj->getdataset().graph_path);
@@ -116,6 +117,7 @@ void createNDgraph::start(){
 	vertex_t local_dstv = 0;
 	edge_t linecount = 0;
 	edge_t alllinecount = 0;
+	vertex_t prevsrcv = 0;
 	
 	// create graph
 	if (file_graph.is_open()) {
@@ -136,6 +138,7 @@ void createNDgraph::start(){
 			#endif 
 			if(srcv > graphobj->getdataset().num_vertices){ cout<<"createNDgraph::start:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
 			if(dstv > graphobj->getdataset().num_vertices){ cout<<"createNDgraph::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			// if(alllinecount >= 2 && alllinecount < 128){ if(srcv < prevsrcv){ cout<<"createNDgraph::start:: ERROR: source vertexid ("<<srcv<<") is less than previous source vertex id ("<<prevsrcv<<"). change graph direction. EXITING... "<<endl; exit(EXIT_FAILURE); } else { prevsrcv = srcv; }} else { prevsrcv = srcv; } 
 			
 			srcv = gettransformedglobalid(srcv);
 			dstv = gettransformedglobalid(dstv);
@@ -210,6 +213,7 @@ void createNDgraph::start(){
 
 void createNDgraph::analyzegraph(){
 	cout<<endl<< TIMINGRESULTSCOLOR << "createNDgraph::analyzegraph: analyzing graph..." << RESET <<endl;
+	utilityobj->createdirectory(graphobj->getdatasetdir().c_str());
 	std::ifstream file_graph(graphobj->getdataset().graph_path);
 	
 	cout<<"createNDgraph::analyzegraph: initializing vertex out-degrees"<<endl;
@@ -219,6 +223,7 @@ void createNDgraph::analyzegraph(){
 	vertex_t srcv = 0;
 	vertex_t dstv = 0;
 	edge_t linecount = 0;
+	vertex_t prevsrcv = 0;
 	
 	if (file_graph.is_open()) {
 		std::string line;
@@ -236,16 +241,18 @@ void createNDgraph::analyzegraph(){
 			cout<<"createNDgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl;
 			#endif 
 			
-			if(srcv > graphobj->getdataset().num_vertices){ cout<<"createNDgraph::analyzegraph:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
-			if(dstv > graphobj->getdataset().num_vertices){ cout<<"createNDgraph::analyzegraph:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
-	
+			if(srcv > graphobj->getdataset().num_vertices){ cout<<"createNDgraph::analyzegraph:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+			if(dstv > graphobj->getdataset().num_vertices){ cout<<"createNDgraph::analyzegraph:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<". EXITING..."<<endl; exit(EXIT_FAILURE); }						
+			if(linecount >= 2 && linecount < 128){ if(srcv < prevsrcv){ cout<<"createNDgraph::analyzegraph:: ERROR: source vertexid ("<<srcv<<") is less than previous source vertex id ("<<prevsrcv<<"). change graph direction. EXITING... "<<endl; exit(EXIT_FAILURE); } else { prevsrcv = srcv; }} else { prevsrcv = srcv; } 
+			
 			vertexindegrees[dstv] += 1;
 			
 			if (linecount < 16){ cout<<"createNDgraph:: gedge: ["<<srcv<<", "<<dstv<<"]"<<endl; }
 			linecount += 1;
-			
-			// if(linecount >= 10000000){ break; } // DEBUG
 		}
+	} else {
+		cout<<"createNDgraph:: directory ("<<graphobj->getdatasetdir()<<") does not exist. EXITING... "<<endl;
+		exit(EXIT_FAILURE);
 	}
 	
 	cout<<"createNDgraph:: closing vertices files... "<<endl;

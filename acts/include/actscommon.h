@@ -84,9 +84,10 @@ typedef struct {
 	unsigned int finalnumpartitions;
 	unsigned int treedepthid;
 	unsigned int ssdpartitionid;
-	unsigned int voffset;
-	unsigned int vsize;
-	unsigned int vsize_kvs;
+	unsigned int srcvoffset;
+	unsigned int srcvsize;
+	unsigned int srcvsize_kvs;
+	unsigned int destvoffset;
 	unsigned int beginvid;
 	unsigned int beginkey;
 	unsigned int beginvalue;

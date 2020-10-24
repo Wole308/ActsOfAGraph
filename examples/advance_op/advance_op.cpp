@@ -7,6 +7,12 @@
 #include <unistd.h>
 #include <vector>
 #include <mutex>
+
+#include <bits/stdc++.h> 
+#include <iostream> 
+#include <sys/stat.h> 
+#include <sys/types.h> 
+
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -83,10 +89,10 @@ void advance_op::finish(){
 	vertexdatabuffer = graphobj->getvertexdatabuffer();
 
 	// load it
-	loadgraphdata(0, 0, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], vsize[0][0]);
-	loadactsvertices(vertexdatabuffer, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], vsize[0][0]);
-	loadactskeyvalues((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0]);
-	loadactsmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], vsize[0][0]);
+	loadgraphdata(0, 0, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], srcvsize[0][0]);
+	loadsourcevertices(vertexdatabuffer, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], srcvsize[0][0]);
+	loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0]);
+	loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], srcvsize[0][0]);
 	
 	// acts it!
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -176,15 +182,15 @@ void advance_op::WorkerThread(int superthreadidx, int threadidxoffset, hostgloba
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
 			edgesize[i][j] = utilityobj[superthreadidx]->hmin(KVDATA_BATCHSIZE, utilityobj[superthreadidx]->hsub(edgepropertyfilesize, tmptotaledgessize)); 
 			tmptotaledgessize += edgesize[i][j]; }}
-		cout<<"----before------------ edgepropertyfilesize: "<<edgepropertyfilesize<<endl;
 		
 		// load it
-		loadgraphdata(threadidxoffset + superthreadidx, edgeoffset, edgesize, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], voffset[0][0], vsize[0][0]);
-		loadvariables((edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], edgesize, beginvid[0][0], voffset[0][0], vsize[0][0]);
-		loadactsvertices(vertexdatabuffer, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], vsize[0][0]);
-		loadvariables2(edgeoffset, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], beginvid[0][0], beginkeyvalue[0][0]);
-		loadactskeyvalues((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], edgesize);
-		loadactsmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], edgesize, beginvid[0][0], beginkeyvalue[0][0], voffset[0][0], vsize[0][0]);
+		loadgraphdata(threadidxoffset + superthreadidx, edgeoffset, edgesize, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], beginvid[0][0], srcvoffset[0][0], srcvsize[0][0]);
+		loadvariables(threadidxoffset + superthreadidx, (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], edgesize, beginvid[0][0], srcvoffset[0][0], srcvsize[0][0], destvoffset[0][0],
+							edgeoffset, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], beginkeyvalue[0][0]);
+		loadsourcevertices(vertexdatabuffer, (edge_t* (*)[NUMSUBCPUTHREADS])vertexptrs[0][0], (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], beginvid[0][0], srcvsize[0][0]);
+		loaddestvertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (threadidxoffset + superthreadidx) * parametersobj[0]->GET_BATCH_RANGE(0));
+		loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], (edge_type* (*)[NUMSUBCPUTHREADS])edgesbuffer[0][0], edgesize);
+		loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], edgesize, beginvid[0][0], beginkeyvalue[0][0], srcvoffset[0][0], srcvsize[0][0], destvoffset[0][0]);
 
 		// update
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ edgeoffset[i][j] += edgesize[i][j]; }}
@@ -192,20 +198,22 @@ void advance_op::WorkerThread(int superthreadidx, int threadidxoffset, hostgloba
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(threadidxoffset + superthreadidx, edgesize[i][j]); }}
 		
 		// acts it
-		helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0);
+		if(iteration_idx == 20){ helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0); } // REMOVEME
+		// helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0);
 		
 		if(prevtotaledgesize == totaledgesize){ cout<<"WorkerThread:: WorkerThread finished. breaking... "<<endl; break; }
 		else{ prevtotaledgesize = totaledgesize; }
-		iteration_idx += NUMCPUTHREADS * NUMSUBCPUTHREADS; 
-		if(iteration_idx > 512){ cout<<"WorkerThread:: something wrong. too many iterations? EXITING "<<endl; exit(EXIT_SUCCESS); }
+		iteration_idx += NUMCPUTHREADS * NUMSUBCPUTHREADS;
+		if(iteration_idx > 512){ cout<<"WorkerThread:: something wrong. too many iterations? EXITING "<<endl; exit(EXIT_FAILURE); }
+		// if(iteration_idx > 2){ exit(EXIT_SUCCESS); }
 		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
-	// exit(EXIT_SUCCESS); // REMOVEME.
+	exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 
-void advance_op::loadgraphdata(unsigned int col, edge_t edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
+void advance_op::loadgraphdata(unsigned int col, edge_t edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
 	// end-of-file edge condition
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ 
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -264,50 +272,34 @@ void advance_op::loadgraphdata(unsigned int col, edge_t edgeoffset[NUMCPUTHREADS
 	}
 	return;
 }
-void advance_op::loadvariables(edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
+void advance_op::loadsourcevertices(value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			voffset[i][j] = edgesbuffer[i][j][0].srcvid;
-			vsize[i][j] = ((edgesbuffer[i][j][edgesize[i][j]].srcvid + 1) - edgesbuffer[i][j][0].srcvid) + 1;
-			beginvid[i][j] = edgesbuffer[i][j][0].srcvid;
-			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: voffset["<<i<<"]["<<j<<"]: "<<voffset[i][j]<<endl;
-			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: vsize["<<i<<"]["<<j<<"]: "<<vsize[i][j]<<endl;
-			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: beginvid["<<i<<"]["<<j<<"]: "<<beginvid[i][j]<<endl;
-			#endif 
-		}
-	}
-	return;
-}
-void advance_op::loadactsvertices(value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			for(unsigned int vid = 0; vid < vsize[i][j]; vid++){
+			for(unsigned int vid = 0; vid < srcvsize[i][j]; vid++){
 				kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + vid].key = vertexptrs[i][j][vid];
 				kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + vid].value = vertexdatabuffer[beginvid[i][j] + vid]; // 10000000 + vid; // vertexdatabuffer[vid]; // 10000000 + k;
 			}
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<">>> loadactsvertices["<<i<<"]["<<j<<"]: first data in kvbuffer->vertices[0]: key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE].value<<" (vertex data)"<<endl;
-			cout<<">>> loadactsvertices["<<i<<"]["<<j<<"]: last data in kvbuffer->vertices["<<vsize[i][j] - 1<<"]: key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + vsize[i][j] - 1].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + vsize[i][j] - 1].value<<" (vertex data)"<<endl;
+			cout<<">>> loadsourcevertices["<<i<<"]["<<j<<"]: first data in kvbuffer->vertices[0]: key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE].value<<""<<endl;
+			cout<<">>> loadsourcevertices["<<i<<"]["<<j<<"]: last data in kvbuffer->vertices["<<srcvsize[i][j] - 1<<"]: key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + srcvsize[i][j] - 1].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + srcvsize[i][j] - 1].value<<""<<endl;
 			#endif 
 		}
 	}
 	return;
 }
-void advance_op::loadvariables2(edge_t edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
+void advance_op::loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], size_t offset){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			beginkeyvalue[i][j].key = vertexptrs[i][j][0];
-			beginkeyvalue[i][j].value = vertexdatabuffer[beginvid[i][j]];
+			memcpy(&kvbuffer[i][j][BASEOFFSET_VERTICESDATA], &vertexdatabuffer[offset], parametersobj[0]->GET_BATCH_RANGE(0) * sizeof(value_t));
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<">>> loadvariables2["<<i<<"]["<<j<<"]: beginkeyvalue["<<i<<"]["<<j<<"].key: "<<beginkeyvalue[i][j].key<<endl;
-			cout<<">>> loadvariables2["<<i<<"]["<<j<<"]: beginkeyvalue["<<i<<"]["<<j<<"].value: "<<beginkeyvalue[i][j].value<<endl;
+			cout<<">>> loaddestvertices["<<i<<"]["<<j<<"]: first data in dest vertices[0]: key: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA].value<<" (vertex data)"<<endl;
+			cout<<">>> loaddestvertices["<<i<<"]["<<j<<"]: last data in dest vertices["<<parametersobj[0]->GET_BATCH_RANGE(0)/2 - 1<<"]: key: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA + parametersobj[0]->GET_BATCH_RANGE(0)/2 - 1].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA + parametersobj[0]->GET_BATCH_RANGE(0)/2 - 1].value<<" (vertex data)"<<endl;
 			#endif 
 		}
 	}
 	return;
 }
-void advance_op::loadactskeyvalues(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void advance_op::loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			for(unsigned int k=0; k<edgesize[i][j]; k++){
@@ -315,20 +307,21 @@ void advance_op::loadactskeyvalues(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCP
 				kvbuffer[i][j][BASEOFFSET_KVDRAM + k].value = edgesbuffer[i][j][k].srcvid;
 			}
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<">>> loadactskeyvalues["<<i<<"]["<<j<<"]: first data: kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].key<<" (edge dstvid), kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].value<<" (edges srcvid)"<<endl;
+			cout<<">>> loadedges["<<i<<"]["<<j<<"]: first data: kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].key<<" (edge dstvid), kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].value<<" (edges srcvid)"<<endl;
 			#endif 
 		}
 	}
 	return;
 }
-void advance_op::loadactsmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int vsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void advance_op::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ 
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
-			if(vsize[i][j] >= KVDRAMSZ){ cout<<"advance_op::run::ERROR: fix this. vsize is greater than allowed. vsize["<<i<<"]["<<j<<"]: "<<vsize[i][j]<<", KVDRAMSZ: "<<KVDRAMSZ<<endl; exit(EXIT_FAILURE); }
+			if(srcvsize[i][j] >= KVDRAMSZ){ cout<<"advance_op::run::ERROR: fix this. srcvsize is greater than allowed. srcvsize["<<i<<"]["<<j<<"]: "<<srcvsize[i][j]<<", KVDRAMSZ: "<<KVDRAMSZ<<endl; exit(EXIT_FAILURE); }
 			helperfunctionsobj[0]->createmessages(
 					kvbuffer[i][j],
-					voffset[i][j], // 0, // FIXME.REMOVEME. //0, // unsigned int voffset,
-					vsize[i][j], // BATCH_RANGE, // NAp, // unsigned int vsize,
+					srcvoffset[i][j], // unsigned int srcvoffset,
+					srcvsize[i][j], // unsigned int srcvsize,
+					destvoffset[i][j], // unsigned int destvoffset,
 					beginvid[i][j], // unsigned int beginvid,
 					beginkeyvalue[i][j].key, // unsigned int beginkey,
 					beginkeyvalue[i][j].value, // unsigned int beginvalue,
@@ -336,16 +329,35 @@ void advance_op::loadactsmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSU
 					0, // unsigned int GraphIter,
 					PAGERANK, // unsigned int GraphAlgo,
 					edgesize[i][j], // unsigned int runsize,
-					BATCH_RANGE, // unsigned int batch_range,
-					BATCH_RANGE_POW, // unsigned int batch_range_pow,
+					parametersobj[0]->GET_BATCH_RANGE(0), // unsigned int batch_range,
+					parametersobj[0]->GET_BATCH_RANGE_POW(0), // unsigned int batch_range_pow,
 					APPLYVERTEXBUFFERSZ, // unsigned int applyvertexbuffersz,
 					NUMLASTLEVELPARTITIONS); // unsigned int numlastlevelpartitions
 		}
 	}
 	return;
 }
-
-
+void advance_op::loadvariables(unsigned int col, edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS],
+									edge_t edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS]){						
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			srcvoffset[i][j] = edgesbuffer[i][j][0].srcvid;
+			srcvsize[i][j] = ((edgesbuffer[i][j][edgesize[i][j]].srcvid + 1) - edgesbuffer[i][j][0].srcvid) + 1;
+			destvoffset[i][j] = col * parametersobj[0]->GET_BATCH_RANGE(0); // REMOVEME.
+			beginvid[i][j] = edgesbuffer[i][j][0].srcvid;
+			beginkeyvalue[i][j].key = vertexptrs[i][j][0];
+			beginkeyvalue[i][j].value = vertexdatabuffer[beginvid[i][j]];
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: srcvoffset["<<i<<"]["<<j<<"]: "<<srcvoffset[i][j]<<endl;
+			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: srcvsize["<<i<<"]["<<j<<"]: "<<srcvsize[i][j]<<endl;
+			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: beginvid["<<i<<"]["<<j<<"]: "<<beginvid[i][j]<<endl;
+			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: beginkeyvalue["<<i<<"]["<<j<<"].key: "<<beginkeyvalue[i][j].key<<endl;
+			cout<<">>> loadvariables["<<i<<"]["<<j<<"]: beginkeyvalue["<<i<<"]["<<j<<"].value: "<<beginkeyvalue[i][j].value<<endl;
+			#endif 
+		}
+	}
+	return;
+}
 
 
 

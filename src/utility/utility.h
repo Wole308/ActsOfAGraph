@@ -58,6 +58,8 @@ public:
 	void scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit);
 	unsigned int geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex);
 	
+	void createdirectory(const char* directory);
+	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);
 	#endif 

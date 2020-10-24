@@ -51,9 +51,17 @@ AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=26
 SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM=31
 SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=32
 
+ORKUT_3M_106M=30
+HOLLYWOOD_1M_57M=31
+INDOCHINA_7M_194M=32
+KRON21_2M_91M=33
+RGG_17M_132M=34
+ROADNET_2M_3M=35
+FLICKR_1M_10M=36
+
 LARGEDATASET_1M=1
 LARGEDATASET_4M=2
-TWITTERDATASET_67M=3
+TWITTER_67M=3
 LARGEDATASET_67M=4
 LARGEDATASET_268M=5
 LARGEDATASET_1B=6
@@ -77,6 +85,7 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
+# for evaluation_type in EV_CREATENDGRAPH
 for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
@@ -307,9 +316,8 @@ do
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ1
-		# for numsubcputhreads_pow in $THREADPOW_EQ0
+		# for numsubcputhreads_pow in $THREADPOW_EQ4
+		for numsubcputhreads_pow in $THREADPOW_EQ0
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
@@ -317,16 +325,24 @@ do
 			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
-				# for dataset in $LARGEDATASET_1M #
-				# for dataset in $LARGEDATASET_4M
-				for dataset in $TWITTERDATASET_67M #
+				
+				# for dataset in $ORKUT_3M_106M
+				# for dataset in $HOLLYWOOD_1M_57M
+				# for dataset in $INDOCHINA_7M_194M
+				# for dataset in $KRON21_2M_91M
+				# for dataset in $RGG_17M_132M
+				# for dataset in $ROADNET_2M_3M
+				# for dataset in $FLICKR_1M_10M
+				# for dataset in $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M
+				
+				for dataset in $TWITTER_67M #
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
-				# for dataset in $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
+				# for dataset in $LARGEDATASET_4B
+				# for dataset in $TWITTER_67M $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 				do
-					# for evaluation_param0 in 0 1 2 3 4 5
-					# for evaluation_param0 in 4
+					# for evaluation_param0 in 0 1 2 3 4
 					for evaluation_param0 in 0
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
@@ -337,35 +353,101 @@ do
 						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
 						PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
 						
-						if [ $dataset == $LARGEDATASET_1M ]  
+						if [ $dataset == $ORKUT_3M_106M ]  
 						then	
-							DATASET="_LARGEDATASET_1M"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron20.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron20.awsxclbin"
+							DATASET="_ORKUT_3M_106M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_orkut.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_orkut.awsxclbin"
 							
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron20.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron20.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.xo"
-							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.xclbin"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.awsxclbin"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron20.out"
-						elif [ $dataset == $LARGEDATASET_4M ]  
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_orkut.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.out"
+						elif [ $dataset == $HOLLYWOOD_1M_57M ]  
 						then	
-							DATASET="_LARGEDATASET_4M"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron22.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron22.awsxclbin"
+							DATASET="_HOLLYWOOD_1M_57M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_hollywood.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_hollywood.awsxclbin"
 							
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron22.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron22.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron22"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron22.xo"
-							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron22.xclbin"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron22.awsxclbin"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron22.out"
-						elif [ $dataset == $TWITTERDATASET_67M ]  
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_hollywood.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.out"
+						elif [ $dataset == $INDOCHINA_7M_194M ]  
 						then	
-							DATASET="_TWITTERDATASET_67M"
+							DATASET="_INDOCHINA_7M_194M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_indochina.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_indochina.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_indochina.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.out"
+						elif [ $dataset == $KRON21_2M_91M ]  
+						then	
+							DATASET="_KRON21_2M_91M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_kron21.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron21.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron21.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.out"
+						elif [ $dataset == $RGG_17M_132M ]  
+						then	
+							DATASET="_RGG_17M_132M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_rgg.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_rgg.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_rgg.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.out"
+						elif [ $dataset == $ROADNET_2M_3M ]  
+						then	
+							DATASET="_ROADNET_2M_3M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_roadnet.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_roadnet.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_roadnet.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.out"
+						elif [ $dataset == $FLICKR_1M_10M ]  
+						then	
+							DATASET="_FLICKR_1M_10M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_flickr.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_flickr.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_flickr.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.xo"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.out"
+						
+						elif [ $dataset == $TWITTER_67M ]  
+						then	
+							DATASET="_TWITTER_67M"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron26.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron26.awsxclbin"
 							

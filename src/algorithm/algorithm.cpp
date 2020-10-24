@@ -72,8 +72,8 @@ bool algorithm::is_active(uint32_t old, uint32_t newv, bool marked) {
 value_t algorithm::cummulate(value_t data1, value_t data2){
 	return data1 + data2;
 }
-value_t algorithm::vertex_initdata(){ return 0; }
-value_t algorithm::vertex_inittempdata(){ return 0; }
+value_t algorithm::vertex_initdata(){ return 1; }
+value_t algorithm::vertex_inittempdata(){ return 1; }
 uint32_t algorithm::apply(value_t vtempdata, value_t vdata) {
 	return 0.1;
 	// return (0.1 + ((1 − 0.1) * vtempdata)); // / vprop.outdegree;

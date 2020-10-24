@@ -19,8 +19,9 @@ public:
 	
 	void createmessages(
 			uint512_vec_dt * kvstats,
-			unsigned int voffset,
-			unsigned int vsize,
+			unsigned int srcvoffset,
+			unsigned int srcvsize,
+			unsigned int destvoffset,
 			unsigned int beginvid,
 			unsigned int beginkey,
 			unsigned int beginvalue,

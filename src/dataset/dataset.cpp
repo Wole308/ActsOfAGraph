@@ -31,10 +31,32 @@ dataset::~dataset(){}
 
 unsigned int dataset::getdatasetid(){
 	unsigned int datasetid = 0;
-	#ifdef _LARGEDATASET_1M
-	datasetid = 1;
+	
+	// small dataset 
+	#ifdef _ORKUT_3M_106M
+	datasetid = 30;
 	#endif
-	#ifdef _TWITTERDATASET_67M
+	#ifdef _HOLLYWOOD_1M_57M
+	datasetid = 31;
+	#endif
+	#ifdef _INDOCHINA_7M_194M
+	datasetid = 32;
+	#endif
+	#ifdef _KRON21_2M_91M
+	datasetid = 33;
+	#endif
+	#ifdef _RGG_17M_132M
+	datasetid = 34;
+	#endif
+	#ifdef _ROADNET_2M_3M
+	datasetid = 35;
+	#endif
+	#ifdef _FLICKR_1M_10M
+	datasetid = 36;
+	#endif
+	
+	// large dataset 
+	#ifdef _TWITTER_67M
 	datasetid = 2;
 	#endif
 	#ifdef _LARGEDATASET_67M
@@ -51,6 +73,8 @@ unsigned int dataset::getdatasetid(){
 	#endif
 	return datasetid;
 }
+
+
 
 
 

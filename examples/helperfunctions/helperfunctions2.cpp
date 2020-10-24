@@ -37,8 +37,9 @@ helperfunctions2::~helperfunctions2(){}
 // create messages
 void helperfunctions2::createmessages(
 			uint512_vec_dt * kvstats,
-			unsigned int voffset,
-			unsigned int vsize,
+			unsigned int srcvoffset,
+			unsigned int srcvsize,
+			unsigned int destvoffset,
 			unsigned int beginvid,
 			unsigned int beginkey,
 			unsigned int beginvalue,
@@ -55,9 +56,10 @@ void helperfunctions2::createmessages(
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key = ON;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key = ON;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key = ON;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VOFFSET].data[0].key = voffset;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE].data[0].key = vsize;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_VSIZE_KVS].data[0].key = (vsize + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key = srcvoffset;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key = srcvsize;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE_KVS].data[0].key = (srcvsize + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key = destvoffset;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVID].data[0].key = beginvid;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINKEY].data[0].key = beginkey;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVALUE].data[0].key = beginvalue;
@@ -82,9 +84,9 @@ void helperfunctions2::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;// 1
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0; // REMOVEME
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0; // REMOVEME
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 	}
 	
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHRANGE].data[0].key = batch_range; 
