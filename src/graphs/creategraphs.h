@@ -7,13 +7,13 @@
 
 #define CREATENDGRAPH_BATCHSIZE 10000000
 
-// #define YDIMENSIONTHRESHOLD 1000
-#define YDIMENSIONTHRESHOLD (1 << 29) // infinite
+#define YDIMENSIONTHRESHOLD 1000
+// #define YDIMENSIONTHRESHOLD (1 << 29) // infinite
 
-class createNDgraph {
+class creategraphs {
 public:
-	createNDgraph(unsigned int datasetid);
-	~createNDgraph();
+	creategraphs(unsigned int datasetid);
+	~creategraphs();
 	
 	void run();
 	

@@ -123,7 +123,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 	#endif
 	
 	#ifdef FPGA_IMPL // REMOVEME. CHANGEMEBACK.
-	helperfunctionsobj[superthreadidx]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, parametersobj[superthreadidx]->GET_MYBATCH_RANGE(globalparams.groupid));
+	helperfunctionsobj[superthreadidx]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, parametersobj[superthreadidx]->GET_BATCH_RANGE(globalparams.groupid)/2);
 	#endif
 	
 	edge_t edgepropertyfilesize = lseek(graphobj->getnvmeFd_edges_r2()[threadidxoffset + superthreadidx], 0, SEEK_END) / sizeof(edgeprop1_t);			
@@ -185,7 +185,7 @@ void pagerank::WorkerThread(int superthreadidx, int threadidxoffset, hostglobalp
 
 	// writeback temp vertices data
 	#ifdef FPGA_IMPL // REMOVEME. CHANGEMEBACK.
-	helperfunctionsobj[superthreadidx]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, parametersobj[superthreadidx]->GET_MYBATCH_RANGE(globalparams.groupid));
+	helperfunctionsobj[superthreadidx]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, parametersobj[superthreadidx]->GET_BATCH_RANGE(globalparams.groupid)/2);
 	#endif
 	#ifdef ACTSMODEL
 	helperfunctionsobj[superthreadidx]->cummulateverticesdata((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvdestdram[superthreadidx][0], 0, parametersobj[superthreadidx]->GET_KVDATA_RANGE_PERSSDPARTITION(globalparams.groupid));

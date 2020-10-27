@@ -11,6 +11,24 @@
 #include "../../include/common.h"
 #include "advance_op.h"
 
+typedef struct {
+	unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int runsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]; 
+} batchparams_t;
+
+typedef struct {
+	unsigned int numedgesretrieved[NUMSSDPARTITIONS];
+	unsigned int totalnumedgesinfile[NUMSSDPARTITIONS];
+} totalsparams_t;
+
 class advance_op {
 public:
 	advance_op(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
@@ -18,16 +36,15 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void WorkerThread(int superthreadidx, int threadidxoffset, hostglobalparams_t globalparams);
+	void WorkerThread(unsigned int superthreadidx, unsigned int col, hostglobalparams_t globalparams);
 	
-	void loadgraphdata(unsigned int col, edge_t edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]);									
-	void loadsourcevertices(value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], size_t offset);
-	void loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void loadvariables(unsigned int col, edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS],
-									edge_t edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-									
+	void loadgraphdata(unsigned int col, value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], batchparams_t * batchparams, totalsparams_t * totalsparams);
+	void loadgraphdata(unsigned int col, unsigned int threadid, unsigned int subthreadid, value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], batchparams_t * batchparams, totalsparams_t * totalsparams);			
+	void loadsourcevertices(unsigned int col, value_t * vertexdatabuffer, edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], batchparams_t * batchparams);
+	void loaddestvertices(unsigned int col, value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], size_t offset, batchparams_t * batchparams);
+	void loadedges(unsigned int col, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], batchparams_t * batchparams);
+	void loadmessages(unsigned int col, uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], batchparams_t * batchparams);
+							
 private:
 	graph * graphobj;
 	parameters * parametersobj[NUMSUPERCPUTHREADS];
@@ -45,16 +62,13 @@ private:
 	unsigned int * degrees;
 	edge_type * edgesbuffer[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_t * vertexptrs[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	#ifdef GRAFBOOST_SETUP 
+	SortReduce<uint64_t,uint32_t>* sr;
+	VertexValues<uint32_t,uint32_t>* vertex_values;
+	#endif 
 	
 	// acts structures 
 	uint512_vec_dt * kvbuffer[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	
-	// other structures 
-	unsigned int srcvoffset[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	unsigned int srcvsize[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	unsigned int destvoffset[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	unsigned int beginvid[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	keyvalue_t beginkeyvalue[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };
 #endif
 

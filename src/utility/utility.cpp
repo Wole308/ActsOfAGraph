@@ -204,17 +204,31 @@ void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 	#endif 
 	return;
 }
-void utility::printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
+void utility::printvalues(string message, unsigned int * values, unsigned int size){
+	cout<<"utility::printvalues::"<<message<<":: printing first "<<size<< " values" <<endl;
 	unsigned int count = 0;
 	unsigned int totalsize = 0;
 	for(unsigned int i=0; i<size; i++){
-		if(values[i] >= threshold){ 
+		cout<<"values["<<i<<"]: "<<values[i]<<endl;
+	}
+}
+void utility::printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
+	unsigned int count = 0;
+	unsigned int totalsize = 0;
+	int firstindex = -1;
+	int lastindex = -1;
+	for(unsigned int i=0; i<size; i++){
+		if(values[i] >= threshold){
+			if(firstindex == -1){ firstindex = i; }
+			lastindex = i;
+			
 			count += 1; 
 			totalsize += values[i];
 			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
 		}
 	}
 	cout<<"utility::printvaluesgreaterthan::"<<message<<":: datas with value greater than "<<threshold<<": "<<count<<", (<threshold: "<<(size - count)<<") total size: "<<totalsize<<endl<<endl;
+	cout<<"utility::printvaluesgreaterthan::"<<message<<":: first and last indexes: (firstindex: "<<firstindex<<", lastindex: "<<lastindex<<")"<<endl;
 }
 void utility::printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
 	unsigned int count = 0;
@@ -433,10 +447,12 @@ unsigned int utility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int beg
 	return numerrorkeys;
 }
 void utility::createdirectory(const char* directory){
-	if (mkdir(directory, 0777) == -1) 
-        cerr << "Error :  " << strerror(errno) << endl;
-    else
+	if (mkdir(directory, 0777) == -1) {
+		cout << "Directory already exists."; 
+        // cerr << "Error :  " << strerror(errno) << endl;
+	} else{
         cout << "Directory created"; 
+	}
 	return;
 }
 

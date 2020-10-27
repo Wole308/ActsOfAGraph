@@ -26,76 +26,67 @@ print(isFile)
 
 ###
 
+context['NUM_PARTITIONS_POW'] = 4
+context['VECTOR_SIZE'] = 8
+context['DUMMY'] = 0
+context['NUMSUBWORKERS'] = 1
+
+###
+
+EV_PERFORMANCEOFALGORITHM = [0, 1, 2, 3, 4]
+if context['EVALUATION_TYPE'] == "EV_PERFORMANCEOFALGORITHM":
+    context['MAXNUMSSDPARTITIONS_POW'] = EV_PERFORMANCEOFALGORITHM[context['EVALUATION_PARAM0']]
+        
 EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
-else:
-    if context['DATASET'] == "_ORKUT_3M_106M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0 #{0,1,2,3,4}
-        context['KVDATA_RANGE_POW'] = 22
-    elif context['DATASET'] == "_HOLLYWOOD_1M_57M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0
-        context['KVDATA_RANGE_POW'] = 21
-    elif context['DATASET'] == "_INDOCHINA_7M_194M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0
-        context['KVDATA_RANGE_POW'] = 23
-    elif context['DATASET'] == "_KRON21_2M_91M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0
-        context['KVDATA_RANGE_POW'] = 21
-    elif context['DATASET'] == "_RGG_17M_132M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0
-        context['KVDATA_RANGE_POW'] = 25
-    elif context['DATASET'] == "_ROADNET_2M_3M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0
-        context['KVDATA_RANGE_POW'] = 21
-    elif context['DATASET'] == "_FLICKR_1M_10M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 0
-        context['KVDATA_RANGE_POW'] = 20
-
-    elif context['DATASET'] == "_TWITTER_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4
-        context['KVDATA_RANGE_POW'] = 26
-    elif context['DATASET'] == "_LARGEDATASET_67M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4
-        context['KVDATA_RANGE_POW'] = 26
-    elif context['DATASET'] == "_LARGEDATASET_268M":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4
-        context['KVDATA_RANGE_POW'] = 28
-    elif context['DATASET'] == "_LARGEDATASET_1B":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4
-        context['KVDATA_RANGE_POW'] = 30
-    elif context['DATASET'] == "_LARGEDATASET_4B":
-        context['MAXNUMSSDPARTITIONS_POW'] = 4
-        context['KVDATA_RANGE_POW'] = 32
 
 EV_IMPACTOFPARTITIONFANOUT = [3, 4, 5, 6, 7, 8]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT":
     context['NUM_PARTITIONS_POW'] = EV_IMPACTOFPARTITIONFANOUT[context['EVALUATION_PARAM0']]
-else:
-    context['NUM_PARTITIONS_POW'] = 4
     
 EV_IMPACTOFBANDWIDTH = [1, 2, 4, 6, 8, 8]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFBANDWIDTH": 
     context['VECTOR_SIZE'] = EV_IMPACTOFBANDWIDTH[context['EVALUATION_PARAM0']]
-else:
-    context['VECTOR_SIZE'] = 8
     
 EV_IMPACTOFPLATFORM = [1, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFPLATFORM": 
-    context['DUMMY'] = 0
     context['LOCKE'] = "NOLOCKE"
-else:
-    context['DUMMY'] = 0
     
 EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": 
     context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
-else:
-    context['NUMSUBWORKERS'] = 1
     
 EV_CREATENDGRAPH = [0, 1, 2, 3, 4]
 if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
     context['MAXNUMSSDPARTITIONS_POW'] = EV_CREATENDGRAPH[context['EVALUATION_PARAM0']]
+    
+if context['DATASET'] == "_ORKUT_3M_106M": # small dataset
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_HOLLYWOOD_1M_57M":
+    context['KVDATA_RANGE_POW'] = 21
+elif context['DATASET'] == "_INDOCHINA_7M_194M":
+    context['KVDATA_RANGE_POW'] = 23
+elif context['DATASET'] == "_KRON21_2M_91M":
+    context['KVDATA_RANGE_POW'] = 21
+elif context['DATASET'] == "_RGG_17M_132M":
+    context['KVDATA_RANGE_POW'] = 25
+elif context['DATASET'] == "_ROADNET_2M_3M":
+    context['KVDATA_RANGE_POW'] = 21
+elif context['DATASET'] == "_FLICKR_1M_10M":
+    context['KVDATA_RANGE_POW'] = 20
+elif context['DATASET'] == "_TWITTER_67M": # large dataset
+    context['KVDATA_RANGE_POW'] = 26
+elif context['DATASET'] == "_LARGEDATASET_67M":
+    context['KVDATA_RANGE_POW'] = 26
+elif context['DATASET'] == "_LARGEDATASET_268M":
+    context['KVDATA_RANGE_POW'] = 28
+elif context['DATASET'] == "_LARGEDATASET_1B":
+    context['KVDATA_RANGE_POW'] = 30
+elif context['DATASET'] == "_LARGEDATASET_4B":
+    context['KVDATA_RANGE_POW'] = 32
+else:
+    context['KVDATA_RANGE_POW'] = 0
 
 ###
 
@@ -158,22 +149,22 @@ print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH']))
 print ('BUNDLEFACTOR_APPLYPH: ' + str(context['BUNDLEFACTOR_APPLYPH'])) 
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
-o_path0="acts/acts_____DONTUSE/acts.cpp"
-o_path1="acts/acts_____DONTUSE/acts.h"
+o_path0="acts/acts/acts.cpp"
+o_path1="acts/acts/acts.h"
 o_path2="acts/acts_lw/actslw.cpp"
 o_path3="acts/acts_lw/actslw.h"
 o_path4="include/common.h"
 o_path5="include/common.h"
-o_path6="acts/acts_lw10/actslw.cpp"
-o_path7="acts/acts_lw10/actslw.h"
-o_path8="acts/acts_lw11/actslw.cpp"
-o_path9="acts/acts_lw11/actslw.h"
-o_path10="acts/acts_lw1/actslw.cpp"
-o_path11="acts/acts_lw1/actslw.h"
-o_path12="acts/acts_lw2/actslw.cpp"
-o_path13="acts/acts_lw2/actslw.h"
-o_path14="acts/acts1/acts.cpp"
-o_path15="acts/acts1/acts.h"
+o_path6="acts/acts_lw/actslw.cpp"
+o_path7="acts/acts_lw/actslw.h"
+o_path8="acts/acts_lw/actslw.cpp"
+o_path9="acts/acts_lw/actslw.h"
+o_path10="acts/acts_lw/actslw.cpp"
+o_path11="acts/acts_lw/actslw.h"
+o_path12="acts/acts_lw/actslw.cpp"
+o_path13="acts/acts_lw/actslw.h"
+o_path14="acts/acts/acts.cpp"
+o_path15="acts/acts/acts.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -192,22 +183,22 @@ out_path13=os.path.abspath(o_path13)
 out_path14=os.path.abspath(o_path14)
 out_path15=os.path.abspath(o_path15)
 
-templ_path0="acts/acts_____DONTUSE/"
-templ_path1="acts/acts_____DONTUSE/"
+templ_path0="acts/acts/"
+templ_path1="acts/acts/"
 templ_path2="acts/acts_lw/"
 templ_path3="acts/acts_lw/"
 templ_path4="include/"
 templ_path5="include/"
-templ_path6="acts/acts_lw10/"
-templ_path7="acts/acts_lw10/"
-templ_path8="acts/acts_lw11/"
-templ_path9="acts/acts_lw11/"
-templ_path10="acts/acts_lw1/"
-templ_path11="acts/acts_lw1/"
-templ_path12="acts/acts_lw2/"
-templ_path13="acts/acts_lw2/"
-templ_path14="acts/acts1/"
-templ_path15="acts/acts1/"
+templ_path6="acts/acts_lw/"
+templ_path7="acts/acts_lw/"
+templ_path8="acts/acts_lw/"
+templ_path9="acts/acts_lw/"
+templ_path10="acts/acts_lw/"
+templ_path11="acts/acts_lw/"
+templ_path12="acts/acts_lw/"
+templ_path13="acts/acts_lw/"
+templ_path14="acts/acts_lw/"
+templ_path15="acts/acts_lw/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -405,8 +396,8 @@ template10 = env10.get_template('actslw.template')
 template11 = env11.get_template('actslw_h.template')
 template12 = env12.get_template('actslw.template')
 template13 = env13.get_template('actslw_h.template')
-template14 = env14.get_template('acts.template')
-template15 = env15.get_template('acts_h.template')
+template14 = env14.get_template('actslw.template')
+template15 = env15.get_template('actslw_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)

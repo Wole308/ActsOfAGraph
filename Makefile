@@ -53,8 +53,7 @@ CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
 # HOST_TOP += examples/hostprocess.cpp
-# KERNEL_TOP += acts/acts_lw1/actslw.cpp
-KERNEL_TOP += acts/acts_lw2/actslw.cpp
+KERNEL_TOP += acts/acts_lw/actslw.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
 
 HOST_TOP += examples/hostprocess.cpp
@@ -79,8 +78,8 @@ HOST_SRCS += kernels/kernel.cpp
 HOST_SRCS += kernels/swkernel.cpp
 HOST_SRCS += kernels/goclkernel.cpp
 # HOST_SRCS += acts/actsutility/actsutility.cpp
-HOST_SRCS += src/graphs/creategraph.cpp
-HOST_SRCS += src/graphs/createNDgraph.cpp
+HOST_SRCS += src/graphs/creategraphs.cpp
+HOST_SRCS += acts/sortreduce/sr.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=sortreduce-master/include/

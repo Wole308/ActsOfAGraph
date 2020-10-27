@@ -151,11 +151,21 @@ void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSU
         waitList.push_back(write_event[i]);
 		OCL_CHECK(err,
                   err = q.enqueueNDRangeKernel(
-                      krnls[i], 0, 1, 1, &waitList, &kernel_events[flag*i]));
+                      krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
+		set_callback2(kernel_events[i], "ooo_queue");
+		
+		
+		// OCL_CHECK(err,
+                  // err = q.enqueueNDRangeKernel(
+                      // krnls[i], 0, 1, 1, &waitList, &kernel_events[flag*i]));
+		// OCL_CHECK(err,
+                  // err = q.enqueueNDRangeKernel(
+                      // krnls[i], 0, 1, 0, NULL, &kernel_events[flag*i]));
+		// OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
 	}
-	// #ifdef LOCKE
+	#ifdef LOCKE
     q.finish();
-	// #endif
+	#endif
 	
     auto kernel_end = std::chrono::high_resolution_clock::now();
     kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
@@ -169,7 +179,7 @@ void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel::writetokernel::1st of "<<TOTALNUMACTCUSTORUN<<":: hostbeginoffset: "<<hostbeginoffset<<", beginoffset "<<beginoffset<<" size: "<<size<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
 	#endif
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); }
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); } // REMOVEME.
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		unsigned int threadid = i / NUMSUBCPUTHREADS;
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
@@ -180,7 +190,7 @@ void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[
 	#endif
 }
 void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); }
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); } // REMOVEME.
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		unsigned int threadid = i / NUMSUBCPUTHREADS;
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
@@ -188,17 +198,20 @@ void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"goclkernel::writetokernel:: hostbeginoffset: "<<hostbeginoffset[threadid][subthreadid]<<", beginoffset["<<threadid<<"]["<<subthreadid<<"] "<<beginoffset[threadid][subthreadid]<<" size["<<threadid<<"]["<<subthreadid<<"]: "<<size[threadid][subthreadid]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
 		#endif
-		#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
-		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset[threadid][subthreadid] * sizeof(keyvalue_t), size[threadid][subthreadid] * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[threadid][subthreadid][(hostbeginoffset[threadid][subthreadid] / VECTOR_SIZE)]), NULL, &write_event[i])); 											
-		#else 
-		OCL_CHECK(err,
-				  err = q.enqueueMigrateMemObjects(
-					  {buffer_kvsourcedram[i]},
-					  0,
-					  NULL,
-					  &write_event[i]));
-		#endif
-		set_callback2(write_event[i], "ooo_queue");
+		if(size[threadid][subthreadid] == 0){ size[threadid][subthreadid] = 1024; } // REMOVEME?
+		// if(size[threadid][subthreadid] > 0){
+			#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
+			OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset[threadid][subthreadid] * sizeof(keyvalue_t), size[threadid][subthreadid] * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[threadid][subthreadid][(hostbeginoffset[threadid][subthreadid] / VECTOR_SIZE)]), NULL, &write_event[i])); 											
+			#else 
+			OCL_CHECK(err,
+					  err = q.enqueueMigrateMemObjects(
+						  {buffer_kvsourcedram[i]},
+						  0,
+						  NULL,
+						  &write_event[i]));
+			#endif
+			set_callback2(write_event[i], "ooo_queue");
+		// }
 	}
     #ifdef LOCKE
     q.finish();
@@ -209,7 +222,7 @@ void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel::readfromkernel::1st of "<<TOTALNUMACTCUSTORUN<<":: hostbeginoffset: "<<hostbeginoffset<<", beginoffset "<<beginoffset<<" size: "<<size<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
 	#endif
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); }
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); } // REMOVEME.
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		unsigned int threadid = i / NUMSUBCPUTHREADS;
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
@@ -221,7 +234,7 @@ void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel::readfromkernel::1st of "<<TOTALNUMACTCUSTORUN<<":: hostbeginoffset: "<<hostbeginoffset[0][0]<<", beginoffset[0][0] "<<beginoffset[0][0]<<" size[0][0]: "<<size[0][0]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
 	#endif
-	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ OCL_CHECK(err, err = kernel_events[flag*i].wait()); }
+	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ OCL_CHECK(err, err = kernel_events[flag*i].wait()); } // REMOVEME.
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		unsigned int threadid = i / NUMSUBCPUTHREADS;
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;

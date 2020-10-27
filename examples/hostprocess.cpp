@@ -13,8 +13,7 @@
 #include "../examples/pagerank/pagerank.h"
 // #include "../examples/bfs/bfs.h"
 #include "../examples/advance_op/advance_op.h"
-#include "../src/graphs/creategraph.h"
-#include "../src/graphs/createNDgraph.h"
+#include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"
 #include "../include/common.h"
 using namespace std;
@@ -36,9 +35,8 @@ int main(int argc, char** argv){
 	// exit(EXIT_SUCCESS);
 
 	#ifdef _GENERATE2DGRAPH
-	creategraph * creategraphobj = new creategraph();
-	creategraphobj->create2Dgraf(datasetobj->getdatasetid());
-	// creategraphobj->analyzegraf(datasetobj->getdatasetid());
+	creategraphs * creategraphsobj = new creategraphs(datasetobj->getdatasetid());
+	creategraphsobj->run();
 	exit(EXIT_SUCCESS);
 	#endif
 	
@@ -52,15 +50,15 @@ int main(int argc, char** argv){
 	exit(EXIT_SUCCESS);
 	#endif
 	
-	#if (defined(ACTGRAPH_SETUP) & defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
+	#if (defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);
 	pagerankobj->run();
 	#endif
-	#if (defined(ACTGRAPH_SETUP) & defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
+	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
 	bfsobj->run();
 	#endif
-	#if (defined(ACTGRAPH_SETUP) & defined(ADVANCE_ALGORITHM))
+	#if (defined(ADVANCE_ALGORITHM))
 	advance_op * advanceobj = new advance_op(NAp, datasetobj->getdatasetid(), binaryFile);
 	advanceobj->run();
 	#endif

@@ -23,13 +23,16 @@
 
 /* #ifdef FPGA_IMPL
 	#define ACTSMODEL_LW
-	#define ACTSMODEL_LWGROUP1
 #else 
 	#define ACTSMODEL
 #endif */
+// #ifdef ACTGRAPH_SETUP
 // #define ACTSMODEL
 #define ACTSMODEL_LW
-	#define ACTSMODEL_LWGROUP1
+// #endif 
+#ifdef GRAFBOOST_SETUP
+#define SORTREDUCEMODEL
+#endif 
 
 #define {{context['LOCKE']}}
 #define _SINGLEKERNEL
@@ -82,7 +85,7 @@
 #else
 #define _DEBUGMODE_STATS // 
 // #define _DEBUGMODE_CHECKS
-#define _DEBUGMODE_CHECKS2 // 
+// #define _DEBUGMODE_CHECKS2 // 
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS

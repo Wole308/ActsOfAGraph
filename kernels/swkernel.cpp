@@ -12,17 +12,7 @@
 #include "../acts/acts1/acts.h"
 #endif
 #ifdef ACTSMODEL_LW
-	#ifdef ACTSMODEL_LWGROUP1
-	// #include "../acts/acts_lw/actslw.h"
-	// #include "../acts/acts_lw1/actslw.h"
-	#include "../acts/acts_lw2/actslw.h"
-	#endif 
-	#ifdef ACTSMODEL_LWGROUP2
-	#include "../acts/acts_lw10/actslw.h"
-	#endif
-	#ifdef ACTSMODEL_LWGROUP3
-	#include "../acts/acts_lw11/actslw.h"
-	#endif 
+#include "../acts/acts_lw/actslw.h"
 #endif 
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -57,51 +47,19 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 	
 	#ifdef ACTSMODEL
 	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_acts(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_acts(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 	#else 
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&swkernel::workerthread_launchkernel_acts, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&swkernel::workerthread_acts, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
 	#endif
 	#endif 
 	
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
+	#ifdef ACTSMODEL_LW
 	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
 	#else 
 		// FIXME.
 		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);
-	#endif
-	#endif 
-	
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
-	#ifdef LOCKE
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ for (int i = 0; i < NUMCPUTHREADS; i++){ workerthread_launchkernel_actslwtype2(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvsourcedram[i+1][j]); }}
-	#else 
-		// FIXME.
-	#endif
-	#endif
-	
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP3)
-	#ifdef LOCKE
-		workerthread_launchkernel_actslwtype3(0, 
-							kvsourcedram[0][0], 
-							kvsourcedram[0][1],
-							kvsourcedram[0][2],
-							kvsourcedram[0][3],
-							kvsourcedram[0][4],
-							kvsourcedram[0][5],
-							kvsourcedram[0][6],
-							kvsourcedram[0][7],
-							kvsourcedram[0][8],
-							kvsourcedram[0][9],
-							kvsourcedram[0][10],
-							kvsourcedram[0][11],
-							kvsourcedram[0][12],
-							kvsourcedram[0][13],
-							kvsourcedram[0][14],
-							kvsourcedram[0][15]);
-	#else 
-		// FIXME.
 	#endif
 	#endif
 	
@@ -112,9 +70,9 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 	return;
 }
 void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
+	#ifdef ACTSMODEL_LW
 	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_launchkernel_actslwtype1(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
+		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
 	#else 
 		// FIXME.
 		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);
@@ -125,86 +83,17 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 
 // worker threads
 #ifdef ACTSMODEL
-void swkernel::workerthread_launchkernel_acts(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram, uint512_vec_dt * kvdestdram, keyvalue_t * kvstats){
-	
+void swkernel::workerthread_acts(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram, uint512_vec_dt * kvdestdram, keyvalue_t * kvstats){
 	kernelobjs[ithreadidx]->topkernel((uint512_dt *)kvsourcedram, kvdestdram, kvstats);
-	
-	// #ifdef TESTKERNEL
-	// exit(EXIT_SUCCESS); // REMOVEME.
-	// #endif
 	return;
 }
 #endif
-#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
-void swkernel::workerthread_launchkernel_actslwtype1(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram){
-
+#ifdef ACTSMODEL_LW
+void swkernel::workerthread_actslw(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram){
 	kernelobjs[ithreadidx]->topkernel((uint512_dt *)kvsourcedram);
-	
-	// #ifdef TESTKERNEL
-	// exit(EXIT_SUCCESS); // REMOVEME.
-	// #endif
 	return;
 }
 #endif
-#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
-void swkernel::workerthread_launchkernel_actslwtype2(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram1, uint512_vec_dt * kvsourcedram2){
-	#ifndef TESTKERNEL
-	return; // REMOVEME.
-	#endif 
-
-	kernelobjs[ithreadidx]->topkernel((uint512_dt *)kvsourcedram1, kvsourcedram2);
-	
-	#ifdef TESTKERNEL
-	exit(EXIT_SUCCESS); // REMOVEME.
-	#endif
-	return;
-}
-#endif 
-#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP3)
-void swkernel::workerthread_launchkernel_actslwtype3(unsigned int ithreadidx, 
-										uint512_vec_dt * kvsourcedram0, 
-										uint512_vec_dt * kvsourcedram1,
-										uint512_vec_dt * kvsourcedram2,
-										uint512_vec_dt * kvsourcedram3,
-										uint512_vec_dt * kvsourcedram4,
-										uint512_vec_dt * kvsourcedram5,
-										uint512_vec_dt * kvsourcedram6,
-										uint512_vec_dt * kvsourcedram7,
-										uint512_vec_dt * kvsourcedram8,
-										uint512_vec_dt * kvsourcedram9,
-										uint512_vec_dt * kvsourcedram10,
-										uint512_vec_dt * kvsourcedram11,
-										uint512_vec_dt * kvsourcedram12,
-										uint512_vec_dt * kvsourcedram13,
-										uint512_vec_dt * kvsourcedram14,
-										uint512_vec_dt * kvsourcedram15){
-	#ifndef TESTKERNEL
-	return; // REMOVEME.
-	#endif 
-
-	kernelobjs[ithreadidx]->topkernel(kvsourcedram0, 
-										kvsourcedram1,
-										kvsourcedram2,
-										kvsourcedram3,
-										kvsourcedram4,
-										kvsourcedram5,
-										kvsourcedram6,
-										kvsourcedram7,
-										kvsourcedram8,
-										kvsourcedram9,
-										kvsourcedram10,
-										kvsourcedram11,
-										kvsourcedram12,
-										kvsourcedram13,
-										kvsourcedram14,
-										kvsourcedram15);
-	
-	#ifdef TESTKERNEL
-	exit(EXIT_SUCCESS); // REMOVEME.
-	#endif
-	return;
-}
-#endif 
 
 void swkernel::finishOCL(){
 	return;

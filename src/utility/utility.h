@@ -28,6 +28,7 @@ public:
 	void printedges(string message, edge_type * edges, unsigned int size);
 	void printmessages(string message, uint512_vec_dt * keyvalues);
 	void printallparameters();
+	void printvalues(string message, unsigned int * values, unsigned int size);
 	void printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void printstructuresbeforekernelrun(string message, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);

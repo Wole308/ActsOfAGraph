@@ -18,8 +18,7 @@ using namespace std;
 
 kernel::kernel(){
 	utilityobj = new utility();
-	#ifdef FPGA_IMPL 
-	// kernelobj = new oclkernel();
+	#ifdef FPGA_IMPL
 	kernelobj = new goclkernel();
 	#else 
 	kernelobj = new swkernel();
@@ -59,7 +58,7 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	#ifdef FPGA_IMPL
 	writetokernel(flag, kvsourcedram);
 	#endif
-	kernelobj->launchkernel(kvsourcedram, flag);
+	kernelobj->launchkernel(kvsourcedram, flag); // REMOVEME.
 	
 	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
 	readfromkernel(flag, kvsourcedram);

@@ -31,25 +31,28 @@ KERNEL_NAME=""
 RESULTDIR_PROFILESUMMARY=""
 
 SW__ACTGRAPH_SETUP__PR_ALGORITHM=1
-SW__ACTGRAPH_SETUP__BFS_ALGORITHM=2
-SW__ACTGRAPH_SETUP__BC_ALGORITHM=3
-SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=4
+HW__ACTGRAPH_SETUP__PR_ALGORITHM=2
+SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM=3
+SW__GRAFBOOST_SETUP__PR_ALGORITHM=4
 
-HW__ACTGRAPH_SETUP__PR_ALGORITHM=11
-HW__ACTGRAPH_SETUP__BFS_ALGORITHM=12
-HW__ACTGRAPH_SETUP__BC_ALGORITHM=13
+SW__ACTGRAPH_SETUP__BFS_ALGORITHM=5
+HW__ACTGRAPH_SETUP__BFS_ALGORITHM=6
+SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM=7
+SW__GRAFBOOST_SETUP__BFS_ALGORITHM=8
+
+SW__ACTGRAPH_SETUP__BC_ALGORITHM=9
+HW__ACTGRAPH_SETUP__BC_ALGORITHM=10
+SWEMU__ACTGRAPH_SETUP__BC_ALGORITHM=11
+SW__GRAFBOOST_SETUP__BC_ALGORITHM=12
+
+SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=13
 HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=14
+SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=15
+SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=16
 
-SW__GRAFBOOST_SETUP__PR_ALGORITHM=21
-SW__GRAFBOOST_SETUP__BFS_ALGORITHM=22
-SW__GRAFBOOST_SETUP__BC_ALGORITHM=23
-
-CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=24
-CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=25
-AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=26
-
-SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM=31
-SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=32
+CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=17
+CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=18
+AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=19
 
 ORKUT_3M_106M=30
 HOLLYWOOD_1M_57M=31
@@ -109,6 +112,7 @@ do
 	for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	# for setup in $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM
 
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
@@ -125,7 +129,7 @@ do
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__BC_ALGORITHM $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 	do 
-		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ]  
+		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
 		then 
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
@@ -136,67 +140,6 @@ do
 			else 
 				SETUP_NAME="actgraph_pr_sw"
 			fi
-			
-		elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_sw"
-			else 
-				SETUP_NAME="actgraph_bfs_sw"
-			fi
-			
-		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BC_ALGORITHM"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bc_sw"
-			else 
-				SETUP_NAME="actgraph_bc_sw"
-			fi
-			
-		elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]  
-		then 
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_adv_sw"
-			else 
-				SETUP_NAME="actgraph_adv_sw"
-			fi
-			
-		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
-		then
-			XWARE="SWEMU" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_swemu"
-			else 
-				SETUP_NAME="actgraph_pr_swemu"
-			fi
-			
-		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-		then
-			XWARE="SWEMU" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_adv_swemu"
-			else 
-				SETUP_NAME="actgraph_adv_swemu"
-			fi
-			
 		elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -208,7 +151,35 @@ do
 			else 
 				SETUP_NAME="actgraph_pr_hw"
 			fi
+		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
+		then
+			XWARE="SWEMU" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="PR_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_swemu"
+			else 
+				SETUP_NAME="actgraph_pr_swemu"
+			fi
+		elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GRAFBOOST_SETUP" 
+			ALGORITHM="PR_ALGORITHM" 
+			SETUP_NAME="grafboost_pr_sw"
 			
+		elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs
+		then
+			XWARE="SW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="BFS_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_sw"
+			else 
+				SETUP_NAME="actgraph_bfs_sw"
+			fi
 		elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -220,7 +191,24 @@ do
 			else 
 				SETUP_NAME="actgraph_bfs_hw"
 			fi
+		elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GRAFBOOST_SETUP" 
+			ALGORITHM="BFS_ALGORITHM" 
+			SETUP_NAME="grafboost_bfs_sw"
 			
+		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc
+		then
+			XWARE="SW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="BC_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bc_sw"
+			else 
+				SETUP_NAME="actgraph_bc_sw"
+			fi	
 		elif [ $setup == $HW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -232,7 +220,24 @@ do
 			else 
 				SETUP_NAME="actgraph_bc_hw"
 			fi
-			
+		elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GRAFBOOST_SETUP" 
+			ALGORITHM="BC_ALGORITHM" 
+			SETUP_NAME="grafboost_bc_sw"
+		
+		elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance
+		then 
+			XWARE="SW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="ADVANCE_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_adv_sw"
+			else 
+				SETUP_NAME="actgraph_adv_sw"
+			fi
 		elif [ $setup == $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -244,28 +249,25 @@ do
 			else 
 				SETUP_NAME="actgraph_adv_hw"
 			fi
-			
-		elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
+		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 		then
+			XWARE="SWEMU" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="ADVANCE_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_adv_swemu"
+			else 
+				SETUP_NAME="actgraph_adv_swemu"
+			fi
+		elif [ $setup == $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM ] # advance
+		then 
 			XWARE="SW" 
 			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			SETUP_NAME="grafboost_pr_sw"
-		elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="BFS_ALGORITHM" 
-			SETUP_NAME="grafboost_bfs_sw"
+			ALGORITHM="ADVANCE_ALGORITHM"
+			SETUP_NAME="sortreduce_adv_sw"
 			
-		elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="BC_ALGORITHM" 
-			SETUP_NAME="grafboost_bc_sw"
-			
-		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
@@ -316,8 +318,10 @@ do
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ0
+		for numsubcputhreads_pow in $THREADPOW_EQ4
+		# for numsubcputhreads_pow in $THREADPOW_EQ0
+		# for numsubcputhreads_pow in $THREADPOW_EQ1
+		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
 			# for locke in $_NOLOCKE
@@ -326,7 +330,7 @@ do
 			do
 				### >>> LOOP3: datasets
 				
-				# for dataset in $ORKUT_3M_106M
+				for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $KRON21_2M_91M
@@ -335,7 +339,7 @@ do
 				# for dataset in $FLICKR_1M_10M
 				# for dataset in $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M
 				
-				for dataset in $TWITTER_67M #
+				# for dataset in $TWITTER_67M #
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
@@ -343,11 +347,11 @@ do
 				# for dataset in $TWITTER_67M $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 				do
 					# for evaluation_param0 in 0 1 2 3 4
-					for evaluation_param0 in 0
+					for evaluation_param0 in 4
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${numcputhreads}threads_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
-						KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
+						KERNELBACKUP_NAME="goldenkernel"
+						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Results"
 						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
@@ -363,7 +367,8 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xo"
-							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xclbin"
+							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xclbin"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.out"
 						elif [ $dataset == $HOLLYWOOD_1M_57M ]  
@@ -393,7 +398,7 @@ do
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.out"
 						elif [ $dataset == $KRON21_2M_91M ]  
-						then	
+						then
 							DATASET="_KRON21_2M_91M"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron21.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron21.awsxclbin"
@@ -455,7 +460,8 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xo"
-							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xclbin"
+							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xclbin"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.out"
 						elif [ $dataset == $LARGEDATASET_67M ]  
@@ -518,57 +524,13 @@ do
 						
 						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS_POW=$numsubcputhreads_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
 
-						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ]  
+						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
 						then
 							make cleanall
 							# make build_acts_nthreads
 							make demo_acts_nthreads
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
 							# make demo_acts_nthreads_debug
-							
-						elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-						then
-							make cleanall
-							# make build_acts_nthreads
-							make demo_acts_nthreads
-							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug
-							
-						elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ]
-						then
-							make cleanall
-							# make build_acts_nthreads
-							# make demo_acts_nthreads
-							make demo_acts_nthreads > $RESULTDIR_RESULT
-							
-						elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]  
-						then
-							make cleanall
-							# make build_acts_nthreads
-							make demo_acts_nthreads
-							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug
-							
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
-						then
-							make cleanall
-							# rm -rf host
-							# make build_host
-							# make build_host_aws
-							# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
-							# make swemu
-							# make swemu_ncomputeunits 
-							# make swemu_aws
-							# make swemu_aws > $RESULTDIR_RESULT
-							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-						then
-							make cleanall
-							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							
 						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
 							make cleanall
@@ -591,7 +553,33 @@ do
 								echo "profile_summary.csv exist"
 								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
 							fi
+						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
+						then
+							make cleanall
+							# rm -rf host
+							# make build_host
+							# make build_host_aws
+							# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
+							# make swemu
+							# make swemu_ncomputeunits 
+							# make swemu_aws
+							# make swemu_aws > $RESULTDIR_RESULT
+							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
+						then
+							make cleanall
+							# make build_grafboost_nthreads
+							make demo_grafboost_nthreads
+							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							
+						elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs 
+						then
+							make cleanall
+							# make build_acts_nthreads
+							make demo_acts_nthreads
+							# make demo_acts_nthreads > $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug
 						elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall
@@ -605,8 +593,21 @@ do
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
 								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi
+							fi	
+						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
+						then
+							make cleanall
+							# make build_grafboost_nthreads
+							# make demo_grafboost_nthreads_debug
+							make demo_grafboost_nthreads
+							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							
+						elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc 
+						then
+							make cleanall
+							# make build_acts_nthreads
+							# make demo_acts_nthreads
+							make demo_acts_nthreads > $RESULTDIR_RESULT
 						elif [ $setup == $HW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 						then
 							make cleanall
@@ -620,7 +621,20 @@ do
 								echo "profile_summary.csv exist"
 								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
 							fi
+						elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
+						then
+							make cleanall
+							# make build_grafboost_nthreads
+							# make demo_grafboost_nthreads
+							make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							
+						elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance 
+						then
+							make cleanall
+							# make build_acts_nthreads
+							make demo_acts_nthreads
+							# make demo_acts_nthreads > $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug
 						elif [ $setup == $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 						then
 							make cleanall
@@ -643,30 +657,20 @@ do
 								echo "profile_summary.csv exist"
 								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
 							fi
-							
-						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
+						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
+						then
+							make cleanall
+							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+						elif [ $setup == $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM ] 
 						then
 							make cleanall
 							# make build_grafboost_nthreads
 							make demo_grafboost_nthreads
 							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
-							
-						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
-						then
-							make cleanall
-							# make build_grafboost_nthreads
 							# make demo_grafboost_nthreads_debug
-							make demo_grafboost_nthreads
-							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
-							
-						elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
-						then
-							make cleanall
-							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads
-							make demo_grafboost_nthreads > $RESULTDIR_RESULT
-							
-						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+						
+						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
 						then
 							make cleanall
 							rm -rf xclbin
