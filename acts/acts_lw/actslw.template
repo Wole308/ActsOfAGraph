@@ -514,11 +514,13 @@ void
 	#ifdef SW 
 	actslw::
 	#endif
-collectglobalstats{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, globalparams_t globalparams){
+collectglobalstats{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){					
 	if(enable == OFF){ return; }
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+	buffer_type chunk_size = getchunksize(SRCBUFFER_SIZE, travstate, 0); // NEWLYADDED.
 
-	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){ // REMOVEME? this should be a variable
+	// COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){ // REMOVEME? this should be a variable
+	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 	#pragma HLS PIPELINE II=2
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -1393,7 +1395,7 @@ dispatch{{inst}}(uint512_dt * kvdram){
 				
 				readkeyvalues{{inst}}(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), CStravstate);
 				
-				collectglobalstats{{inst}}(ON, sourcebuffer, buffer_setof1, sweepparams.currentLOP, sweepparams.upperlimit, globalparams);
+				collectglobalstats{{inst}}(ON, sourcebuffer, buffer_setof1, sweepparams.currentLOP, sweepparams.upperlimit, CStravstate, globalparams);
 			}
 			prepareglobalstats{{inst}}(config.enablecollectglobalstats, buffer_setof1, globalstatsbuffer, globalparams);
 			for(partition_type p=0; p<NUM_PARTITIONS; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; batch_type C = ((4 * 4 * 4) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } //'128' is safety padd

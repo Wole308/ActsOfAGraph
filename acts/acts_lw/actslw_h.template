@@ -78,7 +78,7 @@ public:
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
-	void collectglobalstats{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, globalparams_t globalparams);
+	void collectglobalstats{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams);
 	{%endfor%}
 	
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
