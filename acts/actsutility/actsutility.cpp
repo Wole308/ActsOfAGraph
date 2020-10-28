@@ -32,7 +32,7 @@ actsutility::actsutility(){
 	utilityobj = new utility();
 	#endif 
 }
-actsutility::~actsutility(){} 
+actsutility::~actsutility(){}
 
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
@@ -52,6 +52,15 @@ void actsutility::checkforoverlap(string message, keyvalue_t * keyvalues, unsign
 		if(keyvalues[i].key + keyvalues[i].value >= keyvalues[i+1].key){ 
 			cout<<"aactsutility::checkforoverlap: ERROR. overlap found message: "<<message<<", i: "<<i<<", keyvalues[i].key: "<<keyvalues[i].key<<", keyvalues[i].value: "<<keyvalues[i].value<<", keyvalues[i+1].key: "<<keyvalues[i+1].key<<endl; exit(EXIT_FAILURE); 
 		}								
+	}
+	return;
+}
+void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
+	for(unsigned int i=0; i<size; i++){
+		if(keyvalues1[i].value < keyvalues2[i].value){ 
+			cout<<"ERROR: "<<message<<". keyvalues1["<<i<<"].value < keyvalues2["<<i<<"].value"<<endl; 
+			exit(EXIT_FAILURE); 
+		}
 	}
 	return;
 }
@@ -99,6 +108,10 @@ void actsutility::printvaluecount(string message, keyvalue_t * keyvalues, unsign
 	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
 	cout<<"total values counted: "<<totalnumkeyvalues<<endl;
 	return;
+}
+void actsutility::printvalues(string message, unsigned int * values, unsigned int size){
+	cout<<endl<<"printvalues:"<<message<<endl;
+	for(unsigned int p=0; p<size; p++){ cout<<"values["<<p<<"]: "<<values[p]<<endl; }
 }
 void actsutility::printparameters(){
 	cout<<endl<<"acts::printparameters: test started."<<endl;
@@ -284,7 +297,10 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 	for(unsigned int i=begin; i<end; i++){
 		if(keyvalues[i].key != INVALIDDATA){
 			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
-				if(numerrorkeys < 8){ cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; }
+				if(numerrorkeys < 8){ 
+					cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
+					// exit(EXIT_FAILURE);
+				}
 				numerrorkeys += 1;
 			}
 		}

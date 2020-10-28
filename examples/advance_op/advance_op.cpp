@@ -102,7 +102,7 @@ runsummary_t advance_op::run(){
 			globalparams.graph_iterationidx = graph_iterationidx;
 			
 			for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){
-			// for(unsigned int col=0; col<2; col += NUMSUPERCPUTHREADS){
+			// for(unsigned int col=3; col<4; col += NUMSUPERCPUTHREADS){
 				cout<<endl<< TIMINGRESULTSCOLOR << ">>> advance_op::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 				WorkerThread(0, col, globalparams);
 				cout<<">>> advance_op::start2 Finished: all threads joined..."<<endl;

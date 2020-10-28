@@ -19,6 +19,7 @@ public:
 	void checkfornotequal(string message, unsigned int data1, unsigned int data2);
 	void checkfornotequalbyerrorwindow(string message, unsigned int data1, unsigned int data2, unsigned int errorwindow);
 	void checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size);
+	void checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void print1(string messagea, unsigned int dataa);
 	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
 	void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad);
@@ -30,6 +31,7 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs);
 	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
+	void printvalues(string message, unsigned int * values, unsigned int size);
 	void printparameters();
 	void printglobalvars();
 	void printglobalparameters(string message, globalparams_t globalparams);

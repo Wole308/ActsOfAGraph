@@ -28,7 +28,7 @@ using namespace std;
 #define PARTITIONUPDATES
 #define REDUCEUPDATES
 
-#define NUMPIPELINES 3
+#define NUMPIPELINES 3 // REMOVEME.
 #if NUMPIPELINES==2
 #define PP0
 #define PP1
