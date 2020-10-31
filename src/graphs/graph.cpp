@@ -84,9 +84,6 @@ void graph::initializefiles(){
 void graph::initgraphstructures(){
 	vertexpropertybuffer = new vertexprop_t[KVDATA_RANGE];
 	vertexdatabuffer = new value_t[KVDATA_RANGE];
-	unsigned int isactivevertexinfo = KVDATA_RANGE / NUMBITSINUNSIGNEDINT;
-	vertexisactivebitbuffer = new unsigned int[isactivevertexinfo]; 
-	for(unsigned int k=0; k<isactivevertexinfo; k++){ vertexisactivebitbuffer[k] = 0; }
 	return;
 }
 void graph::initstatstructures(){

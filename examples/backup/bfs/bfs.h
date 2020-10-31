@@ -8,10 +8,9 @@
 #include "../../examples/helperfunctions/helperfunctions2.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
-#include "../include/examplescommon.h"
 #include "bfs.h"
 
-/* typedef struct {
+typedef struct {
 	unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
@@ -26,7 +25,7 @@
 	edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_t * tempvertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-} container_t; */
+} container_t;
 
 class bfs {
 public:
@@ -35,15 +34,14 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void WorkerThread(unsigned int col, hostglobalparams_t globalparams, vector<vertex_t> &activevertices, container_t * container);
+	void WorkerThread(unsigned int superthreadidx, hostglobalparams_t globalparams);
 	
-	void loadgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, container_t * container);
-	void loadbalancedgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
-	// void trim(container_t * container);
-	// void loadsourcevertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vector<vertex_t> &srcvids, container_t * container);
-	// void loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	// void loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
-	// void loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
+	void loadgraphdata(graph * graphobj, vector<vertex_t> srcvids, container_t * container);
+	void trim(container_t * container);
+	void loadsourcevertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vector<vertex_t> srcvids, container_t * container);
+	void loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
+	void loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
 	
 private:
 	graph * graphobj;
@@ -57,8 +55,7 @@ private:
 	value_t * vertexdatabuffer;
 	container_t * container;
 	uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	// vector<keyvalue_t> activevertices;
-	// vector<value_t> * activevertices;
+	vector<keyvalue_t> activeverticesbuffer;
 };
 #endif
 

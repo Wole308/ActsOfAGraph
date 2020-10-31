@@ -10,6 +10,7 @@
 #include "../../kernels/kernel.h"
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
+#include "../include/examplescommon.h"
 using namespace std;
 
 class helperfunctions2 {
@@ -40,8 +41,16 @@ public:
 	void cummulateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	void workerthread_cummulateverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size);
 
-	void applyvertices(unsigned int fdoffset, vector<keyvalue_t> & activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset);
-	void workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, vector<keyvalue_t> & activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset);
+	void applyvertices(unsigned int fdoffset, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset);
+	void workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset);						
+	
+	void trim(container_t * container);
+	void loadsourcevertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vector<vertex_t> &srcvids, container_t * container);
+	void loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
+	void loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
+	
+	edge_t countedges(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, container_t * container);
 	
 	unsigned int getflag(unsigned int globaliteration_idx);
 	#ifdef FPGA_IMPL 

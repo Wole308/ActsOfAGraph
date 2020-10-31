@@ -212,6 +212,14 @@ void utility::printvalues(string message, unsigned int * values, unsigned int si
 		cout<<"values["<<i<<"]: "<<values[i]<<endl;
 	}
 }
+void utility::printvalues(string message, vector<value_t> & values, unsigned int size){
+	cout<<"utility::printvalues::"<<message<<":: printing first "<<size<< " values" <<endl;
+	unsigned int count = 0;
+	unsigned int totalsize = 0;
+	for(unsigned int i=0; i<size; i++){
+		cout<<"values["<<i<<"]: "<<values[i]<<endl;
+	}
+}
 void utility::printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
 	unsigned int count = 0;
 	unsigned int totalsize = 0;

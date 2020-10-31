@@ -104,7 +104,7 @@ do
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	
@@ -112,7 +112,7 @@ do
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BC_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM
@@ -310,9 +310,9 @@ do
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ0
-		# for numsubcputhreads_pow in $THREADPOW_EQ1
+		for numsubcputhreads_pow in $THREADPOW_EQ4
+		# for numsubcputhreads_pow in $THREADPOW_EQ0
+		# for numsubcputhreads_pow in $THREADPOW_EQ2
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)

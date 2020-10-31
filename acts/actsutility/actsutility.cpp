@@ -58,7 +58,9 @@ void actsutility::checkforoverlap(string message, keyvalue_t * keyvalues, unsign
 void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
 	for(unsigned int i=0; i<size; i++){
 		if(keyvalues1[i].value < keyvalues2[i].value){ 
-			cout<<"ERROR: "<<message<<". keyvalues1["<<i<<"].value < keyvalues2["<<i<<"].value"<<endl; 
+			cout<<"ERROR: "<<message<<". keyvalues1["<<i<<"].value ("<<keyvalues1[i].value<<") < keyvalues2["<<i<<"].value ("<<keyvalues2[i].value<<"). printing both arrays before exiting..."<<endl; 
+			printkeyvalues("checkforgreaterthan.keyvalues1", keyvalues1, size);
+			printkeyvalues("checkforgreaterthan.keyvalues2", keyvalues2, size);
 			exit(EXIT_FAILURE); 
 		}
 	}
@@ -251,7 +253,9 @@ void actsutility::setkeyvalues(string message, keyvalue_t * keyvalues, unsigned 
 	for(unsigned int i=0; i<size; i++){ keyvalues[i] = keyvalue; }
 }
 void actsutility::clearglobalvars(){
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"clearglobalvars: "<<endl;
+	#endif 
 	globalvar_totalkvsread = 0;
 	globalstats_totalkvswritten = 0;
 	globalstats_totalkvspartitionswritten = 0;
