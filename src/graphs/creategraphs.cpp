@@ -66,8 +66,10 @@ creategraphs::~creategraphs() {
 void creategraphs::run(){
 	cout<<"creategraphs::run started."<<endl;
 	
+	#if NUMGROUPS>1
 	analyzegraph();
 	transformgraph();
+	#endif 
 	
 	resetdatastructures(0);
 	cout<<endl<< TIMINGRESULTSCOLOR << "creategraphs::start: creating graph for group 0..." << RESET <<endl;
@@ -140,12 +142,18 @@ void creategraphs::start(){
 			if(dstv > graphobj->getdataset().num_vertices){ cout<<"creategraphs::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
 			// if(alllinecount >= 2 && alllinecount < 128){ if(srcv < prevsrcv){ cout<<"creategraphs::start:: ERROR: source vertexid ("<<srcv<<") is less than previous source vertex id ("<<prevsrcv<<"). change graph direction. EXITING... "<<endl; exit(EXIT_FAILURE); } else { prevsrcv = srcv; }} else { prevsrcv = srcv; } 
 			
+			#if NUMGROUPS>1
 			srcv = gettransformedglobalid(srcv);
 			dstv = gettransformedglobalid(dstv);
+			#endif
 		
 			if(getgroup(dstv) == groupid){
 				local_srcv = srcv;
+				#if NUMGROUPS==1
+				local_dstv = dstv;
+				#else 
 				local_dstv = getlocalid(dstv);
+				#endif
 				
 				unsigned int col = getbank(local_dstv);
 				
@@ -232,7 +240,6 @@ void creategraphs::analyzegraph(){
 			if (linecount == 0){ linecount++; continue; } // first entry for flickr is stats
 			if ((linecount % 1000000) == 0){ cout<<"creategraphs::analyzegraph edge: ["<<srcv<<", "<<dstv<<"]. linecount: "<<linecount<<endl; }
 			
-			// sscanf(line.c_str(), "%i %i", &srcv, &dstv); // REMOVEME.
 			if(graphobj->getdataset().graphorder == SRC_DST){
 				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
 			} else {
@@ -351,7 +358,7 @@ void creategraphs::writevertexptrstofile(){
 		for(unsigned int k=1; k<KVDATA_RANGE; k++){
 			vertexptrs[i][k] = vertexptrs[i][k-1] + lvertexoutdegrees[i][k-1];
 			if(vertexptrs[i][k] < vertexptrs[i][k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vertexptrs["<<i<<"]["<<k<<"]: "<<vertexptrs[i][k]<<", vertexptrs["<<i<<"]["<<k-1<<"]: "<<vertexptrs[i][k-1]<<endl; exit(EXIT_FAILURE); }
-			#ifdef _DEBUGMODE_HOSTPRINTS2
+			#ifdef _DEBUGMODE_HOSTPRINTS3
 			// if(firstN < 8 && vertexptrs[i][k] > 0){ cout<<"creategraphs::writevertexptrstofile:: vertexptrs["<<i<<"]["<<k-1<<"]: "<<vertexptrs[i][k-1]<<endl; firstN++; }
 			if(firstN < 16){ cout<<"vertexptrs["<<i<<"]["<<k-1<<"]: "<<vertexptrs[i][k-1]<<endl; firstN++; }
 			#endif
@@ -399,8 +406,12 @@ unsigned int creategraphs::getbank(vertex_t vertexid){
 	return bank;	
 }
 unsigned int creategraphs::getgroup(unsigned int vid){
+	#if NUMGROUPS==1
+	return 0;
+	#else 
 	if(vertexindegrees[vid] >= YDIMENSIONTHRESHOLD){ return HIGHINDEGREESGROUPID; }
 	else { return LOWINDEGREESGROUPID; }
+	#endif 
 }
 unsigned int creategraphs::gettransformedglobalid(unsigned int vertexid){
 	if(global_to_transfglobal_ids[vertexid] == INVALIDDATA){ return vertexid; }

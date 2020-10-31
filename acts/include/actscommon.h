@@ -88,9 +88,9 @@ typedef struct {
 	unsigned int srcvsize;
 	unsigned int srcvsize_kvs;
 	unsigned int destvoffset;
-	unsigned int beginvid;
-	unsigned int beginkey;
-	unsigned int beginvalue;
+	unsigned int firstvid;
+	unsigned int firstkey;
+	unsigned int firstvalue;
 	unsigned int treedepth;
 	unsigned int LLOPnumpartitions;
 	unsigned int batchsize;

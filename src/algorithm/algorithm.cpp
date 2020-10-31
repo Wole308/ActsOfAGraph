@@ -97,7 +97,8 @@ bool algorithm::is_active(uint32_t old, uint32_t newv, bool marked) {
 	return false;
 }
 value_t algorithm::cummulate(value_t data1, value_t data2){
-	return data1 + data2;
+	if(data1 < data2){ return data1; }
+	else { return data2; }
 }
 value_t algorithm::vertex_initdata(){ return INFINITI; }
 value_t algorithm::vertex_inittempdata(){ return INFINITI; }

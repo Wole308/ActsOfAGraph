@@ -46,9 +46,9 @@ void helperfunctions2::createmessages(
 			unsigned int srcvoffset,
 			unsigned int srcvsize,
 			unsigned int destvoffset,
-			unsigned int beginvid,
-			unsigned int beginkey,
-			unsigned int beginvalue,
+			unsigned int firstvid,
+			unsigned int firstkey,
+			unsigned int firstvalue,
 			unsigned int treedepth,
 			unsigned int GraphIter,
 			unsigned int GraphAlgo,
@@ -67,9 +67,9 @@ void helperfunctions2::createmessages(
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key = srcvsize;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE_KVS].data[0].key = (srcvsize + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key = destvoffset;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVID].data[0].key = beginvid;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINKEY].data[0].key = beginkey;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVALUE].data[0].key = beginvalue;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVID].data[0].key = firstvid;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTKEY].data[0].key = firstkey;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVALUE].data[0].key = firstvalue;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key = treedepth;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key = GraphIter;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHALGORITHMID].data[0].key = GraphAlgo;
@@ -83,15 +83,15 @@ void helperfunctions2::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 0;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = 0;
 	} else {
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0; // REMOVEME
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 	}
@@ -138,6 +138,85 @@ void helperfunctions2::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS]
 	return;
 }
 
+void helperfunctions2::cummulateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... cummulating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
+	#ifdef LOCKE
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_cummulateverticesdata(i, buffer, (i * (BATCH_RANGE / NUMUTILITYTHREADS)), (BATCH_RANGE / NUMUTILITYTHREADS)); }
+	#else 
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i] = std::thread(&helperfunctions2::workerthread_cummulateverticesdata, this, i, buffer, (i * (BATCH_RANGE / NUMUTILITYTHREADS)), (BATCH_RANGE / NUMUTILITYTHREADS)); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i].join(); }
+	#endif 
+	return;
+}
+void helperfunctions2::workerthread_cummulateverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
+	unsigned int baseoffset = BASEOFFSET_VERTICESDATA * (sizeof(keyvalue_t) / sizeof(value_t));
+	unsigned int onceactivecnt = 0;
+	value_t cumm = INFINITI;
+	
+	for(unsigned int k=offset; k<(offset + size); k++){
+		cumm = buffer[0][0][baseoffset];
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			cumm = algorithmobj->cummulate(cumm, buffer[0][j][baseoffset + k]);
+			
+			if(cumm < INFINITI){ onceactivecnt += 1; }
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			if(cumm < INFINITI){ cout<<"cummulateverticesdata: once active vertex seen @ "<<k<<": cumm: "<<cumm<<endl; }
+			#endif
+		}
+		buffer[0][0][baseoffset + k] = cumm;
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<">>> workerthread_cummulateverticesdata: number of vertex ids once active: "<<onceactivecnt<<endl;
+	#endif 
+	return;
+}
+
+void helperfunctions2::applyvertices(unsigned int fdoffset, vector<keyvalue_t> & activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
+	#endif 
+	#ifdef LOCKE
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, fdoffset, activeverticesbuffer, buffer, (i * (BATCH_RANGE / NUMUTILITYTHREADS)), (BATCH_RANGE / NUMUTILITYTHREADS), voffset); }
+	#else 
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions2::workerthread_applyvertices, this, i, fdoffset, buffer, (i * (BATCH_RANGE / NUMUTILITYTHREADS)), (BATCH_RANGE / NUMUTILITYTHREADS), voffset); }	
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
+	#endif
+	return;
+}
+void helperfunctions2::workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, vector<keyvalue_t> & activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t offset, vertex_t size, unsigned int voffset){		
+	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer();
+	unsigned int * vertexisactivebuffer = graphobj->getvertexisactivebuffer();
+	unsigned int baseoffset = BASEOFFSET_VERTICESDATA * (sizeof(keyvalue_t) / sizeof(value_t));
+	unsigned int onceactivecnt = 0;
+	
+	for(unsigned int k=offset; k<offset + size; k++){
+		value_t kvtempdata = buffer[0][0][baseoffset + k];
+		value_t vdata = vertexdatabuffer[fdoffset + k];
+		value_t temp = algorithmobj->apply(kvtempdata, vdata);
+		vertexdatabuffer[fdoffset + k] = temp;
+		
+		if(temp != vdata){
+			onceactivecnt += 1; 
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"applyvertices: once active vertex seen @ "<<k<<": temp: "<<temp<<endl; 
+			#endif 
+			
+			keyvalue_t kv;
+			kv.key = voffset + k; 
+			kv.value = temp;
+			activeverticesbuffer.push_back(kv);
+			utilityobj->InsertBit(vertexisactivebuffer, k, 1);
+		}
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<">>> workerthread_applyvertices: number of vertex ids once active: "<<onceactivecnt<<endl;
+	cout<<">>> workerthread_applyvertices: number of vertex ids in activeverticesbuffer: "<<activeverticesbuffer.size()<<endl;
+	#endif 
+	return;
+}
+
 unsigned int helperfunctions2::getflag(unsigned int globaliteration_idx){
 	#ifdef FPGA_IMPL
 	int flag = globaliteration_idx % NUMFLAGS;
@@ -146,7 +225,6 @@ unsigned int helperfunctions2::getflag(unsigned int globaliteration_idx){
 	#endif 
 	return flag;
 }
-
 #ifdef FPGA_IMPL 
 void helperfunctions2::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);

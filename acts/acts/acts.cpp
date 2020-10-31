@@ -459,13 +459,13 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.finalnumpartitions = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONSID].range(31, 0);
 	globalparams.treedepthid = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTHID].range(31, 0);
 	globalparams.ssdpartitionid = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SSDPARTITIONID].range(31, 0);
-	globalparams.srcvoffset = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].range(31, 0);
+	globalparams.srcvoffset = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].range(31, 0); // not used
 	globalparams.srcvsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].range(31, 0);
 	globalparams.srcvsize_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE_KVS].range(31, 0);
 	globalparams.destvoffset = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].range(31, 0);
-	globalparams.beginvid = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVID].range(31, 0);
-	globalparams.beginkey = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINKEY].range(31, 0);
-	globalparams.beginvalue = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVALUE].range(31, 0);
+	globalparams.firstvid = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVID].range(31, 0);
+	globalparams.firstkey = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTKEY].range(31, 0);
+	globalparams.firstvalue = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVALUE].range(31, 0); // not used
 	globalparams.treedepth = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].range(31, 0);
 	globalparams.LLOPnumpartitions = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].range(31, 0);
 	globalparams.batchsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].range(31, 0);
@@ -498,9 +498,9 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.srcvsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key;
 	globalparams.srcvsize_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE_KVS].data[0].key;
 	globalparams.destvoffset = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key;
-	globalparams.beginvid = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVID].data[0].key;
-	globalparams.beginkey = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINKEY].data[0].key;
-	globalparams.beginvalue = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINVALUE].data[0].key;
+	globalparams.firstvid = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVID].data[0].key;
+	globalparams.firstkey = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTKEY].data[0].key;
+	globalparams.firstvalue = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVALUE].data[0].key;
 	globalparams.treedepth = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_TREEDEPTH].data[0].key;
 	globalparams.LLOPnumpartitions = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FINALNUMPARTITIONS].data[0].key;
 	globalparams.batchsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key;
@@ -567,7 +567,7 @@ gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type current
 		
 	travstate.begin_kvs = keyvalue.key / VECTOR_SIZE; 
 	travstate.end_kvs = nextkeyvalue.key / VECTOR_SIZE;
-	travstate.size_kvs = travstate.end_kvs - travstate.begin_kvs; // NEWLYADDED.
+	travstate.size_kvs = travstate.end_kvs - travstate.begin_kvs;
 	travstate.skip_kvs = SRCBUFFER_SIZE;
 	travstate.i_kvs = travstate.begin_kvs;
 	return travstate;	
@@ -600,11 +600,12 @@ void
 	#ifdef SW 
 	actslw::
 	#endif
-collectglobalstats0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, globalparams_t globalparams){
+collectglobalstats0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){					
 	if(enable == OFF){ return; }
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+	buffer_type chunk_size = getchunksize(SRCBUFFER_SIZE, travstate, 0);
 
-	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){ // REMOVEME? this should be a variable
+	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 	#pragma HLS PIPELINE II=2
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
@@ -957,9 +958,7 @@ readvertices0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	// cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	// cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_KVDRAMWORKSPACE_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<offset_kvs * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	cout<< TIMINGRESULTSCOLOR<<"readvertices0:: vertices read: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
 	return;
 }
@@ -1141,31 +1140,39 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 			loc7 = 0;
 		} // REMOVEME.
 		
-		loc0 = loc0 / 2;
-		loc1 = loc1 / 2;
-		loc2 = loc2 / 2;
-		loc3 = loc3 / 2;
-		loc4 = loc4 / 2;
-		loc5 = loc5 / 2;
-		loc6 = loc6 / 2;
-		loc7 = loc7 / 2;
+		vertex_t rowindex0 = loc0 / 2;
+		vertex_t colindex0 = loc0 % 2;
+		vertex_t rowindex1 = loc1 / 2;
+		vertex_t colindex1 = loc1 % 2;
+		vertex_t rowindex2 = loc2 / 2;
+		vertex_t colindex2 = loc2 % 2;
+		vertex_t rowindex3 = loc3 / 2;
+		vertex_t colindex3 = loc3 % 2;
+		vertex_t rowindex4 = loc4 / 2;
+		vertex_t colindex4 = loc4 % 2;
+		vertex_t rowindex5 = loc5 / 2;
+		vertex_t colindex5 = loc5 % 2;
+		vertex_t rowindex6 = loc6 / 2;
+		vertex_t colindex6 = loc6 % 2;
+		vertex_t rowindex7 = loc7 / 2;
+		vertex_t colindex7 = loc7 % 2;
 		
 		keyvalue_t vprop0;
-		if(keyvalue0.key != INVALIDDATA){ vprop0 = destbuffer[0][loc0]; }
+		if(keyvalue0.key != INVALIDDATA){ vprop0 = destbuffer[0][rowindex0]; }
 		keyvalue_t vprop1;
-		if(keyvalue1.key != INVALIDDATA){ vprop1 = destbuffer[1][loc1]; }
+		if(keyvalue1.key != INVALIDDATA){ vprop1 = destbuffer[1][rowindex1]; }
 		keyvalue_t vprop2;
-		if(keyvalue2.key != INVALIDDATA){ vprop2 = destbuffer[2][loc2]; }
+		if(keyvalue2.key != INVALIDDATA){ vprop2 = destbuffer[2][rowindex2]; }
 		keyvalue_t vprop3;
-		if(keyvalue3.key != INVALIDDATA){ vprop3 = destbuffer[3][loc3]; }
+		if(keyvalue3.key != INVALIDDATA){ vprop3 = destbuffer[3][rowindex3]; }
 		keyvalue_t vprop4;
-		if(keyvalue4.key != INVALIDDATA){ vprop4 = destbuffer[4][loc4]; }
+		if(keyvalue4.key != INVALIDDATA){ vprop4 = destbuffer[4][rowindex4]; }
 		keyvalue_t vprop5;
-		if(keyvalue5.key != INVALIDDATA){ vprop5 = destbuffer[5][loc5]; }
+		if(keyvalue5.key != INVALIDDATA){ vprop5 = destbuffer[5][rowindex5]; }
 		keyvalue_t vprop6;
-		if(keyvalue6.key != INVALIDDATA){ vprop6 = destbuffer[6][loc6]; }
+		if(keyvalue6.key != INVALIDDATA){ vprop6 = destbuffer[6][rowindex6]; }
 		keyvalue_t vprop7;
-		if(keyvalue7.key != INVALIDDATA){ vprop7 = destbuffer[7][loc7]; }
+		if(keyvalue7.key != INVALIDDATA){ vprop7 = destbuffer[7][rowindex7]; }
 		
 		value_t temp0 = reducefunc(vprop0.key, vprop0.value, keyvalue0.value, GraphIter, GraphAlgo);
 		value_t temp1 = reducefunc(vprop1.key, vprop1.value, keyvalue1.value, GraphIter, GraphAlgo);
@@ -1176,23 +1183,31 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		value_t temp6 = reducefunc(vprop6.key, vprop6.value, keyvalue6.value, GraphIter, GraphAlgo);
 		value_t temp7 = reducefunc(vprop7.key, vprop7.value, keyvalue7.value, GraphIter, GraphAlgo);
 		
-		vprop0.value = temp0;
-		vprop1.value = temp1;
-		vprop2.value = temp2;
-		vprop3.value = temp3;
-		vprop4.value = temp4;
-		vprop5.value = temp5;
-		vprop6.value = temp6;
-		vprop7.value = temp7;
+		if(colindex0 == 0){ vprop0.key = temp0; }
+		else { vprop0.value = temp0; }
+		if(colindex1 == 0){ vprop1.key = temp1; }
+		else { vprop1.value = temp1; }
+		if(colindex2 == 0){ vprop2.key = temp2; }
+		else { vprop2.value = temp2; }
+		if(colindex3 == 0){ vprop3.key = temp3; }
+		else { vprop3.value = temp3; }
+		if(colindex4 == 0){ vprop4.key = temp4; }
+		else { vprop4.value = temp4; }
+		if(colindex5 == 0){ vprop5.key = temp5; }
+		else { vprop5.value = temp5; }
+		if(colindex6 == 0){ vprop6.key = temp6; }
+		else { vprop6.value = temp6; }
+		if(colindex7 == 0){ vprop7.key = temp7; }
+		else { vprop7.value = temp7; }
 		
-		if(keyvalue0.key != INVALIDDATA){ destbuffer[0][loc0] = vprop0; }
-		if(keyvalue1.key != INVALIDDATA){ destbuffer[1][loc1] = vprop1; }
-		if(keyvalue2.key != INVALIDDATA){ destbuffer[2][loc2] = vprop2; }
-		if(keyvalue3.key != INVALIDDATA){ destbuffer[3][loc3] = vprop3; }
-		if(keyvalue4.key != INVALIDDATA){ destbuffer[4][loc4] = vprop4; }
-		if(keyvalue5.key != INVALIDDATA){ destbuffer[5][loc5] = vprop5; }
-		if(keyvalue6.key != INVALIDDATA){ destbuffer[6][loc6] = vprop6; }
-		if(keyvalue7.key != INVALIDDATA){ destbuffer[7][loc7] = vprop7; }
+		if(keyvalue0.key != INVALIDDATA){ destbuffer[0][rowindex0] = vprop0; }
+		if(keyvalue1.key != INVALIDDATA){ destbuffer[1][rowindex1] = vprop1; }
+		if(keyvalue2.key != INVALIDDATA){ destbuffer[2][rowindex2] = vprop2; }
+		if(keyvalue3.key != INVALIDDATA){ destbuffer[3][rowindex3] = vprop3; }
+		if(keyvalue4.key != INVALIDDATA){ destbuffer[4][rowindex4] = vprop4; }
+		if(keyvalue5.key != INVALIDDATA){ destbuffer[5][rowindex5] = vprop5; }
+		if(keyvalue6.key != INVALIDDATA){ destbuffer[6][rowindex6] = vprop6; }
+		if(keyvalue7.key != INVALIDDATA){ destbuffer[7][rowindex7] = vprop7; }
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE);
@@ -1223,17 +1238,28 @@ unifydata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE
-		value_t value = 0;
+		#ifdef PR_ALGORITHM
+		value_t data1 = 0;
+		value_t data2 = 0;
+		#elif defined(BFS_ALGORITHM)
+		value_t data1 = INFINITI;
+		value_t data2 = INFINITI;
+		#elif defined(BC_ALGORITHM)
+		value_t data1 = INFINITI;
+		value_t data2 = INFINITI;
+		#endif
 		for(vector_type v=0; v<VECTOR_SIZE; v++){ // unify multple sources
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("unifydata0", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
 			#endif
-			value = mergefunc(value, sourcebuffer[v][i].value, GraphAlgo); // merge all values on source row
+			data1 = mergefunc(data1, sourcebuffer[v][i].key, GraphAlgo); // merge all values on source row
+			data2 = mergefunc(data2, sourcebuffer[v][i].value, GraphAlgo); // merge all values on source row
 		}
 		
-		destbuffer[dest_v][destoffset_kvs + dest_i].value = value; // set to single destination
+		destbuffer[dest_v][destoffset_kvs + dest_i].key = data1; // set to single destination
+		destbuffer[dest_v][destoffset_kvs + dest_i].value = data2; // set to single destination
 		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
-	}
+	}	
 	return;
 }
 
@@ -1280,7 +1306,7 @@ savevertices0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savevertices0:: vertices saved: offset: "<<offset_kvs * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	cout<< TIMINGRESULTSCOLOR<<"savevertices0:: vertices saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
 	return;
 }
@@ -2022,7 +2048,7 @@ dispatch0(uint512_dt * kvdram){
 			// process edges
 			#ifdef PROCESSEDGES
 			buffer_type ecoverflow = (globalparams.srcvsize_kvs * VECTOR_SIZE) - globalparams.srcvsize;
-			batch_type ecovdiff = ecoverflow; // 0; //FIXME. ecoverflow + globalparams.beginvid;
+			batch_type ecovdiff = ecoverflow; // 0; //FIXME. ecoverflow + globalparams.firstvid;
 			if(currentLOP == 0){ config.enableprocessedges = ON; config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = OFF; PEtravstate.begin_kvs = 0; PEtravstate.end_kvs = globalparams.srcvsize_kvs; PEtravstate.size_kvs = globalparams.srcvsize_kvs; } 
 			else { PEtravstate.begin_kvs = 0; PEtravstate.end_kvs = 0; config.enableprocessedges = OFF; }
 			#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -2043,8 +2069,8 @@ dispatch0(uint512_dt * kvdram){
 					keyy_t sizev;
 					buffer_type ecdiff;
 					
-					if(buffer_setof2[0][0].key < globalparams.beginkey){ beginvoffset = 0; } // check-and-shut-down
-					else { beginvoffset = buffer_setof2[0][0].key - globalparams.beginkey; }
+					if(buffer_setof2[0][0].key < globalparams.firstkey){ beginvoffset = 0; } // check-and-shut-down
+					else { beginvoffset = buffer_setof2[0][0].key - globalparams.firstkey; }
 					
 					if((vchunk_size * VECTOR_SIZE) < (v * SRCBUFFER_SIZE)){ ecdiff = 0; } // check-and-shut-down
 					else{ ecdiff = (vchunk_size * VECTOR_SIZE) - (v * SRCBUFFER_SIZE); }
@@ -2052,14 +2078,15 @@ dispatch0(uint512_dt * kvdram){
 					if(((voffset_kvs + SRCBUFFER_SIZE) >= PEtravstate.end_kvs) && (ecdiff <= SRCBUFFER_SIZE)){ if(ecdiff < (ecovdiff+1)){ lastvoffset = 0; } else { lastvoffset = buffer_setof2[0][ecdiff-ecovdiff-1].key; }} // check-and-shut-down
 					else { lastvoffset = buffer_setof2[0][SRCBUFFER_SIZE].key; }
 					
-					if(lastvoffset < globalparams.beginkey){ beginvoffset = 0; endvoffset = 0; sizev = 0; } // check-and-shut-down
-					else{ endvoffset = lastvoffset - globalparams.beginkey; sizev = endvoffset - beginvoffset; }
+					if(lastvoffset < globalparams.firstkey){ beginvoffset = 0; endvoffset = 0; sizev = 0; } // check-and-shut-down
+					else{ endvoffset = lastvoffset - globalparams.firstkey; sizev = endvoffset - beginvoffset; }
 					
 					if(ecdiff == 0){ beginvoffset = 0; endvoffset = 0; sizev = 0; } // check-and-shut-down
 					
 					travstate_t edgestravstate;
 					edgestravstate.begin_kvs = BASEOFFSET_KVDRAM_KVS + (beginvoffset / VECTOR_SIZE);
-					if(sizev >= 0){ edgestravstate.size_kvs = (sizev + 2*VECTOR_SIZE) / VECTOR_SIZE; } else { edgestravstate.size_kvs = 0; }
+					
+					if(sizev > 0){ edgestravstate.size_kvs = (sizev + 2*VECTOR_SIZE) / VECTOR_SIZE; } else { edgestravstate.size_kvs = 0; } 
 					edgestravstate.end_kvs = edgestravstate.begin_kvs + edgestravstate.size_kvs;
 					#ifdef _DEBUGMODE_KERNELPRINTS2
 					cout<<"[beginvoffset: "<<beginvoffset<<", endvoffset: "<<endvoffset<<"][edgestravstate: begin: "<<edgestravstate.begin_kvs * VECTOR_SIZE<<", end: "<<edgestravstate.end_kvs * VECTOR_SIZE<<", size: "<<edgestravstate.size_kvs * VECTOR_SIZE<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
@@ -2075,7 +2102,7 @@ dispatch0(uint512_dt * kvdram){
 			
 						readkeyvalues0(ON, kvdram, buffer_setof4, eoffset_kvs, edgestravstate);
 
-						process_edges0(ON, buffer_setof2, buffer_setof4, globalparams.beginvid + (voffset_kvs * VECTOR_SIZE) + (v * SRCBUFFER_SIZE), globalparams.GraphIter, globalparams.GraphAlgo, edgestravstate, globalparams);
+						process_edges0(ON, buffer_setof2, buffer_setof4, globalparams.firstvid + (voffset_kvs * VECTOR_SIZE) + (v * SRCBUFFER_SIZE), globalparams.GraphIter, globalparams.GraphAlgo, edgestravstate, globalparams);
 						
 						buffer_type savechunk_size = getchunksize(SRCBUFFER_SIZE, edgestravstate, 0);
 						savevertices0(ON, kvdram, buffer_setof4, eoffset_kvs, savechunk_size); // is actually 'save keyvalues'
@@ -2083,7 +2110,8 @@ dispatch0(uint512_dt * kvdram){
 				}
 			}
 			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)
-			if(config.enableprocessedges == ON){ actsutilityobj->checkfornotequalbyerrorwindow("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
+			// if(config.enableprocessedges == ON){ actsutilityobj->checkfornotequalbyerrorwindow("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
+			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize); }
 			#endif
 			#endif
 			
@@ -2104,10 +2132,11 @@ dispatch0(uint512_dt * kvdram){
 				
 				readkeyvalues0(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), CStravstate);
 				
-				collectglobalstats0(ON, sourcebuffer, buffer_setof1, sweepparams.currentLOP, sweepparams.upperlimit, globalparams);
+				collectglobalstats0(ON, sourcebuffer, buffer_setof1, sweepparams.currentLOP, sweepparams.upperlimit, CStravstate, globalparams);
 			}
 			prepareglobalstats0(config.enablecollectglobalstats, buffer_setof1, globalstatsbuffer, globalparams);
-			for(partition_type p=0; p<NUM_PARTITIONS; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; batch_type C = ((4 * 4 * 4) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } //'128' is safety padd
+			// for(partition_type p=0; p<NUM_PARTITIONS; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; batch_type C = ((4 * 4 * 4) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } //'128' is safety padd
+			for(partition_type p=0; p<NUM_PARTITIONS; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; batch_type C = ((4 * 4) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } //'128' is safety padd
 			#ifdef _DEBUGMODE_CHECKS2
 			resetvalues(BIGKV, NUM_PARTITIONS);
 			for(partition_type p=0; p<NUM_PARTITIONS; p++){ BIGKV[p].value = globalstatsbuffer[p].value + skipsizes[p]; }
@@ -2231,8 +2260,9 @@ dispatch0(uint512_dt * kvdram){
 			
 				reduce0(ON, buffer_setof1, buffer_setof2, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, Rtravstate, globalparams);
 			}
-			unifydata0(config.enablereduce, buffer_setof2, buffer_setof4, (source_partition % NUMVERTEXPARTITIONSPERLOAD) * (globalparams.applyvertexbuffersz / 2), globalparams.applyvertexbuffersz / 2, globalparams.GraphAlgo);
-			if((source_partition % NUMVERTEXPARTITIONSPERLOAD) == NUMVERTEXPARTITIONSPERLOAD-1){ savevertices0(config.enablereduce, kvdram, buffer_setof4, (BASEOFFSET_VERTICESDATA_KVS + (source_partition * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
+			 
+			unifydata0(config.enablereduce, buffer_setof2, sourcebuffer, (source_partition % NUMVERTEXPARTITIONSPERLOAD) * (globalparams.applyvertexbuffersz / 2), globalparams.applyvertexbuffersz / 2, globalparams.GraphAlgo);
+			if((source_partition % NUMVERTEXPARTITIONSPERLOAD) == NUMVERTEXPARTITIONSPERLOAD-1){ savevertices0(config.enablereduce, kvdram, sourcebuffer, (BASEOFFSET_VERTICESDATA_KVS + ((source_partition - (NUMVERTEXPARTITIONSPERLOAD-1)) * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
 			#endif 
 			
 			if(currentLOP > 0){
@@ -2249,6 +2279,9 @@ dispatch0(uint512_dt * kvdram){
 		actsutilityobj->clearglobalvars();
 		#endif
 	}
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
+	#endif 
 	return;
 }
 

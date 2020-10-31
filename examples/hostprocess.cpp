@@ -11,7 +11,7 @@
 #include "../src/graphs/graph.h"
 #include "../examples/test/test.h"
 #include "../examples/pagerank/pagerank.h"
-// #include "../examples/bfs/bfs.h"
+#include "../examples/bfs/bfs.h"
 #include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"

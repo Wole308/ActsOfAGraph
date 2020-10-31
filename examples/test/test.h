@@ -3,7 +3,6 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
-#include "../../src/edgeprocess/edge_process.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../src/stats/stats.h"

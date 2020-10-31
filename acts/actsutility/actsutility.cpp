@@ -64,6 +64,9 @@ void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, k
 	}
 	return;
 }
+void actsutility::checkforlessthanthan(string message, unsigned int data1, unsigned int data2){
+	if(data1 < data2){ cout<<"acts::checkforlessthanthan: ERROR. data1 < data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
 void actsutility::print1(string messagea, unsigned int dataa){
 	cout<<messagea<<": "<<dataa<<endl;
 }
@@ -110,8 +113,13 @@ void actsutility::printvaluecount(string message, keyvalue_t * keyvalues, unsign
 	return;
 }
 void actsutility::printvalues(string message, unsigned int * values, unsigned int size){
-	cout<<endl<<"printvalues:"<<message<<endl;
+	cout<<endl<<"printvalues: "<<message<<endl;
 	for(unsigned int p=0; p<size; p++){ cout<<"values["<<p<<"]: "<<values[p]<<endl; }
+}
+void actsutility::printvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data){
+	cout<<endl<<"printvalueslessthan: "<<message<<endl;
+	for(unsigned int i=0; i<size; i++){ if(values[i] < data){ cout<<"actsutility::printvalueslessthan: values["<<i<<"]: "<<values[i]<<" is less than "<<data<<endl; }}
+	return;
 }
 void actsutility::printparameters(){
 	cout<<endl<<"acts::printparameters: test started."<<endl;
@@ -173,7 +181,9 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.srcvsize: "<<globalparams.srcvsize<<std::endl;
 	std::cout<<"Kernel Started: globalparams.srcvsize_kvs: "<<globalparams.srcvsize_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.destvoffset: "<<globalparams.destvoffset<<std::endl;
-	std::cout<<"Kernel Started: globalparams.beginvid: "<<globalparams.beginvid<<std::endl;
+	std::cout<<"Kernel Started: globalparams.firstvid: "<<globalparams.firstvid<<std::endl;
+	std::cout<<"Kernel Started: globalparams.firstkey: "<<globalparams.firstkey<<std::endl;
+	std::cout<<"Kernel Started: globalparams.firstvalue: "<<globalparams.firstvalue<<std::endl;
 	std::cout<<"Kernel Started: globalparams.treedepth: "<<globalparams.treedepth<<std::endl;
 	std::cout<<"Kernel Started: globalparams.LLOPnumpartitions: "<<globalparams.LLOPnumpartitions<<std::endl;
 	std::cout<<"Kernel Started: globalparams.GraphIter: "<<globalparams.GraphIter<<std::endl;
@@ -299,7 +309,7 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
 				if(numerrorkeys < 8){ 
 					cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
-					// exit(EXIT_FAILURE);
+					exit(EXIT_FAILURE);
 				}
 				numerrorkeys += 1;
 			}
@@ -315,6 +325,12 @@ void actsutility::setstructs(config_t _config, sweepparams_t _sweepparams, travs
 config_t actsutility::getconfig(){ return config; }
 sweepparams_t actsutility::getsweepparams(){ return sweepparams; }
 travstate_t actsutility::gettravstate(){ return travstate; }
+void actsutility::countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data){
+	unsigned int totalcount = 0;
+	for(unsigned int i=0; i<size; i++){ if(values[i] < data){ totalcount += 1; }}
+	cout<<"actsutility::"<<message<<"::countvalueslessthan ("<<data<<"):: total values counted: "<<totalcount<<endl;
+	return;
+}
 
 void actsutility::globalstats_countkvstatsread(unsigned int count){
 	globalvar_totalkvstatsread += count;

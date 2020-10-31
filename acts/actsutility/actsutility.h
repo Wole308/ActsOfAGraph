@@ -20,6 +20,7 @@ public:
 	void checkfornotequalbyerrorwindow(string message, unsigned int data1, unsigned int data2, unsigned int errorwindow);
 	void checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size);
 	void checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
+	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2);
 	void print1(string messagea, unsigned int dataa);
 	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
 	void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad);
@@ -32,6 +33,7 @@ public:
 	void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs);
 	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
 	void printvalues(string message, unsigned int * values, unsigned int size);
+	void printvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data);
 	void printparameters();
 	void printglobalvars();
 	void printglobalparameters(string message, globalparams_t globalparams);
@@ -49,7 +51,8 @@ public:
 	config_t getconfig();
 	sweepparams_t getsweepparams();
 	travstate_t gettravstate();
-
+	void countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data);
+	
 	void globalstats_countkvstatsread(unsigned int count);
 	void globalvar_collectstats_counttotalkvsread(unsigned int count);
 	void globalvar_extractcapsules_counttotalkvsread(unsigned int count);

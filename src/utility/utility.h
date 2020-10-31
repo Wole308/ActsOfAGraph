@@ -58,6 +58,7 @@ public:
 	unsigned int countvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit);
 	unsigned int geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex);
+	void countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data);
 	
 	void createdirectory(const char* directory);
 	

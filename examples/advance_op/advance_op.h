@@ -3,7 +3,6 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
-#include "../../src/edgeprocess/edge_process.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../examples/helperfunctions/helperfunctions2.h"
@@ -15,7 +14,7 @@ typedef struct {
 	unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	unsigned int beginvid[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int firstvid[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	keyvalue_t beginkeyvalue[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
@@ -49,7 +48,6 @@ private:
 	graph * graphobj;
 	parameters * parametersobj[NUMSUPERCPUTHREADS];
 	utility * utilityobj[NUMSUPERCPUTHREADS];
-	edge_process * edgeprocessobj[NUMSUPERCPUTHREADS];
 	helperfunctions2 * helperfunctionsobj[NUMSUPERCPUTHREADS];
 	stats * statsobj;
 	hostglobalparams_t globalparams;
@@ -62,10 +60,6 @@ private:
 	unsigned int * degrees;
 	edge_type * edgesbuffer[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_t * vertexptrs[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	#ifdef GRAFBOOST_SETUP 
-	SortReduce<uint64_t,uint32_t>* sr;
-	VertexValues<uint32_t,uint32_t>* vertex_values;
-	#endif 
 	
 	// acts structures 
 	uint512_vec_dt * kvbuffer[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];

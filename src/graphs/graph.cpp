@@ -581,7 +581,6 @@ void graph::loadvertexpointersfromfile(int col, size_t fdoffset, prvertexoffset_
 void graph::generateverticesdata(){
 	cout<<"generating vertices data... "<<endl;
 	for(unsigned int k=0; k<KVDATA_RANGE; k++){ vertexdatabuffer[k] = algorithmobj->vertex_initdata(); } 
-	// for(unsigned int k=0; k<5; k++){ vertexdatabuffer[k] = 4; } // REMOVEME.
 	#ifdef EXTERNALGRAPHPROCESSING
 	if(pwrite(nvmeFd_verticesdata_w2, vertexdatabuffer, (size_t)(KVDATA_RANGE * sizeof(value_t)), 0) < 0){ cout<<"hostprocess::generateverticesdata::ERROR 36. KVDATA_RANGE: "<<KVDATA_RANGE<<endl; exit(EXIT_FAILURE); }			
 	#endif 

@@ -455,6 +455,12 @@ void utility::createdirectory(const char* directory){
 	}
 	return;
 }
+void utility::countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data){
+	unsigned int totalcount = 0;
+	for(unsigned int i=0; i<size; i++){ if(values[i] < data){ totalcount += 1; }}
+	cout<<"utility::"<<message<<"::countvalueslessthan ("<<data<<"):: total values counted: "<<totalcount<<endl;
+	return;
+}
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {

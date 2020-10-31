@@ -37,8 +37,13 @@ public:
 
 	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	
-	unsigned int getflag(unsigned int globaliteration_idx);
+	void cummulateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void workerthread_cummulateverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size);
+
+	void applyvertices(unsigned int fdoffset, vector<keyvalue_t> & activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset);
+	void workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, vector<keyvalue_t> & activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t bufferoffset, vertex_t datasize, unsigned int voffset);
 	
+	unsigned int getflag(unsigned int globaliteration_idx);
 	#ifdef FPGA_IMPL 
 	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
@@ -64,6 +69,13 @@ private:
 	SortReduce<uint64_t,uint32_t>* _sr;
 	VertexValues<uint32_t,uint32_t>* vertex_values;
 	#endif 
+	
+	// kernel * kernelobj;
+	// parameters * parametersobj;
+	// utility * utilityobj;
+	// graph * graphobj;
+	// algorithm * algorithmobj;
+	// stats * statsobj;
 	
 	std::thread mythread[NUMUTILITYTHREADS];
 	std::thread mykernelthread[NUMUTILITYTHREADS];
