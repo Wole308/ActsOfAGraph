@@ -41,7 +41,6 @@ helperfunctions2::helperfunctions2(){
 }
 helperfunctions2::~helperfunctions2(){} 
 
-// create messages
 void helperfunctions2::createmessages(
 			uint512_vec_dt * kvstats,
 			unsigned int srcvoffset,
@@ -84,9 +83,9 @@ void helperfunctions2::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 0;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = 0;
 	} else {
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
@@ -162,7 +161,7 @@ void helperfunctions2::workerthread_cummulateverticesdata(int threadidx, value_t
 			cumm = algorithmobj->cummulate(cumm, buffer[0][j][baseoffset + k]);
 			
 			if(cumm < INFINITI){ onceactivecnt += 1; }
-			#ifdef _DEBUGMODE_HOSTPRINTS
+			#ifdef _DEBUGMODE_HOSTPRINTS2
 			if(cumm < INFINITI){ cout<<"cummulateverticesdata: once active vertex seen @ "<<k<<": cumm: "<<cumm<<endl; }
 			#endif
 		}
@@ -174,36 +173,36 @@ void helperfunctions2::workerthread_cummulateverticesdata(int threadidx, value_t
 	return;
 }
 
-void helperfunctions2::applyvertices(unsigned int fdoffset, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset){
+void helperfunctions2::applyvertices(vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, unsigned int vsize){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif 
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, fdoffset, activeverticesbuffer, buffer, (i * (BATCH_RANGE / NUMUTILITYTHREADS)), (BATCH_RANGE / NUMUTILITYTHREADS), voffset); }
-	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions2::workerthread_applyvertices, this, i, fdoffset, buffer, (i * (BATCH_RANGE / NUMUTILITYTHREADS)), (BATCH_RANGE / NUMUTILITYTHREADS), voffset); }	
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS)); }
+	#else
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&helperfunctions2::workerthread_applyvertices, this, i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS)); }	
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
 }
-void helperfunctions2::workerthread_applyvertices(int ithreadidx, unsigned int fdoffset, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t offset, vertex_t size, unsigned int voffset){		
+void helperfunctions2::workerthread_applyvertices(int ithreadidx, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, vertex_t offset, vertex_t size){		
 	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer();
 	unsigned int baseoffset = BASEOFFSET_VERTICESDATA * (sizeof(keyvalue_t) / sizeof(value_t));
 	unsigned int onceactivecnt = 0;
 	
-	for(unsigned int k=offset; k<offset + size; k++){
+	for(unsigned int k=0; k<size; k++){
 		value_t kvtempdata = buffer[0][0][baseoffset + k];
-		value_t vdata = vertexdatabuffer[fdoffset + k];
+		value_t vdata = vertexdatabuffer[voffset + offset + k];
 		value_t temp = algorithmobj->apply(kvtempdata, vdata);
-		vertexdatabuffer[fdoffset + k] = temp;
-		
+		vertexdatabuffer[voffset + offset + k] = temp;
+	
 		if(temp != vdata){
 			onceactivecnt += 1; 
 			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"applyvertices: active vertex seen @ "<<k<<": vid: "<<fdoffset + k<<", temp: "<<temp<<endl; 
+			cout<<"applyvertices: active vertex seen @ "<<k<<": vid: "<<voffset + offset + k<<", temp: "<<temp<<", vdata: "<<vdata<<endl; 
 			#endif 
 			
-			activeverticesbuffer.push_back((fdoffset + k));
+			activeverticesbuffer.push_back((voffset + offset + k));
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS2
@@ -220,11 +219,46 @@ void helperfunctions2::workerthread_applyvertices(int ithreadidx, unsigned int f
 void helperfunctions2::trim(container_t * container){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			container->vertexptrs[i][j][0] = 0;
-			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgesize[i][j];// - 1; // NEWCHANGE.
+			container->vertexptrs[i][j][0] = container->edgeoffset[i][j];
+			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgeoffset[i][j] + container->edgesize[i][j];
+			for(unsigned int t=0; t<8; t++){ container->vertexptrs[i][j][container->srcvsize[i][j]-1+t] = container->edgeoffset[i][j] + container->edgesize[i][j]; } // error avoidance within ACTS
+			
 			#ifdef _DEBUGMODE_HOSTPRINTS2
 			cout<<"trim["<<i<<"]["<<j<<"]: first data in vertexptrs: vertexptrs["<<i<<"]["<<j<<"][0]: "<<container->vertexptrs[i][j][0]<<endl;
 			cout<<"trim["<<i<<"]["<<j<<"]: last data in vertexptrs: vertexptrs["<<i<<"]["<<j<<"]["<<container->srcvsize[i][j]-1<<"]: "<<container->vertexptrs[i][j][container->srcvsize[i][j]-1]<<endl;
+			#endif 
+		}
+	}
+	return;
+}
+void helperfunctions2::trim2(container_t * container){
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			container->vertexptrs[i][j][0] = 0;
+			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgesize[i][j];// - 1; // NEWCHANGE.
+			
+			// vertexptrs[i][j][0] = container->edgeoffset[i][j]; // trim
+			// vertexptrs[i][j][numvertexptrstoload-1] = container->edgeoffset[i][j] + container->edgesize[i][j];
+			
+			for(unsigned int t=0; t<488 * 8 * 8; t++){ container->vertexptrs[i][j][container->srcvsize[i][j]-1+t] = container->edgesize[i][j]; } // error avoidance
+			
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<"trim["<<i<<"]["<<j<<"]: first data in vertexptrs: vertexptrs["<<i<<"]["<<j<<"][0]: "<<container->vertexptrs[i][j][0]<<endl;
+			cout<<"trim["<<i<<"]["<<j<<"]: last data in vertexptrs: vertexptrs["<<i<<"]["<<j<<"]["<<container->srcvsize[i][j]-1<<"]: "<<container->vertexptrs[i][j][container->srcvsize[i][j]-1]<<endl;
+			#endif 
+		}
+	}
+	return;
+}
+void helperfunctions2::loadsourcevertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			for(unsigned int vid = 0; vid < container->srcvsize[i][j]; vid++){
+				kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + vid].key = container->vertexptrs[i][j][vid];
+				kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + vid].value = vertexdatabuffer[container->firstvid[i][j] + vid]; // 10000000 + vid; // vertexdatabuffer[vid]; // 10000000 + k;
+			}
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			utilityobj->printkeyvalues("helperfunctions2::loadsourcevertices", &kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE], 16);
 			#endif 
 		}
 	}
@@ -239,19 +273,16 @@ void helperfunctions2::loadsourcevertices(value_t * vertexdatabuffer, keyvalue_t
 			}
 			#ifdef _DEBUGMODE_HOSTPRINTS2
 			utilityobj->printkeyvalues("helperfunctions2::loadsourcevertices", &kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE], 16);
-			cout<<"loadsourcevertices["<<i<<"]["<<j<<"]: last data in kvbuffer->vertices: key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + container->srcvsize[i][j] - 1].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAMWORKSPACE + container->srcvsize[i][j] - 1].value<<endl;			
 			#endif 
 		}
 	}
 	return;
 }
-void helperfunctions2::loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void helperfunctions2::loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t offset, vertex_t size){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			memcpy(&kvbuffer[i][j][BASEOFFSET_VERTICESDATA], vertexdatabuffer, BATCH_RANGE * sizeof(value_t));
+			memcpy(&kvbuffer[i][j][BASEOFFSET_VERTICESDATA], &vertexdatabuffer[offset], size * sizeof(value_t));
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<"loaddestvertices["<<i<<"]["<<j<<"]: first data in dest vertices[0]: key: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA].value<<" (vertex data)"<<endl;
-			cout<<"loaddestvertices["<<i<<"]["<<j<<"]: last data in dest vertices["<<BATCH_RANGE/2 - 1<<"]: key: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA + BATCH_RANGE/2 - 1].key<<" (vertexptr), value: "<<kvbuffer[i][j][BASEOFFSET_VERTICESDATA + BATCH_RANGE/2 - 1].value<<" (vertex data)"<<endl;
 			utilityobj->printkeyvalues("helperfunctions2::loaddestvertices", &kvbuffer[i][j][BASEOFFSET_VERTICESDATA], 16);
 			#endif 
 		}
@@ -266,7 +297,6 @@ void helperfunctions2::loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUT
 				kvbuffer[i][j][BASEOFFSET_KVDRAM + k].value = container->edgesbuffer[i][j][k].srcvid;
 			}
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<"loadedges["<<i<<"]["<<j<<"]: first data: kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].key: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].key<<" (edge dstvid), kvbuffer["<<i<<"]["<<j<<"]["<<BASEOFFSET_KVDRAM<<"].value: "<<kvbuffer[i][j][BASEOFFSET_KVDRAM].value<<" (edges srcvid)"<<endl;
 			utilityobj->printkeyvalues("helperfunctions2::loadedges", &kvbuffer[i][j][BASEOFFSET_KVDRAM], 16);
 			#endif 
 		}
@@ -305,7 +335,6 @@ void helperfunctions2::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUM
 	#endif 
 	return;
 }
-
 edge_t helperfunctions2::countedges(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, container_t * container){
 	edge_t edgessz = 0;
 	for(unsigned int k=0; k<srcvids.size(); k++){
@@ -313,7 +342,7 @@ edge_t helperfunctions2::countedges(unsigned int col, graph * graphobj, vector<v
 		edgessz += container->tempvertexptrs[0][0][1] - container->tempvertexptrs[0][0][0];
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"######################### helperfunctions2::countedges:: total number of edges: "<<edgessz<<endl;
+	cout<<"helperfunctions2::countedges:: total number of edges: "<<edgessz<<endl;
 	#endif 
 	return edgessz;
 }

@@ -73,7 +73,8 @@ unsigned int heuristics::getdefaultnumvertexbanks(){
 	return 1;
 }
 unsigned int heuristics::getdefaultnumedgebanks(){	
-	#ifdef ACTGRAPH_SETUP
+	return NUMSSDPARTITIONS;
+	/* #ifdef ACTGRAPH_SETUP
 	#if defined(PR_ALGORITHM)
 	return NUMSSDPARTITIONS;
 	#else 
@@ -86,7 +87,7 @@ unsigned int heuristics::getdefaultnumedgebanks(){
 	#else 
 	return 1;
 	#endif
-	#endif
+	#endif */
 }
 
 

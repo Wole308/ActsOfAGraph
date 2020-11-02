@@ -2081,6 +2081,17 @@ dispatch0(uint512_dt * kvdram){
 					if(((voffset_kvs + SRCBUFFER_SIZE) >= PEtravstate.end_kvs) && (ecdiff <= SRCBUFFER_SIZE)){ if(ecdiff < (ecovdiff+1)){ lastvoffset = 0; } else { lastvoffset = buffer_setof2[0][ecdiff-ecovdiff-1].key; }} // check-and-shut-down
 					else { lastvoffset = buffer_setof2[0][SRCBUFFER_SIZE].key; }
 					
+					
+					// cout<<"--------- UPPER limit: "<<globalparams.firstvid + (voffset_kvs * VECTOR_SIZE) + (v * SRCBUFFER_SIZE)<<endl;
+					// cout<<"--------- globalparams.firstvid: "<<globalparams.firstvid<<endl;
+					// cout<<"--------- voffset_kvs: "<<voffset_kvs<<endl;
+					// cout<<"--------- v: "<<v<<endl;
+					// cout<<"--------- buffer_setof2[0][0].key: "<<buffer_setof2[0][0].key<<endl;
+					// cout<<"--------- buffer_setof2[0][1].key: "<<buffer_setof2[0][1].key<<endl;
+					// cout<<"--------- buffer_setof2[0][2].key: "<<buffer_setof2[0][2].key<<endl;
+					// cout<<"--------- buffer_setof2[0]["<<SRCBUFFER_SIZE<<"].key: "<<buffer_setof2[0][SRCBUFFER_SIZE].key<<endl;
+					
+					
 					if(lastvoffset < globalparams.firstkey){ beginvoffset = 0; endvoffset = 0; sizev = 0; } // check-and-shut-down
 					else{ endvoffset = lastvoffset - globalparams.firstkey; sizev = endvoffset - beginvoffset; }
 					
@@ -2092,8 +2103,9 @@ dispatch0(uint512_dt * kvdram){
 					if(sizev > 0){ edgestravstate.size_kvs = (sizev + 2*VECTOR_SIZE) / VECTOR_SIZE; } else { edgestravstate.size_kvs = 0; } 
 					edgestravstate.end_kvs = edgestravstate.begin_kvs + edgestravstate.size_kvs;
 					#ifdef _DEBUGMODE_KERNELPRINTS2
-					cout<<"[beginvoffset: "<<beginvoffset<<", endvoffset: "<<endvoffset<<"][edgestravstate: begin: "<<edgestravstate.begin_kvs * VECTOR_SIZE<<", end: "<<edgestravstate.end_kvs * VECTOR_SIZE<<", size: "<<edgestravstate.size_kvs * VECTOR_SIZE<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
+					cout<<"[beginvoffset: "<<beginvoffset<<", endvoffset: "<<endvoffset<<"][edgestravstate: begin: "<<edgestravstate.begin_kvs * VECTOR_SIZE<<", end: "<<edgestravstate.end_kvs * VECTOR_SIZE<<", size: "<<edgestravstate.size_kvs * VECTOR_SIZE<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"][v: "<<v<<"]"<<endl;
 					#endif
+					// cout<<"--------- actsutilityobj->globalstats_getcountnumvalidprocessedges(): "<<actsutilityobj->globalstats_getcountnumvalidprocessedges()<<endl;
 					
 					for(batch_type eoffset_kvs=edgestravstate.begin_kvs; eoffset_kvs<edgestravstate.end_kvs; eoffset_kvs+=SRCBUFFER_SIZE){
 					#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_processedges_loadedgebatch avg=analysis_processedges_loadedgebatch

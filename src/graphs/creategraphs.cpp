@@ -400,9 +400,13 @@ void creategraphs::writevertexptrstofile(){
 
 unsigned int creategraphs::getbank(vertex_t vertexid){
 	unsigned int bank;
+	#if NUMGROUPS==1
+	bank = vertexid / KVDATA_RANGE_PERSSDPARTITION;
+	#else 
 	if(groupid == HIGHINDEGREESGROUPID){ bank = vertexid / (KVDATA_RANGE_PERSSDPARTITION / graphobj->getdataset().skewratio); }
 	else { bank = vertexid / KVDATA_RANGE_PERSSDPARTITION; }
-	if(bank >= graphobj->getnumedgebanks()){ cout<<"creategraphs:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", graphobj->getdataset().num_vertices: "<<graphobj->getdataset().num_vertices<<", graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl; exit(EXIT_FAILURE); }  
+	#endif
+	if(bank >= graphobj->getnumedgebanks()){ cout<<"creategraphs:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", graphobj->getdataset().num_vertices: "<<graphobj->getdataset().num_vertices<<", graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl; exit(EXIT_FAILURE); }  	
 	return bank;	
 }
 unsigned int creategraphs::getgroup(unsigned int vid){
