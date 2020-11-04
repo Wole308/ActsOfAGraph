@@ -91,7 +91,7 @@ void helperfunctions2::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0; // REMOVEME
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 	}
@@ -303,7 +303,7 @@ void helperfunctions2::loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUT
 	}
 	return;
 }
-void helperfunctions2::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){	
+void helperfunctions2::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo){	
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ 
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
 			if(container->srcvsize[i][j] >= KVDRAMSZ){ cout<<"helperfunctions2::run::ERROR: fix this. srcvsize is greater than allowed. srcvsize["<<i<<"]["<<j<<"]: "<<container->srcvsize[i][j]<<", KVDRAMSZ: "<<KVDRAMSZ<<endl; exit(EXIT_FAILURE); }
@@ -317,7 +317,7 @@ void helperfunctions2::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUM
 					NAp, // unsigned int firstvalue,
 					TREE_DEPTH, // unsigned int treedepth,
 					0, // unsigned int GraphIter,
-					PAGERANK, // unsigned int GraphAlgo,
+					GraphAlgo, // PAGERANK, // unsigned int GraphAlgo,
 					container->edgesize[i][j], // unsigned int runsize,
 					BATCH_RANGE, // unsigned int batch_range,
 					BATCH_RANGE_POW, // unsigned int batch_range_pow,

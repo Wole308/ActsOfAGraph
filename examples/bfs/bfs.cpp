@@ -85,7 +85,7 @@ runsummary_t bfs::run(){
 		
 		globalparams.groupbasevoffset = 0;
 		globalparams.groupid = groupid;
-		globalparams.graph_algorithmidx = PAGERANK;
+		globalparams.graph_algorithmidx = BREADTHFIRSTSEARCH;
 		globalparams.graph_iterationidx = 0;
 		
 		while(true){
@@ -94,12 +94,13 @@ runsummary_t bfs::run(){
 			utilityobj[0]->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj[0]->hmin(activevertices.size(), 16));
 			#endif
 			
-			WorkerThread(globalparams, activevertices, activevertices2, &mycontainer); 
+			WorkerThread(activevertices, activevertices2, &mycontainer, globalparams); 
 
 			activevertices.clear();
 			for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
 			activevertices2.clear();
 			
+			break; // REMOVEME.
 			if(activevertices.size() == 0 || globalparams.graph_iterationidx >= 20){ break; }
 			globalparams.graph_iterationidx += 1;
 		}
@@ -120,11 +121,13 @@ runsummary_t bfs::run(){
 	graphobj->closetemporaryfilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
-void bfs::WorkerThread(hostglobalparams_t globalparams, vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container){
+void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, hostglobalparams_t globalparams){
 	size_t prevtotaledgesize = 0;
 	unsigned int iteration_idx = 0;
 	
 	for(unsigned int col=0; col<NUMSSDPARTITIONS; col++){
+		cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
+			
 		// prep 
 		edge_t totalnumedges = helperfunctionsobj[0]->countedges(col, graphobj, currentactivevertices, container);
 
@@ -132,17 +135,19 @@ void bfs::WorkerThread(hostglobalparams_t globalparams, vector<vertex_t> &curren
 		unsigned int lbedgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
 		loadbalancedgraphdata(col, graphobj, currentactivevertices, lbedgesizes, container);
-		helperfunctionsobj[0]->trim2(container);
+		helperfunctionsobj[0]->trim(container);
 		helperfunctionsobj[0]->loadsourcevertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, currentactivevertices, container);
 		helperfunctionsobj[0]->loaddestvertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		helperfunctionsobj[0]->loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
-		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
+		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container, BREADTHFIRSTSEARCH);
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgesize[i][j]); }}
 		
 		// run acts
 		helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
 	
 		helperfunctionsobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
 		helperfunctionsobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+		break; // REMOVEME.
 	}
 	return;
 }

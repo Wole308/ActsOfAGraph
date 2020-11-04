@@ -51,8 +51,9 @@ SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=15
 SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=16
 
 CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=17
-CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=18
-AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=19
+CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=18
+CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=19
+AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=20
 
 ORKUT_3M_106M=30
 HOLLYWOOD_1M_57M=31
@@ -104,8 +105,9 @@ do
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
@@ -118,6 +120,7 @@ do
 	# for setup in $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM
 
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	do 
@@ -182,6 +185,17 @@ do
 				SETUP_NAME="actgraphlw_bfs_hw"
 			else 
 				SETUP_NAME="actgraph_bfs_hw"
+			fi
+		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ]
+		then
+			XWARE="SWEMU" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="BFS_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_swemu"
+			else 
+				SETUP_NAME="actgraph_bfs_swemu"
 			fi
 		elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
 		then
@@ -270,7 +284,17 @@ do
 			else 
 				SETUP_NAME="actgraph_pr_hw"
 			fi
-			
+		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] # syn
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="BFS_ALGORITHM"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_hw"
+			else 
+				SETUP_NAME="actgraph_bfs_hw"
+			fi
 		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -282,7 +306,6 @@ do
 			else 
 				SETUP_NAME="actgraph_adv_hw"
 			fi
-			
 		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -339,7 +362,7 @@ do
 				# for dataset in $TWITTER_67M $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
 				do
 					# for evaluation_param0 in 0 1 2 3 4
-					for evaluation_param0 in 0
+					for evaluation_param0 in 4
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
 						KERNELBACKUP_NAME="goldenkernel"
@@ -576,16 +599,24 @@ do
 						then
 							make cleanall
 							# rm -rf host
-							# make build_host
-							make build_host_aws
-							# ./host kernel.awsxclbin
+							
+							make host
+							./host $BACKUPDIR_KERNELXCLBIN
+							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							
+							# make build_host_aws
 							# ./host $BACKUPDIR_KERNELAWSXCLBIN
-							./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
 								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
 							fi	
+						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ]
+						then
+							make cleanall
+							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
 						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall
@@ -680,7 +711,24 @@ do
 							fi
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120
+						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] # syn
+						then
+							make cleanall
+							rm -rf xclbin
+							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
 							
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							if test -f "host"; then
+								# cp host $BACKUPDIR_HOST
+								# cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo $BACKUPDIR_KERNELXO
+								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+								# cp nohupsyn.out $BACKUPDIR_NOHUP
+								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+							fi
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 						then
 							make cleanall
@@ -700,7 +748,6 @@ do
 							fi
 							# echo "sleeping for 2 minuites before continuing ...."
 							# sleep 120
-							
 						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
 							source /opt/xilinx/xrt/setup.sh 

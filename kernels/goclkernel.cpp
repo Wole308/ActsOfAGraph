@@ -230,7 +230,7 @@ void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram
 	}
     q.finish();
 }
-void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){				
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel::readfromkernel::1st of "<<TOTALNUMACTCUSTORUN<<":: hostbeginoffset: "<<hostbeginoffset[0][0]<<", beginoffset[0][0] "<<beginoffset[0][0]<<" size[0][0]: "<<size[0][0]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
 	#endif

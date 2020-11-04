@@ -58,11 +58,11 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	#ifdef FPGA_IMPL
 	writetokernel(flag, kvsourcedram);
 	#endif
-	kernelobj->launchkernel(kvsourcedram, flag); // REMOVEME.
-	
+	kernelobj->launchkernel(kvsourcedram, flag);
 	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
 	readfromkernel(flag, kvsourcedram);
 	#endif
+	
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
 	#endif

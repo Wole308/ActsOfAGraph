@@ -32,6 +32,14 @@ actsutility * actsutilityobj = new actsutility();
 #endif
 
 // kernel utilities
+unsigned int
+	#ifdef SW 
+	actslw::
+	#endif 
+amin(unsigned int val1, unsigned int val2){
+	if(val1 < val2){ return val1; }
+	else { return val2; }
+}
 batch_type
 	#ifdef SW 
 	actslw::
@@ -180,14 +188,14 @@ reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, u
 	#ifdef PR_ALGORITHM
 	ret = value + edgeval;
 	#elif defined(BFS_ALGORITHM)
-	ret = min(value, GraphIter);
+	ret = amin(value, GraphIter); // NEWCHANGE.
 	#elif defined(BC_ALGORITHM)
-	ret = min(value, GraphIter);
+	ret = amin(value, GraphIter);
 	#endif
 	#ifdef NOTUSED
 	if(GraphAlgo == PAGERANK){ ret = value + edgeval; }
-	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = min(value, GraphIter); }
-	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = min(value, GraphIter); }
+	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = amin(value, GraphIter); }
+	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = amin(value, GraphIter); }
 	else {}
 	#endif 
 	return ret;
@@ -217,9 +225,9 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	#ifdef PR_ALGORITHM
 	ret = value1 + value2;
 	#elif defined(BFS_ALGORITHM)
-	ret = min(value1, value2);
+	ret = amin(value1, value2);
 	#elif defined(BC_ALGORITHM)
-	ret = min(value1, value2);
+	ret = amin(value1, value2);
 	#endif
 	return ret;
 }
@@ -343,7 +351,8 @@ else if(realsize_kvs >= 62 && realsize_kvs < 64){ size_kvs = 64; }
 			size_kvs = PADDEDDESTBUFFER_SIZE / NUM_PARTITIONS;
 			#endif 
 		}
-		#if defined(SW) || defined(SWEMU) 
+		// #if defined(SW) || defined(SWEMU) 
+		#if defined(SW) || defined(SWEMU) || defined(HW) // NEWCHANGE.
 		if((bramoffset_kvs + size_kvs) >= PADDEDDESTBUFFER_SIZE){ size_kvs = PADDEDDESTBUFFER_SIZE - bramoffset_kvs - 1; } 
 		#endif
 	#else 
@@ -607,7 +616,8 @@ collectglobalstats0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 
 	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
+	// #pragma HLS PIPELINE II=2
+	#pragma HLS PIPELINE II=3
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_t keyvalue1 = sourcebuffer[1][i];
 		keyvalue_t keyvalue2 = sourcebuffer[2][i];
@@ -1008,7 +1018,8 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 
 	REDUCE_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz
-	#pragma HLS PIPELINE II=2
+	// #pragma HLS PIPELINE II=2
+	#pragma HLS PIPELINE II=3
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_t keyvalue1 = sourcebuffer[1][i];
 		keyvalue_t keyvalue2 = sourcebuffer[2][i];
@@ -1324,7 +1335,8 @@ process_edges0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 	
 	PROCESSEDGES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
+	// #pragma HLS PIPELINE II=2
+	#pragma HLS PIPELINE
 		keyvalue_t edge0 = destbuffer[0][i];
 		keyvalue_t edge1 = destbuffer[1][i];
 		keyvalue_t edge2 = destbuffer[2][i];
@@ -1936,7 +1948,7 @@ void
 	actslw::
 	#endif
 combineSetof1stoSetof2s0(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	// 1s->2s
 	combineSetof1stoSetof20_I0(enable, buffer_setof1[0], buffer_setof1[1], buffer_setof2[0], buffer_setof2[1], templocalcapsule_so1[0], templocalcapsule_so1[1], templocalcapsule_so2[0], globalparams);
 	combineSetof1stoSetof20_I1(enable, buffer_setof1[2], buffer_setof1[3], buffer_setof2[2], buffer_setof2[3], templocalcapsule_so1[2], templocalcapsule_so1[3], templocalcapsule_so2[1], globalparams);
@@ -1949,7 +1961,7 @@ void
 	actslw::
 	#endif
 combineSetof2stoSetof4s0(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	// 2s->4s
 	combineSetof2stoSetof40_I0(enable, buffer_setof2[0], buffer_setof2[1], buffer_setof2[2], buffer_setof2[3], buffer_setof4[0], buffer_setof4[1], buffer_setof4[2], buffer_setof4[3], templocalcapsule_so2[0], templocalcapsule_so2[1], templocalcapsule_so4[0], globalparams);
 	combineSetof2stoSetof40_I1(enable, buffer_setof2[4], buffer_setof2[5], buffer_setof2[6], buffer_setof2[7], buffer_setof4[4], buffer_setof4[5], buffer_setof4[6], buffer_setof4[7], templocalcapsule_so2[2], templocalcapsule_so2[3], templocalcapsule_so4[1], globalparams);
@@ -1960,7 +1972,7 @@ void
 	actslw::
 	#endif
 combineSetof4stoSetof8s0(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS], globalparams_t globalparams){
-	#pragma HLS INLINE
+	// #pragma HLS INLINE
 	// 4s->8s
 	combineSetof4stoSetof80_I0(enable, buffer_setof4[0], buffer_setof4[1], buffer_setof4[2], buffer_setof4[3], buffer_setof4[4], buffer_setof4[5], buffer_setof4[6], buffer_setof4[7], 
 												buffer_setof8[0], buffer_setof8[1], buffer_setof8[2], buffer_setof8[3], buffer_setof8[4], buffer_setof8[5], buffer_setof8[6], buffer_setof8[7], 
@@ -2125,6 +2137,7 @@ dispatch0(uint512_dt * kvdram){
 				}
 			}
 			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)
+			// #if defined(_DEBUGMODE_CHECKS2) // REMOVEME.
 			// if(config.enableprocessedges == ON){ actsutilityobj->checkfornotequalbyerrorwindow("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
 			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize); }
 			#endif
@@ -2287,8 +2300,8 @@ dispatch0(uint512_dt * kvdram){
 				deststatsmarker += NUM_PARTITIONS;
 				destoffset = globalstatsbuffer[NUM_PARTITIONS-1].key + globalstatsbuffer[NUM_PARTITIONS-1].value + 64; }
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS2
-			if(config.enablereduce == OFF){ actsutilityobj->printpartitionresult2(OFF, kvdram, globalstatsbuffer, sweepparams); }
+			#ifdef _DEBUGMODE_KERNELPRINTS2 // REMOVEME.
+			if(config.enablereduce == OFF){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
 			#endif
 		}
 		#if defined(_DEBUGMODE_KERNELPRINTS2)
@@ -2321,7 +2334,6 @@ topkernel( uint512_dt * sourceAvolume ){
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef _WIDEWORD
-	unsigned int 
 	cout<<">>> Light weight ACTS (L2) Launched... size: "<<(unsigned int)(sourceAvolume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
 	#else
 	cout<<">>> Light weight ACTS (L2) Launched... size: "<<sourceAvolume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 

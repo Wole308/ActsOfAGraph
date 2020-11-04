@@ -18,7 +18,7 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void WorkerThread(hostglobalparams_t globalparams, vector<vertex_t> &activevertices, vector<vertex_t> &activevertices2, container_t * container);
+	void WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, hostglobalparams_t globalparams);
 	
 	void loadgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, container_t * container);
 	void loadbalancedgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);

@@ -144,7 +144,7 @@ void advance_op::WorkerThread(unsigned int superthreadidx, unsigned int col, hos
 		helperfunctionsobj[0]->loadsourcevertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], container);
 		helperfunctionsobj[0]->loaddestvertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		helperfunctionsobj[0]->loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
-		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
+		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container, PAGERANK);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgesize[i][j]); }}
 		
 		// run acts
@@ -247,8 +247,6 @@ void advance_op::loadgraphdata(unsigned int col, unsigned int threadid, unsigned
 	cout<<">>> loadvariables["<<threadid<<"]["<<subthreadid<<"]: srcvoffset["<<threadid<<"]["<<subthreadid<<"]: "<<container->srcvoffset[threadid][subthreadid]<<endl;
 	cout<<">>> loadvariables["<<threadid<<"]["<<subthreadid<<"]: srcvsize["<<threadid<<"]["<<subthreadid<<"]: "<<container->srcvsize[threadid][subthreadid]<<endl;
 	cout<<">>> loadvariables["<<threadid<<"]["<<subthreadid<<"]: firstvid["<<threadid<<"]["<<subthreadid<<"]: "<<container->firstvid[threadid][subthreadid]<<endl;
-	cout<<">>> loadvariables["<<threadid<<"]["<<subthreadid<<"]: beginkeyvalue["<<threadid<<"]["<<subthreadid<<"].key: "<<container->beginkeyvalue[threadid][subthreadid].key<<endl;
-	cout<<">>> loadvariables["<<threadid<<"]["<<subthreadid<<"]: beginkeyvalue["<<threadid<<"]["<<subthreadid<<"].value: "<<container->beginkeyvalue[threadid][subthreadid].value<<endl;
 	#endif
 	return;
 }

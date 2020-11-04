@@ -311,7 +311,7 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::vertex datas", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTICESDATA_KVS]), 16);
 		#ifdef ACTSMODEL_LW
-		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
+		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 512*8, 8);
 		#endif 
 	}
 }

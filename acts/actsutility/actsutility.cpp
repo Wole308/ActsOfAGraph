@@ -224,7 +224,6 @@ void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram,
 	#endif 
 }
 void actsutility::printpartitionresult2(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
-	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef ACTSMODEL_LW
 	if(enable == OFF){ return; }
 	
@@ -232,7 +231,6 @@ void actsutility::printpartitionresult2(unsigned int enable, uint512_dt * kvdram
 	printvaluecount("actslw::topkernel::globalstats", globalstatsbuffer, 16);
 	scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globalstatsbuffer, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
 	#endif
-	#endif 
 }
 
 unsigned int actsutility::ugetvaluecount(keyvalue_t * keyvalues, unsigned int size){
@@ -315,6 +313,9 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 					cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
 					exit(EXIT_FAILURE);
 				}
+				cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
+				exit(EXIT_FAILURE); // REMOVEME.
+				
 				numerrorkeys += 1;
 			}
 		}
