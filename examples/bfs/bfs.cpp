@@ -140,7 +140,7 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 		helperfunctionsobj[0]->loaddestvertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		helperfunctionsobj[0]->loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
 		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container, BREADTHFIRSTSEARCH);
-		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgesize[i][j]); }}
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		
 		// run acts
 		helperfunctionsobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
@@ -191,14 +191,14 @@ void bfs::loadbalancedgraphdata(unsigned int col, graph * graphobj, vector<verte
 					break; }
 			}
 			srcvidsoffset += srcvsz;
-			container->edgesize[i][j] = edgessz;
+			container->edgessize[i][j] = edgessz;
 			container->edgeoffset[i][j] = 0;
 			container->firstvid[i][j] = container->edgesbuffer[i][j][0].srcvid;
 			container->srcvoffset[i][j] = container->firstvid[i][j];
 			container->srcvsize[i][j] = srcvsz + 1;
 			container->destvoffset[i][j] = col * KVDATA_RANGE_PERSSDPARTITION;
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<"loadgraphdata:: container->edgesize["<<i<<"]["<<j<<"]: "<<container->edgesize[i][j]<<endl;
+			cout<<"loadgraphdata:: container->edgessize["<<i<<"]["<<j<<"]: "<<container->edgessize[i][j]<<endl;
 			cout<<"loadgraphdata:: container->edgeoffset["<<i<<"]["<<j<<"]: "<<container->edgeoffset[i][j]<<endl;
 			cout<<"loadgraphdata:: container->srcvoffset["<<i<<"]["<<j<<"]: "<<container->srcvoffset[i][j]<<endl;
 			cout<<"loadgraphdata:: container->destvoffset["<<i<<"]["<<j<<"]: "<<container->destvoffset[i][j]<<endl;
@@ -251,14 +251,14 @@ void bfs::loadgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &sr
 			
 			srcvidsoffset += srcvsz;
 			
-			container->edgesize[i][j] = edgessz;
+			container->edgessize[i][j] = edgessz;
 			container->edgeoffset[i][j] = 0;
 			container->firstvid[i][j] = container->edgesbuffer[i][j][0].srcvid;
 			container->srcvoffset[i][j] = container->firstvid[i][j];
 			container->srcvsize[i][j] = srcvsz + 1; // srcvids.size() + 1;
 			container->destvoffset[i][j] = col * KVDATA_RANGE_PERSSDPARTITION;
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<"loadgraphdata:: container->edgesize["<<i<<"]["<<j<<"]: "<<container->edgesize[i][j]<<endl;
+			cout<<"loadgraphdata:: container->edgessize["<<i<<"]["<<j<<"]: "<<container->edgessize[i][j]<<endl;
 			cout<<"loadgraphdata:: container->edgeoffset["<<i<<"]["<<j<<"]: "<<container->edgeoffset[i][j]<<endl;
 			cout<<"loadgraphdata:: container->srcvoffset["<<i<<"]["<<j<<"]: "<<container->srcvoffset[i][j]<<endl;
 			cout<<"loadgraphdata:: container->destvoffset["<<i<<"]["<<j<<"]: "<<container->destvoffset[i][j]<<endl;

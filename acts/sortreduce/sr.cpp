@@ -13,18 +13,18 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
-#include "EdgeProcess.h"
-#include "VertexValues.h" 
-#include "sortreduce.h" 
-#include "filekvreader.h"
-#include "sortreduce.h"
-#include "types.h"
+// #include "EdgeProcess.h"
+// #include "VertexValues.h" 
+// #include "sortreduce.h" 
+// #include "filekvreader.h"
+// #include "sortreduce.h"
+// #include "types.h"
+// #include "sortreduce.h"
+// #include "filekvreader.h"
+// #include "types.h"
+// #include "EdgeProcess.h"
+// #include "VertexValues.h"
 #include "sr.h"
-#include "sortreduce.h"
-#include "filekvreader.h"
-#include "types.h"
-#include "EdgeProcess.h"
-#include "VertexValues.h"
 #include "../../include/common.h"
 using namespace std;
 

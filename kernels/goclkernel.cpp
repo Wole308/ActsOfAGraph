@@ -10,8 +10,8 @@
 #include <iostream>
 #include <string.h>
 #include <mutex>
-#include "../../src/utility/utility.h"
-#include "../../include/common.h"
+#include "../src/utility/utility.h"
+#include "../include/common.h"
 #ifdef FPGA_IMPL
 #include "xcl2.hpp"
 #endif 

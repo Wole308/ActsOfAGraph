@@ -21,12 +21,11 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <math.h>
-
 #include <bits/stdc++.h> 
 #include <iostream> 
 #include <sys/stat.h> 
 #include <sys/types.h> 
-
+#include "../../examples/include/examplescommon.h"
 #include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 #include "utility.h"
@@ -66,7 +65,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2: "<<BATCH_RANGE2<<std::endl;
 	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
-
+	std::cout<<"host:: EDGESSZ: "<<EDGESSZ<<std::endl; 
+	
 	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
@@ -102,6 +102,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<BASEOFFSET_KVDRAMWORKSPACE_KVS<<std::endl;	
 	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
+	std::cout<<"host:: BASEOFFSET_EDGESDATA: "<<BASEOFFSET_EDGESDATA<<std::endl; 
+	std::cout<<"host:: BASEOFFSET_EDGESDATA_KVS: "<<BASEOFFSET_EDGESDATA_KVS<<std::endl; 
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
 	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
@@ -119,7 +121,7 @@ void utility::printallparameters(){
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#ifndef _GENERATE2DGRAPH
-	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; } //  exit(EXIT_FAILURE); }
 	#endif 
 	std::cout<<">> host:: minimum PADDEDKVSOURCEDRAMSZ (bytes): "<<(MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ + KVDRAMWORKSPACESZ + KVSTATSDRAMSZ + (BATCH_RANGE/2)) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
@@ -311,8 +313,18 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::vertex datas", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTICESDATA_KVS]), 16);
 		#ifdef ACTSMODEL_LW
-		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 512*8, 8);
+		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
 		#endif 
+	}
+}
+void utility::printcontainer(container_t * container){
+	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
+		cout<<"utility::printcontainer:: container->edgessize[0]["<<j<<"]: "<<container->edgessize[0][j]<<endl;
+		cout<<"utility::printcontainer:: container->edgeoffset[0]["<<j<<"]: "<<container->edgeoffset[0][j]<<endl;
+		cout<<"utility::printcontainer:: container->srcvoffset[0]["<<j<<"]: "<<container->srcvoffset[0][j]<<endl;
+		cout<<"utility::printcontainer:: container->srcvsize[0]["<<j<<"]: "<<container->srcvsize[0][j]<<endl;
+		cout<<"utility::printcontainer:: container->destvoffset[0]["<<j<<"]: "<<container->destvoffset[0][j]<<endl;
+		cout<<"utility::printcontainer:: container->firstvid[0]["<<j<<"]: "<<container->firstvid[0][j]<<endl;
 	}
 }
 
@@ -403,6 +415,10 @@ void utility::allignandappendinvalids(keyvalue_t * buffer, unsigned int size){
 }
 unsigned int utility::allignhigher_KV(unsigned int val){
 	unsigned int fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	return (fac * VECTOR_SIZE);
+}
+unsigned int utility::allignlower_KV(unsigned int val){
+	unsigned int fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
 void utility::setarray(unsigned int array[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int _1dimsize, unsigned int _2dimsize, unsigned int value){

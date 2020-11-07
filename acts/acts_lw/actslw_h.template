@@ -47,6 +47,7 @@ public:
 	~actslw();
 	
 	unsigned int amin(unsigned int val1, unsigned int val2);
+	batch_type allignlower_KV(batch_type val);
 	batch_type allignhigher_KV(batch_type val);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size);

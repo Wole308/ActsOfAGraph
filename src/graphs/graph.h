@@ -1,9 +1,9 @@
 #ifndef GRAPH_H
 #define GRAPH_H
-#include "EdgeProcess.h" 
-#include "VertexValues.h" 
-#include "sortreduce.h" 
-#include "filekvreader.h" 
+// #include "EdgeProcess.h" 
+// #include "VertexValues.h" 
+// #include "sortreduce.h" 
+// #include "filekvreader.h" 
 #include "../../src/heuristics/heuristics.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/utility/utility.h"
@@ -12,7 +12,6 @@
 
 class graph {
 public:
-	// graph(unsigned int datasetid);
 	graph(algorithm * _algorithmobj, unsigned int datasetid, unsigned int _numedgebanks, bool _initfiles, bool _initgraphstructures, bool _initstatstructures);						
 	~graph();
 	
@@ -86,10 +85,10 @@ public:
 	FILE * getnvmeFd_activevertexids_w();
 	int getnvmeFd_vertexisactive_r2();
 	int getnvmeFd_vertexisactive_w2();
-	SortReduceUtils::FileKvReader<uint32_t,uint32_t>* getreader_activevertexids(unsigned int i);
 	
 	vertexprop_t * getvertexpropertybuffer();
 	value_t * getvertexdatabuffer();
+	edge_t * getvertexptrbuffer(); 
 	unsigned int * getvertexisactivebuffer();
 	
 	void loadvertexpropertiesfromfile();
@@ -99,12 +98,14 @@ public:
 	void loadvertexdatafromfile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadvertexdatafromfile(vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void savevertexdatatofile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadedgesfromfile(int col, size_t fdoffset, edgeprop1_t * buffer, vertex_t bufferoffset, vertex_t datasize);
-	void loadvertexpointersfromfile(int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t datasize);
 	void loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, vertex_t bufferoffset, vertex_t size);
 	
-	void generateverticesdata();
+	edge_t * loadvertexptrsfromfile(int col); 
+	value_t * generateverticesdata(); 
+	edge_type * loadedgesfromfile(int col); 
+	edge_t getedgessize(int col); 
+	
 	void generatetempverticesdata();
 	void generatevertexoutdegrees(vertex_t * vertexoutdegrees);
 	void generatevertexproperties();
@@ -152,10 +153,10 @@ private:
 	
 	value_t * vertexdatabuffer;
 	vertexprop_t * vertexpropertybuffer;
+	edge_t * vertexptrbuffer; 
+	edge_type * edgedatabuffer; 
 	unsigned long * totalkeyvaluesread[MAXNUMSSDPARTITIONS];
-	SortReduceUtils::FileKvReader<uint32_t,uint32_t>* reader_activevertexids_r2[NUMCPUTHREADS];
 	unsigned int * vertexisactivebitbuffer;
-	std::thread mythread;
 };
 #endif
 

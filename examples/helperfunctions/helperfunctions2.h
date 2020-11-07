@@ -23,6 +23,7 @@ public:
 			uint512_vec_dt * kvstats,
 			unsigned int srcvoffset,
 			unsigned int srcvsize,
+			unsigned int edgessize,
 			unsigned int destvoffset,
 			unsigned int beginvid,
 			unsigned int beginkey,

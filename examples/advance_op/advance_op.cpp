@@ -145,7 +145,7 @@ void advance_op::WorkerThread(unsigned int superthreadidx, unsigned int col, hos
 		helperfunctionsobj[0]->loaddestvertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		helperfunctionsobj[0]->loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
 		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container, PAGERANK);
-		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgesize[i][j]); }}
+		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		
 		// run acts
 		helperfunctionsobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], 0);
@@ -171,21 +171,21 @@ void advance_op::loadgraphdata(unsigned int col, graph * graphobj, value_t * ver
 	else { eq = (numedgesremaining + (NUMSUBCPUTHREADS - 1)) / NUMSUBCPUTHREADS; }
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			container->edgesize[i][j] = utilityobj[col]->hmin(eq, utilityobj[col]->hsub(container->totalnumedgesinfile[col], tmp));
-			tmp += container->edgesize[i][j];
+			container->edgessize[i][j] = utilityobj[col]->hmin(eq, utilityobj[col]->hsub(container->totalnumedgesinfile[col], tmp));
+			tmp += container->edgessize[i][j];
 		}
 	}
 	
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"loadgraphdata:: edgeoffset["<<i<<"]["<<j<<"]: "<<container->edgeoffset[i][j]<<", edgesize["<<i<<"]["<<j<<"]: "<<container->edgesize[i][j]<<endl; 
+			cout<<"loadgraphdata:: edgeoffset["<<i<<"]["<<j<<"]: "<<container->edgeoffset[i][j]<<", edgessize["<<i<<"]["<<j<<"]: "<<container->edgessize[i][j]<<endl; 
 			#endif 
 			loadgraphdata(col, i, j, graphobj, vertexdatabuffer, container);
-			container->numedgesretrieved[col] += container->edgesize[i][j];
+			container->numedgesretrieved[col] += container->edgessize[i][j];
 			
-			if(j==NUMSUBCPUTHREADS-1){ container->edgeoffset[i][0] = container->edgeoffset[i][j] + container->edgesize[i][j]; }
-			else { container->edgeoffset[i][j+1] += container->edgeoffset[i][j] + container->edgesize[i][j]; }
+			if(j==NUMSUBCPUTHREADS-1){ container->edgeoffset[i][0] = container->edgeoffset[i][j] + container->edgessize[i][j]; }
+			else { container->edgeoffset[i][j+1] += container->edgeoffset[i][j] + container->edgessize[i][j]; }
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -197,10 +197,10 @@ void advance_op::loadgraphdata(unsigned int col, graph * graphobj, value_t * ver
 void advance_op::loadgraphdata(unsigned int col, unsigned int threadid, unsigned int subthreadid, graph * graphobj, value_t * vertexdatabuffer, container_t * container){						
 	// load edges from file
 	unsigned int numedgestoload = 0;
-	unsigned int edgessz = container->edgesize[threadid][subthreadid];
-	if(container->edgesize[threadid][subthreadid] > 0){
-		if((container->edgeoffset[threadid][subthreadid] + container->edgesize[threadid][subthreadid]) >= container->totalnumedgesinfile[col]){ numedgestoload = container->edgesize[threadid][subthreadid]; } 
-		else { numedgestoload = container->edgesize[threadid][subthreadid] + 1; }
+	unsigned int edgessz = container->edgessize[threadid][subthreadid];
+	if(container->edgessize[threadid][subthreadid] > 0){
+		if((container->edgeoffset[threadid][subthreadid] + container->edgessize[threadid][subthreadid]) >= container->totalnumedgesinfile[col]){ numedgestoload = container->edgessize[threadid][subthreadid]; } 
+		else { numedgestoload = container->edgessize[threadid][subthreadid] + 1; }
 	}
 	if(numedgestoload > 0){ graphobj->loadedgesfromfile(col, container->edgeoffset[threadid][subthreadid], container->edgesbuffer[threadid][subthreadid], 0, numedgestoload); }
 	#ifdef _DEBUGMODE_HOSTPRINTS2
@@ -230,7 +230,7 @@ void advance_op::loadgraphdata(unsigned int col, unsigned int threadid, unsigned
 	graphobj->loadvertexptrsfromfile(col, beginptr, container->vertexptrs[threadid][subthreadid], 0, numvertexptrstoload);
 	
 	// load variables
-	container->edgesize[threadid][subthreadid] = edgessz; // numedgestoload - 1;
+	container->edgessize[threadid][subthreadid] = edgessz; // numedgestoload - 1;
 	container->firstvid[threadid][subthreadid] = container->edgesbuffer[threadid][subthreadid][0].srcvid;
 	container->srcvoffset[threadid][subthreadid] = container->edgesbuffer[threadid][subthreadid][0].srcvid;
 	container->srcvsize[threadid][subthreadid] = numvertexptrstoload;
@@ -239,7 +239,7 @@ void advance_op::loadgraphdata(unsigned int col, unsigned int threadid, unsigned
 	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: beginptr: "<<beginptr<<endl;
 	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: lastsrcvid: "<<lastsrcvid<<endl;
 	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: endptr: "<<endptr<<endl;
-	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: number of edges loaded : "<<container->edgesize[threadid][subthreadid]<<endl;
+	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: number of edges loaded : "<<container->edgessize[threadid][subthreadid]<<endl;
 	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: number of vertexptrs to load : "<<numvertexptrstoload<<endl;
 	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: first data in vertexptrs(*edgeoffset:"<<beginptr<<"): vertexptrs["<<threadid<<"]["<<subthreadid<<"][0]: "<<container->vertexptrs[threadid][subthreadid][0]<<endl;
 	cout<<">>> loadgraphdata["<<threadid<<"]["<<subthreadid<<"]: second data in vertexptrs(*edgeoffset:"<<beginptr+1<<"): vertexptrs["<<threadid<<"]["<<subthreadid<<"][1]: "<<container->vertexptrs[threadid][subthreadid][1]<<endl;

@@ -64,7 +64,9 @@ HOST_SRCS += src/algorithm/algorithm.cpp
 # HOST_SRCS += src/edgeprocess/edge_process.cpp
 HOST_SRCS += examples/helperfunctions/helperfunctions.cpp
 HOST_SRCS += examples/helperfunctions/helperfunctions2.cpp
-HOST_SRCS += examples/pagerank/pagerank.cpp
+HOST_SRCS += examples/helperfunctions/loadgraph.cpp
+# HOST_SRCS += examples/pagerank/pagerank.cpp
+HOST_SRCS += examples/pagerank_pim/pagerank.cpp
 HOST_SRCS += examples/bfs/bfs.cpp
 HOST_SRCS += examples/test/test.cpp
 HOST_SRCS += examples/advance_op/advance_op.cpp
@@ -234,6 +236,8 @@ demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 	# g++ -O3 $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
 build_acts_nthreads:
 	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
+# build_acts_nthreads:
+	# g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) -std=c++11 -pthread -march=native -lrt -o acts_nthreads				
 
 run_nthreads:
 	./acts_nthreads
@@ -267,6 +271,6 @@ clean:
 
 cleanall: clean
 	rm -rf sr acts_nthreads sr_nthreads
-	# -$(RMDIR) $(XCLBIN)
+	-$(RMDIR) $(XCLBIN)
 	-$(RMDIR) _x.*
 

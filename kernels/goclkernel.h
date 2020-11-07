@@ -6,8 +6,8 @@
 #include <fstream>
 #include <CL/cl_ext_xilinx.h>
 #endif 
-#include "../../src/utility/utility.h"
-#include "../../include/common.h"
+#include "../src/utility/utility.h"
+#include "../include/common.h"
 
 class goclkernel {
 public:

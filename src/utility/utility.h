@@ -2,6 +2,7 @@
 #define UTILITY_H
 #include <string.h>
 #include <mutex>
+#include "../../examples/include/examplescommon.h"
 #include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
 #ifdef FPGA_IMPL
@@ -34,6 +35,7 @@ public:
 	void printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void printstructuresbeforekernelrun(string message, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);
 	void printstructuresafterkernelrun(string message, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);
+	void printcontainer(container_t * container);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	
@@ -53,6 +55,7 @@ public:
 	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
 	void allignandappendinvalids(keyvalue_t * buffer, unsigned int size);
 	unsigned int allignhigher_KV(unsigned int val);
+	unsigned int allignlower_KV(unsigned int val);
 	void setarray(unsigned int array[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int _1dimsize, unsigned int _2dimsize, unsigned int value);
 	void copy(unsigned int * array1, unsigned int * array2, unsigned int size);
 	void countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value);

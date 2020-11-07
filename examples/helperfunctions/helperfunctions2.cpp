@@ -45,6 +45,7 @@ void helperfunctions2::createmessages(
 			uint512_vec_dt * kvstats,
 			unsigned int srcvoffset,
 			unsigned int srcvsize,
+			unsigned int edgessize,
 			unsigned int destvoffset,
 			unsigned int firstvid,
 			unsigned int firstkey,
@@ -66,6 +67,10 @@ void helperfunctions2::createmessages(
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key = srcvoffset;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key = srcvsize;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE_KVS].data[0].key = (srcvsize + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_EDGESSIZE].data[0].key = edgessize;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_EDGESSIZE_KVS].data[0].key = (edgessize + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_DESTVOFFSET].data[0].key = destvoffset;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTVID].data[0].key = firstvid;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_FIRSTKEY].data[0].key = firstkey;
@@ -91,9 +96,9 @@ void helperfunctions2::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0; // REMOVEME
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 	}
 	
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHRANGE].data[0].key = batch_range; 
@@ -220,8 +225,8 @@ void helperfunctions2::trim(container_t * container){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			container->vertexptrs[i][j][0] = container->edgeoffset[i][j];
-			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgeoffset[i][j] + container->edgesize[i][j];
-			for(unsigned int t=0; t<8; t++){ container->vertexptrs[i][j][container->srcvsize[i][j]-1+t] = container->edgeoffset[i][j] + container->edgesize[i][j]; } // error avoidance within ACTS
+			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgeoffset[i][j] + container->edgessize[i][j];
+			for(unsigned int t=0; t<8; t++){ container->vertexptrs[i][j][container->srcvsize[i][j]-1+t] = container->edgeoffset[i][j] + container->edgessize[i][j]; } // error avoidance within ACTS
 			
 			#ifdef _DEBUGMODE_HOSTPRINTS2
 			cout<<"trim["<<i<<"]["<<j<<"]: first data in vertexptrs: vertexptrs["<<i<<"]["<<j<<"][0]: "<<container->vertexptrs[i][j][0]<<endl;
@@ -235,12 +240,12 @@ void helperfunctions2::trim2(container_t * container){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			container->vertexptrs[i][j][0] = 0;
-			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgesize[i][j];// - 1; // NEWCHANGE.
+			container->vertexptrs[i][j][container->srcvsize[i][j]-1] = container->edgessize[i][j];// - 1; // NEWCHANGE.
 			
 			// vertexptrs[i][j][0] = container->edgeoffset[i][j]; // trim
-			// vertexptrs[i][j][numvertexptrstoload-1] = container->edgeoffset[i][j] + container->edgesize[i][j];
+			// vertexptrs[i][j][numvertexptrstoload-1] = container->edgeoffset[i][j] + container->edgessize[i][j];
 			
-			for(unsigned int t=0; t<488 * 8 * 8; t++){ container->vertexptrs[i][j][container->srcvsize[i][j]-1+t] = container->edgesize[i][j]; } // error avoidance
+			for(unsigned int t=0; t<488 * 8 * 8; t++){ container->vertexptrs[i][j][container->srcvsize[i][j]-1+t] = container->edgessize[i][j]; } // error avoidance
 			
 			#ifdef _DEBUGMODE_HOSTPRINTS2
 			cout<<"trim["<<i<<"]["<<j<<"]: first data in vertexptrs: vertexptrs["<<i<<"]["<<j<<"][0]: "<<container->vertexptrs[i][j][0]<<endl;
@@ -292,7 +297,7 @@ void helperfunctions2::loaddestvertices(value_t * vertexdatabuffer, keyvalue_t *
 void helperfunctions2::loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			for(unsigned int k=0; k<container->edgesize[i][j]; k++){
+			for(unsigned int k=0; k<container->edgessize[i][j]; k++){
 				kvbuffer[i][j][BASEOFFSET_KVDRAM + k].key = container->edgesbuffer[i][j][k].dstvid;
 				kvbuffer[i][j][BASEOFFSET_KVDRAM + k].value = container->edgesbuffer[i][j][k].srcvid;
 			}
@@ -311,6 +316,7 @@ void helperfunctions2::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUM
 					kvbuffer[i][j], // uint512_vec_dt * kvstats,
 					container->srcvoffset[i][j], // unsigned int srcvoffset,
 					container->srcvsize[i][j], // unsigned int srcvsize,
+					container->edgessize[i][j], // unsigned int edgessize,
 					container->destvoffset[i][j], // unsigned int destvoffset,
 					container->firstvid[i][j], // unsigned int firstvid,
 					container->vertexptrs[i][j][0], // unsigned int firstkey,
@@ -318,19 +324,19 @@ void helperfunctions2::loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUM
 					TREE_DEPTH, // unsigned int treedepth,
 					0, // unsigned int GraphIter,
 					GraphAlgo, // PAGERANK, // unsigned int GraphAlgo,
-					container->edgesize[i][j], // unsigned int runsize,
+					container->edgessize[i][j], // unsigned int runsize,
 					BATCH_RANGE, // unsigned int batch_range,
 					BATCH_RANGE_POW, // unsigned int batch_range_pow,
 					APPLYVERTEXBUFFERSZ, // unsigned int applyvertexbuffersz,
 					NUMLASTLEVELPARTITIONS); // unsigned int numlastlevelpartitions
 			#ifdef _DEBUGMODE_HOSTPRINTS2
-			cout<<"loadmessages:: running Acts... size: "<<container->edgesize[i][j]<<endl; 
+			cout<<"loadmessages:: running Acts... size: "<<container->edgessize[i][j]<<endl; 
 			#endif 
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadmessages:: running Acts... sizes: ["; 
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ cout<<"["; for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ cout<<container->edgesize[i][j]; if(j<NUMSUBCPUTHREADS-1){ cout<<", "; }} cout<<"]"; }
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ cout<<"["; for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ cout<<container->edgessize[i][j]; if(j<NUMSUBCPUTHREADS-1){ cout<<", "; }} cout<<"]"; }
 	cout<<"]"<<endl;
 	#endif 
 	return;

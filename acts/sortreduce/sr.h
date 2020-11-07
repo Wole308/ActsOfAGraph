@@ -7,8 +7,8 @@
 #include <map>
 #include <vector>
 #include <iostream>
-#include "sortreduce.h"
-#include "types.h"
+// #include "sortreduce.h"
+// #include "types.h"
 #include "../../include/common.h"
 
 class sr {

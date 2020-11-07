@@ -69,6 +69,9 @@ void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, k
 void actsutility::checkforlessthanthan(string message, unsigned int data1, unsigned int data2){
 	if(data1 < data2){ cout<<"acts::checkforlessthanthan: ERROR. data1 < data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
 }
+void actsutility::checkforlessthanthan(string message, unsigned int data1, unsigned int data2, unsigned int tolerance){
+	if((data1 + tolerance) < data2){ cout<<"acts::checkforlessthanthan: ERROR. (data1 + tolerance) < data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
 void actsutility::print1(string messagea, unsigned int dataa){
 	cout<<messagea<<": "<<dataa<<endl;
 }
@@ -182,6 +185,8 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.srcvoffset: "<<globalparams.srcvoffset<<std::endl;
 	std::cout<<"Kernel Started: globalparams.srcvsize: "<<globalparams.srcvsize<<std::endl;
 	std::cout<<"Kernel Started: globalparams.srcvsize_kvs: "<<globalparams.srcvsize_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.edgessize: "<<globalparams.edgessize<<std::endl;
+	std::cout<<"Kernel Started: globalparams.edgessize_kvs: "<<globalparams.edgessize_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.destvoffset: "<<globalparams.destvoffset<<std::endl;
 	std::cout<<"Kernel Started: globalparams.firstvid: "<<globalparams.firstvid<<std::endl;
 	std::cout<<"Kernel Started: globalparams.firstkey: "<<globalparams.firstkey<<std::endl;
@@ -334,6 +339,70 @@ void actsutility::countvalueslessthan(string message, value_t * values, unsigned
 	unsigned int totalcount = 0;
 	for(unsigned int i=0; i<size; i++){ if(values[i] < data){ totalcount += 1; }}
 	cout<<"actsutility::"<<message<<"::countvalueslessthan ("<<data<<"):: total values counted: "<<totalcount<<endl;
+	return;
+}
+void actsutility::checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsigned int edgessize){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"checking graph... "<<endl;
+	#endif 
+	
+	unsigned int firstsrcvid = edges[0].key;
+	unsigned int lastsrcvid = edges[edgessize-1].key;
+	
+	for(unsigned int i=0; i<edgessize; i++){
+		unsigned int currentsrcvid = edges[i].key;
+	
+		keyy_t beginvptr = vertexptrs[currentsrcvid].key;
+		keyy_t endvptr = vertexptrs[currentsrcvid+1].key;
+		keyy_t numedges = endvptr - beginvptr;
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		if(i%10000 == 0){ cout<<"checkgraph: currentsrcvid: "<<currentsrcvid<<", numedges: "<<numedges<<", edgessize: "<<edgessize<<endl; }
+		#endif 
+		
+		checkptr(currentsrcvid, currentsrcvid+1, beginvptr, endvptr, edges);
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"actsutility::checkgraph: check graph operation was SUCCESSFULL. "<<endl;
+	#endif
+	return;
+}
+void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"actsutility::checkptr(A):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<endl;
+	#endif 
+	for(unsigned int i=beginvptr; i<endvptr; i++){
+		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid)){
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
+			#endif 
+		} else {
+			cout<<"actsutility::checkptr:: ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"actsutility::checkptr(A): check graph operation was SUCCESSFULL. "<<endl;
+	#endif 
+	return;
+}
+void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"actsutility::checkptr(B):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<", numedges: "<<numedges<<endl;
+	#endif 
+	unsigned int numvalids = 0;
+	for(unsigned int i=beginvptr; i<endvptr; i++){
+		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid)){
+			numvalids += 1;
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
+			#endif 
+		} else {}
+	}
+	if(numedges != numvalids){ cout<<"actsutility::checkptr:: ERROR. numedges != numvalids. numedges: "<<numedges<<", numvalids: "<<numvalids<<endl; exit(EXIT_FAILURE); }
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"actsutility::checkptr(B): check graph operation was SUCCESSFULL. numvalids: "<<numvalids<<", numedges: "<<numedges<<endl;
+	#endif 
 	return;
 }
 

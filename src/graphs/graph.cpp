@@ -23,16 +23,14 @@
 #include <math.h>
 #include <algorithm>
 #include <iterator>
-
 #include <bits/stdc++.h> 
 #include <iostream> 
 #include <sys/stat.h> 
 #include <sys/types.h> 
-
-#include "EdgeProcess.h" 
-#include "VertexValues.h" 
-#include "sortreduce.h" 
-#include "filekvreader.h" 
+// #include "EdgeProcess.h" 
+// #include "VertexValues.h" 
+// #include "sortreduce.h" 
+// #include "filekvreader.h" 
 #include "../../src/heuristics/heuristics.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/utility/utility.h"
@@ -84,6 +82,8 @@ void graph::initializefiles(){
 void graph::initgraphstructures(){
 	vertexpropertybuffer = new vertexprop_t[KVDATA_RANGE];
 	vertexdatabuffer = new value_t[KVDATA_RANGE];
+	vertexptrbuffer = new edge_t[KVDATA_RANGE]; 
+	edgedatabuffer = new edge_type[getedgessize(0)]; 
 	return;
 }
 void graph::initstatstructures(){
@@ -108,23 +108,8 @@ size_t graph::getnumedgebanks(){
 void graph::setnumedgebanks(unsigned int _numedgebanks){
 	numedgebanks = _numedgebanks;
 }
-
 void graph::setbanks(unsigned int _numedgebanks){
 	numedgebanks = _numedgebanks;
-}
-
-void graph::configureactivevertexreaders(){
-	size_t filelenght = lseek(getnvmeFd_activevertexids_r2(), 0, SEEK_END) / sizeof(keyvalue_t);
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++) {
-		size_t beginoffset =  (size_t)i * (size_t)(filelenght / NUMCPUTHREADS); 
-		size_t endoffset = (size_t)beginoffset + (size_t)(filelenght / NUMCPUTHREADS);
-		
-		cout<<"&&&&& graph::configureactivevertexreaders:: beginoffset: "<<beginoffset<<", endoffset: "<<endoffset<<", filelenght: "<<filelenght<<endl;
-		
-		if(i==0){ reader_activevertexids_r2[i] = new SortReduceUtils::FileKvReader<uint32_t,uint32_t>(getnvmeFd_activevertexids_r2(), (beginoffset * sizeof(keyvalue_t)), ((endoffset + (filelenght % NUMCPUTHREADS)) * sizeof(keyvalue_t))); }				
-		else { reader_activevertexids_r2[i] = new SortReduceUtils::FileKvReader<uint32_t,uint32_t>(getnvmeFd_activevertexids_r2(), (beginoffset * sizeof(keyvalue_t)), (endoffset * sizeof(keyvalue_t)));  }
-	}
-	return;
 }
 
 void graph::openfilesforreading(unsigned int groupid){
@@ -480,7 +465,6 @@ int graph::getnvmeFd_activevertexids_w2(){ return nvmeFd_activevertexids_w2; }
 FILE * graph::getnvmeFd_activevertexids_w(){ return nvmeFd_activevertexids_w; }
 int graph::getnvmeFd_vertexisactive_r2(){ return nvmeFd_vertexisactive_r2; } 
 int graph::getnvmeFd_vertexisactive_w2(){ return nvmeFd_vertexisactive_w2; }
-SortReduceUtils::FileKvReader<uint32_t,uint32_t>* graph::getreader_activevertexids(unsigned int i){ return reader_activevertexids_r2[i]; }
 
 void graph::loadvertexpropertiesfromfile(){
 	#ifdef LOCKE
@@ -565,25 +549,25 @@ void graph::writerootvertextoactiveverticesfiles(keyy_t key, value_t value){
 	cout<<"graph::writerootvertextoactiveverticesfiles : finished writing root active vertex..."<<endl;
 }
 
-// make obsolete
-void graph::loadedgesfromfile(int col, size_t fdoffset, edgeprop1_t * buffer, vertex_t bufferoffset, vertex_t size){
-	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edgeprop1_t)), fdoffset * sizeof(edgeprop1_t)) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
-	return;
+edge_t * graph::loadvertexptrsfromfile(int col){ 
+	if(pread(nvmeFd_vertexptrs_r2[col], vertexptrbuffer, KVDATA_RANGE * sizeof(edge_t), 0) <= 0){ cout<<"graph::loadvertexptrsfromfile::ERROR LOADING FILE. COL("<<col<<"). EXITING. 36. KVDATA_RANGE: "<<KVDATA_RANGE<<endl; exit(EXIT_FAILURE); }
+	return vertexptrbuffer;
 }
-void graph::loadvertexpointersfromfile(int col, size_t fdoffset, prvertexoffset_t * buffer, vertex_t bufferoffset, vertex_t size){
-	if(size > 0){ if(pread(nvmeFd_vertexptrs_r2[col], &buffer[bufferoffset], ((size * sizeof(unsigned int)) / NUMBITSINUNSIGNEDINT), ((fdoffset * sizeof(unsigned int)) / NUMBITSINUNSIGNEDINT)) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
-	return;
-}
-
-void graph::generateverticesdata(){
+value_t * graph::generateverticesdata(){ 
 	cout<<"generating vertices data... "<<endl;
 	for(unsigned int k=0; k<KVDATA_RANGE; k++){ vertexdatabuffer[k] = algorithmobj->vertex_initdata(); } 
-	#ifdef EXTERNALGRAPHPROCESSING
-	if(pwrite(nvmeFd_verticesdata_w2, vertexdatabuffer, (size_t)(KVDATA_RANGE * sizeof(value_t)), 0) < 0){ cout<<"hostprocess::generateverticesdata::ERROR 36. KVDATA_RANGE: "<<KVDATA_RANGE<<endl; exit(EXIT_FAILURE); }			
-	#endif 
-	cout<<"finished generating vertices data"<<endl;
-	return;
+	return vertexdatabuffer;
 }
+edge_type * graph::loadedgesfromfile(int col){ 
+	edge_t size = lseek(nvmeFd_edges_r2[col], 0, SEEK_END) / sizeof(edge_type);
+	if(size > 0){ if(pread(nvmeFd_edges_r2[col], edgedatabuffer, size * sizeof(edge_type), 0) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR LOADING FILE. COL("<<col<<"). EXITING. 36. EXITING..."<<endl; exit(EXIT_FAILURE); }}
+	return edgedatabuffer;
+}
+edge_t graph::getedgessize(int col){ 
+	edge_t size = lseek(nvmeFd_edges_r2[col], 0, SEEK_END) / sizeof(edge_type);
+	return size;
+}
+
 void graph::generatetempverticesdata(){
 	cout<<"generating vertices data... "<<endl;
 	value_t * tempverticesdata = new value_t[KVDATA_RANGE]();
@@ -869,6 +853,9 @@ vertexprop_t * graph::getvertexpropertybuffer(){
 }
 value_t * graph::getvertexdatabuffer(){
 	return vertexdatabuffer;
+}
+edge_t * graph::getvertexptrbuffer(){ 
+	return vertexptrbuffer;
 }
 unsigned int * graph::getvertexisactivebuffer(){
 	return vertexisactivebitbuffer;

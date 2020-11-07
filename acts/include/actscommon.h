@@ -87,6 +87,8 @@ typedef struct {
 	unsigned int srcvoffset;
 	unsigned int srcvsize;
 	unsigned int srcvsize_kvs;
+	unsigned int edgessize;
+	unsigned int edgessize_kvs;
 	unsigned int destvoffset;
 	unsigned int firstvid;
 	unsigned int firstkey;

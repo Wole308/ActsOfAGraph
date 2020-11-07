@@ -8,7 +8,7 @@ typedef struct {
 	unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int firstvid[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	unsigned int edgesize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int edgessize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int batchoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int batchsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int runsize[NUMCPUTHREADS][NUMSUBCPUTHREADS]; 
