@@ -14,35 +14,20 @@
 #include "../include/examplescommon.h"
 using namespace std;
 
-// NEWCHANGE.
 class loadgraph {
 public:
 	loadgraph(graph * graphobj, stats * _statsobj);
 	loadgraph();
 	~loadgraph();
 	
-	void loadvertexdata(edge_t * vertexptrbuffer, value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
-	void loadvertexdata_even(edge_t * vertexptrbuffer, value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
-	void loadedgedata(edge_type * edgedatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
-	void loadedgedata_even(edge_t * vertexptrbuffer, edge_type * edgedatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
+	void loadvertexptrs(unsigned int col, edge_t * vertexptrbuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
+	void loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t offset, vertex_t size);
+	void loadedgedata(unsigned int col, edge_t * vertexptrbuffer, edge_type * edgedatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container);					
 	void loadmessages(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
-	void createmessages(
-				uint512_vec_dt * kvstats,
-				unsigned int srcvoffset,
-				unsigned int srcvsize,
-				unsigned int destvoffset,
-				unsigned int firstvid,
-				unsigned int firstkey,
-				unsigned int firstvalue,
-				unsigned int treedepth,
-				unsigned int GraphIter,
-				unsigned int GraphAlgo,
-				unsigned int runsize,
-				unsigned int batch_range,
-				unsigned int batch_range_pow,
-				unsigned int applyvertexbuffersz,
-				unsigned int numlastlevelpartitions);
 	
+	edge_t countedges(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, container_t * container);
+	void loadgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * vertexdatabuffer, unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);						
+
 private:
 	kernel * kernelobj;
 	parameters * parametersobj;
@@ -52,7 +37,6 @@ private:
 	stats * statsobj;
 	helperfunctions2 * helperfunctionsobj;
 };
-// NEWCHANGE.
 #endif
 
 

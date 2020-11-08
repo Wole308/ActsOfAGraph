@@ -93,7 +93,6 @@ public:
 	
 	void loadvertexpropertiesfromfile();
 	void workerthread_loadvertexpropertiesfromfile(int fd, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexdatafromfile();
 	void workerthread_loadvertexdatafromfile(int fd, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadvertexdatafromfile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
 	void loadvertexdatafromfile(vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size);

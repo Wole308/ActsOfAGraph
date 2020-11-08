@@ -478,48 +478,19 @@ void graph::workerthread_loadvertexpropertiesfromfile(int fd, unsigned int offse
 	if(size > 0){ if(pread(fd, &buffer[bufferoffset], (size_t)(size * sizeof(vertexprop_t)), (size_t)(offset * sizeof(vertexprop_t))) < 0){ cout<<"graph::loadvertexpropertiesfromfile::ERROR 35"<<endl; exit(EXIT_FAILURE); }}
 	return;
 }
-void graph::loadvertexdatafromfile(){
-	#ifndef EXTERNALGRAPHPROCESSING
-	return;
-	#endif
-	#ifdef LOCKE
-	workerthread_loadvertexdatafromfile(nvmeFd_verticesdata_r2, 0, vertexdatabuffer, 0, KVDATA_RANGE);
-	#else
-	mythread = std::thread(&graph::workerthread_loadvertexdatafromfile, this, nvmeFd_verticesdata_r2, 0, vertexdatabuffer, 0, KVDATA_RANGE);
-	mythread.join();
-	#endif
-}
 void graph::workerthread_loadvertexdatafromfile(int fd, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size){
 	if(size > 0){ if(pread(fd, &buffer[bufferoffset], (size_t)(size * sizeof(value_t)), (size_t)(offset * sizeof(value_t))) < 0){ cout<<"graph::loadvertexpropertiesfromfile::ERROR 35"<<endl; exit(EXIT_FAILURE); }}
 	return;
 }
 void graph::loadvertexdatafromfile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size){
-	#ifdef EXTERNALGRAPHPROCESSING
-	value_t * tempbufferPtr = new value_t[size];
-	if(size > 0){ if(pread(nvmeFd_verticesdata_r2, tempbufferPtr, (size_t)(size * sizeof(value_t)), (size_t)(fdoffset * sizeof(value_t))) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
-	for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].value = tempbufferPtr; }
-	delete [] tempbufferPtr;
-	#else 
 	for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i].value = vertexdatabuffer[i]; }
-	#endif
 	return;
 }
 void graph::loadvertexdatafromfile(vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size){
-	#ifdef EXTERNALGRAPHPROCESSING
-	if(size > 0){ if(pread(nvmeFd_verticesdata_r2, &buffer[bufferoffset], (size_t)(size * sizeof(value_t)), (size_t)(fdoffset * sizeof(value_t))) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
-	#else
 	for(unsigned int i=0; i<size; i++){ buffer[bufferoffset + i] = vertexdatabuffer[i]; }
-	#endif 
 	return;
 }
 void graph::savevertexdatatofile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size){
-	#ifndef EXTERNALGRAPHPROCESSING
-	return;
-	#endif
-	value_t * tempbufferPtr = new value_t[size];
-	for(unsigned int i=0; i<size; i++){ tempbufferPtr[i] = buffer[bufferoffset + i].value; }
-	if(size > 0){ if(pwrite(nvmeFd_verticesdata_w2, tempbufferPtr, (size_t)(size * sizeof(value_t)), (size_t)(fdoffset * sizeof(value_t))) <= 0){ utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}			
-	delete [] tempbufferPtr;
 	return;
 }
 void graph::loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size){

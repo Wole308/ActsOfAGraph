@@ -1,5 +1,5 @@
-#ifndef PAGERANK_H
-#define PAGERANK_H
+#ifndef PAGERANK_PIM_H
+#define PAGERANK_PIM_H
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -10,12 +10,12 @@
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
-#include "pagerank.h"
+#include "pagerank_pim.h"
 
-class pagerank {
+class pagerank_pim {
 public:
-	pagerank(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
-	~pagerank();
+	pagerank_pim(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
+	~pagerank_pim();
 	void finish();
 	
 	runsummary_t run();				
@@ -32,7 +32,6 @@ private:
 	value_t * vertexdatabuffer;
 	edge_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	container_t * container;
 };
 #endif
 

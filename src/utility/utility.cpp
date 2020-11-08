@@ -104,6 +104,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
 	std::cout<<"host:: BASEOFFSET_EDGESDATA: "<<BASEOFFSET_EDGESDATA<<std::endl; 
 	std::cout<<"host:: BASEOFFSET_EDGESDATA_KVS: "<<BASEOFFSET_EDGESDATA_KVS<<std::endl; 
+	std::cout<<"host:: BASEOFFSET_VERTEXPTR: "<<BASEOFFSET_VERTEXPTR<<std::endl;
+	std::cout<<"host:: BASEOFFSET_VERTEXPTR_KVS: "<<BASEOFFSET_VERTEXPTR_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
 	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
@@ -276,8 +278,9 @@ void utility::printstructuresbeforekernelrun(string message, uint512_vec_dt * kv
 		#endif 
 		
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram.first16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
-		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram.last16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+KVDATA_BATCHSIZE_KVS-2]), 16);
+		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram.last16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+KVDATA_BATCHSIZE_KVS-2]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::vertex ptrs", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTEXPTR_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::vertex datas", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTICESDATA_KVS]), 16);
 		#ifdef ACTSMODEL_LW
 		printkeyvalues("utility::printstructuresbeforekernelrun:: global capsule (before kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
@@ -308,9 +311,10 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		#endif 
 		
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.first16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
-		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.last16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+KVDATA_BATCHSIZE_KVS-2]), 16);
-		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.middle16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+(KVDATA_BATCHSIZE_KVS/16)-2]), 16);
+		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.last16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+KVDATA_BATCHSIZE_KVS-2]), 16);
+		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.middle16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+(KVDATA_BATCHSIZE_KVS/16)-2]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::vertex ptrs", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTEXPTR_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::vertex datas", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTICESDATA_KVS]), 16);
 		#ifdef ACTSMODEL_LW
 		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);

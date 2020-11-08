@@ -74,9 +74,12 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 	#ifdef LOCKE
 		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); 
 		// exit(EXIT_SUCCESS); 
+		// break;
 		}}
 		// workerthread_actslw(0, kvsourcedram[0][0]);
 		// workerthread_actslw(1, kvsourcedram[0][1]);
+		// workerthread_actslw(1, kvsourcedram[0][2]);
+		// workerthread_actslw(1, kvsourcedram[0][7]);
 	#else 
 		// FIXME.
 		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);

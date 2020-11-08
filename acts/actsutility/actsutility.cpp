@@ -373,7 +373,7 @@ void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, uns
 	#endif 
 	for(unsigned int i=beginvptr; i<endvptr; i++){
 		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid)){
-			#ifdef _DEBUGMODE_HOSTPRINTS
+			#ifdef _DEBUGMODE_HOSTPRINTS2
 			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
 			#endif 
 		} else {

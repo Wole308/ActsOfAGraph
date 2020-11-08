@@ -18,6 +18,7 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/helperfunctions.h"
 #include "../../examples/helperfunctions/helperfunctions2.h"
+#include "../../examples/helperfunctions/loadgraph.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -32,6 +33,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i] = new helperfunctions2(graphobj, statsobj); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ loadgraphobj[i] = new loadgraph(graphobj, statsobj); }
 
 	#ifdef FPGA_IMPL
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[j][k] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}					
@@ -62,14 +64,19 @@ void bfs::finish(){
 
 runsummary_t bfs::run(){
 	cout<<"bfs::run:: bfs algorithm started. "<<endl;
-	graphobj->opentemporaryfilesforwriting();
+	/* graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	graphobj->generateverticesdata();
 	graphobj->generatevertexproperties(); 
 	graphobj->loadvertexpropertiesfromfile(); 
-	graphobj->loadvertexdatafromfile();
+	// graphobj->loadvertexdatafromfile();
 	vertexpropertybuffer = graphobj->getvertexpropertybuffer();
-	vertexdatabuffer = graphobj->getvertexdatabuffer();
+	vertexdatabuffer = graphobj->getvertexdatabuffer(); */
+	
+	graphobj->opentemporaryfilesforwriting();
+	graphobj->opentemporaryfilesforreading();
+	vertexdatabuffer = graphobj->generateverticesdata();
+	graphobj->openfilesforreading(0);
 	
 	container_t mycontainer;
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.edgesbuffer[j][k] = new edge_type[KVDATA_BATCHSIZE+1]; }}
@@ -81,8 +88,6 @@ runsummary_t bfs::run(){
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int groupid = 0; groupid < 1; groupid++){
-		graphobj->openfilesforreading(groupid);
-		
 		globalparams.groupbasevoffset = 0;
 		globalparams.groupid = groupid;
 		globalparams.graph_algorithmidx = BREADTHFIRSTSEARCH;
@@ -100,13 +105,11 @@ runsummary_t bfs::run(){
 			for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
 			activevertices2.clear();
 			
-			break; // REMOVEME.
-			if(activevertices.size() == 0 || globalparams.graph_iterationidx >= 20){ break; }
+			// break; // REMOVEME.
+			if(activevertices.size() == 0 || globalparams.graph_iterationidx >= 16){ break; }
 			globalparams.graph_iterationidx += 1;
 		}
 		cout<<endl;
-		
-		graphobj->closefilesforreading();
 	}
 	#ifdef FPGA_IMPL
 	helperfunctionsobj[0]->finishOCL();
@@ -119,6 +122,7 @@ runsummary_t bfs::run(){
 	
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
+	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, hostglobalparams_t globalparams){
@@ -126,20 +130,19 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 	unsigned int iteration_idx = 0;
 	
 	for(unsigned int col=0; col<NUMSSDPARTITIONS; col++){
+		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
-			
-		// prep 
-		edge_t totalnumedges = helperfunctionsobj[0]->countedges(col, graphobj, currentactivevertices, container);
-
-		// load
+		#endif 
+		
+		edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, currentactivevertices, container);
 		unsigned int lbedgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
-		loadbalancedgraphdata(col, graphobj, currentactivevertices, lbedgesizes, container);
-		helperfunctionsobj[0]->trim(container);
-		helperfunctionsobj[0]->loadsourcevertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, currentactivevertices, container);
-		helperfunctionsobj[0]->loaddestvertices(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-		helperfunctionsobj[0]->loadedges((keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, container);
-		helperfunctionsobj[0]->loadmessages((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, container, BREADTHFIRSTSEARCH);
+		loadgraphobj[0]->loadgraphdata(col, graphobj, currentactivevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
+		loadgraphobj[0]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+		loadgraphobj[0]->loadmessages(kvbuffer[0], container);
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		utilityobj[0]->printcontainer(container); 
+		#endif
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		
 		// run acts
@@ -147,11 +150,15 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 	
 		helperfunctionsobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
 		helperfunctionsobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-		break; // REMOVEME.
+		
+		// break; // REMOVEME.
+		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 
+#ifdef TGTG
 void bfs::loadbalancedgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){
 	unsigned int srcvidsoffset = 0;
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
@@ -274,7 +281,7 @@ void bfs::loadgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &sr
 	}
 	return;
 }
-
+#endif 
 
 
 
