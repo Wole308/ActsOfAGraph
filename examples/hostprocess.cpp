@@ -13,6 +13,7 @@
 #include "../examples/pagerank/pagerank.h"
 #include "../examples/pagerank/pagerank_pim.h"
 #include "../examples/bfs/bfs.h"
+#include "../examples/bfs/bfs_pim.h"
 // #include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"
@@ -60,7 +61,11 @@ int main(int argc, char** argv){
 	pagerankobj->run();
 	#endif
 	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+		#ifdef INMEMORYGP
+		bfs_pim * bfsobj = new bfs_pim(NAp, datasetobj->getdatasetid(), binaryFile);
+		#else 
+		bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+		#endif 
 	bfsobj->run();
 	#endif
 	#if (defined(ADVANCE_ALGORITHM))

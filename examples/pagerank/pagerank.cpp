@@ -15,9 +15,9 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
-#include "../../examples/helperfunctions/helperfunctions.h"
-#include "../../examples/helperfunctions/helperfunctions2.h"
 #include "../../examples/helperfunctions/loadgraph.h"
+#include "../../examples/helperfunctions/setupkernel.h"
+#include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -31,8 +31,9 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	statsobj = new stats(graphobj);
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i] = new helperfunctions2(graphobj, statsobj); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i] = new postprocess(graphobj, statsobj); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ loadgraphobj[i] = new loadgraph(graphobj, statsobj); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ setupkernelobj[i] = new setupkernel(graphobj, statsobj); }
 
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){
 		#ifdef FPGA_IMPL
@@ -43,10 +44,10 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	}
 	
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ helperfunctionsobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
 	#endif
 	#ifdef GRAFBOOST_SETUP 
-	helperfunctionsobj[0]->loadSRstructures();
+	postprocessobj[0]->loadSRstructures();
 	#endif 
 }
 pagerank::~pagerank(){
@@ -56,10 +57,10 @@ pagerank::~pagerank(){
 }
 void pagerank::finish(){
 	#ifdef FPGA_IMPL
-	helperfunctionsobj[0]->finishOCL();
+	postprocessobj[0]->finishOCL();
 	#endif
 	#ifdef GRAFBOOST_SETUP
-	helperfunctionsobj[0]->finishSR();
+	postprocessobj[0]->finishSR();
 	#endif
 }
 
@@ -115,7 +116,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, hostg
 		// load
 		loadgraphobj[0]->loadvertexptrs(col, vertexptrbuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], container);
 		loadgraphobj[0]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-		loadgraphobj[0]->loadedgedata(col, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], container);
+		loadgraphobj[0]->loadedgedata(col, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], container, PAGERANK);
 		loadgraphobj[0]->loadmessages((uint512_vec_dt **)kvbuffer[superthreadidx][0][0], container);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		#ifdef _DEBUGMODE_HOSTPRINTS2
@@ -123,10 +124,10 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, hostg
 		#endif
 	
 		// run pagerank
-		helperfunctionsobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], 0);
+		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], 0);
 		
-		helperfunctionsobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
-		helperfunctionsobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+		postprocessobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
+		postprocessobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		
 		break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.

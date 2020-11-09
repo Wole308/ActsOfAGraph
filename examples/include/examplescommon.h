@@ -6,6 +6,7 @@ typedef struct {
 	unsigned int srcvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int srcvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int destvoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	unsigned int actvvsize[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int firstvid[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int edgeoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int edgessize[NUMCPUTHREADS][NUMSUBCPUTHREADS];

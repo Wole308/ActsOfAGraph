@@ -7,7 +7,7 @@
 #define LOADKVDRAMS
 #define STREAMEDGESSETUP
 
-// #define INMEMORYGP
+#define INMEMORYGP
 // #define SEMIEXTERNALGRAPHPROCESSING
 
 // #define FORCEDFINISH_DONTCAREABOUTRETRIEVEBITS // correct this. its making BFS too slow

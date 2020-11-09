@@ -22,19 +22,19 @@
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
-#include "bfs.h"
+#include "bfs_pim.h"
 using namespace std;
 
-bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
+bfs_pim::bfs_pim(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
 	statsobj = new stats(graphobj);
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i] = new postprocess(graphobj, statsobj); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ loadgraphobj[i] = new loadgraph(graphobj, statsobj); }
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ setupkernelobj[i] = new setupkernel(graphobj, statsobj); }
+	parametersobj = new parameters();
+	utilityobj = new utility();
+	postprocessobj = new postprocess(graphobj, statsobj);
+	loadgraphobj = new loadgraph(graphobj, statsobj);
+	setupkernelobj = new setupkernel(graphobj, statsobj);
 
 	#ifdef FPGA_IMPL
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[j][k] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}					
@@ -43,18 +43,18 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#endif
 
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
+	postprocessobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]);
 	#endif
 	#ifdef GRAFBOOST_SETUP 
 	postprocessobj[0]->loadSRstructures();
 	#endif 
 }
-bfs::~bfs(){
-	cout<<"bfs::~bfs:: finish destroying memory structures... "<<endl;
+bfs_pim::~bfs_pim(){
+	cout<<"bfs_pim::~bfs_pim:: finish destroying memory structures... "<<endl;
 	// delete [] container->edgesbuffer;
 	delete [] kvbuffer;
 }
-void bfs::finish(){
+void bfs_pim::finish(){
 	#ifdef FPGA_IMPL
 	postprocessobj[0]->finishOCL();
 	#endif
@@ -63,39 +63,62 @@ void bfs::finish(){
 	#endif
 }
 
-runsummary_t bfs::run(){
-	cout<<"bfs::run:: bfs algorithm started. "<<endl;
+runsummary_t bfs_pim::run(){
+	cout<<"bfs_pim::run:: bfs_pim algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
 	graphobj->openfilesforreading(0);
 	
-	container_t mycontainer;
-	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.tempvertexptrs[j][k] = new edge_t[8]; }}
+	unsigned int graph_iterationidx=0;
+	// container_t mycontainer;
+	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.edgesbuffer[j][k] = new edge_type[KVDATA_BATCHSIZE+1]; }}
+	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.vertexptrs[j][k] = new edge_t[KVDRAMSZ+1]; }}
+	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.tempvertexptrs[j][k] = new edge_t[8]; }}
 	vector<value_t> activevertices;
-	vector<value_t> activevertices2;
+	// vector<value_t> activeverticesgroup[NUMSUBCPUTHREADS];
+	// vector<value_t> activevertices2;
 	activevertices.push_back(2); // 2
 	
+	// load
+	container_t container;
+	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, (keyvalue_t **)kvbuffer[0], &container);
+	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
+	loadgraphobj->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[0], &container, BREADTHFIRSTSEARCH);
+	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container);
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	utilityobj->printcontainer(&container); 
+	#endif
+	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	unsigned int graph_iterationidx = 0;
-	while(true){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<graph_iterationidx<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+	// while(true){
+	for(graph_iterationidx=0; graph_iterationidx<2; graph_iterationidx++){
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs_pim::run: graph iteration "<<graph_iterationidx<<" of bfs_pim started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		#ifdef _DEBUGMODE_HOSTPRINTS2
-		utilityobj[0]->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj[0]->hmin(activevertices.size(), 16));
+		utilityobj->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj->hmin(activevertices.size(), 16));
 		#endif
 		
-		WorkerThread(activevertices, activevertices2, &mycontainer); 
-
-		activevertices.clear();
-		for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
-		activevertices2.clear();
+		loadgraphobj->loadactvvertices(activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, &container);
+		loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container);
 		
-		if(activevertices.size() == 0 || graph_iterationidx >= 64){ break; }
-		graph_iterationidx += 1;
+		setupkernelobj->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
+		
+		activevertices.clear();
+		postprocessobj->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
+		postprocessobj->applyvertices(activevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, 0, KVDATA_RANGE);
+		exit(EXIT_SUCCESS); // REMOVEME.
+		
+		// activevertices.clear();
+		// for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
+		// activevertices2.clear();
+		
+		// break; // REMOVEME.
+		// if(activevertices.size() == 0 || graph_iterationidx >= 0){ break; }
+		// graph_iterationidx += 1;
 	}
 	cout<<endl;
 	finish();
-	utilityobj[0]->stopTIME("bfs::start2: finished start2. Time Elapsed: ", begintime, NAp);
+	utilityobj->stopTIME("bfs_pim::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
 	graphobj->closetemporaryfilesforwriting();
@@ -103,13 +126,16 @@ runsummary_t bfs::run(){
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
-void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container){
+
+
+
+/* void bfs_pim::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, hostglobalparams_t globalparams){
 	size_t prevtotaledgesize = 0;
 	unsigned int iteration_idx = 0;
 	
 	for(unsigned int col=0; col<NUMSSDPARTITIONS; col++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
+		cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs_pim::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
 		#endif 
 		
 		edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, currentactivevertices, container);
@@ -129,12 +155,12 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 		postprocessobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
 		postprocessobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		
-		// break; // REMOVEME.
+		break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
-}
+} */
 
 
 

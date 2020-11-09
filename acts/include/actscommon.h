@@ -45,8 +45,6 @@ typedef unsigned int analysis_type;
 typedef struct {
 	unsigned int key;
 	unsigned int value;
-	// short key;
-	// short value;
 } skeyvalue_t;
 
 typedef struct {
@@ -58,11 +56,15 @@ typedef struct {
 } sweepparams_t;
 
 typedef struct {
-	unsigned int topi_kvs;
+	unsigned int i;
 	unsigned int i_kvs;
+	unsigned int begin;
 	unsigned int begin_kvs;
+	unsigned int end;
 	unsigned int end_kvs;
+	unsigned int size;
 	unsigned int size_kvs;
+	unsigned int skip;
 	unsigned int skip_kvs;
 	unsigned int info;
 } travstate_t;
@@ -90,6 +92,7 @@ typedef struct {
 	unsigned int edgessize;
 	unsigned int edgessize_kvs;
 	unsigned int destvoffset;
+	unsigned int actvvsize; //
 	unsigned int firstvid;
 	unsigned int firstkey;
 	unsigned int firstvalue;
