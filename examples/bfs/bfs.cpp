@@ -43,10 +43,10 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#endif
 
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
+	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ setupkernelobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
 	#endif
 	#ifdef GRAFBOOST_SETUP 
-	postprocessobj[0]->loadSRstructures();
+	setupkernelobj[0]->loadSRstructures();
 	#endif 
 }
 bfs::~bfs(){
@@ -56,10 +56,10 @@ bfs::~bfs(){
 }
 void bfs::finish(){
 	#ifdef FPGA_IMPL
-	postprocessobj[0]->finishOCL();
+	setupkernelobj[0]->finishOCL();
 	#endif
 	#ifdef GRAFBOOST_SETUP
-	postprocessobj[0]->finishSR();
+	setupkernelobj[0]->finishSR();
 	#endif
 }
 

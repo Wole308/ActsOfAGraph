@@ -19,7 +19,7 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void WorkerThread(unsigned int superthreadidx, unsigned int col, hostglobalparams_t globalparams, vector<vertex_t> &nextactivevertices, container_t * container);
+	void WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container);
 	
 	void loadgraphdata(unsigned int col, graph * graphobj, value_t * vertexdatabuffer, container_t * container);
 	void loadgraphdata(unsigned int col, unsigned int threadid, unsigned int subthreadid, graph * graphobj, value_t * vertexdatabuffer, container_t * container);			

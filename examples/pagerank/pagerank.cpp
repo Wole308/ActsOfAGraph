@@ -47,7 +47,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
 	#endif
 	#ifdef GRAFBOOST_SETUP 
-	postprocessobj[0]->loadSRstructures();
+	setupkernelobj[0]->loadSRstructures();
 	#endif 
 }
 pagerank::~pagerank(){
@@ -57,10 +57,10 @@ pagerank::~pagerank(){
 }
 void pagerank::finish(){
 	#ifdef FPGA_IMPL
-	postprocessobj[0]->finishOCL();
+	setupkernelobj[0]->finishOCL();
 	#endif
 	#ifdef GRAFBOOST_SETUP
-	postprocessobj[0]->finishSR();
+	setupkernelobj[0]->finishSR();
 	#endif
 }
 
@@ -75,23 +75,14 @@ runsummary_t pagerank::run(){
 	vector<value_t> activevertices;
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	for(unsigned int groupid = 0; groupid < 1; groupid++){
-		graphobj->openfilesforreading(groupid); //
+	for(unsigned int graph_iterationidx=0; graph_iterationidx<1; graph_iterationidx++){
+		cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<graph_iterationidx<<" of pagerank started"<< RESET <<endl;
 		
-		globalparams.groupbasevoffset = 0;
-		globalparams.groupid = groupid;
-		globalparams.graph_algorithmidx = PAGERANK;
-		
-		for(unsigned int graph_iterationidx=0; graph_iterationidx<1; graph_iterationidx++){
-			cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<graph_iterationidx<<" of pagerank started"<< RESET <<endl;
-			
-			globalparams.graph_iterationidx = graph_iterationidx;
-			for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){
-				cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
-				WorkerThread(0, col, globalparams, activevertices, &mycontainer);
-				cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-				break; // REMOVEME.
-			}
+		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){
+			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
+			WorkerThread(0, col, activevertices, &mycontainer);
+			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
+			break; // REMOVEME.
 		}
 	}
 	finish();
@@ -103,14 +94,14 @@ runsummary_t pagerank::run(){
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
-void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, hostglobalparams_t globalparams, vector<vertex_t> &nextactivevertices, container_t * container){
+void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container){
 	unsigned int iteration_idx = 0;
 	unsigned int iteration_size = utilityobj[superthreadidx]->hceildiv((lseek(graphobj->getnvmeFd_edges_r2()[col], 0, SEEK_END) / sizeof(edge_type)), KVDATA_BATCHSIZE);
 	cout<<">>> WorkerThread:: total number of edges in file: "<<(lseek(graphobj->getnvmeFd_edges_r2()[col], 0, SEEK_END) / sizeof(edge_type))<<endl;
 	
 	while(true){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<endl<<"PP&A:: [groupid:"<<globalparams.groupid<<"][col:"<<col<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:"<<NUMCPUTHREADS<<"]"<<endl;		
+		cout<<endl<<"PP&A:: [col:"<<col<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:"<<NUMCPUTHREADS<<"]"<<endl;		
 		#endif
 		
 		// load
@@ -119,9 +110,6 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, hostg
 		loadgraphobj[0]->loadedgedata(col, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], container, PAGERANK);
 		loadgraphobj[0]->loadmessages((uint512_vec_dt **)kvbuffer[superthreadidx][0][0], container);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
-		#ifdef _DEBUGMODE_HOSTPRINTS2
-		utilityobj[0]->printcontainer(container); 
-		#endif
 	
 		// run pagerank
 		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], 0);

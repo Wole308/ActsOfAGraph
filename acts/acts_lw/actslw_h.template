@@ -23,8 +23,8 @@
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
-// #define PROCESSALLEDGES
-#define PROCESSACTIVEVERTICES
+#define PROCESSALLEDGES
+// #define PROCESSACTIVEVERTICES
 #define COLLECTSTATS
 #define PARTITIONUPDATES
 #define REDUCEUPDATES

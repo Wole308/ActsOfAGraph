@@ -57,7 +57,7 @@ void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	#ifdef GRAFBOOST_SETUP
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			srkernelobj->srtopkernel(_sr, (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key);
+			srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i][j]);
 		}
 	}
 	#endif 

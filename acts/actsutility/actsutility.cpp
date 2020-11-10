@@ -368,12 +368,12 @@ void actsutility::checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsign
 	return;
 }
 void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges){
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkptr(A):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<endl;
 	#endif 
 	for(unsigned int i=beginvptr; i<endvptr; i++){
 		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid)){
-			#ifdef _DEBUGMODE_KERNELPRINTS2
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
 			#endif 
 		} else {
@@ -381,7 +381,7 @@ void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, uns
 			exit(EXIT_FAILURE);
 		}
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkptr(A): check graph operation was SUCCESSFULL. "<<endl;
 	#endif 
 	return;

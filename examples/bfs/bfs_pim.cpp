@@ -43,10 +43,10 @@ bfs_pim::bfs_pim(unsigned int algorithmid, unsigned int datasetid, std::string b
 	#endif
 
 	#ifdef FPGA_IMPL
-	postprocessobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]);
+	setupkernelobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]);
 	#endif
 	#ifdef GRAFBOOST_SETUP 
-	postprocessobj[0]->loadSRstructures();
+	setupkernelobj->loadSRstructures();
 	#endif 
 }
 bfs_pim::~bfs_pim(){
@@ -56,10 +56,10 @@ bfs_pim::~bfs_pim(){
 }
 void bfs_pim::finish(){
 	#ifdef FPGA_IMPL
-	postprocessobj[0]->finishOCL();
+	setupkernelobj->finishOCL();
 	#endif
 	#ifdef GRAFBOOST_SETUP
-	postprocessobj[0]->finishSR();
+	setupkernelobj->finishSR();
 	#endif
 }
 

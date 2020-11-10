@@ -1,9 +1,9 @@
 #ifndef GRAPH_H
 #define GRAPH_H
-// #include "EdgeProcess.h" 
-// #include "VertexValues.h" 
-// #include "sortreduce.h" 
-// #include "filekvreader.h" 
+#include "EdgeProcess.h" 
+#include "VertexValues.h" 
+#include "sortreduce.h" 
+#include "filekvreader.h" 
 #include "../../src/heuristics/heuristics.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/utility/utility.h"

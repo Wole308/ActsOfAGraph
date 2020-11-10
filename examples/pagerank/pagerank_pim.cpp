@@ -41,10 +41,10 @@ pagerank_pim::pagerank_pim(unsigned int algorithmid, unsigned int datasetid, std
 	#endif
 	
 	#ifdef FPGA_IMPL
-	postprocessobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer);
 	#endif
 	#ifdef GRAFBOOST_SETUP 
-	postprocessobj->loadSRstructures();
+	setupkernelobj->loadSRstructures();
 	#endif 
 }
 pagerank_pim::~pagerank_pim(){
@@ -53,10 +53,10 @@ pagerank_pim::~pagerank_pim(){
 }
 void pagerank_pim::finish(){
 	#ifdef FPGA_IMPL
-	postprocessobj->finishOCL();
+	setupkernelobj->finishOCL();
 	#endif
 	#ifdef GRAFBOOST_SETUP
-	postprocessobj->finishSR();
+	setupkernelobj->finishSR();
 	#endif
 }
 

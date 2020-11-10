@@ -27,9 +27,6 @@ loadgraph::loadgraph(graph * _graphobj, stats * _statsobj){
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
-	#ifdef GRAFBOOST_SETUP
-	srkernelobj = new sr();
-	#endif
 	statsobj = _statsobj;
 	postprocessobj = new postprocess(graphobj, statsobj); 
 }
@@ -37,9 +34,6 @@ loadgraph::loadgraph(){
 	utilityobj = new utility();
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
-	#ifdef GRAFBOOST_SETUP
-	srkernelobj = new sr();
-	#endif 
 }
 loadgraph::~loadgraph(){} 
 
@@ -185,6 +179,9 @@ void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffe
 	return;
 }
 void loadgraph::loadmessages(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container){	
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	utilityobj->printcontainer(container); 
+	#endif
 	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
 		if(container->srcvsize[0][j] >= KVDRAMSZ){ cout<<"loadgraph::run::ERROR: fix this. srcvsize is greater than allowed. srcvsize["<<j<<"]: "<<container->srcvsize[0][j]<<", KVDRAMSZ: "<<KVDRAMSZ<<endl; exit(EXIT_FAILURE); }
 		createmessages(
