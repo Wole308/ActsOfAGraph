@@ -19,15 +19,8 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container);
-	
-	void loadgraphdata(unsigned int col, graph * graphobj, value_t * vertexdatabuffer, container_t * container);
-	void loadgraphdata(unsigned int col, unsigned int threadid, unsigned int subthreadid, graph * graphobj, value_t * vertexdatabuffer, container_t * container);			
-	void loadsourcevertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
-	void loaddestvertices(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], vertex_t offset, vertex_t size);
-	void loadedges(keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
-	void loadmessages(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container);
-							
+	void WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter);
+					
 private:
 	graph * graphobj;
 	parameters * parametersobj[NUMSUPERCPUTHREADS];
@@ -42,6 +35,7 @@ private:
 	value_t * vertexdatabuffer;
 	edge_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	edge_type * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };
 #endif
 

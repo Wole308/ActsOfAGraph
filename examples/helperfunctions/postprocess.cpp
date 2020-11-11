@@ -26,18 +26,12 @@ postprocess::postprocess(graph * _graphobj, stats * _statsobj){
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
-	// #ifdef GRAFBOOST_SETUP
-	// srkernelobj = new sr();
-	// #endif
 	statsobj = _statsobj;
 }
 postprocess::postprocess(){
 	utilityobj = new utility();
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
-	// #ifdef GRAFBOOST_SETUP
-	// srkernelobj = new sr();
-	// #endif 
 }
 postprocess::~postprocess(){} 
 
@@ -59,7 +53,6 @@ void postprocess::workerthread_cummulateverticesdata(int threadidx, value_t * bu
 	value_t cumm = INFINITI;
 	
 	for(unsigned int k=offset; k<(offset + size); k++){
-		// cumm = buffer[0][0][baseoffset];
 		cumm = buffer[0][0][baseoffset + k];
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			cumm = algorithmobj->cummulate(cumm, buffer[0][j][baseoffset + k]);
@@ -107,7 +100,9 @@ void postprocess::workerthread_applyvertices(int ithreadidx, vector<value_t> &ac
 			cout<<"applyvertices: active vertex seen @ "<<k<<": vid: "<<voffset + offset + k<<", temp: "<<temp<<", vdata: "<<vdata<<endl; 
 			#endif 
 			
+			#ifndef PAGERANK
 			activeverticesbuffer.push_back((voffset + offset + k));
+			#endif
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS2

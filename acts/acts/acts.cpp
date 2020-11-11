@@ -203,30 +203,39 @@ value_t
 	#ifdef SW 
 	actslw::
 	#endif 
-reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, unsigned int GraphAlgo){
-	// #pragma HLS INLINE
-	value_t ret = 0;
+reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	/* value_t ret = 0;
 	#ifdef PR_ALGORITHM
-	ret = value + edgeval;
+	ret = vtemp + res;
 	#elif defined(BFS_ALGORITHM)
-	ret = amin(value, GraphIter); // NEWCHANGE.
+	ret = amin(vtemp, GraphIter); // NEWCHANGE.
 	#elif defined(BC_ALGORITHM)
-	ret = amin(value, GraphIter);
+	ret = amin(vtemp, GraphIter);
 	#endif
 	#ifdef NOTUSED
-	if(GraphAlgo == PAGERANK){ ret = value + edgeval; }
-	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = amin(value, GraphIter); }
-	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = amin(value, GraphIter); }
+	if(GraphAlgo == PAGERANK){ ret = vtemp + res; }
+	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = amin(vtemp, GraphIter); }
+	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = amin(vtemp, GraphIter); }
 	else {}
 	#endif 
-	return ret;
+	return ret; */
+	
+	value_t temp = 0;
+	if(GraphAlgo == PAGERANK){
+		temp = vtemp + res;
+	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		temp = amin(vtemp, GraphIter);
+	} else if (GraphAlgo == SSSP){
+		temp = amin(vtemp, res);
+	} else { temp = 0; }
+	return temp;
 }
 value_t 
 	#ifdef SW 
 	actslw::
 	#endif 
-processedgefunc(value_t Uprop, unsigned int edgeweight){
-	value_t ret = 0;
+processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo){
+	/* value_t ret = 0;
 	#ifdef PR_ALGORITHM
 	ret = Uprop;
 	#elif defined(BFS_ALGORITHM)
@@ -234,7 +243,27 @@ processedgefunc(value_t Uprop, unsigned int edgeweight){
 	#elif defined(BC_ALGORITHM)
 	ret = Uprop + edgeweight;
 	#endif
-	return ret;
+	return ret; */
+	
+	/* value_t res = 0;
+	#ifdef PR_ALGORITHM
+	res = Uprop / voutdegree;
+	#elif defined(BFS_ALGORITHM)
+	res = Uprop + edgeweight;
+	#elif defined(BC_ALGORITHM)
+	res = Uprop + edgeweight;
+	#endif
+	return res; */
+	
+	value_t res = 0;
+	if(GraphAlgo == PAGERANK){
+		res = Uprop / voutdegree;
+	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		res = NAp;
+	} else if (GraphAlgo == SSSP){
+		res = Uprop + edgeweight;
+	} else { res = 0; }
+	return res;
 }
 value_t 
 	#ifdef SW 
@@ -1226,31 +1255,56 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		keyvalue_t vprop7;
 		if(keyvalue7.key != INVALIDDATA){ vprop7 = destbuffer[7][rowindex7]; }
 		
-		value_t temp0 = reducefunc(vprop0.key, vprop0.value, keyvalue0.value, GraphIter, GraphAlgo);
-		value_t temp1 = reducefunc(vprop1.key, vprop1.value, keyvalue1.value, GraphIter, GraphAlgo);
-		value_t temp2 = reducefunc(vprop2.key, vprop2.value, keyvalue2.value, GraphIter, GraphAlgo);
-		value_t temp3 = reducefunc(vprop3.key, vprop3.value, keyvalue3.value, GraphIter, GraphAlgo);
-		value_t temp4 = reducefunc(vprop4.key, vprop4.value, keyvalue4.value, GraphIter, GraphAlgo);
-		value_t temp5 = reducefunc(vprop5.key, vprop5.value, keyvalue5.value, GraphIter, GraphAlgo);
-		value_t temp6 = reducefunc(vprop6.key, vprop6.value, keyvalue6.value, GraphIter, GraphAlgo);
-		value_t temp7 = reducefunc(vprop7.key, vprop7.value, keyvalue7.value, GraphIter, GraphAlgo);
+		value_t temp0;
+		if(colindex0 == 0){ temp0 = vprop0.key; }
+		else { temp0 = vprop0.value; }
+		value_t temp1;
+		if(colindex1 == 0){ temp1 = vprop1.key; }
+		else { temp1 = vprop1.value; }
+		value_t temp2;
+		if(colindex2 == 0){ temp2 = vprop2.key; }
+		else { temp2 = vprop2.value; }
+		value_t temp3;
+		if(colindex3 == 0){ temp3 = vprop3.key; }
+		else { temp3 = vprop3.value; }
+		value_t temp4;
+		if(colindex4 == 0){ temp4 = vprop4.key; }
+		else { temp4 = vprop4.value; }
+		value_t temp5;
+		if(colindex5 == 0){ temp5 = vprop5.key; }
+		else { temp5 = vprop5.value; }
+		value_t temp6;
+		if(colindex6 == 0){ temp6 = vprop6.key; }
+		else { temp6 = vprop6.value; }
+		value_t temp7;
+		if(colindex7 == 0){ temp7 = vprop7.key; }
+		else { temp7 = vprop7.value; }
 		
-		if(colindex0 == 0){ vprop0.key = temp0; }
-		else { vprop0.value = temp0; }
-		if(colindex1 == 0){ vprop1.key = temp1; }
-		else { vprop1.value = temp1; }
-		if(colindex2 == 0){ vprop2.key = temp2; }
-		else { vprop2.value = temp2; }
-		if(colindex3 == 0){ vprop3.key = temp3; }
-		else { vprop3.value = temp3; }
-		if(colindex4 == 0){ vprop4.key = temp4; }
-		else { vprop4.value = temp4; }
-		if(colindex5 == 0){ vprop5.key = temp5; }
-		else { vprop5.value = temp5; }
-		if(colindex6 == 0){ vprop6.key = temp6; }
-		else { vprop6.value = temp6; }
-		if(colindex7 == 0){ vprop7.key = temp7; }
-		else { vprop7.value = temp7; }
+		value_t rettemp0 = reducefunc(temp0, keyvalue0.value, GraphIter, GraphAlgo);
+		value_t rettemp1 = reducefunc(temp1, keyvalue1.value, GraphIter, GraphAlgo);
+		value_t rettemp2 = reducefunc(temp2, keyvalue2.value, GraphIter, GraphAlgo);
+		value_t rettemp3 = reducefunc(temp3, keyvalue3.value, GraphIter, GraphAlgo);
+		value_t rettemp4 = reducefunc(temp4, keyvalue4.value, GraphIter, GraphAlgo);
+		value_t rettemp5 = reducefunc(temp5, keyvalue5.value, GraphIter, GraphAlgo);
+		value_t rettemp6 = reducefunc(temp6, keyvalue6.value, GraphIter, GraphAlgo);
+		value_t rettemp7 = reducefunc(temp7, keyvalue7.value, GraphIter, GraphAlgo);
+		
+		if(colindex0 == 0){ vprop0.key = rettemp0; }
+		else { vprop0.value = rettemp0; }
+		if(colindex1 == 0){ vprop1.key = rettemp1; }
+		else { vprop1.value = rettemp1; }
+		if(colindex2 == 0){ vprop2.key = rettemp2; }
+		else { vprop2.value = rettemp2; }
+		if(colindex3 == 0){ vprop3.key = rettemp3; }
+		else { vprop3.value = rettemp3; }
+		if(colindex4 == 0){ vprop4.key = rettemp4; }
+		else { vprop4.value = rettemp4; }
+		if(colindex5 == 0){ vprop5.key = rettemp5; }
+		else { vprop5.value = rettemp5; }
+		if(colindex6 == 0){ vprop6.key = rettemp6; }
+		else { vprop6.value = rettemp6; }
+		if(colindex7 == 0){ vprop7.key = rettemp7; }
+		else { vprop7.value = rettemp7; }
 		
 		if(keyvalue0.key != INVALIDDATA){ destbuffer[0][rowindex0] = vprop0; }
 		if(keyvalue1.key != INVALIDDATA){ destbuffer[1][rowindex1] = vprop1; }
@@ -1364,7 +1418,6 @@ savevertices0(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 }
 
 // process-edges function
-/// sourcebuffer:{key:destvid, value:Udata}, destbuffer:{key:destvid, value:srcvid}
 void 
 	#ifdef SW 
 	actslw::
@@ -1387,21 +1440,13 @@ process_edges0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 		keyvalue_t edge7 = destbuffer[7][i];
 		
 		value_t localsourceid0 = edge0.key - upperlimit;
-		keyy_t dstvid0 = edge0.value;
 		value_t localsourceid1 = edge1.key - upperlimit;
-		keyy_t dstvid1 = edge1.value;
 		value_t localsourceid2 = edge2.key - upperlimit;
-		keyy_t dstvid2 = edge2.value;
 		value_t localsourceid3 = edge3.key - upperlimit;
-		keyy_t dstvid3 = edge3.value;
 		value_t localsourceid4 = edge4.key - upperlimit;
-		keyy_t dstvid4 = edge4.value;
 		value_t localsourceid5 = edge5.key - upperlimit;
-		keyy_t dstvid5 = edge5.value;
 		value_t localsourceid6 = edge6.key - upperlimit;
-		keyy_t dstvid6 = edge6.value;
 		value_t localsourceid7 = edge7.key - upperlimit;
-		keyy_t dstvid7 = edge7.value;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"PROCESSEDGE SEEN @ process_edges0:: i: "<<i<<", destbuffer[0][i].key: "<<destbuffer[0][i].value<<", destbuffer[0][i].value: "<<destbuffer[0][i].key<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
@@ -1528,39 +1573,47 @@ process_edges0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 			// localsourceid7 = 0;
 		} // REMOVEME.
 		
-		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ 
-			edge0.key = dstvid0; 
-			edge0.value = processedgefunc(sourcebuffer[0][localsourceid0].value, 1); }
-		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ 
-			edge1.key = dstvid1; 
-			edge1.value = processedgefunc(sourcebuffer[1][localsourceid1].value, 1); }
-		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ 
-			edge2.key = dstvid2; 
-			edge2.value = processedgefunc(sourcebuffer[2][localsourceid2].value, 1); }
-		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ 
-			edge3.key = dstvid3; 
-			edge3.value = processedgefunc(sourcebuffer[3][localsourceid3].value, 1); }
-		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ 
-			edge4.key = dstvid4; 
-			edge4.value = processedgefunc(sourcebuffer[4][localsourceid4].value, 1); }
-		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ 
-			edge5.key = dstvid5; 
-			edge5.value = processedgefunc(sourcebuffer[5][localsourceid5].value, 1); }
-		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ 
-			edge6.key = dstvid6; 
-			edge6.value = processedgefunc(sourcebuffer[6][localsourceid6].value, 1); }
-		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ 
-			edge7.key = dstvid7; 
-			edge7.value = processedgefunc(sourcebuffer[7][localsourceid7].value, 1); }
+		keyvalue_t vertexupdate0;
+		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate0.key = edge0.value;
+			vertexupdate0.value = processedgefunc(sourcebuffer[0][localsourceid0].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate1;
+		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate1.key = edge1.value;
+			vertexupdate1.value = processedgefunc(sourcebuffer[1][localsourceid1].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate2;
+		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate2.key = edge2.value;
+			vertexupdate2.value = processedgefunc(sourcebuffer[2][localsourceid2].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate3;
+		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate3.key = edge3.value;
+			vertexupdate3.value = processedgefunc(sourcebuffer[3][localsourceid3].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate4;
+		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate4.key = edge4.value;
+			vertexupdate4.value = processedgefunc(sourcebuffer[4][localsourceid4].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate5;
+		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate5.key = edge5.value;
+			vertexupdate5.value = processedgefunc(sourcebuffer[5][localsourceid5].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate6;
+		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate6.key = edge6.value;
+			vertexupdate6.value = processedgefunc(sourcebuffer[6][localsourceid6].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate7;
+		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate7.key = edge7.value;
+			vertexupdate7.value = processedgefunc(sourcebuffer[7][localsourceid7].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		
-		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ destbuffer[0][i] = edge0; }
-		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ destbuffer[1][i] = edge1; }
-		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ destbuffer[2][i] = edge2; }
-		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ destbuffer[3][i] = edge3; }
-		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ destbuffer[4][i] = edge4; }
-		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ destbuffer[5][i] = edge5; }
-		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ destbuffer[6][i] = edge6; }
-		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ destbuffer[7][i] = edge7; }
+		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ destbuffer[0][i] = vertexupdate0; }
+		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ destbuffer[1][i] = vertexupdate1; }
+		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ destbuffer[2][i] = vertexupdate2; }
+		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ destbuffer[3][i] = vertexupdate3; }
+		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ destbuffer[4][i] = vertexupdate4; }
+		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ destbuffer[5][i] = vertexupdate5; }
+		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ destbuffer[6][i] = vertexupdate6; }
+		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ destbuffer[7][i] = vertexupdate7; }
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
@@ -1612,28 +1665,28 @@ process_edges0(bool_type enable, value_t sourcedata, keyvalue_t destbuffer[VECTO
 		
 		keyvalue_t vertexupdate0;
 		vertexupdate0.key = edge0.value;
-		vertexupdate0.value = processedgefunc(sourcedata, 1);
+		vertexupdate0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate1;
 		vertexupdate1.key = edge1.value;
-		vertexupdate1.value = processedgefunc(sourcedata, 1);
+		vertexupdate1.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate2;
 		vertexupdate2.key = edge2.value;
-		vertexupdate2.value = processedgefunc(sourcedata, 1);
+		vertexupdate2.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate3;
 		vertexupdate3.key = edge3.value;
-		vertexupdate3.value = processedgefunc(sourcedata, 1);
+		vertexupdate3.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate4;
 		vertexupdate4.key = edge4.value;
-		vertexupdate4.value = processedgefunc(sourcedata, 1);
+		vertexupdate4.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate5;
 		vertexupdate5.key = edge5.value;
-		vertexupdate5.value = processedgefunc(sourcedata, 1);
+		vertexupdate5.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate6;
 		vertexupdate6.key = edge6.value;
-		vertexupdate6.value = processedgefunc(sourcedata, 1);
+		vertexupdate6.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		keyvalue_t vertexupdate7;
 		vertexupdate7.key = edge7.value;
-		vertexupdate7.value = processedgefunc(sourcedata, 1);
+		vertexupdate7.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		
 		destbuffer[0][i] = vertexupdate0; // edge0;
 		destbuffer[1][i] = vertexupdate1; // edge1;
@@ -2286,15 +2339,12 @@ dispatch0(uint512_dt * kvdram){
 						process_edges0(ON, buffer_setof2, buffer_setof4, globalparams.srcvoffset + (voffset_kvs * VECTOR_SIZE) + (v * SRCBUFFER_SIZE), globalparams.GraphIter, globalparams.GraphAlgo, edgestravstate, globalparams);
 						
 						buffer_type savechunk_size = getchunksize_kvs(SRCBUFFER_SIZE, edgestravstate, 0);
-						// savevertices0(ON, kvdram, buffer_setof4, BASEOFFSET_KVDRAM_KVS + eoffset_kvs, savechunk_size); // is actually 'save keyvalues'
 						savevertices0(ON, kvdram, buffer_setof4, BASEOFFSET_KVDRAM_KVS + kvoffset_kvs, savechunk_size); // is actually 'save keyvalues'
 						kvoffset_kvs += savechunk_size;
 					}
 				}
 			}
 			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)
-			// if(config.enableprocessedges == ON){ actsutilityobj->checkfornotequalbyerrorwindow("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
-			// if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch0 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
 			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch0::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); } //
 			#endif
 			#endif
@@ -2557,7 +2607,7 @@ topkernel( uint512_dt * sourceAvolume ){
 
 #pragma HLS DATA_PACK variable = sourceAvolume
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef _WIDEWORD
 	cout<<">>> Light weight ACTS (L2) Launched... size: "<<(unsigned int)(sourceAvolume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
 	#else

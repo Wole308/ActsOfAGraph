@@ -61,13 +61,14 @@ HOST_TOP += examples/hostprocess.cpp
 # HOST_SRCS += acts/acts1/acts.cpp
 # HOST_SRCS += acts/actsutility/actsutility.cpp
 HOST_SRCS += src/algorithm/algorithm.cpp
-# HOST_SRCS += src/edgeprocess/edge_process.cpp
-HOST_SRCS += examples/helperfunctions/helperfunctions.cpp
-HOST_SRCS += examples/helperfunctions/helperfunctions2.cpp
+HOST_SRCS += examples/helperfunctions/postprocess.cpp
 HOST_SRCS += examples/helperfunctions/loadgraph.cpp
+HOST_SRCS += examples/helperfunctions/setupkernel.cpp
+HOST_SRCS += examples/helperfunctions/procedges.cpp
 HOST_SRCS += examples/pagerank/pagerank.cpp
 HOST_SRCS += examples/pagerank/pagerank_pim.cpp
 HOST_SRCS += examples/bfs/bfs.cpp
+HOST_SRCS += examples/bfs/bfs_pim.cpp
 HOST_SRCS += examples/test/test.cpp
 # HOST_SRCS += examples/advance_op/advance_op.cpp
 HOST_SRCS += src/graphs/graph.cpp
@@ -164,12 +165,12 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
 
 # Building Host
-$(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
-	$(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
 	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
-	# /tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt
+	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
+$(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
+	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt
 
 
 emconfig:$(EMCONFIG_DIR)/emconfig.json

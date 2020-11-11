@@ -77,21 +77,21 @@ runsummary_t bfs::run(){
 	activevertices.push_back(2); // 2
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	unsigned int graph_iterationidx = 0;
+	unsigned int GraphIter = 0;
 	while(true){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<graph_iterationidx<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		#ifdef _DEBUGMODE_HOSTPRINTS2
 		utilityobj[0]->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj[0]->hmin(activevertices.size(), 16));
 		#endif
 		
-		WorkerThread(activevertices, activevertices2, &mycontainer); 
+		WorkerThread(activevertices, activevertices2, &mycontainer, GraphIter); 
 
 		activevertices.clear();
 		for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
 		activevertices2.clear();
 		
-		if(activevertices.size() == 0 || graph_iterationidx >= 64){ break; }
-		graph_iterationidx += 1;
+		if(activevertices.size() == 0 || GraphIter >= 64){ break; }
+		GraphIter += 1;
 	}
 	cout<<endl;
 	finish();
@@ -103,7 +103,7 @@ runsummary_t bfs::run(){
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
-void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container){
+void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter){
 	size_t prevtotaledgesize = 0;
 	unsigned int iteration_idx = 0;
 	
@@ -117,7 +117,7 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
 		loadgraphobj[0]->loadgraphdata(col, graphobj, currentactivevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
 		loadgraphobj[0]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-		loadgraphobj[0]->loadmessages(kvbuffer[0], container);
+		loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj[0]->printcontainer(container); 
 		#endif

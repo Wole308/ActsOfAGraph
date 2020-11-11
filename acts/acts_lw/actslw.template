@@ -188,30 +188,39 @@ value_t
 	#ifdef SW 
 	actslw::
 	#endif 
-reducefunc(keyy_t vid, value_t value, value_t edgeval, unsigned int GraphIter, unsigned int GraphAlgo){
-	// #pragma HLS INLINE
-	value_t ret = 0;
+reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	/* value_t ret = 0;
 	#ifdef PR_ALGORITHM
-	ret = value + edgeval;
+	ret = vtemp + res;
 	#elif defined(BFS_ALGORITHM)
-	ret = amin(value, GraphIter); // NEWCHANGE.
+	ret = amin(vtemp, GraphIter); // NEWCHANGE.
 	#elif defined(BC_ALGORITHM)
-	ret = amin(value, GraphIter);
+	ret = amin(vtemp, GraphIter);
 	#endif
 	#ifdef NOTUSED
-	if(GraphAlgo == PAGERANK){ ret = value + edgeval; }
-	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = amin(value, GraphIter); }
-	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = amin(value, GraphIter); }
+	if(GraphAlgo == PAGERANK){ ret = vtemp + res; }
+	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = amin(vtemp, GraphIter); }
+	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = amin(vtemp, GraphIter); }
 	else {}
 	#endif 
-	return ret;
+	return ret; */
+	
+	value_t temp = 0;
+	if(GraphAlgo == PAGERANK){
+		temp = vtemp + res;
+	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		temp = amin(vtemp, GraphIter);
+	} else if (GraphAlgo == SSSP){
+		temp = amin(vtemp, res);
+	} else { temp = 0; }
+	return temp;
 }
 value_t 
 	#ifdef SW 
 	actslw::
 	#endif 
-processedgefunc(value_t Uprop, unsigned int edgeweight){
-	value_t ret = 0;
+processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo){
+	/* value_t ret = 0;
 	#ifdef PR_ALGORITHM
 	ret = Uprop;
 	#elif defined(BFS_ALGORITHM)
@@ -219,7 +228,27 @@ processedgefunc(value_t Uprop, unsigned int edgeweight){
 	#elif defined(BC_ALGORITHM)
 	ret = Uprop + edgeweight;
 	#endif
-	return ret;
+	return ret; */
+	
+	/* value_t res = 0;
+	#ifdef PR_ALGORITHM
+	res = Uprop / voutdegree;
+	#elif defined(BFS_ALGORITHM)
+	res = Uprop + edgeweight;
+	#elif defined(BC_ALGORITHM)
+	res = Uprop + edgeweight;
+	#endif
+	return res; */
+	
+	value_t res = 0;
+	if(GraphAlgo == PAGERANK){
+		res = Uprop / voutdegree;
+	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		res = NAp;
+	} else if (GraphAlgo == SSSP){
+		res = Uprop + edgeweight;
+	} else { res = 0; }
+	return res;
 }
 value_t 
 	#ifdef SW 
@@ -886,12 +915,18 @@ reduce{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		value_t temp{{v}} = reducefunc(vprop{{v}}.key, vprop{{v}}.value, keyvalue{{v}}.value, GraphIter, GraphAlgo);
+		value_t temp{{v}};
+		if(colindex{{v}} == 0){ temp{{v}} = vprop{{v}}.key; }
+		else { temp{{v}} = vprop{{v}}.value; }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(colindex{{v}} == 0){ vprop{{v}}.key = temp{{v}}; }
-		else { vprop{{v}}.value = temp{{v}}; }
+		value_t rettemp{{v}} = reducefunc(temp{{v}}, keyvalue{{v}}.value, GraphIter, GraphAlgo);
+		{%endfor%}
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		if(colindex{{v}} == 0){ vprop{{v}}.key = rettemp{{v}}; }
+		else { vprop{{v}}.value = rettemp{{v}}; }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -984,7 +1019,6 @@ savevertices{{inst}}(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VE
 {%endfor%}
 
 // process-edges function
-/// sourcebuffer:{key:destvid, value:Udata}, destbuffer:{key:destvid, value:srcvid}
 {%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 void 
 	#ifdef SW 
@@ -1004,7 +1038,6 @@ process_edges{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		value_t localsourceid{{v}} = edge{{v}}.key - upperlimit;
-		keyy_t dstvid{{v}} = edge{{v}}.value;
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1031,13 +1064,14 @@ process_edges{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){ 
-			edge{{v}}.key = dstvid{{v}}; 
-			edge{{v}}.value = processedgefunc(sourcebuffer[{{v}}][localsourceid{{v}}].value, 1); }
+		keyvalue_t vertexupdate{{v}};
+		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){
+			vertexupdate{{v}}.key = edge{{v}}.value;
+			vertexupdate{{v}}.value = processedgefunc(sourcebuffer[{{v}}][localsourceid{{v}}].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){ destbuffer[{{v}}][i] = edge{{v}}; }
+		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){ destbuffer[{{v}}][i] = vertexupdate{{v}}; }
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_STATS
@@ -1077,7 +1111,7 @@ process_edges{{inst}}(bool_type enable, value_t sourcedata, keyvalue_t destbuffe
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t vertexupdate{{v}};
 		vertexupdate{{v}}.key = edge{{v}}.value;
-		vertexupdate{{v}}.value = processedgefunc(sourcedata, 1);
+		vertexupdate{{v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -1491,15 +1525,12 @@ dispatch{{inst}}(uint512_dt * kvdram){
 						process_edges{{inst}}(ON, buffer_setof2, buffer_setof4, globalparams.srcvoffset + (voffset_kvs * VECTOR_SIZE) + (v * SRCBUFFER_SIZE), globalparams.GraphIter, globalparams.GraphAlgo, edgestravstate, globalparams);
 						
 						buffer_type savechunk_size = getchunksize_kvs(SRCBUFFER_SIZE, edgestravstate, 0);
-						// savevertices{{inst}}(ON, kvdram, buffer_setof4, BASEOFFSET_KVDRAM_KVS + eoffset_kvs, savechunk_size); // is actually 'save keyvalues'
 						savevertices{{inst}}(ON, kvdram, buffer_setof4, BASEOFFSET_KVDRAM_KVS + kvoffset_kvs, savechunk_size); // is actually 'save keyvalues'
 						kvoffset_kvs += savechunk_size;
 					}
 				}
 			}
 			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)
-			// if(config.enableprocessedges == ON){ actsutilityobj->checkfornotequalbyerrorwindow("dispatch{{inst}} 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
-			// if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch{{inst}} 34", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 0); }
 			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch{{inst}}::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); } //
 			#endif
 			#endif
@@ -1769,7 +1800,7 @@ topkernel({%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANC
 #pragma HLS DATA_PACK variable = source{{inst_}}volume
 {%endfor%}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef _WIDEWORD
 	{%for inst, inst_ in zip(context['NUMINSTANCES_seq'], context['INSTANCES_charseq'])%}
 	cout<<">>> Light weight ACTS (L2) Launched... size: "<<(unsigned int)(source{{inst_}}volume[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 

@@ -8,6 +8,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
 #include "../../kernels/kernel.h"
+#include "procedges.h"
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -20,6 +21,7 @@ public:
 	~setupkernel();
 
 	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrbuffer, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);					
 	
 	unsigned int getflag(unsigned int globaliteration_idx);
 	#ifdef FPGA_IMPL 
@@ -47,6 +49,7 @@ private:
 	SortReduce<uint64_t,uint32_t>* _sr;
 	VertexValues<uint32_t,uint32_t>* vertex_values;
 	#endif 
+	procedges * procedgesobj;
 
 	std::thread mythread[NUMUTILITYTHREADS];
 	std::thread mykernelthread[NUMUTILITYTHREADS];

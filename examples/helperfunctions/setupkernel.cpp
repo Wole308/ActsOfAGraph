@@ -17,6 +17,7 @@
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
+#include "procedges.h"
 #include "setupkernel.h"
 using namespace std;
 
@@ -26,6 +27,7 @@ setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
+	procedgesobj = new procedges();
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif
@@ -51,6 +53,21 @@ void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
+	kernelobj->launchkernel(kvsourcedram, flag);
+	
+	#ifdef _DEBUGMODE_TIMERS2
+	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
+	#endif
+	return;
+}
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrbuffer, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+	#ifdef _DEBUGMODE_TIMERS2
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
+	procedgesobj->start((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrbuffer, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
+	
 	#ifdef ACTGRAPH_SETUP
 	kernelobj->launchkernel(kvsourcedram, flag);
 	#endif 
@@ -65,10 +82,6 @@ void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	#ifdef _DEBUGMODE_TIMERS2
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
-	#endif
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("setupkernel::launchkernel:: Print results (after Kernel run)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
-	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("setupkernel::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}		
 	#endif
 	return;
 }

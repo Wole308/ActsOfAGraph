@@ -70,7 +70,7 @@ runsummary_t bfs_pim::run(){
 	vertexdatabuffer = graphobj->generateverticesdata();
 	graphobj->openfilesforreading(0);
 	
-	unsigned int graph_iterationidx=0;
+	unsigned int GraphIter=0;
 	// container_t mycontainer;
 	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.edgesbuffer[j][k] = new edge_type[KVDATA_BATCHSIZE+1]; }}
 	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.vertexptrs[j][k] = new edge_t[KVDRAMSZ+1]; }}
@@ -82,39 +82,34 @@ runsummary_t bfs_pim::run(){
 	
 	// load
 	container_t container;
-	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, (keyvalue_t **)kvbuffer[0], &container);
+	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (keyvalue_t **)kvbuffer[0], &container);
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
-	loadgraphobj->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[0], &container, BREADTHFIRSTSEARCH);
-	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container);
+	loadgraphobj->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[0], BASEOFFSET_EDGESDATA, &container, BREADTHFIRSTSEARCH);
+	// loadgraphobj[0]->loadedgedata(col, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], BASEOFFSET_EDGESDATA, container, PAGERANK);
+		
+	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container, 0, BREADTHFIRSTSEARCH);
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printcontainer(&container); 
 	#endif
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	// while(true){
-	for(graph_iterationidx=0; graph_iterationidx<2; graph_iterationidx++){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs_pim::run: graph iteration "<<graph_iterationidx<<" of bfs_pim started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+	for(GraphIter=0; GraphIter<2; GraphIter++){
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs_pim::run: graph iteration "<<GraphIter<<" of bfs_pim started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		#ifdef _DEBUGMODE_HOSTPRINTS2
 		utilityobj->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj->hmin(activevertices.size(), 16));
 		#endif
 		
 		loadgraphobj->loadactvvertices(activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, &container);
-		loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container);
+		loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container, GraphIter, BREADTHFIRSTSEARCH);
 		
 		setupkernelobj->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
 		
 		activevertices.clear();
 		postprocessobj->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
 		postprocessobj->applyvertices(activevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, 0, KVDATA_RANGE);
+		
 		exit(EXIT_SUCCESS); // REMOVEME.
-		
-		// activevertices.clear();
-		// for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
-		// activevertices2.clear();
-		
-		// break; // REMOVEME.
-		// if(activevertices.size() == 0 || graph_iterationidx >= 0){ break; }
-		// graph_iterationidx += 1;
 	}
 	cout<<endl;
 	finish();

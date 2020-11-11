@@ -92,11 +92,19 @@ void utility::printallparameters(){
 	std::cout<<"host:: sizeof(keyvalue_t): "<<sizeof(keyvalue_t)<<" bytes ("<<(sizeof(keyvalue_t) * 8)<<" bits)"<<std::endl;
 	std::cout<<"host:: sizeof(vertex_t): "<<sizeof(vertex_t)<<" bytes ("<<(sizeof(vertex_t) * 8)<<" bits)"<<std::endl;
 	std::cout<<"host:: sizeof(edge_t): "<<sizeof(edge_t)<<" bytes ("<<(sizeof(edge_t) * 8)<<" bits)"<<std::endl;
+	
+	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMSZ: "<<KVDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;
 	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
-	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
+	std::cout<<"host:: EDGESSZ: "<<EDGESSZ<<std::endl;
+	std::cout<<"host:: EDGESSZ_KVS: "<<EDGESSZ_KVS<<std::endl;
+	std::cout<<"host:: VERTEXPTRSSZ: "<<VERTEXPTRSSZ<<std::endl;
+	std::cout<<"host:: VERTEXPTRSSZ_KVS: "<<VERTEXPTRSSZ_KVS<<std::endl;
+	std::cout<<"host:: VERTICESDATASZ: "<<VERTICESDATASZ<<std::endl;
+	std::cout<<"host:: VERTICESDATASZ_KVS: "<<VERTICESDATASZ_KVS<<std::endl;
+
 	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<BASEOFFSET_KVDRAM_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<std::endl;
@@ -118,15 +126,17 @@ void utility::printallparameters(){
 	std::cout<<">> host:: KVDRAMSZ (bytes): "<<KVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(edge_type)<<" bytes"<<std::endl;
+	std::cout<<">> host:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(value_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: (BATCH_RANGE/2) (bytes): "<<(BATCH_RANGE/2) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	// std::cout<<">> host:: MYBATCH_RANGE (bytes): "<<MYBATCH_RANGE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#ifndef _GENERATE2DGRAPH
-	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
-	std::cout<<">> host:: minimum PADDEDKVSOURCEDRAMSZ (bytes): "<<(MESSAGESDRAMSZ + KVDRAMBUFFERSZ + KVDRAMSZ + KVDRAMWORKSPACESZ + KVSTATSDRAMSZ + (BATCH_RANGE/2)) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;

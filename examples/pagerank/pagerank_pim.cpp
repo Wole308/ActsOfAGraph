@@ -69,10 +69,10 @@ runsummary_t pagerank_pim::run(){
 	
 	// load
 	container_t container;
-	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, (keyvalue_t **)kvbuffer[0], &container);
+	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (keyvalue_t **)kvbuffer[0], &container);
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
-	loadgraphobj->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[0], &container, PAGERANK);
-	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container);
+	loadgraphobj->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[0], BASEOFFSET_EDGESDATA, &container, PAGERANK);
+	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container, 0, PAGERANK);
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printcontainer(&container); 
 	#endif
