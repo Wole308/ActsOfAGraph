@@ -91,27 +91,17 @@ public:
 	edge_t * getvertexptrbuffer(); 
 	unsigned int * getvertexisactivebuffer();
 	
-	void loadvertexpropertiesfromfile();
-	void workerthread_loadvertexpropertiesfromfile(int fd, unsigned int offset, vertexprop_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void workerthread_loadvertexdatafromfile(int fd, unsigned int offset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexdatafromfile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexdatafromfile(vertex_t fdoffset, value_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void savevertexdatatofile(vertex_t fdoffset, keyvalue_t * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
-	void loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, vertex_t bufferoffset, vertex_t size);
-	
 	edge_t * loadvertexptrsfromfile(int col); 
+	void loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, vertex_t bufferoffset, vertex_t size);
 	value_t * generateverticesdata(); 
 	edge_type * loadedgesfromfile(int col); 
+	void loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
 	edge_t getedgessize(int col); 
 	
 	void generatetempverticesdata();
 	void generatevertexoutdegrees(vertex_t * vertexoutdegrees);
 	void generatevertexproperties();
-	vertex_t getnumactivevertices();
-	void saveactiveverticestofile(vector<keyvalue_t> & activeverticesbuffer, unsigned int graph_iterationidx);
-	void savevertexisactiveinfostofile(unsigned int fdoffset_unit, vertex_t bufferoffset, vertex_t datasize_uint, unsigned int graph_iterationidx);				
-	void writerootvertextoactiveverticesfiles(keyy_t key, value_t value);
+	
 	void loadalldatasets();
 	void setdataset(unsigned int id);
 	dataset_t getdataset();

@@ -59,6 +59,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
 	std::cout<<"host:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<std::endl;
 	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
+	std::cout<<"host:: EDGES_BATCHSIZE: "<<EDGES_BATCHSIZE<<std::endl;
+	std::cout<<"host:: EDGES_BATCHSIZE_KVS: "<<EDGES_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
@@ -129,8 +131,6 @@ void utility::printallparameters(){
 	std::cout<<">> host:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(edge_type)<<" bytes"<<std::endl;
 	std::cout<<">> host:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(value_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: (BATCH_RANGE/2) (bytes): "<<(BATCH_RANGE/2) * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	// std::cout<<">> host:: MYBATCH_RANGE (bytes): "<<MYBATCH_RANGE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#ifndef _GENERATE2DGRAPH

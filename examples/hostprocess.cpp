@@ -11,7 +11,7 @@
 #include "../src/graphs/graph.h"
 #include "../examples/test/test.h"
 #include "../examples/pagerank/pagerank.h"
-#include "../examples/pagerank/pagerank_pim.h"
+// #include "../examples/pagerank/pagerank_pim.h"
 #include "../examples/bfs/bfs.h"
 #include "../examples/bfs/bfs_pim.h"
 // #include "../examples/advance_op/advance_op.h"
@@ -53,12 +53,12 @@ int main(int argc, char** argv){
 	#endif
 	
 	#if (defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-		#ifdef INMEMORYGP
-		pagerank_pim * pagerankobj = new pagerank_pim(NAp, datasetobj->getdatasetid(), binaryFile);
-		#else 
 		pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);	
-		#endif 
-	pagerankobj->run();
+		#ifdef INMEMORYGP
+		pagerankobj->runpim();
+		#else
+		pagerankobj->run();
+		#endif
 	#endif
 	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 		#ifdef INMEMORYGP

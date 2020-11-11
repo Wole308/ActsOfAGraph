@@ -118,6 +118,51 @@ void loadgraph::loadedgedata(unsigned int col, edge_t * vertexptrbuffer, edge_ty
 	}
 	return;
 }
+void loadgraph::loadedgedata(unsigned int col, size_t fedgeoffset, edge_t numedges, edge_t * vertexptrbuffer, edge_type * edgedatabuffer, edge_type * edges[NUMSUBCPUTHREADS], unsigned int edgesbaseoffset, container_t * container, unsigned int GraphAlgo){
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(col);
+	graphobj->loadedgesfromfile(col, fedgeoffset, edgedatabuffer, 0, numedges);
+	
+	unsigned int edgesszpersubthread = numedges / NUMSUBCPUTHREADS;
+	cout<<"loadgraph::loadedgedata:: fedgeoffset: "<<fedgeoffset<<", numedges: "<<numedges<<", edgesszpersubthread: "<<edgesszpersubthread<<endl;
+	
+	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+		unsigned int srcvoffset; // set srcvoffset first
+		unsigned int nextsrcvoffset;
+		
+		if(numedges > 0){
+			srcvoffset = utilityobj->allignlower_KV(edgedatabuffer[j*edgesszpersubthread].srcvid);
+			if(j < NUMSUBCPUTHREADS-1){ nextsrcvoffset = utilityobj->allignlower_KV(edgedatabuffer[(j+1)*edgesszpersubthread].srcvid); }
+			else { nextsrcvoffset = utilityobj->allignlower_KV(edgedatabuffer[numedges-1].srcvid); }
+		} else {
+			srcvoffset = 0;
+			nextsrcvoffset = srcvoffset;
+		}
+		
+		unsigned int srcvsize = nextsrcvoffset - srcvoffset;
+		unsigned int beginptr = vertexptrbuffer[srcvoffset];
+		unsigned int endptr =  vertexptrbuffer[srcvoffset + srcvsize];
+		unsigned int edgessize = endptr - beginptr;
+		cout<<"loadgraph::loadedgedata:: srcvoffset: "<<srcvoffset<<", nextsrcvoffset: "<<nextsrcvoffset<<", srcvsize: "<<srcvsize<<", edgessize: "<<edgessize<<endl;
+		
+		for(unsigned int k=0; k<edgessize; k++){
+			edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[beginptr + k].srcvid;
+			edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[beginptr + k].dstvid;
+		}
+		
+		container->srcvoffset[0][j] = srcvoffset;
+		container->srcvsize[0][j] = srcvsize;
+		container->edgessize[0][j] = edgessize;
+		if(GraphAlgo == PAGERANK){ container->runsize[0][j] = edgessize; } else { container->runsize[0][j] = 1; }
+		container->destvoffset[0][j] = col * KVDATA_RANGE_PERSSDPARTITION;
+		container->actvvsize[0][j] = 0;
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		utilityobj->printedges("loadgraph::loadedgedata::first", &edges[j], 16);
+		utilityobj->printedges("loadgraph::loadedgedata::last", &edges[j][edgesbaseoffset+edgessize-16], 16);
+		#endif
+	}
+	// fedgeoffset += totaledgessz;
+	return;
+}
 void loadgraph::loadgraphdata(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * vertexdatabuffer, unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){			
 	unsigned int srcvidsoffset = 0;
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
@@ -190,7 +235,7 @@ void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffe
 	return;
 }
 void loadgraph::loadmessages(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, unsigned int GraphAlgo){	
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printcontainer(container); 
 	#endif
 	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ 
@@ -218,7 +263,7 @@ void loadgraph::loadmessages(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], contai
 		#endif 
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"loadmessages:: running Acts... sizes: ["; 
+	cout<<"loadmessages:: loading Acts... sizes: ["; 
 	cout<<"["; for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ cout<<container->runsize[0][j]; if(j<NUMSUBCPUTHREADS-1){ cout<<", "; }} cout<<"]";
 	cout<<"]"<<endl;
 	#endif 
@@ -244,7 +289,7 @@ void loadgraph::createmessages(
 			unsigned int numlastlevelpartitions){
 	// #ifdef _DEBUGMODE_CHECKS2
 	if(runsize > MAXKVDATA_BATCHSIZE){ cout<<"loadgraph::createmessages::ERROR. runsize too large!. runsize: "<<runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
-	if(edgessize > EDGESSZ){ cout<<"loadgraph::createmessages::ERROR. edgessize too large!. edgessize: "<<edgessize<<", EDGESSZ: "<<EDGESSZ<<". EXITING"<<endl; exit(EXIT_FAILURE); }
+	if(edgessize > MAXKVDATA_BATCHSIZE){ cout<<"loadgraph::createmessages::ERROR. edgessize too large!. edgessize: "<<edgessize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	if(actvvsize > ACTIVEVERTICESSZ){ cout<<"loadgraph::createmessages::ERROR. actvvsize too large!. actvvsize: "<<actvvsize<<", ACTIVEVERTICESSZ: "<<ACTIVEVERTICESSZ<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	// #endif
 	
