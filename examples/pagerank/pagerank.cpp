@@ -44,7 +44,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	}
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
 	#ifndef INMEMORYGP
-	edgedatabuffer = new edge_type[EDGES_BATCHSIZE];
+	edgedatabuffer = new edge_type[PADDEDEDGES_BATCHSIZE];
 	#endif 
 	
 	#ifdef FPGA_IMPL
@@ -110,7 +110,7 @@ runsummary_t pagerank::runpim(){
 	size_t fedgeoffset = 0;
 	loadgraphobj[0]->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (keyvalue_t **)kvbuffer[0][0][0], &container);
 	loadgraphobj[0]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[0][0], 0, KVDATA_RANGE_PERSSDPARTITION);
-	loadgraphobj[0]->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[0][0][0], BASEOFFSET_EDGESDATA, &container, PAGERANK);
+	loadgraphobj[0]->loadedges(0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[0][0][0], BASEOFFSET_EDGESDATA, &container, PAGERANK);
 	loadgraphobj[0]->loadmessages((uint512_vec_dt **)kvbuffer[0], &container, 0, PAGERANK);
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(0, container.edgessize[i][j]); }}
 	
@@ -132,10 +132,7 @@ runsummary_t pagerank::runpim(){
 }
 
 void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter){
-	unsigned int iteration_idx = 0;
-	unsigned int countcheck = 0;
-	size_t fedgeoffset = 0;
-	edge_t numedges = 0;
+	vertex_t srcvoffset = 0;
 	unsigned int iteration_size = utilityobj[superthreadidx]->hceildiv(graphobj->getedgessize(col), EDGES_BATCHSIZE);
 	cout<<">>> WorkerThread:: total number of edges in file["<<col<<"]: "<<graphobj->getedgessize(col)<<endl;
 	
@@ -144,18 +141,16 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		cout<<endl<<"PP&A:: [col:"<<col<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
 		#endif
 		
-		fedgeoffset = iteration_idx * EDGES_BATCHSIZE;
-		numedges = utilityobj[superthreadidx]->hmin(graphobj->getedgessize(col) - fedgeoffset, EDGES_BATCHSIZE);
 		#ifdef PROCEDGESINCPU
-		loadgraphobj[superthreadidx]->loadedgedata(col, fedgeoffset, numedges, vertexptrbuffer, edgedatabuffer, edges[0], 0, container, PAGERANK);
+		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, edges[0], 0, container, PAGERANK);
 		#else 
-		loadgraphobj[superthreadidx]->loadedgedata(col, fedgeoffset, numedges, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[superthreadidx][0][0], BASEOFFSET_EDGESDATA, container, PAGERANK);
+		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[superthreadidx][0][0], BASEOFFSET_EDGESDATA, container, PAGERANK);
 		loadgraphobj[superthreadidx]->loadvertexptrs(col, vertexptrbuffer, vertexdatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], container);
 		#endif
 		loadgraphobj[superthreadidx]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		loadgraphobj[superthreadidx]->loadmessages((uint512_vec_dt **)kvbuffer[superthreadidx][0][0], container, GraphIter, PAGERANK);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
-	
+		
 		#ifdef PROCEDGESINCPU
 		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, edges, 0);
 		#else 
@@ -163,12 +158,11 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#endif 
 		
 		postprocessobj[superthreadidx]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
-		postprocessobj[superthreadidx]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+		postprocessobj[superthreadidx]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION, PAGERANK);
 
 		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 

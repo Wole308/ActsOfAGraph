@@ -38,6 +38,7 @@ public:
 	void printcontainer(container_t * container);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
+	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2);
 	
 	void stopTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx);
 	void stopBTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx);

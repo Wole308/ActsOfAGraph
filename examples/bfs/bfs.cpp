@@ -41,7 +41,11 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#else
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}
 	#endif
-
+	#ifdef PROCEDGESINCPU
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
+	#endif 
+	
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ setupkernelobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
 	#endif
@@ -71,7 +75,6 @@ runsummary_t bfs::run(){
 	graphobj->openfilesforreading(0);
 	
 	container_t mycontainer;
-	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ mycontainer.tempvertexptrs[j][k] = new edge_t[8]; }}
 	vector<value_t> activevertices;
 	vector<value_t> activevertices2;
 	activevertices.push_back(2); // 2
@@ -90,7 +93,7 @@ runsummary_t bfs::run(){
 		for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
 		activevertices2.clear();
 		
-		if(activevertices.size() == 0 || GraphIter >= 64){ break; }
+		if(activevertices.size() == 0 || GraphIter >= 16){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;
@@ -103,6 +106,8 @@ runsummary_t bfs::run(){
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
+runsummary_t bfs::runpim(){}
+
 void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter){
 	size_t prevtotaledgesize = 0;
 	unsigned int iteration_idx = 0;
@@ -115,24 +120,27 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 		edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, currentactivevertices, container);
 		unsigned int lbedgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
-		loadgraphobj[0]->loadgraphdata(col, graphobj, currentactivevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
+		#ifdef PROCEDGESINCPU
+		loadgraphobj[0]->loadactivesubgraph(col, graphobj, currentactivevertices, vertexdatabuffer, vertexptrs[0], edges[0], lbedgesizes, container);
+		#else 
+		loadgraphobj[0]->loadactivesubgraph(col, graphobj, currentactivevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
+		#endif 
 		loadgraphobj[0]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		utilityobj[0]->printcontainer(container); 
-		#endif
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		
-		// run acts
+		#ifdef PROCEDGESINCPU
+		setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, vertexdatabuffer, edges, 0);
+		#else
 		setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
-	
+		#endif 
+		
 		postprocessobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
-		postprocessobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+		postprocessobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION, BREADTHFIRSTSEARCH);
 		
 		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 

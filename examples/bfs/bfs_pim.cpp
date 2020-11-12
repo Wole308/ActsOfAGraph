@@ -84,8 +84,8 @@ runsummary_t bfs_pim::run(){
 	container_t container;
 	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (keyvalue_t **)kvbuffer[0], &container);
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
-	loadgraphobj->loadedgedata(0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[0], BASEOFFSET_EDGESDATA, &container, BREADTHFIRSTSEARCH);
-	// loadgraphobj[0]->loadedgedata(col, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], BASEOFFSET_EDGESDATA, container, PAGERANK);
+	loadgraphobj->loadedges(0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[0], BASEOFFSET_EDGESDATA, &container, BREADTHFIRSTSEARCH);
+	// loadgraphobj[0]->loadedges(col, vertexptrbuffer, edgedatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], BASEOFFSET_EDGESDATA, container, PAGERANK);
 		
 	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer[0], &container, 0, BREADTHFIRSTSEARCH);
 	#ifdef _DEBUGMODE_HOSTPRINTS2

@@ -71,19 +71,19 @@ void postprocess::workerthread_cummulateverticesdata(int threadidx, value_t * bu
 	return;
 }
 
-void postprocess::applyvertices(vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, unsigned int vsize){
+void postprocess::applyvertices(vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, unsigned int vsize, unsigned int GraphAlgo){
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif 
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS)); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS), GraphAlgo); }
 	#else
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&postprocess::workerthread_applyvertices, this, i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS)); }	
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&postprocess::workerthread_applyvertices, this, i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS), GraphAlgo); }	
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif
 	return;
 }
-void postprocess::workerthread_applyvertices(int ithreadidx, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, vertex_t offset, vertex_t size){		
+void postprocess::workerthread_applyvertices(int ithreadidx, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, vertex_t offset, vertex_t size, unsigned int GraphAlgo){		
 	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer();
 	unsigned int baseoffset = BASEOFFSET_VERTICESDATA * (sizeof(keyvalue_t) / sizeof(value_t));
 	unsigned int onceactivecnt = 0;
@@ -100,9 +100,7 @@ void postprocess::workerthread_applyvertices(int ithreadidx, vector<value_t> &ac
 			cout<<"applyvertices: active vertex seen @ "<<k<<": vid: "<<voffset + offset + k<<", temp: "<<temp<<", vdata: "<<vdata<<endl; 
 			#endif 
 			
-			#ifndef PAGERANK
-			activeverticesbuffer.push_back((voffset + offset + k));
-			#endif
+			if(GraphAlgo != PAGERANK){ activeverticesbuffer.push_back((voffset + offset + k)); }
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS2
