@@ -59,6 +59,9 @@ unsigned int dataset::getdatasetid(){
 	#ifdef _TWITTER_67M
 	datasetid = 2;
 	#endif
+	#ifdef _MOLIERE2016_33M
+	datasetid = 3;
+	#endif
 	#ifdef _LARGEDATASET_67M
 	datasetid = 4;
 	#endif

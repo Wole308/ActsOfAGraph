@@ -644,14 +644,26 @@ void graph::loadalldatasets(){
 	_datasets[2].vertices_path_bin = rootDir + "dataset/twitter/twitter_bin.vertices"; 
 	_datasets[2].edges_path_bin = rootDir + "dataset/twitter/twitter_bin.edges";
 	_datasets[2].min_vertex = 0;	
-	_datasets[2].max_vertex = 41652230; // -- extract_vertices says 41652240
-	_datasets[2].num_vertices = 41652230; // FIXME
-	// _datasets[2].max_vertex = 41652240; // -- extract_vertices says 41652240
-	// _datasets[2].num_vertices = 41652240; // FIXME
-	_datasets[2].num_edges = 1468365184; // 1468365184
+	_datasets[2].max_vertex = 41652230; 
+	_datasets[2].num_vertices = 41652230; 
+	_datasets[2].num_edges = 1468365184; 
 	_datasets[2].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[2].graphorder = DST_SRC;
 	_datasets[2].skewratio = SKEWRATIO;
+	
+	_datasets[3].graphname = "MOLIERE_2016";
+	_datasets[3].graph_path = rootDir + "dataset/MOLIERE_2016/MOLIERE_2016.mtx";
+	_datasets[3].vertices_path = rootDir + "dataset/MOLIERE_2016/MOLIERE_2016.vertices";
+	_datasets[3].edges_path = rootDir + "dataset/MOLIERE_2016/MOLIERE_2016.edges";	
+	_datasets[3].vertices_path_bin = rootDir + "dataset/MOLIERE_2016/MOLIERE2016_bin.vertices"; 
+	_datasets[3].edges_path_bin = rootDir + "dataset/MOLIERE_2016/MOLIERE2016_bin.edges";
+	_datasets[3].min_vertex = 0;	
+	_datasets[3].max_vertex = 30239687; 
+	_datasets[3].num_vertices = 30239687; 
+	_datasets[3].num_edges = 3338650683; 
+	_datasets[3].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[3].graphorder = DST_SRC_EDGEW;
+	_datasets[3].skewratio = SKEWRATIO;
 	
 	_datasets[4].graphname = "kronecker26";
 	_datasets[4].graph_path = rootDir + "dataset/kronecker26/kronecker26.mtx";

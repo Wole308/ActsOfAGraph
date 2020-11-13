@@ -80,6 +80,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION2: "<<KVDATA_RANGE_PERSSDPARTITION2<<std::endl;
 	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
+	std::cout<<"host:: NUMSSDPARTITIONS_POW: "<<NUMSSDPARTITIONS_POW<<std::endl;
 	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;
 	#ifdef LOCKE
 	std::cout<<"host:: LOCKE DEFINED"<<std::endl;
@@ -128,13 +129,14 @@ void utility::printallparameters(){
 	std::cout<<">> host:: KVDRAMSZ (bytes): "<<KVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(edge_type)<<" bytes"<<std::endl;
+	std::cout<<">> host:: ACTIVEVERTICESSZ (bytes): "<<ACTIVEVERTICESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(value_t)<<" bytes"<<std::endl;
+	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#ifndef _GENERATE2DGRAPH
-	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -168,7 +170,14 @@ void utility::printallparameters(){
 	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
 	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWGROUP2"<<std::endl;
 	#endif 
-	// exit(EXIT_SUCCESS);
+	
+	#ifdef INMEMORYGP
+	std::cout<<"host:: INMEMORYGP enabled "<<std::endl;
+	#endif 
+	#ifdef PROCEDGESINCPU
+	std::cout<<"host:: PROCEDGESINCPU enabled "<<std::endl;
+	#endif
+	exit(EXIT_SUCCESS);
 	return;
 }
 void utility::print1(string messagea, unsigned int dataa){

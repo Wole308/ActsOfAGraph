@@ -115,6 +115,7 @@ void creategraphs::start(){
 
 	vertex_t srcv = 0;
 	vertex_t dstv = 0;
+	vertex_t ew = 1;
 	vertex_t local_srcv = 0;
 	vertex_t local_dstv = 0;
 	edge_t linecount = 0;
@@ -127,13 +128,21 @@ void creategraphs::start(){
 		while (getline(file_graph, line)) {
 			if (line.find("%") == 0){ continue; }
 			if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats
-			if ((alllinecount % 1000000) == 0){ cout<<"creategraphs::start edge: ["<<srcv<<","<<dstv<<"]. alllinecount: "<<alllinecount<<endl; }
+			if ((alllinecount % 1000000) == 0){ cout<<"creategraphs::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			
-			if(graphobj->getdataset().graphorder == SRC_DST){
+			/* if(graphobj->getdataset().graphorder == SRC_DST){
 				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
 			} else {
 				sscanf(line.c_str(), "%i %i", &dstv, &srcv);
-			}
+			} */
+			
+			if(graphobj->getdataset().graphorder == SRC_DST){
+				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
+			} else if(graphobj->getdataset().graphorder == DST_SRC){
+				sscanf(line.c_str(), "%i %i", &dstv, &srcv);
+			} else if(graphobj->getdataset().graphorder == DST_SRC_EDGEW){
+				sscanf(line.c_str(), "%i %i %i", &dstv, &srcv, &ew);
+			} else {}
 			
 			#ifdef _DEBUGMODE_CHECKS
 			cout<<"creategraphs: srcv: "<<srcv<<", dstv: "<<dstv<<endl; if(alllinecount >= 100){ break; }

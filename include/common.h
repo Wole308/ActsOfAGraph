@@ -2,11 +2,9 @@
 #define COMMON_H
 #include "config_params.h"
 
-////////////////
-
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -38,6 +36,57 @@
 
 ////////////////
 
+// small dataset 
+// #if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_RGG_17M_132M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M) || defined() || defined() || defined()
+#if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_RGG_17M_132M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)
+#define INMEMORYGP
+#else
+#define PROCEDGESINCPU
+#endif
+
+/* #define 
+#endif
+#ifdef _HOLLYWOOD_1M_57M
+datasetid = 31;
+#endif
+#ifdef _INDOCHINA_7M_194M
+datasetid = 32;
+#endif
+#ifdef _KRON21_2M_91M
+datasetid = 33;
+#endif
+#ifdef _RGG_17M_132M
+datasetid = 34;
+#endif
+#ifdef _ROADNET_2M_3M
+datasetid = 35;
+#endif
+#ifdef _FLICKR_1M_10M
+datasetid = 36;
+#endif
+
+// large dataset 
+#ifdef _TWITTER_67M
+datasetid = 2;
+#endif
+#ifdef _MOLIERE2016_33M
+datasetid = 3;
+#endif
+#ifdef _LARGEDATASET_67M
+datasetid = 4;
+#endif
+#ifdef _LARGEDATASET_268M
+datasetid = 5;
+#endif
+#ifdef _LARGEDATASET_1B
+datasetid = 6;
+#endif
+#ifdef _LARGEDATASET_4B
+datasetid = 7;
+#endif */
+
+////////////////
+
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
 #else
@@ -48,7 +97,7 @@
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
 // #define _DEBUGMODE_KERNELPRINTS2 //
-// #define _DEBUGMODE_KERNELPRINTS3 //
+#define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
 #define _DEBUGMODE_STATS // 
@@ -59,7 +108,7 @@
 #define _DEBUGMODE_HOSTCHECKS2 //
 // #define _DEBUGMODE_HOSTPRINTS
 // #define _DEBUGMODE_HOSTPRINTS2 //
-// #define _DEBUGMODE_HOSTPRINTS3 //
+#define _DEBUGMODE_HOSTPRINTS3 //
 #define _DEBUGMODE_TIMERS
 #define _DEBUGMODE_TIMERS2
 
@@ -91,8 +140,13 @@
 #define NUM_PARTITIONS_POW 4
 #define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
 
+#ifdef INMEMORYGP
+#define MAXNUMSSDPARTITIONS 1
+#define NUMSSDPARTITIONS_POW 0
+#else 
 #define MAXNUMSSDPARTITIONS 16
 #define NUMSSDPARTITIONS_POW 4
+#endif 
 #define NUMSSDPARTITIONS (1 << NUMSSDPARTITIONS_POW)
 
 #define MAXNUMVERTEXBANKS 16
@@ -148,10 +202,20 @@
 
 ////////////////
 
-// #define MAXKVDATA_BATCHSIZE (1 << 23)
+#ifdef INMEMORYGP
+// #define MAXKVDATA_BATCHSIZE 6000000
+#define MAXKVDATA_BATCHSIZE 8000000
+// #define MAXKVDATA_BATCHSIZE 10000000
+#else 
 #define MAXKVDATA_BATCHSIZE 10000000
+#endif 
+
+// #define MAXKVDATA_BATCHSIZE (1 << 23)
+// #define MAXKVDATA_BATCHSIZE 10000000
+
 #define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
-#define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE
+// #define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE
+#define KVDATA_BATCHSIZE (MAXKVDATA_BATCHSIZE - 1000000)
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 #define EDGES_BATCHSIZE (10 * 8 * 1000000) // 80000000 // 120000000 // 80000000 // (MAXKVDATA_BATCHSIZE * NUMSUBCPUTHREADS)
 #define EDGES_BATCHSIZE_KVS (EDGES_BATCHSIZE / VECTOR_SIZE)
@@ -219,6 +283,7 @@
 
 #define SRC_DST 5
 #define DST_SRC 6
+#define DST_SRC_EDGEW 7
 
 #define DIRECTEDGRAPH 5
 #define UNDIRECTEDGRAPH 6

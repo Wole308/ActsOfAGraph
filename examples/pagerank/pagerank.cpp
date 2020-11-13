@@ -135,6 +135,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 	vertex_t srcvoffset = 0;
 	unsigned int iteration_size = utilityobj[superthreadidx]->hceildiv(graphobj->getedgessize(col), EDGES_BATCHSIZE);
 	cout<<">>> WorkerThread:: total number of edges in file["<<col<<"]: "<<graphobj->getedgessize(col)<<endl;
+	// return; // REMOVEME.
 	
 	for(unsigned int iteration_idx=0; iteration_idx<iteration_size; iteration_idx++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3

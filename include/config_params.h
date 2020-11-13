@@ -7,11 +7,10 @@
 #define LOADKVDRAMS
 #define STREAMEDGESSETUP
 
-// #define INMEMORYGP
-
+/* // #define INMEMORYGP
 #ifndef INMEMORYGP
 #define PROCEDGESINCPU
-#endif
+#endif */
 
 // #define FORCEDFINISH_DONTCAREABOUTRETRIEVEBITS // correct this. its making BFS too slow
 // #define FORCEDFINISH_DONTCAREABOUTISVERTEXACTIVE
