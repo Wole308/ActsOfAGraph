@@ -16,6 +16,7 @@
 #include <fstream>
 #include <mutex>
 #include <thread>
+#include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../../acts/include/actscommon.h"
 #include "../../src/utility/utility.h"
@@ -24,7 +25,7 @@ using namespace std;
 
 class procedges {
 public:
-	procedges();
+	procedges(stats * _statsobj);
 	~procedges();
 	
 	unsigned int processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo);
@@ -35,7 +36,9 @@ public:
 	
 	void WorkerThread(uint512_dt * kvdram, edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges);
 private:
+	utility * utilityobj;
 	actsutility * actsutilityobj;
+	stats * statsobj;
 	std::thread mythread[NUMSUBCPUTHREADS];
 };
 #endif 

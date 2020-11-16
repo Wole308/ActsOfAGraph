@@ -12,19 +12,22 @@
 #include <iomanip>
 #include <cmath>
 #include <fstream>
+#include "../../src/stats/stats.h"
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../../acts/include/actscommon.h"
-#ifndef FPGA_IMPL
 #include "../../src/utility/utility.h"
-#endif 
 #ifndef HW
 #include "../../acts/actsutility/actsutility.h"
 #endif 
 #include "procedges.h"
 using namespace std;
 
-procedges::procedges(){ actsutilityobj = new actsutility(); }
+procedges::procedges(stats * _statsobj){ 
+	actsutilityobj = new actsutility(); 
+	utilityobj = new utility(); 
+	statsobj = _statsobj;
+}
 procedges::~procedges(){}
 
 unsigned int procedges::processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo){
@@ -85,8 +88,8 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 			keyvalues[k] = vertexupdate; 
 			k += 1;
 			
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
+			#ifdef _DEBUGMODE_STATSX
+			actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); // speedup when commented out
 			#endif
 		}
 	}
@@ -94,6 +97,10 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 }
 
 void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_TIMERS2 // pagerank
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
 	#ifdef LOCKE
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -109,14 +116,26 @@ void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<">>> procedges::start... running WorkerThread "<<j<<endl; 
 			#endif
-			mythread[j] = std::thread(&postprocess::WorkerThread, this, kvdram[i][j], vertexptrs, verticesdata, edges[i][j]);
+			mythread[j] = std::thread(&procedges::WorkerThread, this, kvdram[i][j], vertexptrs, verticesdata, edges[i][j]);
 		}
 	}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mythread[i].join(); }}
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mythread[j].join(); }}
+	#endif
+	
+	#ifdef _DEBUGMODE_TIMERS2
+	utilityobj->stopBTIME("processedges:: total time elapsed: ", begintime, NAp);
+	#endif
+	#ifdef _DEBUGMODE_TIMERS2
+	long double processedgestimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendprocessedgestimeelapsed(processedgestimeelapsed_ms);
 	#endif
 	return;
 }
 void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_TIMERS2 // bfs
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
 	#ifdef LOCKE
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -132,10 +151,18 @@ void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<">>> procedges::start2... running WorkerThread "<<j<<endl; 
 			#endif
-			mythread[j] = std::thread(&postprocess::WorkerThread, this, kvdram[i][j], vertexptrs[i][j], verticesdata, edges[i][j]);
+			mythread[j] = std::thread(&procedges::WorkerThread, this, kvdram[i][j], vertexptrs[i][j], verticesdata, edges[i][j]);
 		}
 	}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mythread[i].join(); }}
+	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mythread[j].join(); }}
+	#endif
+	
+	#ifdef _DEBUGMODE_TIMERS2
+	utilityobj->stopBTIME("processedges:: total time elapsed: ", begintime, NAp);
+	#endif
+	#ifdef _DEBUGMODE_TIMERS2
+	long double processedgestimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendprocessedgestimeelapsed(processedgestimeelapsed_ms);
 	#endif
 	return;
 }
@@ -160,15 +187,15 @@ void procedges::WorkerThread(uint512_dt * kvdram, edge_t * vertexptrs, value_t *
 	#endif
 	processedges(vertexptrs, verticesdata, edges, (keyvalue_t *)&kvdram[BASEOFFSET_KVDRAM_KVS], srcvoffset, srcvsize, edgessize, GraphIter, GraphAlgo);														
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("procedges::srtopkernel.kvdram.first", (keyvalue_t *)&kvdram[BASEOFFSET_KVDRAM_KVS], 16);
-	actsutilityobj->printkeyvalues("procedges::srtopkernel.kvdram.last", (keyvalue_t *)&kvdram[BASEOFFSET_KVDRAM_KVS+runsize_kvs-16], 16);
+	actsutilityobj->printkeyvalues("procedges::WorkerThread.kvdram.first", (keyvalue_t *)&kvdram[BASEOFFSET_KVDRAM_KVS], 16);
+	actsutilityobj->printkeyvalues("procedges::WorkerThread.kvdram.last", (keyvalue_t *)&kvdram[BASEOFFSET_KVDRAM_KVS+runsize_kvs-16], 16);
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalvars();
 	#endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
-
 
 
 

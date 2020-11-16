@@ -27,7 +27,7 @@ setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	kernelobj = new kernel();
-	procedgesobj = new procedges();
+	procedgesobj = new procedges(_statsobj);
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif
@@ -43,54 +43,25 @@ setupkernel::setupkernel(){
 }
 setupkernel::~setupkernel(){} 
 
-void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("setupkernel::launchkernel:: Print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("setupkernel::launchkernel:: messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("setupkernel::launchkernel:: Print vertex datas (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_VERTICESDATA_KVS]), 16); }}
-	#endif
-	#ifdef _DEBUGMODE_TIMERS2
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	#endif
-	
-	kernelobj->launchkernel(kvsourcedram, flag);
-	
-	#ifdef _DEBUGMODE_TIMERS2
-	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
-	#endif
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for INMEMORYGP PR
+	launchmykernel(kvsourcedram, flag);
 	return;
 }
-void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_TIMERS2
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	#endif
-	
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP PR
 	procedgesobj->start((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
-	
-	#ifdef ACTGRAPH_SETUP
-	kernelobj->launchkernel(kvsourcedram, flag);
-	#endif 
-	#ifdef GRAFBOOST_SETUP
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i][j]);
-		}
-	}
-	#endif 
-	
-	#ifdef _DEBUGMODE_TIMERS2
-	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
-	#endif
+	launchmykernel(kvsourcedram, flag);
 	return;
 }
-void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP BFS, SSSP etc.					
+	procedgesobj->start((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
+	launchmykernel(kvsourcedram, flag);
+	return;
+}
+
+void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef _DEBUGMODE_TIMERS2
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
-	
-	procedgesobj->start((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
 	
 	#ifdef ACTGRAPH_SETUP
 	kernelobj->launchkernel(kvsourcedram, flag);

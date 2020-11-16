@@ -12,6 +12,13 @@
 #include <sys/stat.h> 
 #include <sys/types.h>
 #include <algorithm>
+
+#include <thread>
+#include <iostream>
+#include <mutex>
+#include <vector>
+#include <algorithm>
+
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -30,6 +37,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	heuristics * heuristicsobj = new heuristics();
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
 	statsobj = new stats(graphobj);
+	algorithmobj = new algorithm();
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ parametersobj[i] = new parameters(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ utilityobj[i] = new utility(); }
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ postprocessobj[i] = new postprocess(graphobj, statsobj); }
@@ -41,7 +49,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#else
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}
 	#endif
-	#ifdef PROCEDGESINCPU
+	#ifndef INMEMORYGP
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
 	#endif 
@@ -72,12 +80,12 @@ runsummary_t bfs::run(){
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
+	tempvertexdatabuffer = graphobj->generatetempverticesdata();
 	graphobj->openfilesforreading(0);
 	
 	container_t mycontainer;
 	vector<value_t> activevertices;
-	vector<value_t> activevertices2;
-	activevertices.push_back(2); // 2
+	activevertices.push_back(1); // 2
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	unsigned int GraphIter = 0;
@@ -87,13 +95,12 @@ runsummary_t bfs::run(){
 		utilityobj[0]->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj[0]->hmin(activevertices.size(), 16));
 		#endif
 		
-		WorkerThread(activevertices, activevertices2, &mycontainer, GraphIter); 
-
-		activevertices.clear();
-		for(vertex_t i=0; i<activevertices2.size(); i++){ activevertices.push_back(activevertices2[i]); }
-		activevertices2.clear();
+		WorkerThread(activevertices, &mycontainer, GraphIter); 
 		
-		if(activevertices.size() == 0 || GraphIter >= 3){ break; }
+		activevertices.clear();
+		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, BREADTHFIRSTSEARCH);
+		
+		if(activevertices.size() == 0 || GraphIter >= 30){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;
@@ -106,9 +113,8 @@ runsummary_t bfs::run(){
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
-runsummary_t bfs::runpim(){}
 
-void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter){
+void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container, unsigned int GraphIter){
 	for(unsigned int col=0; col<NUMSSDPARTITIONS; col++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
@@ -123,31 +129,28 @@ void bfs::WorkerThread(vector<vertex_t> &currentactivevertices, vector<vertex_t>
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [iteration: "<<errcount<<"][size: UNKNOWN][step: 1]"<< RESET <<endl;
 			#endif 
 		
-			// edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, currentactivevertices, container);
-			edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, currentactivevertices, &srcvidsoffset1, EDGES_BATCHSIZE, container);
+			edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, activevertices, &srcvidsoffset1, EDGES_BATCHSIZE, container);
 			unsigned int lbedgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 			for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
-			#ifdef PROCEDGESINCPU
-			loadgraphobj[0]->loadactivesubgraph(col, graphobj, currentactivevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs[0], edges[0], lbedgesizes, container);
+			
+			#ifdef INMEMORYGP
+			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
 			#else 
-			loadgraphobj[0]->loadactivesubgraph(col, graphobj, currentactivevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
-			#endif 
-			loadgraphobj[0]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexptrs[0], edges[0], lbedgesizes, container);
+			#endif
+			loadgraphobj[0]->loadvertexdata(tempvertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 			
-			#ifdef PROCEDGESINCPU
-			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, vertexdatabuffer, edges, 0);
-			#else
+			#ifdef INMEMORYGP
 			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
+			#else 
+			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, vertexdatabuffer, edges, 0);
 			#endif 
 			
-			postprocessobj[0]->cummulateverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer);
-			postprocessobj[0]->applyvertices(nextactivevertices, (value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION, BREADTHFIRSTSEARCH);
+			postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 			
-			// break; // REMOVEME.
-			// cout<<"bfs::WorkerThread:: total number of srcvidsoffset1: "<<srcvidsoffset1<<", currentactivevertices.size(): "<<currentactivevertices.size()<<endl;
-			if(srcvidsoffset1 >= currentactivevertices.size()){ break; }
+			if(srcvidsoffset1 >= activevertices.size()){ break; }
 			if(errcount >= 10){ cout<<"bfs::WorkerThread::ERROR. looping too long, error count ("<<errcount<<") limit reached. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			errcount += 1;
 		}

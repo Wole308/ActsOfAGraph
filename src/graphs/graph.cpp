@@ -82,10 +82,8 @@ void graph::initializefiles(){
 void graph::initgraphstructures(){
 	// vertexpropertybuffer = new vertexprop_t[KVDATA_RANGE];
 	vertexdatabuffer = new value_t[KVDATA_RANGE];
+	tempvertexdatabuffer = new value_t[KVDATA_RANGE];
 	vertexptrbuffer = new edge_t[KVDATA_RANGE]; 
-	#ifdef INMEMORYGP
-	edgedatabuffer = new edge_type[getedgessize(0)]; 
-	#endif
 	return;
 }
 void graph::initstatstructures(){
@@ -481,10 +479,10 @@ value_t * graph::generateverticesdata(){
 	for(unsigned int k=0; k<KVDATA_RANGE; k++){ vertexdatabuffer[k] = algorithmobj->vertex_initdata(); } 
 	return vertexdatabuffer;
 }
-edge_type * graph::loadedgesfromfile(int col){ 
-	edge_t size = lseek(nvmeFd_edges_r2[col], 0, SEEK_END) / sizeof(edge_type);
-	if(size > 0){ if(pread(nvmeFd_edges_r2[col], edgedatabuffer, size * sizeof(edge_type), 0) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR LOADING FILE. COL("<<col<<"). EXITING. 36. EXITING..."<<endl; exit(EXIT_FAILURE); }}
-	return edgedatabuffer;
+value_t * graph::generatetempverticesdata(){ 
+	cout<<"generating temp vertices data... "<<endl;
+	for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempvertexdatabuffer[k] = algorithmobj->vertex_initdata(); }					 
+	return tempvertexdatabuffer;
 }
 void graph::loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size){
 	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge_type)), fdoffset * sizeof(edge_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
@@ -495,15 +493,15 @@ edge_t graph::getedgessize(int col){
 	return size;
 }
 
-void graph::generatetempverticesdata(){
-	cout<<"generating vertices data... "<<endl;
-	value_t * tempverticesdata = new value_t[KVDATA_RANGE]();
-	for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempverticesdata[k] = algorithmobj->vertex_inittempdata(); } 
-	if(pwrite(nvmeFd_tempverticesdata_w2, tempverticesdata, (size_t)(KVDATA_RANGE * sizeof(value_t)), 0) < 0){ cout<<"hostprocess::generatetempverticesdata::ERROR 36. KVDATA_RANGE: "<<KVDATA_RANGE<<endl; exit(EXIT_FAILURE); }			
-	delete [] tempverticesdata;
-	cout<<"finished generating vertices data"<<endl;
-	return;
-}
+// void graph::generatetempverticesdata(){
+	// cout<<"generating vertices data... "<<endl;
+	// value_t * tempverticesdata = new value_t[KVDATA_RANGE]();
+	// for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempverticesdata[k] = algorithmobj->vertex_inittempdata(); } 
+	// if(pwrite(nvmeFd_tempverticesdata_w2, tempverticesdata, (size_t)(KVDATA_RANGE * sizeof(value_t)), 0) < 0){ cout<<"hostprocess::generatetempverticesdata::ERROR 36. KVDATA_RANGE: "<<KVDATA_RANGE<<endl; exit(EXIT_FAILURE); }			
+	// delete [] tempverticesdata;
+	// cout<<"finished generating vertices data"<<endl;
+	// return;
+// }
 void graph::generatevertexoutdegrees(vertex_t * vertexoutdegrees){
 	cout<<"graph::generating vertex outdegrees... "<<endl;	
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){
@@ -787,6 +785,9 @@ vertexprop_t * graph::getvertexpropertybuffer(){
 }
 value_t * graph::getvertexdatabuffer(){
 	return vertexdatabuffer;
+}
+value_t * graph::gettempvertexdatabuffer(){
+	return tempvertexdatabuffer;
 }
 edge_t * graph::getvertexptrbuffer(){ 
 	return vertexptrbuffer;

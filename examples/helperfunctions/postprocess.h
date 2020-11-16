@@ -19,12 +19,12 @@ public:
 	postprocess();
 	~postprocess();
 	
-	void cummulateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void workerthread_cummulateverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size);
-
-	void applyvertices(vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, unsigned int vsize, unsigned int GraphAlgo);
-	void workerthread_applyvertices(int ithreadidx, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, vertex_t offset, vertex_t size, unsigned int GraphAlgo);						
-
+	void cummulateandcommitverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset);
+	void workerthread_cummulateandcommitverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset, unsigned int offset, unsigned int size); 
+	
+	void applyvertices2(value_t * tempvertexdatabuffer, value_t * vertexdatabuffer, vector<value_t> &activeverticesbuffer, unsigned int GraphAlgo);
+	void workerthread_applyvertices2(int ithreadidx, value_t * tempvertexdatabuffer, value_t * vertexdatabuffer, vector<value_t> &activeverticesbuffer, vertex_t offset, vertex_t size, unsigned int GraphAlgo);
+	
 	unsigned int getflag(unsigned int globaliteration_idx);
 	
 private:
@@ -32,10 +32,9 @@ private:
 	parameters * parametersobj;
 	utility * utilityobj;
 	graph * graphobj;
-	algorithm * algorithmobj;
+	algorithm * algorithmobj[NUMUTILITYTHREADS];
 	stats * statsobj;
 	std::thread mythread[NUMUTILITYTHREADS];
-	std::thread mykernelthread[NUMUTILITYTHREADS];
 };
 #endif
 

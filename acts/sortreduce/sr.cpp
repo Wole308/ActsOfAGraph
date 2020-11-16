@@ -51,12 +51,16 @@ void sr::srtopkernel(SortReduce<uint64_t,uint32_t>* _sr, uint512_dt * kvdram){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			uint64_t key = (uint64_t)(kvdram[BASEOFFSET_KVDRAM_KVS + i].data[v].key);
 			uint64_t value = (uint64_t)(kvdram[BASEOFFSET_KVDRAM_KVS + i].data[v].value);
+			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if(i % 1000000 == 0){ cout<<"i: "<<i<<", key: "<<key<<", value: "<<value<<endl; }
+			#endif 
 			while ( !_sr->Update(key, value) ) { }
 			kvuploadcount += 1;
 		}
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"srtopkernel: number of key-value pairs uploaded for sorting: "<<kvuploadcount<<endl;
+	#endif 
 	return;
 }
 #endif 

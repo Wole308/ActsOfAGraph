@@ -88,17 +88,18 @@ public:
 	
 	vertexprop_t * getvertexpropertybuffer();
 	value_t * getvertexdatabuffer();
+	value_t * gettempvertexdatabuffer();
 	edge_t * getvertexptrbuffer(); 
 	unsigned int * getvertexisactivebuffer();
 	
 	edge_t * loadvertexptrsfromfile(int col); 
 	void loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, vertex_t bufferoffset, vertex_t size);
-	value_t * generateverticesdata(); 
-	edge_type * loadedgesfromfile(int col); 
+	value_t * generateverticesdata();
+	value_t * generatetempverticesdata();
 	void loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
 	edge_t getedgessize(int col); 
 	
-	void generatetempverticesdata();
+	// void generatetempverticesdata();
 	void generatevertexoutdegrees(vertex_t * vertexoutdegrees);
 	void generatevertexproperties();
 	
@@ -141,9 +142,9 @@ private:
 	FILE ** nvmeFd_vertexupdates_w;
 	
 	value_t * vertexdatabuffer;
+	value_t * tempvertexdatabuffer;
 	vertexprop_t * vertexpropertybuffer;
 	edge_t * vertexptrbuffer; 
-	edge_type * edgedatabuffer; 
 	unsigned long * totalkeyvaluesread[MAXNUMSSDPARTITIONS];
 	unsigned int * vertexisactivebitbuffer;
 };

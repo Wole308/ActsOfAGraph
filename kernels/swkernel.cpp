@@ -34,56 +34,26 @@ swkernel::swkernel(){
 }
 swkernel::~swkernel(){} 
 
-#ifdef SW 
-void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("swkernel::launchkernel:: print kvdram (before Kernel launch)", (keyvalue_t *)(&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS]), 16); }}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printmessages("swkernel::launchkernel:: print messages (before kernel launch)", (uint512_vec_dt *)(&kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS])); }}
-	#endif
-	
-	#ifdef ACTSMODEL
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->allignandappendinvalids((keyvalue_t *)kvsourcedram[i][j], kvstats[i][j][BASEOFFSET_STATSDRAM + 0].value); }} // edge conditions
-	#endif 
-	
-	#ifdef ACTSMODEL
-	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_acts(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
-	#else 
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j] = std::thread(&swkernel::workerthread_acts, this, i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j], kvdestdram[i][j], kvstats[i][j]); }}
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mykernelthread[i][j].join(); }}
-	#endif
-	#endif 
-	
-	#ifdef ACTSMODEL_LW
-	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); }}
-	#else 
-		// FIXME.
-		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);
-	#endif
-	#endif
-	
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->printkeyvalues("swkernel::launchkernel:: Print results after Kernel run", (keyvalue_t *)kvsourcedram[i][j], 16); }}
-	for(unsigned int value=0; value<24; value++){ for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ utilityobj->countkeyvalueswithvalueequalto("swkernel::launchkernel", (keyvalue_t *)kvdestdram[i][j], KVDATA_RANGE_PERSSDPARTITION, value); }}}			
-	#endif
-	return;
-}
+#ifdef SW
 void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef ACTSMODEL_LW
-	#ifdef LOCKE
-		for (int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); 
-		// exit(EXIT_SUCCESS); 
-		// break;
-		}}
+	// #ifdef LOCKE // REMOVEME.
+		for (int i = 0; i < NUMCPUTHREADS; i++){ 
+			for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+				// utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
+				workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); 
+				// exit(EXIT_SUCCESS); 
+				// break;
+			}
+		}
 		// workerthread_actslw(0, kvsourcedram[0][0]);
 		// workerthread_actslw(1, kvsourcedram[0][1]);
 		// workerthread_actslw(1, kvsourcedram[0][2]);
 		// workerthread_actslw(1, kvsourcedram[0][7]);
-	#else 
+	/* #else 
 		// FIXME.
 		cout<<"swkernel::launchkernel:: ERROR. launch kernel with _NOLOCKE not yet implemented (swkernel.cpp). EXITING"<<endl; exit(EXIT_FAILURE);
-	#endif
+	#endif */
 	#endif 
 	return;
 }

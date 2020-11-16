@@ -20,50 +20,63 @@
 #include "postprocess.h"
 using namespace std;
 
+std::mutex mtx; // mutex for critical section
+
 postprocess::postprocess(graph * _graphobj, stats * _statsobj){
 	parametersobj = new parameters();
 	utilityobj = new utility();
 	graphobj = _graphobj;
-	algorithmobj = new algorithm();
+	for(unsigned int i=0; i<NUMUTILITYTHREADS; i++){ algorithmobj[i] = new algorithm(); }
 	kernelobj = new kernel();
 	statsobj = _statsobj;
 }
 postprocess::postprocess(){
 	utilityobj = new utility();
-	algorithmobj = new algorithm();
+	for(unsigned int i=0; i<NUMUTILITYTHREADS; i++){ algorithmobj[i] = new algorithm(); }
 	kernelobj = new kernel();
 }
 postprocess::~postprocess(){} 
 
-void postprocess::cummulateverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void postprocess::cummulateandcommitverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset){
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"... cummulating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif 
+	#ifdef _DEBUGMODE_TIMERS2
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_cummulateverticesdata(i, buffer, (i * (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)), (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_cummulateandcommitverticesdata(i, buffer, tempvertexdatabuffer, voffset, (i * (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)), (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)); }
 	#else 
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i] = std::thread(&postprocess::workerthread_cummulateverticesdata, this, i, buffer, (i * (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)), (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)); }
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mykernelthread[i].join(); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&postprocess::workerthread_cummulateandcommitverticesdata, this, i, buffer, tempvertexdatabuffer, voffset, (i * (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)), (KVDATA_RANGE_PERSSDPARTITION / NUMUTILITYTHREADS)); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
 	#endif 
+	
+	#ifdef _DEBUGMODE_TIMERS2
+	utilityobj->stopBTIME("cummulateandcommitverticesdata:: total time elapsed: ", begintime, NAp);
+	#endif
+	#ifdef _DEBUGMODE_TIMERS2
+	long double cummvstimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendcummvstimeelapsed(cummvstimeelapsed_ms);
+	#endif
 	return;
 }
-void postprocess::workerthread_cummulateverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int offset, unsigned int size){
+void postprocess::workerthread_cummulateandcommitverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset, unsigned int offset, unsigned int size){
 	unsigned int baseoffset = BASEOFFSET_VERTICESDATA * (sizeof(keyvalue_t) / sizeof(value_t));
 	unsigned int onceactivecnt = 0;
 	value_t cumm = INFINITI;
 	
 	for(unsigned int k=offset; k<(offset + size); k++){
-		cumm = buffer[0][0][baseoffset + k];
+		cumm = INFINITI;
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			cumm = algorithmobj->cummulate(cumm, buffer[0][j][baseoffset + k]);
+			cumm = algorithmobj[threadidx]->cummulate(cumm, buffer[0][j][baseoffset + k]);
 			
 			if(cumm < INFINITI){ onceactivecnt += 1; }
 			#ifdef _DEBUGMODE_HOSTPRINTS
 			if(cumm < INFINITI){ cout<<"cummulateverticesdata: once active vertex seen @ "<<k<<": cumm: "<<cumm<<", buffer[0]["<<j<<"]["<<baseoffset + k<<"]: "<<buffer[0][j][baseoffset + k]<<endl; }
 			#endif
 		}
-		// if(k-offset >= 20){ exit(EXIT_SUCCESS); } // REMOVEME.
-		buffer[0][0][baseoffset + k] = cumm;
+		tempvertexdatabuffer[voffset + k] = cumm;
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"workerthread_cummulateverticesdata: number of vertex ids once active: "<<onceactivecnt<<endl;
@@ -71,46 +84,66 @@ void postprocess::workerthread_cummulateverticesdata(int threadidx, value_t * bu
 	return;
 }
 
-void postprocess::applyvertices(vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, unsigned int vsize, unsigned int GraphAlgo){
+void postprocess::applyvertices2(value_t * tempvertexdatabuffer, value_t * vertexdatabuffer, vector<value_t> &activeverticesbuffer, unsigned int GraphAlgo){
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
-	#endif 
+	#endif
+	#ifdef _DEBUGMODE_TIMERS2
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
 	#ifdef LOCKE
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices(i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS), GraphAlgo); }
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ workerthread_applyvertices2(i, tempvertexdatabuffer, vertexdatabuffer, activeverticesbuffer, i * (KVDATA_RANGE / NUMUTILITYTHREADS), (KVDATA_RANGE / NUMUTILITYTHREADS), GraphAlgo); }
 	#else
-	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&postprocess::workerthread_applyvertices, this, i, activeverticesbuffer, buffer, voffset, i * (vsize / NUMUTILITYTHREADS), (vsize / NUMUTILITYTHREADS), GraphAlgo); }	
+	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i] = std::thread(&postprocess::workerthread_applyvertices2, this, i, tempvertexdatabuffer, vertexdatabuffer, std::ref(activeverticesbuffer), i * (KVDATA_RANGE / NUMUTILITYTHREADS), (KVDATA_RANGE / NUMUTILITYTHREADS), GraphAlgo); }	
 	for (int i = 0; i < NUMUTILITYTHREADS; i++){ mythread[i].join(); }
+	#endif
+
+	#ifdef _DEBUGMODE_TIMERS2
+	utilityobj->stopBTIME("applyvertices2:: total time elapsed: ", begintime, NAp);
+	#endif
+	#ifdef _DEBUGMODE_TIMERS2
+	long double applyvstimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendapplyvstimeelapsed(applyvstimeelapsed_ms);
 	#endif
 	return;
 }
-void postprocess::workerthread_applyvertices(int ithreadidx, vector<value_t> &activeverticesbuffer, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int voffset, vertex_t offset, vertex_t size, unsigned int GraphAlgo){		
-	value_t * vertexdatabuffer = graphobj->getvertexdatabuffer();
-	unsigned int baseoffset = BASEOFFSET_VERTICESDATA * (sizeof(keyvalue_t) / sizeof(value_t));
+void postprocess::workerthread_applyvertices2(int ithreadidx, value_t * tempvertexdatabuffer, value_t * vertexdatabuffer, vector<value_t> &activeverticesbuffer, vertex_t offset, vertex_t size, unsigned int GraphAlgo){		
 	unsigned int onceactivecnt = 0;
 	
 	for(unsigned int k=0; k<size; k++){
-		value_t kvtempdata = buffer[0][0][baseoffset + k];
-		value_t vdata = vertexdatabuffer[voffset + offset + k];
-		value_t temp = algorithmobj->apply(kvtempdata, vdata);
-		vertexdatabuffer[voffset + offset + k] = temp;
-	
+		value_t kvtempdata = tempvertexdatabuffer[offset + k]; 
+		value_t vdata = vertexdatabuffer[offset + k];
+		value_t temp = algorithmobj[ithreadidx]->apply(kvtempdata, vdata);
+		// mtx.lock(); //
+		vertexdatabuffer[offset + k] = temp;
+		// mtx.unlock();// 
+		
 		if(temp != vdata){
 			onceactivecnt += 1; 
 			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"applyvertices: active vertex seen @ "<<k<<": vid: "<<voffset + offset + k<<", temp: "<<temp<<", vdata: "<<vdata<<endl; 
+			cout<<"applyvertices2: active vertex seen @ "<<k<<": vid: "<<offset + k<<", temp: "<<temp<<", vdata: "<<vdata<<endl; 
 			#endif 
 			
-			if(GraphAlgo != PAGERANK){ activeverticesbuffer.push_back((voffset + offset + k)); }
+			if(GraphAlgo != PAGERANK){ 
+				mtx.lock(); //
+				activeverticesbuffer.push_back((offset + k)); 
+				mtx.unlock();// 
+			}
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS2
-	cout<<"workerthread_applyvertices: number of vertex ids once active: "<<onceactivecnt<<endl;
-	cout<<"workerthread_applyvertices: number of vertex ids in activeverticesbuffer: "<<activeverticesbuffer.size()<<endl;
-	utilityobj->countvalueslessthan("workerthread_applyvertices", vertexdatabuffer, KVDATA_RANGE, INFINITI);
+	mtx.lock(); //
+	cout<<"applyvertices2: number of vertex ids once active: "<<onceactivecnt<<endl;
+	cout<<"applyvertices2: number of vertex ids in activeverticesbuffer: "<<activeverticesbuffer.size()<<endl;
+	utilityobj->countvalueslessthan("applyvertices2", vertexdatabuffer, KVDATA_RANGE, INFINITI);
+	mtx.unlock();// 
 	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"applyvertices: number of active vertices for next iteration: "<<activeverticesbuffer.size()<<endl;
-	#endif 
+	mtx.lock(); //
+	cout<<"applyvertices2: number of active vertices for next iteration: "<<activeverticesbuffer.size()<<endl;
+	mtx.unlock();// 
+	#endif
 	return;
 }
 

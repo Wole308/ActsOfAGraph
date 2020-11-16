@@ -631,7 +631,8 @@ gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type current
 	else { nextkeyvalue.key = keyvalue.key + keyvalue.value; }
 		
 	travstate.begin_kvs = keyvalue.key / VECTOR_SIZE; 
-	travstate.end_kvs = nextkeyvalue.key / VECTOR_SIZE;
+	// travstate.end_kvs = nextkeyvalue.key / VECTOR_SIZE;
+	travstate.end_kvs = (nextkeyvalue.key + (VECTOR_SIZE - 1)) / VECTOR_SIZE; // NEWCHANGE.
 	travstate.size_kvs = travstate.end_kvs - travstate.begin_kvs;
 	travstate.skip_kvs = SRCBUFFER_SIZE;
 	travstate.i_kvs = travstate.begin_kvs;
@@ -2203,12 +2204,19 @@ dispatch0(uint512_dt * kvdram){
 	analysis_type analysis_processedges_loadedgebatch = 1;
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	// #ifdef _DEBUGMODE_KERNELPRINTS2
+	// actsutilityobj->printparameters();
+	// actsutilityobj->printglobalvars();
+	// actsutilityobj->clearglobalvars();
+	// #endif
+	#if defined(_DEBUGMODE_KERNELPRINTS)
 	actsutilityobj->printparameters();
 	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	
+		
 	keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
 	

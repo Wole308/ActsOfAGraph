@@ -26,30 +26,6 @@ kernel::kernel(){
 }
 kernel::~kernel(){} 
 
-void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){			
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
-	#endif
-	
-	#ifdef FPGA_IMPL
-	writetokernel(flag, kvsourcedram);
-	#endif
-	kernelobj->launchkernel(kvsourcedram, kvdestdram, kvstats, flag);
-	
-	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
-	readfromkernel(flag, kvsourcedram);
-	#endif
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
-	#endif
-	exit(EXIT_SUCCESS);
-	#ifdef _DEBUGMODE_HOSTCHECKS // verify
-	keyvalue_t stats[NUM_PARTITIONS];
-	for(unsigned int i=0; i<NUM_PARTITIONS; i++){ stats[i] = kvsourcedram[0][0][BASEOFFSET_STATSDRAM_KVS + 1 + i].data[0]; }
-	utilityobj->scankeyvalues("kernel::launchkernel", (keyvalue_t *)(&kvsourcedram[0][0][BASEOFFSET_KVDRAMWORKSPACE_KVS]), stats, NUM_PARTITIONS, BATCH_RANGE / NUM_PARTITIONS, 0);
-	#endif
-	return;
-}
 void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){			
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
@@ -58,6 +34,11 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	#ifdef FPGA_IMPL
 	writetokernel(flag, kvsourcedram);
 	#endif
+	for (int i = 0; i < NUMCPUTHREADS; i++){ 
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
+		}
+	}
 	kernelobj->launchkernel(kvsourcedram, flag);
 	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
 	readfromkernel(flag, kvsourcedram);

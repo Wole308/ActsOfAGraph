@@ -19,7 +19,6 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	runsummary_t runpim();
 	
 	void WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter);
 					
@@ -35,6 +34,7 @@ private:
 
 	edge_t * vertexptrbuffer;
 	value_t * vertexdatabuffer;
+	value_t * tempvertexdatabuffer;
 	edge_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMSUPERCPUTHREADS][NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_type * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS];

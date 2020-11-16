@@ -135,8 +135,8 @@ void utility::printallparameters(){
 	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	#ifndef _GENERATE2DGRAPH
-	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
+	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -174,10 +174,13 @@ void utility::printallparameters(){
 	#ifdef INMEMORYGP
 	std::cout<<"host:: INMEMORYGP enabled "<<std::endl;
 	#endif 
-	#ifdef PROCEDGESINCPU
-	std::cout<<"host:: PROCEDGESINCPU enabled "<<std::endl;
+	#ifndef INMEMORYGP
+	std::cout<<"host:: INMEMORYGP disabled "<<std::endl;
 	#endif
-	exit(EXIT_SUCCESS);
+	// #ifdef PROCEDGESINCPU
+	// std::cout<<"host:: PROCEDGESINCPU enabled "<<std::endl;
+	// #endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
 void utility::print1(string messagea, unsigned int dataa){
@@ -510,6 +513,11 @@ void utility::countvalueslessthan(string message, value_t * values, unsigned int
 	unsigned int totalcount = 0;
 	for(unsigned int i=0; i<size; i++){ if(values[i] < data){ totalcount += 1; }}
 	cout<<"utility::"<<message<<"::countvalueslessthan ("<<data<<"):: total values counted: "<<totalcount<<endl;
+	return;
+}
+void utility::paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned int padddata){
+	unsigned int num = VECTOR_SIZE - (size % VECTOR_SIZE);
+	for(unsigned v=size; v<(size + num); v++){ keyvalues[v].key = padddata; keyvalues[v].value = padddata; }
 	return;
 }
 

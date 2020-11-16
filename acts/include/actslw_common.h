@@ -48,14 +48,29 @@
 #endif 
 #define ACTIVEVERTICESSZ_KVS (ACTIVEVERTICESSZ / VECTOR_SIZE)
 
-#ifdef PROCEDGESINCPU // NOTE: POC (point-of-concern)
+/* #ifdef PROCEDGESINCPU // NOTE: POC (point-of-concern)
 #define EDGESSZ 0
 #define VERTEXPTRSSZ 0
 #else 
 #define EDGESSZ MAXKVDATA_BATCHSIZE
 #define VERTEXPTRSSZ KVDATA_RANGE 
 #endif
+#define EDGESSZ_KVS (EDGESSZ / VECTOR_SIZE) */
+
+
+
+
+#ifdef INMEMORYGP
+#define EDGESSZ MAXKVDATA_BATCHSIZE
+#define VERTEXPTRSSZ KVDATA_RANGE 
+#else 
+#define EDGESSZ 0
+#define VERTEXPTRSSZ 0
+#endif
 #define EDGESSZ_KVS (EDGESSZ / VECTOR_SIZE)
+
+
+
 
 // #ifdef PROCEDGESINCPU // NOTE: POC (point-of-concern)
 // #define VERTEXPTRSSZ 0

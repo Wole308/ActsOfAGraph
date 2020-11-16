@@ -11,9 +11,7 @@
 #include "../src/graphs/graph.h"
 #include "../examples/test/test.h"
 #include "../examples/pagerank/pagerank.h"
-// #include "../examples/pagerank/pagerank_pim.h"
 #include "../examples/bfs/bfs.h"
-// #include "../examples/bfs/bfs_pim.h"
 // #include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"
@@ -42,7 +40,7 @@ int main(int argc, char** argv){
 	exit(EXIT_SUCCESS);
 	#endif
 	
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime_overallexecution = std::chrono::steady_clock::now();
 	#endif
 	
@@ -53,27 +51,19 @@ int main(int argc, char** argv){
 	#endif
 	
 	#if (defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-		pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);	
-		#ifdef INMEMORYGP
-		pagerankobj->runpim();
-		#else
-		pagerankobj->run();
-		#endif
+	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);	
+	pagerankobj->run();
 	#endif
 	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-		bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
-		#ifdef INMEMORYGP
-		bfsobj->runpim();
-		#else 
-		bfsobj->run();
-		#endif
+	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+	bfsobj->run();
 	#endif
 	#if (defined(ADVANCE_ALGORITHM))
 	advance_op * advanceobj = new advance_op(NAp, datasetobj->getdatasetid(), binaryFile);
 	advanceobj->run();
 	#endif
 	
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	std::cout << "TEST FINISHED" << std::endl; 
 	utilityobj->stopBTIME("HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: ", begintime_overallexecution, NAp);
 	#endif

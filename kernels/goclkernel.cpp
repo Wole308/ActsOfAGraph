@@ -98,41 +98,7 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], uint512_vec_dt * kvdestdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * kvstats[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	// return; // REMOVEME.
-	double kernel_time_in_sec = 0, result = 0;
-    std::chrono::duration<double> kernel_time(0);
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
-	#endif
-	
-    auto kernel_start = std::chrono::high_resolution_clock::now();
-	
-	unsigned int bufferid = 0;
-	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
-		//Setting the k_vadd Arguments
-		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
-
-		//Invoking the kernel
-		std::vector<cl::Event> waitList;
-        waitList.push_back(write_event[i]);
-		OCL_CHECK(err,
-                  err = q.enqueueNDRangeKernel(
-                      krnls[i], 0, 1, 1, &waitList, &kernel_events[flag*i]));
-	}
-	#ifdef LOCKE
-    q.finish();
-	#endif
-	
-    auto kernel_end = std::chrono::high_resolution_clock::now();
-    kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	std::cout<< TIMINGRESULTSCOLOR <<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<< RESET <<std::endl;
-	#endif 
-	return;
-}
 void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	// return; // REMOVEME.
 	double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
 	#ifdef _DEBUGMODE_HOSTPRINTS3
