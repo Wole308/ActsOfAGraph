@@ -31,10 +31,10 @@ public:
 	unsigned int processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo);
 	void processedges(edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges, keyvalue_t * keyvalues, unsigned int srcvoffset, unsigned int srcvsize, unsigned int edgessize, unsigned int GraphIter, unsigned int GraphAlgo);					
 	
-	void start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
-	void start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	
-	void WorkerThread(uint512_dt * kvdram, edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges);
+	void WorkerThread(uint512_vec_dt * kvdram, edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges);
 private:
 	utility * utilityobj;
 	actsutility * actsutilityobj;

@@ -40,7 +40,7 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 		}
 	}
 	kernelobj->launchkernel(kvsourcedram, flag);
-	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTCHECKS2))
+	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTPRINTS2))
 	readfromkernel(flag, kvsourcedram);
 	#endif
 	

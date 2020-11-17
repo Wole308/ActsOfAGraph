@@ -96,8 +96,8 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 	return;
 }
 
-void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	#ifdef _DEBUGMODE_TIMERS2 // pagerank
+void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_TIMERS3 // pagerank
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
@@ -125,14 +125,14 @@ void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge
 	#ifdef _DEBUGMODE_TIMERS2
 	utilityobj->stopBTIME("processedges:: total time elapsed: ", begintime, NAp);
 	#endif
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	long double processedgestimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendprocessedgestimeelapsed(processedgestimeelapsed_ms);
 	#endif
 	return;
 }
-void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	#ifdef _DEBUGMODE_TIMERS2 // bfs
+void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_TIMERS3 // bfs
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
@@ -160,14 +160,14 @@ void procedges::start(uint512_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge
 	#ifdef _DEBUGMODE_TIMERS2
 	utilityobj->stopBTIME("processedges:: total time elapsed: ", begintime, NAp);
 	#endif
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	long double processedgestimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendprocessedgestimeelapsed(processedgestimeelapsed_ms);
 	#endif
 	return;
 }
 
-void procedges::WorkerThread(uint512_dt * kvdram, edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges){
+void procedges::WorkerThread(uint512_vec_dt * kvdram, edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges){
 	unsigned int srcvoffset = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key;
 	unsigned int srcvsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key;
 	unsigned int runsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key;

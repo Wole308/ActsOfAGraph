@@ -23,6 +23,7 @@ KERNELTYPE="ACTSMODEL_LW"
 XWARE="" 
 SETUP="" 
 ALGORITHM="" 
+ALGORITHMABBRV="" 
 DATASET=""
 
 SETUP_NAME=""
@@ -66,10 +67,11 @@ FLICKR_1M_10M=36
 LARGEDATASET_1M=1
 LARGEDATASET_4M=2
 TWITTER_67M=3
-LARGEDATASET_67M=4
-LARGEDATASET_268M=5
-LARGEDATASET_1B=6
-LARGEDATASET_4B=7
+MOLIERE2016_33M=4
+LARGEDATASET_67M=5
+LARGEDATASET_268M=6
+LARGEDATASET_1B=7
+LARGEDATASET_4B=8
 
 THREADCOUNT_EQ1=1
 THREADCOUNT_EQ2=2
@@ -101,9 +103,9 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 do 
 	### >>> LOOP1: hardware types
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
-	for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
+	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
@@ -129,6 +131,7 @@ do
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="PR_ALGORITHM"
+			ALGORITHMABBRV="pr"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_pr_sw"
@@ -140,6 +143,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="PR_ALGORITHM" 
+			ALGORITHMABBRV="pr"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_pr_hw"
@@ -151,6 +155,7 @@ do
 			XWARE="SWEMU" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="PR_ALGORITHM"
+			ALGORITHMABBRV="pr"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_pr_swemu"
@@ -162,6 +167,7 @@ do
 			XWARE="SW" 
 			SETUP="GRAFBOOST_SETUP" 
 			ALGORITHM="PR_ALGORITHM" 
+			ALGORITHMABBRV="pr"
 			SETUP_NAME="grafboost_pr_sw"
 			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs
@@ -169,6 +175,7 @@ do
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BFS_ALGORITHM"
+			ALGORITHMABBRV="bfs"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_bfs_sw"
@@ -180,6 +187,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BFS_ALGORITHM" 
+			ALGORITHMABBRV="bfs"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_bfs_hw"
@@ -191,6 +199,7 @@ do
 			XWARE="SWEMU" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BFS_ALGORITHM"
+			ALGORITHMABBRV="bfs"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_bfs_swemu"
@@ -202,6 +211,7 @@ do
 			XWARE="SW" 
 			SETUP="GRAFBOOST_SETUP" 
 			ALGORITHM="BFS_ALGORITHM" 
+			ALGORITHMABBRV="bfs"
 			SETUP_NAME="grafboost_bfs_sw"
 			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc
@@ -209,6 +219,7 @@ do
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BC_ALGORITHM"
+			ALGORITHMABBRV="bc"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_bc_sw"
@@ -220,6 +231,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BC_ALGORITHM"
+			ALGORITHMABBRV="bc"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_bc_hw"
@@ -231,6 +243,7 @@ do
 			XWARE="SW" 
 			SETUP="GRAFBOOST_SETUP" 
 			ALGORITHM="BC_ALGORITHM" 
+			ALGORITHMABBRV="bc"
 			SETUP_NAME="grafboost_bc_sw"
 		
 		elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance
@@ -238,6 +251,7 @@ do
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="ADVANCE_ALGORITHM"
+			ALGORITHMABBRV="adv"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_adv_sw"
@@ -249,6 +263,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="ADVANCE_ALGORITHM" 
+			ALGORITHMABBRV="adv"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_adv_hw"
@@ -260,6 +275,7 @@ do
 			XWARE="SWEMU" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="ADVANCE_ALGORITHM"
+			ALGORITHMABBRV="adv"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_adv_swemu"
@@ -271,6 +287,7 @@ do
 			XWARE="SW" 
 			SETUP="GRAFBOOST_SETUP" 
 			ALGORITHM="ADVANCE_ALGORITHM"
+			ALGORITHMABBRV="adv"
 			SETUP_NAME="sortreduce_adv_sw"
 			
 		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
@@ -278,6 +295,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="PR_ALGORITHM"
+			ALGORITHMABBRV="pr"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_pr_hw"
@@ -289,6 +307,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="BFS_ALGORITHM"
+			ALGORITHMABBRV="bfs"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_bfs_hw"
@@ -300,6 +319,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="ADVANCE_ALGORITHM"
+			ALGORITHMABBRV="adv"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_adv_hw"
@@ -311,6 +331,7 @@ do
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
 			ALGORITHM="PR_ALGORITHM"
+			ALGORITHMABBRV="pr"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_pr_hw"
@@ -322,6 +343,7 @@ do
 			XWARE="" 
 			SETUP="" 
 			ALGORITHM="" 
+			ALGORITHMABBRV=""
 		fi
 
 		for numsupercputhreads in $THREADCOUNT_EQ1
@@ -339,34 +361,36 @@ do
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
-			# for locke in $_NOLOCKE
-			for locke in $_LOCKE
+			for locke in $_NOLOCKE
+			# for locke in $_LOCKE
 			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
 				
-				for dataset in $ORKUT_3M_106M
+				# for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M
 				# for dataset in $FLICKR_1M_10M
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $ROADNET_2M_3M $FLICKR_1M_10M
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M
+				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M
 				
-				# for dataset in $TWITTER_67M #
+				for dataset in $TWITTER_67M
+				# for dataset in $MOLIERE2016_33M
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
 				# for dataset in $LARGEDATASET_4B
-				# for dataset in $TWITTER_67M $LARGEDATASET_67M $LARGEDATASET_268M $LARGEDATASET_1B
+				# for dataset in $TWITTER_67M $MOLIERE2016_33M
+				
+				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M $TWITTER_67M $MOLIERE2016_33M
 				do
-					# for evaluation_param0 in 0 1 2 3 4
+					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 4
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						KERNELBACKUP_NAME="goldenkernel"
+						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads_pow}"
 						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Results"
@@ -469,8 +493,8 @@ do
 						elif [ $dataset == $TWITTER_67M ]  
 						then	
 							DATASET="_TWITTER_67M"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron26.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron26.awsxclbin"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_twitter26.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_twitter26.awsxclbin"
 							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_twitter26.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
@@ -480,6 +504,20 @@ do
 							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.out"
+						elif [ $dataset == $MOLIERE2016_33M ]  
+						then	
+							DATASET="_MOLIERE2016_33M"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_moliere33.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_moliere33.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_moliere33.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.xo"
+							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.xclbin"
+							BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.out"
 						elif [ $dataset == $LARGEDATASET_67M ]  
 						then	
 							DATASET="_LARGEDATASET_67M"

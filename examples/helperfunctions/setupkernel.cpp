@@ -48,18 +48,17 @@ void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	return;
 }
 void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP PR
-	procedgesobj->start((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
+	procedgesobj->start((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
 	launchmykernel(kvsourcedram, flag);
 	return;
 }
 void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP BFS, SSSP etc.					
-	procedgesobj->start((uint512_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
+	procedgesobj->start((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
 	launchmykernel(kvsourcedram, flag);
 	return;
 }
-
 void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
@@ -74,7 +73,7 @@ void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NU
 	}
 	#endif 
 	
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 	#endif

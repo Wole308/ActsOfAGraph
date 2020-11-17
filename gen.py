@@ -77,6 +77,8 @@ elif context['DATASET'] == "_FLICKR_1M_10M":
     context['KVDATA_RANGE_POW'] = 20
 elif context['DATASET'] == "_TWITTER_67M": # large dataset
     context['KVDATA_RANGE_POW'] = 26
+elif context['DATASET'] == "_MOLIERE2016_33M":
+    context['KVDATA_RANGE_POW'] = 25
 elif context['DATASET'] == "_LARGEDATASET_67M":
     context['KVDATA_RANGE_POW'] = 26
 elif context['DATASET'] == "_LARGEDATASET_268M":

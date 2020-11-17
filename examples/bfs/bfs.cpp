@@ -124,6 +124,11 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 		vertex_t srcvidsoffset2 = 0;
 		vertex_t errcount = 0;
 		
+		loadgraphobj[0]->loadvertexdata(tempvertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+		#ifdef FPGA_IMPL
+		setupkernelobj[0]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
+		#endif
+		
 		while(true){
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [iteration: "<<errcount<<"][size: UNKNOWN][step: 1]"<< RESET <<endl;
@@ -138,7 +143,7 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			#else 
 			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexptrs[0], edges[0], lbedgesizes, container);
 			#endif
-			loadgraphobj[0]->loadvertexdata(tempvertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+			// loadgraphobj[0]->loadvertexdata(tempvertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 			
@@ -148,12 +153,18 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, vertexdatabuffer, edges, 0);
 			#endif 
 			
-			postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
+			// postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 			
 			if(srcvidsoffset1 >= activevertices.size()){ break; }
 			if(errcount >= 10){ cout<<"bfs::WorkerThread::ERROR. looping too long, error count ("<<errcount<<") limit reached. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			errcount += 1;
 		}
+		
+		#ifdef FPGA_IMPL
+		setupkernelobj[0]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
+		#endif
+		postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
+		
 		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}

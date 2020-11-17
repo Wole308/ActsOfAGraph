@@ -1,11 +1,14 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
-#define _ORKUT_3M_106M 
+#define _TWITTER_67M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -38,6 +41,7 @@
 
 #if defined(ACTGRAPH_SETUP) && defined(PR_ALGORITHM) // FIXME. REMOVEME. fixme for bfs
 #if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
+// #if defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)
 #define INMEMORYGP
 #endif
 #endif 
@@ -112,7 +116,7 @@
 #define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
-#define KVDATA_RANGE_POW 22
+#define KVDATA_RANGE_POW 26
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1

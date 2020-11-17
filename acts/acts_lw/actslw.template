@@ -189,82 +189,85 @@ value_t
 	actslw::
 	#endif 
 reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
-	/* value_t ret = 0;
-	#ifdef PR_ALGORITHM
-	ret = vtemp + res;
-	#elif defined(BFS_ALGORITHM)
-	ret = amin(vtemp, GraphIter); // NEWCHANGE.
-	#elif defined(BC_ALGORITHM)
-	ret = amin(vtemp, GraphIter);
-	#endif
-	#ifdef NOTUSED
-	if(GraphAlgo == PAGERANK){ ret = vtemp + res; }
-	else if(GraphAlgo == BREADTHFIRSTSEARCH){ ret = amin(vtemp, GraphIter); }
-	else if(GraphAlgo == BETWEENNESSCENTRALITY){ ret = amin(vtemp, GraphIter); }
-	else {}
-	#endif 
-	return ret; */
-	
 	value_t temp = 0;
-	if(GraphAlgo == PAGERANK){
-		temp = vtemp + res;
-	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
-		temp = amin(vtemp, GraphIter);
-	} else if (GraphAlgo == SSSP){
-		temp = amin(vtemp, res);
-	} else { temp = 0; }
+	#ifdef PR_ALGORITHM
+	temp = vtemp + res;
+	#elif defined(BFS_ALGORITHM)
+	temp = amin(vtemp, GraphIter); // NEWCHANGE.
+	#elif defined(BC_ALGORITHM)
+	temp = amin(vtemp, res);
+	#endif
 	return temp;
+	
+	// value_t temp = 0;
+	// if(GraphAlgo == PAGERANK){
+		// temp = vtemp + res;
+	// } else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		// temp = amin(vtemp, GraphIter);
+	// } else if (GraphAlgo == SSSP){
+		// temp = amin(vtemp, res);
+	// } else { temp = 0; }
+	// return temp;
 }
 value_t 
 	#ifdef SW 
 	actslw::
 	#endif 
 processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo){
-	/* value_t ret = 0;
-	#ifdef PR_ALGORITHM
-	ret = Uprop;
-	#elif defined(BFS_ALGORITHM)
-	ret = Uprop + edgeweight;
-	#elif defined(BC_ALGORITHM)
-	ret = Uprop + edgeweight;
-	#endif
-	return ret; */
+	// value_t ret = 0;
+	// #ifdef PR_ALGORITHM
+	// ret = Uprop;
+	// #elif defined(BFS_ALGORITHM)
+	// ret = Uprop + edgeweight;
+	// #elif defined(BC_ALGORITHM)
+	// ret = Uprop + edgeweight;
+	// #endif
+	// return ret;
 	
-	/* value_t res = 0;
+	value_t res = 0;
 	#ifdef PR_ALGORITHM
 	res = Uprop / voutdegree;
 	#elif defined(BFS_ALGORITHM)
-	res = Uprop + edgeweight;
+	res = NAp;
 	#elif defined(BC_ALGORITHM)
 	res = Uprop + edgeweight;
 	#endif
-	return res; */
-	
-	value_t res = 0;
-	if(GraphAlgo == PAGERANK){
-		res = Uprop / voutdegree;
-	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
-		res = NAp;
-	} else if (GraphAlgo == SSSP){
-		res = Uprop + edgeweight;
-	} else { res = 0; }
 	return res;
+	
+	// value_t res = 0;
+	// if(GraphAlgo == PAGERANK){
+		// res = Uprop / voutdegree;
+	// } else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		// res = NAp;
+	// } else if (GraphAlgo == SSSP){
+		// res = Uprop + edgeweight;
+	// } else { res = 0; }
+	// return res;
 }
 value_t 
 	#ifdef SW 
 	actslw::
 	#endif 
 mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
-	// #pragma HLS INLINE
-	value_t ret = 0;
+	value_t res = 0;
 	#ifdef PR_ALGORITHM
-	ret = value1 + value2;
+	res = value1 + value2;
 	#elif defined(BFS_ALGORITHM)
-	ret = amin(value1, value2);
+	res = amin(value1, value2);
 	#elif defined(BC_ALGORITHM)
-	ret = amin(value1, value2);
+	res = amin(value1, value2);
 	#endif
-	return ret;
+	return res;
+	
+	// value_t res = 0;
+	// if(GraphAlgo == PAGERANK){
+		// res = value1 + value2;
+	// } else if (GraphAlgo == BREADTHFIRSTSEARCH){
+		// res = amin(value1, value2);
+	// } else if (GraphAlgo == SSSP){
+		// res = amin(value1, value2);
+	// } else { res = 0; }
+	// return res;
 }
 void 
 	#ifdef SW 
@@ -970,6 +973,23 @@ unifydata{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		value_t data1 = INFINITI;
 		value_t data2 = INFINITI;
 		#endif
+		
+		// value_t data1 = 0;
+		// value_t data2 = 0;
+		// if(GraphAlgo == PAGERANK){
+			// data1 = 0;
+			// data2 = 0;
+		// } else if (GraphAlgo == BREADTHFIRSTSEARCH){
+			// data1 = INFINITI;
+			// data2 = INFINITI;
+		// } else if (GraphAlgo == SSSP){
+			// data1 = INFINITI;
+			// data2 = INFINITI;
+		// } else { 
+			// data1 = 0;
+			// data2 = 0;
+		// }
+		
 		for(vector_type v=0; v<VECTOR_SIZE; v++){ // unify multple sources
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("unifydata{{inst}}", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
@@ -1390,11 +1410,6 @@ dispatch{{inst}}(uint512_dt * kvdram){
 	analysis_type analysis_processedges_loadedgebatch = 1;
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
-	// #ifdef _DEBUGMODE_KERNELPRINTS2
-	// actsutilityobj->printparameters();
-	// actsutilityobj->printglobalvars();
-	// actsutilityobj->clearglobalvars();
-	// #endif
 	#if defined(_DEBUGMODE_KERNELPRINTS)
 	actsutilityobj->printparameters();
 	actsutilityobj->printglobalvars();
@@ -1440,7 +1455,11 @@ dispatch{{inst}}(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_CHECKS2
 	if(globalparams.runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams.runsize: "<<globalparams.runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
+	#ifdef _WIDEWORD
+	vertex_t firstvptr = kvdram[BASEOFFSET_VERTEXPTR_KVS + (globalparams.srcvoffset / VECTOR_SIZE)].range(31, 0);
+	#else 
 	vertex_t firstvptr = kvdram[BASEOFFSET_VERTEXPTR_KVS + (globalparams.srcvoffset / VECTOR_SIZE)].data[0].key;
+	#endif 
 	
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=globalparams.beginLOP; currentLOP<(globalparams.beginLOP + globalparams.numLOPs); currentLOP++){

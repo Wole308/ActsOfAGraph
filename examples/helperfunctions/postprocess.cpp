@@ -41,7 +41,7 @@ void postprocess::cummulateandcommitverticesdata(value_t * buffer[NUMCPUTHREADS]
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"... cummulating vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif 
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
@@ -55,7 +55,7 @@ void postprocess::cummulateandcommitverticesdata(value_t * buffer[NUMCPUTHREADS]
 	#ifdef _DEBUGMODE_TIMERS2
 	utilityobj->stopBTIME("cummulateandcommitverticesdata:: total time elapsed: ", begintime, NAp);
 	#endif
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	long double cummvstimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendcummvstimeelapsed(cummvstimeelapsed_ms);
 	#endif
@@ -88,7 +88,7 @@ void postprocess::applyvertices2(value_t * tempvertexdatabuffer, value_t * verte
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"... applying vertex datas... ["<<NUMCPUTHREADS<<" threads, "<<NUMSUBCPUTHREADS<<" subthreads]"<<endl;
 	#endif
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
@@ -102,7 +102,7 @@ void postprocess::applyvertices2(value_t * tempvertexdatabuffer, value_t * verte
 	#ifdef _DEBUGMODE_TIMERS2
 	utilityobj->stopBTIME("applyvertices2:: total time elapsed: ", begintime, NAp);
 	#endif
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	long double applyvstimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendapplyvstimeelapsed(applyvstimeelapsed_ms);
 	#endif
