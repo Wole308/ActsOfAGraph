@@ -8,11 +8,9 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-#ifdef ACTSMODEL
-#include "../acts/acts1/acts.h"
-#endif
 #ifdef ACTSMODEL_LW
 #include "../acts/acts_lw/actslw.h"
+#include "../acts/acts_lw/actslw_maxbutil.h"
 #endif 
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -23,11 +21,9 @@ swkernel::swkernel(){
 	utilityobj = new utility();
 	#ifdef SW 
 	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ 
-		#ifdef ACTSMODEL
-		kernelobjs[i] = new acts();
-		#endif 
 		#ifdef ACTSMODEL_LW
 		kernelobjs[i] = new actslw(); 
+		kernelobjs_maxbutil[i] = new actslw_maxbutil(); 
 		#endif 
 	}
 	#endif 
@@ -43,7 +39,7 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 				// utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
 				workerthread_actslw(i*NUMSUBCPUTHREADS + j, kvsourcedram[i][j]); 
 				// exit(EXIT_SUCCESS); 
-				// break;
+				break;
 			}
 		}
 		// workerthread_actslw(0, kvsourcedram[0][0]);
@@ -59,15 +55,10 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 }
 
 // worker threads
-#ifdef ACTSMODEL
-void swkernel::workerthread_acts(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram, uint512_vec_dt * kvdestdram, keyvalue_t * kvstats){
-	kernelobjs[ithreadidx]->topkernel((uint512_dt *)kvsourcedram, kvdestdram, kvstats);
-	return;
-}
-#endif
 #ifdef ACTSMODEL_LW
 void swkernel::workerthread_actslw(unsigned int ithreadidx, uint512_vec_dt * kvsourcedram){
-	kernelobjs[ithreadidx]->topkernel((uint512_dt *)kvsourcedram);
+	// kernelobjs[ithreadidx]->topkernel((uint512_dt *)kvsourcedram);
+	kernelobjs_maxbutil[ithreadidx]->topkernel((uint512_dt *)kvsourcedram); // REMOVEME.
 	return;
 }
 #endif

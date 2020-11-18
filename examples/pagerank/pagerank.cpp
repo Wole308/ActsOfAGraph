@@ -136,7 +136,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		
 		// postprocessobj[superthreadidx]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 			
-		break; // REMOVEME.
+		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	

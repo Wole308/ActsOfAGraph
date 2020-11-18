@@ -141,7 +141,7 @@ void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSU
     auto kernel_start = std::chrono::high_resolution_clock::now();
 	
 	unsigned int bufferid = 0;
-	for(unsigned int i=0; i<1; i++){ // NUMACTIVEKERNELS
+	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
 		//Setting the k_vadd Arguments
 		OCL_CHECK(err, err = krnls[i].setArg(0
 												, buffer_kvsourcedram[0]
@@ -328,7 +328,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
 		inoutBufExt[i].obj = kvsourcedramarr[counter++];
 		inoutBufExt[i].param = 0;
-		inoutBufExt[i].flags = bank[0]; // bank[i];
+		inoutBufExt[i].flags = bank[i];
 	}
 	
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can

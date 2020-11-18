@@ -4,11 +4,9 @@
 #include <thread>
 #include "../include/config_params.h"
 #include "../include/common.h"
-#ifdef ACTSMODEL
-#include "../acts/acts1/acts.h"
-#endif
 #ifdef ACTSMODEL_LW
 #include "../acts/acts_lw/actslw.h"
+#include "../acts/acts_lw/actslw_maxbutil.h"
 #endif 
 #include "../src/utility/utility.h"
 
@@ -28,12 +26,10 @@ public:
 	#endif 
 private:
 	utility * utilityobj;
-	#ifdef SW 
-	#ifdef ACTSMODEL
-	acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
-	#endif 
+	#ifdef SW
 	#ifdef ACTSMODEL_LW
 	actslw * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	actslw_maxbutil * kernelobjs_maxbutil[NUMCPUTHREADS * NUMSUBCPUTHREADS];
 	#endif
 	#endif 
 	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
