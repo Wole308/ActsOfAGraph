@@ -48,7 +48,7 @@ void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	return;
 }
 void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP PR
-	procedgesobj->start((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
+	procedgesobj->start((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer); // REMOVEME.
 	launchmykernel(kvsourcedram, flag);
 	return;
 }

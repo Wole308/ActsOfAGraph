@@ -84,7 +84,6 @@ runsummary_t pagerank::run(){
 		cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<GraphIter<<" of pagerank started"<< RESET <<endl;
 		
 		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){
-		// for(unsigned int col=0; col<2; col += NUMSUPERCPUTHREADS){
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
@@ -109,9 +108,9 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 	cout<<">>> WorkerThread:: total number of edges in file["<<col<<"]: "<<graphobj->getedgessize(col)<<endl;
 	
 	loadgraphobj[superthreadidx]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-	#ifdef FPGA_IMPL
-	setupkernelobj[superthreadidx]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-	#endif
+	// #ifdef FPGA_IMPL
+	// setupkernelobj[superthreadidx]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
+	// #endif
 	
 	for(unsigned int iteration_idx=0; iteration_idx<iteration_size; iteration_idx++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -124,7 +123,6 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#else 
 		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, edges[0], 0, container, PAGERANK);
 		#endif 
-		// loadgraphobj[superthreadidx]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 		loadgraphobj[superthreadidx]->loadmessages((uint512_vec_dt **)kvbuffer[superthreadidx][0][0], container, GraphIter, PAGERANK);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		
@@ -133,16 +131,14 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#else 
 		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, edges, 0);
 		#endif 
-		
-		// postprocessobj[superthreadidx]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
-			
-		// break; // REMOVEME.
+	
+		break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	
-	#ifdef FPGA_IMPL
-	setupkernelobj[superthreadidx]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-	#endif
+	// #ifdef FPGA_IMPL
+	// setupkernelobj[superthreadidx]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
+	// #endif
 	postprocessobj[superthreadidx]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 	return;
 }

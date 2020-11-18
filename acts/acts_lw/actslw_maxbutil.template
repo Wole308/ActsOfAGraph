@@ -1055,8 +1055,8 @@ void
 	actslw_maxbutil::
 	#endif 
 maxdispatch{{inst}}({%for sw in context['NUMSUBWORKERS_seq']%} {%if(sw>0)%},{%endif%}uint512_dt * kvdram{{sw}} {%endfor%}){
-	analysis_type analysis_collectstatsloop = KVDATA_BATCHSIZE_KVS / (SRCBUFFER_SIZE * NUMSUBWORKERS);
-	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (SRCBUFFER_SIZE * NUMPIPELINES * NUMSUBWORKERS);
+	analysis_type analysis_collectstatsloop = KVDATA_BATCHSIZE_KVS / (SRCBUFFER_SIZE * 1); // NUMSUBWORKERS
+	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (SRCBUFFER_SIZE * NUMPIPELINES * 1); // NUMSUBWORKERS
 	analysis_type analysis_reduceloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
 	analysis_type analysis_processedges_overallloop = BATCH_RANGE_KVS / PADDEDDESTBUFFER_SIZE;
 	analysis_type analysis_processedges_loadedgebatch = 1;
@@ -1150,7 +1150,7 @@ maxdispatch{{inst}}({%for sw in context['NUMSUBWORKERS_seq']%} {%if(sw>0)%},{%en
 			if(config{{sw}}.enablecollectglobalstats == ON){ actsutilityobj->print7("### maxdispatch{{inst}}::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams{{sw}}.source_partition, sweepparams{{sw}}.upperlimit, CStravstate{{sw}}.begin_kvs * VECTOR_SIZE, CStravstate{{sw}}.end_kvs * VECTOR_SIZE, (CStravstate{{sw}}.end_kvs - CStravstate{{sw}}.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams{{sw}}.currentLOP)), sweepparams{{sw}}.currentLOP); }					
 			#endif
 			{%endfor%}
-			MAIN_LOOP1C_COLLECTGLOBALSTATS: for(batch_type offset_kvs=CStravstate0.begin_kvs; offset_kvs<CStravstate0.end_kvs; offset_kvs+=CStravstate0.skip_kvs * NUMSUBWORKERS){
+			MAIN_LOOP1C_COLLECTGLOBALSTATS: for(batch_type offset_kvs=CStravstate0.begin_kvs; offset_kvs<CStravstate0.end_kvs; offset_kvs+=CStravstate0.skip_kvs * 1){ // NUMSUBWORKERS
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_collectstatsloop avg=analysis_collectstatsloop
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print4("### maxdispatch{{inst}}::collectglobalstats:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, CStravstate{{sw}}.begin_kvs, CStravstate{{sw}}.end_kvs, SRCBUFFER_SIZE);
@@ -1198,10 +1198,12 @@ maxdispatch{{inst}}({%for sw in context['NUMSUBWORKERS_seq']%} {%if(sw>0)%},{%en
 			readglobalstats{{inst}}{{sw}}(config{{sw}}.enablepartition, kvdram{{sw}}, globalstatsbuffer{{sw}}, BASEOFFSET_STATSDRAM_KVS + deststatsmarker{{sw}});
 			resetvalues(globalstatsbuffer{{sw}}, NUM_PARTITIONS);
 			{%endfor%}
-			MAIN_LOOP1D_PARTITION: for(batch_type offset_kvs=Ptravstate0.begin_kvs; offset_kvs<Ptravstate0.end_kvs; offset_kvs+=Ptravstate0.skip_kvs * NUMPIPELINES * NUMSUBWORKERS){
+			MAIN_LOOP1D_PARTITION: for(batch_type offset_kvs=Ptravstate0.begin_kvs; offset_kvs<Ptravstate0.end_kvs; offset_kvs+=Ptravstate0.skip_kvs * NUMPIPELINES * 1){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS2
+				{%for sw in context['NUMSUBWORKERS_seq']%}
 				actsutilityobj->print4("### maxdispatch{{inst}}::partition:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, Ptravstate{{sw}}.begin_kvs, Ptravstate{{sw}}.end_kvs, SRCBUFFER_SIZE);
+				{%endfor%}
 				#endif
 				
 				{%for sw in context['NUMSUBWORKERS_seq']%}

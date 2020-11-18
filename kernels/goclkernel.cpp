@@ -100,7 +100,7 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-/** void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // REMOVEME.
 	double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
 	#ifdef _DEBUGMODE_TIMERS2
@@ -110,6 +110,39 @@ void set_callback2(cl::Event event, const char *queue_name){
     auto kernel_start = std::chrono::high_resolution_clock::now();
 	
 	unsigned int bufferid = 0;
+	#ifdef TESTKERNEL_FULLBANDWIDTH
+	for(unsigned int i=0; i<1; i++){
+		//Setting the k_vadd Arguments
+		#if NUMSUBWORKERS==2
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[0]));
+		#endif 
+		#if NUMSUBWORKERS==4
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(2, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(3, buffer_kvsourcedram[0]));
+		#endif 
+		#if NUMSUBWORKERS==8
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(2, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(3, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(4, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(5, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(6, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(7, buffer_kvsourcedram[0]));
+		#endif 
+		
+		//Invoking the kernel
+		std::vector<cl::Event> waitList;
+        waitList.push_back(write_event[i]);
+		OCL_CHECK(err,
+                  err = q.enqueueNDRangeKernel(
+                      krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
+		set_callback2(kernel_events[i], "ooo_queue");
+	}
+	#else 
 	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
 		//Setting the k_vadd Arguments
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
@@ -122,46 +155,7 @@ void set_callback2(cl::Event event, const char *queue_name){
                       krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
 		set_callback2(kernel_events[i], "ooo_queue");
 	}
-    q.finish();
-	
-    auto kernel_end = std::chrono::high_resolution_clock::now();
-    kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
-	#ifdef _DEBUGMODE_TIMERS2
-	std::cout<< TIMINGRESULTSCOLOR <<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<< RESET <<std::endl;
 	#endif 
-	return;
-} */
-void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
-	double kernel_time_in_sec = 0, result = 0;
-    std::chrono::duration<double> kernel_time(0);
-	#ifdef _DEBUGMODE_TIMERS2
-	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
-	#endif
-	
-    auto kernel_start = std::chrono::high_resolution_clock::now();
-	
-	unsigned int bufferid = 0;
-	for(unsigned int i=0; i<1; i++){ // NUMACTIVEKERNELS
-		//Setting the k_vadd Arguments
-		OCL_CHECK(err, err = krnls[i].setArg(0
-												, buffer_kvsourcedram[0]
-												, buffer_kvsourcedram[1]
-												, buffer_kvsourcedram[2]
-												, buffer_kvsourcedram[3]
-												, buffer_kvsourcedram[4]
-												, buffer_kvsourcedram[5]
-												, buffer_kvsourcedram[6]
-												, buffer_kvsourcedram[7]
-												));
-
-		//Invoking the kernel
-		std::vector<cl::Event> waitList;
-        waitList.push_back(write_event[i]);
-		OCL_CHECK(err,
-                  err = q.enqueueNDRangeKernel(
-                      krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
-		set_callback2(kernel_events[i], "ooo_queue");
-	}
     q.finish();
 	
     auto kernel_end = std::chrono::high_resolution_clock::now();
@@ -182,9 +176,7 @@ void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
 		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[threadid][subthreadid][(hostbeginoffset / VECTOR_SIZE)])));
 	}
-    // #ifdef LOCKE
     q.finish();
-	// #endif
 }
 void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){ kernel_events[flag*i].wait(); } // REMOVEME.
@@ -305,10 +297,15 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 	
     // Creating Kernel object using Compute unit names
 	std::string krnl_name = "topkernel";
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){
+	for(unsigned int i=0; i<1; i++){ // TOTALNUMKERNELS // REMOVEME
 			std::string cu_id = std::to_string((i+1));
-			 std::string krnl_name_full =
-				krnl_name + ":{" + "topkernel_" + cu_id + "}";
+			#ifdef TESTKERNEL_FULLBANDWIDTH
+			std::string krnl_name_full =
+				krnl_name + ":{" + "topkernel_1" + "}";
+			#else 
+			std::string krnl_name_full =
+				krnl_name + ":{" + "topkernel_" + cu_id + "}"; 
+			#endif
 
 			printf("Creating a kernel [%s] for CU(%d)\n",
 				   krnl_name_full.c_str(),
@@ -322,13 +319,18 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 	
 	unsigned int flag=0;
 	unsigned int counter = 0;
-	// uint512_vec_dt ** kvsourcedramarr = (uint512_vec_dt **)kvsourcedram;
 	uint512_vec_dt ** kvsourcedramarr = (uint512_vec_dt **)(&kvsourcedram[0]);
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
+		#ifdef TESTKERNEL_FULLBANDWIDTH
+		inoutBufExt[i].obj = kvsourcedramarr[0];
+		inoutBufExt[i].param = 0;
+		inoutBufExt[i].flags = bank[0]; 
+		#else 
 		inoutBufExt[i].obj = kvsourcedramarr[counter++];
 		inoutBufExt[i].param = 0;
-		inoutBufExt[i].flags = bank[0]; // bank[i];
+		inoutBufExt[i].flags = bank[i];
+		#endif
 	}
 	
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can
