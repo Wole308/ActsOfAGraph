@@ -21,5 +21,22 @@ else
 	export PATH="/sw/centos/cuda/10.1/bin:/sw/centos/cuda/10.1/NsightCompute-1.0:$PATH"
 fi
 
-RunningGunrock:
+Running Gunrock:
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected
+/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx --normalized --compensate --undirected				
+/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx --normalized --compensate --undirected				
+
+Running Gunrock on Slurm:
+srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l 
+srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l -
+srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected 					
+srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected
+srun -w lynx06 -p gpu --gres=gpu:4 /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected  
+srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l submit.sh
+
+Testing Sbatch:
+$ sbatch submit.sh
+sbatch: Submitted batch job 99999999
+
+
+
