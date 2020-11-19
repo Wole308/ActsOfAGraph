@@ -650,6 +650,224 @@ gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type current
 	return travstate;	
 }
 
+// parallel-run utilities
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues00(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets00(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues00(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues01(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets01(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues01(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues02(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets02(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues02(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues03(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets03(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues03(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues04(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets04(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues04(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues05(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets05(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues05(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues06(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets06(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues06(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues07(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets07(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues07(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+
 // collect globalstats functions
 void 
 	#ifdef SW 
@@ -844,7 +1062,148 @@ void
 	#endif
 partitionkeyvalues0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE/2; // CRITICAL REMOVEME
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
+	
+	skeyvalue_t templocalcapsule0[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule0 complete
+	skeyvalue_t templocalcapsule1[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule1 complete
+	skeyvalue_t templocalcapsule2[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule2 complete
+	skeyvalue_t templocalcapsule3[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule3 complete
+	skeyvalue_t templocalcapsule4[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule4 complete
+	skeyvalue_t templocalcapsule5[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule5 complete
+	skeyvalue_t templocalcapsule6[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule6 complete
+	skeyvalue_t templocalcapsule7[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule7 complete
+	resetkeyandvalues00(templocalcapsule0, NUM_PARTITIONS);
+	resetkeyandvalues01(templocalcapsule1, NUM_PARTITIONS);
+	resetkeyandvalues02(templocalcapsule2, NUM_PARTITIONS);
+	resetkeyandvalues03(templocalcapsule3, NUM_PARTITIONS);
+	resetkeyandvalues04(templocalcapsule4, NUM_PARTITIONS);
+	resetkeyandvalues05(templocalcapsule5, NUM_PARTITIONS);
+	resetkeyandvalues06(templocalcapsule6, NUM_PARTITIONS);
+	resetkeyandvalues07(templocalcapsule7, NUM_PARTITIONS);
+	
+	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
+	
+	PARTITIONKEYVALUES_LOOP1: for(step_type c=0; c<2; c++){
+		PARTITIONKEYVALUES_LOOP1B: for(buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=1
+			keyvalue_t keyvalue0 = sourcebuffer[0][i];
+			keyvalue_t keyvalue1 = sourcebuffer[1][i];
+			keyvalue_t keyvalue2 = sourcebuffer[2][i];
+			keyvalue_t keyvalue3 = sourcebuffer[3][i];
+			keyvalue_t keyvalue4 = sourcebuffer[4][i];
+			keyvalue_t keyvalue5 = sourcebuffer[5][i];
+			keyvalue_t keyvalue6 = sourcebuffer[6][i];
+			keyvalue_t keyvalue7 = sourcebuffer[7][i];
+			
+			partition_type p0 = 0;
+			if(keyvalue0.key != INVALIDDATA){ p0 = getpartition(keyvalue0, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p1 = 0;
+			if(keyvalue1.key != INVALIDDATA){ p1 = getpartition(keyvalue1, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p2 = 0;
+			if(keyvalue2.key != INVALIDDATA){ p2 = getpartition(keyvalue2, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p3 = 0;
+			if(keyvalue3.key != INVALIDDATA){ p3 = getpartition(keyvalue3, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p4 = 0;
+			if(keyvalue4.key != INVALIDDATA){ p4 = getpartition(keyvalue4, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p5 = 0;
+			if(keyvalue5.key != INVALIDDATA){ p5 = getpartition(keyvalue5, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p6 = 0;
+			if(keyvalue6.key != INVALIDDATA){ p6 = getpartition(keyvalue6, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p7 = 0;
+			if(keyvalue7.key != INVALIDDATA){ p7 = getpartition(keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule0[p0].key + templocalcapsule0[p0].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule1[p1].key + templocalcapsule1[p1].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule2[p2].key + templocalcapsule2[p2].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule3[p3].key + templocalcapsule3[p3].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule4[p4].key + templocalcapsule4[p4].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule5[p5].key + templocalcapsule5[p5].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule6[p6].key + templocalcapsule6[p6].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule7[p7].key + templocalcapsule7[p7].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ destbuffer[0][templocalcapsule0[p0].key + templocalcapsule0[p0].value] = keyvalue0; }
+			if(keyvalue1.key != INVALIDDATA){ destbuffer[1][templocalcapsule1[p1].key + templocalcapsule1[p1].value] = keyvalue1; }
+			if(keyvalue2.key != INVALIDDATA){ destbuffer[2][templocalcapsule2[p2].key + templocalcapsule2[p2].value] = keyvalue2; }
+			if(keyvalue3.key != INVALIDDATA){ destbuffer[3][templocalcapsule3[p3].key + templocalcapsule3[p3].value] = keyvalue3; }
+			if(keyvalue4.key != INVALIDDATA){ destbuffer[4][templocalcapsule4[p4].key + templocalcapsule4[p4].value] = keyvalue4; }
+			if(keyvalue5.key != INVALIDDATA){ destbuffer[5][templocalcapsule5[p5].key + templocalcapsule5[p5].value] = keyvalue5; }
+			if(keyvalue6.key != INVALIDDATA){ destbuffer[6][templocalcapsule6[p6].key + templocalcapsule6[p6].value] = keyvalue6; }
+			if(keyvalue7.key != INVALIDDATA){ destbuffer[7][templocalcapsule7[p7].key + templocalcapsule7[p7].value] = keyvalue7; }
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p0, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p1, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p2, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p3, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p4, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p5, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p6, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p7, NUM_PARTITIONS, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ templocalcapsule0[p0].value += 1; }
+			if(keyvalue1.key != INVALIDDATA){ templocalcapsule1[p1].value += 1; }
+			if(keyvalue2.key != INVALIDDATA){ templocalcapsule2[p2].value += 1; }
+			if(keyvalue3.key != INVALIDDATA){ templocalcapsule3[p3].value += 1; }
+			if(keyvalue4.key != INVALIDDATA){ templocalcapsule4[p4].value += 1; }
+			if(keyvalue5.key != INVALIDDATA){ templocalcapsule5[p5].value += 1; }
+			if(keyvalue6.key != INVALIDDATA){ templocalcapsule6[p6].value += 1; }
+			if(keyvalue7.key != INVALIDDATA){ templocalcapsule7[p7].value += 1; }
+		}
+		
+		if(c==0){ 
+			calculateunallignedoffsets00(templocalcapsule0, NUM_PARTITIONS);
+			resetvalues00(templocalcapsule0, NUM_PARTITIONS);
+			calculateunallignedoffsets01(templocalcapsule1, NUM_PARTITIONS);
+			resetvalues01(templocalcapsule1, NUM_PARTITIONS);
+			calculateunallignedoffsets02(templocalcapsule2, NUM_PARTITIONS);
+			resetvalues02(templocalcapsule2, NUM_PARTITIONS);
+			calculateunallignedoffsets03(templocalcapsule3, NUM_PARTITIONS);
+			resetvalues03(templocalcapsule3, NUM_PARTITIONS);
+			calculateunallignedoffsets04(templocalcapsule4, NUM_PARTITIONS);
+			resetvalues04(templocalcapsule4, NUM_PARTITIONS);
+			calculateunallignedoffsets05(templocalcapsule5, NUM_PARTITIONS);
+			resetvalues05(templocalcapsule5, NUM_PARTITIONS);
+			calculateunallignedoffsets06(templocalcapsule6, NUM_PARTITIONS);
+			resetvalues06(templocalcapsule6, NUM_PARTITIONS);
+			calculateunallignedoffsets07(templocalcapsule7, NUM_PARTITIONS);
+			resetvalues07(templocalcapsule7, NUM_PARTITIONS);
+		}
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ // copy back
+		localcapsule[0][p] = templocalcapsule0[p];
+		localcapsule[1][p] = templocalcapsule1[p];
+		localcapsule[2][p] = templocalcapsule2[p];
+		localcapsule[3][p] = templocalcapsule3[p];
+		localcapsule[4][p] = templocalcapsule4[p];
+		localcapsule[5][p] = templocalcapsule5[p];
+		localcapsule[6][p] = templocalcapsule6[p];
+		localcapsule[7][p] = templocalcapsule7[p];
+	}
+	
+	#ifdef _DEBUGMODE_STATS
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
+	#endif
+	return;
+}
+
+/** void 
+	#ifdef SW 
+	actsmax::
+	#endif
+partitionkeyvalues0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
@@ -925,7 +1284,7 @@ partitionkeyvalues0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
 	return;
-}
+} */
 
 #ifdef XXXXXXXXXX
 void 
@@ -1995,6 +2354,224 @@ combineSetof4stoSetof8s0(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDES
 													templocalcapsule_so4[0], templocalcapsule_so4[1], templocalcapsule_so8, globalparams);
 	return;
 }
+// parallel-run utilities
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues10(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets10(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues10(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues11(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets11(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues11(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues12(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets12(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues12(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues13(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets13(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues13(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues14(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets14(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues14(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues15(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets15(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues15(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues16(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets16(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues16(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues17(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets17(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues17(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+
 // collect globalstats functions
 void 
 	#ifdef SW 
@@ -2189,7 +2766,148 @@ void
 	#endif
 partitionkeyvalues1(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE/2; // CRITICAL REMOVEME
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
+	
+	skeyvalue_t templocalcapsule0[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule0 complete
+	skeyvalue_t templocalcapsule1[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule1 complete
+	skeyvalue_t templocalcapsule2[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule2 complete
+	skeyvalue_t templocalcapsule3[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule3 complete
+	skeyvalue_t templocalcapsule4[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule4 complete
+	skeyvalue_t templocalcapsule5[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule5 complete
+	skeyvalue_t templocalcapsule6[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule6 complete
+	skeyvalue_t templocalcapsule7[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule7 complete
+	resetkeyandvalues10(templocalcapsule0, NUM_PARTITIONS);
+	resetkeyandvalues11(templocalcapsule1, NUM_PARTITIONS);
+	resetkeyandvalues12(templocalcapsule2, NUM_PARTITIONS);
+	resetkeyandvalues13(templocalcapsule3, NUM_PARTITIONS);
+	resetkeyandvalues14(templocalcapsule4, NUM_PARTITIONS);
+	resetkeyandvalues15(templocalcapsule5, NUM_PARTITIONS);
+	resetkeyandvalues16(templocalcapsule6, NUM_PARTITIONS);
+	resetkeyandvalues17(templocalcapsule7, NUM_PARTITIONS);
+	
+	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
+	
+	PARTITIONKEYVALUES_LOOP1: for(step_type c=0; c<2; c++){
+		PARTITIONKEYVALUES_LOOP1B: for(buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=1
+			keyvalue_t keyvalue0 = sourcebuffer[0][i];
+			keyvalue_t keyvalue1 = sourcebuffer[1][i];
+			keyvalue_t keyvalue2 = sourcebuffer[2][i];
+			keyvalue_t keyvalue3 = sourcebuffer[3][i];
+			keyvalue_t keyvalue4 = sourcebuffer[4][i];
+			keyvalue_t keyvalue5 = sourcebuffer[5][i];
+			keyvalue_t keyvalue6 = sourcebuffer[6][i];
+			keyvalue_t keyvalue7 = sourcebuffer[7][i];
+			
+			partition_type p0 = 0;
+			if(keyvalue0.key != INVALIDDATA){ p0 = getpartition(keyvalue0, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p1 = 0;
+			if(keyvalue1.key != INVALIDDATA){ p1 = getpartition(keyvalue1, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p2 = 0;
+			if(keyvalue2.key != INVALIDDATA){ p2 = getpartition(keyvalue2, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p3 = 0;
+			if(keyvalue3.key != INVALIDDATA){ p3 = getpartition(keyvalue3, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p4 = 0;
+			if(keyvalue4.key != INVALIDDATA){ p4 = getpartition(keyvalue4, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p5 = 0;
+			if(keyvalue5.key != INVALIDDATA){ p5 = getpartition(keyvalue5, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p6 = 0;
+			if(keyvalue6.key != INVALIDDATA){ p6 = getpartition(keyvalue6, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p7 = 0;
+			if(keyvalue7.key != INVALIDDATA){ p7 = getpartition(keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule0[p0].key + templocalcapsule0[p0].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule1[p1].key + templocalcapsule1[p1].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule2[p2].key + templocalcapsule2[p2].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule3[p3].key + templocalcapsule3[p3].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule4[p4].key + templocalcapsule4[p4].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule5[p5].key + templocalcapsule5[p5].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule6[p6].key + templocalcapsule6[p6].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule7[p7].key + templocalcapsule7[p7].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ destbuffer[0][templocalcapsule0[p0].key + templocalcapsule0[p0].value] = keyvalue0; }
+			if(keyvalue1.key != INVALIDDATA){ destbuffer[1][templocalcapsule1[p1].key + templocalcapsule1[p1].value] = keyvalue1; }
+			if(keyvalue2.key != INVALIDDATA){ destbuffer[2][templocalcapsule2[p2].key + templocalcapsule2[p2].value] = keyvalue2; }
+			if(keyvalue3.key != INVALIDDATA){ destbuffer[3][templocalcapsule3[p3].key + templocalcapsule3[p3].value] = keyvalue3; }
+			if(keyvalue4.key != INVALIDDATA){ destbuffer[4][templocalcapsule4[p4].key + templocalcapsule4[p4].value] = keyvalue4; }
+			if(keyvalue5.key != INVALIDDATA){ destbuffer[5][templocalcapsule5[p5].key + templocalcapsule5[p5].value] = keyvalue5; }
+			if(keyvalue6.key != INVALIDDATA){ destbuffer[6][templocalcapsule6[p6].key + templocalcapsule6[p6].value] = keyvalue6; }
+			if(keyvalue7.key != INVALIDDATA){ destbuffer[7][templocalcapsule7[p7].key + templocalcapsule7[p7].value] = keyvalue7; }
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p0, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p1, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p2, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p3, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p4, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p5, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p6, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p7, NUM_PARTITIONS, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ templocalcapsule0[p0].value += 1; }
+			if(keyvalue1.key != INVALIDDATA){ templocalcapsule1[p1].value += 1; }
+			if(keyvalue2.key != INVALIDDATA){ templocalcapsule2[p2].value += 1; }
+			if(keyvalue3.key != INVALIDDATA){ templocalcapsule3[p3].value += 1; }
+			if(keyvalue4.key != INVALIDDATA){ templocalcapsule4[p4].value += 1; }
+			if(keyvalue5.key != INVALIDDATA){ templocalcapsule5[p5].value += 1; }
+			if(keyvalue6.key != INVALIDDATA){ templocalcapsule6[p6].value += 1; }
+			if(keyvalue7.key != INVALIDDATA){ templocalcapsule7[p7].value += 1; }
+		}
+		
+		if(c==0){ 
+			calculateunallignedoffsets10(templocalcapsule0, NUM_PARTITIONS);
+			resetvalues10(templocalcapsule0, NUM_PARTITIONS);
+			calculateunallignedoffsets11(templocalcapsule1, NUM_PARTITIONS);
+			resetvalues11(templocalcapsule1, NUM_PARTITIONS);
+			calculateunallignedoffsets12(templocalcapsule2, NUM_PARTITIONS);
+			resetvalues12(templocalcapsule2, NUM_PARTITIONS);
+			calculateunallignedoffsets13(templocalcapsule3, NUM_PARTITIONS);
+			resetvalues13(templocalcapsule3, NUM_PARTITIONS);
+			calculateunallignedoffsets14(templocalcapsule4, NUM_PARTITIONS);
+			resetvalues14(templocalcapsule4, NUM_PARTITIONS);
+			calculateunallignedoffsets15(templocalcapsule5, NUM_PARTITIONS);
+			resetvalues15(templocalcapsule5, NUM_PARTITIONS);
+			calculateunallignedoffsets16(templocalcapsule6, NUM_PARTITIONS);
+			resetvalues16(templocalcapsule6, NUM_PARTITIONS);
+			calculateunallignedoffsets17(templocalcapsule7, NUM_PARTITIONS);
+			resetvalues17(templocalcapsule7, NUM_PARTITIONS);
+		}
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ // copy back
+		localcapsule[0][p] = templocalcapsule0[p];
+		localcapsule[1][p] = templocalcapsule1[p];
+		localcapsule[2][p] = templocalcapsule2[p];
+		localcapsule[3][p] = templocalcapsule3[p];
+		localcapsule[4][p] = templocalcapsule4[p];
+		localcapsule[5][p] = templocalcapsule5[p];
+		localcapsule[6][p] = templocalcapsule6[p];
+		localcapsule[7][p] = templocalcapsule7[p];
+	}
+	
+	#ifdef _DEBUGMODE_STATS
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
+	#endif
+	return;
+}
+
+/** void 
+	#ifdef SW 
+	actsmax::
+	#endif
+partitionkeyvalues1(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
@@ -2270,7 +2988,7 @@ partitionkeyvalues1(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
 	return;
-}
+} */
 
 #ifdef XXXXXXXXXX
 void 
@@ -3340,6 +4058,224 @@ combineSetof4stoSetof8s1(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDES
 													templocalcapsule_so4[0], templocalcapsule_so4[1], templocalcapsule_so8, globalparams);
 	return;
 }
+// parallel-run utilities
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues20(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets20(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues20(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues21(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets21(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues21(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues22(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets22(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues22(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues23(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets23(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues23(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues24(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets24(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues24(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues25(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets25(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues25(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues26(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets26(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues26(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues27(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets27(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues27(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+
 // collect globalstats functions
 void 
 	#ifdef SW 
@@ -3534,7 +4470,148 @@ void
 	#endif
 partitionkeyvalues2(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE/2; // CRITICAL REMOVEME
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
+	
+	skeyvalue_t templocalcapsule0[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule0 complete
+	skeyvalue_t templocalcapsule1[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule1 complete
+	skeyvalue_t templocalcapsule2[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule2 complete
+	skeyvalue_t templocalcapsule3[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule3 complete
+	skeyvalue_t templocalcapsule4[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule4 complete
+	skeyvalue_t templocalcapsule5[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule5 complete
+	skeyvalue_t templocalcapsule6[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule6 complete
+	skeyvalue_t templocalcapsule7[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule7 complete
+	resetkeyandvalues20(templocalcapsule0, NUM_PARTITIONS);
+	resetkeyandvalues21(templocalcapsule1, NUM_PARTITIONS);
+	resetkeyandvalues22(templocalcapsule2, NUM_PARTITIONS);
+	resetkeyandvalues23(templocalcapsule3, NUM_PARTITIONS);
+	resetkeyandvalues24(templocalcapsule4, NUM_PARTITIONS);
+	resetkeyandvalues25(templocalcapsule5, NUM_PARTITIONS);
+	resetkeyandvalues26(templocalcapsule6, NUM_PARTITIONS);
+	resetkeyandvalues27(templocalcapsule7, NUM_PARTITIONS);
+	
+	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
+	
+	PARTITIONKEYVALUES_LOOP1: for(step_type c=0; c<2; c++){
+		PARTITIONKEYVALUES_LOOP1B: for(buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=1
+			keyvalue_t keyvalue0 = sourcebuffer[0][i];
+			keyvalue_t keyvalue1 = sourcebuffer[1][i];
+			keyvalue_t keyvalue2 = sourcebuffer[2][i];
+			keyvalue_t keyvalue3 = sourcebuffer[3][i];
+			keyvalue_t keyvalue4 = sourcebuffer[4][i];
+			keyvalue_t keyvalue5 = sourcebuffer[5][i];
+			keyvalue_t keyvalue6 = sourcebuffer[6][i];
+			keyvalue_t keyvalue7 = sourcebuffer[7][i];
+			
+			partition_type p0 = 0;
+			if(keyvalue0.key != INVALIDDATA){ p0 = getpartition(keyvalue0, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p1 = 0;
+			if(keyvalue1.key != INVALIDDATA){ p1 = getpartition(keyvalue1, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p2 = 0;
+			if(keyvalue2.key != INVALIDDATA){ p2 = getpartition(keyvalue2, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p3 = 0;
+			if(keyvalue3.key != INVALIDDATA){ p3 = getpartition(keyvalue3, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p4 = 0;
+			if(keyvalue4.key != INVALIDDATA){ p4 = getpartition(keyvalue4, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p5 = 0;
+			if(keyvalue5.key != INVALIDDATA){ p5 = getpartition(keyvalue5, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p6 = 0;
+			if(keyvalue6.key != INVALIDDATA){ p6 = getpartition(keyvalue6, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p7 = 0;
+			if(keyvalue7.key != INVALIDDATA){ p7 = getpartition(keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule0[p0].key + templocalcapsule0[p0].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule1[p1].key + templocalcapsule1[p1].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule2[p2].key + templocalcapsule2[p2].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule3[p3].key + templocalcapsule3[p3].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule4[p4].key + templocalcapsule4[p4].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule5[p5].key + templocalcapsule5[p5].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule6[p6].key + templocalcapsule6[p6].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule7[p7].key + templocalcapsule7[p7].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ destbuffer[0][templocalcapsule0[p0].key + templocalcapsule0[p0].value] = keyvalue0; }
+			if(keyvalue1.key != INVALIDDATA){ destbuffer[1][templocalcapsule1[p1].key + templocalcapsule1[p1].value] = keyvalue1; }
+			if(keyvalue2.key != INVALIDDATA){ destbuffer[2][templocalcapsule2[p2].key + templocalcapsule2[p2].value] = keyvalue2; }
+			if(keyvalue3.key != INVALIDDATA){ destbuffer[3][templocalcapsule3[p3].key + templocalcapsule3[p3].value] = keyvalue3; }
+			if(keyvalue4.key != INVALIDDATA){ destbuffer[4][templocalcapsule4[p4].key + templocalcapsule4[p4].value] = keyvalue4; }
+			if(keyvalue5.key != INVALIDDATA){ destbuffer[5][templocalcapsule5[p5].key + templocalcapsule5[p5].value] = keyvalue5; }
+			if(keyvalue6.key != INVALIDDATA){ destbuffer[6][templocalcapsule6[p6].key + templocalcapsule6[p6].value] = keyvalue6; }
+			if(keyvalue7.key != INVALIDDATA){ destbuffer[7][templocalcapsule7[p7].key + templocalcapsule7[p7].value] = keyvalue7; }
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p0, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p1, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p2, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p3, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p4, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p5, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p6, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p7, NUM_PARTITIONS, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ templocalcapsule0[p0].value += 1; }
+			if(keyvalue1.key != INVALIDDATA){ templocalcapsule1[p1].value += 1; }
+			if(keyvalue2.key != INVALIDDATA){ templocalcapsule2[p2].value += 1; }
+			if(keyvalue3.key != INVALIDDATA){ templocalcapsule3[p3].value += 1; }
+			if(keyvalue4.key != INVALIDDATA){ templocalcapsule4[p4].value += 1; }
+			if(keyvalue5.key != INVALIDDATA){ templocalcapsule5[p5].value += 1; }
+			if(keyvalue6.key != INVALIDDATA){ templocalcapsule6[p6].value += 1; }
+			if(keyvalue7.key != INVALIDDATA){ templocalcapsule7[p7].value += 1; }
+		}
+		
+		if(c==0){ 
+			calculateunallignedoffsets20(templocalcapsule0, NUM_PARTITIONS);
+			resetvalues20(templocalcapsule0, NUM_PARTITIONS);
+			calculateunallignedoffsets21(templocalcapsule1, NUM_PARTITIONS);
+			resetvalues21(templocalcapsule1, NUM_PARTITIONS);
+			calculateunallignedoffsets22(templocalcapsule2, NUM_PARTITIONS);
+			resetvalues22(templocalcapsule2, NUM_PARTITIONS);
+			calculateunallignedoffsets23(templocalcapsule3, NUM_PARTITIONS);
+			resetvalues23(templocalcapsule3, NUM_PARTITIONS);
+			calculateunallignedoffsets24(templocalcapsule4, NUM_PARTITIONS);
+			resetvalues24(templocalcapsule4, NUM_PARTITIONS);
+			calculateunallignedoffsets25(templocalcapsule5, NUM_PARTITIONS);
+			resetvalues25(templocalcapsule5, NUM_PARTITIONS);
+			calculateunallignedoffsets26(templocalcapsule6, NUM_PARTITIONS);
+			resetvalues26(templocalcapsule6, NUM_PARTITIONS);
+			calculateunallignedoffsets27(templocalcapsule7, NUM_PARTITIONS);
+			resetvalues27(templocalcapsule7, NUM_PARTITIONS);
+		}
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ // copy back
+		localcapsule[0][p] = templocalcapsule0[p];
+		localcapsule[1][p] = templocalcapsule1[p];
+		localcapsule[2][p] = templocalcapsule2[p];
+		localcapsule[3][p] = templocalcapsule3[p];
+		localcapsule[4][p] = templocalcapsule4[p];
+		localcapsule[5][p] = templocalcapsule5[p];
+		localcapsule[6][p] = templocalcapsule6[p];
+		localcapsule[7][p] = templocalcapsule7[p];
+	}
+	
+	#ifdef _DEBUGMODE_STATS
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
+	#endif
+	return;
+}
+
+/** void 
+	#ifdef SW 
+	actsmax::
+	#endif
+partitionkeyvalues2(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
@@ -3615,7 +4692,7 @@ partitionkeyvalues2(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
 	return;
-}
+} */
 
 #ifdef XXXXXXXXXX
 void 
@@ -4685,6 +5762,224 @@ combineSetof4stoSetof8s2(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDES
 													templocalcapsule_so4[0], templocalcapsule_so4[1], templocalcapsule_so8, globalparams);
 	return;
 }
+// parallel-run utilities
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues30(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets30(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues30(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues31(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets31(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues31(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues32(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets32(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues32(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues33(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets33(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues33(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues34(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets34(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues34(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues35(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets35(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues35(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues36(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets36(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues36(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues37(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets37(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues37(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+
 // collect globalstats functions
 void 
 	#ifdef SW 
@@ -4879,7 +6174,148 @@ void
 	#endif
 partitionkeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE/2; // CRITICAL REMOVEME
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
+	
+	skeyvalue_t templocalcapsule0[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule0 complete
+	skeyvalue_t templocalcapsule1[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule1 complete
+	skeyvalue_t templocalcapsule2[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule2 complete
+	skeyvalue_t templocalcapsule3[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule3 complete
+	skeyvalue_t templocalcapsule4[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule4 complete
+	skeyvalue_t templocalcapsule5[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule5 complete
+	skeyvalue_t templocalcapsule6[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule6 complete
+	skeyvalue_t templocalcapsule7[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule7 complete
+	resetkeyandvalues30(templocalcapsule0, NUM_PARTITIONS);
+	resetkeyandvalues31(templocalcapsule1, NUM_PARTITIONS);
+	resetkeyandvalues32(templocalcapsule2, NUM_PARTITIONS);
+	resetkeyandvalues33(templocalcapsule3, NUM_PARTITIONS);
+	resetkeyandvalues34(templocalcapsule4, NUM_PARTITIONS);
+	resetkeyandvalues35(templocalcapsule5, NUM_PARTITIONS);
+	resetkeyandvalues36(templocalcapsule6, NUM_PARTITIONS);
+	resetkeyandvalues37(templocalcapsule7, NUM_PARTITIONS);
+	
+	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
+	
+	PARTITIONKEYVALUES_LOOP1: for(step_type c=0; c<2; c++){
+		PARTITIONKEYVALUES_LOOP1B: for(buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=1
+			keyvalue_t keyvalue0 = sourcebuffer[0][i];
+			keyvalue_t keyvalue1 = sourcebuffer[1][i];
+			keyvalue_t keyvalue2 = sourcebuffer[2][i];
+			keyvalue_t keyvalue3 = sourcebuffer[3][i];
+			keyvalue_t keyvalue4 = sourcebuffer[4][i];
+			keyvalue_t keyvalue5 = sourcebuffer[5][i];
+			keyvalue_t keyvalue6 = sourcebuffer[6][i];
+			keyvalue_t keyvalue7 = sourcebuffer[7][i];
+			
+			partition_type p0 = 0;
+			if(keyvalue0.key != INVALIDDATA){ p0 = getpartition(keyvalue0, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p1 = 0;
+			if(keyvalue1.key != INVALIDDATA){ p1 = getpartition(keyvalue1, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p2 = 0;
+			if(keyvalue2.key != INVALIDDATA){ p2 = getpartition(keyvalue2, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p3 = 0;
+			if(keyvalue3.key != INVALIDDATA){ p3 = getpartition(keyvalue3, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p4 = 0;
+			if(keyvalue4.key != INVALIDDATA){ p4 = getpartition(keyvalue4, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p5 = 0;
+			if(keyvalue5.key != INVALIDDATA){ p5 = getpartition(keyvalue5, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p6 = 0;
+			if(keyvalue6.key != INVALIDDATA){ p6 = getpartition(keyvalue6, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			partition_type p7 = 0;
+			if(keyvalue7.key != INVALIDDATA){ p7 = getpartition(keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule0[p0].key + templocalcapsule0[p0].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule1[p1].key + templocalcapsule1[p1].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule2[p2].key + templocalcapsule2[p2].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule3[p3].key + templocalcapsule3[p3].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule4[p4].key + templocalcapsule4[p4].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule5[p5].key + templocalcapsule5[p5].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule6[p6].key + templocalcapsule6[p6].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule7[p7].key + templocalcapsule7[p7].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ destbuffer[0][templocalcapsule0[p0].key + templocalcapsule0[p0].value] = keyvalue0; }
+			if(keyvalue1.key != INVALIDDATA){ destbuffer[1][templocalcapsule1[p1].key + templocalcapsule1[p1].value] = keyvalue1; }
+			if(keyvalue2.key != INVALIDDATA){ destbuffer[2][templocalcapsule2[p2].key + templocalcapsule2[p2].value] = keyvalue2; }
+			if(keyvalue3.key != INVALIDDATA){ destbuffer[3][templocalcapsule3[p3].key + templocalcapsule3[p3].value] = keyvalue3; }
+			if(keyvalue4.key != INVALIDDATA){ destbuffer[4][templocalcapsule4[p4].key + templocalcapsule4[p4].value] = keyvalue4; }
+			if(keyvalue5.key != INVALIDDATA){ destbuffer[5][templocalcapsule5[p5].key + templocalcapsule5[p5].value] = keyvalue5; }
+			if(keyvalue6.key != INVALIDDATA){ destbuffer[6][templocalcapsule6[p6].key + templocalcapsule6[p6].value] = keyvalue6; }
+			if(keyvalue7.key != INVALIDDATA){ destbuffer[7][templocalcapsule7[p7].key + templocalcapsule7[p7].value] = keyvalue7; }
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p0, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p1, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p2, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p3, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p4, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p5, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p6, NUM_PARTITIONS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p7, NUM_PARTITIONS, NAp, NAp, NAp);
+			#endif
+			if(keyvalue0.key != INVALIDDATA){ templocalcapsule0[p0].value += 1; }
+			if(keyvalue1.key != INVALIDDATA){ templocalcapsule1[p1].value += 1; }
+			if(keyvalue2.key != INVALIDDATA){ templocalcapsule2[p2].value += 1; }
+			if(keyvalue3.key != INVALIDDATA){ templocalcapsule3[p3].value += 1; }
+			if(keyvalue4.key != INVALIDDATA){ templocalcapsule4[p4].value += 1; }
+			if(keyvalue5.key != INVALIDDATA){ templocalcapsule5[p5].value += 1; }
+			if(keyvalue6.key != INVALIDDATA){ templocalcapsule6[p6].value += 1; }
+			if(keyvalue7.key != INVALIDDATA){ templocalcapsule7[p7].value += 1; }
+		}
+		
+		if(c==0){ 
+			calculateunallignedoffsets30(templocalcapsule0, NUM_PARTITIONS);
+			resetvalues30(templocalcapsule0, NUM_PARTITIONS);
+			calculateunallignedoffsets31(templocalcapsule1, NUM_PARTITIONS);
+			resetvalues31(templocalcapsule1, NUM_PARTITIONS);
+			calculateunallignedoffsets32(templocalcapsule2, NUM_PARTITIONS);
+			resetvalues32(templocalcapsule2, NUM_PARTITIONS);
+			calculateunallignedoffsets33(templocalcapsule3, NUM_PARTITIONS);
+			resetvalues33(templocalcapsule3, NUM_PARTITIONS);
+			calculateunallignedoffsets34(templocalcapsule4, NUM_PARTITIONS);
+			resetvalues34(templocalcapsule4, NUM_PARTITIONS);
+			calculateunallignedoffsets35(templocalcapsule5, NUM_PARTITIONS);
+			resetvalues35(templocalcapsule5, NUM_PARTITIONS);
+			calculateunallignedoffsets36(templocalcapsule6, NUM_PARTITIONS);
+			resetvalues36(templocalcapsule6, NUM_PARTITIONS);
+			calculateunallignedoffsets37(templocalcapsule7, NUM_PARTITIONS);
+			resetvalues37(templocalcapsule7, NUM_PARTITIONS);
+		}
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ // copy back
+		localcapsule[0][p] = templocalcapsule0[p];
+		localcapsule[1][p] = templocalcapsule1[p];
+		localcapsule[2][p] = templocalcapsule2[p];
+		localcapsule[3][p] = templocalcapsule3[p];
+		localcapsule[4][p] = templocalcapsule4[p];
+		localcapsule[5][p] = templocalcapsule5[p];
+		localcapsule[6][p] = templocalcapsule6[p];
+		localcapsule[7][p] = templocalcapsule7[p];
+	}
+	
+	#ifdef _DEBUGMODE_STATS
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
+	#endif
+	return;
+}
+
+/** void 
+	#ifdef SW 
+	actsmax::
+	#endif
+partitionkeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
@@ -4960,7 +6396,7 @@ partitionkeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
 	return;
-}
+} */
 
 #ifdef XXXXXXXXXX
 void 
@@ -6164,13 +7600,9 @@ maxdispatch(uint512_dt * kvdram){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions	
 		
 			resetmanykeyandvalues(buffer0_setof1, NUM_PARTITIONS);
-			// resetmanykeyandvalues(globalstatsbuffer0, NUM_PARTITIONS);
 			resetmanykeyandvalues(buffer1_setof1, NUM_PARTITIONS);
-			// resetmanykeyandvalues(globalstatsbuffer1, NUM_PARTITIONS);
 			resetmanykeyandvalues(buffer2_setof1, NUM_PARTITIONS);
-			// resetmanykeyandvalues(globalstatsbuffer2, NUM_PARTITIONS);
 			resetmanykeyandvalues(buffer3_setof1, NUM_PARTITIONS);
-			// resetmanykeyandvalues(globalstatsbuffer3, NUM_PARTITIONS);
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS);
 			
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);

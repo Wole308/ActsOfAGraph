@@ -27,7 +27,7 @@ using namespace std;
 #define PARTITIONUPDATES
 // #define REDUCEUPDATES
 
-#define NUMPIPELINES 3
+#define NUMPIPELINES 3 // REMOVEME.
 #if NUMPIPELINES==2
 #define PP0
 #define PP1
@@ -75,6 +75,48 @@ public:
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
 	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
 	
+	// parallel-run utilities
+	void resetkeyandvalues00(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets00(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues00(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues01(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets01(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues01(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues02(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets02(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues02(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues03(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets03(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues03(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues04(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets04(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues04(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues05(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets05(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues05(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues06(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets06(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues06(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues07(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets07(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues07(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+
 	// collect globalstats functions
 	void readglobalstats0(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
 
@@ -129,6 +171,48 @@ public:
 	void combineSetof1stoSetof2s0(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof2stoSetof4s0(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof4stoSetof8s0(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS], globalparams_t globalparams);
+	// parallel-run utilities
+	void resetkeyandvalues10(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets10(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues10(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues11(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets11(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues11(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues12(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets12(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues12(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues13(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets13(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues13(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues14(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets14(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues14(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues15(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets15(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues15(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues16(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets16(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues16(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues17(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets17(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues17(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+
 	// collect globalstats functions
 	void readglobalstats1(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
 
@@ -183,6 +267,48 @@ public:
 	void combineSetof1stoSetof2s1(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof2stoSetof4s1(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof4stoSetof8s1(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS], globalparams_t globalparams);
+	// parallel-run utilities
+	void resetkeyandvalues20(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets20(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues20(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues21(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets21(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues21(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues22(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets22(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues22(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues23(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets23(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues23(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues24(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets24(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues24(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues25(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets25(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues25(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues26(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets26(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues26(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues27(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets27(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues27(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+
 	// collect globalstats functions
 	void readglobalstats2(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
 
@@ -237,6 +363,48 @@ public:
 	void combineSetof1stoSetof2s2(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof2stoSetof4s2(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof4stoSetof8s2(bool_type enable, keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS], globalparams_t globalparams);
+	// parallel-run utilities
+	void resetkeyandvalues30(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets30(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues30(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues31(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets31(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues31(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues32(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets32(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues32(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues33(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets33(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues33(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues34(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets34(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues34(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues35(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets35(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues35(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues36(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets36(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues36(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	void resetkeyandvalues37(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets37(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues37(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+
 	// collect globalstats functions
 	void readglobalstats3(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
 

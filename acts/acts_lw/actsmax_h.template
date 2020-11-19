@@ -27,7 +27,7 @@ using namespace std;
 #define PARTITIONUPDATES
 // #define REDUCEUPDATES
 
-#define NUMPIPELINES 3
+#define NUMPIPELINES 3 // REMOVEME.
 #if NUMPIPELINES==2
 #define PP0
 #define PP1
@@ -76,6 +76,15 @@ public:
 	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
 	
 	{%for sw in context['NUMSUBWORKERS_seq']%}
+	// parallel-run utilities
+	{%for v in context['VECTOR_SIZE_seq']%}
+	void resetkeyandvalues{{sw}}{{v}}(skeyvalue_t * buffer, buffer_type size);
+	
+	void calculateunallignedoffsets{{sw}}{{v}}(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	
+	void resetvalues{{sw}}{{v}}(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size);
+	{%endfor%}
+
 	// collect globalstats functions
 	void readglobalstats{{sw}}(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
 

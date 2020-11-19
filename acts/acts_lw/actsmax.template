@@ -562,6 +562,37 @@ gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type current
 }
 
 {%for sw in context['NUMSUBWORKERS_seq']%}
+// parallel-run utilities
+{%for v in context['VECTOR_SIZE_seq']%}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetkeyandvalues{{sw}}{{v}}(skeyvalue_t * buffer, buffer_type size){
+	for(buffer_type i=0; i<size; i++){ buffer[i].key = 0; buffer[i].value = 0; }
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+calculateunallignedoffsets{{sw}}{{v}}(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=1; i<size; i++){
+		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	actsmax::
+	#endif 
+resetvalues{{sw}}{{v}}(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].value = 0;
+	}
+	return;
+}
+{%endfor%}
+
 // collect globalstats functions
 void 
 	#ifdef SW 
@@ -697,6 +728,76 @@ void
 partitionkeyvalues{{sw}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
+	
+	{%for v in context['VECTOR_SIZE_seq']%}
+	skeyvalue_t templocalcapsule{{v}}[NUM_PARTITIONS];
+	#pragma HLS array_partition variable = templocalcapsule{{v}} complete
+	{%endfor%}
+	{%for v in context['VECTOR_SIZE_seq']%}
+	resetkeyandvalues{{sw}}{{v}}(templocalcapsule{{v}}, NUM_PARTITIONS);
+	{%endfor%}
+	
+	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
+	
+	PARTITIONKEYVALUES_LOOP1: for(step_type c=0; c<2; c++){
+		PARTITIONKEYVALUES_LOOP1B: for(buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=1
+			{%for v in context['VECTOR_SIZE_seq']%}
+			keyvalue_t keyvalue{{v}} = sourcebuffer[{{v}}][i];
+			{%endfor%}
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			partition_type p{{v}} = 0;
+			if(keyvalue{{v}}.key != INVALIDDATA){ p{{v}} = getpartition(keyvalue{{v}}, currentLOP, upperlimit, globalparams.batch_range_pow); } 
+			{%endfor%}
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			{%for v in context['VECTOR_SIZE_seq']%}
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", templocalcapsule{{v}}[p{{v}}].key + templocalcapsule{{v}}[p{{v}}].value, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			{%endfor%}
+			#endif
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(keyvalue{{v}}.key != INVALIDDATA){ destbuffer[{{v}}][templocalcapsule{{v}}[p{{v}}].key + templocalcapsule{{v}}[p{{v}}].value] = keyvalue{{v}}; }
+			{%endfor%}
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			{%for v in context['VECTOR_SIZE_seq']%}
+			actsutilityobj->checkoutofbounds("partitionkeyvalues", p{{v}}, NUM_PARTITIONS, NAp, NAp, NAp);
+			{%endfor%}
+			#endif
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(keyvalue{{v}}.key != INVALIDDATA){ templocalcapsule{{v}}[p{{v}}].value += 1; }
+			{%endfor%}
+		}
+		
+		if(c==0){ 
+			{%for v in context['VECTOR_SIZE_seq']%}
+			calculateunallignedoffsets{{sw}}{{v}}(templocalcapsule{{v}}, NUM_PARTITIONS);
+			resetvalues{{sw}}{{v}}(templocalcapsule{{v}}, NUM_PARTITIONS);
+			{%endfor%}
+		}
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ // copy back
+		{%for v in context['VECTOR_SIZE_seq']%}
+		localcapsule[{{v}}][p] = templocalcapsule{{v}}[p];
+		{%endfor%}
+	}
+	
+	#ifdef _DEBUGMODE_STATS
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
+	#endif
+	return;
+}
+
+/** void 
+	#ifdef SW 
+	actsmax::
+	#endif
+partitionkeyvalues{{sw}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE; // CRITICAL REMOVEME
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 
 	resetmanykeyandvalues(localcapsule, NUM_PARTITIONS);
@@ -740,7 +841,7 @@ partitionkeyvalues{{sw}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
 	return;
-}
+} */
 
 #ifdef XXXXXXXXXX
 void 
@@ -1395,7 +1496,6 @@ maxdispatch(uint512_dt * kvdram){
 		
 			{%for sw in context['NUMSUBWORKERS_seq']%}
 			resetmanykeyandvalues(buffer{{sw}}_setof1, NUM_PARTITIONS);
-			// resetmanykeyandvalues(globalstatsbuffer{{sw}}, NUM_PARTITIONS);
 			{%endfor%}
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS);
 			
