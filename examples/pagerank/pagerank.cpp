@@ -43,9 +43,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 		#endif
 	}
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
-	// #ifndef INMEMORYGP
 	edgedatabuffer = new edge_type[PADDEDEDGES_BATCHSIZE];
-	// #endif 
 	
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ setupkernelobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
@@ -108,9 +106,9 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 	cout<<">>> WorkerThread:: total number of edges in file["<<col<<"]: "<<graphobj->getedgessize(col)<<endl;
 	
 	loadgraphobj[superthreadidx]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-	// #ifdef FPGA_IMPL
-	// setupkernelobj[superthreadidx]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-	// #endif
+	#ifdef FPGA_IMPL
+	setupkernelobj[superthreadidx]->writetokernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
+	#endif
 	
 	for(unsigned int iteration_idx=0; iteration_idx<iteration_size; iteration_idx++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -136,9 +134,9 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	
-	// #ifdef FPGA_IMPL
-	// setupkernelobj[superthreadidx]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-	// #endif
+	#ifdef FPGA_IMPL
+	setupkernelobj[superthreadidx]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
+	#endif
 	postprocessobj[superthreadidx]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 	return;
 }

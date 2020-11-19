@@ -64,13 +64,12 @@
 {%if(context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH")%}
 #define _GENERATE2DGRAPH //
 {%endif%}
-#define TESTKERNEL_FULLBANDWIDTH // NEWCHANGE
+#define TESTKERNEL_ACTSMAX //
 
 ////////////////
 
-#if defined(ACTGRAPH_SETUP) && defined(PR_ALGORITHM) // FIXME. REMOVEME. fixme for bfs
-// #if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
-#if defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)
+#if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX) && defined(PR_ALGORITHM) // FIXME. REMOVEME. fixme for bfs
+#if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
 #define INMEMORYGP
 #endif
 #endif 
@@ -97,10 +96,10 @@
 // #define _DEBUGMODE_HOSTCHECKS
 #define _DEBUGMODE_HOSTCHECKS2 //
 // #define _DEBUGMODE_HOSTPRINTS
-#define _DEBUGMODE_HOSTPRINTS2 //
+// #define _DEBUGMODE_HOSTPRINTS2 //
 #define _DEBUGMODE_HOSTPRINTS3 //
 // #define _DEBUGMODE_TIMERS
-#define _DEBUGMODE_TIMERS2
+// #define _DEBUGMODE_TIMERS2
 #define _DEBUGMODE_TIMERS3
 
 ////////////////
@@ -196,8 +195,9 @@
 #ifdef INMEMORYGP
 #define MAXKVDATA_BATCHSIZE 6000000
 #else 
-// #define MAXKVDATA_BATCHSIZE 10000000
-#define MAXKVDATA_BATCHSIZE 3000000 // REMOVEME.
+#define MAXKVDATA_BATCHSIZE 10000000
+// #define MAXKVDATA_BATCHSIZE 3000000 // REMOVEME.
+// #define MAXKVDATA_BATCHSIZE 1000000
 #endif 
 #define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
 #define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE

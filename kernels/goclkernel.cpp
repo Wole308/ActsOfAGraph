@@ -113,25 +113,28 @@ void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSU
 	#ifdef TESTKERNEL_FULLBANDWIDTH
 	for(unsigned int i=0; i<1; i++){
 		//Setting the k_vadd Arguments
+		#if NUMSUBWORKERS==1
+		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
+		#endif 
 		#if NUMSUBWORKERS==2
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[1]));
 		#endif 
 		#if NUMSUBWORKERS==4
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(2, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(3, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[1]));
+		OCL_CHECK(err, err = krnls[i].setArg(2, buffer_kvsourcedram[2]));
+		OCL_CHECK(err, err = krnls[i].setArg(3, buffer_kvsourcedram[3]));
 		#endif 
 		#if NUMSUBWORKERS==8
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(2, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(3, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(4, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(5, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(6, buffer_kvsourcedram[0]));
-		OCL_CHECK(err, err = krnls[i].setArg(7, buffer_kvsourcedram[0]));
+		OCL_CHECK(err, err = krnls[i].setArg(1, buffer_kvsourcedram[1]));
+		OCL_CHECK(err, err = krnls[i].setArg(2, buffer_kvsourcedram[2]));
+		OCL_CHECK(err, err = krnls[i].setArg(3, buffer_kvsourcedram[3]));
+		OCL_CHECK(err, err = krnls[i].setArg(4, buffer_kvsourcedram[4]));
+		OCL_CHECK(err, err = krnls[i].setArg(5, buffer_kvsourcedram[5]));
+		OCL_CHECK(err, err = krnls[i].setArg(6, buffer_kvsourcedram[6]));
+		OCL_CHECK(err, err = krnls[i].setArg(7, buffer_kvsourcedram[7]));
 		#endif 
 		
 		//Invoking the kernel
@@ -323,7 +326,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
 		#ifdef TESTKERNEL_FULLBANDWIDTH
-		inoutBufExt[i].obj = kvsourcedramarr[0];
+		inoutBufExt[i].obj = kvsourcedramarr[counter++];
 		inoutBufExt[i].param = 0;
 		inoutBufExt[i].flags = bank[0]; 
 		#else 
