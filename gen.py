@@ -29,7 +29,7 @@ print(isFile)
 context['NUM_PARTITIONS_POW'] = 4
 context['VECTOR_SIZE'] = 8
 context['DUMMY'] = 0
-context['NUMSUBWORKERS'] = 1
+context['NUMSUBWORKERS'] = 1#4
 
 ###
 
@@ -99,10 +99,8 @@ else:
     
 if context['XWARE'] == "SW":
 	context['NUMINSTANCES'] = 1
-    # context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
 elif context['XWARE'] == "HW":
 	context['NUMINSTANCES'] = 1
-    # context['NUMINSTANCES'] = 16 # acts_lw3: + mergers
 elif context['XWARE'] == "SWEMU":
 	context['NUMINSTANCES'] = 1
 else:
@@ -159,8 +157,8 @@ o_path4="include/common.h"
 o_path5="include/common.h"
 o_path6="acts/acts_lw/actslw.cpp"
 o_path7="acts/acts_lw/actslw.h"
-o_path8="acts/acts_lw/actslw.cpp"
-o_path9="acts/acts_lw/actslw.h"
+o_path8="acts/acts_lw/actsmax.cpp"
+o_path9="acts/acts_lw/actsmax.h"
 o_path10="acts/acts_lw/actslw.cpp"
 o_path11="acts/acts_lw/actslw.h"
 o_path12="acts/acts_lw/actslw.cpp"
@@ -392,8 +390,8 @@ template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
 template6 = env6.get_template('actslw.template')
 template7 = env7.get_template('actslw_h.template')
-template8 = env8.get_template('actslw.template')
-template9 = env9.get_template('actslw_h.template')
+template8 = env8.get_template('actsmax.template')
+template9 = env9.get_template('actsmax_h.template')
 template10 = env10.get_template('actslw.template')
 template11 = env11.get_template('actslw_h.template')
 template12 = env12.get_template('actslw.template')

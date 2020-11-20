@@ -41,20 +41,26 @@ HW__ACTGRAPH_SETUP__BFS_ALGORITHM=6
 SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM=7
 SW__GRAFBOOST_SETUP__BFS_ALGORITHM=8
 
-SW__ACTGRAPH_SETUP__BC_ALGORITHM=9
-HW__ACTGRAPH_SETUP__BC_ALGORITHM=10
-SWEMU__ACTGRAPH_SETUP__BC_ALGORITHM=11
-SW__GRAFBOOST_SETUP__BC_ALGORITHM=12
+SW__ACTGRAPH_SETUP__SSSP_ALGORITHM=9
+HW__ACTGRAPH_SETUP__SSSP_ALGORITHM=10
+SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM=11
+SW__GRAFBOOST_SETUP__SSSP_ALGORITHM=12
 
-SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=13
-HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=14
-SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=15
-SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=16
+SW__ACTGRAPH_SETUP__BC_ALGORITHM=13
+HW__ACTGRAPH_SETUP__BC_ALGORITHM=14
+SWEMU__ACTGRAPH_SETUP__BC_ALGORITHM=15
+SW__GRAFBOOST_SETUP__BC_ALGORITHM=16
 
-CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=17
-CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=18
-CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=19
-AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=20
+SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=17
+HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=18
+SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=19
+SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=20
+
+CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=21
+CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=22
+CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=23
+CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=24
+AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=25
 
 ORKUT_3M_106M=30
 HOLLYWOOD_1M_57M=31
@@ -103,7 +109,7 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 do 
 	### >>> LOOP1: hardware types
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
@@ -111,6 +117,11 @@ do
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
+	
+	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
@@ -123,6 +134,7 @@ do
 
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	do 
@@ -213,6 +225,50 @@ do
 			ALGORITHM="BFS_ALGORITHM" 
 			ALGORITHMABBRV="bfs"
 			SETUP_NAME="grafboost_bfs_sw"
+			
+		elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp
+		then
+			XWARE="SW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM"
+			ALGORITHMABBRV="sssp"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_sssp_sw"
+			else 
+				SETUP_NAME="actgraph_sssp_sw"
+			fi
+		elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM" 
+			ALGORITHMABBRV="sssp"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_sssp_hw"
+			else 
+				SETUP_NAME="actgraph_sssp_hw"
+			fi
+		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+		then
+			XWARE="SWEMU" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM"
+			ALGORITHMABBRV="sssp"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_sssp_swemu"
+			else 
+				SETUP_NAME="actgraph_sssp_swemu"
+			fi
+		elif [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GRAFBOOST_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM" 
+			ALGORITHMABBRV="sssp"
+			SETUP_NAME="grafboost_sssp_sw"
 			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc
 		then
@@ -314,6 +370,18 @@ do
 			else 
 				SETUP_NAME="actgraph_bfs_hw"
 			fi
+		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # syn
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM"
+			ALGORITHMABBRV="sssp"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_sssp_hw"
+			else 
+				SETUP_NAME="actgraph_sssp_hw"
+			fi
 		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -361,13 +429,13 @@ do
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
-			for locke in $_NOLOCKE
-			# for locke in $_LOCKE
+			# for locke in $_NOLOCKE
+			for locke in $_LOCKE
 			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
 				
-				# for dataset in $ORKUT_3M_106M
+				for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $KRON21_2M_91M
@@ -376,7 +444,7 @@ do
 				# for dataset in $FLICKR_1M_10M
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M
 				
-				for dataset in $TWITTER_67M
+				# for dataset in $TWITTER_67M
 				# for dataset in $MOLIERE2016_33M
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
@@ -664,6 +732,43 @@ do
 							make demo_grafboost_nthreads
 							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							
+						elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp 
+						then
+							make cleanall
+							# make build_acts_nthreads
+							make demo_acts_nthreads
+							# make demo_acts_nthreads > $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug
+						elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+						then
+							make cleanall
+							# rm -rf host
+							
+							make host
+							./host $BACKUPDIR_KERNELXCLBIN
+							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							
+							# make build_host_aws
+							# ./host $BACKUPDIR_KERNELAWSXCLBIN
+							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							wait 
+							if test -f "profile_summary.csv"; then
+								echo "profile_summary.csv exist"
+								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
+							fi	
+						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+						then
+							make cleanall
+							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+						elif [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
+						then
+							make cleanall
+							# make build_grafboost_nthreads
+							# make demo_grafboost_nthreads_debug
+							make demo_grafboost_nthreads
+							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
+							
 						elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc 
 						then
 							make cleanall
@@ -760,10 +865,22 @@ do
 							sleep 120
 							
 							if test -f "host"; then
-								# cp host $BACKUPDIR_HOST
-								# cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo $BACKUPDIR_KERNELXO
 								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
-								# cp nohupsyn.out $BACKUPDIR_NOHUP
+								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+							fi
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # syn
+						then
+							make cleanall
+							rm -rf xclbin
+							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+							
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							if test -f "host"; then
+								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
 								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 							fi
 							echo "sleeping for 2 minuites before continuing ...."
