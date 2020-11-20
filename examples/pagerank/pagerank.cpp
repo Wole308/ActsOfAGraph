@@ -61,9 +61,9 @@ void pagerank::finish(){
 	#ifdef FPGA_IMPL
 	setupkernelobj[0]->finishOCL();
 	#endif
-	#ifdef GRAFBOOST_SETUP
-	setupkernelobj[0]->finishSR();
-	#endif
+	// #ifdef GRAFBOOST_SETUP
+	// setupkernelobj[0]->finishSR();
+	// #endif
 }
 
 runsummary_t pagerank::run(){
@@ -81,14 +81,24 @@ runsummary_t pagerank::run(){
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
 		cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<GraphIter<<" of pagerank started"<< RESET <<endl;
 		
+		#ifdef GRAFBOOST_SETUP
+		setupkernelobj[0]->startSRteration(); // NEWCHANGE.
+		#endif
+		
 		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
 			// break; // REMOVEME.
 		}
+		
 		activevertices.clear();
+		#ifdef ACTGRAPH_SETUP
 		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, PAGERANK);
+		#endif 
+		#ifdef GRAFBOOST_SETUP
+		setupkernelobj[0]->finishSRteration(GraphIter, activevertices); // NEWCHANGE.
+		#endif
 	}
 	finish();
 	utilityobj[0]->stopTIME("pagerank::run: finished run. Time Elapsed: ", begintime, NAp);

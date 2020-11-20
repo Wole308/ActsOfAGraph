@@ -40,7 +40,7 @@ void sr::srtopkernel(SortReduce<uint64_t,uint32_t>* _sr, uint512_dt * kvdram){
 	unsigned int srcvoffset = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key;
 	unsigned int srcvsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key;
 	unsigned int runsize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key;
-	unsigned int runsize_kvs = runsize / VECTOR_SIZE;
+	unsigned int runsize_kvs = (runsize + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	unsigned int edgessize = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_EDGESSIZE].data[0].key;
 	unsigned int kvuploadcount = 0;
 	#ifdef _DEBUGMODE_KERNELPRINTS3
@@ -52,12 +52,17 @@ void sr::srtopkernel(SortReduce<uint64_t,uint32_t>* _sr, uint512_dt * kvdram){
 			uint64_t key = (uint64_t)(kvdram[BASEOFFSET_KVDRAM_KVS + i].data[v].key);
 			uint64_t value = (uint64_t)(kvdram[BASEOFFSET_KVDRAM_KVS + i].data[v].value);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			if(i % 1000000 == 0){ cout<<"i: "<<i<<", key: "<<key<<", value: "<<value<<endl; }
+			if(i % 1000000 == 0){ 
+			cout<<"sr: i: "<<i<<", key: "<<key<<", value: "<<value<<endl; 
+			}
 			#endif 
-			while ( !_sr->Update(key, value) ) { }
-			kvuploadcount += 1;
+			if(key != INVALIDDATA){
+				while ( !_sr->Update(key, value) ) { }
+				kvuploadcount += 1;
+			}
 		}
 	}
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"srtopkernel: number of key-value pairs uploaded for sorting: "<<kvuploadcount<<endl;
 	#endif 

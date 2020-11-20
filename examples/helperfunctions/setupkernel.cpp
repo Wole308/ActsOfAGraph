@@ -62,6 +62,12 @@ void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NU
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
+	for (int i = 0; i < NUMCPUTHREADS; i++){ // edge conditions
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);						
+		}
+	}
+	
 	#ifdef ACTGRAPH_SETUP
 	kernelobj->launchkernel(kvsourcedram, flag);
 	#endif 
@@ -103,6 +109,7 @@ void setupkernel::finishOCL(){
 }
 #endif 
 #ifdef GRAFBOOST_SETUP 
+#ifdef PR_ALGORITHM
 inline uint32_t vertex_update(uint32_t a, uint32_t b) {
 	float af = *(float*)&a;
 	float bf = *(float*)&b;
@@ -142,6 +149,66 @@ inline bool is_active(uint32_t old, uint32_t newv, bool marked) {
 		else return true;
 	}
 }
+#elif defined(BFS_ALGORITHM)
+inline uint32_t vertex_update(uint32_t a, uint32_t b) {
+	uint32_t ret = a;
+	return ret;
+}
+inline uint32_t edge_program(uint32_t vid, uint32_t value, uint32_t fanout) {
+	//printf( "Edge-program source: %x val: %x fanout: %x\n", vid, value, fanout);
+	return vid;
+}
+inline uint32_t finalize_program(uint32_t oldval, uint32_t val) {
+	return val;
+}
+inline bool is_active(uint32_t old, uint32_t newv, bool marked) {
+	//printf( "Comparing %lx %lx %s\n", old, newv, marked?"Y":"N" );
+	if ( old == 0xffffffff ) return true;
+	//printf( "Comparing %x %x %s\n", old, newv, marked?"Y":"N" );
+	return false;
+}
+#elif defined(SSSP_ALGORITHM)
+inline uint32_t vertex_update(uint32_t a, uint32_t b) {
+	uint32_t ret = a;
+	return ret;
+}
+inline uint32_t edge_program(uint32_t vid, uint32_t value, uint32_t edgeweight) {
+	//printf( "Edge-program source: %x val: %x edgeweight: %x\n", vid, value, edgeweight);
+	return value + edgeweight;
+}
+inline uint32_t finalize_program(uint32_t oldval, uint32_t val) {
+	return val;
+}
+inline bool is_active(uint32_t old, uint32_t newv, bool marked) {
+	//printf( "Comparing %lx %lx %s\n", old, newv, marked?"Y":"N" );
+	if ( old == 0xffffffff ) return true;
+	//printf( "Comparing %x %x %s\n", old, newv, marked?"Y":"N" );
+	return false;
+}
+#elif defined(BC_ALGORITHM)
+inline uint32_t vertex_update_add(uint32_t a, uint32_t b) {
+	return a+b;
+}
+inline uint32_t vertex_update(uint32_t a, uint32_t b) {
+	uint32_t ret = a;
+	return ret;
+}
+inline uint32_t edge_program(uint32_t vid, uint32_t value, uint32_t fanout) {
+	//printf( "Edge-program source: %x val: %x fanout: %x\n", vid, value, fanout);
+	return vid;
+}
+inline uint32_t finalize_program(uint32_t oldval, uint32_t newval) {
+	return newval;
+}
+inline bool is_active(uint32_t old, uint32_t newv, bool marked) {
+	//printf( "Comparing %lx %lx %s\n", old, newv, marked?"Y":"N" );
+	if ( old == 0xffffffff ) return true;
+	//printf( "Comparing %x %x %s\n", old, newv, marked?"Y":"N" );
+	return false;
+}
+#else 
+ERROR: SETUPKERNEL: NO ALGORITHM SPECIFIED 
+#endif 
 void setupkernel::loadSRstructures(){
 	string tmp_dir = graphobj->gettmp_dir();
 	string idx_path = graphobj->getidx_path();
@@ -156,17 +223,40 @@ void setupkernel::loadSRstructures(){
 	int max_vertexval_thread_count = 8;
 	int max_edgeproc_thread_count = 8;
 
-	// int max_vertexval_thread_count = NUMCPUTHREADS;
+	size_t vertex_count = graphobj->get_num_vertices();
+
+	#ifdef PR_ALGORITHM
+	float init_val2 = 1.0/(float)vertex_count;
+	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, *(uint32_t*)&init_val2, &is_active, &finalize_program, max_vertexval_thread_count);	
+	#elif defined(BFS_ALGORITHM)
+	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, 0xffffffff, &is_active, &finalize_program, max_vertexval_thread_count);
+	#elif defined(SSSP_ALGORITHM)
+	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, 0xffffffff, &is_active, &finalize_program, max_vertexval_thread_count);
+	#elif defined(BC_ALGORITHM)
+	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, 0xffffffff, &is_active, &finalize_program, max_vertexval_thread_count);
+	#endif 
+}
+
+
+void setupkernel::startSRteration(){
+	string tmp_dir = graphobj->gettmp_dir();
+	string idx_path = graphobj->getidx_path();
+	string mat_path = graphobj->getmat_path();
+
+	int max_thread_count = 12;
+	int max_sr_thread_count = 20;
+	int max_vertexval_thread_count = 8;
+	int max_edgeproc_thread_count = 8;
+
 	size_t vertex_count = graphobj->get_num_vertices();
 
 	SortReduceTypes::Config<uint64_t,uint32_t>* conf = new SortReduceTypes::Config<uint64_t,uint32_t>(tmp_dir.c_str(), "output.dat", max_sr_thread_count); // (NUMCPUTHREADS + 2)
+	conf->quiet = true; // 
 	conf->SetUpdateFunction(&vertex_update);
 	_sr = new SortReduce<uint64_t,uint32_t>(conf);
-
-	float init_val2 = 1.0/(float)vertex_count;
-	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, *(uint32_t*)&init_val2, &is_active, &finalize_program, max_vertexval_thread_count);	
 }
-void setupkernel::finishSR(){
+
+unsigned int setupkernel::finishSRteration(unsigned int iteration, vector<value_t> &activevertices){
 	#ifdef _DEBUGMODE_TIMERS2
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
@@ -186,7 +276,7 @@ void setupkernel::finishSR(){
 		uint32_t key = std::get<0>(res2);
 		uint32_t val = std::get<1>(res2);
 
-		// printf( "\t\t++ SRR %i %i\n", key, val );
+		// printf( "\t\t++ setupkernel::finishSR:SRR %i %i\n", key, val );
 		while ( !vertex_values->Update(key,val) ) ;
 
 		res2 = _sr->Next();
@@ -200,7 +290,23 @@ void setupkernel::finishSR(){
 	size_t active_cnt = vertex_values->GetActiveCount();
 	cout<<">>> setupkernel::finishSR:: active vertices after iteration: "<<active_cnt<<endl;
 	vertex_values->NextIteration();		
+	
+	int fd = vertex_values->OpenActiveFile(iteration);
+	SortReduceUtils::FileKvReader<uint32_t,uint32_t>* reader = new SortReduceUtils::FileKvReader<uint32_t,uint32_t>(fd);
+	std::tuple<uint32_t,uint32_t,bool> res = reader->Next();
+	while ( std::get<2>(res) ) {
+		uint32_t key = std::get<0>(res);
+		uint32_t val = std::get<1>(res);
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		cout<<"setupkernel::finishSRteration: key: "<<key<<", val: "<<val<<endl;
+		#endif 
+		activevertices.push_back(key);
+		res = reader->Next();
+	}
+	
 	delete _sr;
+	return active_cnt;
 }
 #endif 
 

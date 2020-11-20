@@ -34,7 +34,8 @@ public:
 	#endif
 	#ifdef GRAFBOOST_SETUP 
 	void loadSRstructures();
-	void finishSR();
+	void startSRteration();
+	unsigned int finishSRteration(unsigned int iteration, vector<value_t> &activevertices);
 	#endif 
 	
 private:

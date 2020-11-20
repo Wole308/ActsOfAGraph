@@ -204,9 +204,6 @@ value_t
 	actslw::
 	#endif 
 reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
-	
-	// cout<<"reducefunc:: ---------- vtemp: "<<vtemp<<", ---------- res: "<<res<<endl;
-	
 	value_t temp = 0;
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;

@@ -69,9 +69,6 @@ void sssp::finish(){
 	#ifdef FPGA_IMPL
 	setupkernelobj[0]->finishOCL();
 	#endif
-	#ifdef GRAFBOOST_SETUP
-	setupkernelobj[0]->finishSR();
-	#endif
 }
 
 runsummary_t sssp::run(){
@@ -90,16 +87,27 @@ runsummary_t sssp::run(){
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	unsigned int GraphIter = 0;
+	unsigned int active_cnt = activevertices.size();
 	while(true){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: graph iteration "<<GraphIter<<" of sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		#ifdef _DEBUGMODE_HOSTPRINTS2
 		utilityobj[0]->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj[0]->hmin(activevertices.size(), 16));
 		#endif
 		
+		#ifdef GRAFBOOST_SETUP
+		setupkernelobj[0]->startSRteration(); // NEWCHANGE.
+		#endif
+		
 		WorkerThread(activevertices, &mycontainer, GraphIter); 
 		
 		activevertices.clear();
+		#ifdef ACTGRAPH_SETUP
 		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, SSSP);
+		#endif
+		#ifdef GRAFBOOST_SETUP
+		active_cnt = setupkernelobj[0]->finishSRteration(GraphIter, activevertices);
+		#endif
+		active_cnt = activevertices.size();
 		
 		if(activevertices.size() == 0 || GraphIter >= 30){ break; }
 		GraphIter += 1;
@@ -161,7 +169,9 @@ void sssp::WorkerThread(vector<vertex_t> &activevertices, container_t * containe
 		#ifdef FPGA_IMPL
 		setupkernelobj[0]->readfromkernel(0, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
 		#endif
+		#ifdef ACTGRAPH_SETUP
 		postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
+		#endif 
 		
 		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.

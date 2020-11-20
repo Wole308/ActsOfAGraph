@@ -31,14 +31,15 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
 	#endif
 	
+	for (int i = 0; i < NUMCPUTHREADS; i++){ 
+		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+			utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);						
+		}
+	}
+	
 	#ifdef FPGA_IMPL
 	writetokernel(flag, kvsourcedram);
 	#endif
-	for (int i = 0; i < NUMCPUTHREADS; i++){ 
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
-		}
-	}
 	kernelobj->launchkernel(kvsourcedram, flag);
 	#if (defined(FPGA_IMPL) && defined(_DEBUGMODE_HOSTPRINTS2))
 	readfromkernel(flag, kvsourcedram);

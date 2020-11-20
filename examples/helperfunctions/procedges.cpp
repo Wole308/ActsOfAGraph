@@ -82,6 +82,10 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 		for(unsigned int j=beginvptr; j<(beginvptr + numedges); j++){
 			keyvalue_t edge = edges[j];
 			
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"procedges::processedges:: i: "<<i<<", srcvid: "<<srcvid<<", edge.srcvid: "<<edge.key<<", edge.dstvid: "<<edge.value<<endl; 
+			#endif 
+			
 			keyvalue_t vertexupdate;
 			vertexupdate.key = edge.value;
 			vertexupdate.value = processedgefunc(sourcedata, 1, 1, GraphIter, GraphAlgo);
@@ -197,7 +201,6 @@ void procedges::WorkerThread(uint512_vec_dt * kvdram, edge_t * vertexptrs, value
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalvars();
 	#endif
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
