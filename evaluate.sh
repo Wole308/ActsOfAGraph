@@ -108,7 +108,7 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -121,7 +121,7 @@ do
 	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
+	# for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
@@ -658,8 +658,8 @@ do
 							make cleanall
 							# rm -rf host
 							
-							make host
-							./host $BACKUPDIR_KERNELXCLBIN
+							# make host
+							# ./host $BACKUPDIR_KERNELXCLBIN
 							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
 							
 							# make build_host_aws

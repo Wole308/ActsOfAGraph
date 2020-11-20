@@ -205,7 +205,15 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.batch_range_pow: "<<globalparams.batch_range_pow<<std::endl;
 	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz: "<<globalparams.applyvertexbuffersz<<std::endl;
 	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz_kvs: "<<globalparams.applyvertexbuffersz_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseaddr_destkvs_kvs: "<<globalparams.baseaddr_destkvs_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_messagesdram_kvs: "<<globalparams.baseoffset_messagesdram_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_kvdrambuffer_kvs: "<<globalparams.baseoffset_kvdrambuffer_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_kvdram_kvs: "<<globalparams.baseoffset_kvdram_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_kvdramworkspace_kvs: "<<globalparams.baseoffset_kvdramworkspace_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_statsdram_kvs: "<<globalparams.baseoffset_statsdram_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_activevertices_kvs: "<<globalparams.baseoffset_activevertices_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_edgesdata_kvs: "<<globalparams.baseoffset_edgesdata_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_vertexptr_kvs: "<<globalparams.baseoffset_vertexptr_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_verticesdata_kvs: "<<globalparams.baseoffset_verticesdata_kvs<<std::endl;
 	std::cout<<std::endl;
 }
 void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
