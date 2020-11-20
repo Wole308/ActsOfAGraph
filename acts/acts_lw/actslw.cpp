@@ -205,7 +205,7 @@ value_t
 	#endif 
 reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	
-	cout<<"reducefunc:: ---------- vtemp: "<<vtemp<<", ---------- res: "<<res<<endl;
+	// cout<<"reducefunc:: ---------- vtemp: "<<vtemp<<", ---------- res: "<<res<<endl;
 	
 	value_t temp = 0;
 	#ifdef PR_ALGORITHM
@@ -1112,7 +1112,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		vertex_t loc6 = keyvalue6.key - upperlimit;
 		vertex_t loc7 = keyvalue7.key - upperlimit;
 		
-		// #ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(keyvalue0.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue1.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue2.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -1121,7 +1121,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		if(keyvalue5.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue6.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue7.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		// #endif 
+		#endif 
 		
 		if(loc0 >= globalparams.applyvertexbuffersz && keyvalue0.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
@@ -1304,7 +1304,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		value_t rettemp6 = reducefunc(temp6, keyvalue6.value, GraphIter, GraphAlgo);
 		value_t rettemp7 = reducefunc(temp7, keyvalue7.value, GraphIter, GraphAlgo);
 		
-		// #ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(keyvalue0.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp0: "<<rettemp0<<endl; }
 		if(keyvalue1.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp1: "<<rettemp1<<endl; }
 		if(keyvalue2.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp2: "<<rettemp2<<endl; }
@@ -1313,7 +1313,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		if(keyvalue5.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp5: "<<rettemp5<<endl; }
 		if(keyvalue6.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp6: "<<rettemp6<<endl; }
 		if(keyvalue7.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp7: "<<rettemp7<<endl; }
-		// #endif 
+		#endif 
 		
 		if(colindex0 == 0){ vprop0.key = rettemp0; }
 		else { vprop0.value = rettemp0; }

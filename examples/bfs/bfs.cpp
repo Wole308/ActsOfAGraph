@@ -50,8 +50,10 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}
 	#endif
 	#ifndef INMEMORYGP
+	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large // REMOVEME. use MAXKVDATA_BATCHSIZE
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ verticesdata[j][k] = new value_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
-	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
 	#endif 
 	
 	#ifdef FPGA_IMPL
@@ -100,7 +102,7 @@ runsummary_t bfs::run(){
 		activevertices.clear();
 		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, BREADTHFIRSTSEARCH);
 		
-		if(activevertices.size() == 0 || GraphIter >= 0){ break; }
+		if(activevertices.size() == 0 || GraphIter >= 30){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;
@@ -141,7 +143,7 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			#ifdef INMEMORYGP
 			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
 			#else 
-			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexptrs[0], edges[0], lbedgesizes, container);
+			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs[0], verticesdata[0], edges[0], lbedgesizes, container);
 			#endif
 			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
@@ -149,7 +151,7 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			#ifdef INMEMORYGP
 			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
 			#else 
-			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, vertexdatabuffer, edges, 0);
+			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, verticesdata, edges, 0);
 			#endif 
 			
 			if(srcvidsoffset1 >= activevertices.size()){ break; }
@@ -162,7 +164,7 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 		#endif
 		postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 		
-		break; // REMOVEME.
+		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	return;

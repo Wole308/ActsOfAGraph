@@ -189,9 +189,6 @@ value_t
 	actslw::
 	#endif 
 reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
-	
-	cout<<"reducefunc:: ---------- vtemp: "<<vtemp<<", ---------- res: "<<res<<endl;
-	
 	value_t temp = 0;
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;
@@ -896,11 +893,11 @@ reduce{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 		vertex_t loc{{v}} = keyvalue{{v}}.key - upperlimit;
 		{%endfor%}
 		
-		// #ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(keyvalue{{v}}.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce{{inst}}:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		{%endfor%}
-		// #endif 
+		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(loc{{v}} >= globalparams.applyvertexbuffersz && keyvalue{{v}}.key != INVALIDDATA){
@@ -939,11 +936,11 @@ reduce{{inst}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDEST
 		value_t rettemp{{v}} = reducefunc(temp{{v}}, keyvalue{{v}}.value, GraphIter, GraphAlgo);
 		{%endfor%}
 		
-		// #ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(keyvalue{{v}}.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce{{inst}}:: rettemp{{v}}: "<<rettemp{{v}}<<endl; }
 		{%endfor%}
-		// #endif 
+		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(colindex{{v}} == 0){ vprop{{v}}.key = rettemp{{v}}; }

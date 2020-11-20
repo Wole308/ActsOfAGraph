@@ -22,7 +22,7 @@ public:
 
 	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);					
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	void launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
 	
 	unsigned int getflag(unsigned int globaliteration_idx);

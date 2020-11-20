@@ -38,8 +38,9 @@ private:
 	value_t * tempvertexdatabuffer;
 	edge_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	edge_type * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	value_t * verticesdata[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	edge_type * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };
 #endif
 

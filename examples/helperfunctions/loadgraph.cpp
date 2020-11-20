@@ -207,7 +207,8 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 	}
 	return;
 }
-void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int srcvidsoffset, edge_t * vertexptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){ // not in-memory			
+void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int srcvidsoffset, value_t * vertexdatabuffer, 
+										edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], unsigned int balancededgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){ // not in-memory			
 	unsigned int srcvidsnxtoffset = srcvidsoffset;
 	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -231,6 +232,9 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 				// re-assign vertex pointers
 				vertexptrs[j][vpindex + 1] = vertexptrs[j][vpindex] + numedgestoload;
 				
+				// re-assign vertices data 
+				verticesdata[j][vpindex] = vertexdatabuffer[srcvids[k]];
+				
 				// re-assign edges' srcvids
 				for(unsigned int n = 0; n < numedgestoload; n++){ edges[j][edgeoffset + n].srcvid = hsrcvid; }
 				
@@ -249,21 +253,10 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 					break; }
 			}
 			
-			container->srcvoffset[i][j] = srcvidsnxtoffset; // NEWCHANGE
-
-
-
 			srcvidsnxtoffset += srcvsz;
-			// container->srcvoffset[i][j] = 0;
-			
-			
-			
-			// container->srcvoffset[i][j] = 0; // NEWCHANGE
-			
-			
-			
+			container->srcvoffset[i][j] = 0;
 			// container->srcvsize[i][j] = srcvsz + 1;
-			container->srcvsize[i][j] = srcvsz; // NEWCHANGE. FIXME? REMOVEME?
+			container->srcvsize[i][j] = srcvsz;
 			container->edgessize[i][j] = edgessz;
 			container->runsize[i][j] = edgessz;
 			container->destvoffset[i][j] = col * KVDATA_RANGE_PERSSDPARTITION;
@@ -274,7 +267,6 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 			#endif
 		}
 	}
-	// exit(EXIT_SUCCESS);
 	return;
 }
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], container_t * container){

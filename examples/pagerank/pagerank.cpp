@@ -85,7 +85,7 @@ runsummary_t pagerank::run(){
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-			break; // REMOVEME.
+			// break; // REMOVEME.
 		}
 		activevertices.clear();
 		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, PAGERANK);
@@ -130,7 +130,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, edges, 0);
 		#endif 
 	
-		break; // REMOVEME.
+		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	
