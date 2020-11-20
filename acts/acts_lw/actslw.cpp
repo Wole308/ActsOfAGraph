@@ -204,11 +204,16 @@ value_t
 	actslw::
 	#endif 
 reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	
+	cout<<"reducefunc:: ---------- vtemp: "<<vtemp<<", ---------- res: "<<res<<endl;
+	
 	value_t temp = 0;
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;
 	#elif defined(BFS_ALGORITHM)
-	temp = amin(vtemp, GraphIter); // NEWCHANGE.
+	temp = amin(vtemp, GraphIter);
+	#elif defined(SSSP_ALGORITHM)
+	temp = amin(vtemp, res);
 	#elif defined(BC_ALGORITHM)
 	temp = amin(vtemp, res);
 	#endif
@@ -233,6 +238,8 @@ processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree,
 	// #ifdef PR_ALGORITHM
 	// ret = Uprop;
 	// #elif defined(BFS_ALGORITHM)
+	// ret = NAp;
+	// #elif defined(SSSP_ALGORITHM)
 	// ret = Uprop + edgeweight;
 	// #elif defined(BC_ALGORITHM)
 	// ret = Uprop + edgeweight;
@@ -244,6 +251,8 @@ processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree,
 	res = Uprop / voutdegree;
 	#elif defined(BFS_ALGORITHM)
 	res = NAp;
+	#elif defined(SSSP_ALGORITHM)
+	res = Uprop + edgeweight;
 	#elif defined(BC_ALGORITHM)
 	res = Uprop + edgeweight;
 	#endif
@@ -268,6 +277,8 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	#ifdef PR_ALGORITHM
 	res = value1 + value2;
 	#elif defined(BFS_ALGORITHM)
+	res = amin(value1, value2);
+	#elif defined(SSSP_ALGORITHM)
 	res = amin(value1, value2);
 	#elif defined(BC_ALGORITHM)
 	res = amin(value1, value2);
@@ -1101,7 +1112,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		vertex_t loc6 = keyvalue6.key - upperlimit;
 		vertex_t loc7 = keyvalue7.key - upperlimit;
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		// #ifdef _DEBUGMODE_KERNELPRINTS
 		if(keyvalue0.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue1.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue2.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -1110,7 +1121,7 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		if(keyvalue5.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue6.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue7.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce0:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		#endif 
+		// #endif 
 		
 		if(loc0 >= globalparams.applyvertexbuffersz && keyvalue0.key != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
@@ -1293,6 +1304,17 @@ reduce0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_
 		value_t rettemp6 = reducefunc(temp6, keyvalue6.value, GraphIter, GraphAlgo);
 		value_t rettemp7 = reducefunc(temp7, keyvalue7.value, GraphIter, GraphAlgo);
 		
+		// #ifdef _DEBUGMODE_KERNELPRINTS
+		if(keyvalue0.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp0: "<<rettemp0<<endl; }
+		if(keyvalue1.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp1: "<<rettemp1<<endl; }
+		if(keyvalue2.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp2: "<<rettemp2<<endl; }
+		if(keyvalue3.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp3: "<<rettemp3<<endl; }
+		if(keyvalue4.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp4: "<<rettemp4<<endl; }
+		if(keyvalue5.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp5: "<<rettemp5<<endl; }
+		if(keyvalue6.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp6: "<<rettemp6<<endl; }
+		if(keyvalue7.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce0:: rettemp7: "<<rettemp7<<endl; }
+		// #endif 
+		
 		if(colindex0 == 0){ vprop0.key = rettemp0; }
 		else { vprop0.value = rettemp0; }
 		if(colindex1 == 0){ vprop1.key = rettemp1; }
@@ -1352,6 +1374,9 @@ unifydata0(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		value_t data1 = 0;
 		value_t data2 = 0;
 		#elif defined(BFS_ALGORITHM)
+		value_t data1 = INFINITI;
+		value_t data2 = INFINITI;
+		#elif defined(SSSP_ALGORITHM)
 		value_t data1 = INFINITI;
 		value_t data2 = INFINITI;
 		#elif defined(BC_ALGORITHM)

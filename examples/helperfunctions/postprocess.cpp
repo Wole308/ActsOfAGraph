@@ -121,9 +121,9 @@ void postprocess::workerthread_applyvertices2(int ithreadidx, value_t * tempvert
 		
 		if(temp != vdata){
 			onceactivecnt += 1; 
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"applyvertices2: active vertex seen @ "<<k<<": vid: "<<offset + k<<", temp: "<<temp<<", vdata: "<<vdata<<endl; 
-			#endif 
+			// #ifdef _DEBUGMODE_HOSTPRINTS3
+			cout<<"applyvertices2: active vertex seen @ "<<k<<": vid: "<<offset + k<<", *temp: "<<temp<<", vdata: "<<vdata<<endl; 
+			// #endif 
 			
 			if(GraphAlgo != PAGERANK){ 
 				mtx.lock(); //

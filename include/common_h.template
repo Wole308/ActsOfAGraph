@@ -9,7 +9,7 @@
 
 #define {{context['XWARE']}} // SWEMU, HW, SW
 #define {{context['SETUP']}} // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define {{context['ALGORITHM']}} // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define {{context['ALGORITHM']}} // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define {{context['DATASET']}} 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -64,7 +64,7 @@
 {%if(context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH")%}
 #define _GENERATE2DGRAPH //
 {%endif%}
-#define TESTKERNEL_ACTSMAX //
+// #define TESTKERNEL_ACTSMAX //
 
 ////////////////
 
@@ -85,7 +85,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
@@ -337,20 +337,6 @@ typedef unsigned int edge_t;
 
 typedef unsigned int keyy_t;
 typedef unsigned int value_t;
-
-#ifdef ACTGRAPH_SETUP
-typedef vertex_t prvertexoffset_t;
-typedef edge_t bfsvertexoffset_t;
-#else 
-typedef edge_t prvertexoffset_t;
-typedef edge_t bfsvertexoffset_t;
-#endif 
-
-#ifdef PR_ALGORITHM
-typedef prvertexoffset_t xvertexoffset_t;
-#else 
-typedef bfsvertexoffset_t xvertexoffset_t;
-#endif
 
 typedef struct {
 	unsigned int key;

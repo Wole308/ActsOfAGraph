@@ -38,7 +38,7 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			kernelobjs[0]->topkernel((uint512_dt *)kvsourcedram[i][j]);
 			// exit(EXIT_SUCCESS); 
-			break;
+			// break;
 		}
 	}
 	return;

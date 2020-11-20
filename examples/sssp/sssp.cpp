@@ -12,13 +12,11 @@
 #include <sys/stat.h> 
 #include <sys/types.h>
 #include <algorithm>
-
 #include <thread>
 #include <iostream>
 #include <mutex>
 #include <vector>
 #include <algorithm>
-
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -29,10 +27,10 @@
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
-#include "bfs.h"
+#include "sssp.h"
 using namespace std;
 
-bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
+sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
@@ -61,12 +59,12 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	setupkernelobj[0]->loadSRstructures();
 	#endif 
 }
-bfs::~bfs(){
-	cout<<"bfs::~bfs:: finish destroying memory structures... "<<endl;
+sssp::~sssp(){
+	cout<<"sssp::~sssp:: finish destroying memory structures... "<<endl;
 	// delete [] container->edgesbuffer;
 	delete [] kvbuffer;
 }
-void bfs::finish(){
+void sssp::finish(){
 	#ifdef FPGA_IMPL
 	setupkernelobj[0]->finishOCL();
 	#endif
@@ -75,8 +73,8 @@ void bfs::finish(){
 	#endif
 }
 
-runsummary_t bfs::run(){
-	cout<<"bfs::run:: bfs algorithm started. "<<endl;
+runsummary_t sssp::run(){
+	cout<<"sssp::run:: sssp algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
@@ -85,12 +83,14 @@ runsummary_t bfs::run(){
 	
 	container_t mycontainer;
 	vector<value_t> activevertices;
-	activevertices.push_back(1); // 2
+	vertex_t rootvid = 1; // 2
+	activevertices.push_back(rootvid);
+	vertexdatabuffer[rootvid] = 0;
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	unsigned int GraphIter = 0;
 	while(true){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: graph iteration "<<GraphIter<<" of sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		#ifdef _DEBUGMODE_HOSTPRINTS2
 		utilityobj[0]->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj[0]->hmin(activevertices.size(), 16));
 		#endif
@@ -98,14 +98,14 @@ runsummary_t bfs::run(){
 		WorkerThread(activevertices, &mycontainer, GraphIter); 
 		
 		activevertices.clear();
-		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, BREADTHFIRSTSEARCH);
+		postprocessobj[0]->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, SSSP);
 		
 		if(activevertices.size() == 0 || GraphIter >= 0){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;
 	finish();
-	utilityobj[0]->stopTIME("bfs::start2: finished start2. Time Elapsed: ", begintime, NAp);
+	utilityobj[0]->stopTIME("sssp::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
 	graphobj->closetemporaryfilesforwriting();
@@ -114,10 +114,10 @@ runsummary_t bfs::run(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
-void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container, unsigned int GraphIter){
+void sssp::WorkerThread(vector<vertex_t> &activevertices, container_t * container, unsigned int GraphIter){
 	for(unsigned int col=0; col<NUMSSDPARTITIONS; col++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
+		cout<<endl<< TIMINGRESULTSCOLOR << ">>> sssp::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
 		#endif 
 		
 		vertex_t srcvidsoffset1 = 0;
@@ -131,7 +131,7 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 		
 		while(true){
 			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<endl<< TIMINGRESULTSCOLOR << ">>> bfs::WorkerThread: [iteration: "<<errcount<<"][size: UNKNOWN][step: 1]"<< RESET <<endl;
+			cout<<endl<< TIMINGRESULTSCOLOR << ">>> sssp::WorkerThread: [iteration: "<<errcount<<"][size: UNKNOWN][step: 1]"<< RESET <<endl;
 			#endif 
 		
 			edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, activevertices, &srcvidsoffset1, EDGES_BATCHSIZE, container);
@@ -143,7 +143,8 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			#else 
 			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexptrs[0], edges[0], lbedgesizes, container);
 			#endif
-			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
+			// loadgraphobj[0]->loadvertexdata(tempvertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
+			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, SSSP);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 			
 			#ifdef INMEMORYGP
@@ -151,9 +152,12 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			#else 
 			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, vertexdatabuffer, edges, 0);
 			#endif 
+			exit(EXIT_SUCCESS); // REMOVEME.
+			
+			// postprocessobj[0]->cummulateandcommitverticesdata((value_t* (*)[NUMSUBCPUTHREADS])kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
 			
 			if(srcvidsoffset1 >= activevertices.size()){ break; }
-			if(errcount >= 10){ cout<<"bfs::WorkerThread::ERROR. looping too long, error count ("<<errcount<<") limit reached. EXITING..."<<endl; exit(EXIT_FAILURE); }
+			if(errcount >= 10){ cout<<"sssp::WorkerThread::ERROR. looping too long, error count ("<<errcount<<") limit reached. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			errcount += 1;
 		}
 		

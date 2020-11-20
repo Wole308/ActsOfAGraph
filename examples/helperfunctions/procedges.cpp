@@ -37,6 +37,7 @@ unsigned int procedges::processedgefunc(value_t Uprop, unsigned int edgeweight, 
 	} else if (GraphAlgo == BREADTHFIRSTSEARCH){
 		res = NAp;
 	} else if (GraphAlgo == SSSP){
+		// cout<<"SEEN HERE SSSP"<<endl; exit(EXIT_SUCCESS);
 		res = Uprop + edgeweight;
 	} else { res = 0; }
 	return res;
@@ -64,11 +65,17 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 		// cout<<"procedges::processedges:: vertexptrs["<<srcvoffset + i<<"]: "<<vertexptrs[srcvoffset + i]<<endl;
 		// cout<<"procedges::processedges:: vertexptrs["<<srcvoffset + i + 1<<"]: "<<vertexptrs[srcvoffset + i + 1]<<endl;
 		// cout<<"procedges::processedges:: firstvptr: "<<firstvptr<<endl;
-		// cout<<"procedges::processedges:: srcvsize: "<<srcvsize<<endl;
+		cout<<"procedges::processedges:: srcvoffset: "<<srcvoffset<<endl;
+		cout<<"procedges::processedges:: i: "<<i<<endl;
+		cout<<"procedges::processedges:: srcvid: "<<srcvid<<endl;
+		cout<<"procedges::processedges:: sourcedata: "<<sourcedata<<endl;
+		cout<<"procedges::processedges:: srcvsize: "<<srcvsize<<endl;
 		
 		keyy_t beginvptr = vertexptrs[srcvoffset + i] - firstvptr;
 		keyy_t endvptr = vertexptrs[srcvoffset + i + 1] - firstvptr;
 		edge_t numedges = endvptr - beginvptr;
+		
+		cout<<"procedges::processedges:: numedges: "<<numedges<<endl;
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		if(endvptr < beginvptr){ cout<<"procedges::processedges::ERROR: endvptr < beginvptr. beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<", firstvptr: "<<firstvptr<<endl; exit(EXIT_FAILURE); }
@@ -96,8 +103,8 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 	return;
 }
 
-void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	#ifdef _DEBUGMODE_TIMERS3 // pagerank
+void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){ // pagerank
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
@@ -131,8 +138,8 @@ void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], 
 	#endif
 	return;
 }
-void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	#ifdef _DEBUGMODE_TIMERS3 // bfs
+void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){ // bfs, sssp
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	

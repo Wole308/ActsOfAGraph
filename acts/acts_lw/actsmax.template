@@ -843,8 +843,7 @@ partitionkeyvalues{{sw}}(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][
 	return;
 } */
 
-#ifdef XXXXXXXXXX
-void 
+void
 	#ifdef SW 
 	actsmax::
 	#endif 
@@ -896,8 +895,8 @@ savekeyvalues{{sw}}(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][
 	#endif
 	return;
 }
-#endif 
 
+#ifdef XXXXXXXXXX
 void 
 	#ifdef SW 
 	actsmax::
@@ -950,6 +949,7 @@ savekeyvalues{{sw}}(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][
 	#endif
 	return;
 }
+#endif 
 
 // reduce functions
 void 

@@ -105,6 +105,35 @@ value_t algorithm::vertex_inittempdata(){ return INFINITI; }
 uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
 	return vtempdata;
 }
+#elif defined(SSSP_ALGORITHM)
+uint32_t algorithm::vertex_update(uint32_t a, uint32_t b) {
+	uint32_t ret = a;
+	return ret;
+}
+uint32_t algorithm::edge_program(uint32_t vid, uint32_t value, uint32_t edgeweight) {
+	//printf( "Edge-program source: %x val: %x fanout: %x\n", vid, value, fanout);
+	return value + edgeweight;
+}
+uint32_t algorithm::finalize_program(uint32_t oldval, uint32_t val) {
+	return val;
+}
+bool algorithm::is_active(uint32_t old, uint32_t newv, bool marked) {
+	//printf( "Comparing %lx %lx %s\n", old, newv, marked?"Y":"N" );
+	if ( old == 0xffffffff ) return true;
+	//printf( "Comparing %x %x %s\n", old, newv, marked?"Y":"N" );
+	return false;
+}
+value_t algorithm::cummulate(value_t data1, value_t data2){
+	if(data1 < data2){ return data1; }
+	else { return data2; }
+}
+value_t algorithm::vertex_initdata(){ return INFINITI; }
+value_t algorithm::vertex_inittempdata(){ return INFINITI; }
+uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
+	return vtempdata;
+	// if(vtempdata < vdata){ return vtempdata; }
+	// else { return vdata; }
+}
 #elif defined(BC_ALGORITHM)
 uint32_t algorithm::vertex_update_add(uint32_t a, uint32_t b) {
 	return a+b;

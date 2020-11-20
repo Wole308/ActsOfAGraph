@@ -4,7 +4,7 @@
 
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -33,7 +33,7 @@
 #endif 
 
 #define ACTS
-#define TESTKERNEL_ACTSMAX //
+// #define TESTKERNEL_ACTSMAX //
 
 ////////////////
 
@@ -54,7 +54,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
@@ -82,7 +82,7 @@
 
 #define NUMSUPERCPUTHREADS 1
 #define NUMCPUTHREADS 1 // FIXME. overridden
-#define NUMSUBCPUTHREADS_POW 0
+#define NUMSUBCPUTHREADS_POW 4
 #define NUMSUBCPUTHREADS (1 << NUMSUBCPUTHREADS_POW) 
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
@@ -117,7 +117,7 @@
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
-#define NUMSUBWORKERS 4
+#define NUMSUBWORKERS 1
 
 ////////////////
 
@@ -306,20 +306,6 @@ typedef unsigned int edge_t;
 
 typedef unsigned int keyy_t;
 typedef unsigned int value_t;
-
-#ifdef ACTGRAPH_SETUP
-typedef vertex_t prvertexoffset_t;
-typedef edge_t bfsvertexoffset_t;
-#else 
-typedef edge_t prvertexoffset_t;
-typedef edge_t bfsvertexoffset_t;
-#endif 
-
-#ifdef PR_ALGORITHM
-typedef prvertexoffset_t xvertexoffset_t;
-#else 
-typedef bfsvertexoffset_t xvertexoffset_t;
-#endif
 
 typedef struct {
 	unsigned int key;
