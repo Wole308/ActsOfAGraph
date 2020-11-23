@@ -1,0 +1,4458 @@
+Start testing: Oct 09 04:43 EDT
+----------------------------------------------------------
+1/42 Testing: TEST_BC_CMD
+1/42 Test: TEST_BC_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/bc" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/bc
+"TEST_BC_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test bc
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = 0
+	<Vertex-ID|random|largestdegree> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees
+--src-seed : int, default = -1
+	seed to generate random sources
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_BC_CMD" end time: Oct 09 04:43 EDT
+"TEST_BC_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/42 Testing: TEST_BC
+2/42 Test: TEST_BC
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/bc" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx" "--undirected" "--src=0"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/bc
+"TEST_BC" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 34738
+  Substracting 1 from node Ids...
+  Edge doubleing: 34738 -> 69476 edges
+  Removed 39096 duplicate edges and self circles.
+  graph loaded as COO in 0.031732s.
+Converting 7135 vertices, 30380 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (7135 vertices, 30380 edges):
+    Degree 0: 541 (7.582341 %)
+    Degree 2^0: 626 (8.773651 %)
+    Degree 2^1: 2181 (30.567624 %)
+    Degree 2^2: 3085 (43.237561 %)
+    Degree 2^3: 621 (8.703574 %)
+    Degree 2^4: 80 (1.121233 %)
+    Degree 2^5: 0 (0.000000 %)
+    Degree 2^6: 1 (0.014015 %)
+
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 2.985001 ms, src = 0
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=true advance-mode=LB
+--- RunTests ---
+Using advance mode LB
+Using filter mode CULL
+Problem->Reset(0)
+__________________________
+--------------------------
+Run 0 elapsed: 4.310131 ms, src = 0, #iterations = 0
+BC value validity:PASS
+Sigma validity:PASS
+Label validity:PASS
+[0:0.000000,1.000000 1:0.000000,2.000000 2:0.000000,1.000000 3:0.000000,1.000000 4:1.000000,1.000000 5:2919.876221,1.000000 6:3288.500244,1.000000 7:0.000000,1.000000 8:0.250000,1.000000 9:0.750000,1.000000 10:4.500000,1.000000 11:0.500000,1.000000 12:0.000000,2.000000 13:0.000000,2.000000 14:0.000000,1.000000 15:0.000000,0.000000 16:0.000000,0.000000 17:0.250000,3.000000 18:0.250000,3.000000 19:0.250000,3.000000 20:0.250000,3.000000 21:1.000000,1.000000 22:2.833333,1.000000 23:1.500000,3.000000 24:1.500000,3.000000 25:0.000000,6.000000 26:0.000000,6.000000 27:0.000000,2.000000 28:0.500000,1.000000 29:0.000000,2.000000 30:0.000000,2.000000 31:0.000000,1.000000 32:0.000000,0.000000 33:0.000000,0.000000 34:1.500000,2.000000 35:0.750000,1.000000 36:0.000000,1.000000 37:0.750000,1.000000 38:0.000000,0.000000 39:1.000000,1.000000 ]
+[bc] finished.
+ avg. elapsed: 4.310131 ms
+ iterations: 0
+ min. elapsed: 4.310131 ms
+ max. elapsed: 4.310131 ms
+ rate: 7.048510 MiEdges/s
+ src: 0
+ nodes_visited: 6594
+ edges_visited: 30380
+ load time: 33.4129 ms
+ preprocess time: 161.821000 ms
+ postprocess time: 0.878096 ms
+ total time: 167.232990 ms
+<end of output>
+Test time =   0.76 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_BC" end time: Oct 09 04:43 EDT
+"TEST_BC" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/42 Testing: TEST_BFS_CMD
+3/42 Test: TEST_BFS_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/bfs
+"TEST_BFS_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test bfs
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--direction-optimized : std::vector<bool>, default = 0
+	Whether to enable direction optimizing BFS
+--do-a : std::vector<float>, default = 0.001
+	Threshold to switch from forward-push to backward-pull in DOBFS
+--do-b : std::vector<float>, default = 0.2
+	Threshold to switch from backward-pull to forward-push in DOBFS
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--idempotence : std::vector<bool>, default = 0
+	Whether to enable idempotence optimization
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--mark-pred : std::vector<bool>, default = 0
+	Whether to mark predecessor info.
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = 0
+	<Vertex-ID|random|largestdegree> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees
+--src-seed : int, default = -1
+	seed to generate random sources
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_BFS_CMD" end time: Oct 09 04:43 EDT
+"TEST_BFS_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/42 Testing: TEST_BFS
+4/42 Test: TEST_BFS
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx" "--undirected" "--src=0"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/bfs
+"TEST_BFS" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 34738
+  Substracting 1 from node Ids...
+  Edge doubleing: 34738 -> 69476 edges
+  Removed 39096 duplicate edges and self circles.
+  graph loaded as COO in 0.022943s.
+Converting 7135 vertices, 30380 directed edges ( ordered tuples) to CSR format...Done (0s).
+Converting 7135 vertices, 30380 directed edges (unordered tuples) to CSC format...Done (0s).
+Degree Histogram (7135 vertices, 30380 edges):
+    Degree 0: 541 (7.582341 %)
+    Degree 2^0: 626 (8.773651 %)
+    Degree 2^1: 2181 (30.567624 %)
+    Degree 2^2: 3085 (43.237561 %)
+    Degree 2^3: 621 (8.703574 %)
+    Degree 2^4: 80 (1.121233 %)
+    Degree 2^5: 0 (0.000000 %)
+    Degree 2^6: 1 (0.014015 %)
+
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 0.731945 ms, src = 0, #iterations = 22
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=true mark-pred=0 advance-mode=LB direction-optimized=0 do-a=0.001 do-b=0.2 idempotence=0
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 1.920938 ms, src = 0, #iterations = 22
+Label Validity: PASS
+First 40 labels of the GPU result:
+[0:0 1:2 2:1 3:2 4:2 5:2 6:1 7:2 8:1 9:1 10:1 11:3 12:6 13:6 14:4 15:4294967295 16:4294967295 17:6 18:6 19:6 20:6 21:5 22:4 23:5 24:5 25:7 26:7 27:6 28:6 29:6 30:6 31:7 32:4294967295 33:4294967295 34:5 35:6 36:6 37:6 38:4294967295 39:5 ]
+First 40 distances of the reference CPU result.
+[0:0 1:2 2:1 3:2 4:2 5:2 6:1 7:2 8:1 9:1 10:1 11:3 12:6 13:6 14:4 15:4294967295 16:4294967295 17:6 18:6 19:6 20:6 21:5 22:4 23:5 24:5 25:7 26:7 27:6 28:6 29:6 30:6 31:7 32:4294967295 33:4294967295 34:5 35:6 36:6 37:6 38:4294967295 39:5 ]
+
+[bfs] finished.
+ avg. elapsed: 1.920938 ms
+ iterations: 22
+ min. elapsed: 1.920938 ms
+ max. elapsed: 1.920938 ms
+ rate: 15.815186 MiEdges/s
+ src: 0
+ nodes_visited: 6594
+ edges_visited: 30380
+ nodes queued: 6594
+ load time: 29.0911 ms
+ preprocess time: 135.370000 ms
+ postprocess time: 0.359058 ms
+ total time: 137.809038 ms
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_BFS" end time: Oct 09 04:43 EDT
+"TEST_BFS" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/42 Testing: TEST_COLOR_CMD
+5/42 Test: TEST_COLOR_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/color" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/color
+"TEST_COLOR_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test color
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--seed : int, default = 1602233000
+	seed for random number generator
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_COLOR_CMD" end time: Oct 09 04:43 EDT
+"TEST_COLOR_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/42 Testing: TEST_COLOR
+6/42 Test: TEST_COLOR
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/color" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx" "--undirected"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/color
+"TEST_COLOR" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.003476s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+Computing reference value ...
+__________________________
+--------------------------
+ Elapsed: 49.300911
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=true advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.838041, #iterations = 5
+Validating result ...
+Comparison: <node idx, gunrock, cpu>
+0 errors occurred.
+colors needed: 
+[color] finished.
+ avg. elapsed: 0.838041 ms
+ iterations: 5
+ min. elapsed: 0.838041 ms
+ max. elapsed: 0.838041 ms
+ load time: 3.99613 ms
+ preprocess time: 1367.070000 ms
+ postprocess time: 0.480175 ms
+ total time: 1372.534037 ms
+<end of output>
+Test time =   2.02 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[0 errors occurred.
+]
+"TEST_COLOR" end time: Oct 09 04:43 EDT
+"TEST_COLOR" time elapsed: 00:00:02
+----------------------------------------------------------
+
+7/42 Testing: TEST_GEO_CMD
+7/42 Test: TEST_GEO_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/geo" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/geo
+"TEST_GEO_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test geolocation
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--debug : bool, default = false
+	Debug label values, this prints out the entire labels array (longitude, latitude).
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--geo-complete : bool, default = false
+	Run geolocation application until all locations for all nodes are found, uses an atomic (default=false).
+--geo-iter : int, default = 3
+	Number of iterations geolocation should run for (default=3).
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--labels-file : std::string, default = 
+	User locations label file for geolocation app.
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--spatial-iter : int, default = 1000
+	Number of maximum iterations spatial median kernel should run for (default=1000).
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_GEO_CMD" end time: Oct 09 04:43 EDT
+"TEST_GEO_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/42 Testing: TEST_GEO
+8/42 Test: TEST_GEO
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/geo" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx" "--labels-file=/net/bigtemp/oj2zf/gunrock_wole/examples/geo/_data/samples/sample.labels"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/geo
+"TEST_GEO" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.009002s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+Labels File Input: /net/bigtemp/oj2zf/gunrock_wole/examples/geo/_data/samples/sample.labels
+Loading Labels into an array ...
+__________________________
+______ CPU Reference _____
+--------------------------
+ Elapsed: 0.036955
+__________________________
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+Number of iterations: 3
+Initializing problem ... 
+Number of nodes for allocation: 39
+Initializing enactor ... 
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.391006, #iterations = 3
+Node [ 0 ]: Predicted = < 1.855779 , 1.855704 > Reference = < 1.855779 , 1.855704 >
+Node [ 1 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 2 ]: Predicted = < 1.855779 , 1.855704 > Reference = < 1.855779 , 1.855704 >
+Node [ 3 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 4 ]: Predicted = < 1.000000 , 0.000000 > Reference = < 1.000000 , 0.000000 >
+Node [ 5 ]: Predicted = < 1.000000 , 0.000000 > Reference = < 1.000000 , 0.000000 >
+Node [ 6 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 7 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 8 ]: Predicted = < 1.000000 , 0.000000 > Reference = < 1.000000 , 0.000000 >
+Node [ 9 ]: Predicted = < 1.000000 , 1.000000 > Reference = < 1.000000 , 1.000000 >
+Node [ 10 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 11 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 12 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 13 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 14 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 15 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 16 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 17 ]: Predicted = < 1.000000 , 0.000000 > Reference = < 1.000000 , 0.000000 >
+Node [ 18 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 19 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 20 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 21 ]: Predicted = < 0.000000 , 1.000000 > Reference = < 0.000000 , 1.000000 >
+Node [ 22 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 23 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 24 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 25 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 26 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 27 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 28 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 29 ]: Predicted = < 1.000000 , 0.000000 > Reference = < 1.000000 , 0.000000 >
+Node [ 30 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 31 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 32 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 33 ]: Predicted = < 0.000000 , 1.000000 > Reference = < 0.000000 , 1.000000 >
+Node [ 34 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 35 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 36 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 37 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+Node [ 38 ]: Predicted = < 0.000000 , 0.000000 > Reference = < 0.000000 , 0.000000 >
+0 errors occurred.
+[geolocation] finished.
+ avg. elapsed: 0.391006 ms
+ iterations: 3
+ min. elapsed: 0.391006 ms
+ max. elapsed: 0.391006 ms
+ load time: 13.587 ms
+ preprocess time: 193.859000 ms
+ postprocess time: 0.381947 ms
+ total time: 194.898844 ms
+<end of output>
+Test time =   0.79 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[0 errors occurred
+]
+"TEST_GEO" end time: Oct 09 04:43 EDT
+"TEST_GEO" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/42 Testing: TEST_HITS_CMD
+9/42 Test: TEST_HITS_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/hits" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/hits
+"TEST_HITS_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test hits
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--hits-compare-tol : std::vector<double>, default = 1e-06
+	Floating-point tolerance for CPU/GPU rank comparison.
+--hits-max-iter : std::vector<long>, default = 10000
+	Number of HITS iterations.
+--hits-norm : std::vector<long>, default = 1
+	Normalization method. 1 = normalize by the sum of absolute values (1-Norm, default), 2 = normalize by the square root of the sum of squares (2-Norm).
+--hits-normalize-n : std::vector<long>, default = 1
+	Normalize HITS scores and check for convergence every N iterations.
+--hits-term-tol : std::vector<double>, default = 1e-06
+	Tolerance for HITS algorithm convergence.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_HITS_CMD" end time: Oct 09 04:43 EDT
+"TEST_HITS_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/42 Testing: TEST_HITS
+10/42 Test: TEST_HITS
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/hits" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/hits
+"TEST_HITS" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.013828s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+__________________________
+--------------------------
+ CPU Elapsed: 0.118017
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 4.981041, #iterations = 29
+Tol: 0.000001
+0 errors occurred.
+CPU Algorithm Results:
+Top 10 Ranks:
+Hub Ranks:
+Vertex ID: 38, Hub Rank: 0.068135
+Vertex ID: 35, Hub Rank: 0.061242
+Vertex ID: 37, Hub Rank: 0.039857
+Vertex ID: 21, Hub Rank: 0.039139
+Vertex ID: 34, Hub Rank: 0.036279
+Vertex ID: 7, Hub Rank: 0.035564
+Vertex ID: 1, Hub Rank: 0.035433
+Vertex ID: 22, Hub Rank: 0.032972
+Vertex ID: 11, Hub Rank: 0.030408
+Vertex ID: 0, Hub Rank: 0.028930
+Authority Ranks:
+Vertex ID: 38, Authority Rank: 0.068135
+Vertex ID: 35, Authority Rank: 0.061242
+Vertex ID: 37, Authority Rank: 0.039857
+Vertex ID: 21, Authority Rank: 0.039139
+Vertex ID: 34, Authority Rank: 0.036279
+Vertex ID: 7, Authority Rank: 0.035564
+Vertex ID: 1, Authority Rank: 0.035433
+Vertex ID: 22, Authority Rank: 0.032972
+Vertex ID: 11, Authority Rank: 0.030408
+Vertex ID: 0, Authority Rank: 0.028930
+
+GPU Algorithm Results:
+Top 10 Ranks:
+Hub Ranks:
+Vertex ID: 38, Hub Rank: 0.068135
+Vertex ID: 35, Hub Rank: 0.061242
+Vertex ID: 37, Hub Rank: 0.039857
+Vertex ID: 21, Hub Rank: 0.039139
+Vertex ID: 34, Hub Rank: 0.036279
+Vertex ID: 7, Hub Rank: 0.035564
+Vertex ID: 1, Hub Rank: 0.035433
+Vertex ID: 22, Hub Rank: 0.032972
+Vertex ID: 11, Hub Rank: 0.030408
+Vertex ID: 0, Hub Rank: 0.028930
+Authority Ranks:
+Vertex ID: 38, Authority Rank: 0.068135
+Vertex ID: 35, Authority Rank: 0.061242
+Vertex ID: 37, Authority Rank: 0.039857
+Vertex ID: 21, Authority Rank: 0.039139
+Vertex ID: 34, Authority Rank: 0.036279
+Vertex ID: 7, Authority Rank: 0.035564
+Vertex ID: 1, Authority Rank: 0.035433
+Vertex ID: 22, Authority Rank: 0.032972
+Vertex ID: 11, Authority Rank: 0.030408
+Vertex ID: 0, Authority Rank: 0.028930
+[hits] finished.
+ avg. elapsed: 4.981041 ms
+ iterations: 29
+ min. elapsed: 4.981041 ms
+ max. elapsed: 4.981041 ms
+ load time: 31.1241 ms
+ preprocess time: 116.798000 ms
+ postprocess time: 0.406027 ms
+ total time: 122.359037 ms
+<end of output>
+Test time =   0.70 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_HITS" end time: Oct 09 04:43 EDT
+"TEST_HITS" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/42 Testing: TEST_HITS_BIPS
+11/42 Test: TEST_HITS_BIPS
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/hits" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/hits
+"TEST_HITS_BIPS" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 34738
+  Substracting 1 from node Ids...
+  Removed 6900 duplicate edges and self circles.
+  graph loaded as COO in 0.014020s.
+Converting 7135 vertices, 27838 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (7135 vertices, 27838 edges):
+    Degree 0: 806 (11.296426 %)
+    Degree 2^0: 999 (14.001402 %)
+    Degree 2^1: 1735 (24.316748 %)
+    Degree 2^2: 2917 (40.882971 %)
+    Degree 2^3: 600 (8.409250 %)
+    Degree 2^4: 78 (1.093203 %)
+
+__________________________
+--------------------------
+ CPU Elapsed: 352.789886
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 193.583965, #iterations = 937
+Tol: 0.000001
+0 errors occurred.
+CPU Algorithm Results:
+Top 10 Ranks:
+Hub Ranks:
+Vertex ID: 1128, Hub Rank: 0.009523
+Vertex ID: 1145, Hub Rank: 0.009520
+Vertex ID: 5, Hub Rank: 0.009519
+Vertex ID: 22, Hub Rank: 0.009519
+Vertex ID: 40, Hub Rank: 0.009519
+Vertex ID: 57, Hub Rank: 0.009519
+Vertex ID: 74, Hub Rank: 0.009519
+Vertex ID: 91, Hub Rank: 0.009519
+Vertex ID: 108, Hub Rank: 0.009519
+Vertex ID: 125, Hub Rank: 0.009519
+Authority Ranks:
+Vertex ID: 566, Authority Rank: 0.499884
+Vertex ID: 1127, Authority Rank: 0.004949
+Vertex ID: 1144, Authority Rank: 0.004807
+Vertex ID: 4, Authority Rank: 0.004761
+Vertex ID: 21, Authority Rank: 0.004761
+Vertex ID: 39, Authority Rank: 0.004761
+Vertex ID: 56, Authority Rank: 0.004761
+Vertex ID: 73, Authority Rank: 0.004761
+Vertex ID: 90, Authority Rank: 0.004761
+Vertex ID: 107, Authority Rank: 0.004761
+
+GPU Algorithm Results:
+Top 10 Ranks:
+Hub Ranks:
+Vertex ID: 1128, Hub Rank: 0.009523
+Vertex ID: 1145, Hub Rank: 0.009520
+Vertex ID: 5, Hub Rank: 0.009519
+Vertex ID: 22, Hub Rank: 0.009519
+Vertex ID: 40, Hub Rank: 0.009519
+Vertex ID: 57, Hub Rank: 0.009519
+Vertex ID: 74, Hub Rank: 0.009519
+Vertex ID: 91, Hub Rank: 0.009519
+Vertex ID: 108, Hub Rank: 0.009519
+Vertex ID: 125, Hub Rank: 0.009519
+Authority Ranks:
+Vertex ID: 566, Authority Rank: 0.499884
+Vertex ID: 1127, Authority Rank: 0.004949
+Vertex ID: 1144, Authority Rank: 0.004807
+Vertex ID: 4, Authority Rank: 0.004761
+Vertex ID: 21, Authority Rank: 0.004761
+Vertex ID: 39, Authority Rank: 0.004761
+Vertex ID: 56, Authority Rank: 0.004761
+Vertex ID: 73, Authority Rank: 0.004761
+Vertex ID: 90, Authority Rank: 0.004761
+Vertex ID: 107, Authority Rank: 0.004761
+[hits] finished.
+ avg. elapsed: 193.583965 ms
+ iterations: 937
+ min. elapsed: 193.583965 ms
+ max. elapsed: 193.583965 ms
+ load time: 15.548 ms
+ preprocess time: 140.241000 ms
+ postprocess time: 3.650904 ms
+ total time: 337.728977 ms
+<end of output>
+Test time =   1.25 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_HITS_BIPS" end time: Oct 09 04:43 EDT
+"TEST_HITS_BIPS" time elapsed: 00:00:01
+----------------------------------------------------------
+
+12/42 Testing: TEST_KNN_CMD
+12/42 Test: TEST_KNN_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/knn" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/knn
+"TEST_KNN_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test knn
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+--labels-file : std::string, default = 
+	List of points of dim-dimensional space
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--NUM-THREADS : std::vector<int>, default = 128
+	Number of threads running per block.
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--cpu-elapsed : float, default = 0
+	CPU implementation, elapsed time (ms) for JSON.
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--dim : std::vector<int>, default = 2
+	Dimensions of space
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--k : std::vector<int>, default = 10
+	Number of k neighbors.
+--knn-output-file : std::vector<std::string>, default = knn_output
+	File name.
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--n : std::vector<int>, default = 0
+	Number of points in dim-dimensional space
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--omp-threads : std::vector<unsigned int>, default = 0
+	Number of threads for parallel omp knn implementation; 0 for default.
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--save-knn-results : std::vector<bool>, default = 0
+	If true then knn array will save to file.
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--transpose : std::vector<bool>, default = 0
+	If false then labels will not transpose
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--use-shared-mem : std::vector<bool>, default = 0
+	True if kernel must use shared memory.
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_KNN_CMD" end time: Oct 09 04:43 EDT
+"TEST_KNN_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/42 Testing: TEST_KNN
+13/42 Test: TEST_KNN
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/knn" "market" "--labels-file" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate" "--k=2"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/knn
+"TEST_KNN" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Points File Input: /net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate
+Loading Labels into an array ...
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate:
+table is not tranposed
+Number of labels 10, dimension 3
+Done parsing (0 s).
+number of points 10, k 2
+__________________________
+______ CPU Reference _____
+Host Allocation done.
+KNNs Allocation done.
+Distance/Keys and Device management done.
+Main algroithm loop done.
+Synchronized all GPUs.
+Moved KNNs from DEVICE to HOST.
+Copy KNNs device result to output KNNs array.
+Clean-up GPU Arrays:: keys, distance done.
+Clean-up CPU Arrays:: keys, distance done.
+Clean-up CPU Arrays:: knns_d[*] done.
+Clean-up done.
+--------------------------
+ Elapsed: 169.210907
+__________________________
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+data_size = 4
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.157833, #iterations = 1
+-------------Validation-----------
+PASSED KNN
+[knn] finished.
+ avg. elapsed: 0.157833 ms
+ iterations: 1
+ min. elapsed: 0.157833 ms
+ max. elapsed: 0.157833 ms
+ load time: 0.669956 ms
+ preprocess time: 3.814220 ms
+ postprocess time: 0.215054 ms
+ total time: 4.337072 ms
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASSED KNN
+]
+"TEST_KNN" end time: Oct 09 04:43 EDT
+"TEST_KNN" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/42 Testing: TEST_KNN_MULTIPLE_RUNS
+14/42 Test: TEST_KNN_MULTIPLE_RUNS
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/knn" "market" "--labels-file" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate" "--k=3" "--quick" "--num-runs=10"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/knn
+"TEST_KNN_MULTIPLE_RUNS" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Points File Input: /net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate
+Loading Labels into an array ...
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate:
+table is not tranposed
+Number of labels 10, dimension 3
+Done parsing (0 s).
+number of points 10, k 3
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+data_size = 4
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.200033, #iterations = 1
+__________________________
+--------------------------
+Run 1 elapsed: 0.101089, #iterations = 1
+__________________________
+--------------------------
+Run 2 elapsed: 0.095129, #iterations = 1
+__________________________
+--------------------------
+Run 3 elapsed: 0.092983, #iterations = 1
+__________________________
+--------------------------
+Run 4 elapsed: 0.094891, #iterations = 1
+__________________________
+--------------------------
+Run 5 elapsed: 0.092983, #iterations = 1
+__________________________
+--------------------------
+Run 6 elapsed: 0.092983, #iterations = 1
+__________________________
+--------------------------
+Run 7 elapsed: 0.092983, #iterations = 1
+__________________________
+--------------------------
+Run 8 elapsed: 0.092983, #iterations = 1
+__________________________
+--------------------------
+Run 9 elapsed: 0.092983, #iterations = 1
+-------------Validation-----------
+[knn] finished.
+ avg. elapsed: 0.084901 ms
+ iterations: 1
+ min. elapsed: 0.092983 ms
+ max. elapsed: 0.101089 ms
+ load time: 0.540018 ms
+ preprocess time: 132.202000 ms
+ postprocess time: 0.262022 ms
+ total time: 134.351969 ms
+<end of output>
+Test time =   0.62 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_KNN_MULTIPLE_RUNS" end time: Oct 09 04:43 EDT
+"TEST_KNN_MULTIPLE_RUNS" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/42 Testing: TEST_LOUVAIN_CMD
+15/42 Test: TEST_LOUVAIN_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/louvain" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/louvain
+"TEST_LOUVAIN_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test Louvain (community detection)
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--1st-th : std::vector<double>, default = 0.0001
+	Modularity threshold to continue further iterations in the first pass.
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--iter-stats : bool, default = false
+	Whether to show per-iteration stats.
+--iter-th : double, default = 1e-06
+	Modularity threshold to continue further iterations within a pass.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--max-iters : unsigned long, default = 10
+	Maximum number of iterations to run for each pass.
+--max-passes : unsigned long, default = 10
+	Maximum number of passes to run the louvain algorithm.
+--neighborcomm-th : std::vector<double>, default = -1
+	Threshold of number of vertex-community pairs changes to quick an iteration;  value less than 0 will disable this feature
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--omp-runs : int, default = 1
+	Number of runs for parallel omp louvain implementation.
+--omp-threads : std::vector<unsigned int>, default = 0
+	Number of threads for parallel omp louvain implementation; 0 for default.
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--pass-stats : bool, default = false
+	Whether to show per-pass stats.
+--pass-th : double, default = 0.0001
+	Modularity threshold to continue further passes.
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--unify-segments : std::vector<bool>, default = 0
+	Whether to use cub::RadixSort instead of cub::SegmentedRadixSort.
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_LOUVAIN_CMD" end time: Oct 09 04:43 EDT
+"TEST_LOUVAIN_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/42 Testing: TEST_LOUVAIN
+16/42 Test: TEST_LOUVAIN
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/louvain" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx" "--omp-threads=32" "--advance-mode=ALL_EDGES" "--unify-segments=true"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/louvain
+"TEST_LOUVAIN" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.001809s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 0.306129 ms, q = 0.262439
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=false unify-segments=true advance-mode=ALL_EDGES omp-threads=32 1st-th=0.0001 neighborcomm-th=-1
+__________________________
+#threads = 32, 1st-th = 0.000100
+--------------------------
+Run 0 elapsed: 4.789829 ms, q = 0.265796
+Community Validity: PASS
+Computed: #communities = 3.000000, modularity = 0.265796
+Reference: #communities = 3.000000, modularity = 0.262439
+Using advance mode ALL_EDGES
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 3.513098 ms, #passes = 4
+Community Validity: PASS
+Computed: #communities = 2.000000, modularity = 0.218253
+Reference: #communities = 3.000000, modularity = 0.262439
+[louvain] finished.
+ avg. elapsed: 3.513098 ms
+ iterations: 4
+ min. elapsed: 3.513098 ms
+ max. elapsed: 3.513098 ms
+ load time: 2.22898 ms
+ preprocess time: 142.512000 ms
+ postprocess time: 0.269175 ms
+ total time: 146.394014 ms
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASS
+]
+"TEST_LOUVAIN" end time: Oct 09 04:43 EDT
+"TEST_LOUVAIN" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/42 Testing: TEST_PR_CMD
+17/42 Test: TEST_PR_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/pr
+"TEST_PR_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test pr
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--compensate : std::vector<bool>, default = 1
+	Whether to compensate for zero-degree vertices.
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--delta : std::vector<double>, default = 0.85
+	Damping factor of PageRank.
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--max-iter : std::vector<long>, default = 50
+	Maximum number of PageRank iterations.
+--normalize : std::vector<bool>, default = 1
+	Whether to normalize ranking values.
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--output-filename : std::string, default = 
+	file to output ranking values
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--pull : std::vector<bool>, default = 0
+	Whether to use pull direction PageRank.
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--scale : std::vector<bool>, default = 0
+	Whether to scale the ranking values during computation.
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = invalid
+	<Vertex-ID|random|largestdegree|invalid> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees;
+	If invalid, do not use personalized PageRank.
+--src-seed : int, default = -1
+	seed to generate random sources
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--threshold : std::vector<double>, default = 0.01
+	Error threshold of PageRank.
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_PR_CMD" end time: Oct 09 04:43 EDT
+"TEST_PR_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/42 Testing: TEST_PR
+18/42 Test: TEST_PR
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx" "--normalized" "--compensate" "--undirected"			
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/pr
+"TEST_PR" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr: unrecognized option '--normalized'
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 34738
+  Substracting 1 from node Ids...
+  Edge doubleing: 34738 -> 69476 edges
+  Removed 39096 duplicate edges and self circles.
+  graph loaded as COO in 0.018199s.
+Converting 7135 vertices, 30380 directed edges (unordered tuples) to CSC format...Done (0s).
+Degree Histogram (7135 vertices, 30380 edges):
+    Degree 0: 541 (7.582341 %)
+    Degree 2^0: 626 (8.773651 %)
+    Degree 2^1: 2181 (30.567624 %)
+    Degree 2^2: 3085 (43.237561 %)
+    Degree 2^3: 621 (8.703574 %)
+    Degree 2^4: 80 (1.121233 %)
+    Degree 2^5: 0 (0.000000 %)
+    Degree 2^6: 1 (0.014015 %)
+
+Adding 1 vertex and 7676 edges to compensate 0 degree vertices
+Converting 7136 vertices, 38056 directed edges (unordered tuples) to CSC format...Done (0s).
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true normalize=1 delta=0.85 threshold=0.01 max-iter=50 pull=0
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 13.261080 ms, src = 4294967295
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true scale=0 advance-mode=LB
+nodes = 7136
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.483990 ms, src = 4294967295, #iterations = 3
+Total_rank = 0.150119
+Top 10 Ranked vertices and PageRanks:
+Vertex ID: 0, PageRank: 0.000140
+Vertex ID: 1, PageRank: 0.000021
+Vertex ID: 2, PageRank: 0.000021
+Vertex ID: 3, PageRank: 0.000021
+Vertex ID: 4, PageRank: 0.000021
+Vertex ID: 5, PageRank: 0.000021
+Vertex ID: 6, PageRank: 0.000021
+Vertex ID: 7, PageRank: 0.000021
+Vertex ID: 8, PageRank: 0.000021
+Vertex ID: 9, PageRank: 0.000021
+Rank Validity: PASS
+Reference total rank : 0.150119
+Maximum difference : rank[7135] 0.000021 vs. 0.000021, 0.000000
+Maximum relative difference :rank[7135] 0.000021 vs. 0.000021, 0.000000
+Order Validity: PASS
+[pr] finished.
+ avg. elapsed: 0.483990 ms
+ iterations: 3
+ min. elapsed: 0.483990 ms
+ max. elapsed: 0.483990 ms
+ nodes queued: 14272
+ edges queued: 114168
+ nodes redundance: inf
+ edges redundance: inf
+ load time: 23.742 ms
+ preprocess time: 5.303140 ms
+ postprocess time: 3.236055 ms
+ total time: 9.150028 ms
+<end of output>
+Test time =   0.70 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_PR" end time: Oct 09 04:43 EDT
+"TEST_PR" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/42 Testing: TEST_PR_NIBBLE_CMD
+19/42 Test: TEST_PR_NIBBLE_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr_nibble" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/pr_nibble
+"TEST_PR_NIBBLE_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test pr_nibble
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--eps : double, default = 0.01
+	Convergence criteria.
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--max-iter : int, default = 3
+	Max number of iterations
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--phi : double, default = 0.5
+	phi parameter
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = 0
+	<Vertex-ID|random|largestdegree> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+--vol : double, default = 40
+	volume parameter
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_PR_NIBBLE_CMD" end time: Oct 09 04:43 EDT
+"TEST_PR_NIBBLE_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/42 Testing: TEST_PR_NIBBLE
+20/42 Test: TEST_PR_NIBBLE
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr_nibble" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/pr_nibble
+"TEST_PR_NIBBLE" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.007909s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+__________________________
+pr_nibble::CPU_Reference: reached max iterations. breaking at it=3
+--------------------------
+ Elapsed: 0.077963
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+pr_nibble::Stop_Condition: reached max iterations. breaking at it=3
+--------------------------
+Run 0 elapsed: 0.682116, #iterations = 3
+PASSED
+[pr_nibble] finished.
+ avg. elapsed: 0.682116 ms
+ iterations: 140731853571296
+ min. elapsed: 0.000000 ms
+ max. elapsed: 0.000000 ms
+ src: 0
+ nodes_visited: 139868488795136
+ edges_visited: 140731853571456
+ nodes queued: 139868485881140
+ edges queued: 4294967295
+ load time: 8.60214 ms
+ preprocess time: 199.232000 ms
+ postprocess time: 0.070810 ms
+ total time: 200.219870 ms
+<end of output>
+Test time =   0.72 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASSED
+]
+"TEST_PR_NIBBLE" end time: Oct 09 04:43 EDT
+"TEST_PR_NIBBLE" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/42 Testing: TEST_PROJ_CMD
+21/42 Test: TEST_PROJ_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/proj" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/proj
+"TEST_PROJ_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test graph_projections
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_PROJ_CMD" end time: Oct 09 04:43 EDT
+"TEST_PROJ_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/42 Testing: TEST_PROJ
+22/42 Test: TEST_PROJ
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/proj" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/proj
+"TEST_PROJ" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.012605s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+__________________________
+--------------------------
+ Elapsed: 0.079870
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.211954, #iterations = 1
+edge counter = 1372
+PASSED
+[proj] finished.
+ avg. elapsed: 0.211954 ms
+ iterations: 0
+ src: 0
+ nodes_visited: 140122897884432
+ edges_visited: 140122977042432
+ edges queued: 140122900828416
+ load time: 13.0651 ms
+ preprocess time: 142.008000 ms
+ postprocess time: 0.214100 ms
+ total time: 142.595053 ms
+<end of output>
+Test time =   0.70 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASSED
+]
+"TEST_PROJ" end time: Oct 09 04:43 EDT
+"TEST_PROJ" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/42 Testing: TEST_RW_CMD
+23/42 Test: TEST_RW_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/rw" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/rw
+"TEST_RW_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test rw
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--node-value-path : std::string, default = 
+	path to file containing node values
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--seed : int, default = 1602233009
+	seed for random number generator
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--store-walks : bool, default = true
+	store random walks?
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+--walk-length : int, default = 10
+	length of random walks
+--walk-mode : int, default = 0
+	random walk mode (0=uniform_random; 1=greedy, 2=stochastic_greedy)
+--walks-per-node : int, default = 1
+	number of random walks per source node
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_RW_CMD" end time: Oct 09 04:43 EDT
+"TEST_RW_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/42 Testing: TEST_RW
+24/42 Test: TEST_RW
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/rw" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/rw
+"TEST_RW" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Reading node values from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_node_values
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_node_values, typeId = 18, targetId = 18, length = 39
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.004222s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+__________________________
+CPU_Reference: start
+CPU_Reference: NotImplemented for walk_mode=0
+CPU_Reference: done
+--------------------------
+ Elapsed: 0.003099
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 4.122019, #iterations = 10
+Validate_Results: total_neighbors_seen=4311
+Validate_Results: total_steps_taken=351
+[[0:-1, 6:-1, 10:-1, 38:-1, 18:-1, 11:-1, 34:-1, 22:-1, 37:-1, 24:-1, ],
+[1:-1, 10:-1, 34:-1, 5:-1, 4:-1, 33:-1, 0:-1, 12:-1, 38:-1, 26:-1, ],
+[2:-1, 17:-1, 31:-1, 38:-1, 15:-1, 38:-1, 0:-1, 12:-1, 1:-1, 34:-1, ],
+[3:-1, 38:-1, 29:-1, 35:-1, 30:-1, 31:-1, 30:-1, 31:-1, 22:-1, 0:-1, ],
+[4:-1, 5:-1, 4:-1, 38:-1, 26:-1, 15:-1, 38:-1, 30:-1, 21:-1, 37:-1, ],
+[5:-1, 6:-1, 12:-1, 6:-1, 11:-1, 6:-1, 0:-1, 22:-1, 31:-1, 21:-1, ],
+[6:-1, 11:-1, 35:-1, 26:-1, 21:-1, 34:-1, 0:-1, 33:-1, 0:-1, 22:-1, ],
+[7:-1, 23:-1, 35:-1, 3:-1, 16:-1, 3:-1, 36:-1, 34:-1, 0:-1, 7:-1, ],
+[8:-1, 35:-1, 19:-1, 7:-1, 9:-1, 7:-1, 20:-1, 32:-1, 20:-1, 37:-1, ],
+[9:-1, 38:-1, 7:-1, 0:-1, 22:-1, 7:-1, 8:-1, 1:-1, 35:-1, 24:-1, ],
+[10:-1, 35:-1, 25:-1, 17:-1, 18:-1, 11:-1, 0:-1, 10:-1, 38:-1, 1:-1, ],
+[11:-1, 1:-1, 7:-1, 23:-1, 38:-1, 23:-1, 7:-1, 21:-1, 35:-1, 29:-1, ],
+[12:-1, 35:-1, 11:-1, 18:-1, 15:-1, 35:-1, 17:-1, 24:-1, 17:-1, 2:-1, ],
+[13:-1, 26:-1, 21:-1, 38:-1, 27:-1, 21:-1, 37:-1, 11:-1, 25:-1, 37:-1, ],
+[14:-1, 28:-1, 17:-1, 25:-1, 13:-1, 2:-1, 17:-1, 24:-1, 17:-1, 35:-1, ],
+[15:-1, 35:-1, 32:-1, 18:-1, 15:-1, 38:-1, 20:-1, 38:-1, 31:-1, 30:-1, ],
+[16:-1, 3:-1, 38:-1, 7:-1, 8:-1, 6:-1, 12:-1, 34:-1, 4:-1, 5:-1, ],
+[17:-1, 31:-1, 37:-1, 30:-1, 38:-1, 7:-1, 23:-1, 7:-1, 37:-1, 29:-1, ],
+[18:-1, 35:-1, 28:-1, 35:-1, 1:-1, 34:-1, 5:-1, 6:-1, 0:-1, 36:-1, ],
+[19:-1, 7:-1, 0:-1, 33:-1, 4:-1, 38:-1, 5:-1, 38:-1, 14:-1, 27:-1, ],
+[20:-1, 32:-1, 18:-1, 15:-1, 26:-1, 29:-1, 37:-1, 20:-1, 37:-1, 7:-1, ],
+[21:-1, 37:-1, 29:-1, 37:-1, 25:-1, 17:-1, 38:-1, 26:-1, 35:-1, 29:-1, ],
+[22:-1, 35:-1, 26:-1, 13:-1, 25:-1, 11:-1, 37:-1, 27:-1, 35:-1, 2:-1, ],
+[23:-1, 37:-1, 12:-1, 35:-1, 9:-1, 35:-1, 26:-1, 38:-1, 23:-1, 35:-1, ],
+[24:-1, 38:-1, 30:-1, 21:-1, 26:-1, 14:-1, 25:-1, 11:-1, 0:-1, 7:-1, ],
+[25:-1, 14:-1, 38:-1, 3:-1, 16:-1, 2:-1, 15:-1, 18:-1, 10:-1, 18:-1, ],
+[26:-1, 21:-1, 1:-1, 8:-1, 7:-1, 6:-1, 11:-1, 38:-1, 0:-1, 36:-1, ],
+[27:-1, 37:-1, 18:-1, 11:-1, 25:-1, 13:-1, 25:-1, 35:-1, 15:-1, 18:-1, ],
+[28:-1, 13:-1, 27:-1, 38:-1, 1:-1, 11:-1, 35:-1, 8:-1, 1:-1, 21:-1, ],
+[29:-1, 26:-1, 21:-1, 30:-1, 35:-1, 15:-1, 2:-1, 17:-1, 2:-1, 13:-1, ],
+[30:-1, 35:-1, 16:-1, 35:-1, 21:-1, 26:-1, 29:-1, 22:-1, 1:-1, 11:-1, ],
+[31:-1, 17:-1, 38:-1, 16:-1, 38:-1, 14:-1, 25:-1, 17:-1, 25:-1, 11:-1, ],
+[32:-1, 20:-1, 35:-1, 23:-1, 37:-1, 20:-1, 37:-1, 23:-1, 7:-1, 22:-1, ],
+[33:-1, 36:-1, 0:-1, 6:-1, 12:-1, 6:-1, 1:-1, 12:-1, 35:-1, 1:-1, ],
+[34:-1, 10:-1, 6:-1, 0:-1, 6:-1, 10:-1, 38:-1, 24:-1, 35:-1, 14:-1, ],
+[35:-1, 22:-1, 0:-1, 10:-1, 0:-1, 21:-1, 29:-1, 21:-1, 35:-1, 14:-1, ],
+[36:-1, 3:-1, 36:-1, 0:-1, 21:-1, 1:-1, 6:-1, 1:-1, 7:-1, 8:-1, ],
+[37:-1, 32:-1, 18:-1, 14:-1, 38:-1, 11:-1, 6:-1, 8:-1, 34:-1, 22:-1, ],
+[38:-1, 17:-1, 2:-1, 14:-1, 35:-1, 20:-1, 35:-1, 21:-1, 32:-1, 35:-1, ]]
+-------------------
+0 errors occurred.
+[rw] finished.
+ avg. elapsed: 4.122019 ms
+ iterations: 10
+ min. elapsed: 4.122019 ms
+ max. elapsed: 4.122019 ms
+ load time: 4.71997 ms
+ preprocess time: 126.572000 ms
+ postprocess time: 0.251055 ms
+ total time: 131.123066 ms
+<end of output>
+Test time =   0.72 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[0 errors occurred
+]
+"TEST_RW" end time: Oct 09 04:43 EDT
+"TEST_RW" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/42 Testing: TEST_SAGE_CMD
+25/42 Test: TEST_SAGE_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sage" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sage
+"TEST_SAGE_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test sage
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--Wa1 : std::string, default = 
+	<weight matrix for W^1 matrix in algorithm 2, aggregation part>
+	 dimension 64 by 128 for pokec;
+	 It should be leaf feature length by a value you want for W2 layer
+--Wa1-dim1 : int, default = 128
+	Wa1 matrix column dimension
+--Wa2 : std::string, default = 
+	<weight matrix for W^2 matrix in algorithm 2, aggregation part>
+	 dimension 256 by 128 for pokec;
+	 It should be child_temp length by output length
+--Wa2-dim1 : int, default = 128
+	Wa2 matrix column dimension
+--Wf1 : std::string, default = 
+	<weight matrix for W^1 matrix in algorithm 2, feature part>
+	 dimension 64 by 128 for pokec;
+	 It should be child feature length by a value you want for W2 layer
+--Wf1-dim1 : int, default = 128
+	Wf1 matrix column dimension
+--Wf2 : std::string, default = 
+	<weight matrix for W^2 matrix in algorithm 2, feature part>
+	 dimension 256 by 128 for pokec;
+	 It should be source_temp length by output length
+--Wf2-dim1 : int, default = 128
+	Wf2 matrix column dimension
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--batch-size : std::vector<int>, default = 65536
+	number of source vertex to process in one iteration
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--custom-kernels : std::vector<bool>, default = 1
+	whether to use custom CUDA kernels
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--feature-column : std::vector<int>, default = 64
+	feature column dimension
+--features : std::string, default = 
+	<features matrix>
+	 dimension |V| by 64 for pokec;
+
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-children-per-source : std::vector<int>, default = 10
+	number of sampled children per source
+--num-leafs-per-child : std::vector<int>, default = -1
+	number of sampled leafs per child; default is the same as num-children-per-source
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--omp-threads : int, default = 32
+	number of threads to run CPU reference
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--rand-seed : int, default = -1
+	seed for random number generator; default will use time(NULL)
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_SAGE_CMD" end time: Oct 09 04:43 EDT
+"TEST_SAGE_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/42 Testing: TEST_SAGE
+26/42 Test: TEST_SAGE
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sage" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sage
+"TEST_SAGE" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.015747s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false feature-column=64 num-children-per-source=10 num-leafs-per-child=-1
+Computing reference value ...
+__________________________
+rand-seed = 1602233010
+--------------------------
+CPU Reference elapsed: 15.674114 ms.
+Embedding validation: PASS
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false batch-size=65536
+Using randomly generated Wf1
+Using randomly generated Wa1
+Using randomly generated Wf2
+Using randomly generated Wa2
+Using randomly generated features
+Using advance mode LB
+Using filter mode CULL
+rand-seed = 1602233010
+__________________________
+--------------------------
+Run 0 elapsed: 0.185013 ms, #iterations = 1
+Embedding validation: PASS
+[sage] finished.
+ avg. elapsed: 0.185013 ms
+ iterations: 1
+ min. elapsed: 0.185013 ms
+ max. elapsed: 0.185013 ms
+ load time: 16.2771 ms
+ preprocess time: 145.453000 ms
+ postprocess time: 0.405073 ms
+ total time: 165.678024 ms
+<end of output>
+Test time =   0.74 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Embedding validation: PASS
+]
+"TEST_SAGE" end time: Oct 09 04:43 EDT
+"TEST_SAGE" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/42 Testing: TEST_SM_CMD
+27/42 Test: TEST_SM_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sm" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sm
+"TEST_SM_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test Subgraph Matching
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+--pattern-graph-type : std::string, default = 
+	pattern- graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--omp-runs : int, default = 1
+	Number of runs for parallel omp subgraph matching implementation.
+--omp-threads : std::vector<unsigned int>, default = 0
+	Number of threads for parallel omp subgraph matching implementation; 0 for default.
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--pattern-binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of pattern--graph-file
+--pattern-edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--pattern-edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--pattern-edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--pattern-graph-edgefactor : double, default = 48
+	Edge factor
+--pattern-graph-edges : long long, default = 49152
+	Number of edges
+--pattern-graph-file : std::string, default = 
+	pattern- graph file, empty points to STDIN
+--pattern-graph-nodes : long long, default = 1024
+	Number of nodes
+--pattern-graph-scale : long long, default = 10
+	Vertex scale
+--pattern-graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--pattern-grmat : bool, default = false
+	Generate rmat using GPU
+--pattern-random-edge-values : bool, default = false
+	If true, pattern- graph edge values are randomly generated when missing. If false, they are set to 1.
+--pattern-read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--pattern-remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--pattern-remove-self-loops : bool, default = true
+	Whether to remove self loops
+--pattern-rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--pattern-rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--pattern-rmat-a : double, default = 0.57
+	a for rmat generator
+--pattern-rmat-b : double, default = 0.19
+	b for rmat generator
+--pattern-rmat-c : double, default = 0.19
+	c for rmat generator
+--pattern-rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--pattern-small-world-k : long long, default = 6
+	k
+--pattern-small-world-p : double, default = 0
+	p
+--pattern-sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--pattern-store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--pattern-undirected : std::vector<bool>, default = 0
+	Whether pattern- graph is undirected
+--pattern-vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in pattern- starts from 0 instead of 1
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_SM_CMD" end time: Oct 09 04:43 EDT
+"TEST_SM_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/42 Testing: TEST_SM
+28/42 Test: TEST_SM
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sm" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/tree.mtx" "--pattern-graph-type=market" "--pattern-graph-file=/net/bigtemp/oj2zf/gunrock_wole/dataset/small/query_sm.mtx" "--undirected=1" "--pattern-undirected=1" "--num-runs=1" "--quiet=false"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sm
+"TEST_SM" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/tree.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/tree.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/tree.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 5
+  Assigning 1 to all 5 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 5 -> 10 edges
+  graph loaded as COO in 0.007686s.
+Converting 5 vertices, 10 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (5 vertices, 10 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 2 (40.000000 %)
+    Degree 2^1: 2 (40.000000 %)
+    Degree 2^2: 1 (20.000000 %)
+
+Loading Matrix-market coordinate-formatted pattern-graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/query_sm.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/query_sm.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/query_sm.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 3
+  Assigning 1 to all 3 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 3 -> 6 edges
+  pattern-graph loaded as COO in 0.001409s.
+Converting 3 vertices, 6 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (3 vertices, 6 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 3 (100.000000 %)
+
+# of nodes in data graph: 5
+# of nodes in query graph: 3
+__________________________
+CPU_Reference: start
+CPU_Reference: done
+__________________________
+Run CPU Reference Avg. in 1 iterations elapsed: 0.006914 ms
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.475883 ms, #iterations = 1
+Subgraph Matching Validity: PASS
+PASS
+[sm] finished.
+ avg. elapsed: 0.475883 ms
+ iterations: 1
+ min. elapsed: 0.475883 ms
+ max. elapsed: 0.475883 ms
+ load time: 10.0241 ms
+ preprocess time: 174.432000 ms
+ postprocess time: 0.355959 ms
+ total time: 175.436974 ms
+<end of output>
+Test time =   0.70 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASS
+]
+"TEST_SM" end time: Oct 09 04:43 EDT
+"TEST_SM" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/42 Testing: TEST_SNN_CMD
+29/42 Test: TEST_SNN_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/snn" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/snn
+"TEST_SNN_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test snn
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+--labels-file : std::string, default = 
+	List of points of dim-dimensional space
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--NUM-THREADS : std::vector<int>, default = 128
+	Number of threads running per block.
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--cpu-elapsed : float, default = 0
+	CPU implementation, elapsed time (ms) for JSON.
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--dim : std::vector<unsigned int>, default = 10
+	Dimension of labels
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--eps : std::vector<unsigned int>, default = 0
+	The minimum number of neighbors two points should share
+to be considered close to each other
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--k : std::vector<unsigned int>, default = 10
+	Numbers of k neighbors.
+--knn-elapsed : float, default = 0
+	KNN Gunrock implementation, elapsed time (ms) for JSON.
+--knn-version : std::vector<std::string>, default = gunrock
+	Version of knn: "gunrock" or "kmcuda" or "cuml" or "faiss"
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--min-pts : std::vector<unsigned int>, default = 0
+	The minimum density that a point should have to be considered a core point
+
+--n : std::vector<unsigned int>, default = 10
+	Numbers of points
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--save-snn-results : std::vector<bool>, default = 0
+	Save cluster assignments to file
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--snn-output-file : std::vector<std::string>, default = snn_results.output
+	Filename of snn output
+--snn-tag : std::string, default = 
+	snn-tag info for json string
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--transpose : std::vector<bool>, default = 0
+	False if lables are not transpose
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--use-shared-mem : std::vector<bool>, default = 0
+	True if kernel must use shared memory.
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_SNN_CMD" end time: Oct 09 04:43 EDT
+"TEST_SNN_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/42 Testing: TEST_SNN
+30/42 Test: TEST_SNN
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/snn" "market" "--labels-file" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate" "--k=2" "--eps=1" "--min-pts=1"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/snn
+"TEST_SNN" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Points File Input: /net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate
+Loading Labels into an array ...
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/stars_2total_separate:
+table is not tranposed
+Number of labels 10, dimension 3
+Done parsing (0 s).
+num_points = 10, k = 2, eps = 1, min-pts = 1
+KNN version: gunrock
+data_size = 4
+Using advance mode LB
+Using filter mode CULL
+Gunrock KNN Elapsed: 0.192881
+__________________________
+__________________________
+______ CPU Reference _____
+--------------------------
+ Elapsed: 0.673056
+__________________________
+--------RunTests-------
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+GPU number of core points found: 0
+--------------------------
+Run 0 elapsed: 0.395060, #iterations = 1
+Validate results start, num_errors so far 0
+number of points: 10
+cpu core point counter 0, gpu core point counter 0
+cpu noise point counter 10, gpu noise point counter 10
+cpu cluster counter 0, gpu cluster counter 0
+PASSED SNN
+[snn] finished.
+ avg. elapsed: 0.395060 ms
+ iterations: 1
+ min. elapsed: 0.395060 ms
+ max. elapsed: 0.395060 ms
+ load time: 0.545025 ms
+ preprocess time: 3.815170 ms
+ postprocess time: 0.591040 ms
+ total time: 5.028009 ms
+<end of output>
+Test time =   0.71 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASSED SNN
+]
+"TEST_SNN" end time: Oct 09 04:43 EDT
+"TEST_SNN" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/42 Testing: TEST_SS_CMD
+31/42 Test: TEST_SS_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/ss" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/ss
+"TEST_SS_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test Scan Statistics
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--omp-runs : int, default = 1
+	Number of runs for parallel omp scan statistics implementation.
+--omp-threads : std::vector<unsigned int>, default = 0
+	Number of threads for parallel omp scan statistics implementation; 0 for default.
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_SS_CMD" end time: Oct 09 04:43 EDT
+"TEST_SS_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/42 Testing: TEST_SS
+32/42 Test: TEST_SS
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/ss" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/ss
+"TEST_SS" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.004383s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+__________________________
+CPU_Reference: start
+CPU_Reference: done
+__________________________
+Run CPU Reference Avg. in 1 iterations elapsed: 0.092983 ms
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.125170 ms, #iterations = 1
+Validate_Results
+Scan statistics Validity: PASS
+PASS
+[ss] finished.
+ avg. elapsed: 0.125170 ms
+ iterations: 1
+ min. elapsed: 0.125170 ms
+ max. elapsed: 0.125170 ms
+ load time: 4.94194 ms
+ preprocess time: 151.140000 ms
+ postprocess time: 0.386000 ms
+ total time: 151.913166 ms
+<end of output>
+Test time =   0.78 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASS
+]
+"TEST_SS" end time: Oct 09 04:43 EDT
+"TEST_SS" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/42 Testing: TEST_SSSP_CMD
+33/42 Test: TEST_SSSP_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sssp
+"TEST_SSSP_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test sssp
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--mark-pred : std::vector<bool>, default = 0
+	Whether to mark predecessor info.
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = 0
+	<Vertex-ID|random|largestdegree> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees
+--src-seed : int, default = -1
+	seed to generate random sources
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_SSSP_CMD" end time: Oct 09 04:43 EDT
+"TEST_SSSP_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/42 Testing: TEST_SSSP
+34/42 Test: TEST_SSSP
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx" "--undirected" "--src=0"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sssp
+"TEST_SSSP" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.002175s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 0.043869 ms, src = 0
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=false undirected=true mark-pred=0 advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.340939 ms, src = 0, #iterations = 3
+Distance Validity: PASS
+First 40 distances of the GPU result:
+[0:0 1:2 2:2 3:2 4:2 5:2 6:1 7:1 8:2 9:2 10:1 11:1 12:1 13:2 14:2 15:2 16:2 17:2 18:2 19:2 20:2 21:1 22:1 23:2 24:2 25:2 26:2 27:2 28:2 29:2 30:2 31:2 32:2 33:1 34:1 35:2 36:1 37:2 38:1 ]
+First 40 distances of the reference CPU result.
+[0:0 1:2 2:2 3:2 4:2 5:2 6:1 7:1 8:2 9:2 10:1 11:1 12:1 13:2 14:2 15:2 16:2 17:2 18:2 19:2 20:2 21:1 22:1 23:2 24:2 25:2 26:2 27:2 28:2 29:2 30:2 31:2 32:2 33:1 34:1 35:2 36:1 37:2 38:1 ]
+
+[sssp] finished.
+ avg. elapsed: 0.340939 ms
+ iterations: 3
+ min. elapsed: 0.340939 ms
+ max. elapsed: 0.340939 ms
+ rate: 0.997247 MiEdges/s
+ src: 0
+ nodes_visited: 39
+ edges_visited: 340
+ load time: 2.64001 ms
+ preprocess time: 167.077000 ms
+ postprocess time: 0.269890 ms
+ total time: 167.855024 ms
+<end of output>
+Test time =   0.64 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_SSSP" end time: Oct 09 04:43 EDT
+"TEST_SSSP" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/42 Testing: TEST_SSSP_QUICK_VALIDATION
+35/42 Test: TEST_SSSP_QUICK_VALIDATION
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx" "--validation=each" "--quick"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/sssp
+"TEST_SSSP_QUICK_VALIDATION" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 34738
+  Assigning 1 to all 34738 edges
+  Substracting 1 from node Ids...
+  Removed 6900 duplicate edges and self circles.
+  graph loaded as COO in 0.017111s.
+Converting 7135 vertices, 27838 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (7135 vertices, 27838 edges):
+    Degree 0: 806 (11.296426 %)
+    Degree 2^0: 999 (14.001402 %)
+    Degree 2^1: 1735 (24.316748 %)
+    Degree 2^2: 2917 (40.882971 %)
+    Degree 2^3: 600 (8.409250 %)
+    Degree 2^4: 78 (1.093203 %)
+
+Invalid options --quick and --validation=each, no CPU reference result to validate
+<end of output>
+Test time =   0.50 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_SSSP_QUICK_VALIDATION" end time: Oct 09 04:43 EDT
+"TEST_SSSP_QUICK_VALIDATION" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/42 Testing: TEST_TC_CMD
+36/42 Test: TEST_TC_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/tc" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/tc
+"TEST_TC_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test Triangle Counting
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--omp-runs : int, default = 1
+	Number of runs for parallel omp tc implementation.
+--omp-threads : std::vector<unsigned int>, default = 0
+	Number of threads for parallel omp tc implementation; 0 for default.
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_TC_CMD" end time: Oct 09 04:43 EDT
+"TEST_TC_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/42 Testing: TEST_TC
+37/42 Test: TEST_TC
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/tc" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx" "--sort-csr"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/tc
+"TEST_TC" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/chesapeake.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 170
+  Assigning 1 to all 170 edges
+  Substracting 1 from node Ids...
+  Edge doubleing: 170 -> 340 edges
+  graph loaded as COO in 0.010630s.
+Converting 39 vertices, 340 directed edges ( ordered tuples) to CSR format...Done (0s).
+Degree Histogram (39 vertices, 340 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 1 (2.564103 %)
+    Degree 2^2: 22 (56.410256 %)
+    Degree 2^3: 13 (33.333333 %)
+    Degree 2^4: 2 (5.128205 %)
+    Degree 2^5: 1 (2.564103 %)
+
+__________________________
+CPU_Reference: start
+CPU_Reference: done
+__________________________
+Run CPU Reference Avg. in 1 iterations elapsed: 0.123978 ms
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=false advance-mode=LB
+Using advance mode LB
+Using filter mode CULL
+__________________________
+--------------------------
+Run 0 elapsed: 0.087023 ms, #iterations = 1
+Triangle Counting Validity: PASS
+PASS
+[tc] finished.
+ avg. elapsed: 0.087023 ms
+ iterations: 1
+ min. elapsed: 0.087023 ms
+ max. elapsed: 0.087023 ms
+ load time: 11.3311 ms
+ preprocess time: 158.413000 ms
+ postprocess time: 0.272989 ms
+ total time: 158.970833 ms
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[PASS
+]
+"TEST_TC" end time: Oct 09 04:43 EDT
+"TEST_TC" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/42 Testing: TEST_VN_CMD
+38/42 Test: TEST_VN_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/vn" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/vn
+"TEST_VN_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test vn
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--mark-pred : std::vector<bool>, default = 0
+	Whether to mark predecessor info.
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = 0
+	<Vertex-IDs|random|largestdegree> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees
+--src-seed : int, default = -1
+	seed to generate random sources
+--srcs-per-run : int, default = -1
+	number of source nodes per run
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_VN_CMD" end time: Oct 09 04:43 EDT
+"TEST_VN_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/42 Testing: TEST_LP_CMD
+39/42 Test: TEST_LP_CMD
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/lp" "--help"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/lp
+"TEST_LP_CMD" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+test lp
+
+Required arguments:
+--graph-type : std::string, default = 
+	 graph type, be one of market, csv, rgg, rmat, grmat or smallworld
+
+Optional arguments:
+--64bit-SizeT : std::vector<bool>, default = 0
+	Whether to use 64-bit SizeT
+--64bit-ValueT : std::vector<bool>, default = 0
+	Whether to use 64-bit ValueT
+--64bit-VertexT : std::vector<bool>, default = 0
+	Whether to use 64-bit VertexT
+--advance-mode : std::vector<std::string>, default = LB
+	Advance strategy, <LB | LB_CULL | LB_LIGHT | LB_LIGHT_CULL | TWC>,
+	default is determined based on input graph
+--binary-prefix : std::string, default = 
+	Prefix to store a binary copy of the graph, default is the value of -graph-file
+--communicate-latency : int, default = 0
+	additional communication latency
+--communicate-multipy : float, default = 1
+	communication sizing factor
+--dataset : std::string, default = 
+	Name of dataset, default value is set by graph reader / generator
+--device : std::vector<int>, default = 0
+	Set GPU(s) for testing
+--edge-value-min : float, default = 0
+	Minimum value of edge values when randomly generated
+--edge-value-range : float, default = 64
+	Range of edge values when randomly generated
+--edge-value-seed : long, default = 0
+	Rand seed to generate edge values, default is time(NULL)
+--expand-latency : int, default = 0
+	additional expand incoming latency
+--filter-mode : std::string, default = CULL
+	Filter strategy
+--fullqueue-latency : int, default = 0
+	additional fullqueue latency
+--graph-edgefactor : double, default = 48
+	Edge factor
+--graph-edges : long long, default = 49152
+	Number of edges
+--graph-file : std::string, default = 
+	 graph file, empty points to STDIN
+--graph-nodes : long long, default = 1024
+	Number of nodes
+--graph-scale : long long, default = 10
+	Vertex scale
+--graph-seed : int, default = 0
+	Rand seed to generate the graph, default is time(NULL)
+--grmat : bool, default = false
+	Generate rmat using GPU
+--help : bool, default = false
+	Print this usage.
+--json : bool, default = false
+	Whether to output statistics in json format
+--jsondir : std::string, default = 
+	Directory to output statistics in json format
+--jsonfile : std::string, default = 
+	Filename to output statistics in json format
+--makeout-latency : int, default = 0
+	additional make-out latency
+--max-grid-size : int, default = 0
+	Maximun number of grids for GPU kernels
+--num-runs : int, default = 1
+	Number of runs to perform the test, per parameter-set
+--partition-factor : float, default = 0.5
+	partitioning factor
+--partition-method : std::string, default = random
+	partitioning method, can be one of {random, biasrandom, cluster, metis, static, duplicate}
+--partition-seed : int, default = 0
+	partitioning seed, default is time(NULL)
+--queue-factor : std::vector<double>, default = 6
+	Reserved frontier sizing factor, multiples of numbers of vertices or edges
+--quick : bool, default = false
+	Whether to skip the CPU reference validation process.
+--quiet : bool, default = false
+	No output (unless --json is specified).
+--random-edge-values : bool, default = false
+	If true,  graph edge values are randomly generated when missing. If false, they are set to 1.
+--read-from-binary : bool, default = true
+	Whether to read a graph from binary file, if supported and file available
+--remove-duplicate-edges : bool, default = true
+	Whether to remove duplicate edges
+--remove-self-loops : bool, default = true
+	Whether to remove self loops
+--rgg-thfactor : double, default = 0.55
+	Threshold-factor
+--rgg-threshold : double, default = 0
+	Threshold, default is thfactor * sqrt(log(#nodes) / #nodes)
+--rmat-a : double, default = 0.57
+	a for rmat generator
+--rmat-b : double, default = 0.19
+	b for rmat generator
+--rmat-c : double, default = 0.19
+	c for rmat generator
+--rmat-d : double, default = 0.05
+	d for rmat generator, default is 1 - a - b - c
+--size-check : bool, default = true
+	Whether to enable frontier auto resizing
+--small-world-k : long long, default = 6
+	k
+--small-world-p : double, default = 0
+	p
+--sort-csr : bool, default = false
+	Whether to sort CSR edges per vertex
+--src : std::vector<std::string>, default = 0
+	<Vertex-ID|random|largestdegree> The source vertices
+	If random, randomly select non-zero degree vertices;
+	If largestdegree, select vertices with largest degrees
+--src-seed : int, default = -1
+	seed to generate random sources
+--store-to-binary : bool, default = true
+	Whether to store the graph to binary file, if supported
+--subqueue-latency : int, default = 0
+	additional subqueue latency
+--tag : std::vector<std::string>, default = 
+	Tag to better describe and identify json outputs
+--test : int, default = -1
+	test id for validation
+--trans-factor : double, default = 1
+	Reserved sizing factor for data communication, multiples of number of vertices
+--undirected : std::vector<bool>, default = 0
+	Whether  graph is undirected
+--v : bool, default = false
+	Print verbose per iteration debug info.
+--validation : std::string, default = last
+	<none | last | each> When to validate the results
+--vertex-start-from-zero : bool, default = true
+	Whether the vertex Id in  starts from 0 instead of 1
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Required arguments:
+]
+"TEST_LP_CMD" end time: Oct 09 04:43 EDT
+"TEST_LP_CMD" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/42 Testing: TEST_LP
+40/42 Test: TEST_LP
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/lp" "market" "/net/bigtemp/oj2zf/gunrock_wole/dataset/small/test_lp_1.mtx" "--test=1" "--remove-self-loops=false"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/lp
+"TEST_LP" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/test_lp_1.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/test_lp_1.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/small/test_lp_1.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 9
+  Substracting 1 from node Ids...
+  graph loaded as COO in 0.008118s.
+Converting 4 vertices, 9 directed edges ( ordered tuples) to CSR format...Done (0s).
+Converting 4 vertices, 9 directed edges (unordered tuples) to CSC format...Done (0s).
+Degree Histogram (4 vertices, 9 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 1 (25.000000 %)
+    Degree 2^1: 3 (75.000000 %)
+
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 0.002146 ms, src = 0, #iterations = 1
+Using advance mode LB
+Using filter mode CULL
+This is where the util:DEVICE=2 is checked with target 2
+__________________________
+Frontier:  |(0) 0 1 2 3
+Frontier queue length before work progress: 4
+Frontier queue length: 1
+Frontier:  |(0) 1 1 2 3
+Frontier queue length before work progress: 4
+Frontier queue length: 0
+--------------------------
+Run 0 elapsed: 0.900030 ms, src = 0, #iterations = 2
+Label Validity: PASS
+First 40 labels of the GPU result:
+[0:0 1:0 2:0 3:0 ]
+First 40 distances of the reference CPU result.
+[0:0 1:0 2:0 3:0 ]
+
+[lp] finished.
+ avg. elapsed: 0.900030 ms
+ iterations: 2
+Fewer than 5 vertices visited.
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"TEST_LP" end time: Oct 09 04:43 EDT
+"TEST_LP" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/42 Testing: SHARED_LIB_TEST_PAGERANK
+41/42 Test: SHARED_LIB_TEST_PAGERANK
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/shared_lib_pr"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/shared_libs
+"SHARED_LIB_TEST_PAGERANK" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+Converting 7 vertices, 26 directed edges (unordered tuples) to CSC format...Done (0s).
+Degree Histogram (7 vertices, 26 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 0 (0.000000 %)
+    Degree 2^1: 3 (42.857143 %)
+    Degree 2^2: 4 (57.142857 %)
+
+Init Problem and Enactor for PR.
+nodes = 7
+For run_num: 0, Reset problem and enactor and Enact.
+Node_ID [2] : Score: [0.186179]
+Node_ID [3] : Score: [0.152261]
+Node_ID [4] : Score: [0.152261]
+Node_ID [5] : Score: [0.151711]
+Node_ID [0] : Score: [0.119455]
+Node_ID [1] : Score: [0.119455]
+Node_ID [6] : Score: [0.118680]
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Node_ID.*2.*: Score.*1.2*
+]
+"SHARED_LIB_TEST_PAGERANK" end time: Oct 09 04:43 EDT
+"SHARED_LIB_TEST_PAGERANK" time elapsed: 00:00:00
+----------------------------------------------------------
+
+42/42 Testing: SHARED_LIB_TEST_HITS
+42/42 Test: SHARED_LIB_TEST_HITS
+Command: "/net/bigtemp/oj2zf/gunrock_wole/build/bin/shared_lib_hits"
+Directory: /net/bigtemp/oj2zf/gunrock_wole/build/examples/shared_libs
+"SHARED_LIB_TEST_HITS" start time: Oct 09 04:43 EDT
+Output:
+----------------------------------------------------------
+host memory call
+Node_ID: [0], Hub Score: [0.222755], Auth Score: [0.222755]
+Node_ID: [1], Hub Score: [0.299119], Auth Score: [0.299119]
+Node_ID: [2], Hub Score: [0.127685], Auth Score: [0.127685]
+Node_ID: [3], Hub Score: [0.222755], Auth Score: [0.222755]
+Node_ID: [4], Hub Score: [0.127685], Auth Score: [0.127685]
+device memory call
+Node_ID: [0], Hub Score: [0.222755], Auth Score: [0.222755]
+Node_ID: [1], Hub Score: [0.299119], Auth Score: [0.299119]
+Node_ID: [2], Hub Score: [0.127685], Auth Score: [0.127685]
+Node_ID: [3], Hub Score: [0.222755], Auth Score: [0.222755]
+Node_ID: [4], Hub Score: [0.127685], Auth Score: [0.127685]
+<end of output>
+Test time =   0.71 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found.Regex=[Node_ID: \[.\], Hub Score: \[........\], Auth Score: \[........\]
+]
+"SHARED_LIB_TEST_HITS" end time: Oct 09 04:43 EDT
+"SHARED_LIB_TEST_HITS" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 09 04:43 EDT
