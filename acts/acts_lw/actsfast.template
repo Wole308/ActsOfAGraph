@@ -944,6 +944,10 @@ runpipeline(keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t b
 			partition_type pA2 = getpartition(kvA2[0], currentLOP, 0, batch_range_pow);
 			partition_type pA4 = getpartition(kvA4[0], currentLOP, 0, batch_range_pow);
 			partition_type pA6 = getpartition(kvA6[0], currentLOP, 0, batch_range_pow);
+			// partition_type pA0 = kvA0[0].key; 
+			// partition_type pA2 = kvA2[0].key; 
+			// partition_type pA4 = kvA4[0].key; 
+			// partition_type pA6 = kvA6[0].key;
 
 			//
 			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
@@ -978,6 +982,10 @@ runpipeline(keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t b
 			partition_type pB2 = getpartition(kvB2[0], currentLOP, 0, batch_range_pow);
 			partition_type pB4 = getpartition(kvB4[0], currentLOP, 0, batch_range_pow);
 			partition_type pB6 = getpartition(kvB6[0], currentLOP, 0, batch_range_pow);
+			// partition_type pB0 = kvB0[0].key;
+			// partition_type pB2 = kvB2[0].key; 
+			// partition_type pB4 = kvB4[0].key;
+			// partition_type pB6 = kvB6[0].key;
 			
 			//
 			buffer_type posC0 = tempbufferCcapsule0[pB0].key + tempbufferCcapsule0[pB0].value; // bufferCcapsule[0]
@@ -1008,6 +1016,10 @@ runpipeline(keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t b
 			partition_type _pC0 = getpartition(_kvC0[0], currentLOP, 0, batch_range_pow);
 			partition_type pC4 = getpartition(kvC4[0], currentLOP, 0, batch_range_pow);
 			partition_type _pC4 = getpartition(_kvC4[0], currentLOP, 0, batch_range_pow);
+			// partition_type pC0 = kvC0[0].key; 
+			// partition_type _pC0 = _kvC0[0].key; 
+			// partition_type pC4 = kvC4[0].key; 
+			// partition_type _pC4 = _kvC4[0].key;
 			
 			//
 			buffer_type posD0 = tempbufferDcapsule[pC0].key + tempbufferDcapsule[pC0].value;
