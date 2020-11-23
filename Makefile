@@ -52,8 +52,8 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-# HOST_TOP += examples/hostprocess.cpp
 KERNEL_TOP += acts/acts_lw/actslw.cpp
+# KERNEL_TOP += acts/acts_lw/actsmax.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
 
 HOST_TOP += examples/hostprocess.cpp
@@ -68,7 +68,7 @@ HOST_SRCS += examples/helperfunctions/procedges.cpp
 HOST_SRCS += examples/pagerank/pagerank.cpp
 # HOST_SRCS += examples/pagerank/pagerank_pim.cpp
 HOST_SRCS += examples/bfs/bfs.cpp
-# HOST_SRCS += examples/bfs/bfs_pim.cpp
+HOST_SRCS += examples/sssp/sssp.cpp
 HOST_SRCS += examples/test/test.cpp
 # HOST_SRCS += examples/advance_op/advance_op.cpp
 HOST_SRCS += src/graphs/graph.cpp
@@ -100,8 +100,6 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
-
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0:3]
 
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
@@ -136,6 +134,15 @@ LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[0]
 
 EXECUTABLE = host
 CMD_ARGS = $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin

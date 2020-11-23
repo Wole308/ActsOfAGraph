@@ -29,7 +29,7 @@ print(isFile)
 context['NUM_PARTITIONS_POW'] = 4
 context['VECTOR_SIZE'] = 8
 context['DUMMY'] = 0
-context['NUMSUBWORKERS'] = 1#4
+context['NUMSUBWORKERS'] = 3#4
 
 ###
 
@@ -159,8 +159,8 @@ o_path6="acts/acts_lw/actslw.cpp"
 o_path7="acts/acts_lw/actslw.h"
 o_path8="acts/acts_lw/actsmax.cpp"
 o_path9="acts/acts_lw/actsmax.h"
-o_path10="acts/acts_lw/actslw.cpp"
-o_path11="acts/acts_lw/actslw.h"
+o_path10="acts/acts_lw/actsfast.cpp"
+o_path11="acts/acts_lw/actsfast.h"
 o_path12="acts/acts_lw/actslw.cpp"
 o_path13="acts/acts_lw/actslw.h"
 o_path14="acts/acts/acts.cpp"
@@ -392,8 +392,8 @@ template6 = env6.get_template('actslw.template')
 template7 = env7.get_template('actslw_h.template')
 template8 = env8.get_template('actsmax.template')
 template9 = env9.get_template('actsmax_h.template')
-template10 = env10.get_template('actslw.template')
-template11 = env11.get_template('actslw_h.template')
+template10 = env10.get_template('actsfast.template')
+template11 = env11.get_template('actsfast_h.template')
 template12 = env12.get_template('actslw.template')
 template13 = env13.get_template('actslw_h.template')
 template14 = env14.get_template('actslw.template')

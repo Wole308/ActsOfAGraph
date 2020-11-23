@@ -1,8 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -54,7 +57,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
@@ -99,7 +102,7 @@
 #define NUM_PARTITIONS_POW 4
 #define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
 
-#ifdef ACTGRAPH_SETUP
+#if defined(ACTGRAPH_SETUP)
 #define MAXNUMSSDPARTITIONS 16
 #define NUMSSDPARTITIONS_POW 4
 #else 
@@ -117,7 +120,7 @@
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
-#define NUMSUBWORKERS 1
+#define NUMSUBWORKERS 3
 
 ////////////////
 

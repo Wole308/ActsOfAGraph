@@ -1104,7 +1104,7 @@ void
 	actsmax:: 
 	#endif
 topkernel(uint512_dt * kvdram){
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0 max_read_burst_length=64 max_write_burst_length=64
+#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0 // max_read_burst_length=64 max_write_burst_length=64
 
 #pragma HLS INTERFACE s_axilite port = kvdram bundle = control
 
@@ -1131,7 +1131,6 @@ topkernel(uint512_dt * kvdram){
 	keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	keyvalue_t templocalcapsule_so8[NUM_PARTITIONS];
-	// #pragma HLS ARRAY_PARTITION variable=templocalcapsule_so8 complete // FIXME.
 
 	batch_type sourcestatsmarker = 0;
 	keyvalue_t globalstatsbuffer[NUM_PARTITIONS];
@@ -1162,16 +1161,16 @@ topkernel(uint512_dt * kvdram){
 		for(unsigned offset_kvs=0; offset_kvs<KVDRAMSZ; offset_kvs+=SRCBUFFER_SIZE){
 		
 			readkeyvalues(ON, kvdram, sourcebuffer, offset_kvs, travstate);
-			/// runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4);
+			runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, currentLOP, globalparams.batch_range_pow);
 			
 			partitionkeyvalues(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);		
-			/// savekeyvalues(ON, kvdram, buffer_setof4, globalcapsule, templocalcapsule_so4, globalbaseaddress_kvs, globalparams);
+			savekeyvalues(ON, kvdram, buffer_setof8, globalcapsule, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
 			
 			runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, currentLOP, globalparams.batch_range_pow);
-			/// readkeyvalues(sourcebuffer, kvdram);
+			readkeyvalues(ON, kvdram, sourcebuffer, offset_kvs, travstate);
 			
 			savekeyvalues(ON, kvdram, buffer_setof8, globalcapsule, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
-			/// partitionkeyvalues(sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);		
+			partitionkeyvalues(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);	
 		}
 	}
 	

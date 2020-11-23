@@ -24,60 +24,10 @@
 #include "actsfast.h"
 using namespace std;
 
-#define PADDEDDESTBUFFER_SIZE 512
-#define SRCBUFFER_SIZE (PADDEDDESTBUFFER_SIZE - ((4 * 3 * NUM_PARTITIONS) / VECTOR_SIZE))
-#define VECTOR_SIZE 8
+// #define PADDEDDESTBUFFER_SIZE 512
+// #define SRCBUFFER_SIZE (PADDEDDESTBUFFER_SIZE - ((4 * 3 * NUM_PARTITIONS) / VECTOR_SIZE))
+// #define VECTOR_SIZE 8
 
-/* partition_type
-	#ifdef SW 
-	actsmax::
-	#endif 
-getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
-	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	if(partition >= NUM_PARTITIONS){ actsutilityobj->globalstats_counterrorsingetpartition(1); }
-	#endif 
-	
-	#ifdef ENABLE_PERFECTACCURACY
-		#ifdef _DEBUGMODE_CHECKS2
-		if(partition >= NUM_PARTITIONS){ cout<<"getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<endl; exit(EXIT_FAILURE); }
-		#endif
-	#endif 
-	#ifndef ENABLE_PERFECTACCURACY
-		if(partition >= NUM_PARTITIONS){ partition = (((1 << NUM_PARTITIONS_POW) - 1) & (partition >> (1 - 1))); } // FIXME. REMOVEME. PERFECTIONTEST.
-	#endif
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("actsmax::getpartition 2", partition, NUM_PARTITIONS, keyvalue.key, upperlimit, currentLOP);
-	#endif
-	return partition;
-}
-buffer_type 
-	#ifdef SW 
-	actsmax::
-	#endif 
-getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
-	buffer_type chunk_size = buffer_size;
-	batch_type i = travstate.i_kvs + localoffset;
-	if (i > travstate.end_kvs){ chunk_size = 0; }
-	else if ((i + buffer_size) > travstate.end_kvs){ chunk_size = travstate.end_kvs - i; }
-	else {}
-	return chunk_size;
-}
-buffer_type 
-	#ifdef SW 
-	actsmax::
-	#endif 
-getchunksize(buffer_type buffersz, travstate_t travstate, buffer_type localoffset){
-	buffer_type chunksz = buffersz;
-	batch_type i = travstate.i + localoffset;
-	if (i > travstate.end){ chunksz = 0; }
-	else if ((i + buffersz) > travstate.end){ chunksz = travstate.end - i; }
-	else {}
-	return chunksz;
-}
- */
 // kernel utilities
 unsigned int
 	#ifdef SW 
@@ -833,62 +783,409 @@ partitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDED
 	return;
 }
 
-void 
+/** void 
 	#ifdef SW 
 	actsmax::
 	#endif
-runpipeline(keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer1capsule[VECTOR_SIZE][NUM_PARTITIONS], 
-				keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer2capsule[VECTOR_SIZE][NUM_PARTITIONS], 
-					keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer4capsule[VECTOR_SIZE][NUM_PARTITIONS]){					
+runpipeline(keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer1capsule[VECTOR_SIZE][NUM_PARTITIONS], 
+				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferBcapsule[VECTOR_SIZE][NUM_PARTITIONS], 
+					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferCcapsule[VECTOR_SIZE][NUM_PARTITIONS],
+						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferDcapsule[NUM_PARTITIONS],
+							unsigned int currentLOP, unsigned int batch_range_pow){					
+	#pragma HLS INLINE OFF
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+	
 	keyvalue_t kvA0[4];
 	keyvalue_t kvA2[4];
+	keyvalue_t kvA4[4];
+	keyvalue_t kvA6[4];
+	#pragma HLS ARRAY_PARTITION variable=kvA0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA6 complete
+	
 	keyvalue_t kvB0[4];
 	keyvalue_t kvB1[4];
 	keyvalue_t kvB2[4];
 	keyvalue_t kvB3[4];
+	keyvalue_t kvB4[4];
+	keyvalue_t kvB5[4];
+	keyvalue_t kvB6[4];
+	keyvalue_t kvB7[4];
+	#pragma HLS ARRAY_PARTITION variable=kvB0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB1 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB3 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB5 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB6 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB7 complete
 	
-	RUNPIPELINE_LOOP1: for(unsigned int n=0; n<2; n++){
-		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){
+	keyvalue_t kvC0[4];
+	keyvalue_t kvC1[4];
+	keyvalue_t kvC2[4];
+	keyvalue_t kvC3[4];
+	keyvalue_t kvC4[4];
+	keyvalue_t kvC5[4];
+	keyvalue_t kvC6[4];
+	keyvalue_t kvC7[4];
+	#pragma HLS ARRAY_PARTITION variable=kvC0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC1 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC3 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC5 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC6 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC7 complete
+	
+	keyvalue_t _kvC0[4];
+	keyvalue_t _kvC1[4];
+	keyvalue_t _kvC2[4];
+	keyvalue_t _kvC3[4];
+	keyvalue_t _kvC4[4];
+	keyvalue_t _kvC5[4];
+	keyvalue_t _kvC6[4];
+	keyvalue_t _kvC7[4];
+	#pragma HLS ARRAY_PARTITION variable=_kvC0 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC1 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC2 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC3 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC4 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC5 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC6 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC7 complete
+	
+	unsigned int n=0;
+	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){ 
+		// RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<bufferBcapsule[0][3].key; k+=4){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 		#pragma HLS PIPELINE II=1
+		
 			//
-			kvA0[0] = buffer1[0+n][k];
-			kvA0[1] = buffer1[0+n][k+1];
-			kvA0[2] = buffer1[0+n][k+2];
-			kvA0[3] = buffer1[0+n][k+3];
+			kvA0[0] = bufferA[0+n][k];
+			kvA0[1] = bufferA[0+n][k+1];
+			kvA0[2] = bufferA[0+n][k+2];
+			kvA0[3] = bufferA[0+n][k+3];
 			
-			kvA2[0] = buffer1[2+n][k]; 
-			kvA2[1] = buffer1[2+n][k+1];
-			kvA2[2] = buffer1[2+n][k+2];
-			kvA2[3] = buffer1[2+n][k+3];
+			kvA2[0] = bufferA[2+n][k]; 
+			kvA2[1] = bufferA[2+n][k+1];
+			kvA2[2] = bufferA[2+n][k+2];
+			kvA2[3] = bufferA[2+n][k+3];
+			
+			kvA4[0] = bufferA[4+n][k];
+			kvA4[1] = bufferA[4+n][k+1];
+			kvA4[2] = bufferA[4+n][k+2];
+			kvA4[3] = bufferA[4+n][k+3];
+			
+			kvA6[0] = bufferA[6+n][k];
+			kvA6[1] = bufferA[6+n][k+1];
+			kvA6[2] = bufferA[6+n][k+2];
+			kvA6[3] = bufferA[6+n][k+3];
 			
 			//
-			partition_type pA0 = getpartition(kvA0[0], 0, 0, 12);
-			partition_type pA2 = getpartition(kvA2[0], 0, 0, 12);
-			
-			//
-			buffer_type colA0 = buffer2capsule[0][pA0].key + buffer2capsule[0][pA0].value;
-			kvB0[0] = buffer2[colA0][0]; kvB1[0] = buffer2[colA0][1];
-			kvB0[1] = buffer2[colA0+1][0]; kvB1[1] = buffer2[colA0+1][1];
-			buffer2[colA0][0] = kvA0[0]; buffer2[colA0][1] = kvA0[1];  
-			buffer2[colA0+1][0] = kvA0[2]; buffer2[colA0+1][1] = kvA0[3];
-			buffer2capsule[0][pA0].value += 2;
+			partition_type pA0 = getpartition(kvA0[0], currentLOP, 0, batch_range_pow);
+			partition_type pA2 = getpartition(kvA2[0], currentLOP, 0, batch_range_pow);
+			partition_type pA4 = getpartition(kvA4[0], currentLOP, 0, batch_range_pow);
+			partition_type pA6 = getpartition(kvA6[0], currentLOP, 0, batch_range_pow);
 
-			buffer_type colA2 = buffer2capsule[2][pA2].key + buffer2capsule[2][pA2].value; 
-			kvB2[0] = buffer2[colA2][2]; kvB3[0] = buffer2[colA2][3];
-			kvB2[1] = buffer2[colA2+1][2]; kvB3[1] = buffer2[colA2+1][3];
-			buffer2[colA2][2] = kvA2[0]; buffer2[colA2][3] = kvA2[1];
-			buffer2[colA2+1][2] = kvA2[2]; buffer2[colA2+1][3] = kvA2[3];
-			buffer2capsule[2][pA2].value += 2;
+			//
+			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
+			kvB0[0] = bufferB[0][posB0]; kvB1[0] = bufferB[1][posB0];
+			kvB0[1] = bufferB[0][posB0+1]; kvB1[1] = bufferB[1][posB0+1];
+			bufferB[0][posB0] = kvA0[0]; bufferB[1][posB0] = kvA0[1]; 
+			bufferB[0][posB0+1] = kvA0[2]; bufferB[1][posB0+1] = kvA0[3];
+			bufferBcapsule[0][pA0].value += 2;
+
+			buffer_type posB2 = bufferBcapsule[2][pA2].key + bufferBcapsule[2][pA2].value; 
+			kvB2[0] = bufferB[2][posB2]; kvB3[0] = bufferB[3][posB2];
+			kvB2[1] = bufferB[2][posB2+1]; kvB3[1] = bufferB[3][posB2+1];
+			bufferB[2][posB2] = kvA2[0]; bufferB[3][posB2] = kvA2[1];
+			bufferB[2][posB2+1] = kvA2[2]; bufferB[3][posB2+1] = kvA2[3];
+			bufferBcapsule[2][pA2].value += 2;
+			
+			buffer_type posB4 = bufferBcapsule[4][pA4].key + bufferBcapsule[4][pA4].value; 
+			kvB4[0] = bufferB[4][posB4]; kvB5[0] = bufferB[5][posB4];
+			kvB4[1] = bufferB[4][posB4+1]; kvB5[1] = bufferB[5][posB4+1];
+			bufferB[4][posB4] = kvA4[0]; bufferB[5][posB4] = kvA4[1];
+			bufferB[4][posB4+1] = kvA4[2]; bufferB[5][posB4+1] = kvA4[3];
+			bufferBcapsule[4][pA4].value += 2;
+			
+			buffer_type posB6 = bufferBcapsule[6][pA6].key + bufferBcapsule[6][pA6].value; 
+			kvB6[0] = bufferB[6][posB6]; kvB7[0] = bufferB[7][posB6];
+			kvB6[1] = bufferB[6][posB6+1]; kvB7[1] = bufferB[7][posB6+1];
+			bufferB[6][posB6] = kvA6[0]; bufferB[7][posB6] = kvA6[1];
+			bufferB[6][posB6+1] = kvA6[2]; bufferB[7][posB6+1] = kvA6[3];
+			bufferBcapsule[6][pA6].value += 2;
+			
+			partition_type pB0 = getpartition(kvB0[0], currentLOP, 0, batch_range_pow);
+			partition_type pB2 = getpartition(kvB2[0], currentLOP, 0, batch_range_pow);
+			partition_type pB4 = getpartition(kvB4[0], currentLOP, 0, batch_range_pow);
+			partition_type pB6 = getpartition(kvB6[0], currentLOP, 0, batch_range_pow);
 			
 			//
-			buffer_type col = buffer4capsule[0][pA2].key + buffer4capsule[0][pA2].value;
-			buffer4[col][0] = kvB0[0]; buffer4[col][1] = kvB1[0]; buffer4[col][2] = kvB0[1]; buffer4[col][3] = kvB1[1];
+			buffer_type posC0 = bufferCcapsule[0][pB0].key + bufferCcapsule[0][pB0].value;
+			kvC0[0] = bufferC[0][posC0]; kvC1[0] = bufferC[1][posC0]; kvC2[0] = bufferC[2][posC0]; kvC3[0] = bufferC[3][posC0];
+			bufferC[0][posC0] = kvB0[0]; bufferC[1][posC0] = kvB1[0]; bufferC[2][posC0] = kvB0[1]; bufferC[3][posC0] = kvB1[1];
+			bufferCcapsule[0][pB0].value += 1;
 
-			buffer_type _col = buffer4capsule[0][pA2].key + buffer4capsule[0][pA2].value;
-			buffer4[_col][0] = kvB2[0]; buffer4[_col][1] = kvB3[0]; buffer4[_col][2] = kvB2[1]; buffer4[_col][3] = kvB3[1];
-			buffer4capsule[0][pA2].value += 2;
+			buffer_type _posC0 = bufferCcapsule[0][pB2].key + bufferCcapsule[0][pB2].value;
+			_kvC0[0] = bufferC[0][posC0]; _kvC1[0] = bufferC[1][posC0]; _kvC2[0] = bufferC[2][posC0]; _kvC3[0] = bufferC[3][posC0];
+			bufferC[0][_posC0] = kvB2[0]; bufferC[1][_posC0] = kvB3[0]; bufferC[2][_posC0] = kvB2[1]; bufferC[3][_posC0] = kvB3[1];
+			bufferCcapsule[0][pB2].value += 1;
+			
+			buffer_type posC4 = bufferCcapsule[4][pB4].key + bufferCcapsule[4][pB4].value;
+			kvC4[0] = bufferC[4][posC0]; kvC5[0] = bufferC[5][posC0]; kvC6[0] = bufferC[6][posC0]; kvC7[0] = bufferC[7][posC0]; 
+			bufferC[4][posC4] = kvB4[0]; bufferC[5][posC4] = kvB5[0]; bufferC[6][posC4] = kvB4[1]; bufferC[7][posC4] = kvB5[1];
+			bufferCcapsule[4][pB4].value += 1;
+			
+			buffer_type _posC4 = bufferCcapsule[4][pB6].key + bufferCcapsule[4][pB6].value;
+			_kvC4[0] = bufferC[4][posC0]; _kvC5[0] = bufferC[5][posC0]; _kvC6[0] = bufferC[6][posC0]; _kvC7[0] = bufferC[7][posC0];
+			bufferC[4][_posC4] = kvB6[0]; bufferC[5][_posC4] = kvB7[0]; bufferC[6][_posC4] = kvB6[1]; bufferC[7][_posC4] = kvB7[1];
+			bufferCcapsule[4][pB6].value += 1;
+			
+			partition_type pC0 = getpartition(kvC0[0], currentLOP, 0, batch_range_pow);
+			partition_type _pC0 = getpartition(_kvC0[0], currentLOP, 0, batch_range_pow);
+			partition_type pC4 = getpartition(kvC4[0], currentLOP, 0, batch_range_pow);
+			partition_type _pC4 = getpartition(_kvC4[0], currentLOP, 0, batch_range_pow);
+			
+			//
+			buffer_type posD0 = bufferDcapsule[pC0].key + bufferDcapsule[pC0].value;
+			bufferC[0][posD0] = kvC0[0]; bufferC[1][posD0] = kvC1[0]; bufferC[2][posD0] = kvC2[0]; bufferC[3][posD0] = kvC3[0]; // FIXME.
+			bufferDcapsule[pC0].value += 1;
+			
+			buffer_type _posD0 = bufferDcapsule[_pC0].key + bufferDcapsule[_pC0].value;
+			bufferC[0][_posD0] = kvC0[0]; bufferC[1][_posD0] = kvC1[0]; bufferC[2][_posD0] = kvC2[0]; bufferC[3][_posD0] = kvC3[0];
+			bufferDcapsule[_pC0].value += 1;
+			
+			buffer_type __posD0 = bufferDcapsule[pC4].key + bufferDcapsule[pC4].value;
+			bufferC[4][__posD0] = kvC0[0]; bufferC[5][__posD0] = kvC1[0]; bufferC[6][__posD0] = kvC2[0]; bufferC[7][__posD0] = kvC3[0];
+			bufferDcapsule[pC4].value += 1;
+			
+			buffer_type ___posD0 = bufferDcapsule[_pC4].key + bufferDcapsule[_pC4].value;
+			bufferC[4][___posD0] = kvC0[0]; bufferC[5][___posD0] = kvC1[0]; bufferC[6][___posD0] = kvC2[0]; bufferC[7][___posD0] = kvC3[0];
+			bufferDcapsule[_pC4].value += 1;
 		}
 	}
+	return;
+} */
+void 
+	#ifdef SW 
+	actsmax::
+	#endif
+runpipeline(keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer1capsule[VECTOR_SIZE][NUM_PARTITIONS], 
+				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferBcapsule[4][NUM_PARTITIONS], 
+					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
+						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferDcapsule[NUM_PARTITIONS],
+							unsigned int currentLOP, unsigned int batch_range_pow){					
+	#pragma HLS INLINE OFF
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+	
+	keyvalue_t kvA0[4];
+	keyvalue_t kvA2[4];
+	keyvalue_t kvA4[4];
+	keyvalue_t kvA6[4];
+	#pragma HLS ARRAY_PARTITION variable=kvA0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA6 complete
+	
+	keyvalue_t kvB0[4];
+	keyvalue_t kvB1[4];
+	keyvalue_t kvB2[4];
+	keyvalue_t kvB3[4];
+	keyvalue_t kvB4[4];
+	keyvalue_t kvB5[4];
+	keyvalue_t kvB6[4];
+	keyvalue_t kvB7[4];
+	#pragma HLS ARRAY_PARTITION variable=kvB0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB1 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB3 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB5 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB6 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB7 complete
+	
+	keyvalue_t kvC0[4];
+	keyvalue_t kvC1[4];
+	keyvalue_t kvC2[4];
+	keyvalue_t kvC3[4];
+	keyvalue_t kvC4[4];
+	keyvalue_t kvC5[4];
+	keyvalue_t kvC6[4];
+	keyvalue_t kvC7[4];
+	#pragma HLS ARRAY_PARTITION variable=kvC0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC1 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC3 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC5 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC6 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC7 complete
+	
+	keyvalue_t _kvC0[4];
+	keyvalue_t _kvC1[4];
+	keyvalue_t _kvC2[4];
+	keyvalue_t _kvC3[4];
+	keyvalue_t _kvC4[4];
+	keyvalue_t _kvC5[4];
+	keyvalue_t _kvC6[4];
+	keyvalue_t _kvC7[4];
+	#pragma HLS ARRAY_PARTITION variable=_kvC0 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC1 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC2 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC3 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC4 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC5 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC6 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC7 complete
+	
+	keyvalue_t tempbufferCcapsule0[NUM_PARTITIONS];
+	// #pragma HLS ARRAY_PARTITION variable=tempbufferCcapsule0 complete
+	keyvalue_t tempbufferCcapsule1[NUM_PARTITIONS];
+	// #pragma HLS ARRAY_PARTITION variable=tempbufferCcapsule1 complete
+	
+	keyvalue_t tempbufferDcapsule[NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=tempbufferDcapsule complete
+	
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		tempbufferCcapsule0[p] = bufferCcapsule[0][p];
+		tempbufferCcapsule1[p] = bufferCcapsule[1][p];
+		tempbufferDcapsule[p] = bufferDcapsule[p]; }
+	
+	unsigned int n=0;
+	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){ 
+		// RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<bufferBcapsule[0][3].key; k+=4){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=1
+		
+			//
+			kvA0[0] = bufferA[0+n][k];
+			kvA0[1] = bufferA[0+n][k+1];
+			kvA0[2] = bufferA[0+n][k+2];
+			kvA0[3] = bufferA[0+n][k+3];
+			
+			kvA2[0] = bufferA[2+n][k]; 
+			kvA2[1] = bufferA[2+n][k+1];
+			kvA2[2] = bufferA[2+n][k+2];
+			kvA2[3] = bufferA[2+n][k+3];
+			
+			kvA4[0] = bufferA[4+n][k];
+			kvA4[1] = bufferA[4+n][k+1];
+			kvA4[2] = bufferA[4+n][k+2];
+			kvA4[3] = bufferA[4+n][k+3];
+			
+			kvA6[0] = bufferA[6+n][k];
+			kvA6[1] = bufferA[6+n][k+1];
+			kvA6[2] = bufferA[6+n][k+2];
+			kvA6[3] = bufferA[6+n][k+3];
+			
+			//
+			partition_type pA0 = getpartition(kvA0[0], currentLOP, 0, batch_range_pow);
+			partition_type pA2 = getpartition(kvA2[0], currentLOP, 0, batch_range_pow);
+			partition_type pA4 = getpartition(kvA4[0], currentLOP, 0, batch_range_pow);
+			partition_type pA6 = getpartition(kvA6[0], currentLOP, 0, batch_range_pow);
+			// partition_type pA0 = kvA0[0].key; 
+			// partition_type pA2 = kvA2[0].key; 
+			// partition_type pA4 = kvA4[0].key; 
+			// partition_type pA6 = kvA6[0].key;
+
+			//
+			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
+			kvB0[0] = bufferB[0][posB0]; kvB1[0] = bufferB[1][posB0];
+			kvB0[1] = bufferB[0][posB0+1]; kvB1[1] = bufferB[1][posB0+1];
+			bufferB[0][posB0] = kvA0[0]; bufferB[1][posB0] = kvA0[1]; 
+			bufferB[0][posB0+1] = kvA0[2]; bufferB[1][posB0+1] = kvA0[3];
+			bufferBcapsule[0][pA0].value += 2;
+
+			buffer_type posB2 = bufferBcapsule[1][pA2].key + bufferBcapsule[1][pA2].value; 
+			kvB2[0] = bufferB[2][posB2]; kvB3[0] = bufferB[3][posB2];
+			kvB2[1] = bufferB[2][posB2+1]; kvB3[1] = bufferB[3][posB2+1];
+			bufferB[2][posB2] = kvA2[0]; bufferB[3][posB2] = kvA2[1];
+			bufferB[2][posB2+1] = kvA2[2]; bufferB[3][posB2+1] = kvA2[3];
+			bufferBcapsule[1][pA2].value += 2;
+			
+			buffer_type posB4 = bufferBcapsule[2][pA4].key + bufferBcapsule[2][pA4].value; 
+			kvB4[0] = bufferB[4][posB4]; kvB5[0] = bufferB[5][posB4];
+			kvB4[1] = bufferB[4][posB4+1]; kvB5[1] = bufferB[5][posB4+1];
+			bufferB[4][posB4] = kvA4[0]; bufferB[5][posB4] = kvA4[1];
+			bufferB[4][posB4+1] = kvA4[2]; bufferB[5][posB4+1] = kvA4[3];
+			bufferBcapsule[2][pA4].value += 2;
+			
+			buffer_type posB6 = bufferBcapsule[3][pA6].key + bufferBcapsule[3][pA6].value; 
+			kvB6[0] = bufferB[6][posB6]; kvB7[0] = bufferB[7][posB6];
+			kvB6[1] = bufferB[6][posB6+1]; kvB7[1] = bufferB[7][posB6+1];
+			bufferB[6][posB6] = kvA6[0]; bufferB[7][posB6] = kvA6[1];
+			bufferB[6][posB6+1] = kvA6[2]; bufferB[7][posB6+1] = kvA6[3];
+			bufferBcapsule[3][pA6].value += 2;
+			
+			partition_type pB0 = getpartition(kvB0[0], currentLOP, 0, batch_range_pow);
+			partition_type pB2 = getpartition(kvB2[0], currentLOP, 0, batch_range_pow);
+			partition_type pB4 = getpartition(kvB4[0], currentLOP, 0, batch_range_pow);
+			partition_type pB6 = getpartition(kvB6[0], currentLOP, 0, batch_range_pow);
+			// partition_type pB0 = kvB0[0].key;
+			// partition_type pB2 = kvB2[0].key; 
+			// partition_type pB4 = kvB4[0].key;
+			// partition_type pB6 = kvB6[0].key;
+			
+			//
+			buffer_type posC0 = tempbufferCcapsule0[pB0].key + tempbufferCcapsule0[pB0].value; // bufferCcapsule[0]
+			kvC0[0] = bufferC[0][posC0]; kvC1[0] = bufferC[1][posC0]; kvC2[0] = bufferC[2][posC0]; kvC3[0] = bufferC[3][posC0];
+			kvC0[1] = bufferC[0][posC0+1]; kvC1[1] = bufferC[1][posC0+1]; kvC2[1] = bufferC[2][posC0+1]; kvC3[1] = bufferC[3][posC0+1];
+			bufferC[0][posC0] = kvB0[0]; bufferC[1][posC0] = kvB1[0]; bufferC[2][posC0] = kvB0[1]; bufferC[3][posC0] = kvB1[1];
+			tempbufferCcapsule0[pB0].value += 1;
+
+			buffer_type _posC0 = tempbufferCcapsule0[pB2].key + tempbufferCcapsule0[pB2].value; // bufferCcapsule[0]
+			_kvC0[0] = bufferC[0][_posC0]; _kvC1[0] = bufferC[1][_posC0]; _kvC2[0] = bufferC[2][_posC0]; _kvC3[0] = bufferC[3][_posC0];
+			_kvC0[1] = bufferC[0][_posC0+1]; _kvC1[1] = bufferC[1][_posC0+1]; _kvC2[1] = bufferC[2][_posC0+1]; _kvC3[1] = bufferC[3][_posC0+1];
+			bufferC[0][_posC0] = kvB2[0]; bufferC[1][_posC0] = kvB3[0]; bufferC[2][_posC0] = kvB2[1]; bufferC[3][_posC0] = kvB3[1];
+			tempbufferCcapsule0[pB2].value += 1;
+			
+			buffer_type posC4 = tempbufferCcapsule1[pB4].key + tempbufferCcapsule1[pB4].value; // bufferCcapsule[1]
+			kvC4[0] = bufferC[4][posC4]; kvC5[0] = bufferC[5][posC4]; kvC6[0] = bufferC[6][posC4]; kvC7[0] = bufferC[7][posC4]; 
+			kvC4[1] = bufferC[4][posC4+1]; kvC5[1] = bufferC[5][posC4+1]; kvC6[1] = bufferC[6][posC4+1]; kvC7[1] = bufferC[7][posC4+1]; 
+			bufferC[4][posC4] = kvB4[0]; bufferC[5][posC4] = kvB5[0]; bufferC[6][posC4] = kvB4[1]; bufferC[7][posC4] = kvB5[1];
+			tempbufferCcapsule1[pB4].value += 1;
+			
+			buffer_type _posC4 = tempbufferCcapsule1[pB6].key + tempbufferCcapsule1[pB6].value; // bufferCcapsule[1]
+			_kvC4[0] = bufferC[4][_posC4]; _kvC5[0] = bufferC[5][_posC4]; _kvC6[0] = bufferC[6][_posC4]; _kvC7[0] = bufferC[7][_posC4];
+			_kvC4[1] = bufferC[4][_posC4+1]; _kvC5[1] = bufferC[5][_posC4+1]; _kvC6[1] = bufferC[6][_posC4+1]; _kvC7[1] = bufferC[7][_posC4+1];
+			bufferC[4][_posC4] = kvB6[0]; bufferC[5][_posC4] = kvB7[0]; bufferC[6][_posC4] = kvB6[1]; bufferC[7][_posC4] = kvB7[1];
+			tempbufferCcapsule1[pB6].value += 1;
+			
+			partition_type pC0 = getpartition(kvC0[0], currentLOP, 0, batch_range_pow);
+			partition_type _pC0 = getpartition(_kvC0[0], currentLOP, 0, batch_range_pow);
+			partition_type pC4 = getpartition(kvC4[0], currentLOP, 0, batch_range_pow);
+			partition_type _pC4 = getpartition(_kvC4[0], currentLOP, 0, batch_range_pow);
+			// partition_type pC0 = kvC0[0].key; 
+			// partition_type _pC0 = _kvC0[0].key; 
+			// partition_type pC4 = kvC4[0].key; 
+			// partition_type _pC4 = _kvC4[0].key;
+			
+			//
+			buffer_type posD0 = tempbufferDcapsule[pC0].key + tempbufferDcapsule[pC0].value;
+			bufferD[0][posD0] = kvC0[0]; bufferD[1][posD0] = kvC1[0]; bufferD[2][posD0] = kvC2[0]; bufferD[3][posD0] = kvC3[0]; bufferD[4][posD0] = kvC0[1]; bufferD[5][posD0] = kvC1[1]; bufferD[6][posD0] = kvC2[1]; bufferD[7][posD0] = kvC3[1]; // bufferDcapsule
+			tempbufferDcapsule[pC0].value += 1;
+			
+			buffer_type _posD0 = tempbufferDcapsule[_pC0].key + tempbufferDcapsule[_pC0].value;
+			bufferD[0][_posD0] = _kvC0[0]; bufferD[1][_posD0] = _kvC1[0]; bufferD[2][_posD0] = _kvC2[0]; bufferD[3][_posD0] = _kvC3[0]; bufferD[4][_posD0] = _kvC0[1]; bufferD[5][_posD0] = _kvC1[1]; bufferD[6][_posD0] = _kvC2[1]; bufferD[7][_posD0] = _kvC3[1];
+			tempbufferDcapsule[_pC0].value += 1;
+			
+			buffer_type __posD0 = tempbufferDcapsule[pC4].key + tempbufferDcapsule[pC4].value;
+			bufferD[0][__posD0] = kvC4[0]; bufferD[1][__posD0] = kvC5[0]; bufferD[2][__posD0] = kvC6[0]; bufferD[3][__posD0] = kvC7[0]; bufferD[4][__posD0] = kvC4[1]; bufferD[5][__posD0] = kvC5[1]; bufferD[6][__posD0] = kvC6[1]; bufferD[7][__posD0] = kvC7[1];
+			tempbufferDcapsule[pC4].value += 1;
+			
+			buffer_type ___posD0 = tempbufferDcapsule[_pC4].key + tempbufferDcapsule[_pC4].value;
+			bufferD[0][___posD0] = _kvC4[0]; bufferD[1][___posD0] = _kvC5[0]; bufferD[2][___posD0] = _kvC6[0]; bufferD[3][___posD0] = _kvC7[0]; bufferD[4][___posD0] = _kvC4[1]; bufferD[5][___posD0] = _kvC5[1]; bufferD[6][___posD0] = _kvC6[1]; bufferD[7][___posD0] = _kvC7[1];
+			tempbufferDcapsule[_pC4].value += 1;
+		}
+	}
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+		bufferCcapsule[0][p] = tempbufferCcapsule0[p]; 
+		bufferCcapsule[1][p] = tempbufferCcapsule1[p]; 
+		bufferDcapsule[p] = tempbufferDcapsule[p]; }
 	return;
 }
 
@@ -967,7 +1264,7 @@ void
 	actsmax:: 
 	#endif
 topkernel(uint512_dt * kvdram){
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0 max_read_burst_length=64 max_write_burst_length=64
+#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0 // max_read_burst_length=64 max_write_burst_length=64
 
 #pragma HLS INTERFACE s_axilite port = kvdram bundle = control
 
@@ -983,12 +1280,12 @@ topkernel(uint512_dt * kvdram){
 	
 	keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof2
-	keyvalue_t templocalcapsule_so2[8][NUM_PARTITIONS];
+	keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so2
 	
 	keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof4
-	keyvalue_t templocalcapsule_so4[8][NUM_PARTITIONS];
+	keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = templocalcapsule_so4
 	
 	keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE];
@@ -1003,17 +1300,58 @@ topkernel(uint512_dt * kvdram){
 	travstate_t travstate = gettravstate(kvdram, globalparams, 0, sourcestatsmarker);
 	unsigned int offset_kvs = 0;
 	
-	readkeyvalues(ON, kvdram, sourcebuffer, offset_kvs, travstate);
-	/// runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4);
+	/* for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+			templocalcapsule_so1[v][p].key = kvdram[p].range(31, 0);
+			templocalcapsule_so2[v][p].key = kvdram[p].range(31, 0);
+			templocalcapsule_so4[v][p].key = kvdram[p].range(31, 0);
+			templocalcapsule_so8[p].key = kvdram[p].range(31, 0);
+		}
+	}
+	for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+			buffer_setof1[v][p].key = kvdram[p].range(31, 0);
+			buffer_setof2[v][p].key = kvdram[p].range(31, 0);
+			buffer_setof4[v][p].key = kvdram[p].range(31, 0);
+			buffer_setof8[v][p].key = kvdram[p].range(31, 0);
+		}
+	} */
 	
-	partitionkeyvalues(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);		
-	/// savekeyvalues(ON, kvdram, buffer_setof4, globalcapsule, templocalcapsule_so4, globalbaseaddress_kvs, globalparams);
+	for(unsigned int currentLOP=0; currentLOP<globalparams.numLOPs; currentLOP++){
+		for(unsigned offset_kvs=0; offset_kvs<KVDRAMSZ; offset_kvs+=SRCBUFFER_SIZE){
+		
+			readkeyvalues(ON, kvdram, sourcebuffer, offset_kvs, travstate);
+			runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, currentLOP, globalparams.batch_range_pow);
+			
+			partitionkeyvalues(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);		
+			savekeyvalues(ON, kvdram, buffer_setof8, globalcapsule, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+			
+			runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, currentLOP, globalparams.batch_range_pow);
+			readkeyvalues(ON, kvdram, sourcebuffer, offset_kvs, travstate);
+			
+			savekeyvalues(ON, kvdram, buffer_setof8, globalcapsule, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+			partitionkeyvalues(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);	
+		}
+	}
 	
-	runpipeline(buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4);
-	/// readkeyvalues(sourcebuffer, kvdram);
+	/* for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+			kvdram[p].range(31, 0) = templocalcapsule_so1[v][p].key;
+			kvdram[p].range(31, 0) = templocalcapsule_so2[v][p].key;
+			kvdram[p].range(31, 0) = templocalcapsule_so4[v][p].key;
+			kvdram[p].range(31, 0) = templocalcapsule_so8[p].key;
+		}
+	}
+	for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+			kvdram[p].range(31, 0) = buffer_setof1[v][p].key;
+			kvdram[p].range(31, 0) = buffer_setof2[v][p].key;
+			kvdram[p].range(31, 0) = buffer_setof4[v][p].key;
+			kvdram[p].range(31, 0) = buffer_setof8[v][p].key;
+		}
+	} */
 	
-	savekeyvalues(ON, kvdram, buffer_setof4, globalcapsule, templocalcapsule_so4[0], sweepparams.workdestbaseaddress_kvs, globalparams);
-	/// partitionkeyvalues(sourcebuffer, buffer_setof1, templocalcapsule_so1, 0, 0, travstate, globalparams);		
+	
 	return;
 }
 }
