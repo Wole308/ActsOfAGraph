@@ -3,13 +3,14 @@
 #include "swkernel.h"
 // #include "oclkernel.h"
 #include "goclkernel.h"
+#include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../acts/include/actscommon.h" //
 #include "../include/common.h"
 
 class kernel {
 public:
-	kernel();
+	kernel(stats * _statsobj);
 	~kernel();
 	
 	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
@@ -34,6 +35,7 @@ private:
 	#else 
 	swkernel * kernelobj;	
 	#endif
+	stats * statsobj;
 	
 	unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS];

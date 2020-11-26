@@ -26,14 +26,12 @@ loadgraph::loadgraph(graph * _graphobj, stats * _statsobj){
 	utilityobj = new utility();
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
-	kernelobj = new kernel();
 	statsobj = _statsobj;
 	postprocessobj = new postprocess(graphobj, statsobj); 
 }
 loadgraph::loadgraph(){
 	utilityobj = new utility();
 	algorithmobj = new algorithm();
-	kernelobj = new kernel();
 }
 loadgraph::~loadgraph(){} 
 
@@ -385,9 +383,15 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		
+			#ifdef TESTKERNEL_ACTSMAX
+			kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1; // REMOVEME
+			kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
+			kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+			#endif 
 		#endif
 	}
 	

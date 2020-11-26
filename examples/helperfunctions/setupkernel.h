@@ -17,7 +17,7 @@ using namespace std;
 class setupkernel {
 public:
 	setupkernel(graph * graphobj, stats * _statsobj);
-	setupkernel();
+	setupkernel(stats * _statsobj);
 	~setupkernel();
 
 	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);

@@ -557,10 +557,6 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.batch_range_pow = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHRANGE_POW].range(31, 0);
 	globalparams.applyvertexbuffersz = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYVERTEXBUFFERSZ].range(31, 0);
 	globalparams.applyvertexbuffersz_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYVERTEXBUFFERSZ_KVS].range(31, 0);
-	
-	
-	// globalparams.baseoffset_messagesdram_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_MESSAGESDRAM_KVS].range(31, 0);
-	
 	globalparams.baseoffset_messagesdram_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_MESSAGESDRAM_KVS].range(31, 0);
 	globalparams.baseoffset_kvdrambuffer_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_KVDRAMBUFFER_KVS].range(31, 0);
 	globalparams.baseoffset_kvdram_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_KVDRAM_KVS].range(31, 0);
@@ -570,18 +566,6 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.baseoffset_edgesdata_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_EDGESDATA_KVS].range(31, 0);
 	globalparams.baseoffset_vertexptr_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_VERTEXPTR_KVS].range(31, 0);
 	globalparams.baseoffset_verticesdata_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_VERTICESDATA_KVS].range(31, 0);
-	
-	// #define MESSAGES_BASEOFFSET_MESSAGESDRAM_KVS (MESSAGES_APPLYVERTEXBUFFERSZ_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_KVDRAMBUFFER_KVS (MESSAGES_BASEOFFSET_MESSAGESDRAM_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_KVDRAM_KVS (MESSAGES_BASEOFFSET_KVDRAMBUFFER_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_KVDRAMWORKSPACE_KVS (MESSAGES_BASEOFFSET_KVDRAM_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_STATSDRAM_KVS (MESSAGES_BASEOFFSET_KVDRAMWORKSPACE_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_ACTIVEVERTICES_KVS (MESSAGES_BASEOFFSET_STATSDRAM_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_EDGESDATA_KVS (MESSAGES_BASEOFFSET_ACTIVEVERTICES_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_VERTEXPTR_KVS (MESSAGES_BASEOFFSET_EDGESDATA_KVS + 1)
-	// #define MESSAGES_BASEOFFSET_VERTICESDATA_KVS (MESSAGES_BASEOFFSET_VERTEXPTR_KVS + 1)
-	
-	
 	#else 
 	globalparams.command = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COMMANDID].data[0].key;
 	globalparams.runkernelcommand = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key;
@@ -620,7 +604,6 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.batch_range_pow = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHRANGE_POW].data[0].key;
 	globalparams.applyvertexbuffersz = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYVERTEXBUFFERSZ].data[0].key;
 	globalparams.applyvertexbuffersz_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYVERTEXBUFFERSZ_KVS].data[0].key;
-	
 	globalparams.baseoffset_messagesdram_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_MESSAGESDRAM_KVS].data[0].key;
 	globalparams.baseoffset_kvdrambuffer_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_KVDRAMBUFFER_KVS].data[0].key;
 	globalparams.baseoffset_kvdram_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_KVDRAM_KVS].data[0].key;
@@ -630,7 +613,6 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.baseoffset_edgesdata_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_EDGESDATA_KVS].data[0].key;
 	globalparams.baseoffset_vertexptr_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_VERTEXPTR_KVS].data[0].key;
 	globalparams.baseoffset_verticesdata_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_VERTICESDATA_KVS].data[0].key;
-	
 	#endif 
 	// globalparams.baseaddr_destkvs_kvs = 0;
 	#ifdef _DEBUGMODE_KERNELPRINTS2

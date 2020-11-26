@@ -4,6 +4,7 @@
 #include <thread>
 #include "../include/config_params.h"
 #include "../include/common.h"
+#include "../src/stats/stats.h"
 #ifdef TESTKERNEL_ACTSMAX
 #include "../acts/acts_lw/actsmax.h"
 #else 
@@ -13,7 +14,7 @@
 
 class swkernel {
 public:
-	swkernel();
+	swkernel(stats * _statsobj);
 	~swkernel();
 	
 	#ifdef SW 
@@ -23,6 +24,7 @@ public:
 	#endif 
 private:
 	utility * utilityobj;
+	stats * statsobj;
 	#ifdef SW
 	#ifdef TESTKERNEL_ACTSMAX
 	actsmax * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];

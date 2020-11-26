@@ -6,12 +6,13 @@
 #include <fstream>
 #include <CL/cl_ext_xilinx.h>
 #endif 
+#include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
 class goclkernel {
 public:
-	goclkernel();
+	goclkernel(stats * _statsobj);
 	~goclkernel();
 
 	// #define TOTALNUMKERNELS 1
@@ -30,7 +31,7 @@ public:
 
 	#define NUMACTIVEINSTANCES 1
 		
-	/** #ifdef TESTKERNEL_FULLBANDWIDTH
+	/** #ifdef TESTKERNEL_ACTSMAX
 		#define TOTALNUMKERNELS NUMSUBWORKERS
 		
 		#define NUMHBMSPERKERNEL 1
@@ -80,6 +81,7 @@ private:
 	std::string binaryFile;
 	
 	size_t inputdata_size_bytes;
+	stats * statsobj;
 	
 	#ifdef FPGA_IMPL 
 	cl_mem_ext_ptr_t inoutBufExt[TOTALAVAILABLEACTSCUS];

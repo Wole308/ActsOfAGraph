@@ -28,13 +28,14 @@ public:
 	unsigned int getflag(unsigned int globaliteration_idx);
 	
 private:
-	kernel * kernelobj;
 	parameters * parametersobj;
 	utility * utilityobj;
 	graph * graphobj;
 	algorithm * algorithmobj[NUMUTILITYTHREADS];
 	stats * statsobj;
 	std::thread mythread[NUMUTILITYTHREADS];
+	
+	vector<value_t> tempactvvsbuffer[NUMUTILITYTHREADS];
 };
 #endif
 

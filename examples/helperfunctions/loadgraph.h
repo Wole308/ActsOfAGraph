@@ -50,7 +50,6 @@ public:
 			unsigned int numlastlevelpartitions);			
 
 private:
-	kernel * kernelobj;
 	parameters * parametersobj;
 	utility * utilityobj;
 	graph * graphobj;

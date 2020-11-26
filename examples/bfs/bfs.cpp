@@ -51,8 +51,8 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#endif
 	#ifndef INMEMORYGP
 	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
-	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large // REMOVEME. use MAXKVDATA_BATCHSIZE
-	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ verticesdata[j][k] = new value_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[MAXKVDATA_BATCHSIZE]; }} // FIXME. (KVDATA_RANGE) REMOVEME. size too large // REMOVEME. use MAXKVDATA_BATCHSIZE
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ verticesdata[j][k] = new value_t[MAXKVDATA_BATCHSIZE]; }} // FIXME. (KVDATA_RANGE) REMOVEME. size too large
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
 	#endif 
 	
@@ -110,7 +110,7 @@ runsummary_t bfs::run(){
 		#endif
 		active_cnt = activevertices.size();
 		
-		if(activevertices.size() == 0 || GraphIter >= 16){ break; }
+		if(activevertices.size() == 0 || GraphIter >= 60){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;

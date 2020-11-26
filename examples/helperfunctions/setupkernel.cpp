@@ -26,17 +26,17 @@ setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 	utilityobj = new utility();
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
-	kernelobj = new kernel();
+	kernelobj = new kernel(_statsobj);
 	procedgesobj = new procedges(_statsobj);
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif
 	statsobj = _statsobj;
 }
-setupkernel::setupkernel(){
+setupkernel::setupkernel(stats * _statsobj){
 	utilityobj = new utility();
 	algorithmobj = new algorithm();
-	kernelobj = new kernel();
+	kernelobj = new kernel(_statsobj);
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif 
@@ -58,9 +58,11 @@ void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMS
 	return;
 }
 void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+	#ifdef GRAFBOOST_SETUP
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
+	#endif 
 	
 	for (int i = 0; i < NUMCPUTHREADS; i++){ // edge conditions
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
@@ -79,10 +81,12 @@ void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NU
 	}
 	#endif 
 	
+	#ifdef GRAFBOOST_SETUP
 	#ifdef _DEBUGMODE_TIMERS3
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 	#endif
+	#endif 
 	return;
 }
 
@@ -257,7 +261,7 @@ void setupkernel::startSRteration(){
 }
 
 unsigned int setupkernel::finishSRteration(unsigned int iteration, vector<value_t> &activevertices){
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	_sr->Finish();
@@ -282,7 +286,7 @@ unsigned int setupkernel::finishSRteration(unsigned int iteration, vector<value_
 		res2 = _sr->Next();
 	}
 	vertex_values->Finish();
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_TIMERS3
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 	#endif

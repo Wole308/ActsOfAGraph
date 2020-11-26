@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string.h>
 #include <mutex>
+#include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 #ifdef FPGA_IMPL
@@ -22,8 +23,9 @@ using namespace std;
 #define MAX_HBM_BANKCOUNT 32
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
 
-goclkernel::goclkernel(){
+goclkernel::goclkernel(stats * _statsobj){
 	utilityobj = new utility();
+	statsobj = _statsobj;
 }
 goclkernel::~goclkernel(){} 
 
@@ -107,8 +109,11 @@ void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSU
 	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
 	#endif
 	
-    auto kernel_start = std::chrono::high_resolution_clock::now();
+    // auto kernel_start = std::chrono::high_resolution_clock::now();
 	unsigned int bufferid = 0;
+	#ifdef _DEBUGMODE_TIMERS3
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
 
 	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
 		//Setting the k_vadd Arguments
@@ -124,10 +129,12 @@ void goclkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSU
 	}
     q.finish();
 	
-    auto kernel_end = std::chrono::high_resolution_clock::now();
-    kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
+	#ifdef _DEBUGMODE_TIMERS3
+	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
+	#endif
 	#ifdef _DEBUGMODE_TIMERS2
-	std::cout<< TIMINGRESULTSCOLOR <<">>> total time elapsed: "<<kernel_time.count() * 1000<<" ms"<< RESET <<std::endl;
+	std::cout<< TIMINGRESULTSCOLOR <<">>> total time elapsed(kerneltimeelapsed_ms): "<<kerneltimeelapsed_ms<<" ms"<< RESET <<std::endl;
 	#endif 
 	return;
 }
@@ -265,7 +272,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 	std::string krnl_name = "topkernel";
 	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ 
 			std::string cu_id = std::to_string((i+1));
-			// #ifdef TESTKERNEL_FULLBANDWIDTH
+			// #ifdef TESTKERNEL_ACTSMAX
 			// std::string krnl_name_full =
 				// krnl_name + ":{" + "topkernel_1" + "}";
 			// #else 
@@ -288,7 +295,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 	uint512_vec_dt ** kvsourcedramarr = (uint512_vec_dt **)(&kvsourcedram[0]);
 	for(unsigned int i=0; i<TOTALNUMACTCUSTORUN; i++){
 		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
-		// #ifdef TESTKERNEL_FULLBANDWIDTH
+		// #ifdef TESTKERNEL_ACTSMAX
 		// inoutBufExt[i].obj = kvsourcedramarr[counter++];
 		// inoutBufExt[i].param = 0;
 		// inoutBufExt[i].flags = bank[0]; 

@@ -10,19 +10,21 @@
 #include "swkernel.h"
 // #include "oclkernel.h"
 #include "goclkernel.h"
+#include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../acts/include/actscommon.h" //
 #include "../include/common.h"
 #include "kernel.h"
 using namespace std;
 
-kernel::kernel(){
+kernel::kernel(stats * _statsobj){
 	utilityobj = new utility();
 	#ifdef FPGA_IMPL
-	kernelobj = new goclkernel();
+	kernelobj = new goclkernel(_statsobj);
 	#else 
-	kernelobj = new swkernel();
+	kernelobj = new swkernel(_statsobj);
 	#endif
+	statsobj = _statsobj;
 }
 kernel::~kernel(){} 
 
