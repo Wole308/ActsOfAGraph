@@ -1,0 +1,141 @@
+Profile Summary
+Generated on: 2020-05-13 05:14:19
+Msec since Epoch: 1589346859460
+Profiled application: host
+Target platform: Xilinx
+Tool version: 2019.1
+Target devices: xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0
+Flow mode: System Run
+
+OpenCL API Calls
+API Name,Number Of Calls,Total Time (ms),Minimum Time (ms),Average Time (ms),Maximum Time (ms),
+clWaitForEvents,16,11588.2,0.00138,724.262,2549.47,
+clCreateProgramWithBinary,1,4850.17,4850.17,4850.17,4850.17,
+clSetKernelArg,240,662.089,0.001456,2.7587,117.372,
+clEnqueueNDRangeKernel,20,7.81033,0.032971,0.390516,6.8663,
+clEnqueueWriteBuffer,240,3.32869,0.003945,0.0138695,0.104049,
+clCreateKernel,1,1.31053,1.31053,1.31053,1.31053,
+clGetEventInfo,40,0.112727,0.001263,0.00281817,0.006423,
+clSetEventCallback,20,0.07625,0.002827,0.0038125,0.005085,
+clCreateBuffer,24,0.04701,0.001325,0.00195875,0.012862,
+clReleaseMemObject,24,0.034862,0.001202,0.00145258,0.00329,
+clGetExtensionFunctionAddress,2,0.028961,0.005208,0.0144805,0.023753,
+clGetPlatformInfo,14,0.020303,0.001161,0.00145021,0.003779,
+clReleaseCommandQueue,2,0.011294,0.002439,0.005647,0.008855,
+clCreateCommandQueue,2,0.009522,0.00245,0.004761,0.007072,
+clGetExtensionFunctionAddressForPlatform,2,0.009236,0.002065,0.004618,0.007171,
+clGetDeviceInfo,2,0.008439,0.003252,0.0042195,0.005187,
+clCreateContext,1,0.00677,0.00677,0.00677,0.00677,
+clGetDeviceIDs,1,0.006695,0.006695,0.006695,0.006695,
+clBuildProgram,1,0.0066,0.0066,0.0066,0.0066,
+clFlush,1,0.005248,0.005248,0.005248,0.005248,
+clReleaseKernel,1,0.002909,0.002909,0.002909,0.002909,
+clFinish,1,0.002652,0.002652,0.002652,0.002652,
+clReleaseProgram,1,0.002576,0.002576,0.002576,0.002576,
+clReleaseContext,1,0.002371,0.002371,0.002371,0.002371,
+clReleaseDevice,1,0.002338,0.002338,0.002338,0.002338,
+
+
+Kernel Execution
+Kernel,Number Of Enqueues,Total Time (ms),Minimum Time (ms),Average Time (ms),Maximum Time (ms),
+topkernel,20,32959.4,1208.9,1647.97,2715.35,
+
+
+Compute Unit Utilization
+Device,Compute Unit,Kernel,Global Work Size,Local Work Size,Number Of Calls,Dataflow Execution,Max Overlapping Executions,Dataflow Acceleration,Total Time (ms),Minimum Time (ms),Average Time (ms),Maximum Time (ms),Clock Frequency (MHz),
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1,topkernel,1:1:1,1:1:1,20,No,1,1.000000x,14991.8,0.000761468,749.588,1527.7,218,
+
+
+Data Transfer: Host to Global Memory
+Context:Number of Devices,Transfer Type,Number Of Buffer Transfers,Transfer Rate (MB/s),Average Bandwidth Utilization (%),Average Buffer Size (KB),Total Time (ms),Average Time (ms),
+context0:1,WRITE,218,431.826727,4.498195,72747.7,36725.357924,168.464945,
+
+
+Data Transfer: Kernels to Global Memory
+Device,Compute Unit/Port Name,Kernel Arguments,Memory Resources,Transfer Type,Number Of Transfers,Transfer Rate (MB/s),Average Bandwidth Utilization (%),Average Size (KB),Average Latency (ns),
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM0,kvdramA,DDR,READ,176163414,752.043,6.52815,0.064,228.066,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM0,kvdramA,DDR,WRITE,174692316,745.763,6.47364,0.064,190.295,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM1,kvdramB,DDR,READ,176155312,752.009,6.52785,0.064,211.601,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM1,kvdramB,DDR,WRITE,174686754,745.739,6.47343,0.064,164.09,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM10,messagesC,DDR,READ,140,3.73538e-05,3.24252e-07,0.004,223.329,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM11,messagesD,DDR,READ,140,3.73538e-05,3.24252e-07,0.004,211.402,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM2,kvdramC,DDR,READ,176167489,752.061,6.5283,0.064,211.594,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM2,kvdramC,DDR,WRITE,174694464,745.772,6.47372,0.064,164.105,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM3,kvdramD,DDR,READ,176154474,752.005,6.52782,0.064,211.604,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM3,kvdramD,DDR,WRITE,174686351,745.738,6.47342,0.064,164.127,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM4,kvstatsA,DDR,READ,701586,0.649787,0.00564051,0.0138849,246.363,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM4,kvstatsA,DDR,WRITE,608832,0.162444,0.00141011,0.004,259.511,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM5,kvstatsB,DDR,READ,701586,0.649787,0.00564051,0.0138849,227.624,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM5,kvstatsB,DDR,WRITE,608832,0.162444,0.00141011,0.004,224.994,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM6,kvstatsC,DDR,READ,701586,0.649787,0.00564051,0.0138849,226.945,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM6,kvstatsC,DDR,WRITE,608832,0.162444,0.00141011,0.004,224.179,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM7,kvstatsD,DDR,READ,701586,0.649787,0.00564051,0.0138849,227.392,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM7,kvstatsD,DDR,WRITE,608832,0.162444,0.00141011,0.004,223.054,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM8,messagesA,DDR,READ,140,3.73538e-05,3.24252e-07,0.004,229.128,
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1/M_AXI_GMEM9,messagesB,DDR,READ,140,3.73538e-05,3.24252e-07,0.004,220.708,
+
+
+Top Data Transfer: Kernels to Global Memory
+Device,Compute Unit,Number of Transfers,Average Bytes per Transfer,Transfer Efficiency (%),Total Data Transfer (MB),Total Write (MB),Total Read (MB),Total Transfer Rate (MB/s),
+xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,topkernel_1,1408642806,63.7964,1.55753,89866.3,44730.4,45136,5994.38,
+
+
+Top Kernel Execution
+Kernel Instance Address,Kernel,Context ID,Command Queue ID,Device,Start Time (ms),Duration (ms),Global Work Size,Local Work Size,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,17434.3,2715.35,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,27339.4,2663.43,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,21415.8,2663.38,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,28822.7,2388.61,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,32173.7,1967.35,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,38590.2,1949.1,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,44956.4,1928.78,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,35242.4,1441.49,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,41563.3,1397.54,1:1:1,1:1:1,
+39547184,topkernel,0,1,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,44292.2,1384.54,1:1:1,1:1:1,
+
+
+Top Memory Writes: Host to Global Memory
+Buffer Address,Context ID,Command Queue ID,Start Time (ms),Duration (ms),Buffer Size (KB),Writing Rate(MB/s),
+470028288,0,1,17647.6,1248.619110,1.88011e+06,1505.753946,
+0,0,1,16188.3,1245.930663,1.88011e+06,1509.003035,
+0,0,1,24080.7,511.163335,167772,328.216342,
+17179869184,0,1,24080.7,511.137728,167772,328.232785,
+34359738368,0,1,24080.7,511.131130,167772,328.237022,
+0,0,1,25622.5,504.190260,167772,332.755655,
+51539607552,0,1,25622.6,504.141051,167772,332.788135,
+34359738368,0,1,25622.6,503.898869,167772,332.948078,
+17179869184,0,1,25622.5,503.686191,167772,333.088663,
+51539607552,0,1,24080.7,503.094378,167772,333.480491,
+
+
+Top Memory Reads: Host to Global Memory
+Buffer Address,Context ID,Command Queue ID,Start Time (ms),Duration (ms),Buffer Size (KB),Reading Rate(MB/s),
+
+
+Guidance Parameters
+Parameter,Element,Value,
+DEVICE_EXEC_TIME,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,29450.898364,
+CU_CALLS,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0|topkernel_1,20,
+MEMORY_BIT_WIDTH,xilinx_aws-vu9p-f1-04261818_dynamic_5_0-0,512,
+MIGRATE_MEM,host,0,
+MEMORY_USAGE,DDR,12,
+PLRAM_DEVICE,all,1,
+HBM_DEVICE,all,0,
+KDMA_DEVICE,all,0,
+P2P_DEVICE,all,0,
+P2P_HOST_TRANSFERS,host,0,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem1,512,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem10,32,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem11,32,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem2,512,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem3,512,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem4,64,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem5,64,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem6,64,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem7,64,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem8,32,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem9,32,
+KERNEL_COUNT,topkernel,1,
+OBJECTS_RELEASED,all,0,
+

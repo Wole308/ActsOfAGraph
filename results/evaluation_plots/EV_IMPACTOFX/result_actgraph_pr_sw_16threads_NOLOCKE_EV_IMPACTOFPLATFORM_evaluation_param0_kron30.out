@@ -1,0 +1,98 @@
+*** ACTS synthesis started! ***
+clean successful
+rm -rf acts sr acts_nthreads sr_nthreads
+rm -rf *.xo xocc_kernel* _x* pfm_top_* *.xo *.exe host xocc* *.info *.ltx
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+g++ -O3 src/hostprocess.cpp    debugger/host_debugger.cpp src/actgraph_pr_sw.cpp src/actgraph_bfs_sw.cpp src/actgraph_bc_sw.cpp src/grafboost_pr_sw.cpp src/grafboost_bfs_sw.cpp src/grafboost_bc_sw.cpp src/host_enigma.cpp src/edge_process.cpp kernels/srkernelprocess.cpp graphs/create2Dgraph.cpp graphs/createsmartgraph.cpp graphs/graph.cpp graphs/generateactivevertices.cpp heuristics/heuristics.cpp algorithm/algorithm.cpp utility/utility.cpp kernels/acts.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+./acts_nthreads
+Hostprocess:: Graph Analytics Started...
+graph::graph:: datasetid: 6, _numvertexbanks: 16, _numedgebanks: 16
+graph::loadalldatasets:: 
+host:: GRAPH: /oj2zf/datasets/kronecker30/kronecker30.graph
+host:: NUM VERTICES: 1073741824
+host:: NUM EDGES: 17179869184
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 4
+host:: NUM_PARTITIONS: 16
+host:: NUMCPUTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 67108864
+host:: KVDATA_BATCHSIZE_KVS: 8388608
+host:: KVDATA_RANGE: 1073741824
+host:: KVDATA_RANGE_POW: 30
+host:: (float)APPROXTREE_DEPTH: 3
+host:: APPROXTREE_DEPTH: 3
+host:: TREE_DEPTH: 3
+host:: KVSTATS_SIZE: 12296
+host:: NUMSSDPARTITIONS: 16
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 26
+host:: KVDATA_RANGE_PERSSDPARTITION: 67108864
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION0: 0
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: 67108864
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: 134217728
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: 201326592
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION4: 268435456
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION5: 335544320
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION6: 402653184
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION7: 469762048
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION8: 536870912
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION9: 603979776
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION10: 671088640
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION11: 738197504
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION12: 805306368
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION13: 872415232
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION14: 939524096
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION15: 1006632960
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 16
+host:: MAXNUMSSDPARTITIONS: 16
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 8 bytes (64 bits)
+
+printallparameters:: PR_ALGORITHM
+host:: KVDRAMSZ: 75563008
+host:: KVDRAMSZ_KVS: 9445376
+host:: KVDRAMWORKSPACESZ: 75563008
+host:: KVDRAMWORKSPACESZ_KVS: 9445376
+host:: CAPSULESZ: 1771008
+host:: CAPSULESZ_KVS: 221376
+host:: MESSAGESDRAMSZ: 1024
+host:: CAPSULEMETADATADRAMSZ: 12288
+host:: STATSDRAMSZ: 12296
+host:: BASEOFFSET_KVDRAM: 75563008
+host:: BASEOFFSET_KVDRAM_KVS: 9445376
+host:: BASEOFFSET_KVDRAMWORKSPACE: 75563008
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 9445376
+host:: BASEOFFSET_CAPSULES: 151126016
+host:: BASEOFFSET_CAPSULES_KVS: 18890752
+host:: BASEOFFSET_STATSDRAM: 1024
+host:: KVSOURCEDRAMSZ: 152897024
+host:: KVSOURCEDRAMSZ_KVS: 19112128
+host:: PADDEDKVSOURCEDRAMSZ: 152897024
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 19112128
+host:: KVSTATSDRAMSZ: 25608
+host:: KVDRAMPADDING: 8454144
+host:: KVDRAMPADDING: 8454144
+edge_process::edge_process:: constructor called. 
+========= host_enigma:: IterCount: 0, statsalreadycollected: 0 =========
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 15026616096[nanao seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 15026616[micro seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 15026[milli seconds](Iteration 666)
+>>> Total time elapsed (TopKernel Process): : Time Elapsed = 15[seconds](Iteration 666)
+
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 15026678078[nanao seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 15026678[micro seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 15026[milli seconds](Iteration 666)
+>>> Total time elapsed (Entire TopKernel + OCL Transfer time elapsed): : Time Elapsed = 15[seconds](Iteration 666)
+
+[1m[37m>>> host_enigma::summary Total Size : 1073741824 keyvalues[0m
+[1m[37m>>> host_enigma::summary Total Time Elapsed (ms) : 15026 milliseconds[0m
+[1m[37m>>> host_enigma::summary Total Time Elapsed (s) : 15.026 seconds[0m
+[1m[37m>>> host_enigma::summary Throughput : 7.14589e+07 keyvalues per second[0m
+[1m[37m>>> host_enigma::summary Throughput : 71.4096 million keyvalues per second[0m

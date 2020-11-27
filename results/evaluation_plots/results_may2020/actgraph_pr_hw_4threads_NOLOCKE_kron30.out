@@ -1,0 +1,3629 @@
+Hostprocess:: Graph Analytics Started...
+graph::graph:: datasetid: 6, _numvertexbanks: 16, _numedgebanks: 16
+graph::loadalldatasets:: 
+host:: GRAPH: /oj2zf/datasets/kronecker30/kronecker30.graph
+host:: NUM VERTICES: 1073741824
+host:: NUM EDGES: 17179869184
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 8
+host:: NUM_PARTITIONS: 32
+host:: NUMCPUTHREADS: 4
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 16777216
+host:: KVDATA_BATCHSIZE_KVS: 2097152
+host:: PADDEDKVDATA_BATCHSIZE: 20971520
+host:: PADDEDKVDATA_BATCHSIZE_KVS: 2621440
+host:: _x2PADDEDKVDATA_SIZE: 41943040
+host:: _x2PADDEDKVDATA_SIZE_KVS: 5242880
+host:: _x3PADDEDKVDATA_SIZE: 109051904
+host:: _x3PADDEDKVDATA_SIZE_KVS: 13631488
+host:: DRAMSZ: 109051904
+host:: DRAMSZ_KVS: 13631488
+host:: KVDATA_RANGE: 1073741824
+host:: KVDATA_RANGE_POW: 30
+host:: KVBUFFERSZ: 4096
+host:: KVBUFFERSZ_KVS: 512
+host:: KVSRCBUFFERSZ: 4608
+host:: KVSRCBUFFERSZ_KVS: 576
+host:: KVSRCBUFFERSZ_APPLY: 4608
+host:: KVSRCBUFFERSZ_APPLY_KVS: 576
+host:: KVDESTBUFFERSZ: 4608
+host:: KVDESTBUFFERSZ_KVS: 576
+host:: OFFSETSCODE: 0
+host:: SIZESCODE: 1
+host:: SIZEOFKV: 4
+host:: SIZEOFVERTEXID: 32
+host:: TREE_DEPTH: 3
+host:: KVSTATS_SIZE: 32768
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION0: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION1: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION2: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION3: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION4: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION5: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION6: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION7: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION8: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION9: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION10: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION11: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION12: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION13: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION14: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION15: 2048
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION0_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION1_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION2_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION3_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION4_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION5_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION6_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION7_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION8_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION9_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION10_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION11_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION12_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION13_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION14_KVS: 256
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION15_KVS: 256
+host:: APPLYVERTEXBUFFERSZ: 2048
+host:: APPLYVERTEXBUFFERSZ_KVS: 256
+host:: VERTICESDATA_BATCHSIZE: 67108864
+host:: VERTICESDATA_BUFFERSZ: 65536
+host:: KVSPARTITIONBUFFERSZ: 268435456
+host:: NUMSSDPARTITIONS: 16
+host:: KVDATA_RANGE_FORSSDPARTITION0_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION1_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION2_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION3_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION4_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION5_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION6_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION7_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION8_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION9_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION10_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION11_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION12_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION13_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION14_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION15_POW: 26
+host:: KVDATA_RANGE_FORSSDPARTITION0: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION1: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION2: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION3: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION4: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION5: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION6: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION7: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION8: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION9: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION10: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION11: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION12: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION13: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION14: 67108864
+host:: KVDATA_RANGE_FORSSDPARTITION15: 67108864
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION0: 0
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: 67108864
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: 134217728
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: 201326592
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION4: 268435456
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION5: 335544320
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION6: 402653184
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION7: 469762048
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION8: 536870912
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION9: 603979776
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION10: 671088640
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION11: 738197504
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION12: 805306368
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION13: 872415232
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION14: 939524096
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION15: 1006632960
+host:: TREEDEPTH_FORSSDPARTITION0: 3
+host:: TREEDEPTH_FORSSDPARTITION1: 3
+host:: TREEDEPTH_FORSSDPARTITION2: 3
+host:: TREEDEPTH_FORSSDPARTITION3: 3
+host:: TREEDEPTH_FORSSDPARTITION4: 3
+host:: TREEDEPTH_FORSSDPARTITION5: 3
+host:: TREEDEPTH_FORSSDPARTITION6: 3
+host:: TREEDEPTH_FORSSDPARTITION7: 3
+host:: TREEDEPTH_FORSSDPARTITION8: 3
+host:: TREEDEPTH_FORSSDPARTITION9: 3
+host:: TREEDEPTH_FORSSDPARTITION10: 3
+host:: TREEDEPTH_FORSSDPARTITION11: 3
+host:: TREEDEPTH_FORSSDPARTITION12: 3
+host:: TREEDEPTH_FORSSDPARTITION13: 3
+host:: TREEDEPTH_FORSSDPARTITION14: 3
+host:: TREEDEPTH_FORSSDPARTITION15: 3
+host:: VERTICESDATASZ_FORDRAMX: 67108864
+host:: MAXTREEDEPTH: 3
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 16
+host:: MAXNUMSSDPARTITIONS: 16
+host:: NM: 666
+host:: DESTTMPKVBUFFERSZ: 666
+host:: DESTTMPKVBUFFERSZ_KVS: 666
+host:: TOTALDESTTMPKVBUFFERSZ: 36864
+host:: TOTALDESTTMPKVBUFFERSZ_KVS: 4608
+host:: NUMWORKERS_APPLYPH: 1
+host:: NUMSUBWORKERS_APPLYPH: 8
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 8 bytes (64 bits)
+
+printallparameters:: PR_ALGORITHM
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_4.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_5.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_6.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_7.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_8.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_9.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_10.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_11.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_12.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_13.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_14.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_15.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14_15.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_4.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_5.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_6.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_7.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_8.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_9.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_10.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_11.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_12.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_13.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_14.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15_15.edges
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_0.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_1.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_2.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_3.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_4.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_5.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_6.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_7.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_8.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_9.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_10.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_11.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_12.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_13.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_14.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker30/kronecker30_16by16/kronecker30_15.vproperties
+generating vertices data... 
+finished generating vertices data
+generating vertex properties... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+finished generating vertex properties data
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+xclProbe found 1 FPGA slots with xocl driver running
+INFO: Importing ../ACTGraph_kernels/kernel30.awsxclbin
+INFO: Loaded file
+AFI load complete.
+INFO: Created Binary
+INFO: Built Program
+Allocate Buffer in Global Memory
+Allocate Buffer in Global Memory
+actgraph_pr_sw::run: graph iteration 0 of pagerank Started
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 0][size: 16][step: 4]
+>>> actgraph_pr_sw::start2: loading vertex properties...
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:4][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:4][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:0][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:1][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:2][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:4][step:1], [iteration_idx:3][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 4][size: 16][step: 4]
+>>> actgraph_pr_sw::start2: loading vertex properties...
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:4][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:5][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:6][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:7][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 8][size: 16][step: 4]
+>>> actgraph_pr_sw::start2: loading vertex properties...
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:8][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:9][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:0][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:1][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:2][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:10][size:4][step:1], [iteration_idx:3][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:11][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 12][size: 16][step: 4]
+>>> actgraph_pr_sw::start2: loading vertex properties...
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:12][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:13][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:14][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+[ooo_queue]: Completed kernel
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:5][step:1]
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:4][size:5][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:0][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:1][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:2][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:15][size:4][step:1], [iteration_idx:3][size:4][step:1]
+actgraph_pr_fpga::WorkerThread: waiting for events...
+[ooo_queue]: Completed kernel
+Set the Kernel Arguments
+Copy input data to device global memory
+Enqueueing NDRange kernel.
+Launch the Kernel
+Getting Results (Device to Host)...
+Enqueueing Migrate Mem Object (Device to Host) calls
+[ooo_queue]: Completed kernel
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+actgraph_pr_sw::finish destroying memory structures... 
+[ooo_queue]: Completed kernel
+actgraph_pr_sw::finish: releasing and destroying all OCL structures... 
+clReleaseCommandQueue
+clReleaseContext
+clReleaseDevice
+clReleaseKernel
+clReleaseProgram
+actgraph_pr_sw::finish: released and destroyed all OCL structures
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 539133739186[nanao seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 539133739[micro seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 539133[milli seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 539[seconds](Iteration 666)
+
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [0]: 4294999320
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [1]: 4294930322
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [2]: 4294913692
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [3]: 4295025849
+>>> actgraph_pr_sw::summary Total number of kvReads for all threads: 17179869183
+TEST FINISHED
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [FETCHING ACTIVE VERTICES]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 1]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 2]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [SAVE VERTEX UPDATES]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [KERNEL]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 542772 [milli seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 542.772 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C2]: 542.772 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C3]: 542.772 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C4*]: 542.772 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalbytesreadfromfile: 0 [bytes][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalbyteswrittentofile: 0 [bytes][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredtokernel: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredfromkernel: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[0]: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[16383]: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[32767]: 0 [key values][0m
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+XRT build version: 2.2.0
+Build hash: e21b8a5b208618834760593bbb15063f7e399642
+Build date: 2019-09-06 20:10:43
+Git branch: 2019.1
+PID: 6993
+UID: 0
+[Wed May 13 05:27:48 2020]
+HOST: ip-172-31-31-81.ec2.internal
+EXE: /home/centos/src/project_data/oj2zf/ACTS/host
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).

@@ -1,0 +1,442 @@
+rm -rf host ./xclbin/{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+mkdir -p obj
+g++ -o ./sr_nthreads examples/hostprocess.cpp src/algorithm/algorithm.cpp examples/helperfunctions/postprocess.cpp examples/helperfunctions/loadgraph.cpp examples/helperfunctions/setupkernel.cpp examples/helperfunctions/procedges.cpp examples/pagerank/pagerank.cpp examples/bfs/bfs.cpp examples/sssp/sssp.cpp examples/test/test.cpp src/graphs/graph.cpp src/heuristics/heuristics.cpp src/stats/stats.cpp src/utility/utility.cpp src/parameters/parameters.cpp src/dataset/dataset.cpp kernels/kernel.cpp kernels/swkernel.cpp kernels/goclkernel.cpp src/graphs/creategraphs.cpp acts/sortreduce/sr.cpp acts/acts_lw/actslw.cpp acts/actsutility/actsutility.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+./sr_nthreads
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 10000000
+host:: KVDATA_BATCHSIZE_KVS: 1250000
+host:: EDGES_BATCHSIZE: 80000000
+host:: EDGES_BATCHSIZE_KVS: 10000000
+host:: KVDATA_RANGE: 67108864
+host:: KVDATA_RANGE_POW: 26
+host:: BATCH_RANGE: 67108864
+host:: BATCH_RANGE_POW: 26
+host:: BATCH_RANGE2: 524288
+host:: BATCH_RANGE2_POW: 19
+host:: EDGESSZ: 0
+host:: (float)APPROXTREE_DEPTH: 4
+host:: APPROXTREE_DEPTH: 4
+host:: TREE_DEPTH: 4
+host:: TREE_DEPTH2: 3
+host:: NUMSSDPARTITIONS: 1
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 26
+host:: KVDATA_RANGE_PERSSDPARTITION: 67108864
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 19
+host:: KVDATA_RANGE_PERSSDPARTITION2: 524288
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 1
+host:: NUMSSDPARTITIONS_POW: 0
+host:: MAXNUMSSDPARTITIONS: 1
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 11311232
+host:: KVDRAMSZ_KVS: 1413904
+host:: KVDRAMWORKSPACESZ: 11311232
+host:: KVDRAMWORKSPACESZ_KVS: 1413904
+host:: EDGESSZ: 0
+host:: EDGESSZ_KVS: 0
+host:: VERTEXPTRSSZ: 0
+host:: VERTEXPTRSSZ_KVS: 0
+host:: VERTICESDATASZ: 33554432
+host:: VERTICESDATASZ_KVS: 4194304
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 11312256
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 1414032
+host:: BASEOFFSET_STATSDRAM: 22623488
+host:: BASEOFFSET_EDGESDATA: 25244928
+host:: BASEOFFSET_EDGESDATA_KVS: 3155616
+host:: BASEOFFSET_VERTEXPTR: 25244928
+host:: BASEOFFSET_VERTEXPTR_KVS: 3155616
+host:: BASEOFFSET_VERTICESDATA: 25244928
+host:: BASEOFFSET_VERTICESDATA_KVS: 3155616
+host:: KVSOURCEDRAMSZ: 58799360
+host:: KVSOURCEDRAMSZ_KVS: 7349920
+host:: PADDEDKVSOURCEDRAMSZ: 58799360
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 7349920
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 90489856 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 90489856 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 20971520 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 0 bytes
+>> host:: VERTEXPTRSSZ (bytes): 0 bytes
+>> host:: VERTICESDATASZ (bytes): 268435456 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 470394880 bytes
+host:: KVSTATSDRAMSZ: 2621440
+host:: KVDRAMPADDING: 1311232
+host:: APPLYVERTEXBUFFERSZ: 1024
+host:: APPLYVERTEXBUFFERSZ_KVS: 128
+host:: APPLYVERTEXBUFFERSZ2: 128
+host:: APPLYVERTEXBUFFERSZ2_KVS: 16
+host:: NUMLASTLEVELPARTITIONS: 65536
+host:: NUMLASTLEVELPARTITIONS2: 4096
+host:: INMEMORYGP disabled 
+graph::graph constructor:: datasetid: 2, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: twitter
+>>> graph_path: /localtmp/oj2zf/dataset/twitter/twitter.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/twitter/twitter.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/twitter/twitter.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 41652230
+>>> num_vertices: 41652230
+>>> num_edges: 1468365184
+>>> graphdirectiontype: 6
+>>> graphorder: 6
+>>> skewratio: 128
+setupkernel::loadSRstructures:: tmp_dir: /localtmp/oj2zf/tmpdata_grafboost
+setupkernel::loadSRstructures:: idx_path: /localtmp/oj2zf/dataset/twitter/ridx.dat
+setupkernel::loadSRstructures:: mat_path: /localtmp/oj2zf/dataset/twitter/matrix.dat
+setupkernel::loadSRstructures:: vertex_count: 41652230
+Created vertex values file at /localtmp/oj2zf/tmpdata_grafboost/vertex_data.dat -- 41652230
+VertexValues default init done : 2482 ms
+bfs::run:: bfs algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.edges
+
+[1m[37m>>> bfs::run: graph iteration 0 of bfs started. (1 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 7032 -- 12
+yes yes:0-0 yes:0-1
+		++ Iteration 0 done: 586
+>>> setupkernel::finishSR:: active vertices after iteration: 586
+Loading file fd 13 size 4688
+
+[1m[37m>>> bfs::run: graph iteration 1 of bfs started. (586 active vertices)[0m
+SortReduce Starting...
+yes yes:0-0 no:1-0
+Loading file output.dat size 24977328 -- 14
+yes yes:0-0 yes:0-1
+		++ Iteration 1 done: 2081444
+>>> setupkernel::finishSR:: active vertices after iteration: 2080899
+Loading file fd 15 size 16647192
+
+[1m[37m>>> bfs::run: graph iteration 2 of bfs started. (2080899 active vertices)[0m
+SortReduce Starting...
+yes no:1-1 no:0-9
+yes no:1-1 no:0-9
+yes no:1-1 no:0-9
+yes no:1-1 no:0-9
+yes yes:0-0 no:0-3
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 85584852 -- 16
+yes yes:0-0 yes:0-1
+		++ Iteration 2 done: 7132071
+>>> setupkernel::finishSR:: active vertices after iteration: 5899383
+Loading file fd 17 size 47195064
+
+[1m[37m>>> bfs::run: graph iteration 3 of bfs started. (5899383 active vertices)[0m
+SortReduce Starting...
+yes no:1-109 no:0-10
+yes no:1-109 no:0-10
+yes no:1-109 no:0-10
+yes no:1-109 no:0-10
+yes no:1-0 no:0-11
+yes no:1-0 no:0-11
+yes no:1-0 no:0-11
+yes no:1-0 no:0-11
+yes no:1-0 no:0-11
+yes no:1-0 no:0-11
+yes yes:0-0 no:0-10
+yes yes:0-0 no:0-1
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 164954472 -- 18
+yes yes:0-0 yes:0-1
+		++ Iteration 3 done: 13746206
+>>> setupkernel::finishSR:: active vertices after iteration: 8365926
+Loading file fd 19 size 66927408
+
+[1m[37m>>> bfs::run: graph iteration 4 of bfs started. (8365926 active vertices)[0m
+SortReduce Starting...
+yes no:1-45 no:0-5
+yes no:1-0 no:0-6
+yes no:1-0 no:0-6
+yes yes:0-0 no:0-7
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 227636004 -- 20
+yes yes:0-0 yes:0-1
+		++ Iteration 4 done: 18969667
+>>> setupkernel::finishSR:: active vertices after iteration: 9176550
+Loading file fd 21 size 73412400
+
+[1m[37m>>> bfs::run: graph iteration 5 of bfs started. (9176550 active vertices)[0m
+SortReduce Starting...
+yes no:1-0 no:0-3
+yes yes:0-0 no:0-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 217276212 -- 22
+yes yes:0-0 yes:0-1
+		++ Iteration 5 done: 18106351
+>>> setupkernel::finishSR:: active vertices after iteration: 5079087
+Loading file fd 23 size 40632696
+
+[1m[37m>>> bfs::run: graph iteration 6 of bfs started. (5079087 active vertices)[0m
+SortReduce Starting...
+yes no:1-0 no:0-2
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 161049168 -- 24
+yes yes:0-0 yes:0-1
+		++ Iteration 6 done: 13420764
+>>> setupkernel::finishSR:: active vertices after iteration: 2157686
+Loading file fd 25 size 17261488
+
+[1m[37m>>> bfs::run: graph iteration 7 of bfs started. (2157686 active vertices)[0m
+SortReduce Starting...
+yes no:1-4 no:0-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 70437072 -- 26
+yes yes:0-0 yes:0-1
+		++ Iteration 7 done: 5869756
+>>> setupkernel::finishSR:: active vertices after iteration: 629136
+Loading file fd 27 size 5033088
+
+[1m[37m>>> bfs::run: graph iteration 8 of bfs started. (629136 active vertices)[0m
+SortReduce Starting...
+yes yes:0-0 no:0-0
+Loading file output.dat size 23634000 -- 28
+yes yes:0-0 yes:0-1
+		++ Iteration 8 done: 1969500
+>>> setupkernel::finishSR:: active vertices after iteration: 179307
+Loading file fd 29 size 1434456
+
+[1m[37m>>> bfs::run: graph iteration 9 of bfs started. (179307 active vertices)[0m
+SortReduce Starting...
+yes no:1-1 no:0-0
+Loading file output.dat size 6007128 -- 30
+yes yes:0-0 yes:0-1
+		++ Iteration 9 done: 500594
+>>> setupkernel::finishSR:: active vertices after iteration: 43234
+Loading file fd 31 size 345872
+
+[1m[37m>>> bfs::run: graph iteration 10 of bfs started. (43234 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 1559292 -- 32
+yes yes:0-0 yes:0-1
+		++ Iteration 10 done: 129941
+>>> setupkernel::finishSR:: active vertices after iteration: 12070
+Loading file fd 33 size 96560
+
+[1m[37m>>> bfs::run: graph iteration 11 of bfs started. (12070 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 385608 -- 34
+yes yes:0-0 yes:0-1
+		++ Iteration 11 done: 32134
+>>> setupkernel::finishSR:: active vertices after iteration: 2608
+Loading file fd 35 size 20864
+
+[1m[37m>>> bfs::run: graph iteration 12 of bfs started. (2608 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 160368 -- 36
+yes yes:0-0 yes:0-1
+		++ Iteration 12 done: 13364
+>>> setupkernel::finishSR:: active vertices after iteration: 1223
+Loading file fd 37 size 9784
+
+[1m[37m>>> bfs::run: graph iteration 13 of bfs started. (1223 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 51684 -- 38
+yes yes:0-0 yes:0-1
+		++ Iteration 13 done: 4307
+>>> setupkernel::finishSR:: active vertices after iteration: 422
+Loading file fd 39 size 3376
+
+[1m[37m>>> bfs::run: graph iteration 14 of bfs started. (422 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 35568 -- 40
+yes yes:0-0 yes:0-1
+		++ Iteration 14 done: 2964
+>>> setupkernel::finishSR:: active vertices after iteration: 393
+Loading file fd 41 size 3144
+
+[1m[37m>>> bfs::run: graph iteration 15 of bfs started. (393 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 17592 -- 42
+yes yes:0-0 yes:0-1
+		++ Iteration 15 done: 1466
+>>> setupkernel::finishSR:: active vertices after iteration: 91
+Loading file fd 43 size 728
+
+[1m[37m>>> bfs::run: graph iteration 16 of bfs started. (91 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 11232 -- 44
+yes yes:0-0 yes:0-1
+		++ Iteration 16 done: 936
+>>> setupkernel::finishSR:: active vertices after iteration: 141
+Loading file fd 45 size 1128
+
+[1m[37m>>> bfs::run: graph iteration 17 of bfs started. (141 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 11148 -- 46
+yes yes:0-0 yes:0-1
+		++ Iteration 17 done: 929
+>>> setupkernel::finishSR:: active vertices after iteration: 73
+Loading file fd 47 size 584
+
+[1m[37m>>> bfs::run: graph iteration 18 of bfs started. (73 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 5028 -- 48
+yes yes:0-0 yes:0-1
+		++ Iteration 18 done: 419
+>>> setupkernel::finishSR:: active vertices after iteration: 18
+Loading file fd 49 size 144
+
+[1m[37m>>> bfs::run: graph iteration 19 of bfs started. (18 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 1704 -- 50
+yes yes:0-0 yes:0-1
+		++ Iteration 19 done: 142
+>>> setupkernel::finishSR:: active vertices after iteration: 2
+Loading file fd 51 size 16
+
+[1m[37m>>> bfs::run: graph iteration 20 of bfs started. (2 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 12 -- 52
+yes yes:0-0 yes:0-1
+		++ Iteration 20 done: 1
+>>> setupkernel::finishSR:: active vertices after iteration: 0
+Loading file fd 53 size 0
+
+>>> bfs::start2: finished start2. Time Elapsed: : Time Elapsed = 1467436357659[nanao seconds](Iteration 666)
+>>> bfs::start2: finished start2. Time Elapsed: : Time Elapsed = 1467436357[micro seconds](Iteration 666)
+>>> bfs::start2: finished start2. Time Elapsed: : Time Elapsed = 1467436[milli seconds](Iteration 666)
+>>> bfs::start2: finished start2. Time Elapsed: : Time Elapsed = 1467[seconds](Iteration 666)
+
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+graph::closefilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 1386705862
+[1m[37m>>> stats::summary Total number of kvReads for all threads: 1386705862[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 9637 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 9.637 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 1.36545e+06 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 1365.45 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 1.37509e+06 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 1375.09 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 1.46744e+06 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 1467.44 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 1.46744e+06 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 1467.44 seconds[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 1.00845e+06 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 1.00845 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 8.06758 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 1.00845e+06 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 1.00845 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 8.06758 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 944986 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 0.944986 million keyvalues per second[0m
+
+graph::printdataset: printing dataset parameters...
+>>> graphname: twitter
+>>> graph_path: /localtmp/oj2zf/dataset/twitter/twitter.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/twitter/twitter.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/twitter/twitter.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 41652230
+>>> num_vertices: 41652230
+>>> num_edges: 1468365184
+>>> graphdirectiontype: 6
+>>> graphorder: 6
+>>> skewratio: 128
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 1470489937910[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 1470489937[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 1470489[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 1470[seconds](Iteration 666)[0m
+

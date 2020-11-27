@@ -1,0 +1,254 @@
+rm -rf host ./xclbin/{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+mkdir -p obj
+g++ -o ./sr_nthreads examples/hostprocess.cpp src/algorithm/algorithm.cpp examples/helperfunctions/postprocess.cpp examples/helperfunctions/loadgraph.cpp examples/helperfunctions/setupkernel.cpp examples/helperfunctions/procedges.cpp examples/pagerank/pagerank.cpp examples/bfs/bfs.cpp examples/sssp/sssp.cpp examples/test/test.cpp src/graphs/graph.cpp src/heuristics/heuristics.cpp src/stats/stats.cpp src/utility/utility.cpp src/parameters/parameters.cpp src/dataset/dataset.cpp kernels/kernel.cpp kernels/swkernel.cpp kernels/goclkernel.cpp src/graphs/creategraphs.cpp acts/sortreduce/sr.cpp acts/acts_lw/actslw.cpp acts/actsutility/actsutility.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+./sr_nthreads
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 10000000
+host:: KVDATA_BATCHSIZE_KVS: 1250000
+host:: EDGES_BATCHSIZE: 80000000
+host:: EDGES_BATCHSIZE_KVS: 10000000
+host:: KVDATA_RANGE: 8388608
+host:: KVDATA_RANGE_POW: 23
+host:: BATCH_RANGE: 8388608
+host:: BATCH_RANGE_POW: 23
+host:: BATCH_RANGE2: 65536
+host:: BATCH_RANGE2_POW: 16
+host:: EDGESSZ: 0
+host:: (float)APPROXTREE_DEPTH: 4
+host:: APPROXTREE_DEPTH: 4
+host:: TREE_DEPTH: 4
+host:: TREE_DEPTH2: 2
+host:: NUMSSDPARTITIONS: 1
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 23
+host:: KVDATA_RANGE_PERSSDPARTITION: 8388608
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 16
+host:: KVDATA_RANGE_PERSSDPARTITION2: 65536
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 1
+host:: NUMSSDPARTITIONS_POW: 0
+host:: MAXNUMSSDPARTITIONS: 1
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 11311232
+host:: KVDRAMSZ_KVS: 1413904
+host:: KVDRAMWORKSPACESZ: 11311232
+host:: KVDRAMWORKSPACESZ_KVS: 1413904
+host:: EDGESSZ: 0
+host:: EDGESSZ_KVS: 0
+host:: VERTEXPTRSSZ: 0
+host:: VERTEXPTRSSZ_KVS: 0
+host:: VERTICESDATASZ: 4194304
+host:: VERTICESDATASZ_KVS: 524288
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 11312256
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 1414032
+host:: BASEOFFSET_STATSDRAM: 22623488
+host:: BASEOFFSET_EDGESDATA: 25244928
+host:: BASEOFFSET_EDGESDATA_KVS: 3155616
+host:: BASEOFFSET_VERTEXPTR: 25244928
+host:: BASEOFFSET_VERTEXPTR_KVS: 3155616
+host:: BASEOFFSET_VERTICESDATA: 25244928
+host:: BASEOFFSET_VERTICESDATA_KVS: 3155616
+host:: KVSOURCEDRAMSZ: 29439232
+host:: KVSOURCEDRAMSZ_KVS: 3679904
+host:: PADDEDKVSOURCEDRAMSZ: 29439232
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 3679904
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 90489856 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 90489856 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 20971520 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 0 bytes
+>> host:: VERTEXPTRSSZ (bytes): 0 bytes
+>> host:: VERTICESDATASZ (bytes): 33554432 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 235513856 bytes
+host:: KVSTATSDRAMSZ: 2621440
+host:: KVDRAMPADDING: 1311232
+host:: APPLYVERTEXBUFFERSZ: 128
+host:: APPLYVERTEXBUFFERSZ_KVS: 16
+host:: APPLYVERTEXBUFFERSZ2: 256
+host:: APPLYVERTEXBUFFERSZ2_KVS: 32
+host:: NUMLASTLEVELPARTITIONS: 65536
+host:: NUMLASTLEVELPARTITIONS2: 256
+host:: INMEMORYGP disabled 
+graph::graph constructor:: datasetid: 32, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: indochina-04
+>>> graph_path: /localtmp/oj2zf/dataset/indochina-04/indochina-2004.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/indochina-04/indochina-2004.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/indochina-04/indochina-2004.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/indochina-04/indochina-2004_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/indochina-04/indochina-2004_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 7414866
+>>> num_vertices: 7414866
+>>> num_edges: 194109311
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 128
+setupkernel::loadSRstructures:: tmp_dir: /localtmp/oj2zf/tmpdata_grafboost
+setupkernel::loadSRstructures:: idx_path: /localtmp/oj2zf/dataset/indochina-04/ridx.dat
+setupkernel::loadSRstructures:: mat_path: /localtmp/oj2zf/dataset/indochina-04/matrix.dat
+setupkernel::loadSRstructures:: vertex_count: 7414866
+Created vertex values file at /localtmp/oj2zf/tmpdata_grafboost/vertex_data.dat -- 7414866
+VertexValues default init done : 458 ms
+pagerank::run:: pagerank algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/indochina-04/indochina-04_1by1/indochina-04_0_0.edges
+[1m[37m>>> pagerank::run: graph iteration 0 of pagerank started[0m
+SortReduce Starting...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 0][size: 1][step: 1][0m
+>>> WorkerThread:: total number of edges in file[0]: 194109311
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:0][size:3][step:1]
+loadmessages:: loading Acts... sizes: [[4985435, 5014260, 5000300, 4998482, 5001075, 5000446, 4997995, 4975572, 5001191, 5020124, 4961835, 5043283, 4999886, 4987614, 5012150, 5000297]]
+>>> SortReduce Launched... runsize: 4985435
+>>> SortReduce Launched... runsize: 5014260
+>>> SortReduce Launched... runsize: 5000300
+>>> SortReduce Launched... runsize: 4998482
+>>> SortReduce Launched... runsize: 5001075
+>>> SortReduce Launched... runsize: 5000446
+>>> SortReduce Launched... runsize: 4997995
+>>> SortReduce Launched... runsize: 4975572
+>>> SortReduce Launched... runsize: 5001191
+>>> SortReduce Launched... runsize: 5020124
+>>> SortReduce Launched... runsize: 4961835
+>>> SortReduce Launched... runsize: 5043283
+>>> SortReduce Launched... runsize: 4999886
+>>> SortReduce Launched... runsize: 4987614
+>>> SortReduce Launched... runsize: 5012150
+>>> SortReduce Launched... runsize: 5000297
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:1][size:3][step:1]
+loadmessages:: loading Acts... sizes: [[5001969, 5001601, 5002333, 4954405, 5049540, 5001956, 4998927, 4981367, 5005559, 5004996, 5004108, 5000589, 4974404, 5019024, 5016080, 4958955]]
+>>> SortReduce Launched... runsize: 5001969
+>>> SortReduce Launched... runsize: 5001601
+>>> SortReduce Launched... runsize: 5002333
+>>> SortReduce Launched... runsize: 4954405
+>>> SortReduce Launched... runsize: 5049540
+>>> SortReduce Launched... runsize: 5001956
+>>> SortReduce Launched... runsize: 4998927
+>>> SortReduce Launched... runsize: 4981367
+>>> SortReduce Launched... runsize: 5005559
+>>> SortReduce Launched... runsize: 5004996
+>>> SortReduce Launched... runsize: 5004108
+>>> SortReduce Launched... runsize: 5000589
+>>> SortReduce Launched... runsize: 4974404
+>>> SortReduce Launched... runsize: 5019024
+>>> SortReduce Launched... runsize: 5016080
+>>> SortReduce Launched... runsize: 4958955
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:2][size:3][step:1]
+loadmessages:: loading Acts... sizes: [[2116370, 2122668, 2125703, 2154403, 2099651, 2059473, 2229749, 2130863, 2127666, 2131348, 2128982, 2114407, 2146529, 2130120, 2106462, 2153386]]
+>>> SortReduce Launched... runsize: 2116370
+>>> SortReduce Launched... runsize: 2122668
+>>> SortReduce Launched... runsize: 2125703
+>>> SortReduce Launched... runsize: 2154403
+>>> SortReduce Launched... runsize: 2099651
+>>> SortReduce Launched... runsize: 2059473
+>>> SortReduce Launched... runsize: 2229749
+>>> SortReduce Launched... runsize: 2130863
+>>> SortReduce Launched... runsize: 2127666
+>>> SortReduce Launched... runsize: 2131348
+>>> SortReduce Launched... runsize: 2128982
+>>> SortReduce Launched... runsize: 2114407
+>>> SortReduce Launched... runsize: 2146529
+>>> SortReduce Launched... runsize: 2130120
+>>> SortReduce Launched... runsize: 2106462
+>>> SortReduce Launched... runsize: 2153386
+>>> pagerank::start2 Finished: all threads joined...
+yes yes:0-0 no:0-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 73268868 -- 12
+yes yes:0-0 yes:0-1
+		++ Iteration 0 done: 6105739
+>>> setupkernel::finishSR:: active vertices after iteration: 6105739
+Loading file fd 13 size 48845912
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 25251182643[nanao seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 25251182[micro seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 25251[milli seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 25[seconds](Iteration 666)
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 194053538
+[1m[37m>>> stats::summary Total number of kvReads for all threads: 194053538[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 1461 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 1.461 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 10510 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 10.51 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 251 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 0.251 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 12222 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 12.222 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 25251 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 25.251 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 25251 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 25.251 seconds[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 1.58774e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 15.8774 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 127.019 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 1.58774e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 15.8774 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 127.019 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 7.68498e+06 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 7.68498 million keyvalues per second[0m
+
+graph::printdataset: printing dataset parameters...
+>>> graphname: indochina-04
+>>> graph_path: /localtmp/oj2zf/dataset/indochina-04/indochina-2004.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/indochina-04/indochina-2004.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/indochina-04/indochina-2004.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/indochina-04/indochina-2004_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/indochina-04/indochina-2004_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 7414866
+>>> num_vertices: 7414866
+>>> num_edges: 194109311
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 128
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 25802790725[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 25802790[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 25802[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 25[seconds](Iteration 666)[0m
+

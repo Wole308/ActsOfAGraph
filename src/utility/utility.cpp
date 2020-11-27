@@ -207,6 +207,13 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
 }
+void utility::printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE], unsigned int size){
+	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
+}
 void utility::printedges(string message, edge_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }

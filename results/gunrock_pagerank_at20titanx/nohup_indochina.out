@@ -1,0 +1,1825 @@
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 194109311
+  Substracting 1 from node Ids...
+  Edge doubleing: 194109311 -> 388218622 edges
+  Removed 86248984 duplicate edges and self circles.
+  graph loaded as COO in 155.102637s.
+Converting 7414866 vertices, 301969638 directed edges (unordered tuples) to CSC format...Done (45s).
+Degree Histogram (7414866 vertices, 301969638 edges):
+    Degree 0: 108 (0.001457 %)
+    Degree 2^0: 1200583 (16.191567 %)
+    Degree 2^1: 1068107 (14.404940 %)
+    Degree 2^2: 919676 (12.403137 %)
+    Degree 2^3: 1102470 (14.868374 %)
+    Degree 2^4: 1262846 (17.031272 %)
+    Degree 2^5: 1265971 (17.073417 %)
+    Degree 2^6: 425493 (5.738377 %)
+    Degree 2^7: 84023 (1.133170 %)
+    Degree 2^8: 40073 (0.540441 %)
+    Degree 2^9: 19242 (0.259506 %)
+    Degree 2^10: 8513 (0.114810 %)
+    Degree 2^11: 5252 (0.070831 %)
+    Degree 2^12: 10729 (0.144696 %)
+    Degree 2^13: 1649 (0.022239 %)
+    Degree 2^14: 94 (0.001268 %)
+    Degree 2^15: 11 (0.000148 %)
+    Degree 2^16: 20 (0.000270 %)
+    Degree 2^17: 6 (0.000081 %)
+
+Adding 1 vertex and 7414974 edges to compensate 0 degree vertices
+Converting 7414867 vertices, 309384612 directed edges (unordered tuples) to CSC format...Done (2s).
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true normalize=1 delta=0.85 threshold=0.01 max-iter=50 pull=0
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 55398.339844 ms, src = 4294967295
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true scale=0 advance-mode=LB
+nodes = 7414867
+Using advance mode LB
+Using filter mode CULL
+__________________________
+
+Run 0 num_runs: 1, num_runs = 1, num_runs = 1
+Launch Enactor. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests)
+
+
+Run Enactor. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_base.cuh/Run_Threads)
+
+
+Iteration_Loop started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop)
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.505957 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516506 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395981 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.591072 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 516.618967 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.519037 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000519 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.143238 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.629902 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.549110 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516549 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395781 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.613007 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.463923 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.511885 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.941700 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.602961 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.521931 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516522 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395907 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.596794 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.407894 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.506163 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000506 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.596718 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.566006 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.485929 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000516 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516486 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.396074 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.556978 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.328024 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.505924 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000506 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.624329 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.583887 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.577959 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516578 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395647 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.650915 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.436028 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.512123 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.914726 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.593901 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.533852 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516534 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395852 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.619921 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.422915 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.506163 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000506 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.596718 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.607967 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.583920 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516584 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395619 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.650915 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.478943 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.507116 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000507 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.486519 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.591040 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.555071 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516555 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395753 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.621113 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.424107 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509024 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000509 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.267368 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.583172 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.535997 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516536 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395842 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.608953 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.396927 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.507832 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.404144 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.594139 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.487122 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000516 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516487 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.396068 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.546965 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.352104 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.506878 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000507 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.514030 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.604868 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.485929 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000516 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516486 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.396074 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.549110 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.353058 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.508070 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.376740 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.602961 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.594172 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516594 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395572 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.690969 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.510891 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.504017 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000504 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.846180 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.649214 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.598940 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516599 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395550 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.708136 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.601967 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.505924 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000506 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.624329 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.643015 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.531944 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516532 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395860 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.641140 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.518997 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509024 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000509 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.267368 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.643969 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.489983 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000516 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516490 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.396055 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.592979 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.488003 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.505924 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000506 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.624329 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.645161 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.491890 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000516 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516492 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.396046 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.593933 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.490864 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.508070 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.376740 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.650883 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.530991 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000517 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516531 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.395865 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.597986 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.477036 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.499964 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000000 milliseconds
+>>> [FILTER] Total time (s):: 0.000500 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 59.323238 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.554800 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 516.484976 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000516 milliseconds
+>>> [ADVANCE] Total time (s):: 0.516485 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.396078 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 516.530037 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 517.280817 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.504971 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000505 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.735046 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.560999 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.687010 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518687 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.385906 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.745899 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.497871 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.512123 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.914726 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.554085 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.225193 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518225 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.388032 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.259048 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.001961 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.502110 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000502 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 59.069717 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.538826 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.471956 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518472 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386896 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.501043 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.220114 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.503063 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000503 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.957737 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.538111 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.536091 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518536 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386600 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.563986 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.289970 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.501871 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000502 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 59.097782 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.535011 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.550873 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518551 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386532 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.622875 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.349098 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.505209 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000505 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.707329 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.602961 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.602133 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518602 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386297 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.692970 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.511938 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.511885 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.941700 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.602007 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.566847 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518567 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386459 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.660784 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.469023 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509024 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000509 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.267368 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.593901 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.663168 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518663 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386016 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.738031 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.542933 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.508070 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.376740 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.596046 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.532991 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518533 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386615 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.603086 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.404173 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.512123 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.914726 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.591993 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.264055 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518264 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387853 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.350124 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.153833 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.508070 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.376740 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.597954 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.518925 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518519 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386679 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.579006 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.384146 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.506163 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000506 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.596718 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.577211 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.526077 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518526 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386647 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 1395.547867 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 1396.350145 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.531912 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000532 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 55.760120 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.659943 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.597126 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518597 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386320 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.661976 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.547939 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.510931 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000511 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.049850 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.555992 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.474102 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518474 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386886 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.523932 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.263983 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.512838 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000513 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.833950 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.555038 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.344164 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518344 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387484 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.394947 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.137144 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.514030 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000514 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.699829 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.555992 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.462181 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518462 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386941 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.512011 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.253969 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.511885 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.941700 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.560045 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.690825 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518691 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.385889 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.741131 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.491196 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509024 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000509 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.267368 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.549078 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.646002 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518646 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386095 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.696070 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.433975 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.512838 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000513 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.833950 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.558138 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.471956 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518472 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386896 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.518925 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.261837 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509024 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000509 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.267368 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.550032 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.352985 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518353 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387444 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.399954 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.140005 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.512123 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.914726 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.550985 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.192053 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518192 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.388185 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.244982 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 518.980026 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509977 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000510 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.158405 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.550985 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.274069 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518274 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387807 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.323183 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.061089 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.510931 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000511 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.049850 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.553131 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.215895 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518216 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.388075 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.267155 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.001961 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.507832 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.404144 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.549078 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.318176 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518318 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387604 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.366098 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.098997 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.508070 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000508 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.376740 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.550032 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.407106 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518407 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387194 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.454075 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.191980 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.511169 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000511 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.022774 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.550985 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.115997 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518116 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.388535 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.161058 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 518.896103 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.511885 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.941700 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.552177 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.296003 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518296 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387706 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.344164 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.083977 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.510216 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000510 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.131229 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.556946 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.376827 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518377 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.387334 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.422127 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.164085 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509024 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000509 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.267368 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.549078 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.458128 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518458 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386959 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.505096 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.238949 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509977 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000510 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.158405 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.555992 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.490076 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518490 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386812 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.532991 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.279003 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.509977 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000510 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 58.158405 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.550985 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.482924 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000518 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518483 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386845 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.529892 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.263983 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+BP_filter Launched. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch)
+BP_filter Launched. frontier size: 7414867
+BP_filter Launched. number of edges: 309384612
+BP_filter Launched. number of nodes: 7414867
+BP_filter Launched. graph direction: 1
+
+>>> BP_filter Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/Launch): 0.511885 milliseconds
+>>> [FILTER] Total size (vertices):: 7414867.000000 vertices
+>>> [FILTER] Total size (giga bytes):: 0.029659 giga bytes
+>>> [FILTER] Total time (ms):: 0.000001 milliseconds
+>>> [FILTER] Total time (s):: 0.000512 seconds
+>>> [FILTER] Effective Bandwidth (GB/s):: 57.941700 Gigabytes per sec
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.552893 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+
+>>> AE_advance Kernel time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch): 518.547058 milliseconds
+>>> [ADVANCE] Total size (edges):: 309384608.000000 edges
+>>> [ADVANCE] Total size (giga bytes):: 1.237538 giga bytes
+>>> [ADVANCE] Total time (ms):: 0.000519 milliseconds
+>>> [ADVANCE] Total time (s):: 0.518547 seconds
+>>> [ADVANCE] Effective Bandwidth (GB/s):: 2.386550 Gigabytes per sec
+>>> [ADVANCE] Number of running threads:: 256 threads
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 518.594027 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 519.335985 milliseconds
+
+>>> Iteration_Loop time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Run): 26809.906006 milliseconds
+
+
+GPU PageRank Done. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh): 26809.938908 milliseconds
+
+
+>>> Enactor time elapsed. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests): 26809.957027 milliseconds
+
+Run 0 elapsed: 26809.957027 ms, src = 4294967295, #iterations = 50
+Total_rank = 0.150000
+Top 10 Ranked vertices and PageRanks:
+Vertex ID: 0, PageRank: 0.000000
+Vertex ID: 1, PageRank: 0.000000
+Vertex ID: 2, PageRank: 0.000000
+Vertex ID: 3, PageRank: 0.000000
+Vertex ID: 4, PageRank: 0.000000
+Vertex ID: 5, PageRank: 0.000000
+Vertex ID: 6, PageRank: 0.000000
+Vertex ID: 7, PageRank: 0.000000
+Vertex ID: 8, PageRank: 0.000000
+Vertex ID: 9, PageRank: 0.000000
+Rank Validity: PASS
+Reference total rank : 0.150000
+Maximum difference : rank[7414866] 0.000000 vs. 0.000000, 0.000000
+Maximum relative difference :rank[7414866] 0.000000 vs. 0.000000, 0.000000
+Order Validity: PASS
+[pr] finished.
+ avg. elapsed: 26809.957027 ms
+ iterations: 50
+ min. elapsed: 26809.957027 ms
+ max. elapsed: 26809.957027 ms
+ nodes queued: 363328483
+ edges queued: 2584328712
+ nodes redundance: inf
+ edges redundance: inf
+ load time: 199873 ms
+ preprocess time: 1050.860000 ms
+ postprocess time: 249.996185 ms
+ total time: 28111.320972 ms

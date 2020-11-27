@@ -1,0 +1,41 @@
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 265025809
+  Substracting 1 from node Ids...
+  Edge doubleing: 265025809 -> 530051618 edges
+  Removed 528 duplicate edges and self circles.
+  graph loaded as COO in 124.614532s.
+Converting 21297772 vertices, 530051090 directed edges (unordered tuples) to CSC format...Done (80s).
+Degree Histogram (21297772 vertices, 530051090 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 6941094 (32.590705 %)
+    Degree 2^1: 5259404 (24.694621 %)
+    Degree 2^2: 3670291 (17.233216 %)
+    Degree 2^3: 2372696 (11.140583 %)
+    Degree 2^4: 1428640 (6.707932 %)
+    Degree 2^5: 759027 (3.563880 %)
+    Degree 2^6: 375026 (1.760870 %)
+    Degree 2^7: 205460 (0.964702 %)
+    Degree 2^8: 128940 (0.605415 %)
+    Degree 2^9: 82346 (0.386641 %)
+    Degree 2^10: 45147 (0.211980 %)
+    Degree 2^11: 18114 (0.085051 %)
+    Degree 2^12: 7541 (0.035407 %)
+    Degree 2^13: 2808 (0.013184 %)
+    Degree 2^14: 940 (0.004414 %)
+    Degree 2^15: 231 (0.001085 %)
+    Degree 2^16: 58 (0.000272 %)
+    Degree 2^17: 2 (0.000009 %)
+    Degree 2^18: 6 (0.000028 %)
+    Degree 2^19: 1 (0.000005 %)
+
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true normalize=1 delta=0.85 threshold=0.01 max-iter=50 pull=0
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 204197.640625 ms, src = 4294967295
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true scale=0 advance-mode=LB
+nodes = 21297772

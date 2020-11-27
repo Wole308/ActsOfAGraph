@@ -1,0 +1,236 @@
+rm -rf host ./xclbin/{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+mkdir -p obj
+g++ -o ./sr_nthreads examples/hostprocess.cpp src/algorithm/algorithm.cpp examples/helperfunctions/postprocess.cpp examples/helperfunctions/loadgraph.cpp examples/helperfunctions/setupkernel.cpp examples/helperfunctions/procedges.cpp examples/pagerank/pagerank.cpp examples/bfs/bfs.cpp examples/sssp/sssp.cpp examples/test/test.cpp src/graphs/graph.cpp src/heuristics/heuristics.cpp src/stats/stats.cpp src/utility/utility.cpp src/parameters/parameters.cpp src/dataset/dataset.cpp kernels/kernel.cpp kernels/swkernel.cpp kernels/goclkernel.cpp src/graphs/creategraphs.cpp acts/sortreduce/sr.cpp acts/acts_lw/actslw.cpp acts/actsutility/actsutility.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+./sr_nthreads
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 10000000
+host:: KVDATA_BATCHSIZE_KVS: 1250000
+host:: EDGES_BATCHSIZE: 80000000
+host:: EDGES_BATCHSIZE_KVS: 10000000
+host:: KVDATA_RANGE: 4194304
+host:: KVDATA_RANGE_POW: 22
+host:: BATCH_RANGE: 4194304
+host:: BATCH_RANGE_POW: 22
+host:: BATCH_RANGE2: 32768
+host:: BATCH_RANGE2_POW: 15
+host:: EDGESSZ: 0
+host:: (float)APPROXTREE_DEPTH: 3
+host:: APPROXTREE_DEPTH: 3
+host:: TREE_DEPTH: 3
+host:: TREE_DEPTH2: 2
+host:: NUMSSDPARTITIONS: 1
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 22
+host:: KVDATA_RANGE_PERSSDPARTITION: 4194304
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 15
+host:: KVDATA_RANGE_PERSSDPARTITION2: 32768
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 1
+host:: NUMSSDPARTITIONS_POW: 0
+host:: MAXNUMSSDPARTITIONS: 1
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 11311232
+host:: KVDRAMSZ_KVS: 1413904
+host:: KVDRAMWORKSPACESZ: 11311232
+host:: KVDRAMWORKSPACESZ_KVS: 1413904
+host:: EDGESSZ: 0
+host:: EDGESSZ_KVS: 0
+host:: VERTEXPTRSSZ: 0
+host:: VERTEXPTRSSZ_KVS: 0
+host:: VERTICESDATASZ: 2097152
+host:: VERTICESDATASZ_KVS: 262144
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 11312256
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 1414032
+host:: BASEOFFSET_STATSDRAM: 22623488
+host:: BASEOFFSET_EDGESDATA: 22754560
+host:: BASEOFFSET_EDGESDATA_KVS: 2844320
+host:: BASEOFFSET_VERTEXPTR: 22754560
+host:: BASEOFFSET_VERTEXPTR_KVS: 2844320
+host:: BASEOFFSET_VERTICESDATA: 22754560
+host:: BASEOFFSET_VERTICESDATA_KVS: 2844320
+host:: KVSOURCEDRAMSZ: 24851712
+host:: KVSOURCEDRAMSZ_KVS: 3106464
+host:: PADDEDKVSOURCEDRAMSZ: 24851712
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 3106464
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 90489856 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 90489856 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 1048576 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 0 bytes
+>> host:: VERTEXPTRSSZ (bytes): 0 bytes
+>> host:: VERTICESDATASZ (bytes): 16777216 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 198813696 bytes
+host:: KVSTATSDRAMSZ: 131072
+host:: KVDRAMPADDING: 1311232
+host:: APPLYVERTEXBUFFERSZ: 1024
+host:: APPLYVERTEXBUFFERSZ_KVS: 128
+host:: APPLYVERTEXBUFFERSZ2: 128
+host:: APPLYVERTEXBUFFERSZ2_KVS: 16
+host:: NUMLASTLEVELPARTITIONS: 4096
+host:: NUMLASTLEVELPARTITIONS2: 256
+host:: INMEMORYGP disabled 
+graph::graph constructor:: datasetid: 30, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: soc-orkut
+>>> graph_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2997166
+>>> num_vertices: 2997166
+>>> num_edges: 106349209
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 128
+setupkernel::loadSRstructures:: tmp_dir: /localtmp/oj2zf/tmpdata_grafboost
+setupkernel::loadSRstructures:: idx_path: /localtmp/oj2zf/dataset/soc-orkut/ridx.dat
+setupkernel::loadSRstructures:: mat_path: /localtmp/oj2zf/dataset/soc-orkut/matrix.dat
+setupkernel::loadSRstructures:: vertex_count: 2997166
+Created vertex values file at /localtmp/oj2zf/tmpdata_grafboost/vertex_data.dat -- 2997166
+VertexValues default init done : 200 ms
+pagerank::run:: pagerank algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_0_0.edges
+[1m[37m>>> pagerank::run: graph iteration 0 of pagerank started[0m
+SortReduce Starting...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 0][size: 1][step: 1][0m
+>>> WorkerThread:: total number of edges in file[0]: 106349209
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:0][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4974197, 5025365, 5000031, 4999265, 5000946, 5000064, 4999535, 5000320, 5000087, 4999890, 4996891, 5002069, 5001008, 5000298, 4999974, 4999986]]
+>>> SortReduce Launched... runsize: 4974197
+>>> SortReduce Launched... runsize: 5025365
+>>> SortReduce Launched... runsize: 5000031
+>>> SortReduce Launched... runsize: 4999265
+>>> SortReduce Launched... runsize: 5000946
+>>> SortReduce Launched... runsize: 5000064
+>>> SortReduce Launched... runsize: 4999535
+>>> SortReduce Launched... runsize: 5000320
+>>> SortReduce Launched... runsize: 5000087
+>>> SortReduce Launched... runsize: 4999890
+>>> SortReduce Launched... runsize: 4996891
+>>> SortReduce Launched... runsize: 5002069
+>>> SortReduce Launched... runsize: 5001008
+>>> SortReduce Launched... runsize: 5000298
+>>> SortReduce Launched... runsize: 4999974
+>>> SortReduce Launched... runsize: 4999986
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:1][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[1646823, 1646671, 1646871, 1646688, 1647020, 1646685, 1646982, 1646757, 1646885, 1646751, 1646900, 1646790, 1646841, 1646819, 1646848, 1646837]]
+>>> SortReduce Launched... runsize: 1646823
+>>> SortReduce Launched... runsize: 1646671
+>>> SortReduce Launched... runsize: 1646871
+>>> SortReduce Launched... runsize: 1646688
+>>> SortReduce Launched... runsize: 1647020
+>>> SortReduce Launched... runsize: 1646685
+>>> SortReduce Launched... runsize: 1646982
+>>> SortReduce Launched... runsize: 1646757
+>>> SortReduce Launched... runsize: 1646885
+>>> SortReduce Launched... runsize: 1646751
+>>> SortReduce Launched... runsize: 1646900
+>>> SortReduce Launched... runsize: 1646790
+>>> SortReduce Launched... runsize: 1646841
+>>> SortReduce Launched... runsize: 1646819
+>>> SortReduce Launched... runsize: 1646848
+>>> SortReduce Launched... runsize: 1646837
+>>> pagerank::start2 Finished: all threads joined...
+yes no:1-3 no:0-3
+yes yes:0-0 no:1-0
+yes yes:0-0 no:0-1
+Loading file output.dat size 35953932 -- 12
+yes yes:0-0 yes:0-1
+		++ Iteration 0 done: 2996161
+>>> setupkernel::finishSR:: active vertices after iteration: 2996161
+Loading file fd 13 size 23969288
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 16162498738[nanao seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 16162498[micro seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 16162[milli seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 16[seconds](Iteration 666)
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 106349094
+[1m[37m>>> stats::summary Total number of kvReads for all threads: 106349094[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 843 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 0.843 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 6339 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 6.339 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 133 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 0.133 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 7315 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 7.315 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 16162 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 16.162 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 16162 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 16.162 seconds[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 1.45385e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 14.5385 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 116.308 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 1.45385e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 14.5385 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 116.308 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 6.58019e+06 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 6.58019 million keyvalues per second[0m
+
+graph::printdataset: printing dataset parameters...
+>>> graphname: soc-orkut
+>>> graph_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2997166
+>>> num_vertices: 2997166
+>>> num_edges: 106349209
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 128
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 16417959455[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 16417959[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 16417[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 16[seconds](Iteration 666)[0m
+

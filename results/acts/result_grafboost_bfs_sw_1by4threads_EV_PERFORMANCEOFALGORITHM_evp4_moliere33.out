@@ -1,0 +1,155 @@
+rm -rf host ./xclbin/{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+mkdir -p obj
+g++ -o ./sr_nthreads examples/hostprocess.cpp src/algorithm/algorithm.cpp examples/helperfunctions/postprocess.cpp examples/helperfunctions/loadgraph.cpp examples/helperfunctions/setupkernel.cpp examples/helperfunctions/procedges.cpp examples/pagerank/pagerank.cpp examples/bfs/bfs.cpp examples/sssp/sssp.cpp examples/test/test.cpp src/graphs/graph.cpp src/heuristics/heuristics.cpp src/stats/stats.cpp src/utility/utility.cpp src/parameters/parameters.cpp src/dataset/dataset.cpp kernels/kernel.cpp kernels/swkernel.cpp kernels/goclkernel.cpp src/graphs/creategraphs.cpp acts/sortreduce/sr.cpp acts/acts_lw/actslw.cpp acts/actsutility/actsutility.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+./sr_nthreads
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 10000000
+host:: KVDATA_BATCHSIZE_KVS: 1250000
+host:: EDGES_BATCHSIZE: 80000000
+host:: EDGES_BATCHSIZE_KVS: 10000000
+host:: KVDATA_RANGE: 33554432
+host:: KVDATA_RANGE_POW: 25
+host:: BATCH_RANGE: 33554432
+host:: BATCH_RANGE_POW: 25
+host:: BATCH_RANGE2: 262144
+host:: BATCH_RANGE2_POW: 18
+host:: EDGESSZ: 0
+host:: (float)APPROXTREE_DEPTH: 4
+host:: APPROXTREE_DEPTH: 4
+host:: TREE_DEPTH: 4
+host:: TREE_DEPTH2: 2
+host:: NUMSSDPARTITIONS: 1
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 25
+host:: KVDATA_RANGE_PERSSDPARTITION: 33554432
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 18
+host:: KVDATA_RANGE_PERSSDPARTITION2: 262144
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 1
+host:: NUMSSDPARTITIONS_POW: 0
+host:: MAXNUMSSDPARTITIONS: 1
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 11311232
+host:: KVDRAMSZ_KVS: 1413904
+host:: KVDRAMWORKSPACESZ: 11311232
+host:: KVDRAMWORKSPACESZ_KVS: 1413904
+host:: EDGESSZ: 0
+host:: EDGESSZ_KVS: 0
+host:: VERTEXPTRSSZ: 0
+host:: VERTEXPTRSSZ_KVS: 0
+host:: VERTICESDATASZ: 16777216
+host:: VERTICESDATASZ_KVS: 2097152
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 11312256
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 1414032
+host:: BASEOFFSET_STATSDRAM: 22623488
+host:: BASEOFFSET_EDGESDATA: 25244928
+host:: BASEOFFSET_EDGESDATA_KVS: 3155616
+host:: BASEOFFSET_VERTEXPTR: 25244928
+host:: BASEOFFSET_VERTEXPTR_KVS: 3155616
+host:: BASEOFFSET_VERTICESDATA: 25244928
+host:: BASEOFFSET_VERTICESDATA_KVS: 3155616
+host:: KVSOURCEDRAMSZ: 42022144
+host:: KVSOURCEDRAMSZ_KVS: 5252768
+host:: PADDEDKVSOURCEDRAMSZ: 42022144
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 5252768
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 90489856 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 90489856 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 20971520 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 0 bytes
+>> host:: VERTEXPTRSSZ (bytes): 0 bytes
+>> host:: VERTICESDATASZ (bytes): 134217728 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 336177152 bytes
+host:: KVSTATSDRAMSZ: 2621440
+host:: KVDRAMPADDING: 1311232
+host:: APPLYVERTEXBUFFERSZ: 512
+host:: APPLYVERTEXBUFFERSZ_KVS: 64
+host:: APPLYVERTEXBUFFERSZ2: 1024
+host:: APPLYVERTEXBUFFERSZ2_KVS: 128
+host:: NUMLASTLEVELPARTITIONS: 65536
+host:: NUMLASTLEVELPARTITIONS2: 256
+host:: INMEMORYGP disabled 
+graph::graph constructor:: datasetid: 3, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: MOLIERE_2016
+>>> graph_path: /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE2016_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE2016_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 30239687
+>>> num_vertices: 30239687
+>>> num_edges: 3338650683
+>>> graphdirectiontype: 6
+>>> graphorder: 7
+>>> skewratio: 128
+setupkernel::loadSRstructures:: tmp_dir: /localtmp/oj2zf/tmpdata_grafboost
+setupkernel::loadSRstructures:: idx_path: /localtmp/oj2zf/dataset/MOLIERE_2016/ridx.dat
+setupkernel::loadSRstructures:: mat_path: /localtmp/oj2zf/dataset/MOLIERE_2016/matrix.dat
+setupkernel::loadSRstructures:: vertex_count: 30239687
+Created vertex values file at /localtmp/oj2zf/tmpdata_grafboost/vertex_data.dat -- 30239687
+VertexValues default init done : 1870 ms
+bfs::run:: bfs algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/MOLIERE_2016/MOLIERE_2016_1by1/MOLIERE_2016_0_0.edges
+
+[1m[37m>>> bfs::run: graph iteration 0 of bfs started. (1 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 1848 -- 12
+yes yes:0-0 yes:0-1
+		++ Iteration 0 done: 154
+>>> setupkernel::finishSR:: active vertices after iteration: 154
+Loading file fd 13 size 1232
+
+[1m[37m>>> bfs::run: graph iteration 1 of bfs started. (154 active vertices)[0m
+SortReduce Starting...
+SortReduce writing inmem directly to file /localtmp/oj2zf/tmpdata_grafboost/output.dat
+Loading file output.dat size 210756 -- 14
+yes yes:0-0 yes:0-1
+		++ Iteration 1 done: 17563
+>>> setupkernel::finishSR:: active vertices after iteration: 17525
+Loading file fd 15 size 140200
+
+[1m[37m>>> bfs::run: graph iteration 2 of bfs started. (17525 active vertices)[0m
+SortReduce Starting...
+yes no:1-3 no:0-0
+yes no:1-3 no:0-0
+yes yes:0-0 no:0-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 14422884 -- 16
+yes yes:0-0 yes:0-1

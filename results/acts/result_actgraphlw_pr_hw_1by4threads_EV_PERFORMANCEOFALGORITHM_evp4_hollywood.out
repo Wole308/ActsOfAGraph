@@ -1,0 +1,420 @@
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 6000000
+host:: KVDATA_BATCHSIZE_KVS: 750000
+host:: EDGES_BATCHSIZE: 48000000
+host:: EDGES_BATCHSIZE_KVS: 6000000
+host:: KVDATA_RANGE: 2097152
+host:: KVDATA_RANGE_POW: 21
+host:: BATCH_RANGE: 131072
+host:: BATCH_RANGE_POW: 17
+host:: BATCH_RANGE2: 1024
+host:: BATCH_RANGE2_POW: 10
+host:: EDGESSZ: 6000000
+host:: (float)APPROXTREE_DEPTH: 2
+host:: APPROXTREE_DEPTH: 2
+host:: TREE_DEPTH: 2
+host:: TREE_DEPTH2: 0
+host:: NUMSSDPARTITIONS: 16
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 17
+host:: KVDATA_RANGE_PERSSDPARTITION: 131072
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 10
+host:: KVDATA_RANGE_PERSSDPARTITION2: 1024
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 16
+host:: NUMSSDPARTITIONS_POW: 4
+host:: MAXNUMSSDPARTITIONS: 16
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 6786432
+host:: KVDRAMSZ_KVS: 848304
+host:: KVDRAMWORKSPACESZ: 6786432
+host:: KVDRAMWORKSPACESZ_KVS: 848304
+host:: EDGESSZ: 6000000
+host:: EDGESSZ_KVS: 750000
+host:: VERTEXPTRSSZ: 2097152
+host:: VERTEXPTRSSZ_KVS: 262144
+host:: VERTICESDATASZ: 65536
+host:: VERTICESDATASZ_KVS: 8192
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 6787456
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 848432
+host:: BASEOFFSET_STATSDRAM: 13573888
+host:: BASEOFFSET_EDGESDATA: 13580032
+host:: BASEOFFSET_EDGESDATA_KVS: 1697504
+host:: BASEOFFSET_VERTEXPTR: 19580032
+host:: BASEOFFSET_VERTEXPTR_KVS: 2447504
+host:: BASEOFFSET_VERTICESDATA: 21677184
+host:: BASEOFFSET_VERTICESDATA_KVS: 2709648
+host:: KVSOURCEDRAMSZ: 21742720
+host:: KVSOURCEDRAMSZ_KVS: 2717840
+host:: PADDEDKVSOURCEDRAMSZ: 21742720
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 2717840
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 54291456 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 54291456 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 49152 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 48000000 bytes
+>> host:: VERTEXPTRSSZ (bytes): 16777216 bytes
+>> host:: VERTICESDATASZ (bytes): 524288 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 173941760 bytes
+host:: KVSTATSDRAMSZ: 6144
+host:: KVDRAMPADDING: 786432
+host:: APPLYVERTEXBUFFERSZ: 512
+host:: APPLYVERTEXBUFFERSZ_KVS: 64
+host:: APPLYVERTEXBUFFERSZ2: 1024
+host:: APPLYVERTEXBUFFERSZ2_KVS: 128
+host:: NUMLASTLEVELPARTITIONS: 256
+host:: NUMLASTLEVELPARTITIONS2: 1
+host:: INMEMORYGP enabled 
+graph::graph constructor:: datasetid: 31, _numedgebanks: 16
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: hollywood-2009
+>>> graph_path: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 1139905
+>>> num_vertices: 1139905
+>>> num_edges: 57515616
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 128
+goclkernel::loadOCLstructures:: inputdata_size_bytes: 173941760
+Found Platform
+Platform Name: Xilinx
+Found Device=xilinx_u280_xdma_201910_1
+INFO: Reading /home/oj2zf/Documents/ActsOfAGraph_Kernels/goldenkernelpr4.xclbin
+Loading: '/home/oj2zf/Documents/ActsOfAGraph_Kernels/goldenkernelpr4.xclbin'
+Creating a kernel [topkernel:{topkernel_1}] for CU(1)
+Creating a kernel [topkernel:{topkernel_2}] for CU(2)
+Creating a kernel [topkernel:{topkernel_3}] for CU(3)
+Creating a kernel [topkernel:{topkernel_4}] for CU(4)
+Creating a kernel [topkernel:{topkernel_5}] for CU(5)
+Creating a kernel [topkernel:{topkernel_6}] for CU(6)
+Creating a kernel [topkernel:{topkernel_7}] for CU(7)
+Creating a kernel [topkernel:{topkernel_8}] for CU(8)
+Creating a kernel [topkernel:{topkernel_9}] for CU(9)
+Creating a kernel [topkernel:{topkernel_10}] for CU(10)
+Creating a kernel [topkernel:{topkernel_11}] for CU(11)
+Creating a kernel [topkernel:{topkernel_12}] for CU(12)
+Creating a kernel [topkernel:{topkernel_13}] for CU(13)
+Creating a kernel [topkernel:{topkernel_14}] for CU(14)
+Creating a kernel [topkernel:{topkernel_15}] for CU(15)
+Creating a kernel [topkernel:{topkernel_16}] for CU(16)
+attaching bufferExt 0 to HBM bank: 0
+attaching bufferExt 1 to HBM bank: 1
+attaching bufferExt 2 to HBM bank: 2
+attaching bufferExt 3 to HBM bank: 3
+attaching bufferExt 4 to HBM bank: 4
+attaching bufferExt 5 to HBM bank: 5
+attaching bufferExt 6 to HBM bank: 6
+attaching bufferExt 7 to HBM bank: 7
+attaching bufferExt 8 to HBM bank: 8
+attaching bufferExt 9 to HBM bank: 9
+attaching bufferExt 10 to HBM bank: 10
+attaching bufferExt 11 to HBM bank: 11
+attaching bufferExt 12 to HBM bank: 12
+attaching bufferExt 13 to HBM bank: 13
+attaching bufferExt 14 to HBM bank: 14
+attaching bufferExt 15 to HBM bank: 15
+creating buffer for ACTS: 0
+creating buffer for ACTS: 1
+creating buffer for ACTS: 2
+creating buffer for ACTS: 3
+creating buffer for ACTS: 4
+creating buffer for ACTS: 5
+creating buffer for ACTS: 6
+creating buffer for ACTS: 7
+creating buffer for ACTS: 8
+creating buffer for ACTS: 9
+creating buffer for ACTS: 10
+creating buffer for ACTS: 11
+creating buffer for ACTS: 12
+creating buffer for ACTS: 13
+creating buffer for ACTS: 14
+creating buffer for ACTS: 15
+pagerank::run:: pagerank algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_1.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_2.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_3.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_4.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_5.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_6.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_7.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_8.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_9.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_10.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_11.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_12.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_13.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_14.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_15.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_1.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_2.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_3.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_4.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_5.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_6.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_7.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_8.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_9.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_10.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_11.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_12.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_13.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_14.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_15.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_1.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_2.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_3.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_4.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_5.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_6.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_7.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_8.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_9.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_10.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_11.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_12.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_13.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_14.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_15.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_1.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_2.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_3.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_4.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_5.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_6.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_7.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_8.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_9.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_10.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_11.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_12.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_13.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_14.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_1by16/hollywood-2009_0_15.edges
+[1m[37m>>> pagerank::run: graph iteration 0 of pagerank started[0m
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 0][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[0]: 2504016
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[156477, 156497, 156141, 156889, 156429, 155739, 156921, 156847, 156565, 156254, 156741, 154893, 157985, 156247, 156703, 156652]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 1][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[1]: 3514921
+
+PP&A:: [col:1][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[217946, 221089, 220001, 219660, 216912, 220281, 221247, 220303, 218917, 219266, 220460, 219992, 219650, 219688, 219749, 219724]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 2][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[2]: 5191450
+
+PP&A:: [col:2][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[324459, 324195, 324700, 323525, 324875, 324813, 324661, 321484, 326234, 325485, 324033, 325093, 322604, 325869, 322852, 326558]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 3][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[3]: 5710239
+
+PP&A:: [col:3][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[356877, 356899, 356579, 355739, 358308, 356786, 356919, 356807, 356288, 357507, 356369, 356209, 357903, 355520, 358565, 356948]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 4][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[4]: 8549536
+
+PP&A:: [col:4][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[534285, 534309, 534247, 525122, 540386, 536832, 534479, 533035, 533306, 533773, 535812, 534029, 529692, 541241, 534633, 534319]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 5][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[5]: 6747141
+
+PP&A:: [col:5][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[421680, 421708, 421691, 421247, 422111, 421734, 421690, 420871, 422462, 421140, 422016, 421786, 420719, 421404, 420521, 424347]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 6][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[6]: 13232996
+
+PP&A:: [col:6][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[827032, 826749, 827317, 827138, 826208, 827912, 826325, 826405, 821313, 834190, 825250, 828638, 826349, 826753, 827808, 827587]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 7][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[7]: 11055490
+
+PP&A:: [col:7][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[690928, 690898, 690414, 690235, 690392, 680683, 693043, 690890, 699018, 693142, 688423, 693466, 679019, 700475, 693473, 690967]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 8][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[8]: 1009827
+
+PP&A:: [col:8][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[63059, 63167, 63114, 62316, 63693, 63217, 63228, 63062, 62956, 62791, 63553, 62895, 63423, 63108, 63122, 63121]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 9][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[9]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 10][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[10]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 11][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[11]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 12][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[12]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 13][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[13]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 14][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[14]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 15][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[15]: 0
+>>> pagerank::start2 Finished: all threads joined...
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+test::finish destroying memory structures... 
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 2491722004[nanao seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 2491722[micro seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 2491[milli seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 2[seconds](Iteration 666)
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 2503980
+>>> stats::summary Total number of kvReads in bank [1]: 3514885
+>>> stats::summary Total number of kvReads in bank [2]: 5191440
+>>> stats::summary Total number of kvReads in bank [3]: 5710223
+>>> stats::summary Total number of kvReads in bank [4]: 8549500
+>>> stats::summary Total number of kvReads in bank [5]: 6747127
+>>> stats::summary Total number of kvReads in bank [6]: 13232974
+>>> stats::summary Total number of kvReads in bank [7]: 11055466
+>>> stats::summary Total number of kvReads in bank [8]: 1009825
+>>> stats::summary Total number of kvReads in bank [9]: 0
+>>> stats::summary Total number of kvReads in bank [10]: 0
+>>> stats::summary Total number of kvReads in bank [11]: 0
+>>> stats::summary Total number of kvReads in bank [12]: 0
+>>> stats::summary Total number of kvReads in bank [13]: 0
+>>> stats::summary Total number of kvReads in bank [14]: 0
+>>> stats::summary Total number of kvReads in bank [15]: 0
+[1m[37m>>> stats::summary Total number of kvReads for all threads: 57515420[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 562 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 0.562 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 117 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 0.117 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 679 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 0.679 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 2491 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 2.491 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 2491 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 2.491 seconds[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 8.47061e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 84.7061 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 677.649 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 8.47061e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 84.7061 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 677.649 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 2.30893e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 23.0893 million keyvalues per second[0m
+
+graph::printdataset: printing dataset parameters...
+>>> graphname: hollywood-2009
+>>> graph_path: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/hollywood-2009/hollywood-2009_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 1139905
+>>> num_vertices: 1139905
+>>> num_edges: 57515616
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 128
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 3488585741[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 3488585[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 3488[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 3[seconds](Iteration 666)[0m
+
+XRT build version: 2.3.1301
+Build hash: 192e706aea53163a04c574f9b3fe9ed76b6ca471
+Build date: 2019-10-24 20:05:16
+Git branch: 2019.2
+PID: 14303
+UID: 1007
+[Mon Nov 23 16:24:13 2020]
+HOST: crabtree
+EXE: /home/oj2zf/Documents/ActsOfAGraph/host
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).

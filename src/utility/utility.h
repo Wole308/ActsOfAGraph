@@ -26,6 +26,7 @@ public:
 	void print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize);
+	void printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE], unsigned int size);
 	void printedges(string message, edge_type * edges, unsigned int size);
 	void printmessages(string message, uint512_vec_dt * keyvalues);
 	void printallparameters();

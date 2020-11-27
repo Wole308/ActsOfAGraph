@@ -52,7 +52,7 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-KERNEL_TOP += acts/acts_lw/actslw.cpp
+KERNEL_TOP += acts/acts_lw/actsfast.cpp
 # KERNEL_TOP += acts/acts_lw/actsmax.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
 

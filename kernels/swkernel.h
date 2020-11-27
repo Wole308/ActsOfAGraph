@@ -8,7 +8,7 @@
 #ifdef TESTKERNEL_ACTSMAX
 #include "../acts/acts_lw/actsmax.h"
 #else 
-#include "../acts/acts_lw/actslw.h"
+#include "../acts/acts_lw/actsfast.h"
 #endif 
 #include "../src/utility/utility.h"
 

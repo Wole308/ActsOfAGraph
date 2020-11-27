@@ -1,0 +1,630 @@
+rm -rf host ./xclbin/{*sw_emu*,*hw_emu*} 
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+mkdir -p obj
+g++ -o ./sr_nthreads examples/hostprocess.cpp src/algorithm/algorithm.cpp examples/helperfunctions/postprocess.cpp examples/helperfunctions/loadgraph.cpp examples/helperfunctions/setupkernel.cpp examples/helperfunctions/procedges.cpp examples/pagerank/pagerank.cpp examples/bfs/bfs.cpp examples/sssp/sssp.cpp examples/test/test.cpp src/graphs/graph.cpp src/heuristics/heuristics.cpp src/stats/stats.cpp src/utility/utility.cpp src/parameters/parameters.cpp src/dataset/dataset.cpp kernels/kernel.cpp kernels/swkernel.cpp kernels/goclkernel.cpp src/graphs/creategraphs.cpp acts/sortreduce/sr.cpp acts/acts_lw/actslw.cpp acts/actsutility/actsutility.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+./sr_nthreads
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 10000000
+host:: KVDATA_BATCHSIZE_KVS: 1250000
+host:: EDGES_BATCHSIZE: 80000000
+host:: EDGES_BATCHSIZE_KVS: 10000000
+host:: KVDATA_RANGE: 67108864
+host:: KVDATA_RANGE_POW: 26
+host:: BATCH_RANGE: 67108864
+host:: BATCH_RANGE_POW: 26
+host:: BATCH_RANGE2: 524288
+host:: BATCH_RANGE2_POW: 19
+host:: EDGESSZ: 0
+host:: (float)APPROXTREE_DEPTH: 4
+host:: APPROXTREE_DEPTH: 4
+host:: TREE_DEPTH: 4
+host:: TREE_DEPTH2: 3
+host:: NUMSSDPARTITIONS: 1
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 26
+host:: KVDATA_RANGE_PERSSDPARTITION: 67108864
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 19
+host:: KVDATA_RANGE_PERSSDPARTITION2: 524288
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 1
+host:: NUMSSDPARTITIONS_POW: 0
+host:: MAXNUMSSDPARTITIONS: 1
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 11311232
+host:: KVDRAMSZ_KVS: 1413904
+host:: KVDRAMWORKSPACESZ: 11311232
+host:: KVDRAMWORKSPACESZ_KVS: 1413904
+host:: EDGESSZ: 0
+host:: EDGESSZ_KVS: 0
+host:: VERTEXPTRSSZ: 0
+host:: VERTEXPTRSSZ_KVS: 0
+host:: VERTICESDATASZ: 33554432
+host:: VERTICESDATASZ_KVS: 4194304
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 11312256
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 1414032
+host:: BASEOFFSET_STATSDRAM: 22623488
+host:: BASEOFFSET_EDGESDATA: 25244928
+host:: BASEOFFSET_EDGESDATA_KVS: 3155616
+host:: BASEOFFSET_VERTEXPTR: 25244928
+host:: BASEOFFSET_VERTEXPTR_KVS: 3155616
+host:: BASEOFFSET_VERTICESDATA: 25244928
+host:: BASEOFFSET_VERTICESDATA_KVS: 3155616
+host:: KVSOURCEDRAMSZ: 58799360
+host:: KVSOURCEDRAMSZ_KVS: 7349920
+host:: PADDEDKVSOURCEDRAMSZ: 58799360
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 7349920
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 90489856 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 90489856 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 20971520 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 0 bytes
+>> host:: VERTEXPTRSSZ (bytes): 0 bytes
+>> host:: VERTICESDATASZ (bytes): 268435456 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 470394880 bytes
+host:: KVSTATSDRAMSZ: 2621440
+host:: KVDRAMPADDING: 1311232
+host:: APPLYVERTEXBUFFERSZ: 1024
+host:: APPLYVERTEXBUFFERSZ_KVS: 128
+host:: APPLYVERTEXBUFFERSZ2: 128
+host:: APPLYVERTEXBUFFERSZ2_KVS: 16
+host:: NUMLASTLEVELPARTITIONS: 65536
+host:: NUMLASTLEVELPARTITIONS2: 4096
+host:: INMEMORYGP disabled 
+graph::graph constructor:: datasetid: 2, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: twitter
+>>> graph_path: /localtmp/oj2zf/dataset/twitter/twitter.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/twitter/twitter.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/twitter/twitter.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 41652230
+>>> num_vertices: 41652230
+>>> num_edges: 1468365184
+>>> graphdirectiontype: 6
+>>> graphorder: 6
+>>> skewratio: 128
+setupkernel::loadSRstructures:: tmp_dir: /localtmp/oj2zf/tmpdata_grafboost
+setupkernel::loadSRstructures:: idx_path: /localtmp/oj2zf/dataset/twitter/ridx.dat
+setupkernel::loadSRstructures:: mat_path: /localtmp/oj2zf/dataset/twitter/matrix.dat
+setupkernel::loadSRstructures:: vertex_count: 41652230
+Created vertex values file at /localtmp/oj2zf/tmpdata_grafboost/vertex_data.dat -- 41652230
+VertexValues default init done : 2596 ms
+pagerank::run:: pagerank algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by1/twitter_0_0.edges
+[1m[37m>>> pagerank::run: graph iteration 0 of pagerank started[0m
+SortReduce Starting...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 0][size: 1][step: 1][0m
+>>> WorkerThread:: total number of edges in file[0]: 1468365182
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:0][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4993486, 5011756, 5003218, 4995836, 4931028, 5081640, 4986991, 5017944, 5002910, 5002589, 4996147, 5010521, 5002666, 5002465, 5000599, 4934011]]
+>>> SortReduce Launched... runsize: 4993486
+>>> SortReduce Launched... runsize: 5011756
+>>> SortReduce Launched... runsize: 5003218
+>>> SortReduce Launched... runsize: 4995836
+>>> SortReduce Launched... runsize: 4931028
+>>> SortReduce Launched... runsize: 5081640
+>>> SortReduce Launched... runsize: 4986991
+>>> SortReduce Launched... runsize: 5017944
+>>> SortReduce Launched... runsize: 5002910
+>>> SortReduce Launched... runsize: 5002589
+>>> SortReduce Launched... runsize: 4996147
+>>> SortReduce Launched... runsize: 5010521
+>>> SortReduce Launched... runsize: 5002666
+>>> SortReduce Launched... runsize: 5002465
+>>> SortReduce Launched... runsize: 5000599
+>>> SortReduce Launched... runsize: 4934011
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:1][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999658, 5000422, 4999800, 4991185, 5008394, 4997650, 5003349, 4977920, 5022038, 5000047, 4999849, 4997242, 5001111, 4996063, 5003078, 5001020]]
+>>> SortReduce Launched... runsize: 4999658
+>>> SortReduce Launched... runsize: 5000422
+>>> SortReduce Launched... runsize: 4999800
+>>> SortReduce Launched... runsize: 4991185
+>>> SortReduce Launched... runsize: 5008394
+>>> SortReduce Launched... runsize: 4997650
+>>> SortReduce Launched... runsize: 5003349
+>>> SortReduce Launched... runsize: 4977920
+>>> SortReduce Launched... runsize: 5022038
+>>> SortReduce Launched... runsize: 5000047
+>>> SortReduce Launched... runsize: 4999849
+>>> SortReduce Launched... runsize: 4997242
+>>> SortReduce Launched... runsize: 5001111
+>>> SortReduce Launched... runsize: 4996063
+>>> SortReduce Launched... runsize: 5003078
+>>> SortReduce Launched... runsize: 5001020
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:2][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999242, 4999512, 5001578, 4999916, 5000252, 5000158, 4998847, 5001454, 4999746, 5000061, 5000635, 4999659, 4961830, 5038690, 5000097, 4997950]]
+>>> SortReduce Launched... runsize: 4999242
+>>> SortReduce Launched... runsize: 4999512
+>>> SortReduce Launched... runsize: 5001578
+>>> SortReduce Launched... runsize: 4999916
+>>> SortReduce Launched... runsize: 5000252
+>>> SortReduce Launched... runsize: 5000158
+>>> SortReduce Launched... runsize: 4998847
+>>> SortReduce Launched... runsize: 5001454
+>>> SortReduce Launched... runsize: 4999746
+>>> SortReduce Launched... runsize: 5000061
+>>> SortReduce Launched... runsize: 5000635
+>>> SortReduce Launched... runsize: 4999659
+>>> SortReduce Launched... runsize: 4961830
+>>> SortReduce Launched... runsize: 5038690
+>>> SortReduce Launched... runsize: 5000097
+>>> SortReduce Launched... runsize: 4997950
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:3][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999534, 5000351, 4999977, 5000055, 4999897, 4999556, 4999506, 5000316, 4994711, 5006096, 4990273, 5009159, 5000538, 4999787, 4999449, 5000585]]
+>>> SortReduce Launched... runsize: 4999534
+>>> SortReduce Launched... runsize: 5000351
+>>> SortReduce Launched... runsize: 4999977
+>>> SortReduce Launched... runsize: 5000055
+>>> SortReduce Launched... runsize: 4999897
+>>> SortReduce Launched... runsize: 4999556
+>>> SortReduce Launched... runsize: 4999506
+>>> SortReduce Launched... runsize: 5000316
+>>> SortReduce Launched... runsize: 4994711
+>>> SortReduce Launched... runsize: 5006096
+>>> SortReduce Launched... runsize: 4990273
+>>> SortReduce Launched... runsize: 5009159
+>>> SortReduce Launched... runsize: 5000538
+>>> SortReduce Launched... runsize: 4999787
+>>> SortReduce Launched... runsize: 4999449
+>>> SortReduce Launched... runsize: 5000585
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:4][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999688, 4993871, 5005585, 4999714, 4999471, 4997531, 5001926, 4999705, 4999250, 5000296, 4999267, 4996837, 5002949, 4999532, 4999898, 4999672]]
+>>> SortReduce Launched... runsize: 4999688
+>>> SortReduce Launched... runsize: 4993871
+>>> SortReduce Launched... runsize: 5005585
+>>> SortReduce Launched... runsize: 4999714
+>>> SortReduce Launched... runsize: 4999471
+>>> SortReduce Launched... runsize: 4997531
+>>> SortReduce Launched... runsize: 5001926
+>>> SortReduce Launched... runsize: 4999705
+>>> SortReduce Launched... runsize: 4999250
+>>> SortReduce Launched... runsize: 5000296
+>>> SortReduce Launched... runsize: 4999267
+>>> SortReduce Launched... runsize: 4996837
+>>> SortReduce Launched... runsize: 5002949
+>>> SortReduce Launched... runsize: 4999532
+>>> SortReduce Launched... runsize: 4999898
+>>> SortReduce Launched... runsize: 4999672
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:5][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4998936, 4987613, 5013475, 5000085, 4998290, 4998603, 5003052, 4998647, 5000360, 5001082, 5000052, 4998589, 5000873, 5000615, 4998184, 5000030]]
+>>> SortReduce Launched... runsize: 4998936
+>>> SortReduce Launched... runsize: 4987613
+>>> SortReduce Launched... runsize: 5013475
+>>> SortReduce Launched... runsize: 5000085
+>>> SortReduce Launched... runsize: 4998290
+>>> SortReduce Launched... runsize: 4998603
+>>> SortReduce Launched... runsize: 5003052
+>>> SortReduce Launched... runsize: 4998647
+>>> SortReduce Launched... runsize: 5000360
+>>> SortReduce Launched... runsize: 5001082
+>>> SortReduce Launched... runsize: 5000052
+>>> SortReduce Launched... runsize: 4998589
+>>> SortReduce Launched... runsize: 5000873
+>>> SortReduce Launched... runsize: 5000615
+>>> SortReduce Launched... runsize: 4998184
+>>> SortReduce Launched... runsize: 5000030
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:6][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4996560, 5003242, 5000005, 4999899, 4998427, 5001410, 4998401, 4996102, 5004561, 5000729, 4999870, 5000097, 4999339, 5000545, 4999863, 4999934]]
+>>> SortReduce Launched... runsize: 4996560
+>>> SortReduce Launched... runsize: 5003242
+>>> SortReduce Launched... runsize: 5000005
+>>> SortReduce Launched... runsize: 4999899
+>>> SortReduce Launched... runsize: 4998427
+>>> SortReduce Launched... runsize: 5001410
+>>> SortReduce Launched... runsize: 4998401
+>>> SortReduce Launched... runsize: 4996102
+>>> SortReduce Launched... runsize: 5004561
+>>> SortReduce Launched... runsize: 5000729
+>>> SortReduce Launched... runsize: 4999870
+>>> SortReduce Launched... runsize: 5000097
+>>> SortReduce Launched... runsize: 4999339
+>>> SortReduce Launched... runsize: 5000545
+>>> SortReduce Launched... runsize: 4999863
+>>> SortReduce Launched... runsize: 4999934
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:7][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999900, 5000085, 4999846, 5000119, 5000040, 4999960, 4999965, 4999144, 5000964, 4999718, 5000246, 4999901, 4997467, 5000929, 5001454, 5000257]]
+>>> SortReduce Launched... runsize: 4999900
+>>> SortReduce Launched... runsize: 5000085
+>>> SortReduce Launched... runsize: 4999846
+>>> SortReduce Launched... runsize: 5000119
+>>> SortReduce Launched... runsize: 5000040
+>>> SortReduce Launched... runsize: 4999960
+>>> SortReduce Launched... runsize: 4999965
+>>> SortReduce Launched... runsize: 4999144
+>>> SortReduce Launched... runsize: 5000964
+>>> SortReduce Launched... runsize: 4999718
+>>> SortReduce Launched... runsize: 5000246
+>>> SortReduce Launched... runsize: 4999901
+>>> SortReduce Launched... runsize: 4997467
+>>> SortReduce Launched... runsize: 5000929
+>>> SortReduce Launched... runsize: 5001454
+>>> SortReduce Launched... runsize: 5000257
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:8][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999982, 4999712, 5000276, 4999863, 4999816, 5000362, 4999863, 5000078, 4995973, 5004083, 4999832, 5000045, 4998005, 5000353, 5001656, 4999997]]
+>>> SortReduce Launched... runsize: 4999982
+>>> SortReduce Launched... runsize: 4999712
+>>> SortReduce Launched... runsize: 5000276
+>>> SortReduce Launched... runsize: 4999863
+>>> SortReduce Launched... runsize: 4999816
+>>> SortReduce Launched... runsize: 5000362
+>>> SortReduce Launched... runsize: 4999863
+>>> SortReduce Launched... runsize: 5000078
+>>> SortReduce Launched... runsize: 4995973
+>>> SortReduce Launched... runsize: 5004083
+>>> SortReduce Launched... runsize: 4999832
+>>> SortReduce Launched... runsize: 5000045
+>>> SortReduce Launched... runsize: 4998005
+>>> SortReduce Launched... runsize: 5000353
+>>> SortReduce Launched... runsize: 5001656
+>>> SortReduce Launched... runsize: 4999997
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:9][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[5000014, 4986270, 5010539, 5003206, 4997089, 5002150, 5000893, 4999974, 4999986, 5000101, 4999782, 4987445, 5012207, 5000658, 5000012, 4999493]]
+>>> SortReduce Launched... runsize: 5000014
+>>> SortReduce Launched... runsize: 4986270
+>>> SortReduce Launched... runsize: 5010539
+>>> SortReduce Launched... runsize: 5003206
+>>> SortReduce Launched... runsize: 4997089
+>>> SortReduce Launched... runsize: 5002150
+>>> SortReduce Launched... runsize: 5000893
+>>> SortReduce Launched... runsize: 4999974
+>>> SortReduce Launched... runsize: 4999986
+>>> SortReduce Launched... runsize: 5000101
+>>> SortReduce Launched... runsize: 4999782
+>>> SortReduce Launched... runsize: 4987445
+>>> SortReduce Launched... runsize: 5012207
+>>> SortReduce Launched... runsize: 5000658
+>>> SortReduce Launched... runsize: 5000012
+>>> SortReduce Launched... runsize: 4999493
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:10][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999992, 5000007, 5000022, 4999478, 5000472, 4999175, 5000790, 5000035, 4999237, 4999626, 4989191, 5011974, 4999883, 4999999, 5000253, 4999721]]
+>>> SortReduce Launched... runsize: 4999992
+>>> SortReduce Launched... runsize: 5000007
+>>> SortReduce Launched... runsize: 5000022
+>>> SortReduce Launched... runsize: 4999478
+>>> SortReduce Launched... runsize: 5000472
+>>> SortReduce Launched... runsize: 4999175
+>>> SortReduce Launched... runsize: 5000790
+>>> SortReduce Launched... runsize: 5000035
+>>> SortReduce Launched... runsize: 4999237
+>>> SortReduce Launched... runsize: 4999626
+>>> SortReduce Launched... runsize: 4989191
+>>> SortReduce Launched... runsize: 5011974
+>>> SortReduce Launched... runsize: 4999883
+>>> SortReduce Launched... runsize: 4999999
+>>> SortReduce Launched... runsize: 5000253
+>>> SortReduce Launched... runsize: 4999721
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:11][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999985, 4999446, 4999269, 5001291, 4999839, 5000136, 4999451, 4999279, 5001267, 5000013, 4999277, 5000148, 5000424, 5000180, 4999731, 5000206]]
+>>> SortReduce Launched... runsize: 4999985
+>>> SortReduce Launched... runsize: 4999446
+>>> SortReduce Launched... runsize: 4999269
+>>> SortReduce Launched... runsize: 5001291
+>>> SortReduce Launched... runsize: 4999839
+>>> SortReduce Launched... runsize: 5000136
+>>> SortReduce Launched... runsize: 4999451
+>>> SortReduce Launched... runsize: 4999279
+>>> SortReduce Launched... runsize: 5001267
+>>> SortReduce Launched... runsize: 5000013
+>>> SortReduce Launched... runsize: 4999277
+>>> SortReduce Launched... runsize: 5000148
+>>> SortReduce Launched... runsize: 5000424
+>>> SortReduce Launched... runsize: 5000180
+>>> SortReduce Launched... runsize: 4999731
+>>> SortReduce Launched... runsize: 5000206
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:12][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999998, 4999660, 4998351, 5001218, 4999425, 5001312, 5000085, 4998472, 5000677, 5000388, 5000527, 5000061, 4999799, 4999181, 5000803, 4999268]]
+>>> SortReduce Launched... runsize: 4999998
+>>> SortReduce Launched... runsize: 4999660
+>>> SortReduce Launched... runsize: 4998351
+>>> SortReduce Launched... runsize: 5001218
+>>> SortReduce Launched... runsize: 4999425
+>>> SortReduce Launched... runsize: 5001312
+>>> SortReduce Launched... runsize: 5000085
+>>> SortReduce Launched... runsize: 4998472
+>>> SortReduce Launched... runsize: 5000677
+>>> SortReduce Launched... runsize: 5000388
+>>> SortReduce Launched... runsize: 5000527
+>>> SortReduce Launched... runsize: 5000061
+>>> SortReduce Launched... runsize: 4999799
+>>> SortReduce Launched... runsize: 4999181
+>>> SortReduce Launched... runsize: 5000803
+>>> SortReduce Launched... runsize: 4999268
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:13][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999793, 5000308, 5000409, 4999974, 5000342, 5000128, 5000201, 4999353, 5001028, 5000137, 5000081, 4999344, 4999672, 5001515, 4999812, 4997399]]
+>>> SortReduce Launched... runsize: 4999793
+>>> SortReduce Launched... runsize: 5000308
+>>> SortReduce Launched... runsize: 5000409
+>>> SortReduce Launched... runsize: 4999974
+>>> SortReduce Launched... runsize: 5000342
+>>> SortReduce Launched... runsize: 5000128
+>>> SortReduce Launched... runsize: 5000201
+>>> SortReduce Launched... runsize: 4999353
+>>> SortReduce Launched... runsize: 5001028
+>>> SortReduce Launched... runsize: 5000137
+>>> SortReduce Launched... runsize: 5000081
+>>> SortReduce Launched... runsize: 4999344
+>>> SortReduce Launched... runsize: 4999672
+>>> SortReduce Launched... runsize: 5001515
+>>> SortReduce Launched... runsize: 4999812
+>>> SortReduce Launched... runsize: 4997399
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:14][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4998496, 5001110, 4998188, 5002097, 5000171, 5000055, 5000044, 4999954, 5000113, 4998577, 5001430, 4998324, 5001685, 4999608, 4999876, 5000128]]
+>>> SortReduce Launched... runsize: 4998496
+>>> SortReduce Launched... runsize: 5001110
+>>> SortReduce Launched... runsize: 4998188
+>>> SortReduce Launched... runsize: 5002097
+>>> SortReduce Launched... runsize: 5000171
+>>> SortReduce Launched... runsize: 5000055
+>>> SortReduce Launched... runsize: 5000044
+>>> SortReduce Launched... runsize: 4999954
+>>> SortReduce Launched... runsize: 5000113
+>>> SortReduce Launched... runsize: 4998577
+>>> SortReduce Launched... runsize: 5001430
+>>> SortReduce Launched... runsize: 4998324
+>>> SortReduce Launched... runsize: 5001685
+>>> SortReduce Launched... runsize: 4999608
+>>> SortReduce Launched... runsize: 4999876
+>>> SortReduce Launched... runsize: 5000128
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:15][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4998960, 5001000, 4999995, 5000022, 4997191, 5002919, 4998399, 5001473, 4999747, 5000450, 4999178, 5000349, 4999894, 4999262, 5001487, 4999579]]
+>>> SortReduce Launched... runsize: 4998960
+>>> SortReduce Launched... runsize: 5001000
+>>> SortReduce Launched... runsize: 4999995
+>>> SortReduce Launched... runsize: 5000022
+>>> SortReduce Launched... runsize: 4997191
+>>> SortReduce Launched... runsize: 5002919
+>>> SortReduce Launched... runsize: 4998399
+>>> SortReduce Launched... runsize: 5001473
+>>> SortReduce Launched... runsize: 4999747
+>>> SortReduce Launched... runsize: 5000450
+>>> SortReduce Launched... runsize: 4999178
+>>> SortReduce Launched... runsize: 5000349
+>>> SortReduce Launched... runsize: 4999894
+>>> SortReduce Launched... runsize: 4999262
+>>> SortReduce Launched... runsize: 5001487
+>>> SortReduce Launched... runsize: 4999579
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:16][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4998300, 5000768, 5000904, 5000017, 4998995, 5001037, 4999967, 5000025, 4999879, 5000039, 4999798, 5000317, 4999932, 5000058, 4999888, 4999411]]
+>>> SortReduce Launched... runsize: 4998300
+>>> SortReduce Launched... runsize: 5000768
+>>> SortReduce Launched... runsize: 5000904
+>>> SortReduce Launched... runsize: 5000017
+>>> SortReduce Launched... runsize: 4998995
+>>> SortReduce Launched... runsize: 5001037
+>>> SortReduce Launched... runsize: 4999967
+>>> SortReduce Launched... runsize: 5000025
+>>> SortReduce Launched... runsize: 4999879
+>>> SortReduce Launched... runsize: 5000039
+>>> SortReduce Launched... runsize: 4999798
+>>> SortReduce Launched... runsize: 5000317
+>>> SortReduce Launched... runsize: 4999932
+>>> SortReduce Launched... runsize: 5000058
+>>> SortReduce Launched... runsize: 4999888
+>>> SortReduce Launched... runsize: 4999411
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:17][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[4999977, 4999746, 4999987, 4999697, 5000289, 4999559, 4999200, 5000177, 5000370, 5000960, 4999956, 4999352, 5000605, 4999607, 5000478, 4998880]]
+>>> SortReduce Launched... runsize: 4999977
+>>> SortReduce Launched... runsize: 4999746
+>>> SortReduce Launched... runsize: 4999987
+>>> SortReduce Launched... runsize: 4999697
+>>> SortReduce Launched... runsize: 5000289
+>>> SortReduce Launched... runsize: 4999559
+>>> SortReduce Launched... runsize: 4999200
+>>> SortReduce Launched... runsize: 5000177
+>>> SortReduce Launched... runsize: 5000370
+>>> SortReduce Launched... runsize: 5000960
+>>> SortReduce Launched... runsize: 4999956
+>>> SortReduce Launched... runsize: 4999352
+>>> SortReduce Launched... runsize: 5000605
+>>> SortReduce Launched... runsize: 4999607
+>>> SortReduce Launched... runsize: 5000478
+>>> SortReduce Launched... runsize: 4998880
+
+PP&A:: [col:0][size:1][step:1], [iteration_idx:18][size:19][step:1]
+loadmessages:: loading Acts... sizes: [[1769651, 1768432, 1771106, 1769981, 1769745, 1769234, 1770143, 1769798, 1769703, 1770163, 1769201, 1770322, 1769823, 1769803, 1769825, 1769716]]
+>>> SortReduce Launched... runsize: 1769651
+>>> SortReduce Launched... runsize: 1768432
+>>> SortReduce Launched... runsize: 1771106
+>>> SortReduce Launched... runsize: 1769981
+>>> SortReduce Launched... runsize: 1769745
+>>> SortReduce Launched... runsize: 1769234
+>>> SortReduce Launched... runsize: 1770143
+>>> SortReduce Launched... runsize: 1769798
+>>> SortReduce Launched... runsize: 1769703
+>>> SortReduce Launched... runsize: 1770163
+>>> SortReduce Launched... runsize: 1769201
+>>> SortReduce Launched... runsize: 1770322
+>>> SortReduce Launched... runsize: 1769823
+>>> SortReduce Launched... runsize: 1769803
+>>> SortReduce Launched... runsize: 1769825
+>>> SortReduce Launched... runsize: 1769716
+>>> pagerank::start2 Finished: all threads joined...
+yes no:2-42 no:0-39
+yes no:2-0 no:0-40
+yes no:1-0 no:0-41
+yes yes:0-0 no:0-35
+yes yes:0-0 no:0-25
+yes yes:0-0 no:0-18
+yes yes:0-0 no:0-9
+yes yes:0-0 no:0-2
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+yes yes:0-0 no:1-0
+Loading file output.dat size 481239192 -- 12
+yes yes:0-0 yes:0-1
+		++ Iteration 0 done: 40103266
+>>> setupkernel::finishSR:: active vertices after iteration: 40103266
+Loading file fd 13 size 320826128
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 222204739453[nanao seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 222204739[micro seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 222204[milli seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 222[seconds](Iteration 666)
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 1468277522
+[1m[37m>>> stats::summary Total number of kvReads for all threads: 1468277522[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 10659 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 10.659 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 65792 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 65.792 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 1692 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 1.692 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 78143 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 78.143 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 222204 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 222.204 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 222204 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 222.204 seconds[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 1.87896e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 18.7896 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 150.317 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 1.87896e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 18.7896 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 150.317 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 6.60779e+06 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 6.60779 million keyvalues per second[0m
+
+graph::printdataset: printing dataset parameters...
+>>> graphname: twitter
+>>> graph_path: /localtmp/oj2zf/dataset/twitter/twitter.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/twitter/twitter.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/twitter/twitter.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 41652230
+>>> num_vertices: 41652230
+>>> num_edges: 1468365184
+>>> graphdirectiontype: 6
+>>> graphorder: 6
+>>> skewratio: 128
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 225355134095[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 225355134[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 225355[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 225[seconds](Iteration 666)[0m
+

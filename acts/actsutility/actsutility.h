@@ -20,8 +20,10 @@ public:
 	void checkfornotequalbyerrorwindow(string message, unsigned int data1, unsigned int data2, unsigned int errorwindow);
 	void checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size);
 	void checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
+	void checkforequal(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2);
 	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2, unsigned int tolerance);
+	void checkfordivisibleby(string message, unsigned int data, unsigned int n);
 	void print1(string messagea, unsigned int dataa);
 	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
 	void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad);
@@ -31,6 +33,7 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize);
 	void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
+	void printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size);
 	void printkeyvalues(string message, uint512_dt * keyvalues, unsigned int size_kvs);
 	void printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size);
 	void printvalues(string message, unsigned int * values, unsigned int size);
@@ -43,6 +46,7 @@ public:
 	
 	unsigned int ugetvaluecount(keyvalue_t * keyvalues, unsigned int size);
 	unsigned int getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
+	unsigned int getvaluecountexcept(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue);
 	void setkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, keyvalue_t keyvalue);
 	void clearglobalvars();
 	void IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int _1stdimsize, unsigned int _2nddimsize);
@@ -56,6 +60,8 @@ public:
 	void checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsigned int edgessize);
 	void checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges);
 	void checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges);
+	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
+	void resetvalues(keyvalue_t * keyvalues, unsigned int size);
 	
 	void globalstats_countkvstatsread(unsigned int count);
 	void globalvar_collectstats_counttotalkvsread(unsigned int count);
@@ -79,12 +85,29 @@ public:
 	void globalstats_counterrorsinreduce(unsigned int count);
 	void globalstats_counterrorsinprocessedges(unsigned int count);
 	void globalstats_countkvsmerged(unsigned int count);
-	
 	unsigned int globalstats_getcounterrorsinreduce();
 	unsigned int globalstats_getcounterrorsinprocessedges();
 	unsigned int globalstats_getcountnumvalidprocessedges();
 	
-	void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
+	// 
+	partition_type getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
+	void checkn(string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n);
+	void concatenate2keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	void concatenate4keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, keyvalue_t * keyvalues3, keyvalue_t * keyvalues4, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);						
+	void concatenate8keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, keyvalue_t * keyvalues3, keyvalue_t * keyvalues4, keyvalue_t * keyvalues5, keyvalue_t * keyvalues6, keyvalue_t * keyvalues7, keyvalue_t * keyvalues8, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	
+	void printprofileso1(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	void printprofileso2(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	void printprofileso4(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	void printprofileso8(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	
+	void printprofile(string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
+	void printprofile(string message, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	
+	void compareprofiles(string message, keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	unsigned int countkeysbelongingtopartition(unsigned int p, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	
+	// void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 
 private:
 	#ifdef SW 

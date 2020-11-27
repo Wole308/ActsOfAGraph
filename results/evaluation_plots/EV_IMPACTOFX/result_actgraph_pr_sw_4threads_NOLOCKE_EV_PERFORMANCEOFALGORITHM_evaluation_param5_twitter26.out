@@ -1,0 +1,448 @@
+*** ACTS synthesis started! ***
+clean successful
+rm -rf acts sr acts_nthreads sr_nthreads
+rm -rf *.xo xocc_kernel* _x* pfm_top_* *.xo *.exe host xocc* *.info *.ltx
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+g++ -O3 src/hostprocess.cpp    debugger/host_debugger.cpp src/actgraph_pr_sw.cpp src/actgraph_bfs_sw.cpp src/actgraph_bc_sw.cpp src/grafboost_pr_sw.cpp src/grafboost_bfs_sw.cpp src/grafboost_bc_sw.cpp src/host_enigma.cpp src/edge_process.cpp kernels/srkernelprocess.cpp graphs/create2Dgraph.cpp graphs/graph.cpp graphs/generateactivevertices.cpp heuristics/heuristics.cpp algorithm/algorithm.cpp utility/utility.cpp kernels/acts.cpp  sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+./acts_nthreads
+Hostprocess:: Graph Analytics Started...
+graph::graph:: datasetid: 2, _numvertexbanks: 4, _numedgebanks: 4
+graph::loadalldatasets:: 
+host:: GRAPH: /oj2zf/datasets/twitter/twitter.graph
+host:: NUM VERTICES: 41652230
+host:: NUM EDGES: 1468365184
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 4
+host:: NUM_PARTITIONS: 16
+host:: NUMCPUTHREADS: 4
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 16777216
+host:: KVDATA_BATCHSIZE_KVS: 2097152
+host:: KVDATA_RANGE: 67108864
+host:: KVDATA_RANGE_POW: 26
+host:: (float)APPROXTREE_DEPTH: 3
+host:: APPROXTREE_DEPTH: 3
+host:: TREE_DEPTH: 3
+host:: KVSTATS_SIZE: 12296
+host:: NUMSSDPARTITIONS: 4
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 24
+host:: KVDATA_RANGE_PERSSDPARTITION: 16777216
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION0: 0
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: 16777216
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: 33554432
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: 50331648
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 4
+host:: MAXNUMSSDPARTITIONS: 4
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+
+printallparameters:: PR_ALGORITHM
+host:: KVDRAMSZ: 18890752
+host:: KVDRAMSZ_KVS: 2361344
+host:: KVDRAMWORKSPACESZ: 18890752
+host:: KVDRAMWORKSPACESZ_KVS: 2361344
+host:: CAPSULESZ: 442752
+host:: CAPSULESZ_KVS: 55344
+host:: MESSAGESDRAMSZ: 1024
+host:: CAPSULEMETADATADRAMSZ: 12288
+host:: STATSDRAMSZ: 12296
+host:: BASEOFFSET_KVDRAM: 18890752
+host:: BASEOFFSET_KVDRAM_KVS: 2361344
+host:: BASEOFFSET_KVDRAMWORKSPACE: 18890752
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 2361344
+host:: BASEOFFSET_CAPSULES: 37781504
+host:: BASEOFFSET_CAPSULES_KVS: 4722688
+host:: BASEOFFSET_STATSDRAM: 1024
+host:: KVSOURCEDRAMSZ: 38224256
+host:: KVSOURCEDRAMSZ_KVS: 4778032
+host:: PADDEDKVSOURCEDRAMSZ: 38224256
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 4778032
+host:: KVSTATSDRAMSZ: 25608
+host:: KVDRAMPADDING: 2113536
+host:: KVDRAMPADDING: 2113536
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_0.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_1.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_2.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0_3.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_0.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_1.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_2.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1_3.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_0.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_1.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_2.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2_3.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_0.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_1.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_2.edges
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3_3.edges
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0.vproperties
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1.vproperties
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2.vproperties
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3.vdata
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_0.vproperties
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_1.vproperties
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_2.vproperties
+INFO: Successfully opened /oj2zf/datasets/twitter/twitter_4by4/twitter_3.vproperties
+generating vertices data... 
+finished generating vertices data
+generating vertex properties... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+finished generating vertex properties data
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+actgraph_pr_sw::run: graph iteration 0 of pagerank Started
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 0][size: 4][step: 1]
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:0][size:25][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:4][size:25][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:8][size:25][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:12][size:25][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:16][size:25][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:20][size:25][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:24][size:25][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 7975185
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:1][size:4][step:4], [iteration_idx:0][size:11][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:1][size:4][step:4], [iteration_idx:4][size:11][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:1][size:4][step:4], [iteration_idx:8][size:11][step:1]
+...running Acts... size: 0
+...running Acts... size: 1006368
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:0][size:9][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:4][size:9][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:8][size:9][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 12820071
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:0][size:9][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:4][size:9][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:0][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:8][size:9][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 8242730
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 1][size: 4][step: 1]
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 8223565
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:1][size:4][step:4], [iteration_idx:0][size:4][step:1]
+...running Acts... size: 8739669
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 1768350
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:1][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 11262927
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 2][size: 4][step: 1]
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:0][size:3][step:1]
+...running Acts... size: 0
+...running Acts... size: 10088979
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:4][step:4], [lbankoffset:1][size:4][step:4], [iteration_idx:0][size:2][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 8178081
+...running Acts... size: 16777216
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:2][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 456947
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:2][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:2][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 4487035
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 3][size: 4][step: 1]
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:4][step:4], [lbankoffset:0][size:4][step:4], [iteration_idx:0][size:1][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 16354251
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:4][step:4], [lbankoffset:1][size:4][step:4], [iteration_idx:0][size:1][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 8810809
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:4][step:4], [lbankoffset:2][size:4][step:4], [iteration_idx:0][size:1][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 12563256
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+resetkeyvalues:actgraph_pr_sw:: resetting messages
+PP&A:: [threadidx:3][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:0][size:5][step:1]
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+...running Acts... size: 16777216
+PP&A:: [threadidx:3][size:4][step:4], [lbankoffset:3][size:4][step:4], [iteration_idx:4][size:5][step:1]
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 0
+...running Acts... size: 5209679
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34526539783[nanao seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34526539[micro seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34526[milli seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34[seconds](Iteration 666)
+
+
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 0 milli seconds[0m
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 0 seconds[0m
+=== ACTGRAPH_PR::TIMING AND SUMMARY RESULTS FOR ITERATION: 0 === 
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [0]: 1468365182
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [1]: 0
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [2]: 0
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [3]: 0
+[1m[37m>>> actgraph_pr_sw::summary Total number of kvReads for all threads: 1468365182[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 34526 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 34.526 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 34526 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 34.526 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing): 4.25293e+07 keyvalues per second[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): 4.25293e+07 keyvalues per second[0m
+
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34552014216[nanao seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34552014[micro seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34552[milli seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 34[seconds](Iteration 666)
+
+=== ACTGRAPH_PR::TIMING AND SUMMARY RESULTS FOR ITERATION: 29909744 === 
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [0]: 1468365182
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [1]: 0
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [2]: 0
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [3]: 0
+[1m[37m>>> actgraph_pr_sw::summary Total number of kvReads for all threads: 1468365182[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 34552 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing): 34.552 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 34552 milliseconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 34.552 seconds[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing): 4.24973e+07 keyvalues per second[0m
+[1m[37m>>> actgraph_pr_sw::summary Throughput (Overall processing excluding SSD & OCL data transfers): 4.24973e+07 keyvalues per second[0m
+
+
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 0 milli seconds[0m
+[1m[37m>>> TIMING SUMMARY: TOTAL KERNEL TIME: 0 seconds[0m
+TEST FINISHED
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [FETCHING ACTIVE VERTICES]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 1]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 2]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [SAVE VERTEX UPDATES]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [KERNEL]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 34552 [milli seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 34.552 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C2]: 34.552 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C3]: 34.552 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C4*]: 34.552 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalbytesreadfromfile: 0 [bytes][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalbyteswrittentofile: 0 [bytes][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredtokernel: 1468365182 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredfromkernel: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[0]: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[6147]: 0 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[12295]: 0 [key values][0m
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...

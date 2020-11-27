@@ -1,0 +1,216 @@
+*** ACTS synthesis started! ***
+clean successful
+rm -rf acts sr acts_nthreads sr_nthreads
+rm -rf *.xo xocc_kernel* _x* pfm_top_* *.xo *.exe host xocc* *.info *.ltx
+rm -rf profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
+rm -rf src/*.ll _xocc_* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
+g++ -O3 src/hostprocess.cpp    debugger/host_debugger.cpp src/actgraph_pr_sw.cpp src/actgraph_bfs_sw.cpp src/actgraph_bc_sw.cpp src/grafboost_pr_sw.cpp src/grafboost_bfs_sw.cpp src/grafboost_bc_sw.cpp src/edge_process.cpp src/srkernelprocess.cpp graphs/create2Dgraph.cpp graphs/createsmartgraph.cpp graphs/graph.cpp graphs/generateactivevertices.cpp heuristics/heuristics.cpp algorithm/algorithm.cpp utility/utility.cpp src/kernelprocess.cpp debugger/kernel_debugger.cpp sortreduce-master/examples/graph/src//FileReaderAio.cpp sortreduce-master/examples/graph/src//EdgeProcess.cpp sortreduce-master/examples/graph/src//VertexValues.cpp sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -Isortreduce-master/include/ -Isortreduce-master/examples/graph/src/ -Lsortreduce-master/obj/ -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+./acts_nthreads
+Hostprocess:: Graph Analytics Started...
+graph::graph:: datasetid: 4, _numvertexbanks: 4, _numedgebanks: 4
+graph::loadalldatasets:: 
+host:: GRAPH: /oj2zf/datasets/kronecker26/kronecker26.graph
+host:: NUM VERTICES: 67108864
+host:: NUM EDGES: 1073741824
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 1
+host:: NUM_PARTITIONS: 32
+host:: NUMCPUTHREADS: 4
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 16777216
+host:: KVDATA_BATCHSIZE_KVS: 2097152
+host:: PADDEDKVDATA_BATCHSIZE: 20971520
+host:: PADDEDKVDATA_BATCHSIZE_KVS: 2621440
+host:: _x2PADDEDKVDATA_SIZE: 41943040
+host:: _x2PADDEDKVDATA_SIZE_KVS: 5242880
+host:: _x3PADDEDKVDATA_SIZE: 58720256
+host:: _x3PADDEDKVDATA_SIZE_KVS: 7340032
+host:: DRAMSZ: 58720256
+host:: DRAMSZ_KVS: 7340032
+host:: KVDATA_RANGE: 67108864
+host:: KVDATA_RANGE_POW: 26
+host:: KVBUFFERSZ: 8192
+host:: KVBUFFERSZ_KVS: 1024
+host:: KVSRCBUFFERSZ: 8704
+host:: KVSRCBUFFERSZ_KVS: 1088
+host:: KVSRCBUFFERSZ_APPLY: 8704
+host:: KVSRCBUFFERSZ_APPLY_KVS: 1088
+host:: KVDESTBUFFERSZ: 8704
+host:: KVDESTBUFFERSZ_KVS: 1088
+host:: OFFSETSCODE: 0
+host:: SIZESCODE: 1
+host:: SIZEOFKV: 4
+host:: SIZEOFVERTEXID: 32
+host:: TREE_DEPTH: 3
+host:: KVSTATS_SIZE: 32768
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION0: 512
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION1: 512
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION2: 512
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION3: 512
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION0_KVS: 64
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION1_KVS: 64
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION2_KVS: 64
+host:: APPLYVERTEXBUFFERSZ_FORSSDPARTITION3_KVS: 64
+host:: APPLYVERTEXBUFFERSZ: 512
+host:: APPLYVERTEXBUFFERSZ_KVS: 64
+host:: VERTICESDATA_BATCHSIZE: 67108864
+host:: VERTICESDATA_BUFFERSZ: 65536
+host:: KVSPARTITIONBUFFERSZ: 268435456
+host:: NUMSSDPARTITIONS: 4
+host:: KVDATA_RANGE_FORSSDPARTITION0_POW: 24
+host:: KVDATA_RANGE_FORSSDPARTITION1_POW: 24
+host:: KVDATA_RANGE_FORSSDPARTITION2_POW: 24
+host:: KVDATA_RANGE_FORSSDPARTITION3_POW: 24
+host:: KVDATA_RANGE_FORSSDPARTITION0: 16777216
+host:: KVDATA_RANGE_FORSSDPARTITION1: 16777216
+host:: KVDATA_RANGE_FORSSDPARTITION2: 16777216
+host:: KVDATA_RANGE_FORSSDPARTITION3: 16777216
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION0: 0
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION1: 16777216
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION2: 33554432
+host:: KVDATA_RANGEOFFSET_FORSSDPARTITION3: 50331648
+host:: TREEDEPTH_FORSSDPARTITION0: 3
+host:: TREEDEPTH_FORSSDPARTITION1: 3
+host:: TREEDEPTH_FORSSDPARTITION2: 3
+host:: TREEDEPTH_FORSSDPARTITION3: 3
+host:: VERTICESDATASZ_FORDRAMX: 16777216
+host:: MAXTREEDEPTH: 3
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 4
+host:: MAXNUMSSDPARTITIONS: 4
+host:: NM: 666
+host:: DESTTMPKVBUFFERSZ: 666
+host:: DESTTMPKVBUFFERSZ_KVS: 666
+host:: TOTALDESTTMPKVBUFFERSZ: 8704
+host:: TOTALDESTTMPKVBUFFERSZ_KVS: 1088
+host:: NUMWORKERS_APPLYPH: 1
+host:: NUMSUBWORKERS_APPLYPH: 1
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+
+printallparameters:: PR_ALGORITHM
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_0.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_1.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_2.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_3.edgeoffsets
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2_3.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_0.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_1.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_2.edges
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3_3.edges
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3.vdata
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_0.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_1.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_2.vproperties
+INFO: Successfully opened /oj2zf/datasets/kronecker26/kronecker26_4by4/kronecker26_3.vproperties
+generating vertices data... 
+finished generating vertices data
+generating vertex properties... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+graph::generating vertex outdegrees... 
+finished generating vertex properties data
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+edge_process::edge_process:: constructor called. 
+actgraph_pr_sw::run: graph iteration 0 of pagerank Started
+>>> actgraph_pr_sw::start2: super iteration: [i_batch: 0][size: 4][step: 4]
+>>> actgraph_pr_sw::start2: loading vertex properties...
+PP&A:: [threadidx:PP&A:: [threadidx:PP&A:: [threadidx:PP&A:: [threadidx:32][size:1][size:04][size:][step:1], [threadidx:441][size:][size:1][step:1], [iteration_idx:40][step:1], [threadidx:][size:][step:1], [threadidx:3][size:1][step:1], [iteration_idx:0][size:5][step:1]
+5][step:1]][step:1], [threadidx:
+2][size:1][step:1], [iteration_idx:0][size:5][step:1]
+0][size:1][step:1], [iteration_idx:0][size:5][step:1]
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:1][step:1], [iteration_idx:1][size:5][step:1]
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:1][step:1], [iteration_idx:1][size:5][step:1]
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:1][step:1], [iteration_idx:1][size:5][step:1]
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:1][step:1], [iteration_idx:1][size:5][step:1]
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:1][step:1], [iteration_idx:2][size:5][step:1]
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:1][step:1], [iteration_idx:2][size:5][step:1]
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:1][step:1], [iteration_idx:2][size:5][step:1]
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:1][step:1], [iteration_idx:2][size:5][step:1]
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:1][step:1], [iteration_idx:3][size:5][step:1]
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:1][step:1], [iteration_idx:3][size:5][step:1]
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:1][step:1], [iteration_idx:3][size:5][step:1]
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:1][step:1], [iteration_idx:3][size:5][step:1]
+PP&A:: [threadidx:1][size:4][step:1], [threadidx:1][size:1][step:1], [iteration_idx:4][size:5][step:1]
+PP&A:: [threadidx:2][size:4][step:1], [threadidx:2][size:1][step:1], [iteration_idx:4][size:5][step:1]
+PP&A:: [threadidx:3][size:4][step:1], [threadidx:3][size:1][step:1], [iteration_idx:4][size:5][step:1]
+PP&A:: [threadidx:0][size:4][step:1], [threadidx:0][size:1][step:1], [iteration_idx:4][size:5][step:1]
+>>> actgraph_pr_sw::start2 Finished: all threads joined...
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 23764561083[nanao seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 23764561[micro seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 23764[milli seconds](Iteration 666)
+>>> actgraph_pr_sw::start2: finished start2. Time Elapsed: : Time Elapsed = 23[seconds](Iteration 666)
+
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [0]: 268434038
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [1]: 268435122
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [2]: 268422077
+>>> actgraph_pr_sw::summary Total number of kvReads for thread [3]: 268450586
+>>> actgraph_pr_sw::summary Total number of kvReads for all threads: 1073741823
+TEST FINISHED
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [FETCHING ACTIVE VERTICES]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 1]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM 2]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [POPULATE KVDRAM]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [SAVE VERTEX UPDATES]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [KERNEL]: 0 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 23764 [milli seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C1]: 23.764 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C2]: 23.764 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C3]: 23.764 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: TOTAL TIME ELAPSED [C4*]: 23.764 [seconds][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalbytesreadfromfile: 0 [bytes][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalbyteswrittentofile: 0 [bytes][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredtokernel: 1073741823 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkeyvaluesstransferredfromkernel: 1073741823 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[0]: 32693 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[16383]: 32703 [key values][0m
+[1m[37m>>> TIMING SUMMARY: globaldebugger_totalkvstats[32767]: 33211 [key values][0m
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...

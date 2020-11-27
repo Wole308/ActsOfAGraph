@@ -66,11 +66,24 @@ void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, k
 	}
 	return;
 }
+void actsutility::checkforequal(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
+	for(unsigned int i=0; i<size; i++){
+		if(keyvalues1[i].value != keyvalues2[i].value){ 
+			cout<<"ERROR: "<<message<<". keyvalues1["<<i<<"].value ("<<keyvalues1[i].value<<") != keyvalues2["<<i<<"].value ("<<keyvalues2[i].value<<"). EXITING..."<<endl; 
+			exit(EXIT_FAILURE); 
+		}
+	}
+	return;
+}
 void actsutility::checkforlessthanthan(string message, unsigned int data1, unsigned int data2){
 	if(data1 < data2){ cout<<"acts::checkforlessthanthan: ERROR. data1 < data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
 }
 void actsutility::checkforlessthanthan(string message, unsigned int data1, unsigned int data2, unsigned int tolerance){
 	if((data1 + tolerance) < data2){ cout<<"acts::checkforlessthanthan: ERROR. (data1 + tolerance) < data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
+}
+void actsutility::checkfordivisibleby(string message, unsigned int data, unsigned int n){
+	if((data % n) != 0){ cout<<"actsutility::checkfordivisibleby:: ERROR. "<<data<<" % "<<n<<" != 0. message:"<<message<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+	return;
 }
 void actsutility::print1(string messagea, unsigned int dataa){
 	cout<<messagea<<": "<<dataa<<endl;
@@ -92,7 +105,14 @@ void actsutility::print7(string messagea, string messageb, string messagec, stri
 }
 void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
-	for(unsigned int p=0; p<size; p++){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+	unsigned int totalkeys = 0;
+	unsigned int totalvalues = 0;
+	for(unsigned int p=0; p<size; p++){ 
+		cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; 
+		totalkeys += keyvalues[p].key;
+		totalvalues += keyvalues[p].value;
+	}
+	cout<<"totalkeys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl; 
 }
 void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize){
 	if(skipsize == 0){ cout<<endl<<"printkeyvalues:ERROR: skipsize CANNOT be zero. exiting... "<<endl; exit(EXIT_FAILURE); }
@@ -111,6 +131,13 @@ void actsutility::printkeyvalues(string message, uint512_dt * keyvalues, unsigne
 		#endif 
 	}
 }
+void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size){
+	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
+}
 void actsutility::printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
 	unsigned int totalnumkeyvalues = 0;
 	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
@@ -119,7 +146,9 @@ void actsutility::printvaluecount(string message, keyvalue_t * keyvalues, unsign
 }
 void actsutility::printvalues(string message, unsigned int * values, unsigned int size){
 	cout<<endl<<"printvalues: "<<message<<endl;
-	for(unsigned int p=0; p<size; p++){ cout<<"values["<<p<<"]: "<<values[p]<<endl; }
+	unsigned int count = 0;
+	for(unsigned int p=0; p<size; p++){ cout<<"values["<<p<<"]: "<<values[p]<<endl; count += values[p]; }
+	cout<<"printvalues. count: "<<count<<endl;
 }
 void actsutility::printvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data){
 	cout<<endl<<"printvalueslessthan: "<<message<<endl;
@@ -253,6 +282,14 @@ unsigned int actsutility::ugetvaluecount(keyvalue_t * keyvalues, unsigned int si
 }
 unsigned int actsutility::getvaluecountexcept(keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
 	cout<<"getvaluecountexcept: size: "<<size<<", exceptvalue: "<<exceptvalue<<endl;
+	unsigned int totalnumkeyvalues = 0; 
+	unsigned int totalnumNOTkeyvalues = 0;
+	for(unsigned int p=0; p<size; p++){ if(keyvalues[p].key != exceptvalue){ totalnumkeyvalues += 1; } else { totalnumNOTkeyvalues += 1; }}
+	cout<<"total values counted: "<<totalnumkeyvalues<<", totalnumNOTkeyvalues: "<<totalnumNOTkeyvalues<<endl;
+	return totalnumkeyvalues;
+}
+unsigned int actsutility::getvaluecountexcept(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int exceptvalue){
+	cout<<"getvaluecountexcept: "<<message<<". size: "<<size<<", exceptvalue: "<<exceptvalue<<endl;
 	unsigned int totalnumkeyvalues = 0; 
 	unsigned int totalnumNOTkeyvalues = 0;
 	for(unsigned int p=0; p<size; p++){ if(keyvalues[p].key != exceptvalue){ totalnumkeyvalues += 1; } else { totalnumNOTkeyvalues += 1; }}
@@ -413,6 +450,19 @@ void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, uns
 	#endif 
 	return;
 }
+void actsutility::resetkeyvalues(keyvalue_t * keyvalues, unsigned int size){
+	for(unsigned int i=0; i<size; i++){ 
+		keyvalues[i].key = 0;
+		keyvalues[i].value = 0;
+	}
+	return;
+}
+void actsutility::resetvalues(keyvalue_t * keyvalues, unsigned int size){
+	for(unsigned int i=0; i<size; i++){ 
+		keyvalues[i].value = 0;
+	}
+	return;
+}
 
 void actsutility::globalstats_countkvstatsread(unsigned int count){
 	globalvar_totalkvstatsread += count;
@@ -502,7 +552,6 @@ void actsutility::globalstats_countkvsmerged(unsigned int count){
 	globalstats_totalkvsmerged += count;
 	return;
 }
-
 unsigned int actsutility::globalstats_getcounterrorsinreduce(){
 	return globalvar_errorsinreduce;
 }
@@ -513,7 +562,357 @@ unsigned int actsutility::globalstats_getcountnumvalidprocessedges(){
 	return globalstats_processedges_validkvsprocessed;
 }
 
+partition_type actsutility::getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
+	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
+	
+	#ifdef ENABLE_PERFECTACCURACY
+		#ifdef _DEBUGMODE_CHECKS2
+		if(partition >= NUM_PARTITIONS){ cout<<"getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<endl; exit(EXIT_FAILURE); }
+		#endif
+	#endif 
+	#ifndef ENABLE_PERFECTACCURACY
+		if(partition >= NUM_PARTITIONS){ partition = (((1 << NUM_PARTITIONS_POW) - 1) & (partition >> (1 - 1))); } // FIXME. REMOVEME. PERFECTIONTEST.
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("actslw::getpartition 2", partition, NUM_PARTITIONS, keyvalue.key, upperlimit, currentLOP);
+	#endif
+	return partition;
+}
+void actsutility::checkn(string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actsutility::checkn: "<<message<<endl;
+	#endif
+	unsigned int r1 = 0;
+	unsigned int firsti = INVALIDDATA;
+	
+	// for(unsigned int i=0; i<n; i++){ cout<<"kvA0["<<i<<"].key: "<<kvA0[i].key<<endl; }
+	for(unsigned int i=0; i<n; i++){ if(kvA0[i].key != INVALIDDATA){ firsti = i; break; }}
+	if(firsti != INVALIDDATA){
+		r1 = getpartition(kvA0[firsti], currentLOP, upperlimit, batch_range_pow);
+		for(unsigned int i=0; i<n; i++){
+			if(kvA0[i].key != INVALIDDATA){
+				unsigned int p = getpartition(kvA0[i], currentLOP, upperlimit, batch_range_pow);
+				if((r1 != p)){
+					cout<<"ERROR. checkn. message:"<<message<<". group's partition("<<r1<<") != element partition(p:"<<p<<"). kvA0["<<i<<"]: "<<kvA0[i].key<<". EXITING... ............................................................"<<endl;
+					
+					for(unsigned int h=0; h<n; h++){ cout<<"> kvA0["<<h<<"].key: "<<kvA0[h].key<<endl; }
+					
+					exit(EXIT_FAILURE);
+				}
+			}
+		}
+	}
+	return;
+}
+void actsutility::concatenate2keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actsutility::concatenate2keyvalues:: "<<message<<endl;
+	#endif 
+	unsigned int errcount = 0;
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		BIGstats[p].key = stats[p].key * 2;
+		BIGstats[p].value = 0;
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		unsigned int begin = stats[p].key;
+		unsigned int end = stats[p].key + stats[p].value;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"concatenate2keyvalues:: p: "<<p<<", begin: "<<begin<<", end: "<<end<<", size: "<<(end-begin)<<endl;
+		#endif 
+		if(end >= PADDEDDESTBUFFER_SIZE * 2){ cout<<"actsutility::concatenate2keyvalues: ERROR. end >= PADDEDDESTBUFFER_SIZE * 2. (stats["<<p<<"].key: "<<stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		
+		for(unsigned int k=begin; k<end; k++){
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues1[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues2[k]; 
+			BIGstats[p].value+=1;
+			
+			if(BIGstats[p].value > PADDEDDESTBUFFER_SIZE * 2){ cout<<"actsutility::concatenate2keyvalues: ERROR. BIGstats["<<p<<"].value >= PADDEDDESTBUFFER_SIZE * 2. (BIGstats["<<p<<"].value: "<<BIGstats[p].value<<") EXITING..."<<endl; errcount += 1; exit(EXIT_FAILURE); }
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"successful. "<<errcount<<" errors"<<endl;
+		#endif 
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("^^^^^^^^^^^^^^^^^^^^^^^^^ concatenate2keyvalues: printing stats (so2).", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
+	#endif 
+	return;
+}
+void actsutility::concatenate4keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, keyvalue_t * keyvalues3, keyvalue_t * keyvalues4, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actsutility::concatenate4keyvalues:: "<<message<<endl;
+	#endif 
+	unsigned int errcount = 0;
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		BIGstats[p].key = stats[p].key * 4;
+		BIGstats[p].value = 0;
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		unsigned int begin = stats[p].key;
+		unsigned int end = stats[p].key + stats[p].value;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"concatenate4keyvalues:: p: "<<p<<", begin: "<<begin<<", end: "<<end<<", size: "<<(end-begin)<<endl;
+		#endif 
+		if(end >= PADDEDDESTBUFFER_SIZE * VECTOR_SIZE){ cout<<"actsutility::concatenate4keyvalues: ERROR. end >= PADDEDDESTBUFFER_SIZE * 4. (stats["<<p<<"].key: "<<stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		
+		for(unsigned int k=begin; k<end; k++){
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues1[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues2[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues3[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues4[k]; 
+			BIGstats[p].value+=1;
+			
+			if(BIGstats[p].value > PADDEDDESTBUFFER_SIZE * 4){ cout<<"actsutility::concatenate4keyvalues: ERROR. BIGstats["<<p<<"].value >= PADDEDDESTBUFFER_SIZE * 4. (BIGstats["<<p<<"].value: "<<BIGstats[p].value<<") EXITING..."<<endl; errcount += 1; exit(EXIT_FAILURE); }
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"successful. "<<errcount<<" errors"<<endl;
+		#endif 
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("^^^^^^^^^^^^^^^^^^^^^^^^^ concatenate4keyvalues: printing stats (so4).", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
+	#endif 
+	return;
+}
+void actsutility::concatenate8keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, keyvalue_t * keyvalues3, keyvalue_t * keyvalues4, keyvalue_t * keyvalues5, keyvalue_t * keyvalues6, keyvalue_t * keyvalues7, keyvalue_t * keyvalues8, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){			
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actsutility::concatenate8keyvalues:: "<<message<<endl;
+	#endif 
+	unsigned int errcount = 0;
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		BIGstats[p].key = stats[p].key * 8;
+		BIGstats[p].value = 0;
+	}
+	
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		unsigned int begin = stats[p].key;
+		unsigned int end = stats[p].key + stats[p].value;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"concatenate8keyvalues:: p: "<<p<<", begin: "<<begin<<", end: "<<end<<", size: "<<(end-begin)<<endl;
+		#endif 
+		if(end >= PADDEDDESTBUFFER_SIZE * VECTOR_SIZE){ cout<<"actsutility::concatenate8keyvalues: ERROR. end >= PADDEDDESTBUFFER_SIZE * 8. (stats["<<p<<"].key: "<<stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		
+		for(unsigned int k=begin; k<end; k++){
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues1[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues2[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues3[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues4[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues5[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues6[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues7[k]; 
+			BIGstats[p].value+=1;
+			BIGkeyvalues[BIGstats[p].key + BIGstats[p].value] = keyvalues8[k]; 
+			BIGstats[p].value+=1;
+			
+			if(BIGstats[p].value > PADDEDDESTBUFFER_SIZE * 8){ cout<<"actsutility::concatenate8keyvalues: ERROR. BIGstats["<<p<<"].value >= PADDEDDESTBUFFER_SIZE * 8. (BIGstats["<<p<<"].value: "<<BIGstats[p].value<<") EXITING..."<<endl; errcount += 1; 
+				// exit(EXIT_FAILURE); 
+				}
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"successful. "<<errcount<<" errors"<<endl;
+		#endif 
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printkeyvalues("^^^^^^^^^^^^^^^^^^^^^^^^^ concatenate8keyvalues: printing stats (so4).", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
+	#endif 
+	return;
+}
 
+void actsutility::printprofileso1(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ actsutility::printprofileso1:: "<<message<<endl;
+	#endif 
+	
+	unsigned int partitioncount[NUM_PARTITIONS];
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ partitioncount[p] = 0; }
+	
+	for(unsigned int i=0; i<8; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"printprofileso1:: concatenating and printing profile for keyvalues["<<i<<"], stats["<<i<<"]"<<endl;
+		#endif 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("printprofileso1:: printing stats:", (keyvalue_t *)stats, NUM_PARTITIONS);
+		#endif
+		printprofile("keyvalues, stats", keyvalues[i], stats[i], currentLOP, upperlimit, batch_range_pow, partitioncount);
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"successful. "<<endl;
+	printvalues("actsutility::printprofileso1:: printing collected stats of overall keyvalues.", partitioncount, NUM_PARTITIONS);
+	cout<<endl;
+	#endif 
+	return;
+}
+void actsutility::printprofileso2(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  actsutility::printprofileso2:: "<<message<<endl;
+	#endif 
+	
+	keyvalue_t BIGkeyvalues[PADDEDDESTBUFFER_SIZE * 2];
+	skeyvalue_t BIGstats[NUM_PARTITIONS];
+	unsigned int partitioncount[NUM_PARTITIONS];
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ partitioncount[p] = 0; }
+	
+	for(unsigned int i=0; i<4; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"printprofileso2:: concatenating and printing profile for keyvalues["<<2*i<<"], keyvalues["<<2*i+1<<"], stats["<<i<<"]"<<endl;
+		#endif 
+		concatenate2keyvalues("keyvalues[0], keyvalues[1]", keyvalues[2*i], keyvalues[2*i+1], stats[i], BIGkeyvalues, BIGstats, currentLOP, upperlimit, batch_range_pow);
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("printprofileso2:: printing BIGstats:", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
+		#endif
+		printprofile("BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"successful. "<<endl;
+	printvalues("printprofileso2: printing actual stats.", partitioncount, NUM_PARTITIONS);
+	cout<<endl;
+	#endif 
+	return;
+}
+void actsutility::printprofileso4(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ actsutility::printprofileso4:: "<<message<<endl;
+	#endif 
+	
+	keyvalue_t BIGkeyvalues[PADDEDDESTBUFFER_SIZE * 4];
+	skeyvalue_t BIGstats[NUM_PARTITIONS];
+	unsigned int partitioncount[NUM_PARTITIONS];
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ partitioncount[p] = 0; }
+	
+	for(unsigned int i=0; i<2; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"printprofileso4:: concatenating and printing profile for keyvalues["<<4*i<<"], keyvalues["<<4*i+1<<"], keyvalues["<<4*i+2<<"], keyvalues["<<4*i+3<<"], stats["<<i<<"]"<<endl;
+		#endif 
+		concatenate4keyvalues("keyvalues[0], keyvalues[1]", keyvalues[4*i], keyvalues[4*i+1], keyvalues[4*i+2], keyvalues[4*i+3], stats[i], BIGkeyvalues, BIGstats, currentLOP, upperlimit, batch_range_pow);
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("printprofileso4:: printing BIGstats:", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
+		#endif
+		printprofile("BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"successful. "<<endl;
+	printvalues("printprofileso4: printing partition counts.", partitioncount, NUM_PARTITIONS);
+	// printkeyvalues("printprofileso4: printing stats.", BIGstats, NUM_PARTITIONS);
+	cout<<endl;
+	#endif 
+	return;
+}
+void actsutility::printprofileso8(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ actsutility::printprofileso8:: "<<message<<endl;
+	#endif 
+	
+	keyvalue_t BIGkeyvalues[PADDEDDESTBUFFER_SIZE * 4];
+	skeyvalue_t BIGstats[NUM_PARTITIONS];
+	unsigned int partitioncount[NUM_PARTITIONS];
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ partitioncount[p] = 0; }
+	
+	for(unsigned int i=0; i<1; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"printprofileso8:: concatenating and printing profile for keyvalues["<<4*i<<"] ... keyvalues["<<4*i+7<<"], stats["<<i<<"]"<<endl;
+		#endif 
+		concatenate8keyvalues("keyvalues[0], keyvalues[1]", keyvalues[8*i], keyvalues[8*i+1], keyvalues[8*i+2], keyvalues[8*i+3], keyvalues[8*i+4], keyvalues[8*i+5], keyvalues[8*i+6], keyvalues[8*i+7], stats, BIGkeyvalues, BIGstats, currentLOP, upperlimit, batch_range_pow);
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		printkeyvalues("printprofileso8:: printing BIGstats:", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
+		#endif
+		printprofile("BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"successful. "<<endl;
+	printvalues("printprofileso8: printing partition counts.", partitioncount, NUM_PARTITIONS);
+	// printkeyvalues("printprofileso8: printing stats.", BIGstats, NUM_PARTITIONS);
+	cout<<endl;
+	#endif 
+	return;
+}
+
+void actsutility::printprofile(string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"---------- actsutility::printprofile:: "<<message<<endl;
+	#endif 
+	
+	unsigned int errcount = 0;
+	unsigned int proccount = 0;
+	unsigned int invalidcount = 0;
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		// proccount = 0;
+		unsigned int begin = stats[p].key;
+		unsigned int end = stats[p].key + stats[p].value;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"printprofile:: p: "<<p<<", begin: "<<begin<<", end: "<<end<<", size: "<<(end-begin)<<endl;
+		#endif 
+		if(end >= PADDEDDESTBUFFER_SIZE * VECTOR_SIZE){ cout<<"actsutility::printprofile: ERROR. end >= PADDEDDESTBUFFER_SIZE * VECTOR_SIZE. (stats["<<p<<"].key: "<<stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		
+		for(unsigned int k=begin; k<end; k++){
+			if(keyvalues[k].key == INVALIDDATA){ invalidcount += 1; continue; }
+			proccount += 1;
+			partitioncount[p] += 1;
+			unsigned int thisp = getpartition(keyvalues[k], currentLOP, upperlimit, batch_range_pow);
+			if(thisp != p){ 
+				errcount += 1;
+				cout<<"actsutility::printprofile: ERROR in printprofile: thisp("<<thisp<<") != p("<<p<<"). keyvalues["<<k<<"].key: "<<keyvalues[k].key<<" EXITING..."<<endl; 
+				exit(EXIT_FAILURE); 
+				}
+		}
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"printprofile ("<<message<<") successful. "<<proccount <<" processed, "<<errcount<<" errors, "<<invalidcount<<" invalids."<<endl;
+	#endif 
+	return;
+}
+void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"actsutility::printprofile: "<<message<<endl;
+	#endif 
+	unsigned int totalnums = 0;
+	unsigned int nums = 0;
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		nums = countkeysbelongingtopartition(p, keyvalues, size, currentLOP, upperlimit, batch_range_pow);
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"partition("<<p<<"): "<< nums <<endl;
+		#endif 
+		totalnums += nums;
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"printprofile successful. totalnums: "<< totalnums <<endl;
+	#endif 
+	return;
+}
+
+void actsutility::compareprofiles(string message, keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"compareprofiles::printprofile: "<<message<<endl;
+	#endif 
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		unsigned int nums1 = countkeysbelongingtopartition(p, buffer1, size, currentLOP, upperlimit, batch_range_pow);
+		unsigned int nums2 = countkeysbelongingtopartition(p, buffer2, size, currentLOP, upperlimit, batch_range_pow);
+		if(nums1 != nums2){ cout<<"actsutility::compareprofiles: partition("<<p<<") not equal: nums1("<<nums1<<") != nums2("<<nums2<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	}
+	return;
+}
+unsigned int actsutility::countkeysbelongingtopartition(unsigned int p, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	unsigned int count = 0;
+	for(unsigned int i=0; i<size; i++){
+		if(buffer[i].key != INVALIDDATA){
+			if(getpartition(buffer[i], currentLOP, upperlimit, batch_range_pow) == p){ count += 1; }
+		}
+	}
+	return count;
+}
 
 
 

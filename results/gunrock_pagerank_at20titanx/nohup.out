@@ -1,0 +1,564 @@
+Loading Matrix-market coordinate-formatted graph ...
+  Reading meta data from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx.meta
+  Reading edge lists from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx.coo_edge_pairs
+Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx.coo_edge_pairs, typeId = 262, targetId = 262, length = 265025809
+  Substracting 1 from node Ids...
+  Edge doubleing: 265025809 -> 530051618 edges
+  Removed 528 duplicate edges and self circles.
+  graph loaded as COO in 56.151809s.
+Converting 21297772 vertices, 530051090 directed edges (unordered tuples) to CSC format...Done (49s).
+Degree Histogram (21297772 vertices, 530051090 edges):
+    Degree 0: 0 (0.000000 %)
+    Degree 2^0: 6941094 (32.590705 %)
+    Degree 2^1: 5259404 (24.694621 %)
+    Degree 2^2: 3670291 (17.233216 %)
+    Degree 2^3: 2372696 (11.140583 %)
+    Degree 2^4: 1428640 (6.707932 %)
+    Degree 2^5: 759027 (3.563880 %)
+    Degree 2^6: 375026 (1.760870 %)
+    Degree 2^7: 205460 (0.964702 %)
+    Degree 2^8: 128940 (0.605415 %)
+    Degree 2^9: 82346 (0.386641 %)
+    Degree 2^10: 45147 (0.211980 %)
+    Degree 2^11: 18114 (0.085051 %)
+    Degree 2^12: 7541 (0.035407 %)
+    Degree 2^13: 2808 (0.013184 %)
+    Degree 2^14: 940 (0.004414 %)
+    Degree 2^15: 231 (0.001085 %)
+    Degree 2^16: 58 (0.000272 %)
+    Degree 2^17: 2 (0.000009 %)
+    Degree 2^18: 6 (0.000028 %)
+    Degree 2^19: 1 (0.000005 %)
+
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true normalize=1 delta=0.85 threshold=0.01 max-iter=50 pull=0
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 77558.218750 ms, src = 4294967295
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true scale=0 advance-mode=LB
+nodes = 21297772
+Using advance mode LB
+Using filter mode CULL
+__________________________
+
+Run 0 num_runs: 1, num_runs = 1, num_runs = 1
+Launch Enactor. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests)
+
+
+Run Enactor. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_base.cuh/Run_Threads)
+
+
+Iteration_Loop started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop)
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.766827 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 124.783993 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.326965 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.943018 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.793074 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.367973 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.921083 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.815008 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.362013 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.406099 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.290964 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.243996 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.788046 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.546072 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.370834 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.014067 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.897978 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.256870 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.771833 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.551079 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.318859 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.654055 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.489090 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.369881 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.072956 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.958059 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.314091 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.366999 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.207994 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.317905 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.752998 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.588034 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.356052 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.432014 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.300905 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.366066 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.723196 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.600193 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.314091 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.752045 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.583981 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.311945 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.908924 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.727985 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.363920 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.113083 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 126.991034 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.361059 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.132084 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.013849 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.370834 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 123.981953 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 126.878023 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.378941 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.184774 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.077030 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.372980 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.932051 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.826929 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.372026 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.019073 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.911806 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.323151 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.856949 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.696037 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.373934 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.195980 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.095865 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.365828 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.614000 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.501965 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.367973 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.344992 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.232002 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.380848 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.729799 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.618002 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.366066 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.490023 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.370834 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.310038 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.427961 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.268957 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.311945 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.462843 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.302885 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.374887 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.112057 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.010988 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.375126 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.656916 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.552032 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.378941 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.161171 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.062963 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.375126 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 125.160933 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 128.051043 milliseconds
+
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch 1]
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 2.376080 milliseconds
+
+
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance 1]
+[### I seen you: /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch 1]
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 124.728918 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 127.618074 milliseconds
+
+>>> Iteration_Loop time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Run): 4341.756821 milliseconds
+
+
+GPU PageRank Done. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh): 4341.775894 milliseconds
+
+
+>>> Enactor time elapsed. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests): 4341.784000 milliseconds
+
+Run 0 elapsed: 4341.784000 ms, src = 4294967295, #iterations = 34
+Total_rank = 0.995878
+Top 10 Ranked vertices and PageRanks:
+Vertex ID: 11977291, PageRank: 0.002524
+Vertex ID: 11977288, PageRank: 0.002514
+Vertex ID: 10119000, PageRank: 0.002432
+Vertex ID: 11977349, PageRank: 0.002195
+Vertex ID: 11980204, PageRank: 0.001824
+Vertex ID: 11977373, PageRank: 0.001756
+Vertex ID: 11977430, PageRank: 0.001552
+Vertex ID: 11977422, PageRank: 0.001431
+Vertex ID: 11977334, PageRank: 0.001006
+Vertex ID: 11977370, PageRank: 0.000630
+Rank Validity: FAIL: node_id[21209839] (0) appears more than once.
+number of errors : 263800
+Reference total rank : 1.000000
+Maximum difference : rank[10206134] 0.000000 vs. 0.000035, 0.000035
+Maximum relative difference :rank[10206134] 0.000000 vs. 0.000035, 100.000000
+Order Validity: PASS
+[pr] finished.
+ avg. elapsed: 4341.784000 ms
+ iterations: 34
+ min. elapsed: 4341.784000 ms
+ max. elapsed: 4341.784000 ms
+ nodes queued: 702826476
+ edges queued: 841867876
+ nodes redundance: inf
+ edges redundance: inf
+ load time: 106274 ms
+ preprocess time: 1650.070000 ms
+ postprocess time: 1835.870028 ms
+ total time: 7829.406977 ms

@@ -1,0 +1,465 @@
+Hostprocess:: Graph Analytics Started...
+host:: NUMDRAMBANKS: 4
+host:: NUMWORKERS: 1
+host:: NUMSUBWORKERS: 3
+host:: NUM_PARTITIONS: 16
+host:: NUMSUPERCPUTHREADS: 1
+host:: NUMCPUTHREADS: 1
+host:: NUMSUBCPUTHREADS: 16
+host:: NUMUTILITYTHREADS: 16
+host:: DATAWIDTH: 512
+host:: VECTOR_SIZE: 8
+host:: KVDATA_BATCHSIZE: 10000000
+host:: KVDATA_BATCHSIZE_KVS: 1250000
+host:: EDGES_BATCHSIZE: 80000000
+host:: EDGES_BATCHSIZE_KVS: 10000000
+host:: KVDATA_RANGE: 67108864
+host:: KVDATA_RANGE_POW: 26
+host:: BATCH_RANGE: 4194304
+host:: BATCH_RANGE_POW: 22
+host:: BATCH_RANGE2: 32768
+host:: BATCH_RANGE2_POW: 15
+host:: EDGESSZ: 0
+host:: (float)APPROXTREE_DEPTH: 3
+host:: APPROXTREE_DEPTH: 3
+host:: TREE_DEPTH: 3
+host:: TREE_DEPTH2: 2
+host:: NUMSSDPARTITIONS: 16
+host:: KVDATA_RANGE_PERSSDPARTITION_POW: 22
+host:: KVDATA_RANGE_PERSSDPARTITION: 4194304
+host:: KVDATA_RANGE_PERSSDPARTITION2_POW: 15
+host:: KVDATA_RANGE_PERSSDPARTITION2: 32768
+host:: MESSAGES_SIZE: 1024
+host:: NUMSSDPARTITIONS: 16
+host:: NUMSSDPARTITIONS_POW: 4
+host:: MAXNUMSSDPARTITIONS: 16
+host:: LOCKE NOT DEFINED
+host:: STREAMEDGESSETUP DEFINED
+host:: sizeof(keyvalue_t): 8 bytes (64 bits)
+host:: sizeof(vertex_t): 4 bytes (32 bits)
+host:: sizeof(edge_t): 4 bytes (32 bits)
+host:: MESSAGESDRAMSZ: 1024
+host:: KVDRAMSZ: 11311232
+host:: KVDRAMSZ_KVS: 1413904
+host:: KVDRAMWORKSPACESZ: 11311232
+host:: KVDRAMWORKSPACESZ_KVS: 1413904
+host:: EDGESSZ: 0
+host:: EDGESSZ_KVS: 0
+host:: VERTEXPTRSSZ: 0
+host:: VERTEXPTRSSZ_KVS: 0
+host:: VERTICESDATASZ: 2097152
+host:: VERTICESDATASZ_KVS: 262144
+host:: BASEOFFSET_KVDRAM: 1024
+host:: BASEOFFSET_KVDRAM_KVS: 128
+host:: BASEOFFSET_KVDRAMWORKSPACE: 11312256
+host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: 1414032
+host:: BASEOFFSET_STATSDRAM: 22623488
+host:: BASEOFFSET_EDGESDATA: 22754560
+host:: BASEOFFSET_EDGESDATA_KVS: 2844320
+host:: BASEOFFSET_VERTEXPTR: 22754560
+host:: BASEOFFSET_VERTEXPTR_KVS: 2844320
+host:: BASEOFFSET_VERTICESDATA: 22754560
+host:: BASEOFFSET_VERTICESDATA_KVS: 2844320
+host:: KVSOURCEDRAMSZ: 24851712
+host:: KVSOURCEDRAMSZ_KVS: 3106464
+host:: PADDEDKVSOURCEDRAMSZ: 24851712
+host:: PADDEDKVSOURCEDRAMSZ_KVS: 3106464
+>> host:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host:: KVDRAMBUFFERSZ (bytes): 0 bytes
+>> host:: KVDRAMSZ (bytes): 90489856 bytes
+>> host:: KVDRAMWORKSPACESZ (bytes): 90489856 bytes
+>> host:: KVSTATSDRAMSZ (bytes): 1048576 bytes
+>> host:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host:: EDGESSZ (bytes): 0 bytes
+>> host:: VERTEXPTRSSZ (bytes): 0 bytes
+>> host:: VERTICESDATASZ (bytes): 16777216 bytes
+>> host:: PADDEDKVSOURCEDRAMSZ (bytes): 198813696 bytes
+host:: KVSTATSDRAMSZ: 131072
+host:: KVDRAMPADDING: 1311232
+host:: APPLYVERTEXBUFFERSZ: 1024
+host:: APPLYVERTEXBUFFERSZ_KVS: 128
+host:: APPLYVERTEXBUFFERSZ2: 128
+host:: APPLYVERTEXBUFFERSZ2_KVS: 16
+host:: NUMLASTLEVELPARTITIONS: 4096
+host:: NUMLASTLEVELPARTITIONS2: 256
+host:: INMEMORYGP disabled 
+graph::graph constructor:: datasetid: 2, _numedgebanks: 16
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphname: twitter
+>>> graph_path: /localtmp/oj2zf/dataset/twitter/twitter.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/twitter/twitter.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/twitter/twitter.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 41652230
+>>> num_vertices: 41652230
+>>> num_edges: 1468365184
+>>> graphdirectiontype: 6
+>>> graphorder: 6
+>>> skewratio: 128
+goclkernel::loadOCLstructures:: inputdata_size_bytes: 198813696
+Found Platform
+Platform Name: Xilinx
+Found Device=xilinx_u280_xdma_201910_1
+INFO: Reading /home/oj2zf/Documents/ActsOfAGraph_Kernels/goldenkernelpr4.xclbin
+Loading: '/home/oj2zf/Documents/ActsOfAGraph_Kernels/goldenkernelpr4.xclbin'
+Creating a kernel [topkernel:{topkernel_1}] for CU(1)
+Creating a kernel [topkernel:{topkernel_2}] for CU(2)
+Creating a kernel [topkernel:{topkernel_3}] for CU(3)
+Creating a kernel [topkernel:{topkernel_4}] for CU(4)
+Creating a kernel [topkernel:{topkernel_5}] for CU(5)
+Creating a kernel [topkernel:{topkernel_6}] for CU(6)
+Creating a kernel [topkernel:{topkernel_7}] for CU(7)
+Creating a kernel [topkernel:{topkernel_8}] for CU(8)
+Creating a kernel [topkernel:{topkernel_9}] for CU(9)
+Creating a kernel [topkernel:{topkernel_10}] for CU(10)
+Creating a kernel [topkernel:{topkernel_11}] for CU(11)
+Creating a kernel [topkernel:{topkernel_12}] for CU(12)
+Creating a kernel [topkernel:{topkernel_13}] for CU(13)
+Creating a kernel [topkernel:{topkernel_14}] for CU(14)
+Creating a kernel [topkernel:{topkernel_15}] for CU(15)
+Creating a kernel [topkernel:{topkernel_16}] for CU(16)
+attaching bufferExt 0 to HBM bank: 0
+attaching bufferExt 1 to HBM bank: 1
+attaching bufferExt 2 to HBM bank: 2
+attaching bufferExt 3 to HBM bank: 3
+attaching bufferExt 4 to HBM bank: 4
+attaching bufferExt 5 to HBM bank: 5
+attaching bufferExt 6 to HBM bank: 6
+attaching bufferExt 7 to HBM bank: 7
+attaching bufferExt 8 to HBM bank: 8
+attaching bufferExt 9 to HBM bank: 9
+attaching bufferExt 10 to HBM bank: 10
+attaching bufferExt 11 to HBM bank: 11
+attaching bufferExt 12 to HBM bank: 12
+attaching bufferExt 13 to HBM bank: 13
+attaching bufferExt 14 to HBM bank: 14
+attaching bufferExt 15 to HBM bank: 15
+creating buffer for ACTS: 0
+creating buffer for ACTS: 1
+creating buffer for ACTS: 2
+creating buffer for ACTS: 3
+creating buffer for ACTS: 4
+creating buffer for ACTS: 5
+creating buffer for ACTS: 6
+creating buffer for ACTS: 7
+creating buffer for ACTS: 8
+creating buffer for ACTS: 9
+creating buffer for ACTS: 10
+creating buffer for ACTS: 11
+creating buffer for ACTS: 12
+creating buffer for ACTS: 13
+creating buffer for ACTS: 14
+creating buffer for ACTS: 15
+pagerank::run:: pagerank algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter.vproperties
+generating vertices data... 
+generating temp vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_1.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_2.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_3.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_4.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_5.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_6.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_7.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_8.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_9.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_10.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_11.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_12.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_13.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_14.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_15.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_1.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_2.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_3.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_4.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_5.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_6.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_7.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_8.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_9.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_10.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_11.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_12.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_13.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_14.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_15.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_1.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_2.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_3.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_4.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_5.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_6.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_7.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_8.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_9.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_10.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_11.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_12.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_13.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_14.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_15.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_1.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_2.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_3.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_4.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_5.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_6.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_7.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_8.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_9.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_10.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_11.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_12.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_13.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_14.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/twitter/twitter_1by16/twitter_0_15.edges
+[1m[37m>>> pagerank::run: graph iteration 0 of pagerank started[0m
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 0][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[0]: 515978225
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:0][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[4998803, 5000898, 4999772, 4997738, 4995592, 5006991, 5000111, 4984482, 5014891, 5000122, 4999399, 5000992, 5000023, 4999925, 4999558, 5000545]]
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:1][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[4999785, 4982113, 5017694, 5000260, 5000014, 4999918, 5000115, 5000119, 4999611, 4998099, 5001895, 5000463, 5000030, 4999585, 5000358, 4999194]]
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:2][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[4999986, 4998838, 5000795, 4999703, 5000104, 5000429, 5000039, 5000077, 4999989, 4999910, 5000142, 4999079, 5000631, 4998382, 5001747, 5000067]]
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:3][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[4999856, 5000062, 5000014, 5000042, 5000002, 4999963, 5000056, 4999963, 4997964, 5001950, 5000123, 4999897, 4999518, 4999390, 5001205, 4999932]]
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:4][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[4999798, 4999643, 5000393, 5000152, 4999635, 5000371, 4999987, 4999861, 5000111, 4999974, 4999982, 4999788, 5000284, 4999992, 4999804, 5000171]]
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:5][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[4999955, 4998807, 5001227, 5000004, 4999978, 5000010, 4999201, 5000807, 4999944, 5000045, 5000006, 4999989, 5000007, 4999985, 5000011, 5000023]]
+
+PP&A:: [col:0][size:16][step:1], [iteration_idx:6][size:7][step:1]
+loadmessages:: loading Acts... sizes: [[2248614, 2248634, 2248597, 2248674, 2248625, 2248637, 2248602, 2248649, 2248417, 2248810, 2248648, 2248660, 2248605, 2248642, 2248646, 2248589]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 1][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[1]: 271299829
+
+PP&A:: [col:1][size:16][step:1], [iteration_idx:0][size:4][step:1]
+loadmessages:: loading Acts... sizes: [[4999224, 5000771, 5000021, 5000007, 5000034, 4999904, 4999836, 5000331, 5000017, 4999998, 5000039, 5000034, 4999829, 4999879, 5000325, 4999523]]
+
+PP&A:: [col:1][size:16][step:1], [iteration_idx:1][size:4][step:1]
+loadmessages:: loading Acts... sizes: [[4999976, 4999975, 4999970, 4999807, 5000028, 5000031, 4999967, 5000035, 5000009, 4999813, 5000134, 5000001, 4999946, 4999923, 5000052, 4999941]]
+
+PP&A:: [col:1][size:16][step:1], [iteration_idx:2][size:4][step:1]
+loadmessages:: loading Acts... sizes: [[4999992, 4999890, 5000113, 5000027, 5000000, 5000027, 4999930, 5000038, 5000044, 4999414, 5000596, 5000035, 4999823, 5000194, 5000009, 4999742]]
+
+PP&A:: [col:1][size:16][step:1], [iteration_idx:3][size:4][step:1]
+loadmessages:: loading Acts... sizes: [[1956228, 1956231, 1955966, 1956421, 1956273, 1955836, 1956634, 1956230, 1956243, 1956237, 1956229, 1956109, 1956282, 1956304, 1956242, 1956209]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 2][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[2]: 153453652
+
+PP&A:: [col:2][size:16][step:1], [iteration_idx:0][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4999986, 5000010, 4999989, 4999992, 4999874, 5000092, 4998113, 5001910, 4999255, 5000732, 4999856, 5000066, 5000110, 4999896, 5000104, 4998046]]
+
+PP&A:: [col:2][size:16][step:1], [iteration_idx:1][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4590812, 4590884, 4590818, 4590869, 4590870, 4590780, 4590921, 4590870, 4590852, 4590851, 4590850, 4590827, 4590864, 4590845, 4590831, 4590893]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 3][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[3]: 111684235
+
+PP&A:: [col:3][size:16][step:1], [iteration_idx:0][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4999943, 5000031, 4999779, 5000242, 4999997, 4999971, 4999739, 5000298, 4999997, 5000003, 4999951, 5000046, 4999922, 5000062, 4999992, 5000026]]
+
+PP&A:: [col:3][size:16][step:1], [iteration_idx:1][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[1980259, 1980162, 1980370, 1980247, 1980215, 1980297, 1980288, 1980173, 1980348, 1980205, 1980335, 1980251, 1980281, 1980264, 1980244, 1980282]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 4][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[4]: 101656368
+
+PP&A:: [col:4][size:16][step:1], [iteration_idx:0][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4999912, 5000081, 4999838, 5000162, 4999999, 4999995, 5000005, 4999993, 4999713, 5000262, 4999807, 5000170, 4999533, 5000133, 5000384, 5000006]]
+
+PP&A:: [col:4][size:16][step:1], [iteration_idx:1][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[1353436, 1353575, 1353548, 1353529, 1353482, 1353498, 1353584, 1353496, 1353392, 1353663, 1353405, 1353644, 1353535, 1353507, 1353471, 1353601]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 5][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[5]: 88825929
+
+PP&A:: [col:5][size:16][step:1], [iteration_idx:0][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4999975, 5000022, 4999785, 5000206, 5000010, 4999017, 5000980, 4999957, 5000034, 4999991, 5000018, 4999201, 5000663, 4999994, 5000138, 4999986]]
+
+PP&A:: [col:5][size:16][step:1], [iteration_idx:1][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[551570, 551630, 551619, 551613, 551564, 551699, 551631, 551621, 551618, 551595, 551635, 551627, 551549, 551691, 551619, 551635]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 6][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[6]: 85733431
+
+PP&A:: [col:6][size:16][step:1], [iteration_idx:0][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[4999990, 5000001, 5000059, 4999973, 5000065, 5000019, 5000018, 4998440, 5000553, 5001060, 4999393, 5000394, 5000274, 5000022, 5000001, 4999728]]
+
+PP&A:: [col:6][size:16][step:1], [iteration_idx:1][size:2][step:1]
+loadmessages:: loading Acts... sizes: [[358312, 358171, 358368, 358244, 358481, 358335, 358284, 358360, 358317, 358303, 358341, 358303, 358303, 358327, 358347, 358327]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 7][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[7]: 59195333
+
+PP&A:: [col:7][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[3699662, 3699564, 3699341, 3700261, 3699672, 3699679, 3699771, 3699589, 3699665, 3699453, 3699770, 3700068, 3699080, 3700320, 3699720, 3699717]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 8][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[8]: 45337792
+
+PP&A:: [col:8][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[2833430, 2833716, 2833595, 2833693, 2833440, 2833708, 2833687, 2833035, 2833696, 2833953, 2833419, 2833619, 2833627, 2833920, 2833639, 2833612]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 9][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[9]: 35200388
+
+PP&A:: [col:9][size:16][step:1], [iteration_idx:0][size:1][step:1]
+loadmessages:: loading Acts... sizes: [[2199125, 2200922, 2199676, 2200363, 2200034, 2199940, 2199978, 2200154, 2199989, 2199979, 2199880, 2200032, 2199944, 2200299, 2200041, 2200031]]
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 10][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[10]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 11][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[11]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 12][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[12]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 13][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[13]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 14][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[14]: 0
+>>> pagerank::start2 Finished: all threads joined...
+
+[1m[37m>>> pagerank::start2: super iteration: [col: 15][size: 16][step: 1][0m
+>>> WorkerThread:: total number of edges in file[15]: 0
+>>> pagerank::start2 Finished: all threads joined...
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+applyvertices2: number of active vertices for next iteration: 0
+test::finish destroying memory structures... 
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 35549769228[nanao seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 35549769[micro seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 35549[milli seconds](Iteration 666)
+>>> pagerank::run: finished run. Time Elapsed: : Time Elapsed = 35[seconds](Iteration 666)
+
+graph::closefilesforreading : close files for reading...
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 515976944
+>>> stats::summary Total number of kvReads in bank [1]: 271298928
+>>> stats::summary Total number of kvReads in bank [2]: 153451668
+>>> stats::summary Total number of kvReads in bank [3]: 111684220
+>>> stats::summary Total number of kvReads in bank [4]: 101656359
+>>> stats::summary Total number of kvReads in bank [5]: 88825893
+>>> stats::summary Total number of kvReads in bank [6]: 85733113
+>>> stats::summary Total number of kvReads in bank [7]: 59195332
+>>> stats::summary Total number of kvReads in bank [8]: 45337789
+>>> stats::summary Total number of kvReads in bank [9]: 35200387
+>>> stats::summary Total number of kvReads in bank [10]: 0
+>>> stats::summary Total number of kvReads in bank [11]: 0
+>>> stats::summary Total number of kvReads in bank [12]: 0
+>>> stats::summary Total number of kvReads in bank [13]: 0
+>>> stats::summary Total number of kvReads in bank [14]: 0
+>>> stats::summary Total number of kvReads in bank [15]: 0
+[1m[37m>>> stats::summary Total number of kvReads for all threads: 1468360633[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (SSD access): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (OCL data transfers): 0 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 3473 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Pre Process execution): 3.473 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 13589 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel execution): 13.589 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 1567 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Kernel Post Process execution): 1.567 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 18629 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall Kernel execution): 18.629 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 35549 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing): 35.549 seconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 35549 milliseconds[0m
+[1m[37m>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 35.549 seconds[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 7.88212e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 78.8212 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Kernel processing): 630.57 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 7.88212e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 78.8212 million keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing): 630.57 MB/s[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 4.13053e+07 keyvalues per second[0m
+[1m[37m>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): 41.3053 million keyvalues per second[0m
+
+graph::printdataset: printing dataset parameters...
+>>> graphname: twitter
+>>> graph_path: /localtmp/oj2zf/dataset/twitter/twitter.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/twitter/twitter.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/twitter/twitter.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/twitter/twitter_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 41652230
+>>> num_vertices: 41652230
+>>> num_edges: 1468365184
+>>> graphdirectiontype: 6
+>>> graphorder: 6
+>>> skewratio: 128
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 37183287383[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 37183287[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 37183[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 37[seconds](Iteration 666)[0m
+
+XRT build version: 2.3.1301
+Build hash: 192e706aea53163a04c574f9b3fe9ed76b6ca471
+Build date: 2019-10-24 20:05:16
+Git branch: 2019.2
+PID: 18049
+UID: 1007
+[Mon Nov 23 16:29:29 2020]
+HOST: crabtree
+EXE: /home/oj2zf/Documents/ActsOfAGraph/host
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).

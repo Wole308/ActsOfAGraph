@@ -1,0 +1,187 @@
+Profile Summary
+Generated on: 2020-11-23 16:24:53
+Msec since Epoch: 1606166693519
+Profiled application: host
+Target platform: 
+Tool version: 2019.2
+XRT build version: 2.3.1301
+Build version branch: 2019.2
+Build version hash: 192e706aea53163a04c574f9b3fe9ed76b6ca471
+Build version date: 2019-10-24 20:05:16
+Target devices: xilinx_u280_xdma_201910_1-0
+Flow mode: System Run
+
+OpenCL API Calls
+API Name,Number Of Calls,Total Time (ms),Minimum Time (ms),Average Time (ms),Maximum Time (ms),
+clFinish,81,2750.62,0.001222,33.9583,506.591,
+clCreateBuffer,16,1077.03,65.3782,67.3142,73.5002,
+clCreateProgramWithBinary,1,46.2079,46.2079,46.2079,46.2079,
+clEnqueueNDRangeKernel,256,12.0798,0.011423,0.0471866,0.205195,
+clCreateKernel,16,6.35758,0.373613,0.397349,0.506045,
+clEnqueueWriteBuffer,768,5.79251,0.001202,0.00754233,0.065633,
+clRetainEvent,1280,4.20563,0.000293,0.00328565,0.074662,
+clGetEventInfo,1024,3.95485,0.000344,0.00386216,0.059792,
+clEnqueueReadBuffer,256,3.34744,0.0035,0.0130759,0.066089,
+clReleaseEvent,1760,3.33483,0.000297,0.00189479,0.033455,
+clWaitForEvents,976,1.29082,0.000272,0.00132256,0.03885,
+clSetEventCallback,512,0.578356,0.000395,0.0011296,0.021672,
+clSetKernelArg,256,0.506827,0.000459,0.00197979,0.028325,
+clGetExtensionFunctionAddress,1,0.013242,0.013242,0.013242,0.013242,
+clReleaseProgram,1,0.009326,0.009326,0.009326,0.009326,
+clCreateContext,1,0.007745,0.007745,0.007745,0.007745,
+clGetExtensionFunctionAddressForPlatform,1,0.007504,0.007504,0.007504,0.007504,
+clReleaseCommandQueue,1,0.004431,0.004431,0.004431,0.004431,
+clGetPlatformInfo,4,0.00443,0.000459,0.0011075,0.00189,
+clGetDeviceIDs,2,0.004177,0.001018,0.0020885,0.003159,
+clCreateCommandQueue,1,0.003512,0.003512,0.003512,0.003512,
+clGetDeviceInfo,2,0.002651,0.000924,0.0013255,0.001727,
+clReleaseDevice,2,0.00256,0.001077,0.00128,0.001483,
+clRetainDevice,2,0.001872,0.000664,0.000936,0.001208,
+clRetainCommandQueue,1,0.001828,0.001828,0.001828,0.001828,
+clReleaseContext,1,0.001207,0.001207,0.001207,0.001207,
+
+
+Kernel Execution
+Kernel,Number Of Enqueues,Total Time (ms),Minimum Time (ms),Average Time (ms),Maximum Time (ms),
+topkernel,16,1529.29,25.1426,95.5804,196.044,
+topkernel,16,705.455,23.6715,44.0909,107.578,
+topkernel,16,710.02,26.5621,44.3762,107.711,
+topkernel,16,715.333,25.0249,44.7083,107.586,
+topkernel,16,708.806,23.648,44.3004,107.702,
+topkernel,16,713.719,25.1033,44.6074,107.614,
+topkernel,16,713.376,24.9612,44.586,109.632,
+topkernel,16,715.801,25.1937,44.7376,107.808,
+topkernel,16,712.926,27.3155,44.5579,107.657,
+topkernel,16,710.306,25.0833,44.3941,107.491,
+topkernel,16,708.276,25.1962,44.2673,106.867,
+topkernel,16,716.93,24.9821,44.8081,107.827,
+topkernel,16,706.982,24.579,44.1864,107.548,
+topkernel,16,1889.17,48.4693,118.073,212.857,
+topkernel,16,714.02,25.0984,44.6262,107.976,
+topkernel,16,767.987,25.0014,47.9992,107.787,
+
+
+Compute Unit Utilization
+Device,Compute Unit,Kernel,Global Work Size,Local Work Size,Number Of Calls,Dataflow Execution,Max Overlapping Executions,Dataflow Acceleration,Total Time (ms),Minimum Time (ms),Average Time (ms),Maximum Time (ms),Clock Frequency (MHz),
+
+
+Data Transfer: Host to Global Memory
+Context:Number of Devices,Transfer Type,Number Of Buffer Transfers,Transfer Rate (MB/s),Average Bandwidth Utilization (%),Average Buffer Size (KB),Total Time (ms),Average Time (ms),
+context0:1,READ,256,5330.891721,55.530122,2097.15,100.709401,0.393396,
+context0:1,WRITE,736,4380.359320,45.628743,7641.03,1283.867432,1.744385,
+
+
+Data Transfer: Kernels to Global Memory
+Device,Compute Unit/Port Name,Kernel Arguments,Memory Resources,Transfer Type,Number Of Transfers,Transfer Rate (MB/s),Average Bandwidth Utilization (%),Average Size (KB),Average Latency (ns),
+
+
+Top Data Transfer: Kernels to Global Memory
+Device,Compute Unit,Number of Transfers,Average Bytes per Transfer,Transfer Efficiency (%),Total Data Transfer (MB),Total Write (MB),Total Read (MB),Total Transfer Rate (MB/s),
+
+
+Top Kernel Execution
+Kernel Instance Address,Kernel,Context ID,Command Queue ID,Device,Start Time (ms),Duration (ms),Global Work Size,Local Work Size,
+94819908978480,topkernel,0,0,xilinx_u280_xdma_201910_1-0,11956.8,212.857,1:1:1,1:1:1,
+94819908960416,topkernel,0,0,xilinx_u280_xdma_201910_1-0,11955.4,196.044,1:1:1,1:1:1,
+94819908978480,topkernel,0,0,xilinx_u280_xdma_201910_1-0,3994.99,152.894,1:1:1,1:1:1,
+94819908978480,topkernel,0,0,xilinx_u280_xdma_201910_1-0,4907.64,151.653,1:1:1,1:1:1,
+94819908960416,topkernel,0,0,xilinx_u280_xdma_201910_1-0,14534.2,146.458,1:1:1,1:1:1,
+94819908978480,topkernel,0,0,xilinx_u280_xdma_201910_1-0,3082.34,139.739,1:1:1,1:1:1,
+94819908978480,topkernel,0,0,xilinx_u280_xdma_201910_1-0,6464.15,138.947,1:1:1,1:1:1,
+94819908960416,topkernel,0,0,xilinx_u280_xdma_201910_1-0,13651.2,134.471,1:1:1,1:1:1,
+94819908978480,topkernel,0,0,xilinx_u280_xdma_201910_1-0,8197.62,125.422,1:1:1,1:1:1,
+94819908960416,topkernel,0,0,xilinx_u280_xdma_201910_1-0,10747.5,125.006,1:1:1,1:1:1,
+
+
+Top Memory Writes: Host to Global Memory
+Buffer Address,Context ID,Command Queue ID,Start Time (ms),Duration (ms),Buffer Size (KB),Writing Rate(MB/s),
+1610612736,0,0,2061.08,52.299544,226846,4337.431623,
+1879048192,0,0,2061.13,52.259161,226846,4340.783351,
+1073741824,0,0,2008.72,52.228157,226846,4343.360153,
+805306368,0,0,1956.42,52.207112,226846,4345.110988,
+536870912,0,0,1956.38,52.203272,226846,4345.430608,
+1342177280,0,0,2008.77,52.202491,226846,4345.495620,
+2147483648,0,0,2113.56,51.973017,226846,4364.682081,
+0,0,0,1904.25,51.944808,226846,4367.052353,
+268435456,0,0,1904.33,51.760663,226846,4382.588685,
+2415919104,0,0,2113.58,51.729695,226846,4385.212323,
+
+
+Top Memory Reads: Host to Global Memory
+Buffer Address,Context ID,Command Queue ID,Start Time (ms),Duration (ms),Buffer Size (KB),Reading Rate(MB/s),
+2952790016,0,0,5062.13,0.663227,2097.15,3162.042559,
+2684354560,0,0,5062.13,0.659382,2097.15,3180.481117,
+2415919104,0,0,12944.7,0.609217,2097.15,3442.372751,
+0,0,0,2411.45,0.594813,2097.15,3525.733298,
+268435456,0,0,14680.9,0.578204,2097.15,3627.010536,
+0,0,0,14680.9,0.559287,2097.15,3749.688443,
+2684354560,0,0,12944.7,0.556241,2097.15,3770.221900,
+268435456,0,0,2411.52,0.552515,2097.15,3795.647177,
+0,0,0,13786,0.551214,2097.15,3804.605834,
+805306368,0,0,5813.84,0.550204,2097.15,3811.589883,
+
+
+Guidance Parameters
+Parameter,Element,Value,
+DEVICE_EXEC_TIME,xilinx_u280_xdma_201910_1-0,13418.136279,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_1,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_10,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_11,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_12,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_13,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_14,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_15,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_16,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_2,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_3,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_4,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_5,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_6,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_7,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_8,16,
+CU_CALLS,xilinx_u280_xdma_201910_1-0|topkernel_9,16,
+MEMORY_BIT_WIDTH,xilinx_u280_xdma_201910_1-0,512,
+MIGRATE_MEM,host,0,
+MEMORY_USAGE,HBM[0],1,
+MEMORY_USAGE,HBM[10],1,
+MEMORY_USAGE,HBM[11],1,
+MEMORY_USAGE,HBM[12],1,
+MEMORY_USAGE,HBM[13],1,
+MEMORY_USAGE,HBM[14],1,
+MEMORY_USAGE,HBM[15],1,
+MEMORY_USAGE,HBM[1],1,
+MEMORY_USAGE,HBM[2],1,
+MEMORY_USAGE,HBM[3],1,
+MEMORY_USAGE,HBM[4],1,
+MEMORY_USAGE,HBM[5],1,
+MEMORY_USAGE,HBM[6],1,
+MEMORY_USAGE,HBM[7],1,
+MEMORY_USAGE,HBM[8],1,
+MEMORY_USAGE,HBM[9],1,
+PLRAM_DEVICE,all,1,
+HBM_DEVICE,all,1,
+KDMA_DEVICE,all,0,
+P2P_DEVICE,all,0,
+P2P_HOST_TRANSFERS,host,0,
+PORT_BIT_WIDTH,topkernel_1/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_2/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_3/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_4/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_5/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_6/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_7/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_8/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_9/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_10/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_11/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_12/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_13/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_14/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_15/m_axi_gmem0,512,
+PORT_BIT_WIDTH,topkernel_16/m_axi_gmem0,512,
+KERNEL_COUNT,topkernel,16,
+OBJECTS_RELEASED,all,0,
+TRACE_MEMORY,all,FIFO,
+CU_CONTEXT_EN,all,0,
+
+
