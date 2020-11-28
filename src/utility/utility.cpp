@@ -212,19 +212,28 @@ void utility::print6(string messagea, string messageb, string messagec, string m
 }
 void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
-	for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; }
+	unsigned int totalkeys = 0;
+	unsigned int totalvalues = 0;
+	for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; totalkeys+=keyvalues[i].key; totalvalues+=keyvalues[i].value; }
+	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
 }
 void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize){
 	if(skipsize == 0){ cout<<endl<<"utility::printkeyvalues:ERROR: skipsize CANNOT be zero. exiting... "<<endl; exit(EXIT_FAILURE); }
+	unsigned int totalkeys = 0;
+	unsigned int totalvalues = 0;
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
-	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; }
+	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; totalkeys+=keyvalues[p].key; totalvalues+=keyvalues[p].value; }
+	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
 }
 void utility::printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE], unsigned int size){
 	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
+	unsigned int totalkeys = 0;
+	unsigned int totalvalues = 0;
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){
-		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; totalkeys+=keyvalues[v][i].key; totalvalues+=keyvalues[v][i].value; }				
 		cout<<".."<<endl;
 	}
+	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
 }
 void utility::printedges(string message, edge_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;

@@ -43,6 +43,7 @@ using namespace std;
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
 
 // #define _DEBUGMODE_RUNKERNELPRINTS
+#define MAXPERFORMANCE
 
 class actslw {
 public:

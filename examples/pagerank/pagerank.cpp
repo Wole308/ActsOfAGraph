@@ -85,7 +85,7 @@ runsummary_t pagerank::run(){
 		setupkernelobj[0]->startSRteration(); // NEWCHANGE.
 		#endif
 		
-		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){
+		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){ //2
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;

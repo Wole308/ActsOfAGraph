@@ -24,9 +24,13 @@
 #include "actsfast.h"
 using namespace std;
 
-#ifndef FPGA_IMPL
+// #ifndef FPGA_IMPL
+// #define RUNPIPELINEDEBUGGER
+// #endif
+
+#if defined(SW) || defined(SWEMU) 
 #define RUNPIPELINEDEBUGGER
-#endif
+#endif 
 
 #ifdef SW
 actslw::actslw(){ actsutilityobj = new actsutility(); }
@@ -660,7 +664,7 @@ void
 	#ifdef SW 
 	actslw::
 	#endif 
-readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs){
+readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs){ // FIXME. CAUSEOFERROR.
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, BASEOFFSET_STATSDRAM_KVS + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -689,7 +693,7 @@ collectglobalstats(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDED
 
 	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=3
+	#pragma HLS PIPELINE II=2 // FIXME. NUMFORMAXPERFORMANCE. 3
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t keyvalue{{v}} = sourcebuffer[{{v}}][i];
 		{%endfor%}
@@ -778,7 +782,7 @@ void
 	#ifdef SW 
 	actslw::
 	#endif 
-saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs){
+saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs){ // FIXME. CAUSEOFERROR.
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, BASEOFFSET_STATSDRAM_KVS + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -892,6 +896,10 @@ partitionkeyvalues2(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	if(enable == OFF){ return 0; }
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
 	analysis_type analysis_edgecond1 = 32;
+	
+	#ifdef MAXPERFORMANCE
+	#pragma HLS ARRAY_PARTITION variable=localcapsule complete
+	#endif 
 	
 	buffer_type limitsz[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = limitsz
@@ -1791,7 +1799,9 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#pragma HLS ARRAY_PARTITION variable=_kvC6 complete
 	#pragma HLS ARRAY_PARTITION variable=_kvC7 complete
 	
-	// #pragma HLS ARRAY_PARTITION variable=bufferDcapsule complete
+	#ifdef MAXPERFORMANCE
+	#pragma HLS ARRAY_PARTITION variable=bufferDcapsule complete
+	#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("runpipeline.buffer1capsule", (keyvalue_t *)&buffer1capsule[0], NUM_PARTITIONS * VECTOR_SIZE);
@@ -2194,7 +2204,7 @@ processedges(
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[NUM_PARTITIONS], // FIXME. CAUSEOFERROR.
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -2304,7 +2314,7 @@ collectstats(
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[NUM_PARTITIONS], // FIXME. CAUSEOFERROR.
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -2349,7 +2359,7 @@ partitionupdates(
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[NUM_PARTITIONS], // FIXME. CAUSEOFERROR.
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -2452,13 +2462,13 @@ fastpartitionupdates(
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[NUM_PARTITIONS], // FIXME. CAUSEOFERROR
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
 		travstate_t ptravstate){
 	#pragma HLS INLINE // OFF
-	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (2 * SRCBUFFER_SIZE);
+	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (2 * SRCBUFFER_SIZE); // CHANGEBACK. 2
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -2475,7 +2485,7 @@ fastpartitionupdates(
 	buffer_type cutoff0 = 0;
 	buffer_type cutoff1 = 0;
 
-	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs; offset_kvs+=ptravstate.skip_kvs * 2){
+	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs; offset_kvs+=ptravstate.skip_kvs * 2){ // CHANGEBACK. 2
 	// MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<(ptravstate.begin_kvs + 16*ptravstate.skip_kvs); offset_kvs+=ptravstate.skip_kvs){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -2525,7 +2535,7 @@ reduceupdates(
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[NUM_PARTITIONS], // FIXME. CAUSEOFERROR.
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -2574,7 +2584,7 @@ dispatch(uint512_dt * kvdram){
 	keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
 	skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS];
-	#pragma HLS array_partition variable = templocalcapsule_so1
+	// #pragma HLS array_partition variable = templocalcapsule_so1
 	
 	keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof2
@@ -2591,7 +2601,7 @@ dispatch(uint512_dt * kvdram){
 	skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS];
 	
 	#ifdef EMBEDDEDCOLLECTSTATS
-	keyvalue_t globalstatsbuffer[PADDEDDESTBUFFER_SIZE];
+	keyvalue_t globalstatsbuffer[PADDEDDESTBUFFER_SIZE]; // FIXME. CAUSEOFERROR. just use this one
 	#else 
 	keyvalue_t globalstatsbuffer[NUM_PARTITIONS];
 	#endif 

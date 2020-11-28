@@ -165,7 +165,8 @@ typedef struct {
 
 #define PADDEDDESTBUFFER_SIZE 512
 #ifdef ACTSFAST
-#define SRCBUFFER_SIZE 512
+#define SRCBUFFER_SIZE (512 - (4 * 4))
+// #define SRCBUFFER_SIZE 512
 // #define SRCBUFFER_SIZE (512 - (16 * 4)) // 
 // #define SRCBUFFER_SIZE (512 - (16 * 2))
 #else 
