@@ -177,6 +177,18 @@ void utility::printallparameters(){
 	#ifndef INMEMORYGP
 	std::cout<<"host:: INMEMORYGP disabled "<<std::endl;
 	#endif
+	
+	#ifdef ACTSFAST
+	std::cout<<"host::ACTSFAST DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host::ACTSFAST NOT DEFINED"<<std::endl;	
+	#endif 
+	#ifdef ACTSFAST
+	std::cout<<"host::EMBEDDEDCOLLECTSTATS DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host::EMBEDDEDCOLLECTSTATS NOT DEFINED"<<std::endl;	
+	#endif 
+	
 	// #ifdef PROCEDGESINCPU
 	// std::cout<<"host:: PROCEDGESINCPU enabled "<<std::endl;
 	// #endif
