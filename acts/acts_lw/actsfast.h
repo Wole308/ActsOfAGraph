@@ -24,10 +24,10 @@
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
-#define PROCESSALLEDGES
-#define COLLECTSTATS
+// #define PROCESSALLEDGES
+// #define COLLECTSTATS
 #define PARTITIONUPDATES
-#define REDUCEUPDATES
+// #define REDUCEUPDATES
 
 #define NUMPIPELINES 3
 #if NUMPIPELINES==2
@@ -61,8 +61,9 @@ public:
 	void resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
 	void resetmanykeyandvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval);
 	void resetmanykeyandvalues(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type size, unsigned int resetval);
-	void resetmanykeyandvalues(keyvalue_t buffer[NUM_PARTITIONS], buffer_type size, unsigned int resetval);
+	void resetmanykeyandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval);
+	void resetmanyvalues(buffer_type buffer0[NUM_PARTITIONS],buffer_type buffer1[NUM_PARTITIONS],buffer_type buffer2[NUM_PARTITIONS],buffer_type buffer3[NUM_PARTITIONS],buffer_type buffer4[NUM_PARTITIONS],buffer_type buffer5[NUM_PARTITIONS],buffer_type buffer6[NUM_PARTITIONS],buffer_type buffer7[NUM_PARTITIONS], buffer_type size, unsigned int resetval);
 	buffer_type getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
 	buffer_type getchunksize(buffer_type buffersz, travstate_t travstate, buffer_type localoffset);
 	partition_type getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
@@ -86,17 +87,17 @@ public:
 	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
 	
 	// collect globalstats functions
-	void readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
+	void readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset_kvs);
 
 	void collectglobalstats(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams);
 
-	void collectglobalstats(bool_type enable, keyvalue_t statsbuffer[PADDEDDESTBUFFER_SIZE], step_type currentLOP, batch_type source_partition);
+	void collectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], step_type currentLOP, batch_type source_partition);
 	
-	void prepareglobalstats(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], globalparams_t globalparams);
+	void prepareglobalstats(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], globalparams_t globalparams);
 
-	void prepareglobalstats2(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[PADDEDDESTBUFFER_SIZE], batch_type offset, globalparams_t globalparams);
+	void prepareglobalstats2(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset, globalparams_t globalparams);
 	
-	void saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[NUM_PARTITIONS], batch_type offset_kvs);
+	void saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset_kvs);
 	
 	// partition functions
 	void readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, travstate_t travstate);
@@ -104,6 +105,8 @@ public:
 	void partitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams);
 
 	buffer_type partitionkeyvalues2(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams);
+
+	buffer_type partitionkeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, globalparams_t globalparams);
 
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams);
 	
@@ -171,7 +174,7 @@ public:
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -189,7 +192,7 @@ public:
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -207,7 +210,7 @@ public:
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -224,7 +227,7 @@ public:
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -241,7 +244,7 @@ public:
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
