@@ -360,7 +360,7 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 		if(keyvalues[i].key != INVALIDDATA){
 			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
 				if(numerrorkeys < 8){ 
-					cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
+					cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE. index: "<<i-begin<<", keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
 					// exit(EXIT_FAILURE);
 				}
 				// cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
@@ -911,7 +911,7 @@ void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned 
 }
 
 void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int factor, unsigned int totalnum){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"actsutility::checkprofile: "<<message<<endl;
 	#endif 
 	unsigned int mytotalnums = 0;
@@ -937,7 +937,7 @@ void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE]
 			cout<<"ctsutility::checkprofile: ERROR in checkprofile: mytotalnums("<<mytotalnums<<") != totalnum("<<totalnum<<"). EXITING..."<<endl; 
 			exit(EXIT_FAILURE); 
 		}
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"checkprofile successful. mytotalnums: "<< mytotalnums <<endl;
 	#endif 
 	return;
@@ -949,7 +949,9 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 	unsigned int errcount = 0;
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 		unsigned int count = 0;
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"actsutility::checkbufferprofile: stats["<<p<<"].key: "<< stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value <<endl;
+		#endif 
 		if(p<NUM_PARTITIONS-1){
 			if(stats[p].key + stats[p].value > stats[p+1].key){
 				cout<<"actsutility::checkbufferprofile: ERROR in checkbufferprofile: (stats["<<p<<"].key("<<stats[p].key<<") + stats["<<p<<"].value("<<stats[p].value<<") > stats["<<p+1<<"].key("<<stats[p+1].key<<")). EXITING..."<<endl; 
@@ -957,7 +959,8 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 			}
 		}
 		
-		for(unsigned int i=stats[p].key/VECTOR_SIZE; i<(stats[p].key + stats[p].value)/VECTOR_SIZE; i++){ // FIXME. should be (stats[p].key + stats[p].value + (VECTOR_SIZE-1))/VECTOR_SIZE
+		// for(unsigned int i=stats[p].key/VECTOR_SIZE; i<(stats[p].key + stats[p].value)/VECTOR_SIZE; i++){ // FIXME. should be (stats[p].key + stats[p].value + (VECTOR_SIZE-1))/VECTOR_SIZE
+		for(unsigned int i=stats[p].key/VECTOR_SIZE; i<(stats[p].key + stats[p].value + (VECTOR_SIZE-1))/VECTOR_SIZE; i++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				unsigned int thisp = getpartition(keyvalues[v][i], currentLOP, upperlimit, batch_range_pow);
 				if(thisp != p){
@@ -973,7 +976,7 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 		cout<<"partition("<<p<<"): "<< count <<endl;
 		#endif 
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	if(errcount == 0){ cout<<"checkbufferprofile successful. "<<totalcount<<" keyvalues processed." <<endl; }
 	else{ cout<<"checkbufferprofile failed. "<<errcount<<" errors seen." <<endl; }
 	#endif 

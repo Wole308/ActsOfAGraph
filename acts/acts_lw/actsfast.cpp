@@ -1097,7 +1097,7 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"readkeyvalues:: keyvalues read: offset_kvs: "<<offset_kvs<<", size_kvs: "<<chunk_size<<endl;
 	// cout<<"readkeyvalues:: keyvalues read: offset_kvs: "<<offset_kvs-BASEOFFSET_KVDRAM_KVS<<", size_kvs: "<<chunk_size<<endl; // REMOVEME.
 	#endif
@@ -1759,14 +1759,14 @@ partitionkeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDE
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--------------- cutoff: "<<cutoff<<", ovsz[0]: "<<ovsz[0]<<", (cutoff+ovsz[0]): "<<cutoff+ovsz[0]<<", chunk_size: "<<chunk_size<<endl;
+	#endif 
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("cutoff", cutoff, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){ actsutilityobj->checkforequal("partitionkeyvalues3.cutoff", ovsz[v], ovsz[0], v, ovsz[0], NAp); }
-	actsutilityobj->checkforequal("partitionkeyvalues3.cutoff+ovsz[0]", cutoff+ovsz[0], SRCBUFFER_SIZE, cutoff, ovsz[0], NAp); // REMOVEME.
+	actsutilityobj->checkforequal("partitionkeyvalues3.cutoff+ovsz[0],chunk_size", cutoff+ovsz[0], chunk_size, cutoff, ovsz[0], NAp); // REMOVEME.
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"--------------- cutoff: "<<cutoff<<", ovsz[0]: "<<ovsz[0]<<", (cutoff+ovsz[0]): "<<cutoff+ovsz[0]<<endl;
-	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(false){ actsutilityobj->printprofile("partitionkeyvalues2.destbuffer", (keyvalue_t *)&destbuffer[0], PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow); }
 	if(false){ actsutilityobj->printprofileso1("partitionkeyvalues2.destbuffer", destbuffer, localcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); }
@@ -1784,6 +1784,9 @@ void
 savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& savekeyvalues:: savekeyvalues started. "<<endl;
+	#endif
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->printkeyvalues("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->printvaluecount("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
@@ -3405,21 +3408,13 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#endif
 	// exit(EXIT_SUCCESS);
 	
-	// shift
+	// shift partition function
 	bufferDcapsule[0].key = 0;
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		// bufferDcapsule[p].key = ((bufferCcapsule[0][p].key + bufferCcapsule[1][p].key) / 2) * 8; // ping-pong takes place at D
 		// bufferDcapsule[p].key = (((bufferCcapsule[0][p].key + bufferCcapsule[1][p].key) + (2-1)) / 2) * 8; // ping-pong takes place at D // NEWCHANGE. FIXME. OPTIMIZEME.
 		
-		/////////////////////////
-		
-		// if(p==0){ bufferDcapsule[p].key = ((bufferCcapsule[0][p].key + bufferCcapsule[1][p].key) / 2) * 8; }
-		// else{ bufferDcapsule[p].key = (((bufferCcapsule[0][p].key + bufferCcapsule[1][p].key) / 2) * 8) + VECTOR_SIZE; } // ping-pong takes place at D
-		
 		if(p<NUM_PARTITIONS-1){ bufferDcapsule[p+1].key = bufferDcapsule[p].key + allignhigher_KV(((bufferCcapsule[0][p].value + bufferCcapsule[1][p].value) * 4)); }
-		
-		///////////////////////
-		
 		
 		bufferDcapsule[p].value = 0;
 		
@@ -3553,10 +3548,12 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			// continue;
 			// exit(EXIT_SUCCESS);
 			
+			// cout<<"&&&&&****(((((----- runpipeline:: before 1st partition stage."<<endl;
 			partition_type pA0 = getpartition(kvA0[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA2 = getpartition(kvA2[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA4 = getpartition(kvA4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA6 = getpartition(kvA6[0], currentLOP, upperlimit, globalparams.batch_range_pow);
+			// cout<<"&&&&&****(((((----- runpipeline:: 1st partition stage passed."<<endl;
 			// continue;
 			// exit(EXIT_SUCCESS);
 			
@@ -3614,6 +3611,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			partition_type pB2 = getpartition(kvB2[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pB4 = getpartition(kvB4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pB6 = getpartition(kvB6[0], currentLOP, upperlimit, globalparams.batch_range_pow);
+			// cout<<"&&&&&****(((((----- runpipeline:: 2nd partition stage passed."<<endl;
 			// exit(EXIT_SUCCESS);
 			
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3666,10 +3664,11 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferC[4][_posC4] = kvB6[0]; bufferC[5][_posC4] = kvB7[0]; bufferC[6][_posC4] = kvB6[1]; bufferC[7][_posC4] = kvB7[1];
 			bufferCcapsule[1][pB6].value += 1;
 			
-			partition_type pC0 = getpartition(kvC0[0], currentLOP, 0, globalparams.batch_range_pow);
-			partition_type _pC0 = getpartition(_kvC0[0], currentLOP, 0, globalparams.batch_range_pow);
-			partition_type pC4 = getpartition(kvC4[0], currentLOP, 0, globalparams.batch_range_pow);
-			partition_type _pC4 = getpartition(_kvC4[0], currentLOP, 0, globalparams.batch_range_pow);
+			partition_type pC0 = getpartition(kvC0[0], currentLOP, upperlimit, globalparams.batch_range_pow);
+			partition_type _pC0 = getpartition(_kvC0[0], currentLOP, upperlimit, globalparams.batch_range_pow);
+			partition_type pC4 = getpartition(kvC4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
+			partition_type _pC4 = getpartition(_kvC4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
+			// cout<<"&&&&&****(((((----- runpipeline:: 3rd partition stage passed."<<endl;
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			CHK[0] = kvC0[0]; CHK[1] = kvC1[0]; CHK[2] = kvC2[0]; CHK[3] = kvC3[0];
@@ -3757,7 +3756,20 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferDcapsule[_pC4].value += 4;
 		}
 	}
-	
+	// NEWCHANGE. CHECKWITHVHLS
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		keyvalue_t dummykv;
+		dummykv.key = (p << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
+		dummykv.value = INVALIDDATA;
+		if(bufferDcapsule[p].value % 8 == 4){
+			unsigned int yoffset = (bufferDcapsule[p].key + bufferDcapsule[p].value) / VECTOR_SIZE;
+			bufferD[4][yoffset] = dummykv; bufferD[5][yoffset] = dummykv; bufferD[6][yoffset] = dummykv; bufferD[7][yoffset] = dummykv; 
+			bufferDcapsule[p].value += 4;
+		}
+		#ifdef _DEBUGMODE_CHECKS2
+		actsutilityobj->checkfordivisibleby("bufferDcapsule[p].value", bufferDcapsule[p].value, 8);
+		#endif
+	}
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkprofile("bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
@@ -4089,47 +4101,77 @@ fastpartitionupdates(
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
 	
-	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 0); 
+	/** resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 0); 
 	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 0); 
 	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 0); 
 	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 0); 
+	resetmanykeyandvalues(templocalcapsule_so1, NUM_PARTITIONS, 0); */
+	////////////////////////////////////////////////////////////////////////
+	// keyvalue_t dummykv;
+	// dummykv.key = ((NUM_PARTITIONS-1) << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * sweepparams.currentLOP))) + sweepparams.upperlimit;
+	// dummykv.value = INVALIDDATA;
+	
+	// sweepparams.upperlimit = globalparams.destvoffset + (source_partition * sourceskipsize * (globalparams.batch_range / globalparams.LLOPnumpartitions));
+	
+	
+	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); // FIXME. CHECKWITHVHLS.
+	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
+	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
+	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
 	resetmanykeyandvalues(templocalcapsule_so1, NUM_PARTITIONS, 0);
+	////////////////////////////////////////////////////////////////////////
 	
 	bool_type pp0en = OFF;
 	bool_type pp1en = OFF;
 	buffer_type pp0cutoff = SRCBUFFER_SIZE;
 	buffer_type pp1cutoff = SRCBUFFER_SIZE;
-	buffer_type pp0readoffset_kvs = 0;
+	// buffer_type pp0readoffset_kvs = 0;
+	buffer_type pp0readoffset_kvs = ptravstate.begin_kvs; // NEWCHANGE.
 	buffer_type pp1readoffset_kvs = SRCBUFFER_SIZE;
 	buffer_type pp0readsize_kvs = SRCBUFFER_SIZE;
 	buffer_type pp1readsize_kvs = SRCBUFFER_SIZE;
 	batch_type itercount = 0;
 
-	////////////////////////////////////////////////////////////////////////////////////////// 3
-	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs; offset_kvs+=ptravstate.skip_kvs * 1){
-	// MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<20*ptravstate.skip_kvs; offset_kvs+=ptravstate.skip_kvs){
+	//////////////////////////////////////////////////////////////////////////////////////////
+	bool_type pp0readen = ON;
+	bool_type pp0writeen = ON;
+	
+	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + (2*ptravstate.skip_kvs); offset_kvs+=ptravstate.skip_kvs * 1){ // NEWCHANGE.
+	// MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<3*ptravstate.skip_kvs; offset_kvs+=ptravstate.skip_kvs){
+	// MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<30*ptravstate.skip_kvs; offset_kvs+=ptravstate.skip_kvs){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print6("############################################### dispatch::partition:: itercount", "offset1_kvs", "offset2_kvs", "begin_kvs", "end_kvs", "skip", itercount, pp0readoffset_kvs, pp1readoffset_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		actsutilityobj->print5("############################################### dispatch::partition:: itercount", "offset1_kvs", "begin_kvs", "end_kvs", "skip", itercount, pp0readoffset_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE);
 		#endif
 		ptravstate.i_kvs = NAp;
 		ptravstatepp0.i_kvs = pp0readoffset_kvs;
-		bool_type en; if(offset_kvs >= (2 * ptravstate.skip_kvs)){ pp0en = ON; } else { pp0en = OFF; }
+		if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; } // NEWCHANGE.
+		// if(offset_kvs >= ptravstate.end_kvs){ pp0readen = OFF; } else { pp0readen = ON; } // NEWCHANGE.
 	
-		readkeyvalues(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + pp0readoffset_kvs), pp0readsize_kvs, ptravstatepp0);
+		// readkeyvalues(pp0readen, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + ptravstate.begin_kvs + pp0readoffset_kvs), pp0readsize_kvs, ptravstatepp0); // NEWCHANGE.
+		readkeyvalues(pp0readen, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + pp0readoffset_kvs), pp0readsize_kvs, ptravstatepp0); // NEWCHANGE.
+		/* if(sweepparams.currentLOP == 2 && sweepparams.source_partition==1){ 
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				actsutilityobj->printkeyvalues("-------+++++++ sourcebuffer[v]", sourcebuffer[v], SRCBUFFER_SIZE);
+			}
+			// actsutilityobj->printkeyvalues("-------+++++++ sourcebuffer", (keyvalue_t *)&sourcebuffer[0], SRCBUFFER_SIZE*VECTOR_SIZE); 
+		} */
 		
+		cout<<"&&&&&****(((((----- dispatch:: before partitionkeyvalues3."<<endl;
 		pp0cutoff = partitionkeyvalues3(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, globalparams);
+		if(sweepparams.currentLOP == 2 && sweepparams.source_partition==1){ cout<<"&&&&&****(((((----- partitionkeyvalues3 passed"<<endl; }
 		
 		runpipeline(ON, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp0cutoff, globalparams);
+		if(sweepparams.currentLOP == 2 && sweepparams.source_partition==1){ cout<<"&&&&&****(((((----- runpipeline passed"<<endl; }
 		
-		savekeyvalues(pp0en, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
+		savekeyvalues(pp0writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, sweepparams.workdestbaseaddress_kvs, globalparams);
 		
 		pp0readoffset_kvs = pp0readoffset_kvs + pp0readsize_kvs;
 		pp0readsize_kvs = pp0cutoff;
 		
 		itercount += 1;
-		if(pp0readoffset_kvs > ptravstate.end_kvs){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS2
+		if(pp0readoffset_kvs >= ptravstate.end_kvs + (2*ptravstate.skip_kvs)){ // NEWCHANGE.
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"finished partitioning. "<<itercount<<" iterations. breaking out..."<<endl;
 			#endif 
 			break; }
@@ -4372,9 +4414,6 @@ dispatch(uint512_dt * kvdram){
 			saveglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
 			#endif
 			
-			// cout<<"------------- dispatch:: exiting.... 456"<<endl;
-			// if(currentLOP==2){ break; } // exit(EXIT_SUCCESS); }
-			
 			// partition
 			#ifdef PARTITIONUPDATES
 			if((currentLOP >= 1) && (currentLOP <= globalparams.treedepth) && (ptravstate.size_kvs > 0)){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; } 
@@ -4442,17 +4481,17 @@ dispatch(uint512_dt * kvdram){
 				deststatsmarker += NUM_PARTITIONS;
 				destoffset = globalstatsbuffer[NUM_PARTITIONS-1].key + globalstatsbuffer[NUM_PARTITIONS-1].value + 64; }
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS2 // REMOVEME.
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			if(config.enablereduce == OFF){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
 			#endif
-			
-			///////////////////////////////////////////////// REMOVEME.
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			actsutilityobj->printglobalvars();
 			actsutilityobj->clearglobalvars();
 			#endif
-			/////////////////////////////////////////////////
 			
+			// cout<<"------------- dispatch:: exiting.... "<<endl;
+			// if(currentLOP==2 && source_partition==1){ break; } // 4 exit(EXIT_SUCCESS); }
+			// if(currentLOP==2 && source_partition==0){ break; } // 4 exit(EXIT_SUCCESS); }
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		actsutilityobj->printglobalvars();
