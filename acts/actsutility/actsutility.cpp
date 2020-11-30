@@ -269,8 +269,10 @@ void actsutility::printpartitionresult2(unsigned int enable, uint512_dt * kvdram
 	#ifdef ACTSMODEL_LW
 	if(enable == OFF){ return; }
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	printkeyvalues("actslw::topkernel::globalstats", globalstatsbuffer, 16);
 	printvaluecount("actslw::topkernel::globalstats", globalstatsbuffer, 16);
+	#endif 
 	scankeyvalues("actslw::topkernel::", (keyvalue_t *)(&kvdram[sweepparams.workdestbaseaddress_kvs]), globalstatsbuffer, NUM_PARTITIONS, BATCH_RANGE / pow(NUM_PARTITIONS, sweepparams.currentLOP), sweepparams.upperlimit);
 	#endif
 }
@@ -343,14 +345,18 @@ void actsutility::IsEqual(keyvalue_t ** data1, keyvalue_t ** data2, unsigned int
 	return;
 }
 void actsutility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit){
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::scankeyvalues::"<<message<<" numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
+	#endif 
 	for(unsigned int i=0; i<numberofpartitions; i++){
 		unsigned int lowerrangeindex = upperlimit + (i * rangeperpartition);
 		unsigned int upperrangeindex = upperlimit + ((i+1) * rangeperpartition);
 		unsigned int begin = stats[i].key;
 		unsigned int end = stats[i].key + stats[i].value;
 		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ["<<lowerrangeindex<<" -> "<<upperrangeindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
+		#endif 
 	}
 	return;
 }
@@ -364,7 +370,7 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 					// exit(EXIT_FAILURE);
 				}
 				// cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
-				// exit(EXIT_FAILURE); // REMOVEME.
+				exit(EXIT_FAILURE); // REMOVEME.
 				
 				numerrorkeys += 1;
 			}
@@ -892,7 +898,7 @@ void actsutility::printprofile(string message, keyvalue_t * keyvalues, skeyvalue
 	return;
 }
 void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"actsutility::printprofile: "<<message<<endl;
 	#endif 
 	unsigned int totalnums = 0;
@@ -904,7 +910,7 @@ void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned 
 		#endif 
 		totalnums += nums;
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"printprofile successful. totalnums: "<< totalnums <<endl;
 	#endif 
 	return;
@@ -943,8 +949,10 @@ void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE]
 	return;
 }
 void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"actsutility::checkbufferprofile::"<<message<<" currentLOP: "<<currentLOP<<", upperlimit: "<<upperlimit<<", batch_range_pow: "<<batch_range_pow<<endl;
-
+	#endif 
+	
 	unsigned int totalcount = 0;
 	unsigned int errcount = 0;
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
@@ -954,7 +962,9 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 		#endif 
 		if(p<NUM_PARTITIONS-1){
 			if(stats[p].key + stats[p].value > stats[p+1].key){
+				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"actsutility::checkbufferprofile: ERROR in checkbufferprofile: (stats["<<p<<"].key("<<stats[p].key<<") + stats["<<p<<"].value("<<stats[p].value<<") > stats["<<p+1<<"].key("<<stats[p+1].key<<")). EXITING..."<<endl; 
+				#endif 
 				// exit(EXIT_FAILURE); 
 			}
 		}
