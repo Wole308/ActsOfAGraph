@@ -27,7 +27,7 @@ using namespace std;
 // #define PROCESSALLEDGES
 #define COLLECTSTATS
 #define PARTITIONUPDATES
-// #define REDUCEUPDATES
+#define REDUCEUPDATES
 
 #define NUMPIPELINES 3
 #if NUMPIPELINES==2
@@ -44,6 +44,8 @@ using namespace std;
 
 // #define _DEBUGMODE_RUNKERNELPRINTS
 #define MAXPERFORMANCE // FIXME. not implemented
+
+// #define _2ACTSFASTPARTITIONPIPELINES
 
 class actslw {
 public:

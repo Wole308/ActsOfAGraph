@@ -354,7 +354,7 @@ void actsutility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue
 		unsigned int begin = stats[i].key;
 		unsigned int end = stats[i].key + stats[i].value;
 		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"actsutility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ["<<lowerrangeindex<<" -> "<<upperrangeindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
 		#endif 
 	}
@@ -917,7 +917,7 @@ void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned 
 }
 
 void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int factor, unsigned int totalnum){
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkprofile: "<<message<<endl;
 	#endif 
 	unsigned int mytotalnums = 0;
@@ -934,7 +934,7 @@ void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE]
 			cout<<"actsutility::checkprofile: ERROR in checkprofile: (count("<<count<<") % factor("<<factor<<") != 0). p: "<<p<<", count: "<<count<<", factor: "<<factor<<". EXITING..."<<endl; 
 			exit(EXIT_FAILURE); 
 		}
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"partition("<<p<<"): "<< count <<endl;
 		#endif 
 		mytotalnums += count;
@@ -943,13 +943,13 @@ void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE]
 			cout<<"ctsutility::checkprofile: ERROR in checkprofile: mytotalnums("<<mytotalnums<<") != totalnum("<<totalnum<<"). EXITING..."<<endl; 
 			exit(EXIT_FAILURE); 
 		}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"checkprofile successful. mytotalnums: "<< mytotalnums <<endl;
 	#endif 
 	return;
 }
 void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkbufferprofile::"<<message<<" currentLOP: "<<currentLOP<<", upperlimit: "<<upperlimit<<", batch_range_pow: "<<batch_range_pow<<endl;
 	#endif 
 	
@@ -957,7 +957,7 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 	unsigned int errcount = 0;
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 		unsigned int count = 0;
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"actsutility::checkbufferprofile: stats["<<p<<"].key: "<< stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value <<endl;
 		#endif 
 		if(p<NUM_PARTITIONS-1){
@@ -982,11 +982,11 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 				totalcount += 1;
 			}
 		}
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"partition("<<p<<"): "<< count <<endl;
 		#endif 
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(errcount == 0){ cout<<"checkbufferprofile successful. "<<totalcount<<" keyvalues processed." <<endl; }
 	else{ cout<<"checkbufferprofile failed. "<<errcount<<" errors seen." <<endl; }
 	#endif 
