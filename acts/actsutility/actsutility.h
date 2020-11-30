@@ -92,6 +92,7 @@ public:
 	// 
 	partition_type getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
 	void checkn(string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n);
+	void checkn2(string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n);
 	void concatenate2keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	void concatenate4keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, keyvalue_t * keyvalues3, keyvalue_t * keyvalues4, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);						
 	void concatenate8keyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, keyvalue_t * keyvalues3, keyvalue_t * keyvalues4, keyvalue_t * keyvalues5, keyvalue_t * keyvalues6, keyvalue_t * keyvalues7, keyvalue_t * keyvalues8, skeyvalue_t * stats, keyvalue_t * BIGkeyvalues, skeyvalue_t * BIGstats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
@@ -104,8 +105,13 @@ public:
 	void printprofile(string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
 	void printprofile(string message, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	
+	// void checkprofile(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int numrows, unsigned int numvalidrows, unsigned int factor, unsigned int totalnum);
+	
+	void checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int factor, unsigned int totalnum);
+	void checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	void compareprofiles(string message, keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	unsigned int countkeysbelongingtopartition(unsigned int p, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	// unsigned int countkeysbelongingtopartition(unsigned int p, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int colsize, unsigned int validcolsize);
 	
 	// void scankeyvalues(keyvalue_t * volume, keyvalue_t * stats);
 
