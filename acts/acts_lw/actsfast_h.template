@@ -40,12 +40,19 @@ using namespace std;
 #define PP2
 #endif
 
+#define NUMACTSFASTPIPELINES 1
+#if NUMACTSFASTPIPELINES==1
+#define FPP0
+#endif 
+#if NUMACTSFASTPIPELINES==2
+#define FPP0
+#define FPP1
+#endif
+
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
 
 // #define _DEBUGMODE_RUNKERNELPRINTS
 #define MAXPERFORMANCE // FIXME. not implemented
-
-// #define _2ACTSFASTPARTITIONPIPELINES
 
 class actslw {
 public:
