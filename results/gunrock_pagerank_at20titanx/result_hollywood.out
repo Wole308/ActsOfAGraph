@@ -1,0 +1,128 @@
+Loading Matrix-market coordinate-formatted graph ...
+  Reading from /net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx:
+  Parsing MARKET COO format (1139905 nodes, 57515616 directed edges)...   Done (14 s).
+  Writing meta data into /net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx.meta
+  Writting edge pairs in binary into /net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx.coo_edge_pairs
+  Substracting 1 from node Ids...
+  Edge doubleing: 57515616 -> 115031232 edges
+  Removed 2279810 duplicate edges and self circles.
+  graph loaded as COO in 42.447320s.
+Converting 1139905 vertices, 112751422 directed edges (unordered tuples) to CSC format...Done (10s).
+Degree Histogram (1139905 vertices, 112751422 edges):
+    Degree 0: 32662 (2.865326 %)
+    Degree 2^0: 24445 (2.144477 %)
+    Degree 2^1: 50032 (4.389138 %)
+    Degree 2^2: 99398 (8.719849 %)
+    Degree 2^3: 174673 (15.323470 %)
+    Degree 2^4: 231414 (20.301165 %)
+    Degree 2^5: 219393 (19.246604 %)
+    Degree 2^6: 139586 (12.245406 %)
+    Degree 2^7: 78822 (6.914787 %)
+    Degree 2^8: 44379 (3.893219 %)
+    Degree 2^9: 25905 (2.272558 %)
+    Degree 2^10: 13729 (1.204399 %)
+    Degree 2^11: 5233 (0.459073 %)
+    Degree 2^12: 230 (0.020177 %)
+    Degree 2^13: 4 (0.000351 %)
+
+Adding 1 vertex and 1172567 edges to compensate 0 degree vertices
+Converting 1139906 vertices, 113923989 directed edges (unordered tuples) to CSC format...Done (1s).
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true normalize=1 delta=0.85 threshold=0.01 max-iter=20 pull=0
+Computing reference value ...
+__________________________
+--------------------------
+Run 0 elapsed: 20909.250000 ms, src = 4294967295
+==============================================
+64bit-VertexT=false 64bit-SizeT=false 64bit-ValueT=true undirected=true scale=0 advance-mode=LB
+nodes = 1139906
+Using advance mode LB
+Using filter mode CULL
+__________________________
+
+Run 0 num_runs: 1, num_runs = 1, num_runs = 1
+Launch Enactor. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests)
+
+
+Run Enactor. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_base.cuh/Run_Threads)
+
+
+Iteration_Loop started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop)
+>>> Iteration #0
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 228.096962 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 228.116035 milliseconds
+>>> Graph properties: 113923989 edges, 1139906 nodes
+>>> Throughput (Million edges/s):: 495.361932 Million edges per sec
+
+>>> Iteration #1
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.131130 milliseconds
+
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 201.502085 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 201.699018 milliseconds
+>>> Graph properties: 113923989 edges, 1139906 nodes
+>>> Throughput (Million edges/s):: 560.240703 Million edges per sec
+
+>>> Iteration #2
+
+Core started. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core)
+
+>>> FilterOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 0.120163 milliseconds
+
+
+>>> AdvanceOp time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core): 191.540003 milliseconds
+
+>>> Core time elapsed (t8) (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop): 191.721916 milliseconds
+>>> Graph properties: 113923989 edges, 1139906 nodes
+>>> Throughput (Million edges/s):: 589.395319 Million edges per sec
+
+>>> Iteration_Loop time elapsed (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Run): 621.918917 milliseconds
+
+
+GPU PageRank Done. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh): 621.942997 milliseconds
+
+
+>>> Enactor time elapsed. (/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests): 621.951818 milliseconds
+>>> Graph properties: 113923989 edges, 1139906 nodes
+>>> Throughput (Million edges/s):: 548.273982 Million edges per sec
+>>> Throughput (Billion edges/s):: 0.548274 Billion edges per sec
+
+Run 0 elapsed: 621.951818 ms, src = 4294967295, #iterations = 3
+Total_rank = 0.150001
+Top 10 Ranked vertices and PageRanks:
+Vertex ID: 0, PageRank: 0.000001
+Vertex ID: 1, PageRank: 0.000000
+Vertex ID: 2, PageRank: 0.000000
+Vertex ID: 3, PageRank: 0.000000
+Vertex ID: 4, PageRank: 0.000000
+Vertex ID: 5, PageRank: 0.000000
+Vertex ID: 6, PageRank: 0.000000
+Vertex ID: 7, PageRank: 0.000000
+Vertex ID: 8, PageRank: 0.000000
+Vertex ID: 9, PageRank: 0.000000
+Rank Validity: PASS
+Reference total rank : 0.150001
+Maximum difference : rank[0] 0.000001 vs. 0.000001, 0.000000
+Maximum relative difference :rank[0] 0.000001 vs. 0.000001, 0.000000
+Order Validity: PASS
+[pr] finished.
+ avg. elapsed: 621.951818 ms
+ iterations: 3
+ min. elapsed: 621.951818 ms
+ max. elapsed: 621.951818 ms
+ nodes queued: 2279812
+ edges queued: 341771967
+ nodes redundance: inf
+ edges redundance: inf
+ load time: 51865.7 ms
+ preprocess time: 245.705000 ms
+ postprocess time: 27.246952 ms
+ total time: 895.036936 ms

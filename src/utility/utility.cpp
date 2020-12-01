@@ -183,6 +183,11 @@ void utility::printallparameters(){
 	#else 
 	std::cout<<"host::ACTSFAST NOT DEFINED"<<std::endl;	
 	#endif 
+	#ifdef MAXPERFORMANCE
+	std::cout<<"host::MAXPERFORMANCE DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host::MAXPERFORMANCE NOT DEFINED"<<std::endl;	
+	#endif 
 	#ifdef ACTSFAST
 	std::cout<<"host::EMBEDDEDCOLLECTSTATS DEFINED"<<std::endl;
 	#else 
