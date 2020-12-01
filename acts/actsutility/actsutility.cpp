@@ -366,11 +366,15 @@ unsigned int actsutility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int
 		if(keyvalues[i].key != INVALIDDATA){
 			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
 				if(numerrorkeys < 8){ 
+					#ifdef ENABLE_PERFECTACCURACY
 					cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE. index: "<<i-begin<<", keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
 					// exit(EXIT_FAILURE);
+					#endif 
 				}
+				#ifdef ENABLE_PERFECTACCURACY
 				// cout<<"actsutility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; 
-				exit(EXIT_FAILURE); // REMOVEME.
+				exit(EXIT_FAILURE);
+				#endif 
 				
 				numerrorkeys += 1;
 			}
