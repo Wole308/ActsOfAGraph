@@ -726,14 +726,14 @@ void
 	#ifdef SW 
 	actslw::
 	#endif
-collectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], step_type currentLOP, batch_type source_partition){					
+fastcollectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], step_type currentLOP, batch_type source_partition){					
 	if(enable == OFF){ return; }
 	
 	if(currentLOP == 1){ // FIXME. OPTIMIZEME. make simpler
 		batch_type per = (1 << (NUM_PARTITIONS_POW * 2)) / NUM_PARTITIONS; // NEWCHANGE.
 		for(partition_type p=0; p<NUM_PARTITIONS; p++){
 			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("collectglobalstats 1", NUM_PARTITIONS + (p*per) + (per-1), NUM_PARTITIONS + (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), p, per, NUM_PARTITIONS);
+			actsutilityobj->checkoutofbounds("fastcollectglobalstats 1", NUM_PARTITIONS + (p*per) + (per-1), NUM_PARTITIONS + (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), p, per, NUM_PARTITIONS);
 			#endif
 			for(batch_type j=0; j<per; j++){ globalstatsbuffer[p].value += globalstatsbuffer[NUM_PARTITIONS + (p*per) + j].value; }
 		}
@@ -741,7 +741,7 @@ collectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUF
 		batch_type per = 1;
 		for(partition_type p=0; p<NUM_PARTITIONS; p++){
 			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("collectglobalstats 2", NUM_PARTITIONS + (source_partition*NUM_PARTITIONS) + (p*per) + (per-1), NUM_PARTITIONS + (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), p, per, NUM_PARTITIONS);
+			actsutilityobj->checkoutofbounds("fastcollectglobalstats 2", NUM_PARTITIONS + (source_partition*NUM_PARTITIONS) + (p*per) + (per-1), NUM_PARTITIONS + (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), p, per, NUM_PARTITIONS);
 			#endif
 			for(batch_type j=0; j<per; j++){ globalstatsbuffer[p].value += globalstatsbuffer[NUM_PARTITIONS + (source_partition*NUM_PARTITIONS) + (p*per) + j].value; }
 		}
@@ -752,7 +752,7 @@ collectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUF
 		#endif 
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("collectglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
+	actsutilityobj->printkeyvalues("fastcollectglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
 	#endif
 	return;
 }
@@ -2546,7 +2546,7 @@ collectstats(
 	
 	// retrieve stats
 	resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); // REMOVEME. redundant?
-	collectglobalstats(enable_retreivestats, globalstatsbuffer, sweepparams.currentLOP, sweepparams.source_partition);
+	fastcollectglobalstats(enable_retreivestats, globalstatsbuffer, sweepparams.currentLOP, sweepparams.source_partition);
 	
 	// generate stats 
 	MAIN_LOOP1C_COLLECTGLOBALSTATS: for(batch_type offset_kvs=ctravstate.begin_kvs; offset_kvs<ctravstate.end_kvs; offset_kvs+=ctravstate.skip_kvs){
