@@ -82,14 +82,14 @@ runsummary_t pagerank::run(){
 		cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<GraphIter<<" of pagerank started"<< RESET <<endl;
 		
 		#ifdef GRAFBOOST_SETUP
-		setupkernelobj[0]->startSRteration(); // NEWCHANGE.
+		setupkernelobj[0]->startSRteration();
 		#endif
 		
-		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){ //2
+		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){ //2 graphobj->getnumedgebanks()
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-			break; // REMOVEME.
+			// break; // REMOVEME.
 		}
 		
 		activevertices.clear();
@@ -114,6 +114,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 	vertex_t srcvoffset = 0;
 	unsigned int iteration_size = utilityobj[superthreadidx]->hceildiv(graphobj->getedgessize(col), EDGES_BATCHSIZE);
 	cout<<">>> WorkerThread:: total number of edges in file["<<col<<"]: "<<graphobj->getedgessize(col)<<endl;
+	if(graphobj->getedgessize(col) == 0){ cout<<">>> WorkerThread:: no edges. skipping..."<<endl; return; }
 	
 	loadgraphobj[superthreadidx]->loadvertexdata(vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef FPGA_IMPL
@@ -140,7 +141,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, edges, 0);
 		#endif 
 	
-		break; // REMOVEME.
+		// break; // REMOVEME.
 		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
 	

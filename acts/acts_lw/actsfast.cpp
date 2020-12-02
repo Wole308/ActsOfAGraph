@@ -244,10 +244,12 @@ partition_type
 	actslw::
 	#endif 
 getglobalpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
-	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * TREE_DEPTH)));
+	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * 2))); // NEWCHANGE.
+	// partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * TREE_DEPTH)));
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), keyvalue.key, upperlimit, currentLOP);
+	// actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), keyvalue.key, upperlimit, currentLOP);
+	actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, 256, keyvalue.key, upperlimit, currentLOP);
 	#endif
 	return partition;
 }
@@ -648,7 +650,6 @@ batch_type
 	actslw::
 	#endif 
 get_num_source_partitions(step_type currentLOP){
-	// #pragma HLS INLINE
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -849,7 +850,12 @@ collectglobalstats(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDED
 
 	COLLECTGLOBALSTATS_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2 // FIXME. NUMFORMAXPERFORMANCE. 3
+	#ifdef MAXPERFORMANCE
+	#pragma HLS PIPELINE II=2
+	#else 
+	#pragma HLS PIPELINE II=2 // 3	
+	#endif 
+	
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_t keyvalue1 = sourcebuffer[1][i];
 		keyvalue_t keyvalue2 = sourcebuffer[2][i];
@@ -920,7 +926,7 @@ collectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUF
 	if(enable == OFF){ return; }
 	
 	if(currentLOP == 1){ // FIXME. OPTIMIZEME. make simpler
-		batch_type per = (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)) / NUM_PARTITIONS;
+		batch_type per = (1 << (NUM_PARTITIONS_POW * 2)) / NUM_PARTITIONS; // NEWCHANGE.
 		for(partition_type p=0; p<NUM_PARTITIONS; p++){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("collectglobalstats 1", NUM_PARTITIONS + (p*per) + (per-1), NUM_PARTITIONS + (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), p, per, NUM_PARTITIONS);
@@ -937,7 +943,7 @@ collectglobalstats(bool_type enable, keyvalue_t globalstatsbuffer[GLOBALSTATSBUF
 		}
 	} else {
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"ERROR. NO SUPPORT FOR CLOP > 1. EXITING..."<<endl;
+		cout<<"ERROR. NO SUPPORT FOR CLOP > 2. EXITING..."<<endl;
 		exit(EXIT_FAILURE);
 		#endif 
 	}
@@ -954,20 +960,14 @@ void
 prepareglobalstats(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS2 // REMOVEME
-	// actsutilityobj->printkeyvalues(")))))))))))))))))))))))))))))))) prepareglobalstats.buffer[0]", buffer[0], NUM_PARTITIONS); 
-	actsutilityobj->printkeyvalues(")))))))))))))))))))))))))))))))) prepareglobalstats.buffer[0]", (keyvalue_t *)&buffer[0], PADDEDDESTBUFFER_SIZE*VECTOR_SIZE); 
-	#endif
-	
 	PREPAREGLOBALSTATS_LOOP1: for(vector_type v=0; v<VECTOR_SIZE; v++){
 		PREPAREGLOBALSTATS_LOOP1B: for(buffer_type i=0; i<NUM_PARTITIONS; i++){
 			globalstatsbuffer[i].value += buffer[v][i].value;
 		}
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->printkeyvalues(")))))))))))))))))))))))))))))))) prepareglobalstats", globalstatsbuffer, NUM_PARTITIONS); 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("prepareglobalstats", globalstatsbuffer, NUM_PARTITIONS); 
 	#endif
-	exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -1917,9 +1917,9 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	REDUCE_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz
 	#ifdef MAXPERFORMANCE
-	#pragma HLS PIPELINE II=3
+	#pragma HLS PIPELINE II=2
 	#else 
-	#pragma HLS PIPELINE II=2	
+	#pragma HLS PIPELINE II=3	
 	#endif 
 		keyvalue_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_t keyvalue1 = sourcebuffer[1][i];
@@ -3914,7 +3914,7 @@ collectstats(
 	#pragma HLS INLINE
 	analysis_type analysis_collectstatsloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
 
-	#ifdef EMBEDDEDCOLLECTSTATS
+	/** #ifdef EMBEDDEDCOLLECTSTATS
 	resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); // REMOVEME. redundant?
 	collectglobalstats(config.enablecollectglobalstats, globalstatsbuffer, sweepparams.currentLOP, sweepparams.source_partition);
 	#else 
@@ -3931,7 +3931,38 @@ collectstats(
 		collectglobalstats(ON, sourcebuffer, buffer_setof1, sweepparams.currentLOP, sweepparams.upperlimit, ctravstate, globalparams);
 	}
 	prepareglobalstats(config.enablecollectglobalstats, buffer_setof1, globalstatsbuffer, globalparams);
-	#endif
+	#endif */
+	
+	unsigned int enable_retreivestats = OFF;
+	unsigned int enable_generatestats = ON;
+	#ifdef EMBEDDEDCOLLECTSTATS
+	if(config.enablecollectglobalstats == ON){
+		if(sweepparams.currentLOP >= 3){ enable_retreivestats = OFF; enable_generatestats = ON; }
+		else { enable_retreivestats = ON; enable_generatestats = OFF; ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; }
+	} else { enable_retreivestats = OFF; enable_generatestats = OFF; }
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(config.enablecollectglobalstats == ON){ if(enable_retreivestats == ON){ cout<<"collectstats:: retrieving stats..."<<endl; } else { cout<<"collectstats:: generating stats..."<<endl; }}
+	#endif 
+	
+	// retrieve stats
+	resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); // REMOVEME. redundant?
+	collectglobalstats(enable_retreivestats, globalstatsbuffer, sweepparams.currentLOP, sweepparams.source_partition);
+	
+	// generate stats 
+	MAIN_LOOP1C_COLLECTGLOBALSTATS: for(batch_type offset_kvs=ctravstate.begin_kvs; offset_kvs<ctravstate.end_kvs; offset_kvs+=ctravstate.skip_kvs){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_collectstatsloop avg=analysis_collectstatsloop
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		actsutilityobj->print4("### dispatch::collectglobalstats:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, ctravstate.begin_kvs, ctravstate.end_kvs, SRCBUFFER_SIZE);
+		#endif
+		
+		ctravstate.i_kvs = offset_kvs;
+		
+		readkeyvalues(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), SRCBUFFER_SIZE, ctravstate);
+		
+		collectglobalstats(ON, sourcebuffer, buffer_setof1, sweepparams.currentLOP, sweepparams.upperlimit, ctravstate, globalparams);
+	}
+	prepareglobalstats(enable_generatestats, buffer_setof1, globalstatsbuffer, globalparams);
 	return;
 }
 
@@ -4065,12 +4096,7 @@ fastpartitionupdates(
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
 	
-	/** resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(templocalcapsule_so1, NUM_PARTITIONS, 0); */
-	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); // FIXME. CHECKWITHVHLS.
+	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit);
 	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
 	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
 	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
@@ -4093,7 +4119,7 @@ fastpartitionupdates(
 	
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + paddsize_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-		#if defined(_DEBUGMODE_KERNELPRINTS)
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		#ifdef FPP1
 		actsutilityobj->print6("### dispatch::partition:: itercount", "offset1_kvs", "offset2_kvs", "begin_kvs", "end_kvs", "skip", itercount, pp0readoffset_kvs, pp1readoffset_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE);
 		#else 
@@ -4302,7 +4328,6 @@ dispatch(uint512_dt * kvdram){
 			prepareglobalstats2(config.enableprocessedges, buffer_setof1, globalstatsbuffer, NUM_PARTITIONS, globalparams);
 			#endif
 			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)
-			// actsutilityobj->printkeyvalues("globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS*NUM_PARTITIONS+NUM_PARTITIONS+10); 
 			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); } //
 			#endif
 			#endif
@@ -4311,6 +4336,7 @@ dispatch(uint512_dt * kvdram){
 			#ifdef COLLECTSTATS
 			if(currentLOP >= 1 && currentLOP <= globalparams.treedepth){ config.enableprocessedges = OFF; config.enablecollectglobalstats = ON; config.enablepartition = OFF; config.enablereduce = OFF; } 
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
+			if((ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } // NEWCHANGE.
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
 			#endif
@@ -4337,15 +4363,16 @@ dispatch(uint512_dt * kvdram){
 			#endif
 			calculateoffsets(globalstatsbuffer, NUM_PARTITIONS, destoffset, skipsizes);
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
-			saveglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
+			if(currentLOP >= 1 && currentLOP <= globalparams.treedepth){ saveglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
 			#endif
 			
 			// partition
 			#ifdef PARTITIONUPDATES
 			if((currentLOP >= 1) && (currentLOP <= globalparams.treedepth) && (ptravstate.size_kvs > 0)){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
+			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; } 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
-			if((currentLOP >= 1) && (currentLOP <= globalparams.treedepth)){ actsutilityobj->print7("### dispatch::partition:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
+			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparams.treedepth)){ actsutilityobj->print7("### dispatch::partition:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 			#endif
 			readglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
@@ -4370,7 +4397,7 @@ dispatch(uint512_dt * kvdram){
 				globalparams,
 				sweepparams,
 				ptravstate);
-			saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
+			if((currentLOP >= 1) && (currentLOP <= globalparams.treedepth)){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); } // NEWCHANGE.
 			// #if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY) // REMOVEME 'ACTSFAST'
 			#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY) && not defined(ACTSFAST) // REMOVEME 'ACTSFAST'
 			if(config.enablereduce == OFF){ actsutilityobj->checkforgreaterthan("dispatch. comparing BIGKV & globalstatsbuffer", BIGKV, globalstatsbuffer, NUM_PARTITIONS); }
@@ -4381,6 +4408,7 @@ dispatch(uint512_dt * kvdram){
 			#ifdef REDUCEUPDATES
 			if(currentLOP == (globalparams.treedepth + 1)){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = ON; } 
 			else { rtravstate.begin_kvs = 0; rtravstate.end_kvs = 0; config.enablereduce = OFF; }
+			if((rtravstate.end_kvs - rtravstate.begin_kvs) == 0){ rtravstate.begin_kvs = 0; rtravstate.end_kvs = 0; config.enablereduce = OFF; } 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if(config.enablereduce == ON){ actsutilityobj->print7("### dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, rtravstate.begin_kvs * VECTOR_SIZE, rtravstate.end_kvs * VECTOR_SIZE, (rtravstate.end_kvs - rtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }							
 			#endif

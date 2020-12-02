@@ -192,11 +192,8 @@ void utility::printallparameters(){
 	std::cout<<"host::EMBEDDEDCOLLECTSTATS DEFINED"<<std::endl;
 	#else 
 	std::cout<<"host::EMBEDDEDCOLLECTSTATS NOT DEFINED"<<std::endl;	
-	#endif 
+	#endif
 	
-	// #ifdef PROCEDGESINCPU
-	// std::cout<<"host:: PROCEDGESINCPU enabled "<<std::endl;
-	// #endif
 	// exit(EXIT_SUCCESS);
 	return;
 }
@@ -553,6 +550,19 @@ void utility::paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned 
 	for(unsigned v=size; v<(size + num); v++){ keyvalues[v].key = padddata; keyvalues[v].value = padddata; }
 	return;
 }
+/* void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
+		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
+			for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){
+					kvbuffer[i][j][k].data[v].key = 0;
+					kvbuffer[i][j][k].data[v].value = 0;
+				}
+			}
+		}
+	}
+	return;
+} */
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {
