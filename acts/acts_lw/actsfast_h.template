@@ -93,6 +93,10 @@ public:
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
 	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
+	bool inprocessedgesstage(unsigned int currentLOP);
+	bool incollectstatsstage(unsigned int currentLOP, globalparams_t globalparams);
+	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);
+	bool inreducestage(unsigned int currentLOP, globalparams_t globalparams);
 	
 	// collect globalstats functions
 	void readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset_kvs);
@@ -183,6 +187,25 @@ public:
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
+		
+	void processedges(
+		uint512_dt * kvdram,
+		keyvalue_t vertices1buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t vertices2buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
+		skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS],
+		keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE],
+		skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS],
+		keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE],
+		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
+		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
+		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
+		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], 
+		config_t config,
+		globalparams_t globalparams,
+		sweepparams_t sweepparams,
+		travstate_t avtravstate);
 	
 	// collectstats phase
 	void collectstats(
@@ -235,7 +258,9 @@ public:
 		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
-		travstate_t ptravstate);
+		travstate_t ptravstate,
+		batch_type sourcebaseaddr_kvs,
+		batch_type destbaseaddr_kvs);
 		
 	void reduceupdates(
 		uint512_dt * kvdram,

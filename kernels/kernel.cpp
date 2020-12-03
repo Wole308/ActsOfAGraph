@@ -50,6 +50,7 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPU
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
 	#endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

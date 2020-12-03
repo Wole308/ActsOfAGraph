@@ -427,12 +427,21 @@ void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, uns
 	cout<<"actsutility::checkptr(A):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<endl;
 	#endif 
 	for(unsigned int i=beginvptr; i<endvptr; i++){
-		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid)){
+		#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
+		if((edges[i].value >= beginsrcvid) && (edges[i].value < endsrcvid))
+		#else 
+		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid))
+		#endif 
+		{
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
 			#endif 
 		} else {
+			#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
+			cout<<"actsutility::checkptr:: ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].value<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
+			#else 
 			cout<<"actsutility::checkptr:: ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
+			#endif 
 			exit(EXIT_FAILURE);
 		}
 	}
