@@ -280,6 +280,47 @@ void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffe
 	}
 	return;
 }
+void loadgraph::loadkvstats(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
+	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+		for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){
+			kvbuffer[j][BASEOFFSET_STATSDRAM + k].key = 0;
+			kvbuffer[j][BASEOFFSET_STATSDRAM + k].value = 0;
+		}
+	}
+	
+	for(unsigned int j = 0; j < 1; j++){ // NUMSUBCPUTHREADS
+		cout<<"loadgraph::loadkvstats:: runsize: "<<container->runsize[0][j]<<endl;
+		for(unsigned int k=0; k<container->runsize[0][j]; k++){
+			keyvalue_t edge = kvbuffer[j][BASEOFFSET_EDGESDATA + k];
+			
+			keyvalue_t keyvalue;
+			keyvalue.key = edge.value;
+			keyvalue.value = 0;
+	
+			for(unsigned int CLOP=1; CLOP<=TREE_DEPTH; CLOP++){
+				
+				unsigned int offset = 0;
+				for(unsigned int k=0; k<CLOP; k++){ offset += (unsigned int)pow(NUM_PARTITIONS, k); } 
+				
+				unsigned int partitionCLOP = utilityobj->getglobalpartition(keyvalue, j*KVDATA_RANGE_PERSSDPARTITION, BATCH_RANGE_POW, CLOP);
+				#ifdef _DEBUGMODE_CHECKS2
+				utilityobj->checkoutofbounds("loadgraph::loadkvstats.partitionCLOP", partitionCLOP, pow(NUM_PARTITIONS, TREE_DEPTH), keyvalue.key, NAp, NAp);
+				utilityobj->checkoutofbounds("loadgraph::loadkvstats.partitionCLOP", offset + partitionCLOP, KVSTATSDRAMSZ, keyvalue.key, NAp, NAp);
+				#endif
+				kvbuffer[j][BASEOFFSET_STATSDRAM + ((offset + partitionCLOP) * VECTOR_SIZE)].value += 1;
+			}
+		}
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_EDGESDATA], 16);
+	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_EDGESDATA+container->runsize[0][0]-32], 16);
+	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
+	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_STATSDRAM], (1+16+256+4096) * VECTOR_SIZE, VECTOR_SIZE);
+	#endif 
+	// exit(EXIT_SUCCESS);
+	return;
+}
 void loadgraph::loadmessages(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, unsigned int GraphAlgo){	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printcontainer(container); 
@@ -374,9 +415,9 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 5;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 4;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#else 
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;

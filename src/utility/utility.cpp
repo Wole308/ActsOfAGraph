@@ -550,7 +550,7 @@ void utility::paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned 
 	for(unsigned v=size; v<(size + num); v++){ keyvalues[v].key = padddata; keyvalues[v].value = padddata; }
 	return;
 }
-/* void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
 	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
 		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
 			for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){
@@ -562,7 +562,15 @@ void utility::paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned 
 		}
 	}
 	return;
-} */
+}
+unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
+	partition_type partition = (keyvalue.key - upperlimit) / (BATCH_RANGE / pow(NUM_PARTITIONS, treedepth));
+
+	#ifdef _DEBUGMODE_CHECKS2
+	checkoutofbounds("loadgraph::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
+	#endif
+	return partition;
+}
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {

@@ -44,7 +44,8 @@
 #endif 
 
 #ifdef INMEMORYGP
-#define EMBEDDEDCOLLECTSTATS
+#define COLLECTSTATSOFFLINE
+// #define EMBEDDEDCOLLECTSTATS // depreciated
 #endif
 
 ////////////////
