@@ -4272,8 +4272,6 @@ dispatch(uint512_dt * kvdram){
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions	
 		
-			// cout<<"dispatch:: &&&&&&&&&&&&&^^^^^^^^^^^^^^^%%%%%%%%%%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ deststatsmarker: "<<deststatsmarker<<endl;
-		
 			#ifdef EMBEDDEDCOLLECTSTATS
 			resetmanykeyandvalues(buffer_setof1, GLOBALSTATSBUFFERSZ, 0);
 			#else 
@@ -4330,9 +4328,7 @@ dispatch(uint512_dt * kvdram){
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
 			if(currentLOP >= 1 && currentLOP <= globalparams.treedepth && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } // NEWCHANGE.
 			#ifdef _DEBUGMODE_KERNELPRINTS3
-			#ifdef COLLECTSTATSOFFLINE
-			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::[retr preprocessed stats]:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
-			#else 
+			#ifndef COLLECTSTATSOFFLINE
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
 			#endif
 			#endif
@@ -4447,9 +4443,6 @@ dispatch(uint512_dt * kvdram){
 			actsutilityobj->printglobalvars();
 			actsutilityobj->clearglobalvars();
 			#endif
-			
-			// if(currentLOP==2 && source_partition==1){ cout<<"dispatch:: exiting..."<<endl; break; }
-			
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		actsutilityobj->printglobalvars();

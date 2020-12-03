@@ -188,7 +188,17 @@ void utility::printallparameters(){
 	#else 
 	std::cout<<"host::MAXPERFORMANCE NOT DEFINED"<<std::endl;	
 	#endif 
-	#ifdef ACTSFAST
+	#ifdef MERGEEDGESANDKVDRAMWORKSPACE
+	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE NOT DEFINED"<<std::endl;	
+	#endif 
+	#ifdef COLLECTSTATSOFFLINE
+	std::cout<<"host::COLLECTSTATSOFFLINE DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host::COLLECTSTATSOFFLINE NOT DEFINED"<<std::endl;	
+	#endif
+	#ifdef EMBEDDEDCOLLECTSTATS
 	std::cout<<"host::EMBEDDEDCOLLECTSTATS DEFINED"<<std::endl;
 	#else 
 	std::cout<<"host::EMBEDDEDCOLLECTSTATS NOT DEFINED"<<std::endl;	
@@ -564,8 +574,9 @@ void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUT
 	return;
 }
 unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
-	partition_type partition = (keyvalue.key - upperlimit) / (BATCH_RANGE / pow(NUM_PARTITIONS, treedepth));
-
+	// partition_type partition = (keyvalue.key - upperlimit) / (BATCH_RANGE / pow(NUM_PARTITIONS, treedepth));
+	partition_type partition = ((keyvalue.key - upperlimit) >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * treedepth)));
+	
 	#ifdef _DEBUGMODE_CHECKS2
 	checkoutofbounds("loadgraph::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
 	#endif

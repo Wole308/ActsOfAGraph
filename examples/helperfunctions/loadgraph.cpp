@@ -281,6 +281,8 @@ void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffe
 	return;
 }
 void loadgraph::loadkvstats(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
+	cout<<"loadgraph::loadkvstats"<<endl;
+	// exit(EXIT_SUCCESS);
 	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 		for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){
 			kvbuffer[j][BASEOFFSET_STATSDRAM + k].key = 0;
@@ -312,7 +314,7 @@ void loadgraph::loadkvstats(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t
 		}
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_EDGESDATA], 16);
 	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_EDGESDATA+container->runsize[0][0]-32], 16);
 	utilityobj->printkeyvalues("loadkvstats: printing kvbuffer[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
@@ -415,9 +417,9 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 4;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#else 
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;

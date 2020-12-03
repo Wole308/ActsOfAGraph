@@ -40,7 +40,7 @@ using namespace std;
 #define PP2
 #endif
 
-#define NUMACTSFASTPIPELINES 1 // CRITICAL FIXME.
+#define NUMACTSFASTPIPELINES 2 // CRITICAL FIXME.
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
