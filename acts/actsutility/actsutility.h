@@ -8,6 +8,8 @@
 #include "../../include/common.h"
 using namespace std;
 
+#define MYSTATSYSIZE 4//8//16//64
+
 class actsutility {
 public:
 
@@ -125,10 +127,11 @@ public:
 							unsigned int partitioncountso8[NUM_PARTITIONS],
 							unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 												
-	void collectstats(keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int chunksize_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int statsno);
-	void collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int statsno);
-	void collectstats(keyvalue_t localcapsule[NUM_PARTITIONS], unsigned int statsno);
-	unsigned int * getstats(unsigned int statsno);
+	void collectstats(keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int chunksize_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
+	void collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
+	void collectstats(keyvalue_t localcapsule[NUM_PARTITIONS], unsigned int x, unsigned int y);
+	unsigned int * getstats(unsigned int x, unsigned int y);
+	void clearallstats();
 
 private:
 	#ifdef SW 
@@ -162,8 +165,7 @@ private:
 	sweepparams_t sweepparams;
 	travstate_t travstate;
 	
-	unsigned int mystats[16][NUM_PARTITIONS];
-	// unsigned int samplebuffer[16][NUM_PARTITIONS];
+	unsigned int mystats[8][64][NUM_PARTITIONS];
 };
 #endif
 
