@@ -3599,7 +3599,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			/// LOADING FROM AND INTO B
 			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
 			#ifdef _DEBUGMODE_CHECKS2
-			// actsutilityobj->checkfordivisibleby("posB0", posB0, 2);
+			actsutilityobj->checkfordivisibleby("posB0", posB0, 2);
 			actsutilityobj->checkoutofbounds("posB0", posB0, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("posB0", posB0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -3608,10 +3608,21 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferB[0][posB0] = kvA0[0]; bufferB[1][posB0] = kvA0[1]; 
 			bufferB[0][posB0+1] = kvA0[2]; bufferB[1][posB0+1] = kvA0[3];
 			bufferBcapsule[0][pA0].value += 2;
-
+			
+			/* ////////////////////////////////
+			if(kvA0[0].value == INVALIDDATA && kvA0[1].value == INVALIDDATA && kvA0[2].value == INVALIDDATA && kvA0[3].value == INVALIDDATA){ 
+				cout<<"all invalids. exiting..."<<endl; 
+				bufferBcapsule[0][pA0].value += 2;
+				// exit(EXIT_FAILURE); 
+			} else {
+				bufferBcapsule[0][pA0].value += 2;
+			}
+			//////////////////////////////// */
+			
+			
 			buffer_type posB2 = bufferBcapsule[1][pA2].key + bufferBcapsule[1][pA2].value; 
 			#ifdef _DEBUGMODE_CHECKS2
-			// actsutilityobj->checkfordivisibleby("posB2", posB2, 2);
+			actsutilityobj->checkfordivisibleby("posB2", posB2, 2);
 			actsutilityobj->checkoutofbounds("posB2", posB2, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("posB2", posB2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -3623,7 +3634,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			
 			buffer_type posB4 = bufferBcapsule[2][pA4].key + bufferBcapsule[2][pA4].value; 
 			#ifdef _DEBUGMODE_CHECKS2
-			// actsutilityobj->checkfordivisibleby("posB4", posB4, 2);
+			actsutilityobj->checkfordivisibleby("posB4", posB4, 2);
 			actsutilityobj->checkoutofbounds("posB4", posB4, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("posB4", posB4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -3635,7 +3646,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			
 			buffer_type posB6 = bufferBcapsule[3][pA6].key + bufferBcapsule[3][pA6].value; 
 			#ifdef _DEBUGMODE_CHECKS2
-			// actsutilityobj->checkfordivisibleby("posB6", posB6, 2);
+			actsutilityobj->checkfordivisibleby("posB6", posB6, 2);
 			actsutilityobj->checkoutofbounds("posB6", posB6, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("posB6", posB6, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -3644,13 +3655,11 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferB[6][posB6] = kvA6[0]; bufferB[7][posB6] = kvA6[1];
 			bufferB[6][posB6+1] = kvA6[2]; bufferB[7][posB6+1] = kvA6[3];
 			bufferBcapsule[3][pA6].value += 2;
-			// exit(EXIT_SUCCESS);
 			
 			partition_type pB0 = getpartition(kvB0[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pB2 = getpartition(kvB2[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pB4 = getpartition(kvB4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pB6 = getpartition(kvB6[0], currentLOP, upperlimit, globalparams.batch_range_pow);
-			// exit(EXIT_SUCCESS);
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			CHK[0] = kvB0[0]; CHK[1] = kvB1[0]; CHK[2] = kvB0[1]; CHK[3] = kvB1[1];
@@ -3661,9 +3670,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkn("kvB4,kvB5", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			CHK[0] = kvB6[0]; CHK[1] = kvB7[0]; CHK[2] = kvB6[1]; CHK[3] = kvB7[1];
 			actsutilityobj->checkn("kvB6,kvB7", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
-			#endif 
-			// continue;
-			// exit(EXIT_SUCCESS);
+			#endif
 			
 			/// LOADING FROM AND INTO C
 			buffer_type posC0 = bufferCcapsule[0][pB0].key + bufferCcapsule[0][pB0].value;
@@ -3730,7 +3737,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkoutofbounds("posD0", posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("yoffset0", yoffset0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("xoffset0+4", xoffset0+4, VECTOR_SIZE+1, NAp, NAp, NAp);
-			// if((kvC0[0].value == INVALIDDATA) && (kvC1[0].value == INVALIDDATA) && (kvC2[0].value == INVALIDDATA) && (kvC3[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. kvC0"<<endl; exit(EXIT_FAILURE); } // FIXME.
+			// if((kvC0[0].value == INVALIDDATA) && (kvC1[0].value == INVALIDDATA) && (kvC2[0].value == INVALIDDATA) && (kvC3[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. kvC0"<<endl; }//exit(EXIT_FAILURE); } // FIXME.
 			#endif 
 			if(xoffset0 == 0){
 				bufferD[0][yoffset0] = kvC0[0]; bufferD[1][yoffset0] = kvC1[0]; bufferD[2][yoffset0] = kvC2[0]; bufferD[3][yoffset0] = kvC3[0]; 
@@ -3738,6 +3745,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 				bufferD[4][yoffset0] = kvC0[0]; bufferD[5][yoffset0] = kvC1[0]; bufferD[6][yoffset0] = kvC2[0]; bufferD[7][yoffset0] = kvC3[0]; 
 			}
 			bufferDcapsule[pC0].value += 4; 
+			// if(kvC0[0].value != INVALIDDATA){ bufferDcapsule[pC0].value += 4; } // CHECKWITHVHLS.
 			
 			buffer_type _posD0 = bufferDcapsule[_pC0].key + bufferDcapsule[_pC0].value;
 			unsigned int yoffset1 = _posD0 / 8;
@@ -3747,14 +3755,15 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkoutofbounds("_posD0", _posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("yoffset1", yoffset1, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("xoffset1+4", xoffset1+4, VECTOR_SIZE+1, NAp, NAp, NAp);
-			// if((_kvC0[0].value == INVALIDDATA) && (_kvC1[0].value == INVALIDDATA) && (_kvC2[0].value == INVALIDDATA) && (_kvC3[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. _kvC0"<<endl; exit(EXIT_FAILURE); } // FIXME.
+			// if((_kvC0[0].value == INVALIDDATA) && (_kvC1[0].value == INVALIDDATA) && (_kvC2[0].value == INVALIDDATA) && (_kvC3[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. _kvC0"<<endl; }// exit(EXIT_FAILURE); } // FIXME.
 			#endif 
 			if(xoffset1 == 0){
 				bufferD[0][yoffset1] = _kvC0[0]; bufferD[1][yoffset1] = _kvC1[0]; bufferD[2][yoffset1] = _kvC2[0]; bufferD[3][yoffset1] = _kvC3[0]; 
 			} else {
 				bufferD[4][yoffset1] = _kvC0[0]; bufferD[5][yoffset1] = _kvC1[0]; bufferD[6][yoffset1] = _kvC2[0]; bufferD[7][yoffset1] = _kvC3[0]; 
 			}
-			bufferDcapsule[_pC0].value += 4; 
+			bufferDcapsule[_pC0].value += 4;
+			// if(_kvC0[0].value != INVALIDDATA){ bufferDcapsule[_pC0].value += 4; } // CHECKWITHVHLS.
 			
 			buffer_type __posD0 = bufferDcapsule[pC4].key + bufferDcapsule[pC4].value;
 			unsigned int yoffset2 = __posD0 / 8;
@@ -3764,7 +3773,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkoutofbounds("__posD0", __posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("yoffset2", yoffset2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("xoffset2+4", xoffset2+4, VECTOR_SIZE+1, NAp, NAp, NAp);
-			// if((kvC4[0].value == INVALIDDATA) && (kvC5[0].value == INVALIDDATA) && (kvC6[0].value == INVALIDDATA) && (kvC7[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. kvC4"<<endl; exit(EXIT_FAILURE); } // FIXME.
+			// if((kvC4[0].value == INVALIDDATA) && (kvC5[0].value == INVALIDDATA) && (kvC6[0].value == INVALIDDATA) && (kvC7[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. kvC4"<<endl; }// exit(EXIT_FAILURE); } // FIXME.
 			#endif 
 			if(xoffset2 == 0){
 				bufferD[0][yoffset2] = kvC4[0]; bufferD[1][yoffset2] = kvC5[0]; bufferD[2][yoffset2] = kvC6[0]; bufferD[3][yoffset2] = kvC7[0]; 
@@ -3772,6 +3781,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 				bufferD[4][yoffset2] = kvC4[0]; bufferD[5][yoffset2] = kvC5[0]; bufferD[6][yoffset2] = kvC6[0]; bufferD[7][yoffset2] = kvC7[0]; 
 			}
 			bufferDcapsule[pC4].value += 4; 
+			// if(kvC4[0].value != INVALIDDATA){ bufferDcapsule[pC4].value += 4; } // CHECKWITHVHLS.
 			
 			buffer_type ___posD0 = bufferDcapsule[_pC4].key + bufferDcapsule[_pC4].value;
 			unsigned int yoffset3 = ___posD0 / 8;
@@ -3781,7 +3791,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkoutofbounds("___posD0", ___posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("yoffset3", yoffset3, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds("xoffset3+4", xoffset3+4, VECTOR_SIZE+1, NAp, NAp, NAp);
-			// if((_kvC4[0].value == INVALIDDATA) && (_kvC5[0].value == INVALIDDATA) && (_kvC6[0].value == INVALIDDATA) && (_kvC7[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. _kvC4"<<endl; exit(EXIT_FAILURE); } // FIXME.
+			// if((_kvC4[0].value == INVALIDDATA) && (_kvC5[0].value == INVALIDDATA) && (_kvC6[0].value == INVALIDDATA) && (_kvC7[0].value == INVALIDDATA)){ cout<<"--- HEY! ALL INVALIDS AT D!. _kvC4"<<endl; }//exit(EXIT_FAILURE); } // FIXME.
 			#endif 
 			if(xoffset3 == 0){
 				bufferD[0][yoffset3] = _kvC4[0]; bufferD[1][yoffset3] = _kvC5[0]; bufferD[2][yoffset3] = _kvC6[0]; bufferD[3][yoffset3] = _kvC7[0]; 
@@ -3789,9 +3799,10 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 				bufferD[4][yoffset3] = _kvC4[0]; bufferD[5][yoffset3] = _kvC5[0]; bufferD[6][yoffset3] = _kvC6[0]; bufferD[7][yoffset3] = _kvC7[0]; 
 			}
 			bufferDcapsule[_pC4].value += 4;
+			// if((_kvC4[0].value != INVALIDDATA)){ bufferDcapsule[_pC4].value += 4; } // CHECKWITHVHLS.
 		}
 	}
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){ // NEWCHANGE. CHECKWITHVHLS
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){ // CHECKWITHVHLS
 		keyvalue_t dummykv;
 		dummykv.key = (p << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
 		dummykv.value = INVALIDDATA;
@@ -4111,8 +4122,11 @@ fastpartitionupdates(
 
 	batch_type paddsize_kvs = 2*ptravstate.skip_kvs;
 	if(config.enablepartition == OFF){ paddsize_kvs = 0; }
+	batch_type cutoffpaddsize_kvs = 2048*ptravstate.skip_kvs;
+	if(config.enablepartition == OFF){ cutoffpaddsize_kvs = 0; }
+	batch_type endit_kvs = ptravstate.end_kvs + cutoffpaddsize_kvs + paddsize_kvs;
 	
-	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + paddsize_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
+	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<endit_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		#ifdef FPP1
@@ -4174,21 +4188,22 @@ fastpartitionupdates(
 			actsutilityobj->clearallstats();
 			cout<<">>> fastpartitionupdates: checks for shifts in fastpartitionupdates successful. "<<endl;
 		}
-		if(itercount == 1*MYSTATSYSIZE-1){ cout<<"(((((((((((((((((((((((((((((( breaking test. itercount: "<<itercount<<endl; break; }
+		// if(itercount == 1*MYSTATSYSIZE-1){ cout<<"(((((((((((((((((((((((((((((( breaking test. itercount: "<<itercount<<endl; break; }
 		#endif
 		
 		itercount += 1;
-		if(pp0readoffset_kvs >= ptravstate.end_kvs + paddsize_kvs){
+		// if(pp0readoffset_kvs >= ptravstate.end_kvs + paddsize_kvs){
+		if(pp0readoffset_kvs >= ptravstate.end_kvs){ // FIXME.
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"finished partitioning. "<<itercount<<" iterations. breaking out..."<<endl;
 			#endif 
 			break; }
 	}
 	
-	if(config.enablepartition == ON){ 
+	/* if(config.enablepartition == ON){ 
 		actsutilityobj->printkeyvalues("fastpartitionupdates.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
 		exit(EXIT_SUCCESS); 
-		} // REMOVEME.
+		} // REMOVEME. */
 		
 	return;
 }
@@ -4581,8 +4596,6 @@ dispatch(uint512_dt * kvdram){
 			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); } //
 			#endif
 			#endif
-			// actsutilityobj->printkeyvalues("~~~~~~~~~~~ dispatch.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
-				// exit(EXIT_SUCCESS);
 			
 			// collect stats
 			#ifdef COLLECTSTATS
@@ -4614,6 +4627,10 @@ dispatch(uint512_dt * kvdram){
 					sweepparams,
 					ctravstate);
 			#endif
+			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)
+			keyvalue_t offlinestats[NUM_PARTITIONS];
+			if(config.enablecollectglobalstats == ON){ copykeyvalues(offlinestats, globalstatsbuffer, NUM_PARTITIONS); }
+			#endif 
 			for(partition_type p=0; p<NUM_PARTITIONS; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } //'128' is safety padd // FIXME. REMOVEME.
 			#ifdef _DEBUGMODE_CHECKS2
 			resetvalues(BIGKV, NUM_PARTITIONS, 0);
@@ -4661,10 +4678,17 @@ dispatch(uint512_dt * kvdram){
 				ptravstate,
 				sweepparams.worksourcebaseaddress_kvs,
 				sweepparams.workdestbaseaddress_kvs);
+			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)
+			if(config.enablepartition == ON){ 
+				actsutilityobj->printkeyvalues("dispatch. globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
+				actsutilityobj->printkeyvalues("dispatch. offlinestats created offline", offlinestats, NUM_PARTITIONS);
+				exit(EXIT_SUCCESS); }
+			#endif 
 			#ifndef COLLECTSTATSOFFLINE
 			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); } // NEWCHANGE.
 			#endif 
 			#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY) && not defined(ACTSFAST) // REMOVEME 'ACTSFAST'
+			// #if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
 			if(config.enablereduce == OFF){ actsutilityobj->checkforgreaterthan("dispatch. comparing BIGKV & globalstatsbuffer", BIGKV, globalstatsbuffer, NUM_PARTITIONS); }
 			#endif
 			#endif

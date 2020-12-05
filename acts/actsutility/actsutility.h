@@ -8,7 +8,7 @@
 #include "../../include/common.h"
 using namespace std;
 
-#define MYSTATSYSIZE 4//8//16//64
+#define MYSTATSYSIZE 64 // 4//8//16//64
 
 class actsutility {
 public:
@@ -67,6 +67,7 @@ public:
 	void checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges);
 	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
 	void resetvalues(keyvalue_t * keyvalues, unsigned int size);
+	void copykeyvalues(keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	
 	void globalstats_countkvstatsread(unsigned int count);
 	void globalvar_collectstats_counttotalkvsread(unsigned int count);
