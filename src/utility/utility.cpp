@@ -193,6 +193,11 @@ void utility::printallparameters(){
 	#else 
 	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE NOT DEFINED"<<std::endl;	
 	#endif 
+	#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
+	std::cout<<"host::MERGEPROCESSEDGESANDPARTITIONSTAGE DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host::MERGEPROCESSEDGESANDPARTITIONSTAGE NOT DEFINED"<<std::endl;	
+	#endif 
 	#ifdef COLLECTSTATSOFFLINE
 	std::cout<<"host::COLLECTSTATSOFFLINE DEFINED"<<std::endl;
 	#else 

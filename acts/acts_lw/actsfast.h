@@ -40,7 +40,7 @@ using namespace std;
 #define PP2
 #endif
 
-#define NUMACTSFASTPIPELINES 2 // CRITICAL FIXME.
+#define NUMACTSFASTPIPELINES 1 // CRITICAL FIXME.
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -291,7 +291,7 @@ public:
 private:
 	#ifndef FPGA_IMPL
 	actsutility * actsutilityobj;
-	#endif 
+	#endif
 };
 #endif 
 
