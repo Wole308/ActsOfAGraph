@@ -2341,8 +2341,8 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			} else {
 				bufferD[4][yoffset0] = kvC0[0]; bufferD[5][yoffset0] = kvC1[0]; bufferD[6][yoffset0] = kvC2[0]; bufferD[7][yoffset0] = kvC3[0]; 
 			}
-			bufferDcapsule[pC0].value += 4; 
-			// if(kvC0[0].value != INVALIDDATA){ bufferDcapsule[pC0].value += 4; } // CHECKWITHVHLS.
+			// bufferDcapsule[pC0].value += 4; 
+			if(kvC0[0].value != INVALIDDATA){ bufferDcapsule[pC0].value += 4; } // CHECKWITHVHLS.
 			
 			buffer_type _posD0 = bufferDcapsule[_pC0].key + bufferDcapsule[_pC0].value;
 			unsigned int yoffset1 = _posD0 / 8;
@@ -2359,8 +2359,8 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			} else {
 				bufferD[4][yoffset1] = _kvC0[0]; bufferD[5][yoffset1] = _kvC1[0]; bufferD[6][yoffset1] = _kvC2[0]; bufferD[7][yoffset1] = _kvC3[0]; 
 			}
-			bufferDcapsule[_pC0].value += 4;
-			// if(_kvC0[0].value != INVALIDDATA){ bufferDcapsule[_pC0].value += 4; } // CHECKWITHVHLS.
+			// bufferDcapsule[_pC0].value += 4;
+			if(_kvC0[0].value != INVALIDDATA){ bufferDcapsule[_pC0].value += 4; } // CHECKWITHVHLS.
 			
 			buffer_type __posD0 = bufferDcapsule[pC4].key + bufferDcapsule[pC4].value;
 			unsigned int yoffset2 = __posD0 / 8;
@@ -2377,8 +2377,8 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			} else {
 				bufferD[4][yoffset2] = kvC4[0]; bufferD[5][yoffset2] = kvC5[0]; bufferD[6][yoffset2] = kvC6[0]; bufferD[7][yoffset2] = kvC7[0]; 
 			}
-			bufferDcapsule[pC4].value += 4; 
-			// if(kvC4[0].value != INVALIDDATA){ bufferDcapsule[pC4].value += 4; } // CHECKWITHVHLS.
+			// bufferDcapsule[pC4].value += 4; 
+			if(kvC4[0].value != INVALIDDATA){ bufferDcapsule[pC4].value += 4; } // CHECKWITHVHLS.
 			
 			buffer_type ___posD0 = bufferDcapsule[_pC4].key + bufferDcapsule[_pC4].value;
 			unsigned int yoffset3 = ___posD0 / 8;
@@ -2395,8 +2395,8 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			} else {
 				bufferD[4][yoffset3] = _kvC4[0]; bufferD[5][yoffset3] = _kvC5[0]; bufferD[6][yoffset3] = _kvC6[0]; bufferD[7][yoffset3] = _kvC7[0]; 
 			}
-			bufferDcapsule[_pC4].value += 4;
-			// if((_kvC4[0].value != INVALIDDATA)){ bufferDcapsule[_pC4].value += 4; } // CHECKWITHVHLS.
+			// bufferDcapsule[_pC4].value += 4;
+			if((_kvC4[0].value != INVALIDDATA)){ bufferDcapsule[_pC4].value += 4; } // CHECKWITHVHLS.
 		}
 	}
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ // CHECKWITHVHLS
