@@ -130,10 +130,18 @@ public:
 												
 	void collectstats(keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int chunksize_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
 	void collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
+	void collectstats(keyvalue_t * keyvalues, keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
 	void collectstats(keyvalue_t localcapsule[NUM_PARTITIONS], unsigned int x, unsigned int y);
+	void collectstats(keyvalue_t * kvdram, unsigned int size, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
 	unsigned int * getstats(unsigned int x, unsigned int y);
 	void clearallstats();
-
+	void clearstats(unsigned int x);
+	keyvalue_t * getmykeyvalues(unsigned int x);
+	unsigned int getmincutoffseen();
+	unsigned int getmaxcutoffseen();
+	void updatemincutoffseen(unsigned int val);
+	unsigned int updatemaxcutoffseen(unsigned int val);
+	
 private:
 	#ifdef SW 
 	utility * utilityobj;
@@ -166,7 +174,10 @@ private:
 	sweepparams_t sweepparams;
 	travstate_t travstate;
 	
-	unsigned int mystats[8][64][NUM_PARTITIONS];
+	unsigned int mystats[8][MYSTATSYSIZE][NUM_PARTITIONS];
+	keyvalue_t mykeyvalues[8][NUM_PARTITIONS];
+	unsigned int mincutoffseen;
+	unsigned int maxcutoffseen;
 };
 #endif
 

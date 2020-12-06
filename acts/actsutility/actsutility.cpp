@@ -32,6 +32,9 @@ actsutility::actsutility(){
 	utilityobj = new utility();
 	#endif 
 	for(unsigned int i=0; i<8; i++){ for(unsigned int k=0; k<MYSTATSYSIZE; k++){ for(unsigned int p=0; p<NUM_PARTITIONS; p++){ mystats[i][k][p] = 0; }}}
+	for(unsigned int i=0; i<8; i++){ for(unsigned int p=0; p<NUM_PARTITIONS; p++){ mykeyvalues[i][p].key = 0; mykeyvalues[i][p].value = 0; }}
+	mincutoffseen = INFINITI;
+	maxcutoffseen = 0;
 }
 actsutility::~actsutility(){}
 
@@ -71,9 +74,12 @@ void actsutility::checkforoverlap(string message, keyvalue_t * keyvalues, unsign
 	unsigned int totalnumkeyvalues = 0;
 	for(unsigned int i=0; i<size-1; i++){
 		if(keyvalues[i].key + keyvalues[i].value >= keyvalues[i+1].key){ 
-			cout<<"aactsutility::checkforoverlap: ERROR. overlap found message: "<<message<<", i: "<<i<<", keyvalues[i].key: "<<keyvalues[i].key<<", keyvalues[i].value: "<<keyvalues[i].value<<", keyvalues[i+1].key: "<<keyvalues[i+1].key<<endl; exit(EXIT_FAILURE); 
+			cout<<"aactsutility::checkforoverlap: ERROR. overlap found message: "<<message<<", i: "<<i<<", keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<", keyvalues["<<i+1<<"].key: "<<keyvalues[i+1].key<<". printing keyvalues and exiting..."<<endl; 
+			printkeyvalues("actsutility::checkforoverlap", keyvalues, size);
+			exit(EXIT_FAILURE); 
 		}								
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
 void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
@@ -1083,8 +1089,9 @@ void actsutility::checkforshifting(string message,
 void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	for(unsigned int i=0; i<size_kvs; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			if(keyvalues[v][i].key == INVALIDDATA || keyvalues[v][i].value == INVALIDDATA){ continue; }
+			
 			unsigned int p = getpartition(keyvalues[v][i], currentLOP, upperlimit, batch_range_pow);
-			// cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", p: "<<p<<", BATCH_RANGE/NUM_PARTITIONS: "<<BATCH_RANGE/NUM_PARTITIONS<<endl;
 			mystats[x][y][p] += 1;
 		}
 	}
@@ -1095,19 +1102,34 @@ void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFE
 		unsigned int begin_kvs = localstats[p].key / VECTOR_SIZE;
 		unsigned int size_kvs = localstats[p].value / VECTOR_SIZE;
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"printprofile:: p: "<<p<<", begin_kvs: "<<begin_kvs<<", end_kvs: "<<begin_kvs + size_kvs<<", size_kvs: "<<size_kvs<<endl;
+		cout<<"actsutility::collectstats:: p: "<<p<<", begin_kvs: "<<begin_kvs<<", end_kvs: "<<begin_kvs + size_kvs<<", size_kvs: "<<size_kvs<<endl;
 		#endif 
-		if(begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE){ cout<<"actsutility::printprofile: ERROR. begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE. (localstats["<<p<<"].key: "<<localstats[p].key<<", localstats["<<p<<"].value: "<<localstats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		if(begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE){ cout<<"actsutility::collectstats: ERROR. begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE. (localstats["<<p<<"].key: "<<localstats[p].key<<", localstats["<<p<<"].value: "<<localstats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
 		
 		for(unsigned int i=begin_kvs; i<begin_kvs + size_kvs; i++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				// if(keyvalues[v][i].key == INVALIDDATA){ continue; }
-				if(keyvalues[v][i].key == INVALIDDATA || keyvalues[v][i].value == INVALIDDATA){ continue; } //??
-				// if(keyvalues[v][i].key == INVALIDDATA || keyvalues[v][i].value == INVALIDDATA){ cout<<"actsutility. collectstats"<<endl; exit(EXIT_FAILURE); }
+				if(keyvalues[v][i].key == INVALIDDATA || keyvalues[v][i].value == INVALIDDATA){ continue; } 
 				
 				unsigned int thisp = getpartition(keyvalues[v][i], currentLOP, upperlimit, batch_range_pow);
 				mystats[x][y][thisp] += 1;
 			}
+		}
+	}
+}
+void actsutility::collectstats(keyvalue_t * keyvalues, keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+		unsigned int begin = localstats[p].key;
+		unsigned int size = localstats[p].value;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"actsutility::collectstats:: p: "<<p<<", begin: "<<begin<<", end: "<<begin + size<<", size: "<<size<<endl;
+		#endif 
+		if(begin + size >= KVSOURCEDRAMSZ){ cout<<"actsutility::collectstats: ERROR. begin + size >= PADDEDDESTBUFFER_SIZE. (localstats["<<p<<"].key: "<<localstats[p].key<<", localstats["<<p<<"].value: "<<localstats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		
+		for(unsigned int i=begin; i<begin + size; i++){
+			if(keyvalues[i].key == INVALIDDATA || keyvalues[i].value == INVALIDDATA){ continue; }
+			
+			unsigned int thisp = getpartition(keyvalues[i], currentLOP, upperlimit, batch_range_pow);
+			mystats[x][y][thisp] += 1;
 		}
 	}
 }
@@ -1117,11 +1139,39 @@ void actsutility::collectstats(keyvalue_t localcapsule[NUM_PARTITIONS], unsigned
 	}
 	return;
 }
+void actsutility::collectstats(keyvalue_t * keyvalues, unsigned int size, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	cout<<"actsutility::collectstats"<<endl;
+	for(unsigned int i=0; i<NUM_PARTITIONS; i++){ mystats[x][y][i] = 0; }
+	
+	for(unsigned int i = 0; i <size; i++){
+		unsigned int p = getpartition(keyvalues[i], currentLOP, upperlimit, batch_range_pow);
+		mystats[x][y][p] += 1;
+	}
+	return;
+}
 unsigned int * actsutility::getstats(unsigned int x, unsigned int y){
 	return mystats[x][y];
 }
 void actsutility::clearallstats(){
 	for(unsigned int i=0; i<8; i++){ for(unsigned int k=0; k<MYSTATSYSIZE; k++){ for(unsigned int p=0; p<NUM_PARTITIONS; p++){ mystats[i][k][p] = 0; }}}
+}
+void actsutility::clearstats(unsigned int x){
+	for(unsigned int k=0; k<MYSTATSYSIZE; k++){ for(unsigned int p=0; p<NUM_PARTITIONS; p++){ mystats[x][k][p] = 0; }}
+}
+keyvalue_t * actsutility::getmykeyvalues(unsigned int x){
+	return mykeyvalues[x];
+}
+unsigned int actsutility::getmincutoffseen(){
+	return mincutoffseen;
+}
+unsigned int actsutility::getmaxcutoffseen(){
+	return maxcutoffseen;
+}
+void actsutility::updatemincutoffseen(unsigned int val){
+	if(mincutoffseen > val){ mincutoffseen = val; }
+}
+unsigned int actsutility::updatemaxcutoffseen(unsigned int val){
+	if(maxcutoffseen < val){ maxcutoffseen = val; }
 }
 
 
