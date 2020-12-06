@@ -117,17 +117,7 @@ public:
 	void checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	void compareprofiles(string message, keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	unsigned int countkeysbelongingtopartition(unsigned int p, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
-	void checkforshifting(string message, 
-							keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[8][NUM_PARTITIONS], 
-							keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS],
-							keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
-							keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
-							unsigned int partitioncountso1[NUM_PARTITIONS], 
-							unsigned int partitioncountso2[NUM_PARTITIONS],
-							unsigned int partitioncountso4[NUM_PARTITIONS],
-							unsigned int partitioncountso8[NUM_PARTITIONS],
-							unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
-												
+						
 	void collectstats(keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int chunksize_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
 	void collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
 	void collectstats(keyvalue_t * keyvalues, keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y);
@@ -141,6 +131,19 @@ public:
 	unsigned int getmaxcutoffseen();
 	void updatemincutoffseen(unsigned int val);
 	unsigned int updatemaxcutoffseen(unsigned int val);
+	
+	void intrarunpipelinecheck_shifting(string message, 
+							keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[8][NUM_PARTITIONS], 
+							keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS],
+							keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
+							keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
+							unsigned int partitioncountso1[NUM_PARTITIONS], 
+							unsigned int partitioncountso2[NUM_PARTITIONS],
+							unsigned int partitioncountso4[NUM_PARTITIONS],
+							unsigned int partitioncountso8[NUM_PARTITIONS],
+							unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
+	void intrapartitioncheck();
+	void postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 private:
 	#ifdef SW 

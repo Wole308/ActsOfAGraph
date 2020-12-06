@@ -24,8 +24,6 @@
 #include "actsfast.h"
 using namespace std;
 
-unsigned int maxcutoff;
-
 #ifdef SW
 actslw::actslw(){ actsutilityobj = new actsutility(); }
 actslw::~actslw(){}
@@ -1521,8 +1519,9 @@ fastpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PA
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("cutoff", cutoff, SRCBUFFER_SIZE, NAp, NAp, NAp);
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){ actsutilityobj->checkforequal("cutoff", ovsz[v], ovsz[0], v, ovsz[0], NAp); }
-	#endif 
-	if(maxcutoff < cutoff){ maxcutoff = cutoff; } // REMOVEME
+	actsutilityobj->updatemincutoffseen(cutoff);
+	actsutilityobj->updatemaxcutoffseen(cutoff);
+	#endif
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<"--------------- cutoff: "<<cutoff<<", ovsz[0]: "<<ovsz[0]<<", (cutoff+ovsz[0]): "<<cutoff+ovsz[0]<<", chunk_size: "<<chunk_size<<"  -----------------------------"<<endl;
 	#endif 
@@ -3515,7 +3514,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	partition_type before_pcountso2[NUM_PARTITIONS];
 	partition_type before_pcountso4[NUM_PARTITIONS];
 	partition_type before_pcountso8[NUM_PARTITIONS];
-	actsutilityobj->checkforshifting("checkforshifting[before]: bufferA,bufferB,bufferC,bufferD", 
+	actsutilityobj->intrarunpipelinecheck_shifting("intrarunpipelinecheck_shifting[before]: bufferA,bufferB,bufferC,bufferD", 
 						bufferA, buffer1capsule, bufferB, bufferBcapsule, bufferC, bufferCcapsule, bufferD, bufferDcapsule,
 						before_pcountso1, before_pcountso2, before_pcountso4, before_pcountso8,
 						currentLOP, upperlimit, globalparams.batch_range_pow);
@@ -3887,7 +3886,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	partition_type after_pcountso2[NUM_PARTITIONS];
 	partition_type after_pcountso4[NUM_PARTITIONS];
 	partition_type after_pcountso8[NUM_PARTITIONS];
-	actsutilityobj->checkforshifting("checkforshifting[after]: bufferA,bufferB,bufferC,bufferD", 
+	actsutilityobj->intrarunpipelinecheck_shifting("intrarunpipelinecheck_shifting[after]: bufferA,bufferB,bufferC,bufferD", 
 						bufferA, buffer1capsule, bufferB, bufferBcapsule, bufferC, bufferCcapsule, bufferD, bufferDcapsule,
 						after_pcountso1, after_pcountso2, after_pcountso4, after_pcountso8,
 						currentLOP, upperlimit, globalparams.batch_range_pow);
@@ -4185,21 +4184,7 @@ fastpartitionupdates(
 	batch_type cutoffpaddsize_kvs = 2048*ptravstate.skip_kvs;
 	if(config.enablepartition == OFF){ cutoffpaddsize_kvs = 0; }
 	batch_type approxendoffset_kvs = ptravstate.end_kvs + cutoffpaddsize_kvs + paddsize_kvs;
-	
-	/* ///////////////////// REMOVEME.
-	for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
-		
-		ptravstate.i_kvs = offset_kvs;
-		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + offset_kvs), SRCBUFFER_SIZE, ptravstate); 
-		
-		
-		actsutilityobj->collectstats(sourcebuffer, getchunksize_kvs(SRCBUFFER_SIZE, ptravstate, 0), sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 5);
-		
-	
-	}
-	// return;
-	///////////////////// */
-	
+
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<approxendoffset_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -4253,14 +4238,16 @@ fastpartitionupdates(
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		if(itercount%MYSTATSYSIZE == MYSTATSYSIZE-1){
-			for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
+			actsutilityobj->intrapartitioncheck();
+			
+			/* for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
 				actsutilityobj->hcheckforequal("fastpartitionupdates: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", actsutilityobj->getstats(0, k), actsutilityobj->getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
 				actsutilityobj->hcheckforequal("fastpartitionupdates: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", actsutilityobj->getstats(0, k+1), actsutilityobj->getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
 				actsutilityobj->hcheckforequal("fastpartitionupdates: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", actsutilityobj->getstats(0, k+2), actsutilityobj->getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
 			}
 			actsutilityobj->clearstats(0);
 			actsutilityobj->clearstats(1);
-			cout<<">>> fastpartitionupdates: checks for shifts in fastpartitionupdates successful. "<<endl;
+			cout<<">>> fastpartitionupdates: checks for shifts in fastpartitionupdates successful. "<<endl; */
 		}
 		// if(itercount == 1*MYSTATSYSIZE-1){ cout<<"(((((((((((((((((((((((((((((( breaking test. itercount: "<<itercount<<endl; break; }
 		#endif
@@ -4595,8 +4582,6 @@ dispatch(uint512_dt * kvdram){
 	if(globalparams.runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams.runsize: "<<globalparams.runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
-	maxcutoff = 0;
-	
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=globalparams.beginLOP; currentLOP<(globalparams.beginLOP + globalparams.numLOPs); currentLOP++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numllops avg=analysis_numllops	
@@ -4747,20 +4732,18 @@ dispatch(uint512_dt * kvdram){
 				sweepparams.workdestbaseaddress_kvs);
 			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)
 			if(config.enablepartition == ON){
-				actsutilityobj->checkforoverlap("dispatch: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
-				actsutilityobj->collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
-				actsutilityobj->collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
-				actsutilityobj->printvalues("dispatch. stats collected online [before partition stage (7,0)]", actsutilityobj->getstats(7, 0), NUM_PARTITIONS);
+				actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams);
 				
-				// REMOVEME.
-				// actsutilityobj->printvalues("))))) dispatch. stats collected online [during*test* partition stage (7,5)]", actsutilityobj->getstats(7, 5), NUM_PARTITIONS);
-				
-				actsutilityobj->printvalues("dispatch. stats collected online [during partition stage (7,1)]", actsutilityobj->getstats(7, 1), NUM_PARTITIONS);
-				actsutilityobj->printvalues("dispatch. stats collected online [after partition stage (7,2)]", actsutilityobj->getstats(7, 2), NUM_PARTITIONS);
-				actsutilityobj->printkeyvalues("dispatch. globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
-				// actsutilityobj->printkeyvalues("dispatch. offlinestats created offline", offlinestats, NUM_PARTITIONS);
-				actsutilityobj->printkeyvalues("dispatch. tats collected offline", actsutilityobj->getmykeyvalues(7), NUM_PARTITIONS);
-				cout<<"MAXXXXXXXXXXXXXXXXXXX: maxcutoff: "<<maxcutoff<<endl;
+				// actsutilityobj->checkforoverlap("dispatch: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
+				// actsutilityobj->collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
+				// actsutilityobj->collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
+				// actsutilityobj->printvalues("dispatch. stats collected online [before partition stage (7,0)]", actsutilityobj->getstats(7, 0), NUM_PARTITIONS);
+				// actsutilityobj->printvalues("dispatch. stats collected online [during partition stage (7,1)]", actsutilityobj->getstats(7, 1), NUM_PARTITIONS);
+				// actsutilityobj->printvalues("dispatch. stats collected online [after partition stage (7,2)]", actsutilityobj->getstats(7, 2), NUM_PARTITIONS);
+				// actsutilityobj->printkeyvalues("dispatch. globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
+				// actsutilityobj->printkeyvalues("dispatch. tats collected offline", actsutilityobj->getmykeyvalues(7), NUM_PARTITIONS);
+				// cout<<"minimum cutoff seen during partitioning: "<<actsutilityobj->getmincutoffseen()<<endl;
+				// cout<<"maximum cutoff seen during partitioning: "<<actsutilityobj->getmaxcutoffseen()<<endl;
 				exit(EXIT_SUCCESS); }
 			#endif 
 			#ifndef COLLECTSTATSOFFLINE

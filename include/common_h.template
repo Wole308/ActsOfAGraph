@@ -92,6 +92,7 @@
 // #define _DEBUGMODE_KERNELPRINTS
 #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
+// #define _DEBUGMODE_RUNKERNELPRINTS //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
 #define _DEBUGMODE_STATS // 

@@ -1065,7 +1065,7 @@ unsigned int actsutility::countkeysbelongingtopartition(unsigned int p, keyvalue
 	}
 	return count;
 }
-void actsutility::checkforshifting(string message, 
+/* void actsutility::intrarunpipelinecheck_shifting(string message, 
 												keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[8][NUM_PARTITIONS], 
 												keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS],
 												keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
@@ -1075,16 +1075,16 @@ void actsutility::checkforshifting(string message,
 												unsigned int partitioncountso4[NUM_PARTITIONS],
 												unsigned int partitioncountso8[NUM_PARTITIONS],
 												unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
-	printprofileso1("actsutility::checkforshifting. message:"+message+". bufferA", bufferA, buffer1capsule, currentLOP, upperlimit, batch_range_pow, partitioncountso1);
+	printprofileso1("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferA", bufferA, buffer1capsule, currentLOP, upperlimit, batch_range_pow, partitioncountso1);
 	
-	printprofileso2("actsutility::checkforshifting. message:"+message+". bufferB", bufferB, bufferBcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso2);
+	printprofileso2("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferB", bufferB, bufferBcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso2);
 	
-	printprofileso4("actsutility::checkforshifting. message:"+message+". bufferC", bufferC, bufferCcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso4);
+	printprofileso4("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferC", bufferC, bufferCcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso4);
 	
-	printprofileso8("actsutility::checkforshifting. message:"+message+". bufferD", bufferD, bufferDcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso8);
-	// printkeyvalues("actsutility::checkforshifting. bufferDcapsule", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS);
+	printprofileso8("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferD", bufferD, bufferDcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso8);
+	// printkeyvalues("actsutility::intrarunpipelinecheck_shifting. bufferDcapsule", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS);
 	return;
-}
+} */
 
 void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	for(unsigned int i=0; i<size_kvs; i++){
@@ -1174,6 +1174,51 @@ unsigned int actsutility::updatemaxcutoffseen(unsigned int val){
 	if(maxcutoffseen < val){ maxcutoffseen = val; }
 }
 
+void actsutility::intrarunpipelinecheck_shifting(string message, 
+												keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[8][NUM_PARTITIONS], 
+												keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS],
+												keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
+												keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
+												unsigned int partitioncountso1[NUM_PARTITIONS], 
+												unsigned int partitioncountso2[NUM_PARTITIONS],
+												unsigned int partitioncountso4[NUM_PARTITIONS],
+												unsigned int partitioncountso8[NUM_PARTITIONS],
+												unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	printprofileso1("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferA", bufferA, buffer1capsule, currentLOP, upperlimit, batch_range_pow, partitioncountso1);
+	
+	printprofileso2("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferB", bufferB, bufferBcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso2);
+	
+	printprofileso4("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferC", bufferC, bufferCcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso4);
+	
+	printprofileso8("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferD", bufferD, bufferDcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso8);
+	// printkeyvalues("actsutility::intrarunpipelinecheck_shifting. bufferDcapsule", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS);
+	return;
+}
+void actsutility::intrapartitioncheck(){
+	for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
+		hcheckforequal("intrapartitioncheck: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", getstats(0, k), getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
+		hcheckforequal("intrapartitioncheck: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", getstats(0, k+1), getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
+		hcheckforequal("intrapartitioncheck: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", getstats(0, k+2), getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
+	}
+	clearstats(0);
+	clearstats(1);
+	cout<<"intra-partition check passed. "<<endl;
+	return;
+}
+void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams){
+	checkforoverlap("dispatch: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
+	collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
+	collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
+	printvalues("dispatch. stats collected online [before partition stage (7,0)]", getstats(7, 0), NUM_PARTITIONS);
+	printvalues("dispatch. stats collected online [after partition stage (7,2)]", getstats(7, 2), NUM_PARTITIONS);
+	printvalues("dispatch. stats collected online [during partition stage (7,1)]", getstats(7, 1), NUM_PARTITIONS);
+	printkeyvalues("dispatch. globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
+	printkeyvalues("dispatch. tats collected offline", getmykeyvalues(7), NUM_PARTITIONS);
+	cout<<"minimum cutoff seen during partitioning: "<<getmincutoffseen()<<endl;
+	cout<<"maximum cutoff seen during partitioning: "<<getmaxcutoffseen()<<endl;
+	cout<<"post-partition check passed. "<<endl;
+	return;
+}
 
 
 
