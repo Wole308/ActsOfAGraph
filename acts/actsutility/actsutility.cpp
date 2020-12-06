@@ -130,6 +130,9 @@ void actsutility::print6(string messagea, string messageb, string messagec, stri
 void actsutility::print7(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, string messageg, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int dataf, unsigned int datag){				
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<dataf<<", "<<messageg<<": "<<datag<<endl;
 }
+void actsutility::print8(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, string messageg, string messageh, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int dataf, unsigned int datag, unsigned int datah){				
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<dataf<<", "<<messageg<<": "<<datag<<", "<<messageh<<": "<<datah<<endl;
+}
 void actsutility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<endl<<"printkeyvalues:"<<message<<endl;
 	unsigned int totalkeys = 0;
@@ -1065,26 +1068,6 @@ unsigned int actsutility::countkeysbelongingtopartition(unsigned int p, keyvalue
 	}
 	return count;
 }
-/* void actsutility::intrarunpipelinecheck_shifting(string message, 
-												keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[8][NUM_PARTITIONS], 
-												keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS],
-												keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
-												keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
-												unsigned int partitioncountso1[NUM_PARTITIONS], 
-												unsigned int partitioncountso2[NUM_PARTITIONS],
-												unsigned int partitioncountso4[NUM_PARTITIONS],
-												unsigned int partitioncountso8[NUM_PARTITIONS],
-												unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
-	printprofileso1("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferA", bufferA, buffer1capsule, currentLOP, upperlimit, batch_range_pow, partitioncountso1);
-	
-	printprofileso2("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferB", bufferB, bufferBcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso2);
-	
-	printprofileso4("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferC", bufferC, bufferCcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso4);
-	
-	printprofileso8("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferD", bufferD, bufferDcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso8);
-	// printkeyvalues("actsutility::intrarunpipelinecheck_shifting. bufferDcapsule", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS);
-	return;
-} */
 
 void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	for(unsigned int i=0; i<size_kvs; i++){

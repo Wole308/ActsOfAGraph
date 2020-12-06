@@ -877,8 +877,8 @@ void
 calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size){
 	#ifdef COLLECTSTATSOFFLINE // FIXME. GENERALIZEME.
 	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } // CRITICAL REMOVEME.
-	skipsizes[0] = skipsizes[0] * 2;
-	skipsizes[1] = skipsizes[1] * 2;
+	// skipsizes[0] = skipsizes[0] * 2;
+	// skipsizes[1] = skipsizes[1] * 2;
 	#else 
 	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } 
 	#endif 
@@ -1139,7 +1139,7 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"readkeyvalues:: keyvalues read: offset_kvs: "<<offset_kvs<<", size_kvs: "<<size_kvs<<", chunk_size: "<<chunk_size<<endl;
 	#endif
 	return;
@@ -1480,25 +1480,6 @@ fastpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PA
 			calculatemanyoffsets_allignby4_lower(localcapsule, limitsz, NUM_PARTITIONS, cutoff);
 			resetmanyvalues(localcapsule, NUM_PARTITIONS, 0);
 		}
-		
-		
-		
-		/* if(c==0){
-			for(partition_type p=0; p<NUM_PARTITIONS; p++){
-				sumvalues[0] += allignlowerto4_KV(localcapsule[0][p].value);
-				sumvalues[1] += allignlowerto4_KV(localcapsule[1][p].value);
-				sumvalues[2] += allignlowerto4_KV(localcapsule[2][p].value);
-				sumvalues[3] += allignlowerto4_KV(localcapsule[3][p].value);
-				sumvalues[4] += allignlowerto4_KV(localcapsule[4][p].value);
-				sumvalues[5] += allignlowerto4_KV(localcapsule[5][p].value);
-				sumvalues[6] += allignlowerto4_KV(localcapsule[6][p].value);
-				sumvalues[7] += allignlowerto4_KV(localcapsule[7][p].value);
-			}}
-		if(c==0){ 
-			cutoff = INFINITI;
-			for(vector_type v=0; v<VECTOR_SIZE; v++){ if(sumvalues[v] < cutoff){ cutoff = sumvalues[v]; }}}
-		if(c==0){ calculatemanyoffsets_allignby4_lower(localcapsule, limitsz, NUM_PARTITIONS, cutoff); }
-		if(c==0){ resetmanyvalues(localcapsule, NUM_PARTITIONS, 0); } */
 	}
 	for(buffer_type i=cutoff; i<SRCBUFFER_SIZE; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=16 avg=16	
@@ -1576,7 +1557,6 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 	
 	buffer_type cutoff = 0;
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
-	// buffer_type chunk_size = getchunksize_kvs(size_kvs, travstate, 0); // NEWCHANGE.
 	
 	for(buffer_type i=0; i<NUM_PARTITIONS; i++){
 		templocalcapsule0[i] = 0; 
@@ -1806,7 +1786,7 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 			#endif
 		}
 		
-		if(c==0){ // CRITICAL FIXME. this should happen for both c==0 and c==1
+		// if(c==0){ // CRITICAL FIXME. this should happen for both c==0 and c==1
 			for(unsigned int p=0; p<NUM_PARTITIONS; p++){ // copy back
 				localcapsule[0][p].value = templocalcapsule0[p];
 				localcapsule[1][p].value = templocalcapsule1[p];
@@ -1826,7 +1806,9 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 				templocalcapsule6[p] = 0;
 				templocalcapsule7[p] = 0;
  
-			}}
+				
+			}
+			// }
 		if(c==0){
 			for(partition_type p=0; p<NUM_PARTITIONS; p++){
 				sumvalues[0] += allignlowerto4_KV(localcapsule[0][p].value);
@@ -1844,11 +1826,22 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 		if(c==0){ calculatemanyoffsets_allignby4_lower(localcapsule, limitsz, NUM_PARTITIONS, cutoff); }
 		// if(c==0){ resetmanyvalues(localcapsule, NUM_PARTITIONS, 0); }
 	}
+	for(buffer_type i=cutoff; i<SRCBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=16 avg=16	
+	#pragma HLS PIPELINE II=1
+		sourcebuffer[0][i] = destbuffer[0][i];
+		sourcebuffer[1][i] = destbuffer[1][i];
+		sourcebuffer[2][i] = destbuffer[2][i];
+		sourcebuffer[3][i] = destbuffer[3][i];
+		sourcebuffer[4][i] = destbuffer[4][i];
+		sourcebuffer[5][i] = destbuffer[5][i];
+		sourcebuffer[6][i] = destbuffer[6][i];
+		sourcebuffer[7][i] = destbuffer[7][i];
+	}
 	
 	#ifdef _DEBUGMODE_STATS
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
 	#endif
-	
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<"--------------- cutoff: "<<cutoff<<", ovsz[0]: "<<ovsz[0]<<", (cutoff+ovsz[0]): "<<cutoff+ovsz[0]<<", chunk_size: "<<chunk_size<<"  -----------------------------"<<endl;
 	#endif 
@@ -1857,14 +1850,13 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){ actsutilityobj->checkforequal("maxpartitionkeyvalues.cutoff", ovsz[v], ovsz[0], v, ovsz[0], NAp); }
 	actsutilityobj->checkforequal("maxpartitionkeyvalues.cutoff+ovsz[0],chunk_size", cutoff+ovsz[0], chunk_size, cutoff, ovsz[0], NAp); // REMOVEME.
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	unsigned int dummy[NUM_PARTITIONS];
 	if(false){ actsutilityobj->printprofile("fastpartitionkeyvalues.destbuffer", (keyvalue_t *)&destbuffer[0], PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow); }
 	if(false){ actsutilityobj->printprofileso1("fastpartitionkeyvalues.destbuffer", destbuffer, localcapsule, currentLOP, upperlimit, globalparams.batch_range_pow, dummy); }
 	for(unsigned int v=0; v<8; v++){ actsutilityobj->printkeyvalues("fastpartitionkeyvalues.localcapsule[v]", (keyvalue_t *)localcapsule[v], NUM_PARTITIONS); }
 	for(unsigned int v=0; v<8; v++){ actsutilityobj->printvalues("fastpartitionkeyvalues.limitsz[v]", (value_t *)limitsz[v], NUM_PARTITIONS); }
 	#endif
-	// exit(EXIT_SUCCESS);
 	return cutoff;
 }
 
@@ -1874,7 +1866,7 @@ buffer_type
 	#endif
 partitionkeyvalues2(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS INLINE
-	#ifdef MAXPERFORMANCEXXX // CRITICAL REMOVEME.
+	#ifdef MAXPERFORMANCE // CRITICAL REMOVEME.
 	return maxpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
 	#else
 	return fastpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
@@ -3895,7 +3887,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	actsutilityobj->hcheckforequal("runpipeline: checking if before_pcountso1 == after_pcountso2", before_pcountso1, after_pcountso2, NUM_PARTITIONS, NAp, NAp, NAp);
 	actsutilityobj->hcheckforequal("runpipeline: checking if before_pcountso2 == after_pcountso4", before_pcountso2, after_pcountso4, NUM_PARTITIONS, NAp, NAp, NAp);
 	actsutilityobj->hcheckforequal("runpipeline: checking if before_pcountso4 == after_pcountso8", before_pcountso4, after_pcountso8, NUM_PARTITIONS, NAp, NAp, NAp);
-	cout<<"runpipeline: checks for shifts in runpipeline successful. "<<endl;
+	cout<<"intra-runpipeline shift check passed. "<<endl;
 	#endif
 	
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
@@ -4188,11 +4180,7 @@ fastpartitionupdates(
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<approxendoffset_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		#ifdef FPP1
-		actsutilityobj->print6("### dispatch::partition:: itercount", "offset1_kvs", "offset2_kvs", "begin_kvs", "end_kvs", "skip", itercount, pp0readoffset_kvs, pp1readoffset_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE);
-		#else 
-		actsutilityobj->print6("### dispatch::partition:: offset_kvs", "size_kvs", "begin_kvs", "end_kvs", "skip", "itercount", pp0readoffset_kvs, pp0readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE, itercount);
-		#endif
+		actsutilityobj->print8("### dispatch::partition:: offset0_kvs", "size0_kvs", "offset1_kvs", "size1_kvs", "begin_kvs", "end_kvs", "skip", "itercount", pp0readoffset_kvs, pp0readsize_kvs, pp1readoffset_kvs, pp1readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE, itercount);
 		#endif
 		ptravstate.i_kvs = NAp;
 		ptravstatepp0.i_kvs = pp0readoffset_kvs;
@@ -4237,18 +4225,7 @@ fastpartitionupdates(
 		#endif 
 		
 		#ifdef _DEBUGMODE_CHECKS2
-		if(itercount%MYSTATSYSIZE == MYSTATSYSIZE-1){
-			actsutilityobj->intrapartitioncheck();
-			
-			/* for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
-				actsutilityobj->hcheckforequal("fastpartitionupdates: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", actsutilityobj->getstats(0, k), actsutilityobj->getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
-				actsutilityobj->hcheckforequal("fastpartitionupdates: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", actsutilityobj->getstats(0, k+1), actsutilityobj->getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
-				actsutilityobj->hcheckforequal("fastpartitionupdates: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", actsutilityobj->getstats(0, k+2), actsutilityobj->getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
-			}
-			actsutilityobj->clearstats(0);
-			actsutilityobj->clearstats(1);
-			cout<<">>> fastpartitionupdates: checks for shifts in fastpartitionupdates successful. "<<endl; */
-		}
+		if(itercount%MYSTATSYSIZE == MYSTATSYSIZE-1){ actsutilityobj->intrapartitioncheck(); }
 		// if(itercount == 1*MYSTATSYSIZE-1){ cout<<"(((((((((((((((((((((((((((((( breaking test. itercount: "<<itercount<<endl; break; }
 		#endif
 		
@@ -4731,23 +4708,10 @@ dispatch(uint512_dt * kvdram){
 				sweepparams.worksourcebaseaddress_kvs,
 				sweepparams.workdestbaseaddress_kvs);
 			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)
-			if(config.enablepartition == ON){
-				actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams);
-				
-				// actsutilityobj->checkforoverlap("dispatch: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
-				// actsutilityobj->collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
-				// actsutilityobj->collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
-				// actsutilityobj->printvalues("dispatch. stats collected online [before partition stage (7,0)]", actsutilityobj->getstats(7, 0), NUM_PARTITIONS);
-				// actsutilityobj->printvalues("dispatch. stats collected online [during partition stage (7,1)]", actsutilityobj->getstats(7, 1), NUM_PARTITIONS);
-				// actsutilityobj->printvalues("dispatch. stats collected online [after partition stage (7,2)]", actsutilityobj->getstats(7, 2), NUM_PARTITIONS);
-				// actsutilityobj->printkeyvalues("dispatch. globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
-				// actsutilityobj->printkeyvalues("dispatch. tats collected offline", actsutilityobj->getmykeyvalues(7), NUM_PARTITIONS);
-				// cout<<"minimum cutoff seen during partitioning: "<<actsutilityobj->getmincutoffseen()<<endl;
-				// cout<<"maximum cutoff seen during partitioning: "<<actsutilityobj->getmaxcutoffseen()<<endl;
-				exit(EXIT_SUCCESS); }
+			if(config.enablepartition == ON){ actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams); exit(EXIT_SUCCESS); }
 			#endif 
 			#ifndef COLLECTSTATSOFFLINE
-			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); } // NEWCHANGE.
+			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
 			#endif 
 			#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY) && not defined(ACTSFAST) // REMOVEME 'ACTSFAST'
 			if(config.enablereduce == OFF){ actsutilityobj->checkforgreaterthan("dispatch. comparing BIGKV & globalstatsbuffer", BIGKV, globalstatsbuffer, NUM_PARTITIONS); }
