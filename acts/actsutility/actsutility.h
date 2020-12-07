@@ -8,7 +8,7 @@
 #include "../../include/common.h"
 using namespace std;
 
-#define MYSTATSYSIZE 4 // 4//8//16//64
+#define MYSTATSYSIZE 64 // 4//8//16//64
 
 class actsutility {
 public:
@@ -108,7 +108,7 @@ public:
 	void printprofileso2(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
 	void printprofileso4(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
 	void printprofileso8(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
-	void printprofile(string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
+	void printprofile(string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
 	void printprofile(string message, keyvalue_t * buffer, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	
 	void getprofileso1(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]);
