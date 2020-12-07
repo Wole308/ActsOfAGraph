@@ -1219,19 +1219,21 @@ void actsutility::intrapartitioncheck(){
 	return;
 }
 void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"post-partition check started. "<<endl;
 	cout<<"actsutility::postpartitioncheck: currentLOP: "<<sweepparams.currentLOP<<", source_partition: "<<sweepparams.source_partition<<endl;
 	#endif 
+	#if defined(_DEBUGMODE_CHECKS2)// && defined(ENABLE_PERFECTACCURACY)
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
+	#endif 
 	collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
 	collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	printvalues("actsutility::postpartitioncheck: stats collected online [before partition stage (7,0)]", getstats(7, 0), NUM_PARTITIONS);
 	printvalues("actsutility::postpartitioncheck: stats collected online [after partition stage (7,2)]", getstats(7, 2), NUM_PARTITIONS);
 	printvalues("actsutility::postpartitioncheck: stats collected online [during partition stage (7,1)]", getstats(7, 1), NUM_PARTITIONS);
-	printkeyvalues("actsutility::postpartitioncheck: globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
-	printkeyvalues("actsutility::postpartitioncheck: stats collected offline", getmykeyvalues(7), NUM_PARTITIONS);
+	printkeyvalues("actsutility::postpartitioncheck: globalstatsbuffer collected online (globalstatsbuffer)", globalstatsbuffer, NUM_PARTITIONS);
+	printkeyvalues("actsutility::postpartitioncheck: stats collected offline (getmykeyvalues(7))", getmykeyvalues(7), NUM_PARTITIONS);
 	// checkforgreaterthan("ensuring getstats(7, 0) > getstats(7, 2)", getstats(7, 0), getstats(7, 2), NUM_PARTITIONS);
 	cout<<"minimum cutoff seen during partitioning: "<<getmincutoffseen()<<endl;
 	cout<<"maximum cutoff seen during partitioning: "<<getmaxcutoffseen()<<endl;

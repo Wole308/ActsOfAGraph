@@ -177,6 +177,7 @@ public:
 	
 	// process edges phase
 	void processedges(
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -194,6 +195,7 @@ public:
 		travstate_t avtravstate);
 		
 	void processedges(
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t vertices1buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t vertices2buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -214,6 +216,7 @@ public:
 	
 	// collectstats phase
 	void collectstats(
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -232,6 +235,7 @@ public:
 	
 	// partition phase
 	void partitionupdates_coarsegrainedpipeline(
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -249,6 +253,7 @@ public:
 		travstate_t ptravstate);
 		
 	void partitionupdates_finegrainedpipeline(
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -268,6 +273,7 @@ public:
 		batch_type destbaseaddr_kvs);
 		
 	void reduceupdates(
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
