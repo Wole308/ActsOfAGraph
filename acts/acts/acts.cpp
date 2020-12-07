@@ -1844,7 +1844,7 @@ buffer_type
 	#endif
 partitionkeyvalues_finegrainedpipeline(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS INLINE
-	#ifdef MAXPERFORMANCEXXX // CRITICAL FIXME.
+	#ifdef MAXPERFORMANCE // CRITICAL FIXME.
 	return maxpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
 	#else
 	return fastpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
@@ -4768,7 +4768,7 @@ dispatch(uint512_dt * kvdram){
 				deststatsmarker += NUM_PARTITIONS;
 				destoffset = globalstatsbuffer[NUM_PARTITIONS-1].key + globalstatsbuffer[NUM_PARTITIONS-1].value + 64; }
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(config.enablereduce == OFF){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS

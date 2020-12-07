@@ -1149,7 +1149,9 @@ void actsutility::collectstats(keyvalue_t localcapsule[NUM_PARTITIONS], unsigned
 	return;
 }
 void actsutility::collectstats(keyvalue_t * keyvalues, unsigned int size, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::collectstats"<<endl;
+	#endif 
 	for(unsigned int i=0; i<NUM_PARTITIONS; i++){ mystats[x][y][i] = 0; }
 	
 	for(unsigned int i = 0; i <size; i++){
@@ -1217,8 +1219,10 @@ void actsutility::intrapartitioncheck(){
 	return;
 }
 void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams){
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"post-partition check started. "<<endl;
 	cout<<"actsutility::postpartitioncheck: currentLOP: "<<sweepparams.currentLOP<<", source_partition: "<<sweepparams.source_partition<<endl;
+	#endif 
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
 	collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
 	collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
