@@ -8,7 +8,7 @@
 #include "../../include/common.h"
 using namespace std;
 
-#define MYSTATSYSIZE 64 // 4//8//16//64
+#define MYSTATSYSIZE 4 // 4//8//16//64
 
 class actsutility {
 public:
@@ -24,6 +24,7 @@ public:
 	void checkfornotequalbyerrorwindow(string message, unsigned int data1, unsigned int data2, unsigned int errorwindow);
 	void checkforoverlap(string message, keyvalue_t * keyvalues, unsigned int size);
 	void checkforgreaterthan(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
+	void checkforgreaterthan(string message, value_t * values1, value_t * values2, unsigned int size);
 	void checkforequal(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2);
 	void checkforlessthanthan(string message, unsigned int data1, unsigned int data2, unsigned int tolerance);

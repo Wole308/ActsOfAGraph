@@ -93,6 +93,17 @@ void actsutility::checkforgreaterthan(string message, keyvalue_t * keyvalues1, k
 	}
 	return;
 }
+void actsutility::checkforgreaterthan(string message, value_t * values1, value_t * values2, unsigned int size){
+	for(unsigned int i=0; i<size; i++){
+		if(values1[i] < values2[i]){ 
+			cout<<"ERROR: "<<message<<". values1["<<i<<"] ("<<values1[i]<<") < values2["<<i<<"] ("<<values2[i]<<"). printing both arrays before exiting..."<<endl; 
+			printvalues("checkforgreaterthan.values1", values1, size);
+			printvalues("checkforgreaterthan.values2", values2, size);
+			exit(EXIT_FAILURE); 
+		}
+	}
+	return;
+}
 void actsutility::checkforequal(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size){
 	for(unsigned int i=0; i<size; i++){
 		if(keyvalues1[i].value != keyvalues2[i].value){ 
@@ -1196,7 +1207,8 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	printvalues("dispatch. stats collected online [after partition stage (7,2)]", getstats(7, 2), NUM_PARTITIONS);
 	printvalues("dispatch. stats collected online [during partition stage (7,1)]", getstats(7, 1), NUM_PARTITIONS);
 	printkeyvalues("dispatch. globalstatsbuffer collected online", globalstatsbuffer, NUM_PARTITIONS);
-	printkeyvalues("dispatch. tats collected offline", getmykeyvalues(7), NUM_PARTITIONS);
+	printkeyvalues("dispatch. stats collected offline", getmykeyvalues(7), NUM_PARTITIONS);
+	checkforgreaterthan("ensuring getstats(7, 0) > getstats(7, 2)", getstats(7, 0), getstats(7, 2), NUM_PARTITIONS);
 	cout<<"minimum cutoff seen during partitioning: "<<getmincutoffseen()<<endl;
 	cout<<"maximum cutoff seen during partitioning: "<<getmaxcutoffseen()<<endl;
 	cout<<"post-partition check passed. "<<endl;
