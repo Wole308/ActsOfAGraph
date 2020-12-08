@@ -41,6 +41,10 @@ actsutility::~actsutility(){}
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }
+void actsutility::checkoutofbounds(unsigned int enable, string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
+	if(enable == OFF){ return; }
+	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
+}
 void actsutility::checkforequal(string message, unsigned int data1, unsigned int data2, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data1 != data2){ cout<<"acts::checkforequal: ERROR. data1 != data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<endl; exit(EXIT_FAILURE); }
 }
@@ -49,7 +53,26 @@ void actsutility::checkforequal(string message, unsigned int * data1, unsigned i
 		if(data1[i] != data2[i]){ cout<<"acts::checkarraysforequal: ERROR. data1["<<i<<"]("<<data1[i]<<") != data2["<<i<<"]("<<data2[i]<<"). message: "<<message<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<endl; exit(EXIT_FAILURE); }
 	}
 }
-void actsutility::hcheckforequal(string message, unsigned int * data1, unsigned int * data2, unsigned int size, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
+/* void actsutility::hcheckforequal(string message, unsigned int * data1, unsigned int * data2, unsigned int size, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	printvalues("actsutility::hcheckforequal. data1", data1, NUM_PARTITIONS);
+	printvalues("actsutility::hcheckforequal. data2", data2, NUM_PARTITIONS);
+	#endif
+	if(countvalues("", data1, size) == 0 || countvalues("", data2, size) == 0){ return; } // cout<<"_______________total count=0 seen. returning without counting..."<<endl; return; }
+	
+	for(unsigned int i=0; i<size; i++){
+		if(data1[i] != data2[i]){ cout<<"acts::hcheckforequal: ERROR. data1["<<i<<"]("<<data1[i]<<") != data2["<<i<<"]("<<data2[i]<<"). message: "<<message<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<". printing both arrays and exiting..."<<endl; 
+			printvalues("hcheckforequal:data1", data1, size);
+			printvalues("hcheckforequal:data2", data2, size);
+			exit(EXIT_FAILURE); }
+	}
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
+	// cout<<"actsutility::hcheckforequal: checks for equal successful. "<<endl;
+	cout<<"actsutility::hcheckforequal: checks for equal successful. message: "<<message<<endl;
+	#endif 
+} */
+void actsutility::hcheckforequal(unsigned int enable, string message, unsigned int * data1, unsigned int * data2, unsigned int size, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
+	if(enable == OFF){ return; } 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	printvalues("actsutility::hcheckforequal. data1", data1, NUM_PARTITIONS);
 	printvalues("actsutility::hcheckforequal. data2", data2, NUM_PARTITIONS);
@@ -123,6 +146,11 @@ void actsutility::checkforlessthanthan(string message, unsigned int data1, unsig
 	if((data1 + tolerance) < data2){ cout<<"acts::checkforlessthanthan: ERROR. (data1 + tolerance) < data2. message: "<<message<<", data1: "<<data1<<", data2: "<<data2<<endl; exit(EXIT_FAILURE); }
 }
 void actsutility::checkfordivisibleby(string message, unsigned int data, unsigned int n){
+	if((data % n) != 0){ cout<<"actsutility::checkfordivisibleby:: ERROR. "<<data<<" % "<<n<<" != 0. message:"<<message<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+	return;
+}
+void actsutility::checkfordivisibleby(unsigned int enable, string message, unsigned int data, unsigned int n){
+	if(enable == OFF){ return; }
 	if((data % n) != 0){ cout<<"actsutility::checkfordivisibleby:: ERROR. "<<data<<" % "<<n<<" != 0. message:"<<message<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	return;
 }
@@ -653,7 +681,8 @@ partition_type actsutility::getpartition(keyvalue_t keyvalue, step_type currentL
 	#endif
 	return partition;
 }
-void actsutility::checkn(string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n){
+void actsutility::checkn(unsigned int enable, string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkn: "<<message<<endl;
 	#endif
@@ -826,7 +855,8 @@ void actsutility::concatenate8keyvalues(string message, keyvalue_t * keyvalues1,
 	return;
 }
 
-void actsutility::printprofileso1(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+void actsutility::printprofileso1(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<endl<<"+++ actsutility::printprofileso1 [with stats]:: "<<message<<endl;
 	#endif 
@@ -840,7 +870,7 @@ void actsutility::printprofileso1(string message, keyvalue_t keyvalues[VECTOR_SI
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		printkeyvalues("printprofileso1:: printing stats:", (keyvalue_t *)stats, NUM_PARTITIONS);
 		#endif
-		printprofile("printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		printprofile(ON, "printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"successful. "<<endl;
@@ -849,7 +879,8 @@ void actsutility::printprofileso1(string message, keyvalue_t keyvalues[VECTOR_SI
 	#endif 
 	return;
 }
-void actsutility::printprofileso2(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+void actsutility::printprofileso2(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<endl<<"+++ actsutility::printprofileso2 [with stats]:: "<<message<<endl;
 	#endif 
@@ -866,7 +897,7 @@ void actsutility::printprofileso2(string message, keyvalue_t keyvalues[VECTOR_SI
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		printkeyvalues("printprofileso2:: printing BIGstats:", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
 		#endif
-		printprofile("printprofileso2:: BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, 2*PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		printprofile(ON, "printprofileso2:: BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, 2*PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"successful. "<<endl;
@@ -875,7 +906,8 @@ void actsutility::printprofileso2(string message, keyvalue_t keyvalues[VECTOR_SI
 	#endif 
 	return;
 }
-void actsutility::printprofileso4(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+void actsutility::printprofileso4(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<endl<<"+++ actsutility::printprofileso4 [with stats]:: "<<message<<endl;
 	#endif 
@@ -892,7 +924,7 @@ void actsutility::printprofileso4(string message, keyvalue_t keyvalues[VECTOR_SI
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		printkeyvalues("printprofileso4:: printing BIGstats:", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
 		#endif
-		printprofile("printprofileso4:: BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, 4*PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		printprofile(ON, "printprofileso4:: BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, 4*PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"successful. "<<endl;
@@ -902,7 +934,8 @@ void actsutility::printprofileso4(string message, keyvalue_t keyvalues[VECTOR_SI
 	#endif 
 	return;
 }
-void actsutility::printprofileso8(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+void actsutility::printprofileso8(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<endl<<"+++ actsutility::printprofileso8 [with stats]:: "<<message<<endl;
 	#endif 
@@ -919,7 +952,7 @@ void actsutility::printprofileso8(string message, keyvalue_t keyvalues[VECTOR_SI
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		printkeyvalues("printprofileso8:: printing BIGstats:", (keyvalue_t *)BIGstats, NUM_PARTITIONS);
 		#endif
-		printprofile("printprofileso8:: BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, 8*PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		printprofile(ON, "printprofileso8:: BIGkeyvalues, BIGstats", BIGkeyvalues, BIGstats, 8*PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"successful. "<<endl;
@@ -929,7 +962,8 @@ void actsutility::printprofileso8(string message, keyvalue_t keyvalues[VECTOR_SI
 	#endif 
 	return;
 }
-void actsutility::printprofile(string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+void actsutility::printprofile(unsigned int enable, string message, keyvalue_t * keyvalues, skeyvalue_t * stats, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"---------- actsutility::printprofile:: "<<message<<endl;
 	#endif 
@@ -966,7 +1000,8 @@ void actsutility::printprofile(string message, keyvalue_t * keyvalues, skeyvalue
 	#endif 
 	return;
 }
-void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+void actsutility::printprofile(unsigned int enable, string message, keyvalue_t * keyvalues, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"actsutility::printprofile [profiling buffer with size provided]: "<<message<<endl;
 	#endif 
@@ -985,19 +1020,24 @@ void actsutility::printprofile(string message, keyvalue_t * keyvalues, unsigned 
 	return;
 }
 
-void actsutility::getprofileso1(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
-	printprofileso1(message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+void actsutility::getprofileso1(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
+	printprofileso1(ON, message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
 }
-void actsutility::getprofileso2(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
-	printprofileso2(message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+void actsutility::getprofileso2(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[4][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
+	printprofileso2(ON, message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
 }
-void actsutility::getprofileso4(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
-	printprofileso4(message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+void actsutility::getprofileso4(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[2][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
+	printprofileso4(ON, message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
 }
-void actsutility::getprofileso8(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
-	printprofileso8(message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
+void actsutility::getprofileso8(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
+	if(enable == OFF){ return; }
+	printprofileso8(ON, message, keyvalues, stats, currentLOP, upperlimit, batch_range_pow, partitioncount);
 }
-void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int factor, unsigned int totalnum){
+void actsutility::checkprofile(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int factor, unsigned int totalnum){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkprofile: "<<message<<endl;
 	#endif 
@@ -1029,7 +1069,8 @@ void actsutility::checkprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE]
 	#endif 
 	return;
 }
-void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+void actsutility::checkbufferprofile(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t stats[NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkbufferprofile::"<<message<<" currentLOP: "<<currentLOP<<", upperlimit: "<<upperlimit<<", batch_range_pow: "<<batch_range_pow<<endl;
 	#endif 
@@ -1073,7 +1114,8 @@ void actsutility::checkbufferprofile(string message, keyvalue_t keyvalues[VECTOR
 	#endif 
 	return;
 }
-void actsutility::compareprofiles(string message, keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+void actsutility::compareprofiles(unsigned int enable, string message, keyvalue_t * buffer1, keyvalue_t * buffer2, unsigned int size, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"compareprofiles::printprofile: "<<message<<endl;
 	#endif 
@@ -1095,7 +1137,7 @@ unsigned int actsutility::countkeysbelongingtopartition(unsigned int p, keyvalue
 	return count;
 }
 
-void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	for(unsigned int i=0; i<size_kvs; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			if(keyvalues[v][i].key == INVALIDDATA || keyvalues[v][i].value == INVALIDDATA){ continue; }
@@ -1106,7 +1148,7 @@ void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFE
 	}
 	return;
 }
-void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 		unsigned int begin_kvs = localstats[p].key / VECTOR_SIZE;
 		unsigned int size_kvs = localstats[p].value / VECTOR_SIZE;
@@ -1125,7 +1167,7 @@ void actsutility::collectstats(keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFE
 		}
 	}
 }
-void actsutility::collectstats(keyvalue_t * keyvalues, keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+void actsutility::collectstats(unsigned int enable, keyvalue_t * keyvalues, keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 		unsigned int begin = localstats[p].key;
 		unsigned int size = localstats[p].value;
@@ -1142,13 +1184,13 @@ void actsutility::collectstats(keyvalue_t * keyvalues, keyvalue_t localstats[NUM
 		}
 	}
 }
-void actsutility::collectstats(keyvalue_t localcapsule[NUM_PARTITIONS], unsigned int x, unsigned int y){
+void actsutility::collectstats(unsigned int enable, keyvalue_t localcapsule[NUM_PARTITIONS], unsigned int x, unsigned int y){
 	for(buffer_type p=0; p<NUM_PARTITIONS; p++){
 		mystats[x][y][p] += localcapsule[p].value;
 	}
 	return;
 }
-void actsutility::collectstats(keyvalue_t * keyvalues, unsigned int size, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+void actsutility::collectstats(unsigned int enable, keyvalue_t * keyvalues, unsigned int size, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::collectstats"<<endl;
 	#endif 
@@ -1185,7 +1227,7 @@ unsigned int actsutility::updatemaxcutoffseen(unsigned int val){
 	if(maxcutoffseen < val){ maxcutoffseen = val; }
 }
 
-void actsutility::intrarunpipelinecheck_shifting(string message, 
+void actsutility::intrarunpipelinecheck_shifting(unsigned int enable, string message, 
 												keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[8][NUM_PARTITIONS], 
 												keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS],
 												keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
@@ -1195,21 +1237,22 @@ void actsutility::intrarunpipelinecheck_shifting(string message,
 												unsigned int partitioncountso4[NUM_PARTITIONS],
 												unsigned int partitioncountso8[NUM_PARTITIONS],
 												unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow){
-	printprofileso1("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferA", bufferA, buffer1capsule, currentLOP, upperlimit, batch_range_pow, partitioncountso1);
+	if(enable == OFF){ return; }
+	printprofileso1(ON, "actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferA", bufferA, buffer1capsule, currentLOP, upperlimit, batch_range_pow, partitioncountso1);
 	
-	printprofileso2("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferB", bufferB, bufferBcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso2);
+	printprofileso2(ON, "actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferB", bufferB, bufferBcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso2);
 	
-	printprofileso4("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferC", bufferC, bufferCcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso4);
+	printprofileso4(ON, "actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferC", bufferC, bufferCcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso4);
 	
-	printprofileso8("actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferD", bufferD, bufferDcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso8);
+	printprofileso8(ON, "actsutility::intrarunpipelinecheck_shifting. message:"+message+". bufferD", bufferD, bufferDcapsule, currentLOP, upperlimit, batch_range_pow, partitioncountso8);
 	// printkeyvalues("actsutility::intrarunpipelinecheck_shifting. bufferDcapsule", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS);
 	return;
 }
 void actsutility::intrapartitioncheck(){
 	for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
-		hcheckforequal("intrapartitioncheck: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", getstats(0, k), getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
-		hcheckforequal("intrapartitioncheck: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", getstats(0, k+1), getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
-		hcheckforequal("intrapartitioncheck: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", getstats(0, k+2), getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
+		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", getstats(0, k), getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
+		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", getstats(0, k+1), getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
+		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", getstats(0, k+2), getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
 	}
 	clearstats(0);
 	clearstats(1);
@@ -1226,8 +1269,8 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
 	#endif 
-	collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
-	collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
+	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
+	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	printvalues("actsutility::postpartitioncheck: stats collected online [before partition stage (7,0)]", getstats(7, 0), NUM_PARTITIONS);
 	printvalues("actsutility::postpartitioncheck: stats collected online [after partition stage (7,2)]", getstats(7, 2), NUM_PARTITIONS);

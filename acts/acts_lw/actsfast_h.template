@@ -40,7 +40,7 @@ using namespace std;
 #define PP2
 #endif
 
-#define NUMACTSFASTPIPELINES 1 // CRITICAL FIXME.
+#define NUMACTSFASTPIPELINES 2 // CRITICAL FIXME.
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -48,6 +48,8 @@ using namespace std;
 #define FPP0
 #define FPP1
 #endif
+
+#define OPTMZ // REMOVEME.
 
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
 
@@ -72,7 +74,7 @@ public:
 	void resetmanyvalues({%for v in context['VECTOR_SIZE_seq']%}buffer_type buffer{{v}}[NUM_PARTITIONS],{%endfor%} buffer_type size, unsigned int resetval);
 	buffer_type getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
 	buffer_type getchunksize(buffer_type buffersz, travstate_t travstate, buffer_type localoffset);
-	partition_type getpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
+	partition_type getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
 	partition_type getglobalpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
 	value_t reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	value_t processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo);
@@ -167,7 +169,7 @@ public:
 						keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS], 
 							keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
 								keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
-									unsigned int currentLOP, unsigned int upperlimit, buffer_type cutoff, globalparams_t globalparams);
+									unsigned int currentLOP, unsigned int upperlimit, buffer_type cutoff, batch_type shiftcount, globalparams_t globalparams);
 	
 	// process edges phase
 	void processedges(
