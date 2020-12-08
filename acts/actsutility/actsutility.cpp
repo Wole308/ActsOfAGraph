@@ -1219,16 +1219,16 @@ void actsutility::intrapartitioncheck(){
 	return;
 }
 void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"post-partition check started. "<<endl;
 	cout<<"actsutility::postpartitioncheck: currentLOP: "<<sweepparams.currentLOP<<", source_partition: "<<sweepparams.source_partition<<endl;
 	#endif 
-	#if defined(_DEBUGMODE_CHECKS2)// && defined(ENABLE_PERFECTACCURACY)
+	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
 	#endif 
 	collectstats((keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
 	collectstats((keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	printvalues("actsutility::postpartitioncheck: stats collected online [before partition stage (7,0)]", getstats(7, 0), NUM_PARTITIONS);
 	printvalues("actsutility::postpartitioncheck: stats collected online [after partition stage (7,2)]", getstats(7, 2), NUM_PARTITIONS);
 	printvalues("actsutility::postpartitioncheck: stats collected online [during partition stage (7,1)]", getstats(7, 1), NUM_PARTITIONS);
