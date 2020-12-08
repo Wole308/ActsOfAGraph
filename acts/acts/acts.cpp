@@ -3872,7 +3872,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		#endif
 	}
 	
-	#ifdef _DEBUGMODE_CHECKSXXX // not fair for OPTMZ ('random values present from prevs')
+	#if defined(_DEBUGMODE_CHECKS2) && not defined(OPTMZ) // not fair for OPTMZ ('random values present from prevs')
 	actsutilityobj->checkprofile(enablebufferB, "runpipeline::checkprofile::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkprofile(enablebufferC, "runpipeline::checkprofile::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkprofile(enablebufferD, "runpipeline::checkprofile::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
@@ -3880,9 +3880,6 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::checkbufferprofile::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
 	#endif
-	
-	// if(currentLOP==2){ cout<<"runpipeline:: successful exit"<<endl; exit(EXIT_SUCCESS); }
-	
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	partition_type after_pcountso1[NUM_PARTITIONS];
@@ -3966,9 +3963,6 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	for(unsigned int v=0; v<2; v++){ actsutilityobj->printkeyvalues("+++[after] runpipeline.bufferCcapsule[v]", (keyvalue_t *)bufferCcapsule[v], NUM_PARTITIONS); }
 	for(unsigned int v=0; v<1; v++){ actsutilityobj->printkeyvalues("+++[after] runpipeline.bufferDcapsule[v]", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS); }
 	#endif
-	
-	// if(currentLOP==2){ cout<<"runpipeline:: successful exit"<<endl; exit(EXIT_SUCCESS); }
-	
 	return;
 }
 
@@ -4173,19 +4167,8 @@ partitionupdates_finegrainedpipeline(
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
 	
-	#ifdef OPTMZ
-	// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420000); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	// resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420000); 
-	// resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420000); 
-	// resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420000); 
-	
-	// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420001); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	// resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420001); 
-	// resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420001); 
-	// resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420001); 
-	
-	#else 
-	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
+	#ifndef OPTMZ
+	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit);
 	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
 	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
 	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
@@ -4244,7 +4227,6 @@ partitionupdates_finegrainedpipeline(
 	
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp0readoffset_kvs), pp0readsize_kvs, ptravstatepp0); 
 		#ifdef FPP1
-		// cout<<">>>/ runpipeline for FPP1. shiftcount: "<<(itercount-2)+1<<endl;
 		runpipeline(pp1runpipelineen, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp1cutoff, (itercount-2)+1, globalparams);
 		#endif 
 		
@@ -4260,7 +4242,6 @@ partitionupdates_finegrainedpipeline(
 			#endif 
 		#endif 
 		
-		// cout<<">>>/ runpipeline for FPP0. shiftcount: "<<itercount<<endl;
 		runpipeline(ON, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp0cutoff, itercount, globalparams);
 		#ifdef FPP1
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp1readoffset_kvs), pp1readsize_kvs, ptravstatepp1);
@@ -4288,8 +4269,6 @@ partitionupdates_finegrainedpipeline(
 		pp0readsize_kvs = pp0cutoff;
 		#endif
 		
-		// if(sweepparams.currentLOP==2){ cout<<"partitionupdates_finegrainedpipeline :: successful exit"<<endl; exit(EXIT_SUCCESS); } // REMOVEME.
-			
 		if(pp0readoffset_kvs >= ptravstate.end_kvs){ // FIXME. edge condition for perfect accuracy.
 			if(flushsize >= 2){ 
 				cout<<"partitionupdates successful. all pipeline stages flushed. breaking out..."<<endl; 
@@ -4308,9 +4287,6 @@ partitionupdates_finegrainedpipeline(
 	actsutilityobj->printglobalvars();
 	actsutilityobj->clearglobalvars();
 	#endif
-	
-	// if(sweepparams.currentLOP==2){ cout<<"partitionupdates_finegrainedpipeline :: successful exit"<<endl; exit(EXIT_SUCCESS); } // REMOVEME.
-		
 	return;
 }
 

@@ -423,8 +423,8 @@ do
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ0
+		for numsubcputhreads_pow in $THREADPOW_EQ4
+		# for numsubcputhreads_pow in $THREADPOW_EQ0
 		# for numsubcputhreads_pow in $THREADPOW_EQ2
 		
 		do
@@ -435,7 +435,7 @@ do
 			do
 				### >>> LOOP3: datasets
 				
-				# for dataset in $ORKUT_3M_106M
+				for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $KRON21_2M_91M #
@@ -445,7 +445,7 @@ do
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M
 				
-				for dataset in $TWITTER_67M #
+				# for dataset in $TWITTER_67M #
 				# for dataset in $MOLIERE2016_33M
 				# for dataset in $LARGEDATASET_67M
 				# for dataset in $LARGEDATASET_268M
@@ -457,7 +457,7 @@ do
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $TWITTER_67M $MOLIERE2016_33M
 				do
 					# for evaluation_param0 in 0 4
-					for evaluation_param0 in 4
+					for evaluation_param0 in 0
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
 						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads_pow}"
