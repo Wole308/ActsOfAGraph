@@ -2079,10 +2079,10 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#endif 
 
 	#ifdef _DEBUGMODE_CHECKS2
-	partition_type before_pcountso1[NUM_PARTITIONS];
-	partition_type before_pcountso2[NUM_PARTITIONS];
-	partition_type before_pcountso4[NUM_PARTITIONS];
-	partition_type before_pcountso8[NUM_PARTITIONS];
+	unsigned int before_pcountso1[NUM_PARTITIONS];
+	unsigned int before_pcountso2[NUM_PARTITIONS];
+	unsigned int before_pcountso4[NUM_PARTITIONS];
+	unsigned int before_pcountso8[NUM_PARTITIONS];
 	actsutilityobj->intrarunpipelinecheck_shifting(enablebufferD, "intrarunpipelinecheck_shifting[before]: bufferA,bufferB,bufferC,bufferD", 
 						bufferA, buffer1capsule, bufferB, bufferBcapsule, bufferC, bufferCcapsule, bufferD, bufferDcapsule,
 						before_pcountso1, before_pcountso2, before_pcountso4, before_pcountso8,
@@ -2462,10 +2462,10 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#endif
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	partition_type after_pcountso1[NUM_PARTITIONS];
-	partition_type after_pcountso2[NUM_PARTITIONS];
-	partition_type after_pcountso4[NUM_PARTITIONS];
-	partition_type after_pcountso8[NUM_PARTITIONS];
+	unsigned int after_pcountso1[NUM_PARTITIONS];
+	unsigned int after_pcountso2[NUM_PARTITIONS];
+	unsigned int after_pcountso4[NUM_PARTITIONS];
+	unsigned int after_pcountso8[NUM_PARTITIONS];
 	actsutilityobj->intrarunpipelinecheck_shifting(enablebufferD, "intrarunpipelinecheck_shifting[after]: bufferA,bufferB,bufferC,bufferD", 
 						bufferA, buffer1capsule, bufferB, bufferBcapsule, bufferC, bufferCcapsule, bufferD, bufferDcapsule,
 						after_pcountso1, after_pcountso2, after_pcountso4, after_pcountso8,
@@ -2773,8 +2773,8 @@ partitionupdates_finegrainedpipeline(
 	bool_type pp1writeen = ON;
 	buffer_type pp0cutoff = SRCBUFFER_SIZE;
 	buffer_type pp1cutoff = SRCBUFFER_SIZE;
-	buffer_type pp0readoffset_kvs = ptravstate.begin_kvs;
-	buffer_type pp1readoffset_kvs = ptravstate.begin_kvs + SRCBUFFER_SIZE;
+	batch_type pp0readoffset_kvs = ptravstate.begin_kvs;
+	batch_type pp1readoffset_kvs = ptravstate.begin_kvs + SRCBUFFER_SIZE;
 	buffer_type pp0readsize_kvs = SRCBUFFER_SIZE;
 	buffer_type pp1readsize_kvs = SRCBUFFER_SIZE;
 	batch_type itercount = 0;
@@ -2788,7 +2788,7 @@ partitionupdates_finegrainedpipeline(
 
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<approxendoffset_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->print6("### dispatch::partition:: offset0_kvs", "size0_kvs", "begin_kvs", "end_kvs", "skip", "itercount", pp0readoffset_kvs, pp0readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE, itercount);
 		#ifdef FPP1
 		actsutilityobj->print6("### dispatch::partition:: offset1_kvs", "size1_kvs", "begin_kvs", "end_kvs", "skip", "itercount", pp1readoffset_kvs, pp1readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, SRCBUFFER_SIZE, itercount);

@@ -53,24 +53,6 @@ void actsutility::checkforequal(string message, unsigned int * data1, unsigned i
 		if(data1[i] != data2[i]){ cout<<"acts::checkarraysforequal: ERROR. data1["<<i<<"]("<<data1[i]<<") != data2["<<i<<"]("<<data2[i]<<"). message: "<<message<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<endl; exit(EXIT_FAILURE); }
 	}
 }
-/* void actsutility::hcheckforequal(string message, unsigned int * data1, unsigned int * data2, unsigned int size, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	printvalues("actsutility::hcheckforequal. data1", data1, NUM_PARTITIONS);
-	printvalues("actsutility::hcheckforequal. data2", data2, NUM_PARTITIONS);
-	#endif
-	if(countvalues("", data1, size) == 0 || countvalues("", data2, size) == 0){ return; } // cout<<"_______________total count=0 seen. returning without counting..."<<endl; return; }
-	
-	for(unsigned int i=0; i<size; i++){
-		if(data1[i] != data2[i]){ cout<<"acts::hcheckforequal: ERROR. data1["<<i<<"]("<<data1[i]<<") != data2["<<i<<"]("<<data2[i]<<"). message: "<<message<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<". printing both arrays and exiting..."<<endl; 
-			printvalues("hcheckforequal:data1", data1, size);
-			printvalues("hcheckforequal:data2", data2, size);
-			exit(EXIT_FAILURE); }
-	}
-	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
-	// cout<<"actsutility::hcheckforequal: checks for equal successful. "<<endl;
-	cout<<"actsutility::hcheckforequal: checks for equal successful. message: "<<message<<endl;
-	#endif 
-} */
 void actsutility::hcheckforequal(unsigned int enable, string message, unsigned int * data1, unsigned int * data2, unsigned int size, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(enable == OFF){ return; } 
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1250,9 +1232,15 @@ void actsutility::intrarunpipelinecheck_shifting(unsigned int enable, string mes
 }
 void actsutility::intrapartitioncheck(){
 	for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
+		#ifdef SW 
 		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", getstats(0, k), getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
 		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", getstats(0, k+1), getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
 		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", getstats(0, k+2), getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
+		#else 
+		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, k) == getstats(1, k+2)", getstats(0, k), getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
+		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, k+1) == getstats(1, k+3)", getstats(0, k+1), getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
+		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, k+2) == getstats(1, k+4)", getstats(0, k+2), getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
+		#endif 
 	}
 	clearstats(0);
 	clearstats(1);
