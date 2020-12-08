@@ -199,7 +199,7 @@ partition_type
 	actslw::
 	#endif 
 getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
-	partition_type partition;// = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
+	partition_type partition;
 	#ifdef OPTMZ
 	if(enable == ON){
 		partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
@@ -729,7 +729,7 @@ void
 	#endif
 calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size){
 	#ifdef COLLECTSTATSOFFLINE // FIXME. GENERALIZEME.
-	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } // CRITICAL REMOVEME.
+	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; }
 	#else 
 	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } 
 	#endif 
@@ -2452,12 +2452,15 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		#endif
 	}
 	
+	#if defined(_DEBUGMODE_CHECKS2) && not defined(OPTMZ) // not fair for OPTMZ ('random values present from prevs')
+	actsutilityobj->checkprofile(enablebufferB, "runpipeline::checkprofile::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferC, "runpipeline::checkprofile::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferD, "runpipeline::checkprofile::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	#endif 
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkprofile(enablebufferB, "runpipeline::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkprofile(enablebufferC, "runpipeline::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkprofile(enablebufferD, "runpipeline::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
+	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::checkbufferprofile::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
 	#endif
+	
 	#ifdef _DEBUGMODE_CHECKS2
 	partition_type after_pcountso1[NUM_PARTITIONS];
 	partition_type after_pcountso2[NUM_PARTITIONS];
@@ -2744,18 +2747,7 @@ partitionupdates_finegrainedpipeline(
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
 	
-	#ifdef OPTMZ
-	// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420000); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	// resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420000); 
-	// resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420000); 
-	// resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420000); 
-	
-	// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420001); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	// resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420001); 
-	// resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420001); 
-	// resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420001); 
-	
-	#else 
+	#ifndef OPTMZ
 	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
 	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
 	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
@@ -2856,7 +2848,7 @@ partitionupdates_finegrainedpipeline(
 		pp0readoffset_kvs = pp0readoffset_kvs + pp0readsize_kvs;
 		pp0readsize_kvs = pp0cutoff;
 		#endif
-			
+		
 		if(pp0readoffset_kvs >= ptravstate.end_kvs){ // FIXME. edge condition for perfect accuracy.
 			if(flushsize >= 2){ 
 				cout<<"partitionupdates successful. all pipeline stages flushed. breaking out..."<<endl; 
@@ -3211,11 +3203,6 @@ dispatch(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_CHECKS2
 	if(globalparams.runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams.runsize: "<<globalparams.runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
-	
-	/* resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 0); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 0);  */
 	
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=globalparams.beginLOP; currentLOP<(globalparams.beginLOP + globalparams.numLOPs); currentLOP++){

@@ -219,7 +219,7 @@ partition_type
 	actslw::
 	#endif 
 getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
-	partition_type partition;// = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
+	partition_type partition;
 	#ifdef OPTMZ
 	if(enable == ON){
 		partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
@@ -882,7 +882,7 @@ void
 	#endif
 calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size){
 	#ifdef COLLECTSTATSOFFLINE // FIXME. GENERALIZEME.
-	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } // CRITICAL REMOVEME.
+	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; }
 	#else 
 	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } 
 	#endif 
@@ -3872,12 +3872,18 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		#endif
 	}
 	
+	#ifdef _DEBUGMODE_CHECKSXXX // not fair for OPTMZ ('random values present from prevs')
+	actsutilityobj->checkprofile(enablebufferB, "runpipeline::checkprofile::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferC, "runpipeline::checkprofile::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferD, "runpipeline::checkprofile::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	#endif 
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkprofile(enablebufferB, "runpipeline::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkprofile(enablebufferC, "runpipeline::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkprofile(enablebufferD, "runpipeline::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
+	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::checkbufferprofile::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
 	#endif
+	
+	// if(currentLOP==2){ cout<<"runpipeline:: successful exit"<<endl; exit(EXIT_SUCCESS); }
+	
+	
 	#ifdef _DEBUGMODE_CHECKS2
 	partition_type after_pcountso1[NUM_PARTITIONS];
 	partition_type after_pcountso2[NUM_PARTITIONS];
@@ -3960,6 +3966,9 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	for(unsigned int v=0; v<2; v++){ actsutilityobj->printkeyvalues("+++[after] runpipeline.bufferCcapsule[v]", (keyvalue_t *)bufferCcapsule[v], NUM_PARTITIONS); }
 	for(unsigned int v=0; v<1; v++){ actsutilityobj->printkeyvalues("+++[after] runpipeline.bufferDcapsule[v]", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS); }
 	#endif
+	
+	// if(currentLOP==2){ cout<<"runpipeline:: successful exit"<<endl; exit(EXIT_SUCCESS); }
+	
 	return;
 }
 
@@ -4235,6 +4244,7 @@ partitionupdates_finegrainedpipeline(
 	
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp0readoffset_kvs), pp0readsize_kvs, ptravstatepp0); 
 		#ifdef FPP1
+		// cout<<">>>/ runpipeline for FPP1. shiftcount: "<<(itercount-2)+1<<endl;
 		runpipeline(pp1runpipelineen, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp1cutoff, (itercount-2)+1, globalparams);
 		#endif 
 		
@@ -4250,6 +4260,7 @@ partitionupdates_finegrainedpipeline(
 			#endif 
 		#endif 
 		
+		// cout<<">>>/ runpipeline for FPP0. shiftcount: "<<itercount<<endl;
 		runpipeline(ON, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp0cutoff, itercount, globalparams);
 		#ifdef FPP1
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp1readoffset_kvs), pp1readsize_kvs, ptravstatepp1);
@@ -4276,6 +4287,8 @@ partitionupdates_finegrainedpipeline(
 		pp0readoffset_kvs = pp0readoffset_kvs + pp0readsize_kvs;
 		pp0readsize_kvs = pp0cutoff;
 		#endif
+		
+		// if(sweepparams.currentLOP==2){ cout<<"partitionupdates_finegrainedpipeline :: successful exit"<<endl; exit(EXIT_SUCCESS); } // REMOVEME.
 			
 		if(pp0readoffset_kvs >= ptravstate.end_kvs){ // FIXME. edge condition for perfect accuracy.
 			if(flushsize >= 2){ 
@@ -4295,6 +4308,9 @@ partitionupdates_finegrainedpipeline(
 	actsutilityobj->printglobalvars();
 	actsutilityobj->clearglobalvars();
 	#endif
+	
+	// if(sweepparams.currentLOP==2){ cout<<"partitionupdates_finegrainedpipeline :: successful exit"<<endl; exit(EXIT_SUCCESS); } // REMOVEME.
+		
 	return;
 }
 
@@ -4631,11 +4647,6 @@ dispatch(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_CHECKS2
 	if(globalparams.runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams.runsize: "<<globalparams.runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
-	
-	/* resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 0); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 0); 
-	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 0);  */
 	
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=globalparams.beginLOP; currentLOP<(globalparams.beginLOP + globalparams.numLOPs); currentLOP++){
