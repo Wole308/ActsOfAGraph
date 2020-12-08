@@ -1826,9 +1826,9 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("maxpartitionkeyvalues:: cutoff", cutoff, SRCBUFFER_SIZE+1, NAp, NAp, NAp);
-	for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(ovsz[v] != ovsz[0]){ cout<<"ovsz["<<v<<"] != ovsz[0]. cutoff: "<<cutoff<<". printint values and exiting..."<<endl; actsutilityobj->printvalues("fastpartitionkeyvalues.ovsz", ovsz, VECTOR_SIZE); exit(EXIT_FAILURE); }} // FIXME.
-	for(unsigned int v=0; v<VECTOR_SIZE; v++){ actsutilityobj->checkforequal("maxpartitionkeyvalues:: ovsz["+std::to_string(v)+"].ovsz[0]", ovsz[v], ovsz[0], v, ovsz[0], NAp); }
-	actsutilityobj->checkforequal("maxpartitionkeyvalues.cutoff+ovsz[0],chunk_size", cutoff+ovsz[0], chunk_size, cutoff, ovsz[0], NAp); // REMOVEME.
+	// for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(ovsz[v] != ovsz[0]){ cout<<"ovsz["<<v<<"] != ovsz[0]. cutoff: "<<cutoff<<". printint values and exiting..."<<endl; actsutilityobj->printvalues("fastpartitionkeyvalues.ovsz", ovsz, VECTOR_SIZE); exit(EXIT_FAILURE); }} // FIXME.
+	// for(unsigned int v=0; v<VECTOR_SIZE; v++){ actsutilityobj->checkforequal("maxpartitionkeyvalues:: ovsz["+std::to_string(v)+"].ovsz[0]", ovsz[v], ovsz[0], v, ovsz[0], NAp); }
+	// actsutilityobj->checkforequal("maxpartitionkeyvalues.cutoff+ovsz[0],chunk_size", cutoff+ovsz[0], chunk_size, cutoff, ovsz[0], NAp); // REMOVEME.
 	actsutilityobj->updatemincutoffseen(cutoff);
 	actsutilityobj->updatemaxcutoffseen(cutoff);
 	#endif
@@ -3873,9 +3873,9 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	}
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkprofile(enablebufferB, "bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkprofile(enablebufferC, "bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
-	actsutilityobj->checkprofile(enablebufferD, "bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferB, "runpipeline::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferC, "runpipeline::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
+	actsutilityobj->checkprofile(enablebufferD, "runpipeline::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
 	#endif
 	#ifdef _DEBUGMODE_CHECKS2
@@ -3960,7 +3960,6 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	for(unsigned int v=0; v<2; v++){ actsutilityobj->printkeyvalues("+++[after] runpipeline.bufferCcapsule[v]", (keyvalue_t *)bufferCcapsule[v], NUM_PARTITIONS); }
 	for(unsigned int v=0; v<1; v++){ actsutilityobj->printkeyvalues("+++[after] runpipeline.bufferDcapsule[v]", (keyvalue_t *)bufferDcapsule, NUM_PARTITIONS); }
 	#endif
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -4166,10 +4165,16 @@ partitionupdates_finegrainedpipeline(
 	travstate_t ptravstatepp1 = ptravstate;
 	
 	#ifdef OPTMZ
-	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420000); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
-	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420000); 
-	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420000); 
-	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420000); 
+	// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420000); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
+	// resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420000); 
+	// resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420000); 
+	// resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420000); 
+	
+	// resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 123420001); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
+	// resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 123420001); 
+	// resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 123420001); 
+	// resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 123420001); 
+	
 	#else 
 	resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
 	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, sweepparams.upperlimit); 
@@ -4251,11 +4256,9 @@ partitionupdates_finegrainedpipeline(
 		#endif
 		
 		savekeyvalues(pp0writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams);
-			// exit(EXIT_SUCCESS);
 			#ifdef _DEBUGMODE_CHECKS2
 			if(pp0writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); }
-			#endif 
-			// exit(EXIT_SUCCESS);
+			#endif
 		#ifdef FPP1
 		pp1cutoff = partitionkeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, globalparams);
 			#ifdef _DEBUGMODE_CHECKS2
@@ -4629,6 +4632,11 @@ dispatch(uint512_dt * kvdram){
 	if(globalparams.runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams.runsize: "<<globalparams.runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
+	/* resetmanykeyandvalues(buffer_setof1, PADDEDDESTBUFFER_SIZE, 0); // CRITICAL FIXME. too expensive. would be a bottleneck. // might have been cause of bottleneck in our long-latency reduce phase
+	resetmanykeyandvalues(buffer_setof2, PADDEDDESTBUFFER_SIZE, 0); 
+	resetmanykeyandvalues(buffer_setof4, PADDEDDESTBUFFER_SIZE, 0); 
+	resetmanykeyandvalues(buffer_setof8, PADDEDDESTBUFFER_SIZE, 0);  */
+	
 	// start launch
 	MAIN_LOOP1: for(step_type currentLOP=globalparams.beginLOP; currentLOP<(globalparams.beginLOP + globalparams.numLOPs); currentLOP++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numllops avg=analysis_numllops	
@@ -4791,6 +4799,8 @@ dispatch(uint512_dt * kvdram){
 			if(config.enablereduce == OFF){ actsutilityobj->checkforgreaterthan("dispatch. comparing BIGKV & globalstatsbuffer", BIGKV, globalstatsbuffer, NUM_PARTITIONS); }
 			#endif
 			#endif
+			
+			// if(currentLOP == 2){ break; }
 			
 			// reduce 
 			#ifdef REDUCEUPDATES

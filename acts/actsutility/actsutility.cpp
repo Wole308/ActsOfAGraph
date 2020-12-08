@@ -1052,7 +1052,10 @@ void actsutility::checkprofile(unsigned int enable, string message, keyvalue_t k
 		}
 		
 		if(count % factor != 0){
-			cout<<"actsutility::checkprofile: ERROR in checkprofile: (count("<<count<<") % factor("<<factor<<") != 0). p: "<<p<<", count: "<<count<<", factor: "<<factor<<". EXITING..."<<endl; 
+			cout<<"actsutility::checkprofile: message("<<message<<"). ERROR in checkprofile: (count("<<count<<") % factor("<<factor<<") != 0). p: "<<p<<", count: "<<count<<", factor: "<<factor<<". EXITING..."<<endl; 
+			
+			printkeyvalues(")))))))))keyvalues", (keyvalue_t *)&keyvalues[0], PADDEDDESTBUFFER_SIZE * VECTOR_SIZE);
+			
 			exit(EXIT_FAILURE); 
 		}
 		#ifdef _DEBUGMODE_KERNELPRINTS
