@@ -664,8 +664,8 @@ do
 							make cleanall
 							# rm -rf host
 							
-							# make host
-							# ./host $BACKUPDIR_KERNELXCLBIN
+							make host
+							./host $BACKUPDIR_KERNELXCLBIN
 							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
 							
 							# make build_host_aws

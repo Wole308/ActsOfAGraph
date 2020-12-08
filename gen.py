@@ -26,7 +26,8 @@ print(isFile)
 
 ###
 
-context['NUM_PARTITIONS_POW'] = 4
+# context['NUM_PARTITIONS_POW'] = 4
+context['NUM_PARTITIONS_POW'] = 5
 context['VECTOR_SIZE'] = 8
 context['DUMMY'] = 0
 context['NUMSUBWORKERS'] = 3#4
