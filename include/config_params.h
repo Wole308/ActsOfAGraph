@@ -4,7 +4,7 @@
 #define ACTSFAST
 #define MAXPERFORMANCE
 #define MERGEEDGESANDKVDRAMWORKSPACE
-#define MERGEPROCESSEDGESANDPARTITIONSTAGE // this must be used with COLLECTSTATSOFFLINE for now // FIXME. // appears in [loadgraph.cpp, actsfast.cpp, utility.cpp]
+// #define MERGEPROCESSEDGESANDPARTITIONSTAGE // this must be used with COLLECTSTATSOFFLINE for now // FIXME. // appears in [loadgraph.cpp, actsfast.cpp, utility.cpp]
 
 #define RUNALLITERATIONS
 #define _EVENWORLOADDISTRIBUTION

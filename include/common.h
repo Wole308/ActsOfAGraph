@@ -1,8 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -147,8 +150,12 @@
 #define BATCH_RANGE2_KVS (BATCH_RANGE2 / VECTOR_SIZE)
 
 /** ACTS constraints equation! (NUM_PARTITIONS_POWx = KVDATA_RANGE_PERSSDPARTITION_POW - SRAMSZ_POW) */
-// #define SRAMSZ_POW 10
-#define SRAMSZ_POW 12 // NEWCHANGE.
+#ifdef ACTSMODEL
+#define SRAMSZ_POW 14
+#endif 
+#ifdef ACTSMODEL_LW
+#define SRAMSZ_POW 10
+#endif 
 #define SRAMSZ (1 << SRAMSZ_POW)
 
 #define APPROXTREE_DEPTH ((BATCH_RANGE_POW - SRAMSZ_POW + NUM_PARTITIONS_POW - 1) / NUM_PARTITIONS_POW)
