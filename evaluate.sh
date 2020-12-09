@@ -62,6 +62,8 @@ CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=23
 CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=24
 AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=25
 
+HW__ACTGRAPH_SETUP__VHLS=26
+
 ORKUT_3M_106M=30
 HOLLYWOOD_1M_57M=31
 INDOCHINA_7M_194M=32
@@ -137,6 +139,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	
+	# for setup in $HW__ACTGRAPH_SETUP__VHLS
+	
 	do 
 		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
 		then 
@@ -407,6 +412,19 @@ do
 				SETUP_NAME="actgraph_pr_hw"
 			fi
 			
+		elif [ $setup == $HW__ACTGRAPH_SETUP__VHLS ] #nothing
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="PR_ALGORITHM" 
+			ALGORITHMABBRV="pr"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_pr_hw"
+			else 
+				SETUP_NAME="actgraph_pr_hw"
+			fi
+			
 		else 
 			XWARE="" 
 			SETUP="" 
@@ -460,7 +478,7 @@ do
 					for evaluation_param0 in 0
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads_pow}"
+						KERNELBACKUP_NAME="realgoldenkernel${ALGORITHMABBRV}${numsubcputhreads_pow}" # CRITICAL REMOVEME.
 						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
 						BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 						
@@ -934,6 +952,10 @@ do
 							sleep 3600
 							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
 							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
+							
+						elif [ $setup == $HW__ACTGRAPH_SETUP__VHLS ]
+						then
+							make cleanall
 						else 
 							XWARE="" 
 							SETUP="" 

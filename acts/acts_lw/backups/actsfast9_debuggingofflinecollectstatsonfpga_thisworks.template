@@ -1230,13 +1230,13 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 		}
 	}
 	
-	for(buffer_type i=cutoff; i<SRCBUFFER_SIZE; i++){ // CRITICAL FIXME.// JUSTCHANGED
+	/* for(buffer_type i=cutoff; i<SRCBUFFER_SIZE; i++){ // CRITICAL FIXME.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=16 avg=16	
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
 		sourcebuffer[{{v}}][i] = destbuffer[{{v}}][i];
 		{%endfor%}
-	}
+	} */
 	
 	#ifdef _DEBUGMODE_STATS
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
@@ -1268,7 +1268,7 @@ buffer_type
 	#endif
 partitionkeyvalues_finegrainedpipeline(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS INLINE
-	#ifdef MAXPERFORMANCE
+	#ifdef MAXPERFORMANCE // CRITICAL FIXME.
 	return maxpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
 	#else
 	return fastpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
@@ -1280,8 +1280,33 @@ void
 	actslw::
 	#endif 
 savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+	
+	// if(enable == OFF){ cout<<"savekeyvalues: VERDICT: key values shall NOT be saved."<<endl; }
+	// else { cout<<"savekeyvalues: VERDICT: key values shall be saved."<<endl; } // REMOVEME.
+	
 	if(enable == OFF){ return; }
-
+	
+	/* //////////////////////////////////////////////////////////////	CRITICAL REMOVEME. // JUSTREMOVED.
+	SAVEPARTITIONS_LLOOP1B: for(buffer_type i=0; i<SRCBUFFER_SIZE; i++){
+	// #pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[globalbaseaddress_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = buffer[{{v}}][0 + i].key; 
+		kvdram[globalbaseaddress_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = buffer[{{v}}][0 + i].value; 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[globalbaseaddress_kvs + i].data[{{v}}] = buffer[{{v}}][0 + i]; 
+		{%endfor%}
+		#endif 
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
+		#endif
+	}
+	return;
+	//////////////////////////////////////////////////////////////	 */
+	
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->printkeyvalues("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->printvaluecount("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
@@ -2084,11 +2109,11 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#pragma HLS ARRAY_PARTITION variable=bufferDcapsule complete
 	#endif 
 
-	#ifdef _DEBUGMODE_CHECKS2 
+	#ifdef _DEBUGMODE_CHECKS2 // CRITICAL REMOVEME
 	unsigned int before_pcountso1[NUM_PARTITIONS];
 	unsigned int before_pcountso2[NUM_PARTITIONS];
 	unsigned int before_pcountso4[NUM_PARTITIONS];
-	unsigned int before_pcountso8[NUM_PARTITIONS]; 
+	unsigned int before_pcountso8[NUM_PARTITIONS]; // CRITICAL REMOVEME. // JUSTREMOVED.
 	actsutilityobj->intrarunpipelinecheck_shifting(enablebufferD, "intrarunpipelinecheck_shifting[before]: bufferA,bufferB,bufferC,bufferD", 
 						bufferA, buffer1capsule, bufferB, bufferBcapsule, bufferC, bufferCcapsule, bufferD, bufferDcapsule,
 						before_pcountso1, before_pcountso2, before_pcountso4, before_pcountso8,
@@ -2128,7 +2153,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		bufferBcapsule[3][p].value = 0;
 	}
 	
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS//_DEBUGMODE_CHECKS2 // CRITICAL REMOVEME.
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		actsutilityobj->checkfordivisibleby(enablebufferD, "bufferDcapsule[p].key", bufferDcapsule[p].key, 1);
 		
@@ -2165,7 +2190,36 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	keyvalue_t dummykv;
 	dummykv.key = ((NUM_PARTITIONS-1) << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
 	dummykv.value = INVALIDDATA;
-
+	
+	/* // CRITICAL REMOVEME.
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////. // JUSTREMOVED.
+	unsigned int m=0;
+	RUNPIPELINE_LLOOP1: for(m=0; m<2; m++){
+		RUNPIPELINE_LLOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k++){
+		#pragma HLS PIPELINE II=1
+			bufferD[0][k] = bufferA[0][k];
+			bufferD[1][k] = bufferA[1][k];
+			bufferD[2][k] = bufferA[2][k];
+			bufferD[3][k] = bufferA[3][k];
+			bufferD[4][k] = bufferA[4][k];
+			bufferD[5][k] = bufferA[5][k];
+			bufferD[6][k] = bufferA[6][k];
+			bufferD[7][k] = bufferA[7][k];
+		}
+		bufferD[0][2*m] = bufferA[6][0+m];
+		bufferD[1][2*m] = bufferA[6][1+m];
+		bufferD[2][2*m] = bufferA[6][2+m];
+		bufferD[3][2*m] = bufferA[6][3+m];
+		bufferD[4][2*m] = bufferA[6][4+m];
+		bufferD[5][2*m] = bufferA[6][5+m];
+		bufferD[6][2*m] = bufferA[6][6+m];
+		bufferD[7][2*m] = bufferA[6][7+m];
+		bufferDcapsule[0].key = 0;
+		bufferDcapsule[0].value = SRCBUFFER_SIZE*VECTOR_SIZE;
+	}
+	return;
+	///////////////////////////////////////////////////////////////////////////////////////////////////////// */
+	
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
 		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){
@@ -2787,8 +2841,10 @@ partitionupdates_finegrainedpipeline(
 	batch_type flushsize = 0;
 
 	batch_type paddsize_kvs = 2*ptravstate.skip_kvs;
-	batch_type cutoffpaddsize_kvs = 2048*ptravstate.skip_kvs; // CRITICAL FIXME. // JUSTCHANGED.
-	// batch_type cutoffpaddsize_kvs = 0; 
+	// if(config.enablepartition == OFF){ paddsize_kvs = 0; }
+	// batch_type cutoffpaddsize_kvs = 2048*ptravstate.skip_kvs; // CRITICAL FIXME.
+	batch_type cutoffpaddsize_kvs = 0; 
+	// if(config.enablepartition == OFF){ cutoffpaddsize_kvs = 0; }
 	batch_type approxendoffset_kvs = ptravstate.end_kvs + cutoffpaddsize_kvs + paddsize_kvs;
 
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<approxendoffset_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
@@ -2816,13 +2872,13 @@ partitionupdates_finegrainedpipeline(
 		#endif 
 		
 		pp0cutoff = partitionkeyvalues_finegrainedpipeline(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, pp0readsize_kvs, globalparams);
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_CHECKS//_DEBUGMODE_CHECKS2 // CRITICAL REMOVEME.
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, itercount%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
 			#endif 
 		#ifdef FPP1
 		savekeyvalues(pp1writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams); 
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_CHECKS//_DEBUGMODE_CHECKS2 // CRITICAL REMOVEME.
 			if(pp1writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, (itercount+1)%MYSTATSYSIZE); }
 			#endif 
 		#endif 
@@ -2833,12 +2889,12 @@ partitionupdates_finegrainedpipeline(
 		#endif
 		
 		savekeyvalues(pp0writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams);
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_CHECKS//_DEBUGMODE_CHECKS2 // CRITICAL REMOVEME.
 			if(pp0writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); }
 			#endif
 		#ifdef FPP1
 		pp1cutoff = partitionkeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, globalparams);
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_CHECKS//_DEBUGMODE_CHECKS2 // CRITICAL REMOVEME.
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, (itercount+1)%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
 			#endif 
@@ -2864,7 +2920,7 @@ partitionupdates_finegrainedpipeline(
 			
 		itercount += NUMACTSFASTPIPELINES;
 		
-		#ifdef _DEBUGMODE_CHECKS2
+		#ifdef _DEBUGMODE_CHECKS // CRITICAL REMOVEME.
 		if(itercount%MYSTATSYSIZE == MYSTATSYSIZE-1){ actsutilityobj->intrapartitioncheck(); }
 		#endif
 	}
@@ -3371,6 +3427,8 @@ dispatch(uint512_dt * kvdram){
 			if(config.enablereduce == OFF){ actsutilityobj->checkforgreaterthan("dispatch. comparing BIGKV & globalstatsbuffer", BIGKV, globalstatsbuffer, NUM_PARTITIONS); }
 			#endif
 			#endif
+			
+			// if(currentLOP == 2){ break; }
 			
 			// reduce 
 			#ifdef REDUCEUPDATES

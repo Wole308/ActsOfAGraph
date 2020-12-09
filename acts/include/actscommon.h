@@ -23,7 +23,7 @@
 #include "../../include/common.h"
 using namespace std;
 
-/* #ifdef FPGA_IMPL
+#ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;
 typedef ap_uint<8> partition_type;
@@ -39,14 +39,14 @@ typedef unsigned int vector_type;
 typedef unsigned int step_type;
 typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
-#endif */
-typedef unsigned int batch_type; // CRITICAL FIXME?
+#endif
+/* typedef unsigned int batch_type; // CRITICAL FIXME?
 typedef unsigned int buffer_type;
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;
 typedef unsigned int step_type;
 typedef unsigned int bool_type;
-typedef unsigned int analysis_type;
+typedef unsigned int analysis_type; */
 
 typedef struct {
 	unsigned int key;

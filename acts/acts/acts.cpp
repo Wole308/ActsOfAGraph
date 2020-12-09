@@ -24,6 +24,15 @@
 #include "actsfast.h"
 using namespace std;
 
+#define NUMACTSFASTPIPELINES 2 // CRITICAL REMOVEME?
+#if NUMACTSFASTPIPELINES==1
+#define FPP0
+#endif 
+#if NUMACTSFASTPIPELINES==2
+#define FPP0
+#define FPP1
+#endif
+
 #ifdef SW
 actslw::actslw(){ actsutilityobj = new actsutility(); }
 actslw::~actslw(){}
@@ -1805,7 +1814,7 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 		}
 	}
 	
-	/* for(buffer_type i=cutoff; i<SRCBUFFER_SIZE; i++){ // CRITICAL FIXME.
+	for(buffer_type i=cutoff; i<SRCBUFFER_SIZE; i++){ // CRITICAL FIXME.// JUSTCHANGED
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=16 avg=16	
 	#pragma HLS PIPELINE II=1
 		sourcebuffer[0][i] = destbuffer[0][i];
@@ -1816,7 +1825,7 @@ maxpartitionkeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PAD
 		sourcebuffer[5][i] = destbuffer[5][i];
 		sourcebuffer[6][i] = destbuffer[6][i];
 		sourcebuffer[7][i] = destbuffer[7][i];
-	} */
+	}
 	
 	#ifdef _DEBUGMODE_STATS
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ actsutilityobj->globalvar_inmemory_counttotalvalidkeyvalues(actsutilityobj->ugetvaluecount((keyvalue_t *)localcapsule[v], NUM_PARTITIONS)); } // REMOVEME. unmatched data types
@@ -1848,7 +1857,7 @@ buffer_type
 	#endif
 partitionkeyvalues_finegrainedpipeline(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS INLINE
-	#ifdef MAXPERFORMANCE // CRITICAL FIXME.
+	#ifdef MAXPERFORMANCE
 	return maxpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
 	#else
 	return fastpartitionkeyvalues(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
@@ -1860,12 +1869,8 @@ void
 	actslw::
 	#endif 
 savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
-	
-	// if(enable == OFF){ cout<<"savekeyvalues: VERDICT: key values shall NOT be saved."<<endl; }
-	// else { cout<<"savekeyvalues: VERDICT: key values shall be saved."<<endl; } // REMOVEME.
-	
 	if(enable == OFF){ return; }
-	
+
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->printkeyvalues("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->printvaluecount("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
@@ -3499,11 +3504,11 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#pragma HLS ARRAY_PARTITION variable=bufferDcapsule complete
 	#endif 
 
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS2 
 	unsigned int before_pcountso1[NUM_PARTITIONS];
 	unsigned int before_pcountso2[NUM_PARTITIONS];
 	unsigned int before_pcountso4[NUM_PARTITIONS];
-	unsigned int before_pcountso8[NUM_PARTITIONS];
+	unsigned int before_pcountso8[NUM_PARTITIONS]; 
 	actsutilityobj->intrarunpipelinecheck_shifting(enablebufferD, "intrarunpipelinecheck_shifting[before]: bufferA,bufferB,bufferC,bufferD", 
 						bufferA, buffer1capsule, bufferB, bufferBcapsule, bufferC, bufferCcapsule, bufferD, bufferDcapsule,
 						before_pcountso1, before_pcountso2, before_pcountso4, before_pcountso8,
@@ -3580,7 +3585,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	keyvalue_t dummykv;
 	dummykv.key = ((NUM_PARTITIONS-1) << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
 	dummykv.value = INVALIDDATA;
-	
+
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
 		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){
@@ -4202,10 +4207,8 @@ partitionupdates_finegrainedpipeline(
 	batch_type flushsize = 0;
 
 	batch_type paddsize_kvs = 2*ptravstate.skip_kvs;
-	// if(config.enablepartition == OFF){ paddsize_kvs = 0; }
-	// batch_type cutoffpaddsize_kvs = 2048*ptravstate.skip_kvs; // CRITICAL FIXME.
-	batch_type cutoffpaddsize_kvs = 0; 
-	// if(config.enablepartition == OFF){ cutoffpaddsize_kvs = 0; }
+	batch_type cutoffpaddsize_kvs = 2048*ptravstate.skip_kvs; // CRITICAL FIXME. // JUSTCHANGED.
+	// batch_type cutoffpaddsize_kvs = 0; 
 	batch_type approxendoffset_kvs = ptravstate.end_kvs + cutoffpaddsize_kvs + paddsize_kvs;
 
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<approxendoffset_kvs; offset_kvs+=ptravstate.skip_kvs * NUMACTSFASTPIPELINES){
@@ -4788,8 +4791,6 @@ dispatch(uint512_dt * kvdram){
 			if(config.enablereduce == OFF){ actsutilityobj->checkforgreaterthan("dispatch. comparing BIGKV & globalstatsbuffer", BIGKV, globalstatsbuffer, NUM_PARTITIONS); }
 			#endif
 			#endif
-			
-			// if(currentLOP == 2){ break; }
 			
 			// reduce 
 			#ifdef REDUCEUPDATES

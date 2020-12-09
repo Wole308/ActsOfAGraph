@@ -49,7 +49,7 @@ using namespace std;
 #define FPP1
 #endif
 
-// #define OPTMZ // CRITICAL FIXME.
+#define OPTMZ // CRITICAL FIXME. // JUSTCHANGED.
 
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
 
