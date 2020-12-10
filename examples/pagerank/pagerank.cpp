@@ -89,7 +89,7 @@ runsummary_t pagerank::run(){
 			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-			break; // REMOVEME.
+			// break; // REMOVEME.
 		}
 		
 		activevertices.clear();
@@ -132,7 +132,9 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#else 
 		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, edges[0], 0, container, PAGERANK);
 		#endif
+		#ifdef COLLECTSTATSOFFLINE
 		loadgraphobj[superthreadidx]->loadkvstats((keyvalue_t **)kvbuffer[superthreadidx][0][0], container); // if defined COLLECTSTATSOFFLINE
+		#endif
 		loadgraphobj[superthreadidx]->loadmessages((uint512_vec_dt **)kvbuffer[superthreadidx][0][0], container, GraphIter, PAGERANK);
 		for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 		

@@ -40,7 +40,7 @@ using namespace std;
 #define PP2
 #endif
 
-#define NUMACTSFASTPIPELINES 2 // CRITICAL FIXME.
+#define NUMACTSFASTPIPELINES 2 // CRITICAL FIXME. // INVESTIGATEME. cause of long latency?
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 

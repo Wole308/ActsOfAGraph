@@ -40,11 +40,13 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
+	// kernelobjs[0]->topkernel((uint512_dt *)kvsourcedram[0][1]);
+	
 	for (int i = 0; i < NUMCPUTHREADS; i++){ 
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			kernelobjs[0]->topkernel((uint512_dt *)kvsourcedram[i][j]);
 			// exit(EXIT_SUCCESS); 
-			break;
+			// break;
 		}
 	}
 	

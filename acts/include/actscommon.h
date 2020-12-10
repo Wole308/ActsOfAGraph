@@ -40,7 +40,7 @@ typedef unsigned int step_type;
 typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
 #endif
-/* typedef unsigned int batch_type; // CRITICAL FIXME?
+/* typedef unsigned int batch_type; // CRITICAL FIXME? // INVESTIGATEME. cause of long latency?
 typedef unsigned int buffer_type;
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;

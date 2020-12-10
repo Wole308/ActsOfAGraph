@@ -24,7 +24,7 @@
 #include "actsfast.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 2 // CRITICAL REMOVEME?
+#define NUMACTSFASTPIPELINES 2 // CRITICAL REMOVEME? // INVESTIGATEME. cause of long latency?
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -924,7 +924,6 @@ readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuf
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("readglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
 	#endif
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -1935,6 +1934,8 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDED
 	cout<<"readkeyvalues:: keyvalues saved: offset_kvs from: "<<globalbaseaddress_kvs + ((globalcapsule[0].key + globalcapsule[0].value) / VECTOR_SIZE)<<endl;
 	actsutilityobj->printkeyvalues("actsutility::savekeyvalues: globalcapsule.", globalcapsule, NUM_PARTITIONS);
 	#endif
+	// actsutilityobj->printglobalvars();
+	// exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -4168,7 +4169,7 @@ partitionupdates_finegrainedpipeline(
 	1 (A:filled, B:filled, C:filled)
 	2 (A:filled, B:filled, C:filled, D:filled) */
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMACTSFASTPIPELINES * SRCBUFFER_SIZE);
-	if(enable == OFF){ return; } // NEWCHANGE. CHECKWITHVHLS.
+	if(enable == OFF){ return; } 
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -4752,7 +4753,7 @@ dispatch(uint512_dt * kvdram){
 			#ifdef PARTITIONUPDATES
 			if(inpartitionstage(currentLOP, globalparams) == true && (ptravstate.size_kvs > 0)){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
-			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; } 
+			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; } // CHANGEMEBACK.
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparams.treedepth)){ actsutilityobj->print7("### dispatch::partition:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 			#endif
