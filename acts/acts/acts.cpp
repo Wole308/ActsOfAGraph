@@ -37,6 +37,7 @@ using namespace std;
 
 #ifdef SIMPLEANDFASTPREPAREFUNC
 #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*4))
+// #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (16*4)) // REMOVEME?
 #else 
 #define WORKBUFFER_SIZE SRCBUFFER_SIZE
 #endif 
@@ -650,6 +651,16 @@ void
 	actslw::
 	#endif 
 calculatemanyunallignedoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+	
+	// 	// buffer[0][0].key = base;  // NEWCHANGE.
+	// 	// buffer[1][0].key = base;  // NEWCHANGE.
+	// 	// buffer[2][0].key = base;  // NEWCHANGE.
+	// 	// buffer[3][0].key = base;  // NEWCHANGE.
+	// 	// buffer[4][0].key = base;  // NEWCHANGE.
+	// 	// buffer[5][0].key = base;  // NEWCHANGE.
+	// 	// buffer[6][0].key = base;  // NEWCHANGE.
+	// 	// buffer[7][0].key = base;  // NEWCHANGE.
+	// 
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
@@ -1863,7 +1874,7 @@ buffer_type
 	#ifdef SW 
 	actslw::
 	#endif
-preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, globalparams_t globalparams){
+preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	analysis_type analysis_srcbuffersz = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
@@ -1974,21 +1985,21 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[0][p0].value", localcapsule[0][p0].value % 4, 4, localcapsule[0][p0].value, localcapsule[0][p0].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc0", loc0, PADDEDDESTBUFFER_SIZE, localcapsule[0][p0].key, localcapsule[0][p0].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc0", loc0, SRCBUFFER_SIZE, localcapsule[0][p0].key, localcapsule[0][p0].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[1][p1].value", localcapsule[1][p1].value % 4, 4, localcapsule[1][p1].value, localcapsule[1][p1].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc1", loc1, PADDEDDESTBUFFER_SIZE, localcapsule[1][p1].key, localcapsule[1][p1].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc1", loc1, SRCBUFFER_SIZE, localcapsule[1][p1].key, localcapsule[1][p1].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[2][p2].value", localcapsule[2][p2].value % 4, 4, localcapsule[2][p2].value, localcapsule[2][p2].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc2", loc2, PADDEDDESTBUFFER_SIZE, localcapsule[2][p2].key, localcapsule[2][p2].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc2", loc2, SRCBUFFER_SIZE, localcapsule[2][p2].key, localcapsule[2][p2].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[3][p3].value", localcapsule[3][p3].value % 4, 4, localcapsule[3][p3].value, localcapsule[3][p3].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc3", loc3, PADDEDDESTBUFFER_SIZE, localcapsule[3][p3].key, localcapsule[3][p3].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc3", loc3, SRCBUFFER_SIZE, localcapsule[3][p3].key, localcapsule[3][p3].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[4][p4].value", localcapsule[4][p4].value % 4, 4, localcapsule[4][p4].value, localcapsule[4][p4].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc4", loc4, PADDEDDESTBUFFER_SIZE, localcapsule[4][p4].key, localcapsule[4][p4].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc4", loc4, SRCBUFFER_SIZE, localcapsule[4][p4].key, localcapsule[4][p4].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[5][p5].value", localcapsule[5][p5].value % 4, 4, localcapsule[5][p5].value, localcapsule[5][p5].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc5", loc5, PADDEDDESTBUFFER_SIZE, localcapsule[5][p5].key, localcapsule[5][p5].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc5", loc5, SRCBUFFER_SIZE, localcapsule[5][p5].key, localcapsule[5][p5].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[6][p6].value", localcapsule[6][p6].value % 4, 4, localcapsule[6][p6].value, localcapsule[6][p6].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc6", loc6, PADDEDDESTBUFFER_SIZE, localcapsule[6][p6].key, localcapsule[6][p6].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc6", loc6, SRCBUFFER_SIZE, localcapsule[6][p6].key, localcapsule[6][p6].value, NAp);
 		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[7][p7].value", localcapsule[7][p7].value % 4, 4, localcapsule[7][p7].value, localcapsule[7][p7].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc7", loc7, PADDEDDESTBUFFER_SIZE, localcapsule[7][p7].key, localcapsule[7][p7].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc7", loc7, SRCBUFFER_SIZE, localcapsule[7][p7].key, localcapsule[7][p7].value, NAp);
 		#endif
 		
 		destbuffer[0][loc0] = keyvalue0;
@@ -2008,7 +2019,7 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		destbuffer[7][loc7] = keyvalue7;
 		localcapsule[7][p7].value += 1;
 	}
-	
+	//////////////////////////////////////////////////////////////////////
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		keyvalue_t dummykv;
 		dummykv.key = (p << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
@@ -2065,11 +2076,26 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 			}
 		}
 	}
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ cutoffs[v] = emptyslot[v]; }
 	
-	buffer_type minval = INFINITI;
+	localcapsule[0][0].value += (SRCBUFFER_SIZE - emptyslot[0]);
+	localcapsule[1][0].value += (SRCBUFFER_SIZE - emptyslot[1]);
+	localcapsule[2][0].value += (SRCBUFFER_SIZE - emptyslot[2]);
+	localcapsule[3][0].value += (SRCBUFFER_SIZE - emptyslot[3]);
+	localcapsule[4][0].value += (SRCBUFFER_SIZE - emptyslot[4]);
+	localcapsule[5][0].value += (SRCBUFFER_SIZE - emptyslot[5]);
+	localcapsule[6][0].value += (SRCBUFFER_SIZE - emptyslot[6]);
+	localcapsule[7][0].value += (SRCBUFFER_SIZE - emptyslot[7]);
+	//////////////////////////////////////////////////////////////////////
+	
+	
+	
+	//////////////////////////////////////////////////////////////////////
+	/* buffer_type minval = INFINITI;
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ if(emptyslot[v] < minval){ minval = emptyslot[v]; }}
 	keyvalue_t dummykv;
 	dummykv.key = (0 << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
+	// dummykv.key = ((NUM_PARTITIONS-1) << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
 	dummykv.value = INVALIDDATA;
 	for(unsigned int k=minval; k<SRCBUFFER_SIZE; k++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_dummyfiller avg=analysis_dummyfiller	
@@ -2077,38 +2103,46 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		if(k>=emptyslot[0]){
 			destbuffer[0][k] = dummykv;
 			localcapsule[0][0].value += 1;
+			// localcapsule[0][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[1]){
 			destbuffer[1][k] = dummykv;
 			localcapsule[1][0].value += 1;
+			// localcapsule[1][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[2]){
 			destbuffer[2][k] = dummykv;
 			localcapsule[2][0].value += 1;
+			// localcapsule[2][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[3]){
 			destbuffer[3][k] = dummykv;
 			localcapsule[3][0].value += 1;
+			// localcapsule[3][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[4]){
 			destbuffer[4][k] = dummykv;
 			localcapsule[4][0].value += 1;
+			// localcapsule[4][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[5]){
 			destbuffer[5][k] = dummykv;
 			localcapsule[5][0].value += 1;
+			// localcapsule[5][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[6]){
 			destbuffer[6][k] = dummykv;
 			localcapsule[6][0].value += 1;
+			// localcapsule[6][NUM_PARTITIONS-1].value += 1;
 		}
 		if(k>=emptyslot[7]){
 			destbuffer[7][k] = dummykv;
 			localcapsule[7][0].value += 1;
+			// localcapsule[7][NUM_PARTITIONS-1].value += 1;
 		}
-	}
+	} */
 	
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+	/* for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
 	#pragma HLS PIPELINE II=1
 		localcapsule[0][p].key = 0;
 		localcapsule[1][p].key = 0;
@@ -2118,7 +2152,17 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		localcapsule[5][p].key = 0;
 		localcapsule[6][p].key = 0;
 		localcapsule[7][p].key = 0;
-	}
+	} */
+	localcapsule[0][0].key = 0;
+	localcapsule[1][0].key = 0;
+	localcapsule[2][0].key = 0;
+	localcapsule[3][0].key = 0;
+	localcapsule[4][0].key = 0;
+	localcapsule[5][0].key = 0;
+	localcapsule[6][0].key = 0;
+	localcapsule[7][0].key = 0;
+	//////////////////////////////////////////////////////////////////////
+	
 	calculatemanyunallignedoffsets(localcapsule, NUM_PARTITIONS, 0, 0);
 
 	#ifdef _DEBUGMODE_CHECKS2
@@ -2138,10 +2182,10 @@ buffer_type
 	#ifdef SW 
 	actslw::
 	#endif
-preparekeyvalues_finegrainedpipeline(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, globalparams_t globalparams){
+preparekeyvalues_finegrainedpipeline(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, travstate_t travstate, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	#ifdef SIMPLEANDFASTPREPAREFUNC
-		return preparekeyvalues3(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
+		return preparekeyvalues3(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, cutoffs, globalparams);
 	#else 
 		#ifdef MAXPERFORMANCE
 		return preparekeyvalues2(enable, sourcebuffer, destbuffer, localcapsule, currentLOP, upperlimit, travstate, size_kvs, globalparams);
@@ -3713,7 +3757,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS], 
 					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
 						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
-							unsigned int currentLOP, unsigned int upperlimit, buffer_type cutoff, batch_type shiftcount, globalparams_t globalparams){		
+							unsigned int currentLOP, unsigned int upperlimit, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
 	if(enable == OFF){ return; }
 	
@@ -3777,6 +3821,9 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#pragma HLS ARRAY_PARTITION variable=_kvC6 complete
 	#pragma HLS ARRAY_PARTITION variable=_kvC7 complete
 	
+	buffer_type tempcutoffs[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=tempcutoffs complete
+	
 	bool_type enablebufferA = ON;
 	bool_type enablebufferB = ON;
 	bool_type enablebufferC = ON;
@@ -3810,9 +3857,9 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	actsutilityobj->printvalues("runpipeline: printing before_pcountso8.", before_pcountso8, NUM_PARTITIONS);
 	#endif
 	
-	// shift partition function
 	bufferDcapsule[0].key = 0;
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=2
 		if(p<NUM_PARTITIONS-1){ bufferDcapsule[p+1].key = bufferDcapsule[p].key + allignhigher_KV(((bufferCcapsule[0][p].value + bufferCcapsule[1][p].value) * 4)); } // FIXME. CHECKWITHVHLS.
 		bufferDcapsule[p].value = 0;
 		
@@ -3878,7 +3925,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#endif 
 	
 	keyvalue_t dummykv;
-	dummykv.key = ((NUM_PARTITIONS-1) << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
+	dummykv.key = (0 << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
 	dummykv.value = INVALIDDATA;
 	
 	value_t tempbufferDcapsule[NUM_PARTITIONS];
@@ -3886,8 +3933,15 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	#pragma HLS ARRAY_PARTITION variable=tempbufferDcapsule complete
 	#endif
 
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+	#pragma HLS PIPELINE II=1
+		tempbufferDcapsule[p] = bufferDcapsule[p].value; 
+	}
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
+	#pragma HLS PIPELINE II=1
+		tempcutoffs[v] = cutoffs[v]; 
+	}
 	unsigned int n=0;
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){ tempbufferDcapsule[p] = bufferDcapsule[p].value; }
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
 		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
@@ -3897,6 +3951,16 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			if(k % 16 == 0){ cout<<"k: "<<k<<endl; }
 			#endif
 			
+			#ifdef SIMPLEANDFASTPREPAREFUNC
+			if(k < tempcutoffs[0+n]){ kvA0[0] = bufferA[0+n][k]; kvA0[1] = bufferA[0+n][k+1]; kvA0[2] = bufferA[0+n][k+2]; kvA0[3] = bufferA[0+n][k+3]; } 
+			else { kvA0[0] = dummykv; kvA0[1] = dummykv; kvA0[2] = dummykv; kvA0[3] = dummykv; }
+			if(k < tempcutoffs[2+n]){ kvA2[0] = bufferA[2+n][k]; kvA2[1] = bufferA[2+n][k+1]; kvA2[2] = bufferA[2+n][k+2]; kvA2[3] = bufferA[2+n][k+3]; } 
+			else { kvA2[0] = dummykv; kvA2[1] = dummykv; kvA2[2] = dummykv; kvA2[3] = dummykv; }
+			if(k < tempcutoffs[4+n]){ kvA4[0] = bufferA[4+n][k]; kvA4[1] = bufferA[4+n][k+1]; kvA4[2] = bufferA[4+n][k+2]; kvA4[3] = bufferA[4+n][k+3]; } 
+			else { kvA4[0] = dummykv; kvA4[1] = dummykv; kvA4[2] = dummykv; kvA4[3] = dummykv; }
+			if(k < tempcutoffs[6+n]){ kvA6[0] = bufferA[6+n][k]; kvA6[1] = bufferA[6+n][k+1]; kvA6[2] = bufferA[6+n][k+2]; kvA6[3] = bufferA[6+n][k+3]; } 
+			else { kvA6[0] = dummykv; kvA6[1] = dummykv; kvA6[2] = dummykv; kvA6[3] = dummykv; }
+			#else 
 			if(k < cutoff){
 				kvA0[0] = bufferA[0+n][k];
 				kvA0[1] = bufferA[0+n][k+1];
@@ -3938,6 +4002,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 				kvA6[2] = dummykv;
 				kvA6[3] = dummykv;
 			}
+			#endif 
 		
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			for(unsigned int m=0; m<4; m++){ cout<<"kvA0["<<m<<"].key: "<<kvA0[m].key<<", kvA0["<<m<<"].value: "<<kvA0[m].value<<endl; }
@@ -4149,8 +4214,12 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			if(!((_kvC4[0].value == INVALIDDATA) && (_kvC5[0].value == INVALIDDATA) && (_kvC6[0].value == INVALIDDATA) && (_kvC7[0].value == INVALIDDATA))){ tempbufferDcapsule[_pC4] += 4; }
 		}
 	}
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){ bufferDcapsule[p].value = tempbufferDcapsule[p]; }
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+	#pragma HLS PIPELINE II=1
+		bufferDcapsule[p].value = tempbufferDcapsule[p]; 
+	}
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
 		keyvalue_t dummykv;
 		dummykv.key = (p << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
 		dummykv.value = INVALIDDATA;
@@ -4164,7 +4233,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		#endif
 	}
 	
-	#if defined(_DEBUGMODE_CHECKS2) && not defined(OPTMZ) // not fair for OPTMZ ('random values present from prevs')
+	#if defined(_DEBUGMODE_CHECKS2) && not defined(OPTMZ) // OPTMZ enables has 'random values present from prevs'
 	actsutilityobj->checkprofile(enablebufferB, "runpipeline::checkprofile::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkprofile(enablebufferC, "runpipeline::checkprofile::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkprofile(enablebufferD, "runpipeline::checkprofile::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
@@ -4487,6 +4556,8 @@ partitionupdates_finegrainedpipeline(
 	bool_type pp1writeen = ON;
 	buffer_type pp0cutoff = WORKBUFFER_SIZE; 
 	buffer_type pp1cutoff = WORKBUFFER_SIZE; 
+	buffer_type pp0cutoffs[VECTOR_SIZE];
+	buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type pp0readoffset_kvs = ptravstate.begin_kvs;
 	batch_type pp1readoffset_kvs = ptravstate.begin_kvs + WORKBUFFER_SIZE; 
 	buffer_type pp0readsize_kvs = WORKBUFFER_SIZE; 
@@ -4526,10 +4597,10 @@ partitionupdates_finegrainedpipeline(
 	
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp0readoffset_kvs), pp0readsize_kvs, ptravstatepp0); 
 		#ifdef FPP1
-		runpipeline(pp1runpipelineen, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp1cutoff, (itercount-2)+1, globalparams);
+		runpipeline(pp1runpipelineen, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp1cutoff, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
 		
-		pp0cutoff = preparekeyvalues_finegrainedpipeline(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, pp0readsize_kvs, globalparams);
+		pp0cutoff = preparekeyvalues_finegrainedpipeline(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, pp0readsize_kvs, pp0cutoffs, globalparams);
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, itercount%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
@@ -4541,7 +4612,7 @@ partitionupdates_finegrainedpipeline(
 			#endif 
 		#endif 
 		
-		runpipeline(ON, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp0cutoff, itercount, globalparams);
+		runpipeline(ON, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp0cutoff, pp0cutoffs, itercount, globalparams);
 		#ifdef FPP1
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp1readoffset_kvs), pp1readsize_kvs, ptravstatepp1);
 		#endif
@@ -4551,7 +4622,7 @@ partitionupdates_finegrainedpipeline(
 			if(pp0writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); }
 			#endif
 		#ifdef FPP1
-		pp1cutoff = preparekeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, globalparams);
+		pp1cutoff = preparekeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, pp1cutoffs, globalparams);
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, (itercount+1)%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
