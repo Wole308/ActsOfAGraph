@@ -839,6 +839,9 @@ void actsutility::concatenate8keyvalues(string message, keyvalue_t * keyvalues1,
 
 void actsutility::printprofileso1(unsigned int enable, string message, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t stats[8][NUM_PARTITIONS], unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int partitioncount[NUM_PARTITIONS]){
 	if(enable == OFF){ return; }
+	#ifdef SIMPLEANDFASTPREPAREFUNC
+	return; // not applicable.
+	#endif 
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_RUNKERNELPRINTS)
 	cout<<endl<<"+++ actsutility::printprofileso1 [with stats]:: "<<message<<endl;
 	#endif 
@@ -852,7 +855,11 @@ void actsutility::printprofileso1(unsigned int enable, string message, keyvalue_
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		printkeyvalues("printprofileso1:: printing stats:", (keyvalue_t *)stats, NUM_PARTITIONS);
 		#endif
-		printprofile(ON, "printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		#ifdef SW
+		printprofile(ON, "message: " + message + ". i: " + std::to_string(i) + ". printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		#else 
+		printprofile(ON, "message: " + message + ". printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], PADDEDDESTBUFFER_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
+		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"successful. "<<endl;
@@ -959,7 +966,7 @@ void actsutility::printprofile(unsigned int enable, string message, keyvalue_t *
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"printprofile:: p: "<<p<<", begin: "<<begin<<", end: "<<end<<", size: "<<(end-begin)<<endl;
 		#endif 
-		if(end >= size){ cout<<"actsutility::printprofile: ERROR. end >= PADDEDDESTBUFFER_SIZE * VECTOR_SIZE. (stats["<<p<<"].key: "<<stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		if(end > size){ cout<<"actsutility::printprofile: ERROR. end > size. (stats["<<p<<"].key: "<<stats[p].key<<", stats["<<p<<"].value: "<<stats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
 		
 		for(unsigned int k=begin; k<end; k++){
 			if(keyvalues[k].key == INVALIDDATA || keyvalues[k].value == INVALIDDATA){ invalidcount += 1; continue; } 
@@ -971,7 +978,8 @@ void actsutility::printprofile(unsigned int enable, string message, keyvalue_t *
 				errcount += 1;
 				cout<<"actsutility::printprofile: ERROR in printprofile: begin: "<<begin<<". end: "<<end<<""<<endl; 
 				cout<<"actsutility::printprofile: ERROR in printprofile: message: "<<message<<". thisp("<<thisp<<") != p("<<p<<"). keyvalues["<<k<<"].key: "<<keyvalues[k].key<<". printing some values and EXITING..."<<endl; 
-				printkeyvalues("actsutility::printprofile:keyvalues[begin]", (keyvalue_t *)&keyvalues[begin], 16);
+				// printkeyvalues("actsutility::printprofile:keyvalues[begin]", (keyvalue_t *)&keyvalues[begin], 16);
+				printkeyvalues("actsutility::printprofile:keyvalues[begin]", (keyvalue_t *)&keyvalues[begin], size);
 				printkeyvalues("actsutility::printprofile:stats", (keyvalue_t *)stats, 16);
 				exit(EXIT_FAILURE); 
 				}
@@ -1137,7 +1145,7 @@ void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"actsutility::collectstats:: p: "<<p<<", begin_kvs: "<<begin_kvs<<", end_kvs: "<<begin_kvs + size_kvs<<", size_kvs: "<<size_kvs<<endl;
 		#endif 
-		if(begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE){ cout<<"actsutility::collectstats: ERROR. begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE. (localstats["<<p<<"].key: "<<localstats[p].key<<", localstats["<<p<<"].value: "<<localstats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
+		if(begin_kvs + size_kvs > PADDEDDESTBUFFER_SIZE){ cout<<"actsutility::collectstats: ERROR. begin_kvs + size_kvs >= PADDEDDESTBUFFER_SIZE. (localstats["<<p<<"].key: "<<localstats[p].key<<", localstats["<<p<<"].value: "<<localstats[p].value<<") EXITING..."<<endl; exit(EXIT_FAILURE); }
 		
 		for(unsigned int i=begin_kvs; i<begin_kvs + size_kvs; i++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){

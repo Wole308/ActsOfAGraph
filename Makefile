@@ -99,24 +99,24 @@ LDFLAGS += -lrt -lstdc++
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-# LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
-# LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[2] 
-# LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[3]
-# LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[4]
-# LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[5]
-# LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[6]
-# LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[7]
-# LDCLFLAGS += --sp topkernel_9.m_axi_gmem0:HBM[8]
-# LDCLFLAGS += --sp topkernel_10.m_axi_gmem0:HBM[9]
-# LDCLFLAGS += --sp topkernel_11.m_axi_gmem0:HBM[10]
-# LDCLFLAGS += --sp topkernel_12.m_axi_gmem0:HBM[11]
-# LDCLFLAGS += --sp topkernel_13.m_axi_gmem0:HBM[12]
-# LDCLFLAGS += --sp topkernel_14.m_axi_gmem0:HBM[13]
-# LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
-# LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
+LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[2] 
+LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[3]
+LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[4]
+LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[5]
+LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[6]
+LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[7]
+LDCLFLAGS += --sp topkernel_9.m_axi_gmem0:HBM[8]
+LDCLFLAGS += --sp topkernel_10.m_axi_gmem0:HBM[9]
+LDCLFLAGS += --sp topkernel_11.m_axi_gmem0:HBM[10]
+LDCLFLAGS += --sp topkernel_12.m_axi_gmem0:HBM[11]
+LDCLFLAGS += --sp topkernel_13.m_axi_gmem0:HBM[12]
+LDCLFLAGS += --sp topkernel_14.m_axi_gmem0:HBM[13]
+LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
+LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
@@ -169,7 +169,7 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:16 -o'$@' $(+)
 
 # Building Host
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)

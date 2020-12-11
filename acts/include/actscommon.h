@@ -40,7 +40,7 @@ typedef unsigned int step_type;
 typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
 #endif
-/* typedef unsigned int batch_type; // CRITICAL FIXME? // INVESTIGATEME. cause of long latency?
+/* typedef unsigned int batch_type; // CRITICAL FIXME?
 typedef unsigned int buffer_type;
 typedef unsigned int partition_type;
 typedef unsigned int vector_type;
@@ -179,9 +179,6 @@ typedef struct {
 #define PADDEDDESTBUFFER_SIZE 512
 #ifdef ACTSFAST
 #define SRCBUFFER_SIZE (512 - (4 * 4))
-// #define SRCBUFFER_SIZE 512
-// #define SRCBUFFER_SIZE (512 - (16 * 4)) // 
-// #define SRCBUFFER_SIZE (512 - (16 * 2))
 #else 
 #define SRCBUFFER_SIZE (PADDEDDESTBUFFER_SIZE - ((4 * 3 * NUM_PARTITIONS) / VECTOR_SIZE))
 #endif
