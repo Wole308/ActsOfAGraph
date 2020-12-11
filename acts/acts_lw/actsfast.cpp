@@ -37,7 +37,6 @@ using namespace std;
 
 #ifdef SIMPLEANDFASTPREPAREFUNC
 #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*4))
-// #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (16*4)) // REMOVEME?
 #else 
 #define WORKBUFFER_SIZE SRCBUFFER_SIZE
 #endif 
@@ -2019,7 +2018,7 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		destbuffer[7][loc7] = keyvalue7;
 		localcapsule[7][p7].value += 1;
 	}
-	//////////////////////////////////////////////////////////////////////
+
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		keyvalue_t dummykv;
 		dummykv.key = (p << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
@@ -2076,6 +2075,7 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 			}
 		}
 	}
+	
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ cutoffs[v] = emptyslot[v]; }
 	
 	localcapsule[0][0].value += (SRCBUFFER_SIZE - emptyslot[0]);
@@ -2086,73 +2086,7 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 	localcapsule[5][0].value += (SRCBUFFER_SIZE - emptyslot[5]);
 	localcapsule[6][0].value += (SRCBUFFER_SIZE - emptyslot[6]);
 	localcapsule[7][0].value += (SRCBUFFER_SIZE - emptyslot[7]);
-	//////////////////////////////////////////////////////////////////////
 	
-	
-	
-	//////////////////////////////////////////////////////////////////////
-	/* buffer_type minval = INFINITI;
-	for(vector_type v=0; v<VECTOR_SIZE; v++){ if(emptyslot[v] < minval){ minval = emptyslot[v]; }}
-	keyvalue_t dummykv;
-	dummykv.key = (0 << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
-	// dummykv.key = ((NUM_PARTITIONS-1) << (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))) + upperlimit;
-	dummykv.value = INVALIDDATA;
-	for(unsigned int k=minval; k<SRCBUFFER_SIZE; k++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_dummyfiller avg=analysis_dummyfiller	
-	#pragma HLS PIPELINE II=2
-		if(k>=emptyslot[0]){
-			destbuffer[0][k] = dummykv;
-			localcapsule[0][0].value += 1;
-			// localcapsule[0][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[1]){
-			destbuffer[1][k] = dummykv;
-			localcapsule[1][0].value += 1;
-			// localcapsule[1][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[2]){
-			destbuffer[2][k] = dummykv;
-			localcapsule[2][0].value += 1;
-			// localcapsule[2][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[3]){
-			destbuffer[3][k] = dummykv;
-			localcapsule[3][0].value += 1;
-			// localcapsule[3][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[4]){
-			destbuffer[4][k] = dummykv;
-			localcapsule[4][0].value += 1;
-			// localcapsule[4][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[5]){
-			destbuffer[5][k] = dummykv;
-			localcapsule[5][0].value += 1;
-			// localcapsule[5][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[6]){
-			destbuffer[6][k] = dummykv;
-			localcapsule[6][0].value += 1;
-			// localcapsule[6][NUM_PARTITIONS-1].value += 1;
-		}
-		if(k>=emptyslot[7]){
-			destbuffer[7][k] = dummykv;
-			localcapsule[7][0].value += 1;
-			// localcapsule[7][NUM_PARTITIONS-1].value += 1;
-		}
-	} */
-	
-	/* for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
-	#pragma HLS PIPELINE II=1
-		localcapsule[0][p].key = 0;
-		localcapsule[1][p].key = 0;
-		localcapsule[2][p].key = 0;
-		localcapsule[3][p].key = 0;
-		localcapsule[4][p].key = 0;
-		localcapsule[5][p].key = 0;
-		localcapsule[6][p].key = 0;
-		localcapsule[7][p].key = 0;
-	} */
 	localcapsule[0][0].key = 0;
 	localcapsule[1][0].key = 0;
 	localcapsule[2][0].key = 0;
@@ -2161,7 +2095,6 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 	localcapsule[5][0].key = 0;
 	localcapsule[6][0].key = 0;
 	localcapsule[7][0].key = 0;
-	//////////////////////////////////////////////////////////////////////
 	
 	calculatemanyunallignedoffsets(localcapsule, NUM_PARTITIONS, 0, 0);
 
@@ -4651,6 +4584,7 @@ partitionupdates_finegrainedpipeline(
 			#endif
 		#endif 
 		
+		// #ifndef SIMPLEANDFASTPREPAREFUNC
 		if(pp0readoffset_kvs >= ptravstate.end_kvs){ // FIXME. edge condition for perfect accuracy.
 			if(flushsize >= 2){ 
 				cout<<"partitionupdates successful. all pipeline stages flushed. breaking out..."<<endl; 
@@ -4658,7 +4592,8 @@ partitionupdates_finegrainedpipeline(
 				break; }
 			flushsize += 1;
 		}
-			
+		// #endif 
+		
 		itercount += NUMACTSFASTPIPELINES;
 		
 		#ifdef _DEBUGMODE_CHECKS2
