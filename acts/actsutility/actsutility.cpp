@@ -673,15 +673,14 @@ void actsutility::checkn(unsigned int enable, string message, keyvalue_t * kv, u
 	
 	for(unsigned int i=0; i<n; i++){
 		if(kv[i].key == INVALIDDATA || kv[i].value == INVALIDDATA){ continue; }
-		// else {
-			p = getpartition(kv[i], currentLOP, upperlimit, batch_range_pow);
-			// cout<<"------ actsutility::checkn:: commonp: "<<commonp<<", p: "<<p<<", kv[i].key: "<<kv[i].key<<endl;
-			if((p != commonp)){
-				cout<<"ERROR. checkn. message:"<<message<<". group's partition("<<commonp<<") != element partition("<<p<<"). kv["<<i<<"]: "<<kv[i].key<<". EXITING... ............................................................"<<endl;
-				for(unsigned int h=0; h<n; h++){ cout<<"> kv["<<h<<"].key: "<<kv[h].key<<endl; }
-				exit(EXIT_FAILURE);
-			}
-		// }
+		
+		p = getpartition(kv[i], currentLOP, upperlimit, batch_range_pow);
+		// cout<<"------ actsutility::checkn:: commonp: "<<commonp<<", p: "<<p<<", kv[i].key: "<<kv[i].key<<endl;
+		if((p != commonp)){
+			cout<<"ERROR. checkn. message:"<<message<<". group's partition("<<commonp<<") != element partition("<<p<<"). kv["<<i<<"]: "<<kv[i].key<<". EXITING... ............................................................"<<endl;
+			for(unsigned int h=0; h<n; h++){ cout<<"> kv["<<h<<"].key: "<<kv[h].key<<endl; }
+			exit(EXIT_FAILURE);
+		}
 	}
 	return;
 }

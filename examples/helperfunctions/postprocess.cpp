@@ -70,13 +70,13 @@ void postprocess::workerthread_cummulateandcommitverticesdata(int threadidx, val
 			cumm = algorithmobj[threadidx]->cummulate(cumm, buffer[0][j][baseoffset + k]);
 			
 			if(cumm < INFINITI){ onceactivecnt += 1; }
-			#ifdef _DEBUGMODE_HOSTPRINTS
+			#ifdef _DEBUGMODE_HOSTPRINTS3
 			if(cumm < INFINITI){ cout<<"cummulateverticesdata: once active vertex seen @ "<<k<<": cumm: "<<cumm<<", buffer[0]["<<j<<"]["<<baseoffset + k<<"]: "<<buffer[0][j][baseoffset + k]<<endl; }
 			#endif
 		}
 		tempvertexdatabuffer[voffset + k] = cumm;
 	}
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"workerthread_cummulateverticesdata: number of vertex ids once active: "<<onceactivecnt<<endl;
 	#endif 
 	return;
@@ -188,9 +188,9 @@ void postprocess::workerthread_applyvertices2(int ithreadidx, value_t * tempvert
 		value_t kvtempdata = tempvertexdatabuffer[offset + k]; 
 		value_t vdata = vertexdatabuffer[offset + k];
 		value_t temp = algorithmobj[ithreadidx]->apply(kvtempdata, vdata);
-		// mtx.lock(); //
+		// mtx.lock();
 		vertexdatabuffer[offset + k] = temp;
-		// mtx.unlock();// 
+		// mtx.unlock();
 		
 		if(temp != vdata){
 			onceactivecnt += 1; 
@@ -199,23 +199,23 @@ void postprocess::workerthread_applyvertices2(int ithreadidx, value_t * tempvert
 			#endif 
 			
 			if(GraphAlgo != PAGERANK){ 
-				// mtx.lock(); //
+				// mtx.lock();
 				activeverticesbuffer.push_back((offset + k)); 
-				// mtx.unlock();// 
+				// mtx.unlock();
 			}
 		}
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	mtx.lock(); //
+	mtx.lock();
 	cout<<"applyvertices2: number of vertex ids once active: "<<onceactivecnt<<endl;
 	cout<<"applyvertices2: number of vertex ids in activeverticesbuffer: "<<activeverticesbuffer.size()<<endl;
 	utilityobj->countvalueslessthan("applyvertices2", vertexdatabuffer, KVDATA_RANGE, INFINITI);
-	mtx.unlock();// 
+	mtx.unlock();
 	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	mtx.lock(); //
+	mtx.lock();
 	cout<<"applyvertices2: number of active vertices for next iteration: "<<activeverticesbuffer.size()<<endl;
-	mtx.unlock();// 
+	mtx.unlock();
 	#endif
 	return;
 }
