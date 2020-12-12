@@ -163,7 +163,7 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 			unsigned int vpindex = 0;
 			kvbuffer[i][j][BASEOFFSET_VERTEXPTR + vpindex].key = 0;
 			for(unsigned int k=srcvidsnxtoffset; k<srcvids.size(); k++){
-				#ifdef _DEBUGMODE_HOSTPRINTS
+				#ifdef _DEBUGMODE_HOSTPRINTS2
 				cout<<"loadactivesubgraph:: k: "<<k<<", edgeoffset: "<<edgeoffset<<", edgessz: "<<edgessz<<", srcvids["<<k<<"]: "<<srcvids[k]<<endl;
 				#endif
 				
@@ -197,7 +197,8 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 
 			srcvidsnxtoffset += srcvsz;
 			container->srcvoffset[i][j] = 0;
-			container->srcvsize[i][j] = srcvsz + 1;
+			// container->srcvsize[i][j] = srcvsz + 1;
+			container->srcvsize[i][j] = srcvsz; // NEWCHANGE.
 			container->edgessize[i][j] = edgessz;
 			container->runsize[i][j] = edgessz;
 			container->destvoffset[i][j] = col * KVDATA_RANGE_PERSSDPARTITION;

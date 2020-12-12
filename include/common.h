@@ -4,7 +4,7 @@
 
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -37,11 +37,16 @@
 
 ////////////////
 
-#if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX) && defined(PR_ALGORITHM) //  && not defined(ACTSFAST) // FIXME. REMOVEME. fixme for bfs
+/** #if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX) && defined(PR_ALGORITHM) //  && not defined(ACTSFAST) // FIXME. REMOVEME. fixme for bfs
 #if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
 #define INMEMORYGP
 #endif
-#endif 
+#endif  */
+#if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX)
+#if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
+#define INMEMORYGP
+#endif
+#endif
 
 #ifdef INMEMORYGP
 #define COLLECTSTATSOFFLINE
@@ -71,7 +76,7 @@
 // #define _DEBUGMODE_HOSTCHECKS
 #define _DEBUGMODE_HOSTCHECKS2 //
 // #define _DEBUGMODE_HOSTPRINTS
-// #define _DEBUGMODE_HOSTPRINTS2 //
+#define _DEBUGMODE_HOSTPRINTS2 //
 #define _DEBUGMODE_HOSTPRINTS3 //
 // #define _DEBUGMODE_TIMERS
 // #define _DEBUGMODE_TIMERS2

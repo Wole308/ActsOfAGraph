@@ -156,6 +156,7 @@ void bfs::WorkerThread(vector<vertex_t> &activevertices, container_t * container
 			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
 			
+			exit(EXIT_SUCCESS);
 			#ifdef INMEMORYGP
 			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
 			#else 

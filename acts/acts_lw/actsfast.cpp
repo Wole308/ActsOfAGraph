@@ -4584,7 +4584,7 @@ partitionupdates_finegrainedpipeline(
 			#endif
 		#endif 
 		
-		// #ifndef SIMPLEANDFASTPREPAREFUNC
+		#ifndef SIMPLEANDFASTPREPAREFUNC
 		if(pp0readoffset_kvs >= ptravstate.end_kvs){ // FIXME. edge condition for perfect accuracy.
 			if(flushsize >= 2){ 
 				cout<<"partitionupdates successful. all pipeline stages flushed. breaking out..."<<endl; 
@@ -4592,7 +4592,7 @@ partitionupdates_finegrainedpipeline(
 				break; }
 			flushsize += 1;
 		}
-		// #endif 
+		#endif 
 		
 		itercount += NUMACTSFASTPIPELINES;
 		
