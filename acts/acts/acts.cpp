@@ -24,7 +24,7 @@
 #include "actsfast.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 2
+#define NUMACTSFASTPIPELINES 1 // CRITICAL FIXME
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -2318,18 +2318,18 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		vertex_t loc6 = keyvalue6.key - upperlimit;
 		vertex_t loc7 = keyvalue7.key - upperlimit;
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(keyvalue0.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue1.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue2.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue3.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc3: "<<loc3<<", keyvalue3.key: "<<keyvalue3.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue4.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc4: "<<loc4<<", keyvalue4.key: "<<keyvalue4.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue5.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue6.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue7.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", keyvalue0.value: "<<keyvalue0.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", keyvalue1.value: "<<keyvalue1.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", keyvalue2.value: "<<keyvalue2.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc3: "<<loc3<<", keyvalue3.key: "<<keyvalue3.key<<", keyvalue3.value: "<<keyvalue3.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc4: "<<loc4<<", keyvalue4.key: "<<keyvalue4.key<<", keyvalue4.value: "<<keyvalue4.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", keyvalue5.value: "<<keyvalue5.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", keyvalue6.value: "<<keyvalue6.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", keyvalue7.value: "<<keyvalue7.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		#endif 
 		
-		if(loc0 >= globalparams.applyvertexbuffersz && keyvalue0.key != INVALIDDATA){
+		if(loc0 >= globalparams.applyvertexbuffersz && keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2343,7 +2343,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc0 = 0;
 		} // REMOVEME.
-		if(loc1 >= globalparams.applyvertexbuffersz && keyvalue1.key != INVALIDDATA){
+		if(loc1 >= globalparams.applyvertexbuffersz && keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2357,7 +2357,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc1 = 0;
 		} // REMOVEME.
-		if(loc2 >= globalparams.applyvertexbuffersz && keyvalue2.key != INVALIDDATA){
+		if(loc2 >= globalparams.applyvertexbuffersz && keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2371,7 +2371,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc2 = 0;
 		} // REMOVEME.
-		if(loc3 >= globalparams.applyvertexbuffersz && keyvalue3.key != INVALIDDATA){
+		if(loc3 >= globalparams.applyvertexbuffersz && keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2385,7 +2385,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc3 = 0;
 		} // REMOVEME.
-		if(loc4 >= globalparams.applyvertexbuffersz && keyvalue4.key != INVALIDDATA){
+		if(loc4 >= globalparams.applyvertexbuffersz && keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2399,7 +2399,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc4 = 0;
 		} // REMOVEME.
-		if(loc5 >= globalparams.applyvertexbuffersz && keyvalue5.key != INVALIDDATA){
+		if(loc5 >= globalparams.applyvertexbuffersz && keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2413,7 +2413,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc5 = 0;
 		} // REMOVEME.
-		if(loc6 >= globalparams.applyvertexbuffersz && keyvalue6.key != INVALIDDATA){
+		if(loc6 >= globalparams.applyvertexbuffersz && keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2427,7 +2427,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			#endif
 			loc6 = 0;
 		} // REMOVEME.
-		if(loc7 >= globalparams.applyvertexbuffersz && keyvalue7.key != INVALIDDATA){
+		if(loc7 >= globalparams.applyvertexbuffersz && keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -2460,21 +2460,21 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		vertex_t colindex7 = loc7 % 2;
 		
 		keyvalue_t vprop0;
-		if(keyvalue0.key != INVALIDDATA){ vprop0 = destbuffer[0][rowindex0]; }
+		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ vprop0 = destbuffer[0][rowindex0]; }
 		keyvalue_t vprop1;
-		if(keyvalue1.key != INVALIDDATA){ vprop1 = destbuffer[1][rowindex1]; }
+		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ vprop1 = destbuffer[1][rowindex1]; }
 		keyvalue_t vprop2;
-		if(keyvalue2.key != INVALIDDATA){ vprop2 = destbuffer[2][rowindex2]; }
+		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ vprop2 = destbuffer[2][rowindex2]; }
 		keyvalue_t vprop3;
-		if(keyvalue3.key != INVALIDDATA){ vprop3 = destbuffer[3][rowindex3]; }
+		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ vprop3 = destbuffer[3][rowindex3]; }
 		keyvalue_t vprop4;
-		if(keyvalue4.key != INVALIDDATA){ vprop4 = destbuffer[4][rowindex4]; }
+		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ vprop4 = destbuffer[4][rowindex4]; }
 		keyvalue_t vprop5;
-		if(keyvalue5.key != INVALIDDATA){ vprop5 = destbuffer[5][rowindex5]; }
+		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ vprop5 = destbuffer[5][rowindex5]; }
 		keyvalue_t vprop6;
-		if(keyvalue6.key != INVALIDDATA){ vprop6 = destbuffer[6][rowindex6]; }
+		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ vprop6 = destbuffer[6][rowindex6]; }
 		keyvalue_t vprop7;
-		if(keyvalue7.key != INVALIDDATA){ vprop7 = destbuffer[7][rowindex7]; }
+		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ vprop7 = destbuffer[7][rowindex7]; }
 		
 		value_t temp0;
 		if(colindex0 == 0){ temp0 = vprop0.key; }
@@ -2510,15 +2510,15 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		value_t rettemp6 = reducefunc(temp6, keyvalue6.value, GraphIter, GraphAlgo);
 		value_t rettemp7 = reducefunc(temp7, keyvalue7.value, GraphIter, GraphAlgo);
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(keyvalue0.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp0: "<<rettemp0<<endl; }
-		if(keyvalue1.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp1: "<<rettemp1<<endl; }
-		if(keyvalue2.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp2: "<<rettemp2<<endl; }
-		if(keyvalue3.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp3: "<<rettemp3<<endl; }
-		if(keyvalue4.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp4: "<<rettemp4<<endl; }
-		if(keyvalue5.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp5: "<<rettemp5<<endl; }
-		if(keyvalue6.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp6: "<<rettemp6<<endl; }
-		if(keyvalue7.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp7: "<<rettemp7<<endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp0: "<<rettemp0<<endl; }
+		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp1: "<<rettemp1<<endl; }
+		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp2: "<<rettemp2<<endl; }
+		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp3: "<<rettemp3<<endl; }
+		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp4: "<<rettemp4<<endl; }
+		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp5: "<<rettemp5<<endl; }
+		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp6: "<<rettemp6<<endl; }
+		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp7: "<<rettemp7<<endl; }
 		#endif 
 		
 		if(colindex0 == 0){ vprop0.key = rettemp0; }
@@ -2538,25 +2538,25 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		if(colindex7 == 0){ vprop7.key = rettemp7; }
 		else { vprop7.value = rettemp7; }
 		
-		if(keyvalue0.key != INVALIDDATA){ destbuffer[0][rowindex0] = vprop0; }
-		if(keyvalue1.key != INVALIDDATA){ destbuffer[1][rowindex1] = vprop1; }
-		if(keyvalue2.key != INVALIDDATA){ destbuffer[2][rowindex2] = vprop2; }
-		if(keyvalue3.key != INVALIDDATA){ destbuffer[3][rowindex3] = vprop3; }
-		if(keyvalue4.key != INVALIDDATA){ destbuffer[4][rowindex4] = vprop4; }
-		if(keyvalue5.key != INVALIDDATA){ destbuffer[5][rowindex5] = vprop5; }
-		if(keyvalue6.key != INVALIDDATA){ destbuffer[6][rowindex6] = vprop6; }
-		if(keyvalue7.key != INVALIDDATA){ destbuffer[7][rowindex7] = vprop7; }
+		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ destbuffer[0][rowindex0] = vprop0; }
+		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ destbuffer[1][rowindex1] = vprop1; }
+		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ destbuffer[2][rowindex2] = vprop2; }
+		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ destbuffer[3][rowindex3] = vprop3; }
+		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ destbuffer[4][rowindex4] = vprop4; }
+		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ destbuffer[5][rowindex5] = vprop5; }
+		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ destbuffer[6][rowindex6] = vprop6; }
+		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ destbuffer[7][rowindex7] = vprop7; }
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE);
-		if(keyvalue0.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue1.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue2.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue3.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue4.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue5.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue6.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue7.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 		#endif
 	}
 	return;
@@ -2827,35 +2827,35 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		
 		keyvalue_t vertexupdate0;
 		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate0.key = edge0.value;
+			vertexupdate0.key = edge0.key; // .value; // NEWCHANGE.
 			vertexupdate0.value = processedgefunc(sourcebuffer[0][localsourceid0].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate1;
 		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate1.key = edge1.value;
+			vertexupdate1.key = edge1.key; // .value; // NEWCHANGE.
 			vertexupdate1.value = processedgefunc(sourcebuffer[1][localsourceid1].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate2;
 		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate2.key = edge2.value;
+			vertexupdate2.key = edge2.key; // .value; // NEWCHANGE.
 			vertexupdate2.value = processedgefunc(sourcebuffer[2][localsourceid2].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate3;
 		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate3.key = edge3.value;
+			vertexupdate3.key = edge3.key; // .value; // NEWCHANGE.
 			vertexupdate3.value = processedgefunc(sourcebuffer[3][localsourceid3].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate4;
 		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate4.key = edge4.value;
+			vertexupdate4.key = edge4.key; // .value; // NEWCHANGE.
 			vertexupdate4.value = processedgefunc(sourcebuffer[4][localsourceid4].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate5;
 		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate5.key = edge5.value;
+			vertexupdate5.key = edge5.key; // .value; // NEWCHANGE.
 			vertexupdate5.value = processedgefunc(sourcebuffer[5][localsourceid5].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate6;
 		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate6.key = edge6.value;
+			vertexupdate6.key = edge6.key; // .value; // NEWCHANGE.
 			vertexupdate6.value = processedgefunc(sourcebuffer[6][localsourceid6].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate7;
 		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate7.key = edge7.value;
+			vertexupdate7.key = edge7.key; // .value; // NEWCHANGE.
 			vertexupdate7.value = processedgefunc(sourcebuffer[7][localsourceid7].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		
 		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ destbuffer[0][i] = vertexupdate0; }
@@ -3117,88 +3117,6 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ statsbuffer[5][p5].value += 1; }
 		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ statsbuffer[6][p6].value += 1; }
 		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ statsbuffer[7][p7].value += 1; }
-		#endif
-	}
-	return;
-}
-
-void 
-	#ifdef SW 
-	actslw::
-	#endif
-process_edges(bool_type enable, value_t sourcedata, keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
-	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
-	
-	PROCESSEDGES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
-		keyvalue_t edge0 = destbuffer[0][i];
-		keyvalue_t edge1 = destbuffer[1][i];
-		keyvalue_t edge2 = destbuffer[2][i];
-		keyvalue_t edge3 = destbuffer[3][i];
-		keyvalue_t edge4 = destbuffer[4][i];
-		keyvalue_t edge5 = destbuffer[5][i];
-		keyvalue_t edge6 = destbuffer[6][i];
-		keyvalue_t edge7 = destbuffer[7][i];
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[0][i].key: "<<destbuffer[0][i].key<<", destbuffer[0][i].value: "<<destbuffer[0][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[1][i].key: "<<destbuffer[1][i].key<<", destbuffer[1][i].value: "<<destbuffer[1][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[2][i].key: "<<destbuffer[2][i].key<<", destbuffer[2][i].value: "<<destbuffer[2][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[3][i].key: "<<destbuffer[3][i].key<<", destbuffer[3][i].value: "<<destbuffer[3][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[4][i].key: "<<destbuffer[4][i].key<<", destbuffer[4][i].value: "<<destbuffer[4][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[5][i].key: "<<destbuffer[5][i].key<<", destbuffer[5][i].value: "<<destbuffer[5][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[6][i].key: "<<destbuffer[6][i].key<<", destbuffer[6][i].value: "<<destbuffer[6][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[7][i].key: "<<destbuffer[7][i].key<<", destbuffer[7][i].value: "<<destbuffer[7][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-	
-		#endif
-		
-		keyvalue_t vertexupdate0;
-		vertexupdate0.key = edge0.value;
-		vertexupdate0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate1;
-		vertexupdate1.key = edge1.value;
-		vertexupdate1.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate2;
-		vertexupdate2.key = edge2.value;
-		vertexupdate2.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate3;
-		vertexupdate3.key = edge3.value;
-		vertexupdate3.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate4;
-		vertexupdate4.key = edge4.value;
-		vertexupdate4.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate5;
-		vertexupdate5.key = edge5.value;
-		vertexupdate5.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate6;
-		vertexupdate6.key = edge6.value;
-		vertexupdate6.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		keyvalue_t vertexupdate7;
-		vertexupdate7.key = edge7.value;
-		vertexupdate7.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		
-		destbuffer[0][i] = vertexupdate0; // edge0;
-		destbuffer[1][i] = vertexupdate1; // edge1;
-		destbuffer[2][i] = vertexupdate2; // edge2;
-		destbuffer[3][i] = vertexupdate3; // edge3;
-		destbuffer[4][i] = vertexupdate4; // edge4;
-		destbuffer[5][i] = vertexupdate5; // edge5;
-		destbuffer[6][i] = vertexupdate6; // edge6;
-		destbuffer[7][i] = vertexupdate7; // edge7;
-	
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
 		#endif
 	}
 	return;
@@ -4658,7 +4576,7 @@ void
 	actslw::
 	#endif
 processedges(
-		bool_type enable, // NEWCHANGE. CHECKWITHVHLS.
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -4711,7 +4629,8 @@ processedges(
 			
 			keyy_t localbeginvptr = beginvptr - firstvptr;
 			keyy_t localendvptr = endvptr - firstvptr;
-			keyy_t numedges = localendvptr - localbeginvptr + 2*VECTOR_SIZE;
+			// keyy_t numedges = localendvptr - localbeginvptr + 2*VECTOR_SIZE;
+			keyy_t numedges = allignhigher_KV((localendvptr - localbeginvptr)); // NEWCHANGE.
 			if(localbeginvptr == localendvptr){ numedges = 0; }
 			
 			#ifdef _DEBUGMODE_CHECKS2
@@ -4732,7 +4651,7 @@ processedges(
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"ERROR: localendvptr < localbeginvptr. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			#endif
-				
+			
 			for(batch_type eoffset_kvs=localbeginvptr_kvs; eoffset_kvs<localbeginvptr_kvs + numedges_kvs; eoffset_kvs+=SRCBUFFER_SIZE){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_processedges_loadedgebatch avg=analysis_processedges_loadedgebatch
 				#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -4755,6 +4674,7 @@ processedges(
 			}
 		}
 	}
+	// actsutilityobj->printkeyvalues("processedges.kvdram[globalparams.baseoffset_kvdram_kvs]", (keyvalue_t *)&kvdram[globalparams.baseoffset_kvdram_kvs], 32);
 	return;
 }
 
@@ -4763,7 +4683,7 @@ void
 	actslw::
 	#endif
 processedges(
-		bool_type enable, // NEWCHANGE. CHECKWITHVHLS.
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t vertices1buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t vertices2buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -4785,7 +4705,7 @@ processedges(
 	#pragma HLS INLINE
 	analysis_type analysis_processedges_overallloop = BATCH_RANGE_KVS / PADDEDDESTBUFFER_SIZE;
 	analysis_type analysis_processedges_loadedgebatch = 1;
-	if(enable == OFF){ return; } // NEWCHANGE. CHECKWITHVHLS.
+	if(enable == OFF){ return; }
 	
 	batch_type kvoffset_kvs = 0;
 	#ifdef _WIDEWORD
@@ -5174,8 +5094,6 @@ topkernel(uint512_dt * kvdram){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
-	// cout<<"---------------------------------------------------------------  SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<endl;
-	// exit(EXIT_SUCCESS);
 	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3

@@ -12,7 +12,9 @@
 #include "../examples/test/test.h"
 #include "../examples/pagerank/pagerank.h"
 #include "../examples/bfs/bfs.h"
+#include "../examples/bfs/bfs_ext.h"
 #include "../examples/sssp/sssp.h"
+// #include "../examples/sssp/sssp_ext.h"
 // #include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"
@@ -56,7 +58,8 @@ int main(int argc, char** argv){
 	pagerankobj->run();
 	#endif
 	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+	// bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+	bfs_ext * bfsobj = new bfs_ext(NAp, datasetobj->getdatasetid(), binaryFile);
 	bfsobj->run();
 	#endif
 	#if (defined(SSSP_ALGORITHM) & not defined(ADVANCE_ALGORITHM))

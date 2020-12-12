@@ -24,7 +24,7 @@
 #include "actsfast.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 2
+#define NUMACTSFASTPIPELINES 1 // CRITICAL FIXME
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -1534,14 +1534,14 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		vertex_t loc{{v}} = keyvalue{{v}}.key - upperlimit;
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(keyvalue{{v}}.key != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		{%endfor%}
 		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(loc{{v}} >= globalparams.applyvertexbuffersz && keyvalue{{v}}.key != INVALIDDATA){
+		if(loc{{v}} >= globalparams.applyvertexbuffersz && keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
@@ -1564,7 +1564,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t vprop{{v}};
-		if(keyvalue{{v}}.key != INVALIDDATA){ vprop{{v}} = destbuffer[{{v}}][rowindex{{v}}]; }
+		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ vprop{{v}} = destbuffer[{{v}}][rowindex{{v}}]; }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -1577,9 +1577,9 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		value_t rettemp{{v}} = reducefunc(temp{{v}}, keyvalue{{v}}.value, GraphIter, GraphAlgo);
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(keyvalue{{v}}.key != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp{{v}}: "<<rettemp{{v}}<<endl; }
+		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp{{v}}: "<<rettemp{{v}}<<endl; }
 		{%endfor%}
 		#endif 
 		
@@ -1589,13 +1589,13 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(keyvalue{{v}}.key != INVALIDDATA){ destbuffer[{{v}}][rowindex{{v}}] = vprop{{v}}; }
+		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ destbuffer[{{v}}][rowindex{{v}}] = vprop{{v}}; }
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE);
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(keyvalue{{v}}.key != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 		{%endfor%}
 		#endif
 	}
@@ -1739,7 +1739,7 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t vertexupdate{{v}};
 		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){
-			vertexupdate{{v}}.key = edge{{v}}.value;
+			vertexupdate{{v}}.key = edge{{v}}.key; // .value; // NEWCHANGE.
 			vertexupdate{{v}}.value = processedgefunc(sourcebuffer[{{v}}][localsourceid{{v}}].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		{%endfor%}
 		
@@ -1826,48 +1826,6 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){ statsbuffer[{{v}}][p{{v}}].value += 1; }
-		{%endfor%}
-		#endif
-	}
-	return;
-}
-
-void 
-	#ifdef SW 
-	actslw::
-	#endif
-process_edges(bool_type enable, value_t sourcedata, keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
-	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
-	
-	PROCESSEDGES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
-		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t edge{{v}} = destbuffer[{{v}}][i];
-		{%endfor%}
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		{%for v in context['VECTOR_SIZE_seq']%}
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[{{v}}][i].key: "<<destbuffer[{{v}}][i].key<<", destbuffer[{{v}}][i].value: "<<destbuffer[{{v}}][i].value<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		{%endfor%}	
-		#endif
-		
-		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t vertexupdate{{v}};
-		vertexupdate{{v}}.key = edge{{v}}.value;
-		vertexupdate{{v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-		{%endfor%}
-		
-		{%for v in context['VECTOR_SIZE_seq']%}
-		destbuffer[{{v}}][i] = vertexupdate{{v}}; // edge{{v}};
-		{%endfor%}
-	
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
-		{%for v in context['VECTOR_SIZE_seq']%}
-		actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1);
 		{%endfor%}
 		#endif
 	}
@@ -3092,7 +3050,7 @@ void
 	actslw::
 	#endif
 processedges(
-		bool_type enable, // NEWCHANGE. CHECKWITHVHLS.
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -3145,7 +3103,8 @@ processedges(
 			
 			keyy_t localbeginvptr = beginvptr - firstvptr;
 			keyy_t localendvptr = endvptr - firstvptr;
-			keyy_t numedges = localendvptr - localbeginvptr + 2*VECTOR_SIZE;
+			// keyy_t numedges = localendvptr - localbeginvptr + 2*VECTOR_SIZE;
+			keyy_t numedges = allignhigher_KV((localendvptr - localbeginvptr)); // NEWCHANGE.
 			if(localbeginvptr == localendvptr){ numedges = 0; }
 			
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3166,7 +3125,7 @@ processedges(
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"ERROR: localendvptr < localbeginvptr. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			#endif
-				
+			
 			for(batch_type eoffset_kvs=localbeginvptr_kvs; eoffset_kvs<localbeginvptr_kvs + numedges_kvs; eoffset_kvs+=SRCBUFFER_SIZE){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_processedges_loadedgebatch avg=analysis_processedges_loadedgebatch
 				#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -3189,6 +3148,7 @@ processedges(
 			}
 		}
 	}
+	// actsutilityobj->printkeyvalues("processedges.kvdram[globalparams.baseoffset_kvdram_kvs]", (keyvalue_t *)&kvdram[globalparams.baseoffset_kvdram_kvs], 32);
 	return;
 }
 
@@ -3197,7 +3157,7 @@ void
 	actslw::
 	#endif
 processedges(
-		bool_type enable, // NEWCHANGE. CHECKWITHVHLS.
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t vertices1buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t vertices2buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -3219,7 +3179,7 @@ processedges(
 	#pragma HLS INLINE
 	analysis_type analysis_processedges_overallloop = BATCH_RANGE_KVS / PADDEDDESTBUFFER_SIZE;
 	analysis_type analysis_processedges_loadedgebatch = 1;
-	if(enable == OFF){ return; } // NEWCHANGE. CHECKWITHVHLS.
+	if(enable == OFF){ return; }
 	
 	batch_type kvoffset_kvs = 0;
 	#ifdef _WIDEWORD
@@ -3608,8 +3568,6 @@ topkernel(uint512_dt * kvdram){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
-	// cout<<"---------------------------------------------------------------  SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<endl;
-	// exit(EXIT_SUCCESS);
 	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3

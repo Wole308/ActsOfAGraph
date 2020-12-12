@@ -194,7 +194,7 @@ void postprocess::workerthread_applyvertices2(int ithreadidx, value_t * tempvert
 		
 		if(temp != vdata){
 			onceactivecnt += 1; 
-			#ifdef _DEBUGMODE_HOSTPRINTS
+			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"applyvertices2: active vertex seen @ "<<k<<": vid: "<<offset + k<<", *temp: "<<temp<<", vdata: "<<vdata<<endl; 
 			#endif 
 			
@@ -205,7 +205,7 @@ void postprocess::workerthread_applyvertices2(int ithreadidx, value_t * tempvert
 			}
 		}
 	}
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	mtx.lock(); //
 	cout<<"applyvertices2: number of vertex ids once active: "<<onceactivecnt<<endl;
 	cout<<"applyvertices2: number of vertex ids in activeverticesbuffer: "<<activeverticesbuffer.size()<<endl;

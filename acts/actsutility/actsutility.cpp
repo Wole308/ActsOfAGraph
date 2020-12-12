@@ -84,7 +84,7 @@ void actsutility::checkforoverlap(string message, keyvalue_t * keyvalues, unsign
 		if(keyvalues[i].key + keyvalues[i].value >= keyvalues[i+1].key){ 
 			cout<<"aactsutility::checkforoverlap: ERROR. overlap found message: "<<message<<", i: "<<i<<", keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<", keyvalues["<<i+1<<"].key: "<<keyvalues[i+1].key<<". printing keyvalues and exiting..."<<endl; 
 			printkeyvalues("actsutility::checkforoverlap", keyvalues, size);
-			exit(EXIT_FAILURE); 
+			exit(EXIT_FAILURE);
 		}								
 	}
 	// exit(EXIT_SUCCESS);
@@ -663,48 +663,25 @@ partition_type actsutility::getpartition(keyvalue_t keyvalue, step_type currentL
 	#endif
 	return partition;
 }
-void actsutility::checkn(unsigned int enable, string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n){
+void actsutility::checkn(unsigned int enable, string message, keyvalue_t * kv, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkn: "<<message<<endl;
 	#endif
-	unsigned int commonp = getpartition(kvA0[0], currentLOP, upperlimit, batch_range_pow);
+	unsigned int commonp = getpartition(kv[0], currentLOP, upperlimit, batch_range_pow);
 	unsigned int p = 0;
 	
 	for(unsigned int i=0; i<n; i++){
-		p = getpartition(kvA0[i], currentLOP, upperlimit, batch_range_pow);
-		// cout<<"------ actsutility::checkn:: commonp: "<<commonp<<", p: "<<p<<endl;
-		if((p != commonp)){
-			cout<<"ERROR. checkn. message:"<<message<<". group's partition("<<commonp<<") != element partition("<<p<<"). kvA0["<<i<<"]: "<<kvA0[i].key<<". EXITING... ............................................................"<<endl;
-			for(unsigned int h=0; h<n; h++){ cout<<"> kvA0["<<h<<"].key: "<<kvA0[h].key<<endl; }
-			exit(EXIT_FAILURE);
-		}
-	}
-	return;
-}
-void actsutility::checkn2(string message, keyvalue_t * kvA0, unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow, unsigned int n){
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"actsutility::checkn: "<<message<<endl;
-	#endif
-	unsigned int r1 = 0;
-	unsigned int firsti = INVALIDDATA;
-	
-	// for(unsigned int i=0; i<n; i++){ cout<<"kvA0["<<i<<"].key: "<<kvA0[i].key<<endl; }
-	for(unsigned int i=0; i<n; i++){ if(kvA0[i].key != INVALIDDATA){ firsti = i; break; }}
-	if(firsti != INVALIDDATA){
-		r1 = getpartition(kvA0[firsti], currentLOP, upperlimit, batch_range_pow);
-		for(unsigned int i=0; i<n; i++){
-			if(kvA0[i].key != INVALIDDATA){
-				unsigned int p = getpartition(kvA0[i], currentLOP, upperlimit, batch_range_pow);
-				if((r1 != p)){
-					cout<<"ERROR. checkn. message:"<<message<<". group's partition("<<r1<<") != element partition(p:"<<p<<"). kvA0["<<i<<"]: "<<kvA0[i].key<<". EXITING... ............................................................"<<endl;
-					
-					for(unsigned int h=0; h<n; h++){ cout<<"> kvA0["<<h<<"].key: "<<kvA0[h].key<<endl; }
-					
-					exit(EXIT_FAILURE);
-				}
+		if(kv[i].key == INVALIDDATA || kv[i].value == INVALIDDATA){ continue; }
+		// else {
+			p = getpartition(kv[i], currentLOP, upperlimit, batch_range_pow);
+			// cout<<"------ actsutility::checkn:: commonp: "<<commonp<<", p: "<<p<<", kv[i].key: "<<kv[i].key<<endl;
+			if((p != commonp)){
+				cout<<"ERROR. checkn. message:"<<message<<". group's partition("<<commonp<<") != element partition("<<p<<"). kv["<<i<<"]: "<<kv[i].key<<". EXITING... ............................................................"<<endl;
+				for(unsigned int h=0; h<n; h++){ cout<<"> kv["<<h<<"].key: "<<kv[h].key<<endl; }
+				exit(EXIT_FAILURE);
 			}
-		}
+		// }
 	}
 	return;
 }
