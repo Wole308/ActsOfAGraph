@@ -81,7 +81,7 @@ public:
 	batch_type get_num_source_partitions(step_type currentLOP);
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
-	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
+	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t moretravstates[NUMVERTEXPARTITIONSPERLOAD]);
 	bool inprocessedgesstage(unsigned int currentLOP);
 	bool incollectstatsstage(unsigned int currentLOP, globalparams_t globalparams);
 	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);

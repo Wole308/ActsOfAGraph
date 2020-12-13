@@ -24,7 +24,7 @@
 #include "actsfast.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 1 // CRITICAL FIXME
+#define NUMACTSFASTPIPELINES 2 // CRITICAL FIXME
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -830,7 +830,7 @@ travstate_t
 	#ifdef SW 
 	actslw::
 	#endif 
-gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){
+gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t travstates[NUMVERTEXPARTITIONSPERLOAD]){
 	travstate_t travstate;
 	keyvalue_t keyvalue;
 	keyvalue_t nextkeyvalue;
@@ -838,10 +838,25 @@ gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type current
 	if(currentLOP == 0){ keyvalue.key = 0; }
 	else if(currentLOP == 1){ keyvalue.key = 0; }
 	#ifdef _WIDEWORD
-	else { keyvalue.key = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker].range(31, 0); 
-		   keyvalue.value = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker].range(63, 32); }
+	else { 
+		keyvalue.key = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker].range(31, 0); 
+		keyvalue.value = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker].range(63, 32);
+		if((source_partition % NUMVERTEXPARTITIONSPERLOAD) == 0){
+			for(batch_type k=0; k<NUMVERTEXPARTITIONSPERLOAD; k++){
+				travstates[k].key = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker + k].range(31, 0);
+				travstates[k].value = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker + k].range(63, 32);
+			}
+		}
+	}
 	#else 
-	else { keyvalue = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker].data[0]; }
+	else { 
+		keyvalue = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker].data[0]; 
+		if((source_partition % NUMVERTEXPARTITIONSPERLOAD) == 0){
+			for(batch_type k=0; k<NUMVERTEXPARTITIONSPERLOAD; k++){
+				travstates[k] = kvdram[globalparams.baseoffset_statsdram_kvs + sourcestatsmarker + k].data[0];
+			}
+		}
+	}
 	#endif 
 	
 	if(currentLOP == 0){ nextkeyvalue.key = globalparams.runsize; }
@@ -4525,59 +4540,7 @@ partitionupdates_finegrainedpipeline(
 	return;
 }
 
-// reduce phase 
-/* void 
-	#ifdef SW 
-	actslw::
-	#endif
-reduceupdates(
-		bool_type enable,
-		uint512_dt * kvdram,
-		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
-		skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS],
-		keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE],
-		skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS],
-		keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE],
-		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
-		keyvalue_t buffer_setof8[8][PADDEDDESTBUFFER_SIZE],
-		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
-		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], 
-		config_t config,
-		globalparams_t globalparams,
-		sweepparams_t sweepparams,
-		travstate_t rtravstate){
-	#pragma HLS INLINE
-	analysis_type analysis_reduceloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
-	if(enable == OFF){ return; }
-	
-	if((sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) == 0){ readvertices(config.enablereduce, kvdram, sourcebuffer, (globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
-	replicatedata(config.enablereduce, sourcebuffer, buffer_setof2, (sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) * (globalparams.applyvertexbuffersz / 2), globalparams.applyvertexbuffersz / 2);
-	MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=rtravstate.begin_kvs; offset_kvs<rtravstate.end_kvs; offset_kvs+=rtravstate.skip_kvs){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, rtravstate.begin_kvs, rtravstate.end_kvs, SRCBUFFER_SIZE);
-		#endif
-		
-		rtravstate.i_kvs = offset_kvs;
-
-		readkeyvalues(ON, kvdram, buffer_setof1, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate);
-	
-		reduce(ON, buffer_setof1, buffer_setof2, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, rtravstate, globalparams);
-	}
-	unifydata(config.enablereduce, buffer_setof2, sourcebuffer, (sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) * (globalparams.applyvertexbuffersz / 2), globalparams.applyvertexbuffersz / 2, globalparams.GraphAlgo);
-	
-	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: NUMVERTEXPARTITIONSPERLOAD: "<<NUMVERTEXPARTITIONSPERLOAD<<endl;
-	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: sweepparams.source_partition: "<<sweepparams.source_partition<<endl;
-	
-	if((sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) == NUMVERTEXPARTITIONSPERLOAD-1){
-		
-		cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: savevertices seen"<<endl;
-		// exit(EXIT_SUCCESS);
-		
-		savevertices(config.enablereduce, kvdram, sourcebuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (NUMVERTEXPARTITIONSPERLOAD-1)) * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
-	return;
-} */
+// reduce phase
 void 
 	#ifdef SW 
 	actslw::
@@ -4602,10 +4565,7 @@ reduceupdates(
 	#pragma HLS INLINE
 	analysis_type analysis_reduceloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
 	if(enable == OFF){ return; }
-	
-	cout<<"--------------------------------reduce: rtravstate.size_kvs: "<<rtravstate.size_kvs<<endl;
-	cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: sweepparams.source_partition: "<<sweepparams.source_partition<<endl;
-	
+
 	if((sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) == 0){ readvertices(config.enablereduce, kvdram, sourcebuffer, (globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
 	replicatedata(config.enablereduce, sourcebuffer, buffer_setof2, (sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) * (globalparams.applyvertexbuffersz / 2), globalparams.applyvertexbuffersz / 2);
 	MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=rtravstate.begin_kvs; offset_kvs<rtravstate.end_kvs; offset_kvs+=rtravstate.skip_kvs){
@@ -4621,16 +4581,7 @@ reduceupdates(
 		reduce(ON, buffer_setof1, buffer_setof2, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, rtravstate, globalparams);
 	}
 	unifydata(config.enablereduce, buffer_setof2, sourcebuffer, (sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) * (globalparams.applyvertexbuffersz / 2), globalparams.applyvertexbuffersz / 2, globalparams.GraphAlgo);
-	
-	// cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: NUMVERTEXPARTITIONSPERLOAD: "<<NUMVERTEXPARTITIONSPERLOAD<<endl;
-	// cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: sweepparams.source_partition: "<<sweepparams.source_partition<<endl;
-	
-	if((sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) == NUMVERTEXPARTITIONSPERLOAD-1){
-		
-		cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ reduce: savevertices seen"<<endl;
-		// exit(EXIT_SUCCESS);
-		
-		savevertices(config.enablereduce, kvdram, sourcebuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (NUMVERTEXPARTITIONSPERLOAD-1)) * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
+	if((sweepparams.source_partition % NUMVERTEXPARTITIONSPERLOAD) == NUMVERTEXPARTITIONSPERLOAD-1){ savevertices(config.enablereduce, kvdram, sourcebuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (NUMVERTEXPARTITIONSPERLOAD-1)) * (globalparams.applyvertexbuffersz_kvs / 2))), PADDEDDESTBUFFER_SIZE); }
 	return;
 }
 
@@ -4911,6 +4862,7 @@ dispatch(uint512_dt * kvdram){
 	
 	keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ]; 
 	batch_type skipsizes[NUM_PARTITIONS];
+	keyvalue_t moretravstates[NUMVERTEXPARTITIONSPERLOAD];
 	#ifdef _DEBUGMODE_CHECKS2
 	keyvalue_t BIGKV[NUM_PARTITIONS];
 	#endif
@@ -4931,6 +4883,7 @@ dispatch(uint512_dt * kvdram){
 	
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		destoffset = 0;
+		bool_type enreduce = ON;
 		
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions	
@@ -4943,15 +4896,19 @@ dispatch(uint512_dt * kvdram){
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
-			travstate_t travstate = gettravstate(kvdram, globalparams, currentLOP, sourcestatsmarker);
+			travstate_t travstate = gettravstate(kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
 			travstate_t ctravstate = travstate;
 			travstate_t ptravstate = travstate;
 			travstate_t rtravstate = travstate;
 			travstate_t avtravstate;
+			if((source_partition % NUMVERTEXPARTITIONSPERLOAD) == 0){
+				batch_type ntravszs = 0;
+				for(batch_type k=0; k<NUMVERTEXPARTITIONSPERLOAD; k++){ ntravszs += moretravstates[k].value; }
+				if(ntravszs > 0){ enreduce = ON; } else { enreduce = OFF; }}
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->setstructs(config, sweepparams, travstate);
 			actsutilityobj->clearallstats();
-			#endif 
+			#endif
 			
 			// process all edges
 			#ifdef PROCESSALLEDGES
@@ -5090,12 +5047,10 @@ dispatch(uint512_dt * kvdram){
 			
 			// reduce 
 			#ifdef REDUCEUPDATES
+			batch_type totalsz = 0;
 			if(inreducestage(currentLOP, globalparams) == true){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = ON; } 
 			else { rtravstate.begin_kvs = 0; rtravstate.end_kvs = 0; config.enablereduce = OFF; }
-			
-			// if((rtravstate.end_kvs - rtravstate.begin_kvs) == 0){ rtravstate.begin_kvs = 0; rtravstate.end_kvs = 0; config.enablereduce = OFF; } 
-			// if(rtravstate.size_kvs == 0){ rtravstate.begin_kvs = 0; rtravstate.end_kvs = 0; config.enablereduce = OFF; } 
-			
+			if(enreduce == OFF){ rtravstate.begin_kvs = 0; rtravstate.end_kvs = 0; config.enablereduce = OFF; }
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if(config.enablereduce == ON){ actsutilityobj->print7("### dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, rtravstate.begin_kvs * VECTOR_SIZE, rtravstate.end_kvs * VECTOR_SIZE, (rtravstate.end_kvs - rtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }							
 			#endif
@@ -5142,8 +5097,8 @@ dispatch(uint512_dt * kvdram){
 	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
 	#endif 
 	
-	actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_VERTICESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], 24);
-	exit(EXIT_SUCCESS);
+	// actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_VERTICESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], 24);
+	// exit(EXIT_SUCCESS);
 	return;
 }
 
