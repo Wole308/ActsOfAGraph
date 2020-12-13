@@ -111,7 +111,7 @@ runsummary_t bfs_ext::run(){
 		active_cnt = activevertices.size();
 		
 		// if(activevertices.size() == 0 || GraphIter >= 60){ break; }
-		if(activevertices.size() == 0 || GraphIter >= 0){ break; }
+		if(activevertices.size() == 0 || GraphIter >= 1){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;
@@ -148,7 +148,10 @@ void bfs_ext::WorkerThread(vector<vertex_t> &activevertices, container_t * conta
 		
 			edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, activevertices, &srcvidsoffset1, EDGES_BATCHSIZE, container);
 			unsigned int lbedgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-			for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
+			for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS;
+				cout<<"^^^^^^^^^^^^ totalnumedges: "<<totalnumedges<<endl;
+				cout<<"^^^^^^^^^^^^ lbedgesizes[0]["<<j<<"]: "<<lbedgesizes[0][j]<<endl;
+				}
 			
 			#ifdef INMEMORYGP
 			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);

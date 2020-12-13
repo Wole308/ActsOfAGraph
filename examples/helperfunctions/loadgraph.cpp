@@ -217,14 +217,7 @@ void loadgraph::loadactivesubgraph(unsigned int col, graph * graphobj, vector<ve
 			#ifdef _DEBUGMODE_HOSTPRINTS2
 			utilityobj->printkeyvalues("loadgraph::loadactivesubgraph.vertexptrs[i][j]", (keyvalue_t *)&kvbuffer[i][j][BASEOFFSET_VERTEXPTR], 16);
 			utilityobj->printedges("loadgraph::loadactivesubgraph.edgesdata[i][j]", (edge_type *)&kvbuffer[i][j][BASEOFFSET_EDGESDATA], 16); // edgessz
-			
-			// cout<<"BASEOFFSET_VERTEXPTR: "<<BASEOFFSET_VERTEXPTR<<endl;
-			// cout<<"BASEOFFSET_EDGESDATA: "<<BASEOFFSET_EDGESDATA<<endl;
-			// cout<<"BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<endl;
-			// cout<<"BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<endl;
-			
 			#endif
-			// exit(EXIT_SUCCESS);
 		}
 	}
 	return;
@@ -472,9 +465,9 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#endif
 	}
 	
