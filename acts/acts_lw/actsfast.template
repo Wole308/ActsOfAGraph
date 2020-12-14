@@ -249,13 +249,11 @@ partition_type
 	#ifdef SW 
 	actslw::
 	#endif 
-getglobalpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
-	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * 2))); // NEWCHANGE.
-	// partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * TREE_DEPTH)));
+getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow){
+	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * 2))); 
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	// actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), keyvalue.key, upperlimit, currentLOP);
-	actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, 256, keyvalue.key, upperlimit, currentLOP);
+	actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, 256, keyvalue.key, upperlimit, NAp);
 	#endif
 	return partition;
 }
@@ -1605,7 +1603,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		vertex_t loc{{v}} = keyvalue{{v}}.key - upperlimit;
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		{%endfor%}
@@ -1781,13 +1779,11 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		// value_t localsourceid{{v}} = edge{{v}}.key - upperlimit;
-		value_t localsourceid{{v}} = edge{{v}}.value - upperlimit; // NEWCHANGE.
+		value_t localsourceid{{v}} = edge{{v}}.value - upperlimit;
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge{{v}}.key: "<<edge{{v}}.key<<", edge{{v}}.value: "<<edge{{v}}.value<<", upperlimit: "<<upperlimit<<", localsourceid{{v}}: "<<localsourceid{{v}}<<endl; 
 		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[{{v}}][i].key: "<<destbuffer[{{v}}][i].key<<", destbuffer[{{v}}][i].value: "<<destbuffer[{{v}}][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
 		{%endfor%}	
 		#endif 
@@ -1812,7 +1808,7 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t vertexupdate{{v}};
 		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){
-			vertexupdate{{v}}.key = edge{{v}}.key; // .value; // NEWCHANGE.
+			vertexupdate{{v}}.key = edge{{v}}.key;
 			vertexupdate{{v}}.value = processedgefunc(sourcebuffer[{{v}}][localsourceid{{v}}].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		{%endfor%}
 		
@@ -1847,8 +1843,7 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		// value_t localsourceid{{v}} = edge{{v}}.key - upperlimit;
-		value_t localsourceid{{v}} = edge{{v}}.value - upperlimit; // NEWCHANGE.
+		value_t localsourceid{{v}} = edge{{v}}.value - upperlimit; 
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1877,7 +1872,7 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t vertexupdate{{v}};
 		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){
-			vertexupdate{{v}}.key = edge{{v}}.key; // .value; // NEWCHANGE.
+			vertexupdate{{v}}.key = edge{{v}}.key;
 			vertexupdate{{v}}.value = processedgefunc(sourcebuffer[{{v}}][localsourceid{{v}}].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		{%endfor%}
 		
@@ -1895,7 +1890,7 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		#ifdef EMBEDDEDCOLLECTSTATS
 		{%for v in context['VECTOR_SIZE_seq']%}
 		partition_type p{{v}} = 0;
-		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){ p{{v}} = getglobalpartition(vertexupdate{{v}}, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid{{v}} < PADDEDDESTBUFFER_SIZE){ p{{v}} = getglobalpartition(vertexupdate{{v}}, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -2736,7 +2731,7 @@ void
 	actslw::
 	#endif
 collectstats(
-		bool_type enable, // NEWCHANGE. CHECKWITHVHLS.
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -2754,7 +2749,7 @@ collectstats(
 		travstate_t ctravstate){
 	#pragma HLS INLINE
 	analysis_type analysis_collectstatsloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
-	if(enable == OFF){ return; } // NEWCHANGE. CHECKWITHVHLS.
+	if(enable == OFF){ return; }
 
 	unsigned int enable_retreivestats = OFF;
 	unsigned int enable_generatestats = ON;
@@ -3003,19 +2998,13 @@ partitionupdates_finegrainedpipeline(
 		
 		pp0cutoff = preparekeyvalues_finegrainedpipeline(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, pp0readsize_kvs, pp0cutoffs, globalparams);
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.1"<<endl;
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, itercount%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
-			cout<<"partitionupdates_finegrainedpipeline.collectstats after 1.1"<<endl;
 			#endif 
 		#ifdef FPP1
 		savekeyvalues(pp1writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams); 
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			if(pp1writeen==ON){ 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.2"<<endl;
-				actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, (itercount+1)%MYSTATSYSIZE); 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.2"<<endl;
-			}
+			if(pp1writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, (itercount+1)%MYSTATSYSIZE); }
 			#endif 
 		#endif 
 		
@@ -3026,19 +3015,13 @@ partitionupdates_finegrainedpipeline(
 		
 		savekeyvalues(pp0writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams);
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			if(pp0writeen==ON){ 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.3"<<endl;
-				actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.3"<<endl;
-			}
+			if(pp0writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); }
 			#endif
 		#ifdef FPP1
 		pp1cutoff = preparekeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, pp1cutoffs, globalparams);
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.4"<<endl;
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, (itercount+1)%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
-			cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.4"<<endl;
 			#endif 
 		#endif
 		
@@ -3197,7 +3180,7 @@ processedges(
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"dispatch::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr(myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
+			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr("processedges(1)", myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
 			#endif
 			
 			keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE;
@@ -3236,7 +3219,6 @@ processedges(
 			}
 		}
 	}
-	// actsutilityobj->printkeyvalues("processedges.kvdram[globalparams.baseoffset_kvdram_kvs]", (keyvalue_t *)&kvdram[globalparams.baseoffset_kvdram_kvs], 32);
 	return;
 }
 
@@ -3307,7 +3289,7 @@ processedges(
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"dispatch::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr(myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
+			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr("processedges(2)", myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
 			#endif
 			
 			keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE;
@@ -3505,7 +3487,7 @@ dispatch(uint512_dt * kvdram){
 			if(incollectstatsstage(currentLOP, globalparams) == true){ config.enableprocessedges = OFF; config.enablecollectglobalstats = ON; config.enablepartition = OFF; config.enablereduce = OFF; } 
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
 			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } // NEWCHANGE.
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS2
 			#ifndef COLLECTSTATSOFFLINE
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
 			#endif
@@ -3553,7 +3535,7 @@ dispatch(uint512_dt * kvdram){
 			if(inpartitionstage(currentLOP, globalparams) == true && (ptravstate.size_kvs > 0)){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
 			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; } 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparams.treedepth)){ actsutilityobj->print7("### dispatch::partition:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 			#endif
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
@@ -3633,7 +3615,7 @@ dispatch(uint512_dt * kvdram){
 			actsutilityobj->clearglobalvars();
 			#endif
 		}
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->printglobalvars();
 		#endif 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
@@ -3642,10 +3624,7 @@ dispatch(uint512_dt * kvdram){
 	}
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
-	#endif 
-	
-	// actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_VERTICESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], 24);
-	// exit(EXIT_SUCCESS);
+	#endif
 	return;
 }
 
@@ -3676,7 +3655,7 @@ topkernel(uint512_dt * kvdram){
 	#endif
 	#endif
 	
-	actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_EDGESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS], kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key);
+	// actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_EDGESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS], kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key);
 	// exit(EXIT_SUCCESS);
 	
 	dispatch(kvdram);

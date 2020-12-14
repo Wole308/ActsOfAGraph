@@ -37,11 +37,6 @@
 
 ////////////////
 
-/** #if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX) && defined(PR_ALGORITHM) //  && not defined(ACTSFAST) // FIXME. REMOVEME. fixme for bfs
-#if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
-#define INMEMORYGP
-#endif
-#endif  */
 #if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX)// && defined(PR_ALGORITHM)
 #if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
 #define INMEMORYGP
@@ -52,7 +47,9 @@
 	#ifdef PR_ALGORITHM // FIXME.
 	#define COLLECTSTATSOFFLINE
 	// #define EMBEDDEDCOLLECTSTATS // depreciated
-	#endif 
+	#else 
+	// #define EMBEDDEDCOLLECTSTATS // FIXME.
+	#endif
 #endif
 
 ////////////////
@@ -66,7 +63,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 #endif

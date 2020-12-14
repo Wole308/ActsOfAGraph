@@ -67,8 +67,8 @@ public:
 	unsigned int countvalues(string message, value_t * values, unsigned int size);
 	void countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data);
 	void checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsigned int edgessize);
-	void checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges);
-	void checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges);
+	void checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges);
+	void checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges);
 	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
 	void resetvalues(keyvalue_t * keyvalues, unsigned int size);
 	void copykeyvalues(keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);

@@ -76,7 +76,7 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		if(endvptr < beginvptr){ cout<<"procedges::processedges::ERROR: endvptr < beginvptr. beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<", firstvptr: "<<firstvptr<<endl; exit(EXIT_FAILURE); }
-		if(endvptr < edgessize){ actsutilityobj->checkptr(myfirstsrcvid, mylastsrcvid, beginvptr, endvptr, edges); }
+		if(endvptr < edgessize){ actsutilityobj->checkptr("processedges", myfirstsrcvid, mylastsrcvid, beginvptr, endvptr, edges); }
 		#endif
 		
 		for(unsigned int j=beginvptr; j<(beginvptr + numedges); j++){

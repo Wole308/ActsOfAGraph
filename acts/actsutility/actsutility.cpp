@@ -474,33 +474,24 @@ void actsutility::checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsign
 		if(i%10000 == 0){ cout<<"checkgraph: currentsrcvid: "<<currentsrcvid<<", numedges: "<<numedges<<", edgessize: "<<edgessize<<endl; }
 		#endif 
 		
-		checkptr(currentsrcvid, currentsrcvid+1, beginvptr, endvptr, edges);
+		checkptr("checkgraph", currentsrcvid, currentsrcvid+1, beginvptr, endvptr, edges);
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkgraph: check graph operation was SUCCESSFULL. "<<endl;
 	#endif
 	return;
 }
-void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges){
+void actsutility::checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkptr(A):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<endl;
 	#endif 
 	for(unsigned int i=beginvptr; i<endvptr; i++){
-		#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-		if((edges[i].value >= beginsrcvid) && (edges[i].value < endsrcvid))
-		#else 
-		if((edges[i].key >= beginsrcvid) && (edges[i].key < endsrcvid))
-		#endif 
-		{
+		if((edges[i].value >= beginsrcvid) && (edges[i].value < endsrcvid)){
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
 			#endif 
 		} else {
-			#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-			cout<<"actsutility::checkptr:: ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].value<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
-			#else 
-			cout<<"actsutility::checkptr:: ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
-			#endif 
+			cout<<"actsutility::checkptr:: message:"<<message<<". ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].value<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -509,7 +500,7 @@ void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, uns
 	#endif 
 	return;
 }
-void actsutility::checkptr(unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges){
+void actsutility::checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::checkptr(B):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<", numedges: "<<numedges<<endl;
 	#endif 

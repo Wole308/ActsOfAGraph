@@ -269,13 +269,11 @@ partition_type
 	#ifdef SW 
 	actslw::
 	#endif 
-getglobalpartition(keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
-	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * 2))); // NEWCHANGE.
-	// partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * TREE_DEPTH)));
+getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow){
+	partition_type partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * 2))); 
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	// actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * TREE_DEPTH)), keyvalue.key, upperlimit, currentLOP);
-	actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, 256, keyvalue.key, upperlimit, currentLOP);
+	actsutilityobj->checkoutofbounds("actslw::getglobalpartition", partition, 256, keyvalue.key, upperlimit, NAp);
 	#endif
 	return partition;
 }
@@ -2532,7 +2530,7 @@ reduce(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		vertex_t loc6 = keyvalue6.key - upperlimit;
 		vertex_t loc7 = keyvalue7.key - upperlimit;
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", keyvalue0.value: "<<keyvalue0.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", keyvalue1.value: "<<keyvalue1.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", keyvalue2.value: "<<keyvalue2.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2905,250 +2903,14 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		keyvalue_t edge6 = destbuffer[6][i];
 		keyvalue_t edge7 = destbuffer[7][i];
 		
-		// value_t localsourceid0 = edge0.key - upperlimit;
-		value_t localsourceid0 = edge0.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid1 = edge1.key - upperlimit;
-		value_t localsourceid1 = edge1.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid2 = edge2.key - upperlimit;
-		value_t localsourceid2 = edge2.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid3 = edge3.key - upperlimit;
-		value_t localsourceid3 = edge3.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid4 = edge4.key - upperlimit;
-		value_t localsourceid4 = edge4.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid5 = edge5.key - upperlimit;
-		value_t localsourceid5 = edge5.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid6 = edge6.key - upperlimit;
-		value_t localsourceid6 = edge6.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid7 = edge7.key - upperlimit;
-		value_t localsourceid7 = edge7.value - upperlimit; // NEWCHANGE.
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge0.key: "<<edge0.key<<", edge0.value: "<<edge0.value<<", upperlimit: "<<upperlimit<<", localsourceid0: "<<localsourceid0<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[0][i].key: "<<destbuffer[0][i].key<<", destbuffer[0][i].value: "<<destbuffer[0][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge1.key: "<<edge1.key<<", edge1.value: "<<edge1.value<<", upperlimit: "<<upperlimit<<", localsourceid1: "<<localsourceid1<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[1][i].key: "<<destbuffer[1][i].key<<", destbuffer[1][i].value: "<<destbuffer[1][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge2.key: "<<edge2.key<<", edge2.value: "<<edge2.value<<", upperlimit: "<<upperlimit<<", localsourceid2: "<<localsourceid2<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[2][i].key: "<<destbuffer[2][i].key<<", destbuffer[2][i].value: "<<destbuffer[2][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge3.key: "<<edge3.key<<", edge3.value: "<<edge3.value<<", upperlimit: "<<upperlimit<<", localsourceid3: "<<localsourceid3<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[3][i].key: "<<destbuffer[3][i].key<<", destbuffer[3][i].value: "<<destbuffer[3][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge4.key: "<<edge4.key<<", edge4.value: "<<edge4.value<<", upperlimit: "<<upperlimit<<", localsourceid4: "<<localsourceid4<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[4][i].key: "<<destbuffer[4][i].key<<", destbuffer[4][i].value: "<<destbuffer[4][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge5.key: "<<edge5.key<<", edge5.value: "<<edge5.value<<", upperlimit: "<<upperlimit<<", localsourceid5: "<<localsourceid5<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[5][i].key: "<<destbuffer[5][i].key<<", destbuffer[5][i].value: "<<destbuffer[5][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge6.key: "<<edge6.key<<", edge6.value: "<<edge6.value<<", upperlimit: "<<upperlimit<<", localsourceid6: "<<localsourceid6<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[6][i].key: "<<destbuffer[6][i].key<<", destbuffer[6][i].value: "<<destbuffer[6][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-		// cout<<"^^^^ PROCESSEDGE SEEN @ process_edges:: edge7.key: "<<edge7.key<<", edge7.value: "<<edge7.value<<", upperlimit: "<<upperlimit<<", localsourceid7: "<<localsourceid7<<endl; 
-		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[7][i].key: "<<destbuffer[7][i].key<<", destbuffer[7][i].value: "<<destbuffer[7][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-	
-		#endif 
-		
-		if(localsourceid0 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[0][i].key<<", localsourceid0: "<<localsourceid0<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid0 = 0;
-		} // REMOVEME.
-		if(localsourceid1 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[1][i].key<<", localsourceid1: "<<localsourceid1<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid1 = 0;
-		} // REMOVEME.
-		if(localsourceid2 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[2][i].key<<", localsourceid2: "<<localsourceid2<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid2 = 0;
-		} // REMOVEME.
-		if(localsourceid3 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[3][i].key<<", localsourceid3: "<<localsourceid3<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid3 = 0;
-		} // REMOVEME.
-		if(localsourceid4 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[4][i].key<<", localsourceid4: "<<localsourceid4<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid4 = 0;
-		} // REMOVEME.
-		if(localsourceid5 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[5][i].key<<", localsourceid5: "<<localsourceid5<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid5 = 0;
-		} // REMOVEME.
-		if(localsourceid6 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[6][i].key<<", localsourceid6: "<<localsourceid6<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid6 = 0;
-		} // REMOVEME.
-		if(localsourceid7 >= PADDEDDESTBUFFER_SIZE){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->globalstats_counterrorsinprocessedges(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
-			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[7][i].key<<", localsourceid7: "<<localsourceid7<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			#endif
-			// localsourceid7 = 0;
-		} // REMOVEME.
-		
-		keyvalue_t vertexupdate0;
-		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate0.key = edge0.key; // .value; // NEWCHANGE.
-			vertexupdate0.value = processedgefunc(sourcebuffer[0][localsourceid0].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate1;
-		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate1.key = edge1.key; // .value; // NEWCHANGE.
-			vertexupdate1.value = processedgefunc(sourcebuffer[1][localsourceid1].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate2;
-		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate2.key = edge2.key; // .value; // NEWCHANGE.
-			vertexupdate2.value = processedgefunc(sourcebuffer[2][localsourceid2].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate3;
-		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate3.key = edge3.key; // .value; // NEWCHANGE.
-			vertexupdate3.value = processedgefunc(sourcebuffer[3][localsourceid3].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate4;
-		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate4.key = edge4.key; // .value; // NEWCHANGE.
-			vertexupdate4.value = processedgefunc(sourcebuffer[4][localsourceid4].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate5;
-		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate5.key = edge5.key; // .value; // NEWCHANGE.
-			vertexupdate5.value = processedgefunc(sourcebuffer[5][localsourceid5].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate6;
-		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate6.key = edge6.key; // .value; // NEWCHANGE.
-			vertexupdate6.value = processedgefunc(sourcebuffer[6][localsourceid6].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		keyvalue_t vertexupdate7;
-		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate7.key = edge7.key; // .value; // NEWCHANGE.
-			vertexupdate7.value = processedgefunc(sourcebuffer[7][localsourceid7].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
-		
-		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ destbuffer[0][i] = vertexupdate0; }
-		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ destbuffer[1][i] = vertexupdate1; }
-		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ destbuffer[2][i] = vertexupdate2; }
-		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ destbuffer[3][i] = vertexupdate3; }
-		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ destbuffer[4][i] = vertexupdate4; }
-		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ destbuffer[5][i] = vertexupdate5; }
-		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ destbuffer[6][i] = vertexupdate6; }
-		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ destbuffer[7][i] = vertexupdate7; }
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
-		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
-		#endif
-	}
-	return;
-}
-
-void 
-	#ifdef SW 
-	actslw::
-	#endif
-process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t statsbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], vertex_t upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
-	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
-	
-	PROCESSEDGES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
-		keyvalue_t edge0 = destbuffer[0][i];
-		keyvalue_t edge1 = destbuffer[1][i];
-		keyvalue_t edge2 = destbuffer[2][i];
-		keyvalue_t edge3 = destbuffer[3][i];
-		keyvalue_t edge4 = destbuffer[4][i];
-		keyvalue_t edge5 = destbuffer[5][i];
-		keyvalue_t edge6 = destbuffer[6][i];
-		keyvalue_t edge7 = destbuffer[7][i];
-		
-		// value_t localsourceid0 = edge0.key - upperlimit;
-		value_t localsourceid0 = edge0.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid1 = edge1.key - upperlimit;
-		value_t localsourceid1 = edge1.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid2 = edge2.key - upperlimit;
-		value_t localsourceid2 = edge2.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid3 = edge3.key - upperlimit;
-		value_t localsourceid3 = edge3.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid4 = edge4.key - upperlimit;
-		value_t localsourceid4 = edge4.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid5 = edge5.key - upperlimit;
-		value_t localsourceid5 = edge5.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid6 = edge6.key - upperlimit;
-		value_t localsourceid6 = edge6.value - upperlimit; // NEWCHANGE.
-		// value_t localsourceid7 = edge7.key - upperlimit;
-		value_t localsourceid7 = edge7.value - upperlimit; // NEWCHANGE.
+		value_t localsourceid0 = edge0.value - upperlimit;
+		value_t localsourceid1 = edge1.value - upperlimit;
+		value_t localsourceid2 = edge2.value - upperlimit;
+		value_t localsourceid3 = edge3.value - upperlimit;
+		value_t localsourceid4 = edge4.value - upperlimit;
+		value_t localsourceid5 = edge5.value - upperlimit;
+		value_t localsourceid6 = edge6.value - upperlimit;
+		value_t localsourceid7 = edge7.value - upperlimit;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[0][i].key: "<<destbuffer[0][i].key<<", destbuffer[0][i].value: "<<destbuffer[0][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
@@ -3277,35 +3039,247 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		
 		keyvalue_t vertexupdate0;
 		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate0.key = edge0.key; // .value; // NEWCHANGE.
+			vertexupdate0.key = edge0.key;
 			vertexupdate0.value = processedgefunc(sourcebuffer[0][localsourceid0].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate1;
 		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate1.key = edge1.key; // .value; // NEWCHANGE.
+			vertexupdate1.key = edge1.key;
 			vertexupdate1.value = processedgefunc(sourcebuffer[1][localsourceid1].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate2;
 		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate2.key = edge2.key; // .value; // NEWCHANGE.
+			vertexupdate2.key = edge2.key;
 			vertexupdate2.value = processedgefunc(sourcebuffer[2][localsourceid2].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate3;
 		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate3.key = edge3.key; // .value; // NEWCHANGE.
+			vertexupdate3.key = edge3.key;
 			vertexupdate3.value = processedgefunc(sourcebuffer[3][localsourceid3].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate4;
 		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate4.key = edge4.key; // .value; // NEWCHANGE.
+			vertexupdate4.key = edge4.key;
 			vertexupdate4.value = processedgefunc(sourcebuffer[4][localsourceid4].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate5;
 		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate5.key = edge5.key; // .value; // NEWCHANGE.
+			vertexupdate5.key = edge5.key;
 			vertexupdate5.value = processedgefunc(sourcebuffer[5][localsourceid5].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate6;
 		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate6.key = edge6.key; // .value; // NEWCHANGE.
+			vertexupdate6.key = edge6.key;
 			vertexupdate6.value = processedgefunc(sourcebuffer[6][localsourceid6].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		keyvalue_t vertexupdate7;
 		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){
-			vertexupdate7.key = edge7.key; // .value; // NEWCHANGE.
+			vertexupdate7.key = edge7.key;
+			vertexupdate7.value = processedgefunc(sourcebuffer[7][localsourceid7].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		
+		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ destbuffer[0][i] = vertexupdate0; }
+		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ destbuffer[1][i] = vertexupdate1; }
+		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ destbuffer[2][i] = vertexupdate2; }
+		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ destbuffer[3][i] = vertexupdate3; }
+		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ destbuffer[4][i] = vertexupdate4; }
+		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ destbuffer[5][i] = vertexupdate5; }
+		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ destbuffer[6][i] = vertexupdate6; }
+		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ destbuffer[7][i] = vertexupdate7; }
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
+		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+		#endif
+	}
+	return;
+}
+
+void 
+	#ifdef SW 
+	actslw::
+	#endif
+process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t statsbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], vertex_t upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
+	
+	PROCESSEDGES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+	#pragma HLS PIPELINE II=2
+		keyvalue_t edge0 = destbuffer[0][i];
+		keyvalue_t edge1 = destbuffer[1][i];
+		keyvalue_t edge2 = destbuffer[2][i];
+		keyvalue_t edge3 = destbuffer[3][i];
+		keyvalue_t edge4 = destbuffer[4][i];
+		keyvalue_t edge5 = destbuffer[5][i];
+		keyvalue_t edge6 = destbuffer[6][i];
+		keyvalue_t edge7 = destbuffer[7][i];
+		
+		value_t localsourceid0 = edge0.value - upperlimit; 
+		value_t localsourceid1 = edge1.value - upperlimit; 
+		value_t localsourceid2 = edge2.value - upperlimit; 
+		value_t localsourceid3 = edge3.value - upperlimit; 
+		value_t localsourceid4 = edge4.value - upperlimit; 
+		value_t localsourceid5 = edge5.value - upperlimit; 
+		value_t localsourceid6 = edge6.value - upperlimit; 
+		value_t localsourceid7 = edge7.value - upperlimit; 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[0][i].key: "<<destbuffer[0][i].key<<", destbuffer[0][i].value: "<<destbuffer[0][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[1][i].key: "<<destbuffer[1][i].key<<", destbuffer[1][i].value: "<<destbuffer[1][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[2][i].key: "<<destbuffer[2][i].key<<", destbuffer[2][i].value: "<<destbuffer[2][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[3][i].key: "<<destbuffer[3][i].key<<", destbuffer[3][i].value: "<<destbuffer[3][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[4][i].key: "<<destbuffer[4][i].key<<", destbuffer[4][i].value: "<<destbuffer[4][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[5][i].key: "<<destbuffer[5][i].key<<", destbuffer[5][i].value: "<<destbuffer[5][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[6][i].key: "<<destbuffer[6][i].key<<", destbuffer[6][i].value: "<<destbuffer[6][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+		cout<<"PROCESSEDGE SEEN @ process_edges:: i: "<<i<<", destbuffer[7][i].key: "<<destbuffer[7][i].key<<", destbuffer[7][i].value: "<<destbuffer[7][i].value<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+	
+		#endif 
+		
+		if(localsourceid0 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[0][i].key<<", localsourceid0: "<<localsourceid0<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid0 = 0;
+		} // REMOVEME.
+		if(localsourceid1 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[1][i].key<<", localsourceid1: "<<localsourceid1<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid1 = 0;
+		} // REMOVEME.
+		if(localsourceid2 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[2][i].key<<", localsourceid2: "<<localsourceid2<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid2 = 0;
+		} // REMOVEME.
+		if(localsourceid3 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[3][i].key<<", localsourceid3: "<<localsourceid3<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid3 = 0;
+		} // REMOVEME.
+		if(localsourceid4 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[4][i].key<<", localsourceid4: "<<localsourceid4<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid4 = 0;
+		} // REMOVEME.
+		if(localsourceid5 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[5][i].key<<", localsourceid5: "<<localsourceid5<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid5 = 0;
+		} // REMOVEME.
+		if(localsourceid6 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[6][i].key<<", localsourceid6: "<<localsourceid6<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid6 = 0;
+		} // REMOVEME.
+		if(localsourceid7 >= PADDEDDESTBUFFER_SIZE){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->globalstats_counterrorsinprocessedges(1);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef ENABLE_VOICEOUTPROCESSEDGESERRORS
+			cout<<"ERROR SEEN @ process_edges:: i: "<<i<<", sourceid: "<<destbuffer[7][i].key<<", localsourceid7: "<<localsourceid7<<", upperlimit: "<<upperlimit<<", PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl; 
+			#endif 
+			#ifdef ENABLE_PERFECTACCURACY
+			if(actsutilityobj->globalstats_getcounterrorsinprocessedges() > 100000){ cout<<"too many errors seen @ process_edges ("<<actsutilityobj->globalstats_getcounterrorsinprocessedges()<<"). EXITING"<<endl; exit(EXIT_FAILURE); }
+			#endif 
+			#endif
+			// localsourceid7 = 0;
+		} // REMOVEME.
+		
+		keyvalue_t vertexupdate0;
+		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate0.key = edge0.key;
+			vertexupdate0.value = processedgefunc(sourcebuffer[0][localsourceid0].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate1;
+		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate1.key = edge1.key;
+			vertexupdate1.value = processedgefunc(sourcebuffer[1][localsourceid1].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate2;
+		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate2.key = edge2.key;
+			vertexupdate2.value = processedgefunc(sourcebuffer[2][localsourceid2].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate3;
+		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate3.key = edge3.key;
+			vertexupdate3.value = processedgefunc(sourcebuffer[3][localsourceid3].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate4;
+		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate4.key = edge4.key;
+			vertexupdate4.value = processedgefunc(sourcebuffer[4][localsourceid4].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate5;
+		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate5.key = edge5.key;
+			vertexupdate5.value = processedgefunc(sourcebuffer[5][localsourceid5].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate6;
+		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate6.key = edge6.key;
+			vertexupdate6.value = processedgefunc(sourcebuffer[6][localsourceid6].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
+		keyvalue_t vertexupdate7;
+		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){
+			vertexupdate7.key = edge7.key;
 			vertexupdate7.value = processedgefunc(sourcebuffer[7][localsourceid7].value, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); }
 		
 		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ destbuffer[0][i] = vertexupdate0; }
@@ -3331,21 +3305,21 @@ process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		
 		#ifdef EMBEDDEDCOLLECTSTATS
 		partition_type p0 = 0;
-		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ p0 = getglobalpartition(vertexupdate0, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ p0 = getglobalpartition(vertexupdate0, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p1 = 0;
-		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ p1 = getglobalpartition(vertexupdate1, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ p1 = getglobalpartition(vertexupdate1, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p2 = 0;
-		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ p2 = getglobalpartition(vertexupdate2, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid2 < PADDEDDESTBUFFER_SIZE){ p2 = getglobalpartition(vertexupdate2, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p3 = 0;
-		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ p3 = getglobalpartition(vertexupdate3, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid3 < PADDEDDESTBUFFER_SIZE){ p3 = getglobalpartition(vertexupdate3, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p4 = 0;
-		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ p4 = getglobalpartition(vertexupdate4, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid4 < PADDEDDESTBUFFER_SIZE){ p4 = getglobalpartition(vertexupdate4, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p5 = 0;
-		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ p5 = getglobalpartition(vertexupdate5, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid5 < PADDEDDESTBUFFER_SIZE){ p5 = getglobalpartition(vertexupdate5, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p6 = 0;
-		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ p6 = getglobalpartition(vertexupdate6, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid6 < PADDEDDESTBUFFER_SIZE){ p6 = getglobalpartition(vertexupdate6, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		partition_type p7 = 0;
-		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ p7 = getglobalpartition(vertexupdate7, 0, 0, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
+		if(localsourceid7 < PADDEDDESTBUFFER_SIZE){ p7 = getglobalpartition(vertexupdate7, globalparams.destvoffset, globalparams.batch_range_pow); } // CRITICAL FIXME. upper not always 0
 		
 		if(localsourceid0 < PADDEDDESTBUFFER_SIZE){ statsbuffer[0][p0].value += 1; }
 		if(localsourceid1 < PADDEDDESTBUFFER_SIZE){ statsbuffer[1][p1].value += 1; }
@@ -4426,7 +4400,7 @@ void
 	actslw::
 	#endif
 collectstats(
-		bool_type enable, // NEWCHANGE. CHECKWITHVHLS.
+		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE],
@@ -4444,7 +4418,7 @@ collectstats(
 		travstate_t ctravstate){
 	#pragma HLS INLINE
 	analysis_type analysis_collectstatsloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
-	if(enable == OFF){ return; } // NEWCHANGE. CHECKWITHVHLS.
+	if(enable == OFF){ return; }
 
 	unsigned int enable_retreivestats = OFF;
 	unsigned int enable_generatestats = ON;
@@ -4693,19 +4667,13 @@ partitionupdates_finegrainedpipeline(
 		
 		pp0cutoff = preparekeyvalues_finegrainedpipeline(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, pp0readsize_kvs, pp0cutoffs, globalparams);
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.1"<<endl;
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, itercount%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
-			cout<<"partitionupdates_finegrainedpipeline.collectstats after 1.1"<<endl;
 			#endif 
 		#ifdef FPP1
 		savekeyvalues(pp1writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams); 
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			if(pp1writeen==ON){ 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.2"<<endl;
-				actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, (itercount+1)%MYSTATSYSIZE); 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.2"<<endl;
-			}
+			if(pp1writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, (itercount+1)%MYSTATSYSIZE); }
 			#endif 
 		#endif 
 		
@@ -4716,19 +4684,13 @@ partitionupdates_finegrainedpipeline(
 		
 		savekeyvalues(pp0writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams);
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			if(pp0writeen==ON){ 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.3"<<endl;
-				actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); 
-				cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.3"<<endl;
-			}
+			if(pp0writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); }
 			#endif
 		#ifdef FPP1
 		pp1cutoff = preparekeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, pp1cutoffs, globalparams);
 			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
-			cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.4"<<endl;
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, (itercount+1)%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
-			cout<<"partitionupdates_finegrainedpipeline.collectstats before 1.4"<<endl;
 			#endif 
 		#endif
 		
@@ -4887,7 +4849,7 @@ processedges(
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"dispatch::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr(myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
+			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr("processedges(1)", myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
 			#endif
 			
 			keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE;
@@ -4926,7 +4888,6 @@ processedges(
 			}
 		}
 	}
-	// actsutilityobj->printkeyvalues("processedges.kvdram[globalparams.baseoffset_kvdram_kvs]", (keyvalue_t *)&kvdram[globalparams.baseoffset_kvdram_kvs], 32);
 	return;
 }
 
@@ -4997,7 +4958,7 @@ processedges(
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"dispatch::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr(myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
+			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr("processedges(2)", myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
 			#endif
 			
 			keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE;
@@ -5195,7 +5156,7 @@ dispatch(uint512_dt * kvdram){
 			if(incollectstatsstage(currentLOP, globalparams) == true){ config.enableprocessedges = OFF; config.enablecollectglobalstats = ON; config.enablepartition = OFF; config.enablereduce = OFF; } 
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
 			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } // NEWCHANGE.
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS2
 			#ifndef COLLECTSTATSOFFLINE
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
 			#endif
@@ -5243,7 +5204,7 @@ dispatch(uint512_dt * kvdram){
 			if(inpartitionstage(currentLOP, globalparams) == true && (ptravstate.size_kvs > 0)){ config.enableprocessedges = OFF; config.enablecollectglobalstats = OFF; config.enablepartition = ON; config.enablereduce = OFF; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
 			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; } 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS2
 			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparams.treedepth)){ actsutilityobj->print7("### dispatch::partition:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 			#endif
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
@@ -5323,7 +5284,7 @@ dispatch(uint512_dt * kvdram){
 			actsutilityobj->clearglobalvars();
 			#endif
 		}
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->printglobalvars();
 		#endif 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
@@ -5332,10 +5293,7 @@ dispatch(uint512_dt * kvdram){
 	}
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
-	#endif 
-	
-	// actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_VERTICESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], 24);
-	// exit(EXIT_SUCCESS);
+	#endif
 	return;
 }
 
@@ -5366,7 +5324,7 @@ topkernel(uint512_dt * kvdram){
 	#endif
 	#endif
 	
-	actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_EDGESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS], kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key);
+	// actsutilityobj->printkeyvalues("dispatch.kvdram[BASEOFFSET_EDGESDATA_KVS]", (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS], kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key);
 	// exit(EXIT_SUCCESS);
 	
 	dispatch(kvdram);

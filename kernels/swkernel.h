@@ -26,11 +26,7 @@ private:
 	utility * utilityobj;
 	stats * statsobj;
 	#ifdef SW
-	#ifdef TESTKERNEL_ACTSMAX
-	actsmax * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
-	#else 
 	actslw * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
-	#endif
 	#endif 
 	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };

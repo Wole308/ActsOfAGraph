@@ -130,14 +130,6 @@ vertex_t loadgraph::loadedges(unsigned int col, vertex_t srcvoffset, edge_t * ve
 		utilityobj->checkoutofbounds("loadgraph::loadedges.edgedatabuffer", localbeginptr + edgessize, PADDEDEDGES_BATCHSIZE, localbeginptr, edgessize, NAp);
 		#endif 
 		for(unsigned int k=0; k<edgessize; k++){
-			/* #ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-			edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[localbeginptr + k].dstvid;
-			edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[localbeginptr + k].srcvid;
-			#else 
-			edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[localbeginptr + k].srcvid;
-			edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[localbeginptr + k].dstvid;
-			#endif  */
-			
 			edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[localbeginptr + k].dstvid; // NEWCHANGE.
 			edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[localbeginptr + k].srcvid;
 		}
@@ -419,10 +411,6 @@ void loadgraph::createmessages(
 	if(edgessize > MAXKVDATA_BATCHSIZE){ cout<<"loadgraph::createmessages::ERROR. edgessize too large!. edgessize: "<<edgessize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	if(actvvsize > ACTIVEVERTICESSZ){ cout<<"loadgraph::createmessages::ERROR. actvvsize too large!. actvvsize: "<<actvvsize<<", ACTIVEVERTICESSZ: "<<ACTIVEVERTICESSZ<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
-	
-	// cout<<"createmessages:: edgessize: "<<edgessize<<endl;
-	// cout<<"createmessages:: runsize: "<<runsize<<endl;
-	// exit(EXIT_SUCCESS);
 	
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key = ON;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0].key = ON;

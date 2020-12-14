@@ -24,11 +24,7 @@ swkernel::swkernel(stats * _statsobj){
 	statsobj = _statsobj;
 	#ifdef SW 
 	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ 
-		#ifdef TESTKERNEL_ACTSMAX
-		kernelobjs[i] = new actsmax(); 
-		#else 
 		kernelobjs[i] = new actslw(); 
-		#endif 
 	}
 	#endif 
 }
@@ -44,7 +40,7 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBC
 		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
 			kernelobjs[0]->topkernel((uint512_dt *)kvsourcedram[i][j]);
 			// exit(EXIT_SUCCESS); 
-			break;
+			// break;
 		}
 	}
 	
