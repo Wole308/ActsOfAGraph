@@ -8,11 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-#ifdef TESTKERNEL_ACTSMAX
-#include "../acts/acts_lw/actsmax.h"
-#else 
-#include "../acts/acts_lw/actsfast.h"
-#endif
+#include "../acts/acts/acts.h"
 #include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -24,7 +20,7 @@ swkernel::swkernel(stats * _statsobj){
 	statsobj = _statsobj;
 	#ifdef SW 
 	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ 
-		kernelobjs[i] = new actslw(); 
+		kernelobjs[i] = new acts(); 
 	}
 	#endif 
 }

@@ -111,7 +111,7 @@ runsummary_t bfs_ext::run(){
 		active_cnt = activevertices.size();
 		
 		if(activevertices.size() == 0 || GraphIter >= 60){ break; }
-		// if(activevertices.size() == 0 || GraphIter >= 1){ break; }
+		// if(activevertices.size() == 0 || GraphIter >= 3){ break; }
 		GraphIter += 1;
 	}
 	cout<<endl;

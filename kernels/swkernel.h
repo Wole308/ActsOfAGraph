@@ -5,11 +5,7 @@
 #include "../include/config_params.h"
 #include "../include/common.h"
 #include "../src/stats/stats.h"
-#ifdef TESTKERNEL_ACTSMAX
-#include "../acts/acts_lw/actsmax.h"
-#else 
-#include "../acts/acts_lw/actsfast.h"
-#endif 
+#include "../acts/acts/acts.h"
 #include "../src/utility/utility.h"
 
 class swkernel {
@@ -26,7 +22,7 @@ private:
 	utility * utilityobj;
 	stats * statsobj;
 	#ifdef SW
-	actslw * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
 	#endif 
 	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 };

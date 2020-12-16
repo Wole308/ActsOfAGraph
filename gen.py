@@ -151,18 +151,18 @@ context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
 o_path0="acts/acts/acts.cpp"
 o_path1="acts/acts/acts.h"
-o_path2="acts/acts_lw/actsfast.cpp"
-o_path3="acts/acts_lw/actsfast.h"
+o_path2="acts/acts/acts.cpp"
+o_path3="acts/acts/acts.h"
 o_path4="include/common.h"
 o_path5="include/common.h"
-o_path6="acts/acts_lw/actsfast.cpp"
-o_path7="acts/acts_lw/actsfast.h"
-o_path8="acts/acts_lw/actsfast.cpp"
-o_path9="acts/acts_lw/actsfast.h"
-o_path10="acts/acts_lw/actsfast.cpp"
-o_path11="acts/acts_lw/actsfast.h"
-o_path12="acts/acts_lw/actsfast.cpp"
-o_path13="acts/acts_lw/actsfast.h"
+o_path6="acts/acts/acts.cpp"
+o_path7="acts/acts/acts.h"
+o_path8="acts/acts/acts.cpp"
+o_path9="acts/acts/acts.h"
+o_path10="acts/acts/acts.cpp"
+o_path11="acts/acts/acts.h"
+o_path12="acts/acts/acts.cpp"
+o_path13="acts/acts/acts.h"
 o_path14="acts/acts/acts.cpp"
 o_path15="acts/acts/acts.h"
 
@@ -185,20 +185,20 @@ out_path15=os.path.abspath(o_path15)
 
 templ_path0="acts/acts/"
 templ_path1="acts/acts/"
-templ_path2="acts/acts_lw/"
-templ_path3="acts/acts_lw/"
+templ_path2="acts/acts/"
+templ_path3="acts/acts/"
 templ_path4="include/"
 templ_path5="include/"
-templ_path6="acts/acts_lw/"
-templ_path7="acts/acts_lw/"
-templ_path8="acts/acts_lw/"
-templ_path9="acts/acts_lw/"
-templ_path10="acts/acts_lw/"
-templ_path11="acts/acts_lw/"
-templ_path12="acts/acts_lw/"
-templ_path13="acts/acts_lw/"
-templ_path14="acts/acts_lw/"
-templ_path15="acts/acts_lw/"
+templ_path6="acts/acts/"
+templ_path7="acts/acts/"
+templ_path8="acts/acts/"
+templ_path9="acts/acts/"
+templ_path10="acts/acts/"
+templ_path11="acts/acts/"
+templ_path12="acts/acts/"
+templ_path13="acts/acts/"
+templ_path14="acts/acts/"
+templ_path15="acts/acts/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -384,20 +384,20 @@ env15.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
-template2 = env2.get_template('actsfast.template')
-template3 = env3.get_template('actsfast_h.template')
+template2 = env2.get_template('acts.template')
+template3 = env3.get_template('acts_h.template')
 template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
-template6 = env6.get_template('actsfast.template')
-template7 = env7.get_template('actsfast_h.template')
-template8 = env8.get_template('actsfast.template')
-template9 = env9.get_template('actsfast_h.template')
-template10 = env10.get_template('actsfast.template')
-template11 = env11.get_template('actsfast_h.template')
-template12 = env12.get_template('actsfast.template')
-template13 = env13.get_template('actsfast_h.template')
-template14 = env14.get_template('actsfast.template')
-template15 = env15.get_template('actsfast_h.template')
+template6 = env6.get_template('acts.template')
+template7 = env7.get_template('acts_h.template')
+template8 = env8.get_template('acts.template')
+template9 = env9.get_template('acts_h.template')
+template10 = env10.get_template('acts.template')
+template11 = env11.get_template('acts_h.template')
+template12 = env12.get_template('acts.template')
+template13 = env13.get_template('acts_h.template')
+template14 = env14.get_template('acts.template')
+template15 = env15.get_template('acts_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)

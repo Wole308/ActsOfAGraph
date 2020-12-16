@@ -52,8 +52,7 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-KERNEL_TOP += acts/acts_lw/actsfast.cpp
-# KERNEL_TOP += acts/acts_lw/actsmax.cpp
+KERNEL_TOP += acts/acts/acts.cpp
 KERNEL_TOP += acts/actsutility/actsutility.cpp
 
 HOST_TOP += examples/hostprocess.cpp
@@ -66,11 +65,9 @@ HOST_SRCS += examples/helperfunctions/loadgraph.cpp
 HOST_SRCS += examples/helperfunctions/setupkernel.cpp
 HOST_SRCS += examples/helperfunctions/procedges.cpp
 HOST_SRCS += examples/pagerank/pagerank.cpp
-# HOST_SRCS += examples/pagerank/pagerank_pim.cpp
 HOST_SRCS += examples/bfs/bfs.cpp
 HOST_SRCS += examples/bfs/bfs_ext.cpp
 HOST_SRCS += examples/sssp/sssp.cpp
-# HOST_SRCS += examples/sssp/sssp_ext.cpp
 HOST_SRCS += examples/test/test.cpp
 # HOST_SRCS += examples/advance_op/advance_op.cpp
 HOST_SRCS += src/graphs/graph.cpp

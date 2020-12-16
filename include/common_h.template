@@ -77,7 +77,7 @@
 #ifdef INMEMORYGP
 	#ifdef PR_ALGORITHM // FIXME.
 	#define COLLECTSTATSOFFLINE
-	// #define EMBEDDEDCOLLECTSTATS // depreciated
+	#define MERGEPROCESSEDGESANDPARTITIONSTAGE // this must be used with COLLECTSTATSOFFLINE for now // FIXME. // appears in [loadgraph.cpp, actsfast.cpp, utility.cpp]
 	#else 
 	// #define EMBEDDEDCOLLECTSTATS // FIXME.
 	#endif
