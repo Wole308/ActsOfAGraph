@@ -96,7 +96,7 @@ public:
 	void loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, vertex_t bufferoffset, vertex_t size);
 	value_t * generateverticesdata();
 	value_t * generatetempverticesdata();
-	void loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size);
+	void loadedgesfromfile(int col, size_t fdoffset, edge2_type * buffer, vertex_t bufferoffset, vertex_t size);
 	edge_t getedgessize(int col); 
 	
 	// void generatetempverticesdata();

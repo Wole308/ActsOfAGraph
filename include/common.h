@@ -44,11 +44,13 @@
 #endif
 
 #ifdef INMEMORYGP
-	#ifdef PR_ALGORITHM // FIXME.
-	#define COLLECTSTATSOFFLINE
-	#define MERGEPROCESSEDGESANDPARTITIONSTAGE // this must be used with COLLECTSTATSOFFLINE for now // FIXME. // appears in [loadgraph.cpp, actsfast.cpp, utility.cpp]
+	#ifdef PR_ALGORITHM
+		#define COLLECTSTATSOFFLINE
+		#define MERGEPROCESSEDGESANDPARTITIONSTAGE // use with COLLECTSTATSOFFLINE
 	#else 
-	// #define EMBEDDEDCOLLECTSTATS // FIXME.
+		#define SINELEVALUEEDGETYPE
+		#define SINELEVALUEVPTRTYPE
+		// #define EMBEDDEDCOLLECTSTATS // FIXME.
 	#endif
 #endif
 
@@ -63,7 +65,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-// #define _DEBUGMODE_KERNELPRINTS2 //
+#define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 #endif
@@ -100,8 +102,10 @@
 
 #define DATAWIDTH 512 
 #define VECTOR_SIZE 8
+#define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
+#define NUMCOMPUTEUNITS 1
 
 #define NUMDRAMBANKS 4
 #define NUMINSTANCES 1
@@ -184,8 +188,7 @@
 #define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
 #define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
-// #define EDGES_BATCHSIZE ((MAXKVDATA_BATCHSIZE / 2) * NUMSUBCPUTHREADS) 
-#define EDGES_BATCHSIZE (MAXKVDATA_BATCHSIZE * NUMSUBCPUTHREADS) // NEWCHANGE.
+#define EDGES_BATCHSIZE (MAXKVDATA_BATCHSIZE * NUMSUBCPUTHREADS)
 #define EDGES_BATCHSIZE_KVS (EDGES_BATCHSIZE / VECTOR_SIZE)
 #define PADDEDEDGES_BATCHSIZE (EDGES_BATCHSIZE + 1000000)
 
@@ -340,23 +343,42 @@ typedef struct {
 	vertex_t outdegree;
 } vertexprop_t;
 
-typedef struct {
+/* typedef struct {
 	keyy_t dstvid;
 } edgeprop1_t;
 
 typedef struct {
 	keyy_t dstvid;
 	keyy_t srcvid; 
-} edgeprop2_t;
+} edgeprop2_t; */
 
-typedef struct {
+/* typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid; 
 } edge_type;
 
 typedef struct {
 	keyy_t dstvid; 
+} edge2_type; */
+
+typedef struct {
+	#ifndef SINELEVALUEEDGETYPE
+	keyy_t srcvid;
+	#endif
+	keyy_t dstvid; 
+} edge_type;
+
+typedef struct {
+	keyy_t srcvid;
+	keyy_t dstvid;
 } edge2_type;
+
+typedef struct {
+	keyy_t key;
+	#ifndef SINELEVALUEVPTRTYPE
+	value_t value;
+	#endif 
+} vptr_type;
 
 #ifdef _WIDEWORD
 typedef ap_uint<1024> uint1024_dt;

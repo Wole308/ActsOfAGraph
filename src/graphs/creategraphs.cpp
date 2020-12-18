@@ -170,7 +170,7 @@ void creategraphs::start(){
 				if (linecount < 16){ cout<<"creategraphs:: gedge: ["<<local_srcv<<","<<local_dstv<<"]"<<endl; }
 				#endif 
 				
-				edge_type edge;
+				edge2_type edge;
 				edge2_type edge2;
 				
 				edge.srcvid = local_srcv;
@@ -191,8 +191,8 @@ void creategraphs::start(){
 				if((linecount++ % CREATENDGRAPH_BATCHSIZE) == 0){
 					#ifdef _DEBUGMODE_HOSTPRINTS
 					if(linecount < 2 * CREATENDGRAPH_BATCHSIZE){
-					utilityobj->printedges("creategraphs::start", (edge_type *)(&edgesbuffer[0][0]), 16); 
-					utilityobj->printedges("creategraphs::start", (edge_type *)(&edgesbuffer[1][0]), 16); }
+					utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[0][0]), 16); 
+					utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[1][0]), 16); }
 					#endif 
 					
 					writeedgestofile(edgesbuffer); 
@@ -207,8 +207,8 @@ void creategraphs::start(){
 		cout<<"creategraphs:: finished processing edges: [valid edges processed: "<<linecount<<"][invalid edges processed: "<<(alllinecount - linecount)<<"][total edges processed: "<<alllinecount<<"][groupid: "<<groupid<<"][YDIMENSIONTHRESHOLD: "<<YDIMENSIONTHRESHOLD<<"]"<<endl;
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS2
-	utilityobj->printedges("creategraphs::start", (edge_type *)(&edgesbuffer[0][0]), 16); 
-	utilityobj->printedges("creategraphs::start", (edge_type *)(&edgesbuffer[1][0]), 16);
+	utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[0][0]), 16); 
+	utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[1][0]), 16);
 	#endif
 	
 	writeedgestofile(edgesbuffer); 
@@ -316,19 +316,19 @@ void creategraphs::summary(){
 	return;
 }
 
-void creategraphs::writeedgestofile(std::vector<edge_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
-	cout<<"creategraphs::writeedgestofile<edge_type>  started."<<endl;
+void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
+	cout<<"creategraphs::writeedgestofile<edge2_type>  started."<<endl;
 
 	edge_t totalnumedges = 0;
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){
 		totalnumedgeswritten[j] += edgesbuffer[j].size();
 		totalnumedges += edgesbuffer[j].size();
-		if(edgesbuffer[j].size() > 0){ if(fwrite(edgesbuffer[j].data(), (edgesbuffer[j].size() * sizeof(edge_type)), 1, graphobj->getnvmeFd_edges_w()[j]) == 0){ cout<<"ERROR:writetofile:edgesbuffer: fwrite error 34"<<endl; exit(EXIT_FAILURE); }}
+		if(edgesbuffer[j].size() > 0){ if(fwrite(edgesbuffer[j].data(), (edgesbuffer[j].size() * sizeof(edge2_type)), 1, graphobj->getnvmeFd_edges_w()[j]) == 0){ cout<<"ERROR:writetofile:edgesbuffer: fwrite error 34"<<endl; exit(EXIT_FAILURE); }}
 	}
 	cout<<">>> creategraphs::writeedgestofile:: total number of edges written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumedges<<endl;
 	return;
 }
-void creategraphs::writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]){
+/* void creategraphs::writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]){
 	cout<<"creategraphs::writeedgestofile<edge2_type> started."<<endl;
 	edge_t totalnumedges = 0;
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){
@@ -338,16 +338,16 @@ void creategraphs::writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXN
 	}
 	cout<<">>> creategraphs::writeedgestofile:: total number of edges written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumedges<<endl;
 	return;
-}
+} */
 
-void creategraphs::clearedges(std::vector<edge_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
+void creategraphs::clearedges(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){ edgesbuffer[j].clear(); }
 	return;
 }
-void creategraphs::clearedges(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]){
+/* void creategraphs::clearedges(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]){
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){ edges2buffer[j].clear(); }
 	return;
-}
+} */
 
 void creategraphs::writevertexptrstofile(){
 	cout<<"creategraphs:: writevertexptrstofile... "<<endl;

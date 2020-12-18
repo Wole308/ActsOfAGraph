@@ -136,7 +136,7 @@ void utility::printallparameters(){
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -252,7 +252,7 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE]
 	}
 	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
 }
-void utility::printedges(string message, edge_type * edges, unsigned int size){
+void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }
 }

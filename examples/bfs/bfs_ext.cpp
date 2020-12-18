@@ -50,7 +50,6 @@ bfs_ext::bfs_ext(unsigned int algorithmid, unsigned int datasetid, std::string b
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}
 	#endif
 	#ifndef INMEMORYGP
-	// for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[KVDATA_RANGE]; }} // FIXME. REMOVEME. size too large
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ vertexptrs[j][k] = new edge_t[MAXKVDATA_BATCHSIZE]; }} // FIXME. (KVDATA_RANGE) REMOVEME. size too large // REMOVEME. use MAXKVDATA_BATCHSIZE
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ verticesdata[j][k] = new value_t[MAXKVDATA_BATCHSIZE]; }} // FIXME. (KVDATA_RANGE) REMOVEME. size too large
 	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
@@ -148,15 +147,12 @@ void bfs_ext::WorkerThread(vector<vertex_t> &activevertices, container_t * conta
 		
 			edge_t totalnumedges = loadgraphobj[0]->countedges(col, graphobj, activevertices, &srcvidsoffset1, EDGES_BATCHSIZE, container);
 			unsigned int lbedgesizes[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-			for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS;
-				// cout<<"^^^^^^^^^^^^ totalnumedges: "<<totalnumedges<<endl;
-				// cout<<"^^^^^^^^^^^^ lbedgesizes[0]["<<j<<"]: "<<lbedgesizes[0][j]<<endl;
-				}
+			for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ lbedgesizes[0][j] = totalnumedges / NUMSUBCPUTHREADS; }
 			
 			#ifdef INMEMORYGP
 			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
 			#else 
-			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs[0], verticesdata[0], edges[0], lbedgesizes, container);
+			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs[0], verticesdata[0], (edge2_type **)edges[0], lbedgesizes, container);
 			#endif
 			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, BREADTHFIRSTSEARCH);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}
@@ -164,7 +160,7 @@ void bfs_ext::WorkerThread(vector<vertex_t> &activevertices, container_t * conta
 			#ifdef INMEMORYGP
 			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, 0);
 			#else 
-			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, verticesdata, edges, 0);
+			setupkernelobj[0]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexptrs, verticesdata, (edge_type* (*)[NUMSUBCPUTHREADS])edges, 0);
 			#endif 
 			// exit(EXIT_SUCCESS);
 			

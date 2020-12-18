@@ -76,6 +76,12 @@ typedef struct {
 } travstate_t;
 
 typedef struct {
+	unsigned int i;
+	unsigned int begin;
+	unsigned int size;	
+} state_t;
+
+typedef struct {
 	unsigned int enablecollectglobalstats;
 	unsigned int enablepartition;
 	unsigned int enablereduce;
@@ -202,7 +208,11 @@ typedef struct {
 #define KVSTATSDRAMSZ_KVS KVSTATSDRAMSZ
 
 #ifdef INMEMORYGP // NOTE: POC (point-of-concern) // FIXME?
-#define ACTIVEVERTICESSZ 0 // (KVDATA_RANGE / 2) // REMOVEME?
+	#ifdef PR_ALGORITHM
+	#define ACTIVEVERTICESSZ 0 // (KVDATA_RANGE / 2) // REMOVEME?
+	#else 
+	#define ACTIVEVERTICESSZ KVDATA_RANGE	
+	#endif 
 #else 
 #define ACTIVEVERTICESSZ 0
 #endif 

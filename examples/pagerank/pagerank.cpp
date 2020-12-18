@@ -42,8 +42,9 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 		for(unsigned int flag=0; flag<NUMFLAGS; flag++){ for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ kvbuffer[i][flag][j][k] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}}
 		#endif
 	}
-	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge_type[MAXKVDATA_BATCHSIZE]; }}
-	edgedatabuffer = new edge_type[PADDEDEDGES_BATCHSIZE];
+	
+	for(unsigned int j=0; j<NUMCPUTHREADS; j++){ for(unsigned int k=0; k<NUMSUBCPUTHREADS; k++){ edges[j][k] = new edge2_type[MAXKVDATA_BATCHSIZE]; }}
+	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUPERCPUTHREADS; i++){ setupkernelobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMCPUTHREADS][NUMSUBCPUTHREADS])kvbuffer[i]); }
@@ -54,16 +55,12 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 }
 pagerank::~pagerank(){
 	cout<<"pagerank::~pagerank:: finish destroying memory structures... "<<endl;
-	// delete [] edgesbuffer;
 	delete [] kvbuffer;
 }
 void pagerank::finish(){
 	#ifdef FPGA_IMPL
 	setupkernelobj[0]->finishOCL();
 	#endif
-	// #ifdef GRAFBOOST_SETUP
-	// setupkernelobj[0]->finishSR();
-	// #endif
 }
 
 runsummary_t pagerank::run(){
@@ -128,9 +125,9 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		
 		#ifdef INMEMORYGP
 		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer[superthreadidx][0][0], BASEOFFSET_EDGESDATA, container, PAGERANK);
-		loadgraphobj[superthreadidx]->loadvertexptrs(col, vertexptrbuffer, vertexdatabuffer, (keyvalue_t **)kvbuffer[superthreadidx][0][0], container);
+		loadgraphobj[superthreadidx]->loadvertexptrs(col, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer[superthreadidx][0][0], container);
 		#else 
-		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, edges[0], 0, container, PAGERANK);
+		srcvoffset = loadgraphobj[superthreadidx]->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type**)edges[0], 0, container, PAGERANK);
 		#endif
 		#ifdef COLLECTSTATSOFFLINE
 		loadgraphobj[superthreadidx]->loadkvstats((keyvalue_t **)kvbuffer[superthreadidx][0][0], container);
@@ -141,7 +138,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#ifdef INMEMORYGP
 		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], 0);
 		#else 
-		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, edges, 0);
+		setupkernelobj[superthreadidx]->launchkernel((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer[superthreadidx][0], graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, (edge_type* (*)[NUMSUBCPUTHREADS])edges, 0);
 		#endif 
 	
 		// break; // REMOVEME.

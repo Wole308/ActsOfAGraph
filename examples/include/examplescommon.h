@@ -16,9 +16,9 @@ typedef struct {
 	unsigned int numedgesretrieved[NUMSSDPARTITIONS];
 	unsigned int totalnumedgesinfile[NUMSSDPARTITIONS];
 	edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	edge_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	edge2_type * edgesbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
 	edge_t tempvertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS][2];
-	edge_type tempedges[NUMCPUTHREADS][NUMSUBCPUTHREADS][2];
+	edge2_type tempedges[NUMCPUTHREADS][NUMSUBCPUTHREADS][2];
 } container_t;
 #endif
 

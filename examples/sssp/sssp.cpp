@@ -150,7 +150,7 @@ void sssp::WorkerThread(vector<vertex_t> &activevertices, container_t * containe
 			#ifdef INMEMORYGP
 			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, (keyvalue_t* (*)[NUMSUBCPUTHREADS])kvbuffer, vertexdatabuffer, lbedgesizes, container);
 			#else 
-			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs[0], verticesdata[0], edges[0], lbedgesizes, container);
+			loadgraphobj[0]->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs[0], verticesdata[0], (edge2_type **)edges[0], lbedgesizes, container);
 			#endif
 			loadgraphobj[0]->loadmessages(kvbuffer[0], container, GraphIter, SSSP);
 			for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ statsobj->appendkeyvaluecount(col, container->edgessize[i][j]); }}

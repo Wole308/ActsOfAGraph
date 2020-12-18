@@ -27,11 +27,11 @@ public:
 	
 	void summary();
 	
-	void writeedgestofile(std::vector<edge_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
-	void writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]);
+	void writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
+	// void writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]);
 
-	void clearedges(std::vector<edge_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
-	void clearedges(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]);
+	void clearedges(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
+	// void clearedges(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]);
 
 	void writevertexptrstofile();
 
@@ -47,11 +47,11 @@ private:
 	edge_t * lvertexoutdegrees[MAXNUMEDGEBANKS];
 	edge_t * lvertexindegrees[MAXNUMEDGEBANKS];
 	edge_t numedges[MAXNUMEDGEBANKS];
-	std::vector<edge_type> edgesbuffer[MAXNUMEDGEBANKS];
+	std::vector<edge2_type> edgesbuffer[MAXNUMEDGEBANKS];
 	// std::vector<edge2_type> edges2buffer[MAXNUMEDGEBANKS];
 	edge_t * vertexptrs[MAXNUMEDGEBANKS];	
 	edge_t totalnumedgeswritten[MAXNUMEDGEBANKS];
-	edge_type firstedge[NUMSSDPARTITIONS];
+	edge2_type firstedge[NUMSSDPARTITIONS];
 	
 	// analyze graph 
 	unsigned int * vertexoutdegrees;

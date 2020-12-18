@@ -484,24 +484,15 @@ value_t * graph::generatetempverticesdata(){
 	for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempvertexdatabuffer[k] = algorithmobj->vertex_initdata(); }					 
 	return tempvertexdatabuffer;
 }
-void graph::loadedgesfromfile(int col, size_t fdoffset, edge_type * buffer, vertex_t bufferoffset, vertex_t size){
-	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge_type)), fdoffset * sizeof(edge_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
+void graph::loadedgesfromfile(int col, size_t fdoffset, edge2_type * buffer, vertex_t bufferoffset, vertex_t size){
+	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
 	return;
 }
 edge_t graph::getedgessize(int col){ 
-	edge_t size = lseek(nvmeFd_edges_r2[col], 0, SEEK_END) / sizeof(edge_type);
+	edge_t size = lseek(nvmeFd_edges_r2[col], 0, SEEK_END) / sizeof(edge2_type);
 	return size;
 }
 
-// void graph::generatetempverticesdata(){
-	// cout<<"generating vertices data... "<<endl;
-	// value_t * tempverticesdata = new value_t[KVDATA_RANGE]();
-	// for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempverticesdata[k] = algorithmobj->vertex_inittempdata(); } 
-	// if(pwrite(nvmeFd_tempverticesdata_w2, tempverticesdata, (size_t)(KVDATA_RANGE * sizeof(value_t)), 0) < 0){ cout<<"hostprocess::generatetempverticesdata::ERROR 36. KVDATA_RANGE: "<<KVDATA_RANGE<<endl; exit(EXIT_FAILURE); }			
-	// delete [] tempverticesdata;
-	// cout<<"finished generating vertices data"<<endl;
-	// return;
-// }
 void graph::generatevertexoutdegrees(vertex_t * vertexoutdegrees){
 	cout<<"graph::generating vertex outdegrees... "<<endl;	
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){

@@ -28,6 +28,7 @@ print(isFile)
 
 context['NUM_PARTITIONS_POW'] = 4
 context['VECTOR_SIZE'] = 8
+context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
 context['NUMSUBWORKERS'] = 3#4
 
@@ -125,6 +126,7 @@ context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORK
 context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
+context['NUMCOMPUTEUNITS'] = 1 #16
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
@@ -207,6 +209,10 @@ for i in range (0,1):
 context['VECTOR_SIZE_seq'] = []
 for i in range (0,(context['VECTOR_SIZE'])):
 		context['VECTOR_SIZE_seq'].append(i)
+        
+context['VECTOR2_SIZE_seq'] = []
+for i in range (0,(context['VECTOR2_SIZE'])):
+		context['VECTOR2_SIZE_seq'].append(i)
 		
 context['VECTOR_SIZEPLUS1_seq'] = []
 for i in range (1,(context['VECTOR_SIZE'])):
@@ -347,6 +353,10 @@ for i in range (0,1):
 context['15_seq'] = []
 for i in range (0,15):
 		context['15_seq'].append(i)
+        
+context['COMPUTEUNITS_seq'] = []
+for i in range (0,(context['NUMCOMPUTEUNITS'])):
+		context['COMPUTEUNITS_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)

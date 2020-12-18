@@ -17,7 +17,6 @@
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../include/actscommon.h"
-// #include "../include/actslw_common.h"
 #ifndef FPGA_IMPL
 #include "../../src/utility/utility.h"
 #endif
@@ -48,10 +47,12 @@ public:
 	~acts();
 	
 	unsigned int amin(unsigned int val1, unsigned int val2);
-	batch_type allignlower_KV(batch_type val);
-	batch_type allignhigher_KV(batch_type val);
 	batch_type allignlowerto4_KV(batch_type val);
 	batch_type allignhigherto4_KV(batch_type val);
+	batch_type allignlower_KV(batch_type val);
+	batch_type allignhigher_KV(batch_type val);
+	batch_type allignlowerto16_KV(batch_type val);
+	batch_type allignhigherto16_KV(batch_type val);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
@@ -68,7 +69,6 @@ public:
 	value_t reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	value_t processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo);
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
-	void copykeyvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size);
 	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 	unsigned int withinvalidrange(buffer_type val1, buffer_type val2);
 	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type skipspacing[NUM_PARTITIONS]);
@@ -167,7 +167,7 @@ public:
 									unsigned int currentLOP, unsigned int upperlimit, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams);
 	
 	// process edges phase
-	void processedges(
+	void processallvertices(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -186,6 +186,16 @@ public:
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
+		
+	void processactvs(
+		bool_type enable,
+		uint512_dt * kvdram,
+		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		travstate_t actvvtravstate,
+		globalparams_t globalparams
+		);
 	
 	// collectstats phase
 	void collectstats(

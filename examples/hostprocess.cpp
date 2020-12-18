@@ -58,8 +58,8 @@ int main(int argc, char** argv){
 	pagerankobj->run();
 	#endif
 	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	// bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
-	bfs_ext * bfsobj = new bfs_ext(NAp, datasetobj->getdatasetid(), binaryFile);
+	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+	// bfs_ext * bfsobj = new bfs_ext(NAp, datasetobj->getdatasetid(), binaryFile);
 	bfsobj->run();
 	#endif
 	#if (defined(SSSP_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
