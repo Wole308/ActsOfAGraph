@@ -227,8 +227,8 @@ typedef struct {
 	#define VERTEXPTRSSZ KVDATA_RANGE 
 	#endif
 #else 
-#define EDGESSZ 0
-#define VERTEXPTRSSZ 0
+	#define EDGESSZ 0
+	#define VERTEXPTRSSZ 0
 #endif
 #define EDGESSZ_KVS (EDGESSZ / VECTOR_SIZE)
 #define VERTEXPTRSSZ_KVS (VERTEXPTRSSZ / VECTOR_SIZE)

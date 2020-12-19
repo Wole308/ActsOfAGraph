@@ -61,6 +61,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: EDGES_BATCHSIZE: "<<EDGES_BATCHSIZE<<std::endl;
 	std::cout<<"host:: EDGES_BATCHSIZE_KVS: "<<EDGES_BATCHSIZE_KVS<<std::endl;
+	std::cout<<"host:: PADDEDEDGES_BATCHSIZE: "<<PADDEDEDGES_BATCHSIZE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
@@ -279,18 +280,22 @@ void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 void utility::printvalues(string message, unsigned int * values, unsigned int size){
 	cout<<"utility::printvalues::"<<message<<":: printing first "<<size<< " values" <<endl;
 	unsigned int count = 0;
-	unsigned int totalsize = 0;
+	unsigned int totalvalues = 0;
 	for(unsigned int i=0; i<size; i++){
 		cout<<"values["<<i<<"]: "<<values[i]<<endl;
+		totalvalues += values[i];
 	}
+	cout<<"printvalues:: total values: totalvalues: "<<totalvalues<<endl;
 }
 void utility::printvalues(string message, vector<value_t> & values, unsigned int size){
 	cout<<"utility::printvalues::"<<message<<":: printing first "<<size<< " values" <<endl;
 	unsigned int count = 0;
-	unsigned int totalsize = 0;
+	unsigned int totalvalues = 0;
 	for(unsigned int i=0; i<size; i++){
 		cout<<"values["<<i<<"]: "<<values[i]<<endl;
+		totalvalues += values[i];
 	}
+	cout<<"printvalues:: total values: totalvalues: "<<totalvalues<<endl;
 }
 void utility::printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
 	unsigned int count = 0;

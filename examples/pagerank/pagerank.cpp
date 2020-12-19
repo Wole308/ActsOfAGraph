@@ -122,10 +122,10 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#endif
 		
 		#ifdef INMEMORYGP
-		srcvoffset = loadgraphobj->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer, BASEOFFSET_EDGESDATA, container, PAGERANK);
+		srcvoffset = loadgraphobj->loadedges_columnwise(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer, BASEOFFSET_EDGESDATA, container, PAGERANK);
 		loadgraphobj->loadvertexptrs(col, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, container);
 		#else 
-		srcvoffset = loadgraphobj->loadedges(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type**)edges, 0, container, PAGERANK);
+		srcvoffset = loadgraphobj->loadedges_columnwise(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)edges, 0, container, PAGERANK);
 		#endif
 		#ifdef COLLECTSTATSOFFLINE
 		loadgraphobj->loadkvstats((keyvalue_t **)kvbuffer, container);
@@ -136,7 +136,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#ifdef INMEMORYGP
 		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
 		#else 
-		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, (edge_type* (*)[NUMSUBCPUTHREADS])edges, 0);
+		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, (edge_type **)edges, 0);
 		#endif 
 	
 		// break; // REMOVEME.

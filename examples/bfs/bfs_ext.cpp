@@ -83,7 +83,7 @@ runsummary_t bfs_ext::run(){
 	
 	container_t mycontainer;
 	vector<value_t> activevertices;
-	activevertices.push_back(1); // 2
+	activevertices.push_back(2); // 2
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	unsigned int GraphIter = 0;
@@ -156,11 +156,12 @@ void bfs_ext::WorkerThread(vector<vertex_t> &activevertices, container_t * conta
 			#endif
 			loadgraphobj->loadmessages(kvbuffer, container, GraphIter, BREADTHFIRSTSEARCH);
 			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(col, container->edgessize[i]); }
+			exit(EXIT_SUCCESS);
 			
 			#ifdef INMEMORYGP
 			setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
 			#else 
-			setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, vertexptrs, verticesdata, (edge_type* (*)[NUMSUBCPUTHREADS])edges, 0);
+			setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, vertexptrs, verticesdata, (edge_type **)edges, 0);
 			#endif 
 			// exit(EXIT_SUCCESS);
 			

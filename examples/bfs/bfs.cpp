@@ -75,16 +75,17 @@ runsummary_t bfs::run(){
 	
 	container_t container;
 	vector<value_t> activevertices;
-	activevertices.push_back(2);//  (1); // 2
+	activevertices.push_back(1);//  (1); // 2
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	unsigned int GraphIter = 0;
 	while(true){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		
-		loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, &container);
 		loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
-		loadgraphobj->loadedges(0, 0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer, BASEOFFSET_EDGESDATA, &container, PAGERANK);
+		// loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, &container);
+		// loadgraphobj->loadedges_columnwise(0, 0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer, BASEOFFSET_EDGESDATA, &container, PAGERANK);
+		loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 		loadgraphobj->loadactvvertices(activevertices, (keyvalue_t **)kvbuffer, &container);
 		loadgraphobj->loadmessages(kvbuffer, &container, GraphIter, BREADTHFIRSTSEARCH);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }

@@ -80,7 +80,6 @@ void graph::initializefiles(){
 	return;
 }
 void graph::initgraphstructures(){
-	// vertexpropertybuffer = new vertexprop_t[KVDATA_RANGE];
 	vertexdatabuffer = new value_t[KVDATA_RANGE];
 	tempvertexdatabuffer = new value_t[KVDATA_RANGE];
 	vertexptrbuffer = new edge_t[KVDATA_RANGE]; 
