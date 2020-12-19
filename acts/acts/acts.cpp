@@ -5020,6 +5020,7 @@ processactvs(
 					#endif 
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
+					#ifdef _DEBUGMODE_KERNELPRINTS
 					cout<<"--- processactvs: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
 					cout<<"--- processactvs: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
 					cout<<"--- processactvs: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
@@ -5028,6 +5029,7 @@ processactvs(
 					cout<<"--- processactvs: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
 					cout<<"--- processactvs: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
 					cout<<"--- processactvs: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
+					#endif 
 					
 					vertexupdate0.key = E.data[0].key;
 					vertexupdate0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
@@ -5098,7 +5100,6 @@ processactvs(
 					else { buffer2[7][buffercapsule] = vertex2update7; }
 					
 					#ifdef _DEBUGMODE_STATS
-					
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
 					if (!(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 >= colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
 					if (!(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 >= colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
@@ -5124,15 +5125,17 @@ processactvs(
 				// break out if full
 				if((buffercapsule >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
 					cout<<"processactvs: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
-					#ifdef _DEBUGMODE_KERNELPRINTS2
+					#ifdef _DEBUGMODE_KERNELPRINTS
 					actsutilityobj->printkeyvalues("processactvs: saving keyvalues. buffer1", buffer1, buffercapsule);
 					actsutilityobj->printkeyvalues("processactvs: saving keyvalues. buffer2", buffer2, buffercapsule);
 					#endif
 					
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
-					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
-					saveoffset_kvs += buffercapsule;
+					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffercapsule, buffercapsule);
+					saveoffset_kvs += 2 * buffercapsule;
 					buffercapsule = 0;
+					
+					cout<<"processactvs: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
 				}
 				
 				edgesbegin_kvs = edgesbegin_kvs + edgesize_kvs;
@@ -5142,7 +5145,6 @@ processactvs(
 			}
 		}
 	}
-	// exit(EXIT_SUCCESS);
 	return;
 }
 

@@ -118,20 +118,12 @@ vertex_t loadgraph::loadedges(unsigned int col, vertex_t srcvoffset, edge_t * ve
 		utilityobj->checkoutofbounds("loadgraph::loadedges.edgedatabuffer 35", localbeginptr + edgessize, PADDEDEDGES_BATCHSIZE, localbeginptr, edgessize, NAp);
 		#endif 
 		for(unsigned int k=0; k<edgessize; k++){
-			// edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[localbeginptr + k].dstvid;
-			// #ifndef SINELEVALUEEDGETYPE
-			// edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[localbeginptr + k].srcvid;
-			// #endif 
-			
 			#ifdef SINELEVALUEEDGETYPE
 			edges[j][edgesbaseoffset*2 + k].dstvid = edgedatabuffer[localbeginptr + k].dstvid;
 			#else 
 			edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[localbeginptr + k].dstvid;
 			edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[localbeginptr + k].srcvid;
-			#endif 
-			
-			// edges[j][edgesbaseoffset + k].srcvid = edgedatabuffer[localbeginptr + k].dstvid;
-			// edges[j][edgesbaseoffset + k].dstvid = edgedatabuffer[localbeginptr + k].srcvid;
+			#endif
 		}
 		
 		container->srcvoffset[0][j] = srcvoffset;

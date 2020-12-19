@@ -3339,9 +3339,11 @@ processactvs(
 					#endif 
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
+					#ifdef _DEBUGMODE_KERNELPRINTS
 					{%for v in context['VECTOR_SIZE_seq']%}
 					cout<<"--- processactvs: E.data[{{v}}].key: "<<E.data[{{v}}].key<<", E.data[{{v}}].value: "<<E.data[{{v}}].value<<endl;
 					{%endfor%}
+					#endif 
 					
 					{%for v in context['4_seq']%}
 					vertexupdate{{2*v}}.key = E.data[{{v}}].key;
@@ -3368,7 +3370,6 @@ processactvs(
 					{%endfor%}
 					
 					#ifdef _DEBUGMODE_STATS
-					
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} >= colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
@@ -3390,9 +3391,11 @@ processactvs(
 					#endif
 					
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
-					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
-					saveoffset_kvs += buffercapsule;
+					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffercapsule, buffercapsule);
+					saveoffset_kvs += 2 * buffercapsule;
 					buffercapsule = 0;
+					
+					cout<<"processactvs: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
 				}
 				
 				edgesbegin_kvs = edgesbegin_kvs + edgesize_kvs;
