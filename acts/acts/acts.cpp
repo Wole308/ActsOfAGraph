@@ -4899,7 +4899,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-processactvs(
+processactivevertices(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -4916,13 +4916,13 @@ processactvs(
 	batch_type saveoffset_kvs = 0;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"processactvs: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
-	cout<<"processactvs: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
-	cout<<"processactvs: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
+	cout<<"processactivevertices: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
+	cout<<"processactivevertices: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
+	cout<<"processactivevertices: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
 	#endif
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"### processactvs: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
+		cout<<"### processactivevertices: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
 		actvvtravstate.i_kvs = offset_kvs;
@@ -4931,16 +4931,16 @@ processactvs(
 		buffer_type chunk_size = getchunksize_kvs(PADDEDDESTBUFFER_SIZE, actvvtravstate, 0);
 		for(batch_type actvv_id=0; actvv_id<chunk_size * VECTOR_SIZE; actvv_id++){
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			cout<<endl<<"^^^ processactvs: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
+			cout<<endl<<"^^^ processactivevertices: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
 			#endif 
 		
 			keyvalue_t activevertex = actvvs[actvv_id%VECTOR_SIZE][actvv_id/VECTOR_SIZE];
 			value_t sourcedata = activevertex.value;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactvs: actvv_id: "<<actvv_id<<endl;
-			cout<<"processactvs: activevertex.key: "<<activevertex.key<<endl;
-			cout<<"processactvs: activevertex.value: "<<activevertex.value<<endl;
+			cout<<"processactivevertices: actvv_id: "<<actvv_id<<endl;
+			cout<<"processactivevertices: activevertex.key: "<<activevertex.key<<endl;
+			cout<<"processactivevertices: activevertex.value: "<<activevertex.value<<endl;
 			#endif 
 			
 			vector_type yloc;
@@ -4964,10 +4964,10 @@ processactvs(
 			batch_type edges_size = edges_endoffset - edges_beginoffset;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactvs: sourcedata: "<<sourcedata<<endl;
-			cout<<"processactvs: edges_beginoffset: "<<edges_beginoffset<<endl;	
-			cout<<"processactvs: edges_endoffset: "<<edges_endoffset<<endl;	
-			cout<<"processactvs: edges_size: "<<edges_size<<endl;
+			cout<<"processactivevertices: sourcedata: "<<sourcedata<<endl;
+			cout<<"processactivevertices: edges_beginoffset: "<<edges_beginoffset<<endl;	
+			cout<<"processactivevertices: edges_endoffset: "<<edges_endoffset<<endl;	
+			cout<<"processactivevertices: edges_size: "<<edges_size<<endl;
 			#endif 
 			
 			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR2_SIZE;
@@ -4977,18 +4977,18 @@ processactvs(
 			batch_type edgeid_kvs = edgesbegin_kvs;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactvs: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
-			cout<<"processactvs: edgesize_kvs: "<<edgesize_kvs<<endl;
-			cout<<"processactvs: edgesend_kvs: "<<edgesend_kvs<<endl;
-			cout<<"processactvs: edgeid_kvs: "<<edgeid_kvs<<endl;
+			cout<<"processactivevertices: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
+			cout<<"processactivevertices: edgesize_kvs: "<<edgesize_kvs<<endl;
+			cout<<"processactivevertices: edgesend_kvs: "<<edgesend_kvs<<endl;
+			cout<<"processactivevertices: edgeid_kvs: "<<edgeid_kvs<<endl;
 			#endif 
 			
 			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
 			vector_type colend = edges_endoffset % VECTOR2_SIZE;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactvs: colstart: "<<colstart<<endl;
-			cout<<"processactvs: colend: "<<colend<<endl;
+			cout<<"processactivevertices: colstart: "<<colstart<<endl;
+			cout<<"processactivevertices: colend: "<<colend<<endl;
 			#endif 
 			
 			keyvalue_t vertexupdate0;
@@ -5016,19 +5016,19 @@ processactvs(
 				for(edgeid_kvs=edgesbegin_kvs; edgeid_kvs<edgesbegin_kvs + edgesize_kvs; edgeid_kvs++){
 				#pragma HLS PIPELINE II=1
 					#ifdef _DEBUGMODE_KERNELPRINTS2
-					cout<<"processactvs.for: edgeid_kvs: "<<edgeid_kvs<<", edgesbegin_kvs: "<<edgesbegin_kvs<<", edgesize_kvs: "<<edgesize_kvs<<endl;
+					cout<<"processactivevertices.for: edgeid_kvs: "<<edgeid_kvs<<", edgesbegin_kvs: "<<edgesbegin_kvs<<", edgesize_kvs: "<<edgesize_kvs<<endl;
 					#endif 
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"--- processactvs: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
-					cout<<"--- processactvs: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
-					cout<<"--- processactvs: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
-					cout<<"--- processactvs: E.data[3].key: "<<E.data[3].key<<", E.data[3].value: "<<E.data[3].value<<endl;
-					cout<<"--- processactvs: E.data[4].key: "<<E.data[4].key<<", E.data[4].value: "<<E.data[4].value<<endl;
-					cout<<"--- processactvs: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
-					cout<<"--- processactvs: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
-					cout<<"--- processactvs: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
+					#ifdef _DEBUGMODE_KERNELPRINTS2
+					cout<<"--- processactivevertices: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
+					cout<<"--- processactivevertices: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
+					cout<<"--- processactivevertices: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
+					cout<<"--- processactivevertices: E.data[3].key: "<<E.data[3].key<<", E.data[3].value: "<<E.data[3].value<<endl;
+					cout<<"--- processactivevertices: E.data[4].key: "<<E.data[4].key<<", E.data[4].value: "<<E.data[4].value<<endl;
+					cout<<"--- processactivevertices: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
+					cout<<"--- processactivevertices: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
+					cout<<"--- processactivevertices: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
 					#endif 
 					
 					vertexupdate0.key = E.data[0].key;
@@ -5124,10 +5124,10 @@ processactvs(
 				
 				// break out if full
 				if((buffercapsule >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
-					cout<<"processactvs: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
+					cout<<"processactivevertices: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
 					#ifdef _DEBUGMODE_KERNELPRINTS
-					actsutilityobj->printkeyvalues("processactvs: saving keyvalues. buffer1", buffer1, buffercapsule);
-					actsutilityobj->printkeyvalues("processactvs: saving keyvalues. buffer2", buffer2, buffercapsule);
+					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer1", buffer1, buffercapsule);
+					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer2", buffer2, buffercapsule);
 					#endif
 					
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
@@ -5135,13 +5135,13 @@ processactvs(
 					saveoffset_kvs += 2 * buffercapsule;
 					buffercapsule = 0;
 					
-					cout<<"processactvs: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
+					cout<<"processactivevertices: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
 				}
 				
 				edgesbegin_kvs = edgesbegin_kvs + edgesize_kvs;
 				edgesize_kvs = edgesize_kvs - edgesbegin_kvs; 
 				if(edgesize_kvs == 0){ break; }
-				if(errcount++ > 312){ cout<<"processactvs:ERROR: errcount++ > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(errcount++ > 312){ cout<<"processactivevertices:ERROR: errcount++ > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 			}
 		}
 	}
@@ -5277,7 +5277,7 @@ dispatch(uint512_dt * kvdram){
 				sweepparams,
 				avtravstate);
 			#else
-			processactvs(
+			processactivevertices(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,

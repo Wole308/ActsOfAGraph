@@ -181,7 +181,7 @@ public:
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
 		
-	void processactvs(
+	void processactivevertices(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],

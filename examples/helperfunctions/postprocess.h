@@ -19,8 +19,8 @@ public:
 	postprocess();
 	~postprocess();
 	
-	void cummulateandcommitverticesdata(value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset);
-	void workerthread_cummulateandcommitverticesdata(int threadidx, value_t * buffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset, unsigned int offset, unsigned int size); 
+	void cummulateandcommitverticesdata(value_t * buffer[NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset);
+	void workerthread_cummulateandcommitverticesdata(int threadidx, value_t * buffer[NUMSUBCPUTHREADS], value_t * tempvertexdatabuffer, vertex_t voffset, unsigned int offset, unsigned int size); 
 	
 	void applyvertices2(value_t * tempvertexdatabuffer, value_t * vertexdatabuffer, vector<value_t> &activeverticesbuffer, unsigned int GraphAlgo);
 	void workerthread_applyvertices2(int ithreadidx, value_t * tempvertexdatabuffer, value_t * vertexdatabuffer, vector<value_t> &activeverticesbuffer, vertex_t offset, vertex_t size, unsigned int GraphAlgo);

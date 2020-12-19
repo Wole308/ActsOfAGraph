@@ -104,30 +104,26 @@ void procedges::processedges(edge_t * vertexptrs, value_t * verticesdata, keyval
 	return;
 }
 
-void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){ // pagerank
+void procedges::start(uint512_vec_dt * kvdram[NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * verticesdata, keyvalue_t * edges[NUMSUBCPUTHREADS]){ // pagerank
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
 	#ifdef LOCKE
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<">>> procedges::start... running WorkerThread "<<j<<endl; 
-			#endif
-			WorkerThread(kvdram[i][j], vertexptrs, verticesdata, edges[i][j]);
-		}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> procedges::start... running WorkerThread "<<i<<endl; 
+		#endif
+		WorkerThread(kvdram[i], vertexptrs, verticesdata, edges[i]);
 	}
 	#else 
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<">>> procedges::start... running WorkerThread "<<j<<endl; 
-			#endif
-			mythread[j] = std::thread(&procedges::WorkerThread, this, kvdram[i][j], vertexptrs, verticesdata, edges[i][j]);
-		}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> procedges::start... running WorkerThread "<<i<<endl; 
+		#endif
+		mythread[i] = std::thread(&procedges::WorkerThread, this, kvdram[i], vertexptrs, verticesdata, edges[i]);
 	}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mythread[j].join(); }}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ mythread[i].join(); }
 	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS2
@@ -139,30 +135,26 @@ void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], 
 	#endif
 	return;
 }
-void procedges::start(uint512_vec_dt * kvdram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata[NUMCPUTHREADS][NUMSUBCPUTHREADS], keyvalue_t * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS]){ // bfs, sssp
+void procedges::start(uint512_vec_dt * kvdram[NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], keyvalue_t * edges[NUMSUBCPUTHREADS]){ // bfs, sssp
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
 	#ifdef LOCKE
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<">>> procedges::start2... running WorkerThread "<<j<<endl; 
-			#endif
-			WorkerThread(kvdram[i][j], vertexptrs[i][j], verticesdata[i][j], edges[i][j]);
-		}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> procedges::start2... running WorkerThread "<<i<<endl; 
+		#endif
+		WorkerThread(kvdram[i], vertexptrs[i], verticesdata[i], edges[i]);
 	}
-	#else 
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<">>> procedges::start2... running WorkerThread "<<j<<endl; 
-			#endif
-			mythread[j] = std::thread(&procedges::WorkerThread, this, kvdram[i][j], vertexptrs[i][j], verticesdata[i][j], edges[i][j]);
-		}
+	#else
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> procedges::start2... running WorkerThread "<<i<<endl; 
+		#endif
+		mythread[i] = std::thread(&procedges::WorkerThread, this, kvdram[i], vertexptrs[i], verticesdata[i], edges[i]);
 	}
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){ for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){ mythread[j].join(); }}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ mythread[i].join(); }
 	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS2

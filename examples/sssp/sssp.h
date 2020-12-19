@@ -24,11 +24,11 @@ public:
 	
 private:
 	graph * graphobj;
-	parameters * parametersobj[NUMSUPERCPUTHREADS];
-	utility * utilityobj[NUMSUPERCPUTHREADS];
-	postprocess * postprocessobj[NUMSUPERCPUTHREADS];
-	loadgraph * loadgraphobj[NUMSUPERCPUTHREADS];
-	setupkernel * setupkernelobj[NUMSUPERCPUTHREADS];
+	parameters * parametersobj;
+	utility * utilityobj;
+	postprocess * postprocessobj;
+	loadgraph * loadgraphobj;
+	setupkernel * setupkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
 	hostglobalparams_t globalparams;
@@ -37,10 +37,10 @@ private:
 	value_t * vertexdatabuffer;
 	value_t * tempvertexdatabuffer;
 	edge_type * edgedatabuffer;
-	uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	value_t * verticesdata[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	edge_type * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
+	edge_t * vertexptrs[NUMSUBCPUTHREADS];
+	value_t * verticesdata[NUMSUBCPUTHREADS];
+	edge_type * edges[NUMSUBCPUTHREADS];
 };
 #endif
 

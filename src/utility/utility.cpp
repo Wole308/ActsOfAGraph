@@ -390,13 +390,13 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 	}
 }
 void utility::printcontainer(container_t * container){
-	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
-		cout<<"utility::printcontainer:: container->edgessize[0]["<<j<<"]: "<<container->edgessize[0][j]<<endl;
-		cout<<"utility::printcontainer:: container->edgeoffset[0]["<<j<<"]: "<<container->edgeoffset[0][j]<<endl;
-		cout<<"utility::printcontainer:: container->srcvoffset[0]["<<j<<"]: "<<container->srcvoffset[0][j]<<endl;
-		cout<<"utility::printcontainer:: container->srcvsize[0]["<<j<<"]: "<<container->srcvsize[0][j]<<endl;
-		cout<<"utility::printcontainer:: container->destvoffset[0]["<<j<<"]: "<<container->destvoffset[0][j]<<endl;
-		cout<<"utility::printcontainer:: container->firstvid[0]["<<j<<"]: "<<container->firstvid[0][j]<<endl;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		cout<<"utility::printcontainer:: container->edgessize["<<i<<"]: "<<container->edgessize[i]<<endl;
+		cout<<"utility::printcontainer:: container->edgeoffset["<<i<<"]: "<<container->edgeoffset[i]<<endl;
+		cout<<"utility::printcontainer:: container->srcvoffset["<<i<<"]: "<<container->srcvoffset[i]<<endl;
+		cout<<"utility::printcontainer:: container->srcvsize["<<i<<"]: "<<container->srcvsize[i]<<endl;
+		cout<<"utility::printcontainer:: container->destvoffset["<<i<<"]: "<<container->destvoffset[i]<<endl;
+		cout<<"utility::printcontainer:: container->firstvid["<<i<<"]: "<<container->firstvid[i]<<endl;
 	}
 }
 

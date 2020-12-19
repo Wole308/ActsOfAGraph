@@ -43,42 +43,38 @@ setupkernel::setupkernel(stats * _statsobj){
 }
 setupkernel::~setupkernel(){} 
 
-void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for INMEMORYGP PR
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){ // for INMEMORYGP PR
 	launchmykernel(kvsourcedram, flag);
 	return;
 }
-void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP PR
-	procedgesobj->start((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer); // REMOVEME.
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP PR
+	procedgesobj->start((uint512_vec_dt **)kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t **)edgedatabuffer); // REMOVEME.
 	launchmykernel(kvsourcedram, flag);
 	return;
 }
-void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS], value_t * verticesdata[NUMCPUTHREADS][NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP BFS, SSSP etc.					
-	procedgesobj->start((uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, vertexptrs, verticesdata, (keyvalue_t* (*)[NUMSUBCPUTHREADS])edgedatabuffer);
+void setupkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP BFS, SSSP etc.					
+	procedgesobj->start((uint512_vec_dt **)kvsourcedram, vertexptrs, verticesdata, (keyvalue_t **)edgedatabuffer);
 	launchmykernel(kvsourcedram, flag);
 	return;
 }
-void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef GRAFBOOST_SETUP
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	#endif 
 	
-	for (int i = 0; i < NUMCPUTHREADS; i++){ // edge conditions
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);	
-			utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][j][BASEOFFSET_EDGESDATA_KVS], kvsourcedram[i][j][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
-		}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);	
+		utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS], kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
 	}
 	
 	#ifdef ACTGRAPH_SETUP
 	kernelobj->launchkernel(kvsourcedram, flag);
 	#endif 
 	#ifdef GRAFBOOST_SETUP
-	for(unsigned int i = 0; i < NUMCPUTHREADS; i++){
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i][j]);
-		}
+	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+		srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i][j]);
 	}
 	#endif 
 	
@@ -100,13 +96,13 @@ unsigned int setupkernel::getflag(unsigned int globaliteration_idx){
 	return flag;
 }
 #ifdef FPGA_IMPL 
-void setupkernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]){
+void setupkernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);
 }
-void setupkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
+void setupkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
-void setupkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
+void setupkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
 	kernelobj->readfromkernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
 }
 void setupkernel::finishOCL(){

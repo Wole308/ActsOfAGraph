@@ -14,7 +14,7 @@ public:
 	~swkernel();
 	
 	#ifdef SW 
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
 	void finishOCL();
 	#endif 
@@ -22,9 +22,9 @@ private:
 	utility * utilityobj;
 	stats * statsobj;
 	#ifdef SW
-	acts * kernelobjs[NUMCPUTHREADS * NUMSUBCPUTHREADS];
+	acts * kernelobjs[NUMSUBCPUTHREADS];
 	#endif 
-	std::thread mykernelthread[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	std::thread mykernelthread[NUMSUBCPUTHREADS];
 };
 #endif
 

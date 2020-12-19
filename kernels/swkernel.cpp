@@ -19,25 +19,21 @@ swkernel::swkernel(stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
 	#ifdef SW 
-	for(unsigned int i=0; i<NUMCPUTHREADS * NUMSUBCPUTHREADS; i++){ 
-		kernelobjs[i] = new acts(); 
-	}
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs[i] = new acts(); }
 	#endif 
 }
 swkernel::~swkernel(){} 
 
 #ifdef SW
-void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag){
+void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
-	for (int i = 0; i < NUMCPUTHREADS; i++){ 
-		for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-			kernelobjs[0]->topkernel((uint512_dt *)kvsourcedram[i][j]);
-			// exit(EXIT_SUCCESS); 
-			break;
-		}
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		kernelobjs[i]->topkernel((uint512_dt *)kvsourcedram[i]);
+		// exit(EXIT_SUCCESS); 
+		break;
 	}
 	
 	#ifdef _DEBUGMODE_TIMERS3

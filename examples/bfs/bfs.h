@@ -20,15 +20,13 @@ public:
 	
 	runsummary_t run();
 	
-	void WorkerThread(vector<vertex_t> &currentactivevertices, container_t * container, unsigned int GraphIter);
-	
 private:
 	graph * graphobj;
-	parameters * parametersobj[NUMSUPERCPUTHREADS];
-	utility * utilityobj[NUMSUPERCPUTHREADS];
-	postprocess * postprocessobj[NUMSUPERCPUTHREADS];
-	loadgraph * loadgraphobj[NUMSUPERCPUTHREADS];
-	setupkernel * setupkernelobj[NUMSUPERCPUTHREADS];
+	parameters * parametersobj;
+	utility * utilityobj;
+	postprocess * postprocessobj;
+	loadgraph * loadgraphobj;
+	setupkernel * setupkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
 	hostglobalparams_t globalparams;
@@ -37,10 +35,7 @@ private:
 	value_t * vertexdatabuffer;
 	value_t * tempvertexdatabuffer;
 	edge2_type * edgedatabuffer;
-	uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	edge_t * vertexptrs[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	value_t * verticesdata[NUMCPUTHREADS][NUMSUBCPUTHREADS];
-	edge2_type * edges[NUMCPUTHREADS][NUMSUBCPUTHREADS];
+	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 };
 #endif
 
