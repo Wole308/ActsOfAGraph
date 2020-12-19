@@ -4912,7 +4912,7 @@ processactivevertices(
 	uint512_dt E;
 	#pragma HLS ARRAY_PARTITION variable=E complete
 	
-	value_t buffercapsule = 0;
+	value_t buffersize_kvs = 0;
 	batch_type saveoffset_kvs = 0;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -4986,7 +4986,7 @@ processactivevertices(
 			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
 			vector_type colend = edges_endoffset % VECTOR2_SIZE;
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"processactivevertices: colstart: "<<colstart<<endl;
 			cout<<"processactivevertices: colend: "<<colend<<endl;
 			#endif 
@@ -5035,69 +5035,85 @@ processactivevertices(
 					vertexupdate0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertexupdate1.key = E.data[0].value;
 					vertexupdate1.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					cout<<"--- processactivevertices: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
+					cout<<"--- processactivevertices: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
 					vertexupdate2.key = E.data[1].key;
 					vertexupdate2.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertexupdate3.key = E.data[1].value;
 					vertexupdate3.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					cout<<"--- processactivevertices: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
+					cout<<"--- processactivevertices: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
 					vertexupdate4.key = E.data[2].key;
 					vertexupdate4.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertexupdate5.key = E.data[2].value;
 					vertexupdate5.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					cout<<"--- processactivevertices: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
+					cout<<"--- processactivevertices: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
 					vertexupdate6.key = E.data[3].key;
 					vertexupdate6.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertexupdate7.key = E.data[3].value;
 					vertexupdate7.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					cout<<"--- processactivevertices: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
+					cout<<"--- processactivevertices: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
 					
 					vertex2update0.key = E.data[4].key;
 					vertex2update0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertex2update1.key = E.data[4].value;
 					vertex2update1.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					cout<<"--- processactivevertices: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
+					cout<<"--- processactivevertices: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
 					vertex2update2.key = E.data[5].key;
 					vertex2update2.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertex2update3.key = E.data[5].value;
 					vertex2update3.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					cout<<"--- processactivevertices: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
+					cout<<"--- processactivevertices: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
 					vertex2update4.key = E.data[6].key;
 					vertex2update4.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertex2update5.key = E.data[6].value;
 					vertex2update5.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					cout<<"--- processactivevertices: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
+					cout<<"--- processactivevertices: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
 					vertex2update6.key = E.data[7].key;
 					vertex2update6.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertex2update7.key = E.data[7].value;
 					vertex2update7.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					cout<<"--- processactivevertices: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
+					cout<<"--- processactivevertices: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
 					
-					if(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 >= colend))){ buffer1[0][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[0][buffercapsule] = vertexupdate0; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 >= colend))){ buffer1[1][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[1][buffercapsule] = vertexupdate1; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 >= colend))){ buffer1[2][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[2][buffercapsule] = vertexupdate2; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 >= colend))){ buffer1[3][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[3][buffercapsule] = vertexupdate3; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 >= colend))){ buffer1[4][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[4][buffercapsule] = vertexupdate4; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 >= colend))){ buffer1[5][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[5][buffercapsule] = vertexupdate5; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 >= colend))){ buffer1[6][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[6][buffercapsule] = vertexupdate6; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 >= colend))){ buffer1[7][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[7][buffercapsule] = vertexupdate7; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 >= colend))){ buffer1[0][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[0][buffersize_kvs] = vertexupdate0; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 >= colend))){ buffer1[1][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[1][buffersize_kvs] = vertexupdate1; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 >= colend))){ buffer1[2][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[2][buffersize_kvs] = vertexupdate2; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 >= colend))){ buffer1[3][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[3][buffersize_kvs] = vertexupdate3; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 >= colend))){ buffer1[4][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[4][buffersize_kvs] = vertexupdate4; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 >= colend))){ buffer1[5][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[5][buffersize_kvs] = vertexupdate5; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 >= colend))){ buffer1[6][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[6][buffersize_kvs] = vertexupdate6; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 >= colend))){ buffer1[7][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[7][buffersize_kvs] = vertexupdate7; }
 					
-					if(((edgeid_kvs == edgesbegin_kvs) && (8 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (8 >= colend))){ buffer2[0][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[0][buffercapsule] = vertex2update0; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (9 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (9 >= colend))){ buffer2[1][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[1][buffercapsule] = vertex2update1; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (10 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (10 >= colend))){ buffer2[2][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[2][buffercapsule] = vertex2update2; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (11 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (11 >= colend))){ buffer2[3][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[3][buffercapsule] = vertex2update3; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (12 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (12 >= colend))){ buffer2[4][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[4][buffercapsule] = vertex2update4; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (13 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (13 >= colend))){ buffer2[5][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[5][buffercapsule] = vertex2update5; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (14 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (14 >= colend))){ buffer2[6][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[6][buffercapsule] = vertex2update6; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 >= colend))){ buffer2[7][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[7][buffercapsule] = vertex2update7; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (8 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (8 >= colend))){ buffer2[0][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[0][buffersize_kvs] = vertex2update0; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (9 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (9 >= colend))){ buffer2[1][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[1][buffersize_kvs] = vertex2update1; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (10 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (10 >= colend))){ buffer2[2][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[2][buffersize_kvs] = vertex2update2; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (11 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (11 >= colend))){ buffer2[3][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[3][buffersize_kvs] = vertex2update3; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (12 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (12 >= colend))){ buffer2[4][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[4][buffersize_kvs] = vertex2update4; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (13 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (13 >= colend))){ buffer2[5][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[5][buffersize_kvs] = vertex2update5; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (14 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (14 >= colend))){ buffer2[6][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[6][buffersize_kvs] = vertex2update6; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 >= colend))){ buffer2[7][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[7][buffersize_kvs] = vertex2update7; }
 					
 					#ifdef _DEBUGMODE_STATS
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
@@ -5119,23 +5135,23 @@ processactivevertices(
 					if (!(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 >= colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
 					#endif
 					
-					buffercapsule += 1;
+					buffersize_kvs += 1;
 				}
 				
 				// break out if full
-				if((buffercapsule >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
-					cout<<"processactivevertices: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer1", buffer1, buffercapsule);
-					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer2", buffer2, buffercapsule);
+				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
+					cout<<"processactivevertices: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					#ifdef _DEBUGMODE_KERNELPRINTS3
+					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer1", buffer1, buffersize_kvs);
+					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer2", buffer2, buffersize_kvs);
 					#endif
 					
-					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
-					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffercapsule, buffercapsule);
-					saveoffset_kvs += 2 * buffercapsule;
-					buffercapsule = 0;
+					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
+					saveoffset_kvs += 2 * buffersize_kvs;
+					buffersize_kvs = 0;
 					
-					cout<<"processactivevertices: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
+					cout<<"processactivevertices: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 				}
 				
 				edgesbegin_kvs = edgesbegin_kvs + edgesize_kvs;

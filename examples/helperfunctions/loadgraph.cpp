@@ -144,8 +144,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	
 	graphobj->loadedgesfromfile(col, 0, edgedatabuffer, 0, graphobj->getedgessize(col));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(col);
-	
-	#ifdef _DEBUGMODE_HOSTPRINTS//3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printvalues("loadedges_rowwise.vertexptrbuffer", (value_t *)vertexptrbuffer, 16);
 	utilityobj->printedges("loadedges_rowwise.edgedatabuffer", edgedatabuffer, 16);
 	#endif
@@ -154,14 +153,14 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ counts[i] = 0; }
 	unsigned int index = 0;
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ // 0, 5, KVDATA_RANGE
+	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){
+		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		
 		edge_t vptr_begin = vertexptrbuffer[vid];
-		if(vid >= 4194302){ cout<<"---- vptr_begin(vid:"<<vid<<"): "<<vptr_begin<<endl; }
 		edge_t vptr_end;
-		if(vid < KVDATA_RANGE-1){ vptr_end = vertexptrbuffer[vid+1]; } else { vptr_end = graphobj->getedgessize(col); }
+		if(vid < KVDATA_RANGE-1){ vptr_end = vertexptrbuffer[vid+1]; } 
+		else { vptr_end = graphobj->getedgessize(col); }
 		edge_t edges_size = vptr_end - vptr_begin;
-		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowwise:: vid: "<<vid<<", vptr_begin: "<<vptr_begin<<endl; }
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"loadgraph::loadedges_rowwise:: vptr_begin: "<<vptr_begin<<endl;
@@ -184,9 +183,6 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 			counts[subthread] += 1;
 			index += 1;
 		}
-		
-		
-		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ if(vid < KVDATA_RANGE-1){ vptrs[i][2*BASEOFFSET_VERTEXPTR + vid + 1].key = counts[i]; }}
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
@@ -197,13 +193,26 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 		#endif 
 	}
 	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		container->srcvoffset[i] = 0;
+		container->srcvsize[i] = KVDATA_RANGE; // srcvsize;
+		container->edgessize[i] = counts[i]; // edgessize;
+		container->runsize[i] = counts[i];
+		// if(GraphAlgo == PAGERANK){ container->runsize[i] = edgessize; } else { container->runsize[i] = 1; }
+		container->destvoffset[i] = 0; // col * KVDATA_RANGE_PERSSDPARTITION;
+		container->actvvsize[i] = 0;
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		utilityobj->printedges("loadgraph::loadedges_rowwise::first", edges[i], 16);
+		utilityobj->printedges("loadgraph::loadedges_rowwise::last", &edges[i][BASEOFFSET_EDGESDATA+container->edgessize[i]-16], 16);
+		#endif
+	}
+	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	utilityobj->printvalues("loadedges_rowwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_VERTEXPTR)+"]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8); }
 	#endif
-	
-	exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS);
 }
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){

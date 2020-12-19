@@ -3243,7 +3243,7 @@ processactivevertices(
 	uint512_dt E;
 	#pragma HLS ARRAY_PARTITION variable=E complete
 	
-	value_t buffercapsule = 0;
+	value_t buffersize_kvs = 0;
 	batch_type saveoffset_kvs = 0;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -3317,7 +3317,7 @@ processactivevertices(
 			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
 			vector_type colend = edges_endoffset % VECTOR2_SIZE;
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"processactivevertices: colstart: "<<colstart<<endl;
 			cout<<"processactivevertices: colend: "<<colend<<endl;
 			#endif 
@@ -3350,6 +3350,8 @@ processactivevertices(
 					vertexupdate{{2*v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertexupdate{{2*v+1}}.key = E.data[{{v}}].value;
 					vertexupdate{{2*v+1}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					cout<<"--- processactivevertices: vertexupdate{{2*v}}.key: "<<vertexupdate{{2*v}}.key<<", vertexupdate{{2*v}}.value: "<<vertexupdate{{2*v}}.value<<endl;
+					cout<<"--- processactivevertices: vertexupdate{{2*v+1}}.key: "<<vertexupdate{{2*v+1}}.key<<", vertexupdate{{2*v+1}}.value: "<<vertexupdate{{2*v+1}}.value<<endl;
 					{%endfor%}
 					
 					{%for v in context['4_seq']%}
@@ -3357,16 +3359,18 @@ processactivevertices(
 					vertex2update{{2*v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertex2update{{2*v+1}}.key = E.data[{{4+v}}].value;
 					vertex2update{{2*v+1}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					cout<<"--- processactivevertices: vertex2update{{2*v}}.key: "<<vertex2update{{2*v}}.key<<", vertex2update{{2*v}}.value: "<<vertex2update{{2*v}}.value<<endl;
+					cout<<"--- processactivevertices: vertex2update{{2*v+1}}.key: "<<vertex2update{{2*v+1}}.key<<", vertex2update{{2*v+1}}.value: "<<vertex2update{{2*v+1}}.value<<endl;
 					{%endfor%}
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} >= colend))){ buffer1[{{v}}][buffercapsule] = dummyvertexupdate; }
-					else { buffer1[{{v}}][buffercapsule] = vertexupdate{{v}}; }
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} >= colend))){ buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
 					{%endfor%}
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} >= colend))){ buffer2[{{v}}][buffercapsule] = dummyvertexupdate; }
-					else { buffer2[{{v}}][buffercapsule] = vertex2update{{v}}; }
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} >= colend))){ buffer2[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
 					{%endfor%}
 					
 					#ifdef _DEBUGMODE_STATS
@@ -3379,23 +3383,23 @@ processactivevertices(
 					{%endfor%}
 					#endif
 					
-					buffercapsule += 1;
+					buffersize_kvs += 1;
 				}
 				
 				// break out if full
-				if((buffercapsule >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
-					cout<<"processactivevertices: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer1", buffer1, buffercapsule);
-					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer2", buffer2, buffercapsule);
+				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
+					cout<<"processactivevertices: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					#ifdef _DEBUGMODE_KERNELPRINTS3
+					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer1", buffer1, buffersize_kvs);
+					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer2", buffer2, buffersize_kvs);
 					#endif
 					
-					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffercapsule);
-					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffercapsule, buffercapsule);
-					saveoffset_kvs += 2 * buffercapsule;
-					buffercapsule = 0;
+					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
+					saveoffset_kvs += 2 * buffersize_kvs;
+					buffersize_kvs = 0;
 					
-					cout<<"processactivevertices: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffercapsule: "<<buffercapsule<<endl;
+					cout<<"processactivevertices: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 				}
 				
 				edgesbegin_kvs = edgesbegin_kvs + edgesize_kvs;

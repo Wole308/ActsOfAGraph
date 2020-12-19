@@ -75,7 +75,7 @@ runsummary_t bfs::run(){
 	
 	container_t container;
 	vector<value_t> activevertices;
-	activevertices.push_back(1);//  (1); // 2
+	activevertices.push_back(2);//  (1); // 2
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	unsigned int GraphIter = 0;
