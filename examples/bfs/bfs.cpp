@@ -78,7 +78,10 @@ runsummary_t bfs::run(){
 	
 	// for(unsigned int i=500; i<2000; i++){ activevertices.push_back(i); }
 	
-	for(unsigned int i=1990000; i<2000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
+	// for(unsigned int i=1990000; i<2000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
+	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
+	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
+	// for(unsigned int i=0; i<1000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
 	// activevertices.push_back(1990000);
 	
 	// for(unsigned int i=500; i<4400; i++){ activevertices.push_back(i); } //
@@ -86,7 +89,7 @@ runsummary_t bfs::run(){
 	// for(unsigned int i=1; i<4400; i++){ activevertices.push_back(i); } // 
 	// for(unsigned int i=1; i<8400; i++){ activevertices.push_back(i); } // 
 	// for(unsigned int i=1; i<12400; i++){ activevertices.push_back(i); } //
-	// for(unsigned int i=100; i<12400; i++){ activevertices.push_back((rand() % 1000)); }
+	for(unsigned int i=100; i<12400; i++){ activevertices.push_back((rand() % 1000)); }
 	
 	// for(unsigned int i=1; i<5; i++){ activevertices.push_back(i); }
 	// activevertices.push_back(2);
