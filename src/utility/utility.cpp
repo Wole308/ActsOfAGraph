@@ -649,7 +649,7 @@ void utility::set_callback(cl_event event, const char *queue_name) {
 }
 #endif 
 
-void utility::printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned long * edges_count, unsigned long * edgesdstv_sum){
+void utility::printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
 	// cout<<"utility::printedgestats started. srcvids.size(): "<<srcvids.size()<<endl;
 	*edges_count = 0;
 	*edgesdstv_sum = 0;
@@ -667,6 +667,7 @@ void utility::printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer
 			// index += 1;
 		}
 	}
+	// *edgesdstv_sum = *edgesdstv_sum % 1024;
 	// cout<<"+++++++++++++++++++++++++++++ utility::printedgestats: edges_count: "<<*edges_count<<", edgesdstv_sum: "<<*edgesdstv_sum<<endl;
 	return;
 }
