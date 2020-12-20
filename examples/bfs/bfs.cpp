@@ -12,13 +12,11 @@
 #include <sys/stat.h> 
 #include <sys/types.h>
 #include <algorithm>
-
 #include <thread>
 #include <iostream>
 #include <mutex>
 #include <vector>
 #include <algorithm>
-
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -75,22 +73,22 @@ runsummary_t bfs::run(){
 	
 	container_t container;
 	vector<value_t> activevertices;
-	activevertices.push_back(2);//  (1); // 2
+	// activevertices.push_back(2); // 1, 2
+	for(unsigned int i=1; i<3; i++){ activevertices.push_back(i); }
 	
+	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
+	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
+		
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	unsigned int GraphIter = 0;
-	while(true){
+	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		
-		loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
-		// loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, &container);
-		// loadgraphobj->loadedges_columnwise(0, 0, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer, BASEOFFSET_EDGESDATA, &container, PAGERANK);
-		loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 		loadgraphobj->loadactvvertices(activevertices, (keyvalue_t **)kvbuffer, &container);
 		loadgraphobj->loadmessages(kvbuffer, &container, GraphIter, BREADTHFIRSTSEARCH);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 		
 		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
+		verify(activevertices);
 		exit(EXIT_SUCCESS);
 		
 		#ifdef FPGA_IMPL
@@ -100,9 +98,7 @@ runsummary_t bfs::run(){
 		activevertices.clear();
 		postprocessobj->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, BREADTHFIRSTSEARCH);
 		
-		// if(activevertices.size() == 0 || GraphIter >= 60){ break; }
-		if(activevertices.size() == 0 || GraphIter >= 0){ break; }
-		GraphIter += 1;
+		if(activevertices.size() == 0){ break; }
 	}
 	cout<<endl;
 	finish();
@@ -113,6 +109,24 @@ runsummary_t bfs::run(){
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
+}
+void bfs::verify(vector<vertex_t> &activevertices){
+	#ifdef _DEBUGMODE_HOSTCHECKS2
+	unsigned long edges_count = 0;
+	unsigned long edgesdstv_sum = 0;
+	unsigned long edges2_count = 0;
+	unsigned long edgesdstv2_sum = 0;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; edgesdstv_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; }				
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip)  edges_count: "<<edges_count<<", edgesdstv_sum: "<<edgesdstv_sum<<endl;
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
+	utilityobj->printedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges2_count, &edgesdstv2_sum);
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip) edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
+	if(edges_count != edges2_count){ cout<<"bfs::verify: ERROR: edges_count != edges2_count. exiting..."<<endl; exit(EXIT_FAILURE); }
+	if(edgesdstv_sum != edgesdstv2_sum){ cout<<"bfs::verify: ERROR: edgesdstv_sum != edgesdstv2_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
+	cout<<"bfs::verify: verify successful."<<endl;
+	#endif
+	return;
 }
 
 

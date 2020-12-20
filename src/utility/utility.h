@@ -73,6 +73,8 @@ public:
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);
 	#endif 
+	
+	void printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned long * edges_count, unsigned long * edgesdstv_sum);
 private:
 };
 #endif

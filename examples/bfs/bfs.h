@@ -19,6 +19,7 @@ public:
 	void finish();
 	
 	runsummary_t run();
+	void verify(vector<vertex_t> &activevertices);
 	
 private:
 	graph * graphobj;

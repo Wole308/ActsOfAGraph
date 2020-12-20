@@ -3246,13 +3246,18 @@ processactivevertices(
 	value_t buffersize_kvs = 0;
 	batch_type saveoffset_kvs = 0;
 	
+	#ifdef _DEBUGMODE_STATS
+	unsigned long edges_count = 0;
+	unsigned long edgesdstv_sum = 0;
+	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"processactivevertices: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
 	cout<<"processactivevertices: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
 	cout<<"processactivevertices: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
 	#endif
+	
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<"### processactivevertices: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
@@ -3261,11 +3266,11 @@ processactivevertices(
 		
 		buffer_type chunk_size = getchunksize_kvs(PADDEDDESTBUFFER_SIZE, actvvtravstate, 0);
 		for(batch_type actvv_id=0; actvv_id<chunk_size * VECTOR_SIZE; actvv_id++){
-			#ifdef _DEBUGMODE_KERNELPRINTS2
-			cout<<endl<<"^^^ processactivevertices: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			cout<<endl<<"processactivevertices: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
 			#endif 
 		
-			keyvalue_t activevertex = actvvs[actvv_id%VECTOR_SIZE][actvv_id/VECTOR_SIZE];
+			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
 			value_t sourcedata = activevertex.value;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
@@ -3303,24 +3308,28 @@ processactivevertices(
 			
 			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR2_SIZE;
 			batch_type edgesize_kvs = (allignhigherto16_KV(edges_endoffset) - allignlowerto16_KV(edges_beginoffset)) / VECTOR2_SIZE;
-			if((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
+			if((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id >= globalparams.actvvsize){ edgesize_kvs = 0; }
 			batch_type edgesend_kvs = edgesbegin_kvs + edgesize_kvs;
 			batch_type edgeid_kvs = edgesbegin_kvs;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
+			if((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
 			cout<<"processactivevertices: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
 			cout<<"processactivevertices: edgesize_kvs: "<<edgesize_kvs<<endl;
 			cout<<"processactivevertices: edgesend_kvs: "<<edgesend_kvs<<endl;
 			cout<<"processactivevertices: edgeid_kvs: "<<edgeid_kvs<<endl;
-			#endif 
+			#endif
 			
 			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
-			vector_type colend = edges_endoffset % VECTOR2_SIZE;
+			vector_type colend = (edges_endoffset-1) % VECTOR2_SIZE;
+			#ifdef _DEBUGMODE_CHECKS2
+			if(colend < 1){ cout<<"processactivevertices: ERROR: colend < 1"<<endl; exit(EXIT_FAILURE); }
+			#endif
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"processactivevertices: colstart: "<<colstart<<endl;
 			cout<<"processactivevertices: colend: "<<colend<<endl;
-			#endif 
+			#endif
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
 			keyvalue_t vertexupdate{{v}};
@@ -3328,30 +3337,33 @@ processactivevertices(
 			{%endfor%}
 			keyvalue_t dummyvertexupdate; dummyvertexupdate.key = INVALIDDATA; dummyvertexupdate.value = INVALIDDATA;
 			
+			batch_type workedgesize_kvs = edgesize_kvs;
+			
 			unsigned int errcount = 0;
 			while(true){
-				if(edgeid_kvs + edgesize_kvs >= PADDEDDESTBUFFER_SIZE){ edgesize_kvs = PADDEDDESTBUFFER_SIZE - edgeid_kvs; } 
+				if(edgeid_kvs + workedgesize_kvs >= PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - edgeid_kvs; } 
+				#ifdef _DEBUGMODE_CHECKS2
+				if(PADDEDDESTBUFFER_SIZE < edgeid_kvs){ cout<<"processactivevertices: ERROR: PADDEDDESTBUFFER_SIZE < edgeid_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif
 				
-				for(edgeid_kvs=edgesbegin_kvs; edgeid_kvs<edgesbegin_kvs + edgesize_kvs; edgeid_kvs++){
+				for(edgeid_kvs=edgesbegin_kvs; edgeid_kvs<edgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
 				#pragma HLS PIPELINE II=1
-					#ifdef _DEBUGMODE_KERNELPRINTS2
-					cout<<"processactivevertices.for: edgeid_kvs: "<<edgeid_kvs<<", edgesbegin_kvs: "<<edgesbegin_kvs<<", edgesize_kvs: "<<edgesize_kvs<<endl;
-					#endif 
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					cout<<"processactivevertices.for: edgeid_kvs: "<<edgeid_kvs<<", edgesbegin_kvs: "<<edgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					#endif
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
-					#ifdef _DEBUGMODE_KERNELPRINTS2
+					#ifdef _DEBUGMODE_KERNELPRINTS
 					{%for v in context['VECTOR_SIZE_seq']%}
-					cout<<"--- processactivevertices: E.data[{{v}}].key: "<<E.data[{{v}}].key<<", E.data[{{v}}].value: "<<E.data[{{v}}].value<<endl;
+					cout<<"processactivevertices: E.data[{{v}}].key: "<<E.data[{{v}}].key<<", E.data[{{v}}].value: "<<E.data[{{v}}].value<<endl;
 					{%endfor%}
-					#endif 
+					#endif
 					
 					{%for v in context['4_seq']%}
 					vertexupdate{{2*v}}.key = E.data[{{v}}].key;
 					vertexupdate{{2*v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertexupdate{{2*v+1}}.key = E.data[{{v}}].value;
 					vertexupdate{{2*v+1}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
-					cout<<"--- processactivevertices: vertexupdate{{2*v}}.key: "<<vertexupdate{{2*v}}.key<<", vertexupdate{{2*v}}.value: "<<vertexupdate{{2*v}}.value<<endl;
-					cout<<"--- processactivevertices: vertexupdate{{2*v+1}}.key: "<<vertexupdate{{2*v+1}}.key<<", vertexupdate{{2*v+1}}.value: "<<vertexupdate{{2*v+1}}.value<<endl;
 					{%endfor%}
 					
 					{%for v in context['4_seq']%}
@@ -3359,37 +3371,43 @@ processactivevertices(
 					vertex2update{{2*v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 					vertex2update{{2*v+1}}.key = E.data[{{4+v}}].value;
 					vertex2update{{2*v+1}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
-					cout<<"--- processactivevertices: vertex2update{{2*v}}.key: "<<vertex2update{{2*v}}.key<<", vertex2update{{2*v}}.value: "<<vertex2update{{2*v}}.value<<endl;
-					cout<<"--- processactivevertices: vertex2update{{2*v+1}}.key: "<<vertex2update{{2*v+1}}.key<<", vertex2update{{2*v+1}}.value: "<<vertex2update{{2*v+1}}.value<<endl;
 					{%endfor%}
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} >= colend))){ buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
-					else { cout<<"buzzzzzz1zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend))){ buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					else {
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices: vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
+						#endif 
+						buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
 					{%endfor%}
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} >= colend))){ buffer2[{{v}}][buffersize_kvs] = dummyvertexupdate; }
-					else { cout<<"buzzzzzz2zzzzz....."<<endl; exit(EXIT_SUCCESS); buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} > colend))){ buffer2[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					else { 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices: vertex2update{{v}}.key: "<<vertex2update{{v}}.key<<", vertex2update{{v}}.value: "<<vertex2update{{v}}.value<<endl;
+						#endif 
+						buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
 					{%endfor%}
 					
 					#ifdef _DEBUGMODE_STATS
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} >= colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate{{v}}.key; }
 					{%endfor%}
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} >= colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); }
+					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update{{v}}.key; }
 					{%endfor%}
 					#endif
 					
 					buffersize_kvs += 1;
 				}
 				
-				// break out if full
+				// write when if full
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * PADDEDDESTBUFFER_SIZE) + actvv_id == globalparams.actvvsize-1)){
 					cout<<"processactivevertices: saving keyvalues... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
-					#ifdef _DEBUGMODE_KERNELPRINTS3
+					#ifdef _DEBUGMODE_KERNELPRINTS
 					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer1", buffer1, buffersize_kvs);
 					actsutilityobj->printkeyvalues("processactivevertices: saving keyvalues. buffer2", buffer2, buffersize_kvs);
 					#endif
@@ -3398,17 +3416,22 @@ processactivevertices(
 					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
 					saveoffset_kvs += 2 * buffersize_kvs;
 					buffersize_kvs = 0;
-					
-					cout<<"processactivevertices: saving keyvalues (after)... new saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 				}
 				
-				edgesbegin_kvs = edgesbegin_kvs + edgesize_kvs;
-				edgesize_kvs = edgesize_kvs - edgesbegin_kvs; 
-				if(edgesize_kvs == 0){ break; }
-				if(errcount++ > 312){ cout<<"processactivevertices:ERROR: errcount++ > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#ifdef _DEBUGMODE_CHECKS2
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif
+				workedgesize_kvs = edgesize_kvs - workedgesize_kvs;
+				edgesbegin_kvs += workedgesize_kvs;
+				if(workedgesize_kvs == 0){ break; }
+				if(errcount++ > 8){ cout<<"processactivevertices:ERROR: errcount++ > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 			}
 		}
 	}
+	#ifdef _DEBUGMODE_STATS
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key = edges_count;
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
+	#endif 
 	return;
 }
 

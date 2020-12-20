@@ -30,10 +30,11 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], uns
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
+	// kernelobjs[7]->topkernel((uint512_dt *)kvsourcedram[7]);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		kernelobjs[i]->topkernel((uint512_dt *)kvsourcedram[i]);
 		// exit(EXIT_SUCCESS); 
-		break;
+		// break;
 	}
 	
 	#ifdef _DEBUGMODE_TIMERS3

@@ -153,7 +153,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ counts[i] = 0; }
 	unsigned int index = 0;
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){
+	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ // KVDATA_RANGE
 		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		
 		edge_t vptr_begin = vertexptrbuffer[vid];
@@ -195,11 +195,10 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		container->srcvoffset[i] = 0;
-		container->srcvsize[i] = KVDATA_RANGE; // srcvsize;
-		container->edgessize[i] = counts[i]; // edgessize;
+		container->srcvsize[i] = KVDATA_RANGE; 
+		container->edgessize[i] = counts[i]; 
 		container->runsize[i] = counts[i];
-		// if(GraphAlgo == PAGERANK){ container->runsize[i] = edgessize; } else { container->runsize[i] = 1; }
-		container->destvoffset[i] = 0; // col * KVDATA_RANGE_PERSSDPARTITION;
+		container->destvoffset[i] = 0;
 		container->actvvsize[i] = 0;
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printedges("loadgraph::loadedges_rowwise::first", edges[i], 16);
@@ -210,9 +209,8 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	utilityobj->printvalues("loadedges_rowwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_VERTEXPTR)+"]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8); }
+	for(unsigned int i=0; i<0; i++){ utilityobj->printvalues("loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8); }
 	#endif
-	// exit(EXIT_SUCCESS);
 }
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){

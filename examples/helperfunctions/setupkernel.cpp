@@ -73,10 +73,8 @@ void setupkernel::launchmykernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]
 	kernelobj->launchkernel(kvsourcedram, flag);
 	#endif 
 	#ifdef GRAFBOOST_SETUP
-	for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
-		srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i][j]);
-	}
-	#endif 
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i]); }
+	#endif
 	
 	#ifdef GRAFBOOST_SETUP
 	#ifdef _DEBUGMODE_TIMERS3
