@@ -255,7 +255,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		
 		for(unsigned int k=0; k<container->edgessize[i]; k++){
 			keyvalue_t keyvalue;
-			keyvalue.key = edgesptr[k].dstvid; // edge.key;
+			keyvalue.key = edgesptr[k].dstvid;
 			keyvalue.value = 0;
 			
 			for(unsigned int CLOP=1; CLOP<=TREE_DEPTH; CLOP++){
@@ -283,6 +283,9 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 			statsptr[k * VECTOR_SIZE].key = tempstats[k].key;
 			statsptr[k * VECTOR_SIZE].value = 0;
 		}
+		
+		// utilityobj->printkeyvalues(")))))))))))))))))))))))))))))))))) loadoffsetmarkers.tempstats", tempstats, 1+NUM_PARTITIONS);
+		// exit(EXIT_SUCCESS);
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats, totalnumpartitions);
@@ -663,9 +666,9 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 2;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 3;//3;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 4;//3;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#else 
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;

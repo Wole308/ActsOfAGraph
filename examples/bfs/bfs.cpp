@@ -79,7 +79,6 @@ runsummary_t bfs::run(){
 	
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
-	// loadgraphobj->loadoffsetmarkers((keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();

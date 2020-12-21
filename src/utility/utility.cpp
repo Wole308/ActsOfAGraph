@@ -617,13 +617,13 @@ void utility::calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type
 void utility::getmarkerpositions(keyvalue_t * stats, batch_type size){
 	batch_type * skipspacing = new batch_type[size];
 	for(partition_type p=0; p<size; p++){ 
-		// batch_type A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; 
-		// batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
-		// if(B < 80){ B = B * 2; } 
-		// batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
-		// skipspacing[p] = (B * C) + 128; 
+		batch_type A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
+		batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
+		if(B < 80){ B = B * 2; } 
+		batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
+		skipspacing[p] = (B * C) + 128; 
 		
-		skipspacing[p] = 0;
+		// skipspacing[p] = 0;
 	}			
 	calculateoffsets(stats, size, 0, skipspacing);
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
