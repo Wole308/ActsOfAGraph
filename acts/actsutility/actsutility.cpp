@@ -1234,7 +1234,7 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	cout<<"post-partition check started. "<<endl;
 	cout<<"actsutility::postpartitioncheck: currentLOP: "<<sweepparams.currentLOP<<", source_partition: "<<sweepparams.source_partition<<endl;
 	#endif 
-	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
+	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY_XXX) // CHANGEMEBACK.
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
 	#endif 
 	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
@@ -1249,7 +1249,7 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	cout<<"minimum cutoff seen during partitioning: "<<getmincutoffseen()<<endl;
 	cout<<"maximum cutoff seen during partitioning: "<<getmaxcutoffseen()<<endl;
 	#endif 
-	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
+	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY_XXX) // CHANGEMEBACK.
 	checkforgreaterthan("ensuring getstats(7, 0) > getstats(7, 2)", getstats(7, 0), getstats(7, 2), NUM_PARTITIONS);
 	#endif 
 	cout<<"post-partition check passed. "<<endl;

@@ -22,14 +22,16 @@ public:
 
 	void loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vertex_t offset, vertex_t size);
 	void loadvertexptrs(unsigned int col, edge_t * vertexptrbuffer, value_t * vertexdatabuffer, vptr_type * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
-	vertex_t loadedges_columnwise(unsigned int col, vertex_t srcvoffset, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_type * edges[NUMSUBCPUTHREADS], edge_t baseoffset_edgedata, container_t * container, unsigned int GraphAlgo);
+	void loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo);
 	void loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo);
+	void loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container);
 	void loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
 	
 	edge_t countedges(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int * srcvidsoffset, edge_t maxnumedgestoload, container_t * container);
 	void loadactivesubgraph(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], value_t * vertexdatabuffer, unsigned int balancededgesizes[NUMSUBCPUTHREADS], container_t * container);				
 	void loadactivesubgraph(unsigned int col, graph * graphobj, vector<vertex_t> &srcvids, unsigned int srcvidsoffset, value_t * vertexdatabuffer, 
 								edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge2_type * edges[NUMSUBCPUTHREADS], unsigned int balancededgesizes[NUMSUBCPUTHREADS], container_t * container);
+	vertex_t loadedges_columnwise(unsigned int col, vertex_t srcvoffset, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_type * edges[NUMSUBCPUTHREADS], edge_t baseoffset_edgedata, container_t * container, unsigned int GraphAlgo);
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
 	void loadkvstats(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container);
 	

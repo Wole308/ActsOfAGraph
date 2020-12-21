@@ -29,6 +29,7 @@
 #include "../include/examplescommon.h"
 #include "bfs.h"
 using namespace std;
+// #define PROCESSACTIVEVERTICESTEST
 
 bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
@@ -73,13 +74,14 @@ runsummary_t bfs::run(){
 	
 	container_t container;
 	vector<value_t> activevertices;
-	// activevertices.push_back(2); // 1, 2
-	// for(unsigned int i=0; i<12400; i++){ activevertices.push_back((rand() % 1000)); }
+	// activevertices.push_back(2);
 	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
-		
+	// loadgraphobj->loadoffsetmarkers((keyvalue_t **)kvbuffer, &container);
+	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
@@ -112,7 +114,7 @@ runsummary_t bfs::run(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 void bfs::verify(vector<vertex_t> &activevertices){
-	#ifdef _DEBUGMODE_HOSTCHECKS2
+	#ifdef PROCESSACTIVEVERTICESTEST
 	unsigned int edges1_count = 0;
 	unsigned int edgesdstv1_sum = 0;
 	unsigned int edges2_count = 0;
@@ -142,7 +144,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram) edges3_count: "<<edges3_count<<", edgesdstv2_sum: "<<edgesdstv3_sum<<endl;
 	
 	if(edges1_count != edges2_count || edges1_count != edges3_count){ cout<<"bfs::verify: ERROR: edges_count != edges1_count. exiting..."<<endl; exit(EXIT_FAILURE); }
-	// if(edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
+	if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum) && false){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
 	cout<<"bfs::verify: verify successful."<<endl;
 	#endif
 	return;

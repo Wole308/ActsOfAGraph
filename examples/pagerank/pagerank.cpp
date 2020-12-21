@@ -129,6 +129,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 		#endif
 		#ifdef COLLECTSTATSOFFLINE
 		loadgraphobj->loadkvstats((keyvalue_t **)kvbuffer, container);
+		// loadgraphobj->loadoffsetmarkers((keyvalue_t **)kvbuffer, container);
 		#endif 
 		loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer, container, GraphIter, PAGERANK);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(col, container->edgessize[i]); }

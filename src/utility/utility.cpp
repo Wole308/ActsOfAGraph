@@ -593,6 +593,42 @@ unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimi
 	return partition;
 }
 
+void utility::printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
+	*edges_count = 0;
+	*edgesdstv_sum = 0;
+	for(unsigned int i=0; i<srcvids.size(); i++){
+		unsigned int vid = srcvids[i];
+		edge_t vptr_begin = vertexptrbuffer[vid];
+		edge_t vptr_end = vertexptrbuffer[vid+1];
+		edge_t edges_size = vptr_end - vptr_begin;
+		
+		for(unsigned int k=0; k<edges_size; k++){
+			*edges_count += 1;
+			*edgesdstv_sum += edgedatabuffer[vptr_begin + k].dstvid;
+		}
+	}
+	return;
+}
+void utility::calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing){
+	buffer[0].key += base;
+	for(buffer_type i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
+	return;
+}
+void utility::getmarkerpositions(keyvalue_t * stats, batch_type size){
+	batch_type * skipspacing = new batch_type[size];
+	for(partition_type p=0; p<size; p++){ 
+		// batch_type A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; 
+		// batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
+		// if(B < 80){ B = B * 2; } 
+		// batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
+		// skipspacing[p] = (B * C) + 128; 
+		
+		skipspacing[p] = 0;
+	}			
+	calculateoffsets(stats, size, 0, skipspacing);
+	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
+}
+
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {
   cl_command_type command;
@@ -648,31 +684,6 @@ void utility::set_callback(cl_event event, const char *queue_name) {
       clSetEventCallback(event, CL_COMPLETE, event_cb, (void *)queue_name));
 }
 #endif 
-
-void utility::printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
-	// cout<<"utility::printedgestats started. srcvids.size(): "<<srcvids.size()<<endl;
-	*edges_count = 0;
-	*edgesdstv_sum = 0;
-	// unsigned int index = 0;
-	for(unsigned int i=0; i<srcvids.size(); i++){
-		unsigned int vid = srcvids[i];
-		edge_t vptr_begin = vertexptrbuffer[vid];
-		edge_t vptr_end = vertexptrbuffer[vid+1];
-		edge_t edges_size = vptr_end - vptr_begin;
-		
-		for(unsigned int k=0; k<edges_size; k++){
-			// cout<<"-------------- edgedatabuffer["<<vptr_begin + k<<"].dstvid: "<<edgedatabuffer[vptr_begin + k].dstvid<<endl;
-			*edges_count += 1;
-			*edgesdstv_sum += edgedatabuffer[vptr_begin + k].dstvid; // edgedatabuffer[index].dstvid;
-			// index += 1;
-		}
-	}
-	// *edgesdstv_sum = *edgesdstv_sum % 1024;
-	// cout<<"+++++++++++++++++++++++++++++ utility::printedgestats: edges_count: "<<*edges_count<<", edgesdstv_sum: "<<*edgesdstv_sum<<endl;
-	return;
-}
-
-
 
 
 
