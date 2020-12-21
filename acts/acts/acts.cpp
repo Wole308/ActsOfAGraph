@@ -5227,8 +5227,29 @@ processactivevertices(
 		}
 	}
 	#ifdef _DEBUGMODE_STATS
+	cout<<"processactivevertices:: saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+	
+	/* unsigned int SSS_edgesdstv_sum = 0;
+	unsigned int TTT_edgescount = 0;
+	for(unsigned int i=0; i<saveoffset_kvs; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			if(kvdram[globalparams.baseoffset_kvdram_kvs + i].data[v].key != INVALIDDATA){
+				SSS_edgesdstv_sum += kvdram[globalparams.baseoffset_kvdram_kvs + i].data[v].key;
+				TTT_edgescount += 1;
+			}
+		}
+	}
+	cout<<"processactivevertices:: TTT_edgescount: "<<TTT_edgescount<<endl;
+	cout<<"processactivevertices:: SSS_edgesdstv_sum: "<<SSS_edgesdstv_sum<<endl;
+	
+	cout<<"processactivevertices:: edges_count: "<<edges_count<<endl;
+	cout<<"processactivevertices:: edgesdstv_sum: "<<edgesdstv_sum<<endl; */
+	
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key = edges_count;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
+	
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
+	
 	#endif 
 	return;
 }

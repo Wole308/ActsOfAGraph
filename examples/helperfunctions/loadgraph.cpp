@@ -153,7 +153,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ counts[i] = 0; }
 	unsigned int index = 0;
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ // KVDATA_RANGE
+	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){
 		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		
 		edge_t vptr_begin = vertexptrbuffer[vid];

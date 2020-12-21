@@ -74,26 +74,8 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(2); // 1, 2
-	// for(unsigned int i=1; i<308; i++){ activevertices.push_back(i); }
-	
-	// for(unsigned int i=500; i<2000; i++){ activevertices.push_back(i); }
-	
-	// for(unsigned int i=1990000; i<2000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
-	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
-	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
-	// for(unsigned int i=0; i<1000; i++){ activevertices.push_back(i); } // MODEL DEBUG TEST
-	// activevertices.push_back(1990000);
-	
-	// for(unsigned int i=500; i<4400; i++){ activevertices.push_back(i); } //
-	
-	// for(unsigned int i=1; i<4400; i++){ activevertices.push_back(i); } // 
-	// for(unsigned int i=1; i<8400; i++){ activevertices.push_back(i); } // 
-	// for(unsigned int i=1; i<12400; i++){ activevertices.push_back(i); } //
-	for(unsigned int i=100; i<12400; i++){ activevertices.push_back((rand() % 1000)); }
-	
-	// for(unsigned int i=1; i<5; i++){ activevertices.push_back(i); }
-	// activevertices.push_back(2);
-	// activevertices.push_back(12400);
+	// for(unsigned int i=0; i<12400; i++){ activevertices.push_back((rand() % 1000)); }
+	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
@@ -131,18 +113,36 @@ runsummary_t bfs::run(){
 }
 void bfs::verify(vector<vertex_t> &activevertices){
 	#ifdef _DEBUGMODE_HOSTCHECKS2
-	unsigned int edges_count = 0;
-	unsigned int edgesdstv_sum = 0;
+	unsigned int edges1_count = 0;
+	unsigned int edgesdstv1_sum = 0;
 	unsigned int edges2_count = 0;
 	unsigned int edgesdstv2_sum = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; edgesdstv_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; }				
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip)  edges_count: "<<edges_count<<", edgesdstv_sum: "<<edgesdstv_sum<<endl;
+	unsigned int edges3_count = 0;
+	unsigned int edgesdstv3_sum = 0;
+	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
-	utilityobj->printedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges2_count, &edgesdstv2_sum);
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip) edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
-	if(edges_count != edges2_count){ cout<<"bfs::verify: ERROR: edges_count != edges2_count. exiting..."<<endl; exit(EXIT_FAILURE); }
-	// if(edgesdstv_sum != edgesdstv2_sum){ cout<<"bfs::verify: ERROR: edgesdstv_sum != edgesdstv2_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
+	utilityobj->printedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; }				
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int j=0; j<kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key; j++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				if(kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v].key != INVALIDDATA){
+					edges3_count += 1;
+					edgesdstv3_sum += kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v].key;
+				}
+			}
+		}
+	}
+	
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip)  edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram) edges3_count: "<<edges3_count<<", edgesdstv2_sum: "<<edgesdstv3_sum<<endl;
+	
+	if(edges1_count != edges2_count || edges1_count != edges3_count){ cout<<"bfs::verify: ERROR: edges_count != edges1_count. exiting..."<<endl; exit(EXIT_FAILURE); }
+	// if(edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
 	cout<<"bfs::verify: verify successful."<<endl;
 	#endif
 	return;
