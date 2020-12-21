@@ -4693,8 +4693,6 @@ partitionupdates_finegrainedpipeline(
 	actsutilityobj->printglobalvars();
 	actsutilityobj->clearglobalvars();
 	#endif
-	// actsutilityobj->printkeyvalues("partitionupdates_finegrainedpipeline.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -4901,9 +4899,6 @@ processactivevertices(
 	value_t buffersize_kvs = 0;
 	batch_type saveoffset_kvs = 0;
 	
-	// keyvalue_t PARTS[NUM_PARTITIONS]; // // REMOVEME.
-	// for(unsigned int i=0; i<NUM_PARTITIONS; i++){ PARTS[i].key = 0; PARTS[i].value = 0; } //
-	
 	#ifdef _DEBUGMODE_STATS
 	unsigned int edges_count = 0;
 	unsigned int edgesdstv_sum = 0;
@@ -5074,72 +5069,48 @@ processactivevertices(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate0, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[0][buffersize_kvs] = vertexupdate0; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 > colend))){ buffer1[1][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate1, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[1][buffersize_kvs] = vertexupdate1; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 > colend))){ buffer1[2][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate2, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[2][buffersize_kvs] = vertexupdate2; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 > colend))){ buffer1[3][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate3, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[3][buffersize_kvs] = vertexupdate3; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 > colend))){ buffer1[4][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate4, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[4][buffersize_kvs] = vertexupdate4; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 > colend))){ buffer1[5][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate5, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[5][buffersize_kvs] = vertexupdate5; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 > colend))){ buffer1[6][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate6, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[6][buffersize_kvs] = vertexupdate6; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 > colend))){ buffer1[7][buffersize_kvs] = dummyvertexupdate; }
 					else {
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate7, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[7][buffersize_kvs] = vertexupdate7; }
 					
 					if(((edgeid_kvs == edgesbegin_kvs) && (8 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (8 > colend))){ buffer2[0][buffersize_kvs] = dummyvertexupdate; }
@@ -5147,72 +5118,48 @@ processactivevertices(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update0, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[0][buffersize_kvs] = vertex2update0; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (9 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (9 > colend))){ buffer2[1][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update1, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[1][buffersize_kvs] = vertex2update1; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (10 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (10 > colend))){ buffer2[2][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update2, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[2][buffersize_kvs] = vertex2update2; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (11 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (11 > colend))){ buffer2[3][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update3, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[3][buffersize_kvs] = vertex2update3; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (12 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (12 > colend))){ buffer2[4][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update4, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[4][buffersize_kvs] = vertex2update4; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (13 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (13 > colend))){ buffer2[5][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update5, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[5][buffersize_kvs] = vertex2update5; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (14 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (14 > colend))){ buffer2[6][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update6, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[6][buffersize_kvs] = vertex2update6; }
 					if(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 > colend))){ buffer2[7][buffersize_kvs] = dummyvertexupdate; }
 					else { 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update7, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[7][buffersize_kvs] = vertex2update7; }
 					
 					#ifdef _DEBUGMODE_CHECKS2
@@ -5270,8 +5217,6 @@ processactivevertices(
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
 	#endif
-	// actsutilityobj->printkeyvalues("processactivevertices.PARTS", PARTS, NUM_PARTITIONS);
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	return saveoffset_kvs;
 }
 
@@ -5417,8 +5362,8 @@ dispatch(uint512_dt * kvdram){
 			#ifdef EMBEDDEDCOLLECTSTATS
 			prepareglobalstats2(config.enableprocessedges, buffer4, globalstatsbuffer, NUM_PARTITIONS, globalparams);
 			#endif
-			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
-			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); } //
+			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY) && defined(PR_ALGORITHM)
+			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); }
 			#endif
 			#endif
 			
@@ -5426,7 +5371,7 @@ dispatch(uint512_dt * kvdram){
 			#ifdef COLLECTSTATS
 			if(incollectstatsstage(currentLOP, globalparams) == true){ config.enableprocessedges = OFF; config.enablecollectglobalstats = ON; config.enablepartition = OFF; config.enablereduce = OFF; } 
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
-			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } // NEWCHANGE.
+			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			#ifndef COLLECTSTATSOFFLINE
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
@@ -5487,14 +5432,11 @@ dispatch(uint512_dt * kvdram){
 				ptravstate,
 				sweepparams.worksourcebaseaddress_kvs,
 				sweepparams.workdestbaseaddress_kvs);
-			if(inpartitionstage(currentLOP, globalparams) == true){ 
-				// actsutilityobj->printkeyvalues("dispatch.partitionupdates_finegrainedpipeline", globalstatsbuffer, NUM_PARTITIONS); 
-				saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
+			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
 			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
 			if(config.enablepartition == ON){ actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams); }
 			#endif
 			#endif
-			// if(currentLOP == 2 && source_partition == 1){ break; }
 			
 			// reduce 
 			#ifdef REDUCEUPDATES

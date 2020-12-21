@@ -3024,8 +3024,6 @@ partitionupdates_finegrainedpipeline(
 	actsutilityobj->printglobalvars();
 	actsutilityobj->clearglobalvars();
 	#endif
-	// actsutilityobj->printkeyvalues("partitionupdates_finegrainedpipeline.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -3232,9 +3230,6 @@ processactivevertices(
 	value_t buffersize_kvs = 0;
 	batch_type saveoffset_kvs = 0;
 	
-	// keyvalue_t PARTS[NUM_PARTITIONS]; // // REMOVEME.
-	// for(unsigned int i=0; i<NUM_PARTITIONS; i++){ PARTS[i].key = 0; PARTS[i].value = 0; } //
-	
 	#ifdef _DEBUGMODE_STATS
 	unsigned int edges_count = 0;
 	unsigned int edgesdstv_sum = 0;
@@ -3369,9 +3364,6 @@ processactivevertices(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertexupdate{{v}}, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
 					{%endfor%}
 					
@@ -3381,9 +3373,6 @@ processactivevertices(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update{{v}}.key: "<<vertex2update{{v}}.key<<", vertex2update{{v}}.value: "<<vertex2update{{v}}.value<<endl;
 						#endif
-						
-						// PARTS[getpartition(ON, vertex2update{{v}}, 1, 0, globalparams.batch_range_pow)].value += 1; // REMOVEME.
-						
 						buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
 					{%endfor%}
 					
@@ -3432,8 +3421,6 @@ processactivevertices(
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
 	#endif
-	// actsutilityobj->printkeyvalues("processactivevertices.PARTS", PARTS, NUM_PARTITIONS);
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	return saveoffset_kvs;
 }
 
@@ -3579,8 +3566,8 @@ dispatch(uint512_dt * kvdram){
 			#ifdef EMBEDDEDCOLLECTSTATS
 			prepareglobalstats2(config.enableprocessedges, buffer4, globalstatsbuffer, NUM_PARTITIONS, globalparams);
 			#endif
-			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
-			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); } //
+			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY) && defined(PR_ALGORITHM)
+			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); }
 			#endif
 			#endif
 			
@@ -3588,7 +3575,7 @@ dispatch(uint512_dt * kvdram){
 			#ifdef COLLECTSTATS
 			if(incollectstatsstage(currentLOP, globalparams) == true){ config.enableprocessedges = OFF; config.enablecollectglobalstats = ON; config.enablepartition = OFF; config.enablereduce = OFF; } 
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
-			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } // NEWCHANGE.
+			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			#ifndef COLLECTSTATSOFFLINE
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### dispatch::collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
@@ -3649,14 +3636,11 @@ dispatch(uint512_dt * kvdram){
 				ptravstate,
 				sweepparams.worksourcebaseaddress_kvs,
 				sweepparams.workdestbaseaddress_kvs);
-			if(inpartitionstage(currentLOP, globalparams) == true){ 
-				// actsutilityobj->printkeyvalues("dispatch.partitionupdates_finegrainedpipeline", globalstatsbuffer, NUM_PARTITIONS); 
-				saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
+			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
 			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
 			if(config.enablepartition == ON){ actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams); }
 			#endif
 			#endif
-			// if(currentLOP == 2 && source_partition == 1){ break; }
 			
 			// reduce 
 			#ifdef REDUCEUPDATES

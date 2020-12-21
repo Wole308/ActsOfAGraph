@@ -1100,6 +1100,7 @@ unsigned int actsutility::countkeysbelongingtopartition(unsigned int p, keyvalue
 }
 
 void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int size_kvs, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	if(enable == OFF){ return; }
 	for(unsigned int i=0; i<size_kvs; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			if(keyvalues[v][i].key == INVALIDDATA || keyvalues[v][i].value == INVALIDDATA){ continue; }
@@ -1111,6 +1112,7 @@ void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_
 	return;
 }
 void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	if(enable == OFF){ return; }
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 		unsigned int begin_kvs = localstats[p].key / VECTOR_SIZE;
 		unsigned int size_kvs = localstats[p].value / VECTOR_SIZE;
@@ -1130,6 +1132,7 @@ void actsutility::collectstats(unsigned int enable, keyvalue_t keyvalues[VECTOR_
 	}
 }
 void actsutility::collectstats(unsigned int enable, keyvalue_t * keyvalues, keyvalue_t localstats[NUM_PARTITIONS], step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	if(enable == OFF){ return; }
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 		unsigned int begin = localstats[p].key;
 		unsigned int size = localstats[p].value;
@@ -1147,12 +1150,14 @@ void actsutility::collectstats(unsigned int enable, keyvalue_t * keyvalues, keyv
 	}
 }
 void actsutility::collectstats(unsigned int enable, keyvalue_t localcapsule[NUM_PARTITIONS], unsigned int x, unsigned int y){
+	if(enable == OFF){ return; }
 	for(buffer_type p=0; p<NUM_PARTITIONS; p++){
 		mystats[x][y][p] += localcapsule[p].value;
 	}
 	return;
 }
 void actsutility::collectstats(unsigned int enable, keyvalue_t * keyvalues, unsigned int size, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int x, unsigned int y){
+	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actsutility::collectstats"<<endl;
 	#endif 
@@ -1230,14 +1235,14 @@ void actsutility::intrapartitioncheck(){
 	return;
 }
 void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"post-partition check started. "<<endl;
 	cout<<"actsutility::postpartitioncheck: currentLOP: "<<sweepparams.currentLOP<<", source_partition: "<<sweepparams.source_partition<<endl;
 	#endif 
-	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY_XXX) // CHANGEMEBACK.
+	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
-	#endif 
-	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
+	#endif
+	collectstats(OFF, (keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
 	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	printvalues("actsutility::postpartitioncheck: stats collected online [before partition stage (7,0)]", getstats(7, 0), NUM_PARTITIONS);
@@ -1249,7 +1254,7 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	cout<<"minimum cutoff seen during partitioning: "<<getmincutoffseen()<<endl;
 	cout<<"maximum cutoff seen during partitioning: "<<getmaxcutoffseen()<<endl;
 	#endif 
-	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY_XXX) // CHANGEMEBACK.
+	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY_XXX)
 	checkforgreaterthan("ensuring getstats(7, 0) > getstats(7, 2)", getstats(7, 0), getstats(7, 2), NUM_PARTITIONS);
 	#endif 
 	cout<<"post-partition check passed. "<<endl;
