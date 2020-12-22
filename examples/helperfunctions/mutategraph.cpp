@@ -110,7 +110,7 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 				lastmail = newx;
 			}
 			
-			if(commit == true){
+			if(commit == true || k == edges_size-1){
 				#ifdef _DEBUGMODE_HOSTPRINTS2
 				cout<<"..........committing "<<numitems<<" items... RESON: ";
 				if(llpartition != currpartition){ cout<<"change in last level partition. "; commitreasontype2 += 1; }
@@ -151,6 +151,49 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 				commit = false;
 			}
 		}
+		
+		// edge conditions
+		if(numitems != 0){
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<"..........[edge conditions]committing "<<numitems<<" items... RESON: ";
+			if(llpartition != currpartition){ cout<<"change in last level partition. "; commitreasontype2 += 1; }
+			if(currbitoffset + newx.houseno > 64){ cout<<"long word full. "; commitreasontype3 += 1; }
+			cout<<""<<endl;
+			#endif 
+			
+			if(llpartition != currpartition){ commitreasontype2 += 1; }
+			if(currbitoffset + newx.houseno > 64){ commitreasontype3 += 1; }
+			
+			// append header 
+			unsigned long streetaddr = lastmail.streetaddr; // 0xFF;
+			longword.data = (streetaddr << 56) | longword.data;
+			
+			// the actual committing...
+			totalnumcommits += 1;
+			numitemscount[numitems] += 1;
+			numitems = 0;
+			
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			cout<<"longword.data: "<<(unsigned long)longword.data<<" (committed?"<<commit<<")"<<endl;
+			utilityobj->ulongtobinary(longword.data);
+			#endif 
+			#ifdef _DEBUGMODE_HOSTPRINTS2
+			utilityobj->printcodedkeyvalue("processactivevertices.longword.data", longword.data, SRAMSZ_POW);
+			#endif
+		
+			// insert current one
+			longword.data = 0;
+			push(&longword, newx);
+			currpartition = llpartition;
+			currbitoffset = 0;
+			currbitoffset += newx.houseno;
+			numitems += 1;
+			lastmail = newx;
+			
+			// reset
+			commit = false;
+		}
+		
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"STATS: totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<", reduction factor: "<<(float)((float)totalnumedgesprocessed / (float)totalnumcommits)<<endl;
