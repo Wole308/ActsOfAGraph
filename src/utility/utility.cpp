@@ -647,6 +647,16 @@ int utility::bitExtracted(unsigned long number, int k, int p){
     return (((1 << k) - 1) & (number >> p));
 }
 void utility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
+	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword<<endl;
+	
+	cout<<"longword("<<14<<", "<<0<<"): "<<bitExtracted(longword, 14, 0)<<endl;
+	cout<<"longword("<<28<<", "<<14<<"): "<<bitExtracted(longword, 14, 14)<<endl;
+	cout<<"longword("<<42<<", "<<28<<"): "<<bitExtracted(longword, 14, 28)<<endl;
+	cout<<"longword("<<56<<", "<<42<<"): "<<bitExtracted(longword, 14, 42)<<endl;
+	cout<<"[m]longword("<<8<<", "<<56<<"): "<<bitExtracted(longword, 8, 56)<<endl;
+	return;
+}
+void utility::printcodedkeyvalue2(string message, unsigned long longword, unsigned int setsize){ 
 	// cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
 	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword<<endl;
 	// longword = longword - MASK;
@@ -673,82 +683,6 @@ void utility::printcodedkeyvalue(string message, unsigned long longword, unsigne
 	}
 	return;
 }
-#ifdef GHG
-int updateBits(int n, int m, int i, int j){ 
-	// https://www.geeksforgeeks.org/insertion-m-n-m-starts-bit-j-ends-bit/
-    /* Create a mask to clear bits i through j 
-      in n. EXAMPLE: i = 2, j = 4. Result 
-      should be 11100011. For simplicity, we'll 
-      use just 8 bits for the example. */
-	// NOTE: last bit to the right: i=0
-  
-    int allOnes = ~0; // will equal sequence of all ls 
-  
-    // ls before position j, then 0s. left = 11100000 
-    int left= allOnes << (j + 1); 
-  
-    // l's after position i. right = 00000011 
-    int right = ((1 << i) - 1); 
-  
-    // All ls, except for 0s between i and j. mask 11100011 
-    int mask = left | right; 
-  
-    /* Clear bits j through i then put min there */
-    int n_cleared = n & mask; // Clear bits j through i. 
-    int m_shifted = m << i;   // Move m into correct position. 
-  
-    return (n_cleared | m_shifted); // OR them, and we're done! 
-}  
-unsigned long utility::updatebitsinlong(unsigned long n, unsigned long m, unsigned long i, unsigned long j){ 
-	// https://www.geeksforgeeks.org/insertion-m-n-m-starts-bit-j-ends-bit/
-    /* Create a mask to clear bits i through j 
-      in n. EXAMPLE: i = 2, j = 4. Result 
-      should be 11100011. For simplicity, we'll 
-      use just 8 bits for the example. */
-	  
-	// NOTE: last bit to the right: i=0
-	// NOTE: i is start (counting from behind)
-	// NOTE: j is end (counting from behind)
-	// NOTE: i < j
-	// NOTE: m is bits to insert (must be equal to j-1)
-	// NOTE: n is father word
-  
-    unsigned long allOnes = ~0; // will equal sequence of all ls 
-	cout<<"AAA."<<endl;
-	ulongtobinary(allOnes);
-	// cout<<"allOnes: "<<(unsigned long)ulongtobinary(allOnes)<<endl;
-  
-    // ls before position j, then 0s. left = 11100000 
-    unsigned long left= allOnes << (j + 1); 
-	cout<<"BBB."<<endl;
-	ulongtobinary(left);
-	// cout<<"left: "<<(unsigned long)ulongtobinary(left)<<endl;
-  
-    // l's after position i. right = 00000011 
-    unsigned long right = ((1 << i) - 1); 
-	cout<<"CCC."<<endl;
-	ulongtobinary(right);
-	// cout<<"right: "<<(unsigned long)ulongtobinary(right)<<endl;
-  
-    // All ls, except for 0s between i and j. mask 11100011 
-    unsigned long mask = left | right; 
-	cout<<"DDD."<<endl;
-	ulongtobinary(mask);
-	// cout<<"mask: "<<(unsigned long)ulongtobinary(mask)<<endl;
-  
-    /* Clear bits j through i then put min there */
-    unsigned long n_cleared = n & mask; // Clear bits j through i. 
-    unsigned long m_shifted = m << i;   // Move m into correct position. 
-	cout<<"DDD."<<endl;
-	ulongtobinary(n_cleared);
-	ulongtobinary(m_shifted);
-  
-	// cout<<"(n_cleared | m_shifted): "<<(unsigned long)ulongtobinary((n_cleared | m_shifted))<<endl;
-	cout<<"EEE."<<endl;
-	ulongtobinary((n_cleared | m_shifted));
-    return (n_cleared | m_shifted); // OR them, and we're done! 
-} 
-#endif
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {

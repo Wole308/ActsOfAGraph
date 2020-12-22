@@ -20,8 +20,8 @@ public:
 	mutategraph();
 	~mutategraph();
 
-	mail_t shrink(unsigned int x);
-	void push(uuint64_dt * longword, mail_t kv);
+	arbval_t shrink(unsigned int x);
+	void push(uuint64_dt * longword, arbval_t kv);
 	void mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * mutated_vertexptrbuffer, edge2_type * mutated_edgedatabuffer);		
 
 private:

@@ -505,10 +505,15 @@ typedef struct {
 	unsigned int message;
 } kvresults_t;
 
-typedef struct {
+/* typedef struct {
 	unsigned int x;
 	unsigned int numbits;
-} arbval_t;
+} mail_t; */
+typedef struct {
+	unsigned int x;
+	unsigned int streetaddr;
+	unsigned int houseno;
+} mail_t;
 #endif
 
 
