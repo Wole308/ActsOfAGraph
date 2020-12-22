@@ -4051,12 +4051,10 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkn(enablebufferA, "kvA6", kvA6, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			#endif
 			
-			// cout<<"runpipeline: before getpartition(enablebufferA, ... kvA0[0].key: "<<kvA0[0].key<<", kvA2[0].key: "<<kvA2[0].key<<", kvA4[0].key: "<<kvA4[0].key<<", kvA6[0].key: "<<kvA6[0].key<<endl;
 			partition_type pA0 = getpartition(enablebufferA, kvA0[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA2 = getpartition(enablebufferA, kvA2[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA4 = getpartition(enablebufferA, kvA4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA6 = getpartition(enablebufferA, kvA6[0], currentLOP, upperlimit, globalparams.batch_range_pow);
-			// cout<<"runpipeline: after getpartition(enablebufferA, ... kvA0[0].key: "<<kvA0[0].key<<", kvA0[1].key: "<<kvA0[1].key<<", kvA0[2].key: "<<kvA0[2].key<<", kvA0[3].key: "<<kvA0[3].key<<endl;
 			
 			/// LOADING FROM AND INTO B
 			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
@@ -4878,7 +4876,7 @@ processallvertices(
 	return;
 }
 
-// process edges phase (bfs,sssp,etc.)
+// process edges phase (bfs,sssp,etc.)		
 batch_type 
 	#ifdef SW 
 	acts::
@@ -4925,6 +4923,7 @@ processactivevertices(
 		
 			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
 			value_t sourcedata = activevertex.value;
+			value_t updateval = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"processactivevertices: actvv_id: "<<actvv_id<<endl;
@@ -4985,20 +4984,36 @@ processactivevertices(
 			
 			keyvalue_t vertexupdate0;
 			keyvalue_t vertex2update0;
+			bool_type en0;
+			bool_type e2n0;
 			keyvalue_t vertexupdate1;
 			keyvalue_t vertex2update1;
+			bool_type en1;
+			bool_type e2n1;
 			keyvalue_t vertexupdate2;
 			keyvalue_t vertex2update2;
+			bool_type en2;
+			bool_type e2n2;
 			keyvalue_t vertexupdate3;
 			keyvalue_t vertex2update3;
+			bool_type en3;
+			bool_type e2n3;
 			keyvalue_t vertexupdate4;
 			keyvalue_t vertex2update4;
+			bool_type en4;
+			bool_type e2n4;
 			keyvalue_t vertexupdate5;
 			keyvalue_t vertex2update5;
+			bool_type en5;
+			bool_type e2n5;
 			keyvalue_t vertexupdate6;
 			keyvalue_t vertex2update6;
+			bool_type en6;
+			bool_type e2n6;
 			keyvalue_t vertexupdate7;
 			keyvalue_t vertex2update7;
+			bool_type en7;
+			bool_type e2n7;
 			keyvalue_t dummyvertexupdate; dummyvertexupdate.key = INVALIDDATA; dummyvertexupdate.value = INVALIDDATA;
 			
 			unsigned int edgesread_kvs = 0;
@@ -5031,158 +5046,192 @@ processactivevertices(
 					#endif
 					
 					vertexupdate0.key = E.data[0].key;
-					vertexupdate0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate0.value = updateval; 
 					vertexupdate1.key = E.data[0].value;
-					vertexupdate1.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate1.value = updateval; 
 					vertexupdate2.key = E.data[1].key;
-					vertexupdate2.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate2.value = updateval; 
 					vertexupdate3.key = E.data[1].value;
-					vertexupdate3.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate3.value = updateval; 
 					vertexupdate4.key = E.data[2].key;
-					vertexupdate4.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate4.value = updateval; 
 					vertexupdate5.key = E.data[2].value;
-					vertexupdate5.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate5.value = updateval; 
 					vertexupdate6.key = E.data[3].key;
-					vertexupdate6.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate6.value = updateval; 
 					vertexupdate7.key = E.data[3].value;
-					vertexupdate7.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate7.value = updateval; 
 					
 					vertex2update0.key = E.data[4].key;
-					vertex2update0.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertex2update0.value = updateval; 
 					vertex2update1.key = E.data[4].value;
-					vertex2update1.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					vertex2update1.value = updateval;
 					vertex2update2.key = E.data[5].key;
-					vertex2update2.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertex2update2.value = updateval; 
 					vertex2update3.key = E.data[5].value;
-					vertex2update3.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					vertex2update3.value = updateval;
 					vertex2update4.key = E.data[6].key;
-					vertex2update4.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertex2update4.value = updateval; 
 					vertex2update5.key = E.data[6].value;
-					vertex2update5.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					vertex2update5.value = updateval;
 					vertex2update6.key = E.data[7].key;
-					vertex2update6.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertex2update6.value = updateval; 
 					vertex2update7.key = E.data[7].value;
-					vertex2update7.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					vertex2update7.value = updateval;
 					
-					if(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 > colend))){ buffer1[0][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					if(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 > colend))){ en0 = OFF; }
+					else { en0 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 > colend))){ en1 = OFF; }
+					else { en1 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 > colend))){ en2 = OFF; }
+					else { en2 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 > colend))){ en3 = OFF; }
+					else { en3 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 > colend))){ en4 = OFF; }
+					else { en4 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 > colend))){ en5 = OFF; }
+					else { en5 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 > colend))){ en6 = OFF; }
+					else { en6 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 > colend))){ en7 = OFF; }
+					else { en7 = ON; }
+					
+					if(((edgeid_kvs == edgesbegin_kvs) && (8 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (8 > colend))){ e2n0 = OFF; }
+					else { e2n0 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (9 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (9 > colend))){ e2n1 = OFF; }
+					else { e2n1 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (10 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (10 > colend))){ e2n2 = OFF; }
+					else { e2n2 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (11 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (11 > colend))){ e2n3 = OFF; }
+					else { e2n3 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (12 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (12 > colend))){ e2n4 = OFF; }
+					else { e2n4 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (13 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (13 > colend))){ e2n5 = OFF; }
+					else { e2n5 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (14 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (14 > colend))){ e2n6 = OFF; }
+					else { e2n6 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 > colend))){ e2n7 = OFF; }
+					else { e2n7 = ON; }
+					
+					if(en0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
 						#endif
 						buffer1[0][buffersize_kvs] = vertexupdate0; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 > colend))){ buffer1[1][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[0][buffersize_kvs] = dummyvertexupdate; }
+					if(en1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
 						#endif
 						buffer1[1][buffersize_kvs] = vertexupdate1; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 > colend))){ buffer1[2][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[1][buffersize_kvs] = dummyvertexupdate; }
+					if(en2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
 						#endif
 						buffer1[2][buffersize_kvs] = vertexupdate2; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 > colend))){ buffer1[3][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[2][buffersize_kvs] = dummyvertexupdate; }
+					if(en3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
 						#endif
 						buffer1[3][buffersize_kvs] = vertexupdate3; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 > colend))){ buffer1[4][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[3][buffersize_kvs] = dummyvertexupdate; }
+					if(en4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
 						#endif
 						buffer1[4][buffersize_kvs] = vertexupdate4; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 > colend))){ buffer1[5][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[4][buffersize_kvs] = dummyvertexupdate; }
+					if(en5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
 						#endif
 						buffer1[5][buffersize_kvs] = vertexupdate5; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 > colend))){ buffer1[6][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[5][buffersize_kvs] = dummyvertexupdate; }
+					if(en6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
 						#endif
 						buffer1[6][buffersize_kvs] = vertexupdate6; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 > colend))){ buffer1[7][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					else { buffer1[6][buffersize_kvs] = dummyvertexupdate; }
+					if(en7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
 						#endif
 						buffer1[7][buffersize_kvs] = vertexupdate7; }
+					else { buffer1[7][buffersize_kvs] = dummyvertexupdate; }
 					
-					if(((edgeid_kvs == edgesbegin_kvs) && (8 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (8 > colend))){ buffer2[0][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					if(e2n0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
 						#endif
 						buffer2[0][buffersize_kvs] = vertex2update0; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (9 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (9 > colend))){ buffer2[1][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[0][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
 						#endif
 						buffer2[1][buffersize_kvs] = vertex2update1; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (10 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (10 > colend))){ buffer2[2][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[1][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
 						#endif
 						buffer2[2][buffersize_kvs] = vertex2update2; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (11 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (11 > colend))){ buffer2[3][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[2][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
 						#endif
 						buffer2[3][buffersize_kvs] = vertex2update3; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (12 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (12 > colend))){ buffer2[4][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[3][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
 						#endif
 						buffer2[4][buffersize_kvs] = vertex2update4; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (13 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (13 > colend))){ buffer2[5][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[4][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
 						#endif
 						buffer2[5][buffersize_kvs] = vertex2update5; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (14 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (14 > colend))){ buffer2[6][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[5][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
 						#endif
 						buffer2[6][buffersize_kvs] = vertex2update6; }
-					if(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 > colend))){ buffer2[7][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					else { buffer2[6][buffersize_kvs] = dummyvertexupdate; }
+					if(e2n7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
 						#endif
 						buffer2[7][buffersize_kvs] = vertex2update7; }
+					else { buffer2[7][buffersize_kvs] = dummyvertexupdate; }
 					
 					#ifdef _DEBUGMODE_CHECKS2
 					actsutilityobj->checkoutofbounds("buffer2 45", buffersize_kvs, PADDEDDESTBUFFER_SIZE, workedgesbegin_kvs, edgeid_kvs, workedgesize_kvs);
 					#endif
 					#ifdef _DEBUGMODE_STATS
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate0.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate1.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate2.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate3.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate4.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate5.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate6.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate7.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (8 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (8 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update0.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (9 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (9 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update1.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (10 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (10 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update2.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (11 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (11 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update3.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (12 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (12 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update4.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (13 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (13 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update5.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (14 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (14 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update6.key; }
-					if (!(((edgeid_kvs == edgesbegin_kvs) && (15 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (15 > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update7.key; }
+					if(en0 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate0.key; }
+					if(en1 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate1.key; }
+					if(en2 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate2.key; }
+					if(en3 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate3.key; }
+					if(en4 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate4.key; }
+					if(en5 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate5.key; }
+					if(en6 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate6.key; }
+					if(en7 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate7.key; }
+					if(e2n0 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update0.key; }
+					if(e2n1 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update1.key; }
+					if(e2n2 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update2.key; }
+					if(e2n3 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update3.key; }
+					if(e2n4 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update4.key; }
+					if(e2n5 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update5.key; }
+					if(e2n6 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update6.key; }
+					if(e2n7 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update7.key; }
 					#endif
 					
 					buffersize_kvs += 1;

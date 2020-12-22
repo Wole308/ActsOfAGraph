@@ -38,6 +38,80 @@ actsutility::actsutility(){
 }
 actsutility::~actsutility(){}
 
+void actsutility::dectobinary(int n){ 
+    // array to store binary number 
+    int binaryNum[32]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	return;
+} 
+void actsutility::ulongtobinary(unsigned long n){ 
+    // array to store binary number 
+    int binaryNum[64]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+	cout<<"actsutility::ulongtobinary: "<<(unsigned long)n<<" in decimal is: ";
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	cout<<endl;
+	return;
+} 
+int actsutility::bitExtracted(unsigned long number, int k, int p){ 
+	// Function to extract k bits from p position (starting from end) 
+	// and returns the extracted value as integer 
+    return (((1 << k) - 1) & (number >> p));
+}
+void actsutility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
+	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
+	longword = longword - MASK;
+	if(setsize == 8){ 
+		cout<<"longword("<<8<<", "<<0<<"): "<<bitExtracted(longword, 8, 0)<<endl;
+		cout<<"longword("<<8<<", "<<8<<"): "<<bitExtracted(longword, 8, 8)<<endl;
+		cout<<"longword("<<8<<", "<<16<<"): "<<bitExtracted(longword, 8, 16)<<endl;
+		cout<<"longword("<<8<<", "<<24<<"): "<<bitExtracted(longword, 8, 24)<<endl;
+		cout<<"longword("<<8<<", "<<32<<"): "<<bitExtracted(longword, 8, 32)<<endl;
+		cout<<"longword("<<8<<", "<<40<<"): "<<bitExtracted(longword, 8, 40)<<endl;
+		cout<<"longword("<<8<<", "<<48<<"): "<<bitExtracted(longword, 8, 48)<<endl;
+		cout<<"longword("<<8<<", "<<56<<"): "<<bitExtracted(longword, 8, 56)<<endl;
+	} else if(setsize == 16){ 
+		cout<<"longword("<<16<<", "<<0<<"): "<<bitExtracted(longword, 16, 0)<<endl;
+		cout<<"longword("<<16<<", "<<16<<"): "<<bitExtracted(longword, 16, 16)<<endl;
+		cout<<"longword("<<16<<", "<<32<<"): "<<bitExtracted(longword, 16, 32)<<endl;
+		cout<<"longword("<<16<<", "<<48<<"): "<<bitExtracted(longword, 16, 48)<<endl;
+	} else if(setsize == 24){ 
+		cout<<"longword("<<24<<", "<<0<<"): "<<bitExtracted(longword, 24, 0)<<endl;
+		cout<<"longword("<<24<<", "<<24<<"): "<<bitExtracted(longword, 24, 24)<<endl;
+	} else { 
+		cout<<"longword("<<32<<", "<<0<<"): "<<bitExtracted(longword, 32, 0)<<endl;
+		cout<<"longword("<<32<<", "<<32<<"): "<<bitExtracted(longword, 32, 32)<<endl;
+	}
+	return;
+}
+
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }

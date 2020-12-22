@@ -87,7 +87,9 @@ public:
 	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);
 	bool inreducestage(unsigned int currentLOP, globalparams_t globalparams);
 	void calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size);
-	
+	arbval_t shrink(unsigned int x);
+	void push(uuint64_dt * longword, arbval_t kv);
+
 	// collect globalstats functions
 	void readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset_kvs);
 

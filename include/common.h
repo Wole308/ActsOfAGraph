@@ -345,24 +345,6 @@ typedef struct {
 	vertex_t outdegree;
 } vertexprop_t;
 
-/* typedef struct {
-	keyy_t dstvid;
-} edgeprop1_t;
-
-typedef struct {
-	keyy_t dstvid;
-	keyy_t srcvid; 
-} edgeprop2_t; */
-
-/* typedef struct {
-	keyy_t srcvid;
-	keyy_t dstvid; 
-} edge_type;
-
-typedef struct {
-	keyy_t dstvid; 
-} edge2_type; */
-
 typedef struct {
 	#ifndef SINELEVALUEEDGETYPE
 	keyy_t srcvid;
@@ -420,6 +402,14 @@ typedef ap_uint<64> uint64_dt;
 typedef struct {
 	keyvalue_t data[1];
 } uint64_dt;
+#endif
+
+#ifdef _WIDEWORD
+typedef ap_uint<64> uuint64_dt;
+#else
+typedef struct {
+	unsigned long data;
+} uuint64_dt;
 #endif
 
 typedef struct {
@@ -487,5 +477,10 @@ typedef struct {
 	unsigned int datasize;
 	unsigned int message;
 } kvresults_t;
+
+typedef struct {
+	unsigned int x;
+	unsigned int numbits;
+} arbval_t;
 #endif
 

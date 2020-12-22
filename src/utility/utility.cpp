@@ -629,6 +629,103 @@ void utility::getmarkerpositions(keyvalue_t * stats, batch_type size){
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
 }
 
+void utility::dectobinary(int n){ 
+    // array to store binary number 
+    int binaryNum[32]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	return;
+} 
+void utility::ulongtobinary(unsigned long n){ 
+    // array to store binary number 
+    int binaryNum[64]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+	cout<<"utility::ulongtobinary: "<<(unsigned long)n<<" in decimal is: ";
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	cout<<endl;
+	return;
+} 
+int utility::bitExtracted(unsigned long number, int k, int p){ 
+	// Function to extract k bits from p position (starting from end) 
+	// and returns the extracted value as integer 
+    return (((1 << k) - 1) & (number >> p));
+}
+void utility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
+	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
+	longword = longword - MASK;
+	if(setsize == 8){ 
+		cout<<"longword("<<8<<", "<<0<<"): "<<bitExtracted(longword, 8, 0)<<endl;
+		cout<<"longword("<<8<<", "<<8<<"): "<<bitExtracted(longword, 8, 8)<<endl;
+		cout<<"longword("<<8<<", "<<16<<"): "<<bitExtracted(longword, 8, 16)<<endl;
+		cout<<"longword("<<8<<", "<<24<<"): "<<bitExtracted(longword, 8, 24)<<endl;
+		cout<<"longword("<<8<<", "<<32<<"): "<<bitExtracted(longword, 8, 32)<<endl;
+		cout<<"longword("<<8<<", "<<40<<"): "<<bitExtracted(longword, 8, 40)<<endl;
+		cout<<"longword("<<8<<", "<<48<<"): "<<bitExtracted(longword, 8, 48)<<endl;
+		cout<<"longword("<<8<<", "<<56<<"): "<<bitExtracted(longword, 8, 56)<<endl;
+	} else if(setsize == 16){ 
+		cout<<"longword("<<16<<", "<<0<<"): "<<bitExtracted(longword, 16, 0)<<endl;
+		cout<<"longword("<<16<<", "<<16<<"): "<<bitExtracted(longword, 16, 16)<<endl;
+		cout<<"longword("<<16<<", "<<32<<"): "<<bitExtracted(longword, 16, 32)<<endl;
+		cout<<"longword("<<16<<", "<<48<<"): "<<bitExtracted(longword, 16, 48)<<endl;
+	} else if(setsize == 24){ 
+		cout<<"longword("<<24<<", "<<0<<"): "<<bitExtracted(longword, 24, 0)<<endl;
+		cout<<"longword("<<24<<", "<<24<<"): "<<bitExtracted(longword, 24, 24)<<endl;
+	} else { 
+		cout<<"longword("<<32<<", "<<0<<"): "<<bitExtracted(longword, 32, 0)<<endl;
+		cout<<"longword("<<32<<", "<<32<<"): "<<bitExtracted(longword, 32, 32)<<endl;
+	}
+	return;
+}
+int updateBits(int n, int m, int i, int j){ 
+    /* Create a mask to clear bits i through j 
+      in n. EXAMPLE: i = 2, j = 4. Result 
+      should be 11100011. For simplicity, we'll 
+      use just 8 bits for the example. */
+  
+    int allOnes = ~0; // will equal sequence of all ls 
+  
+    // ls before position j, then 0s. left = 11100000 
+    int left= allOnes << (j + 1); 
+  
+    // l's after position i. right = 00000011 
+    int right = ((1 << i) - 1); 
+  
+    // All ls, except for 0s between i and j. mask 11100011 
+    int mask = left | right; 
+  
+    /* Clear bits j through i then put min there */
+    int n_cleared = n & mask; // Clear bits j through i. 
+    int m_shifted = m << i;   // Move m into correct position. 
+  
+    return (n_cleared | m_shifted); // OR them, and we're done! 
+} 
+
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {
   cl_command_type command;

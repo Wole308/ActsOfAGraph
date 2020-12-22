@@ -22,6 +22,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
+#include "../../examples/helperfunctions/mutategraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
@@ -41,6 +42,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	utilityobj = new utility(); 
 	postprocessobj = new postprocess(graphobj, statsobj); 
 	loadgraphobj = new loadgraph(graphobj, statsobj); 
+	mutategraphobj = new mutategraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 
 	#ifdef FPGA_IMPL
@@ -74,8 +76,15 @@ runsummary_t bfs::run(){
 	
 	container_t container;
 	vector<value_t> activevertices;
-	// activevertices.push_back(2);
+	// activevertices.push_back(1);
 	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	
+	//
+	edge2_type * mutated_edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
+	edge_t * mutated_vertexptrbuffer = new edge_t[KVDATA_RANGE];
+	mutategraphobj->mutate(vertexptrbuffer, edgedatabuffer, mutated_vertexptrbuffer, mutated_edgedatabuffer);
+	exit(EXIT_SUCCESS);
+	//
 	
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);

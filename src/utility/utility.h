@@ -74,6 +74,11 @@ public:
 	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing);
 	void getmarkerpositions(keyvalue_t * stats, batch_type size);
 	
+	void dectobinary(int n);
+	void ulongtobinary(unsigned long n);
+	int bitExtracted(unsigned long number, int k, int p);
+	void printcodedkeyvalue(string message, unsigned long number, unsigned int setsize);
+	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);
 	#endif

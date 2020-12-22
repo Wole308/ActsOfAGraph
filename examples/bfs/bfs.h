@@ -5,6 +5,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
+#include "../../examples/helperfunctions/mutategraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
@@ -27,6 +28,7 @@ private:
 	utility * utilityobj;
 	postprocess * postprocessobj;
 	loadgraph * loadgraphobj;
+	mutategraph * mutategraphobj;
 	setupkernel * setupkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;

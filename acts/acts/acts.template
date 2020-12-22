@@ -2382,12 +2382,10 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			actsutilityobj->checkn(enablebufferA, "kvA6", kvA6, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			#endif
 			
-			// cout<<"runpipeline: before getpartition(enablebufferA, ... kvA0[0].key: "<<kvA0[0].key<<", kvA2[0].key: "<<kvA2[0].key<<", kvA4[0].key: "<<kvA4[0].key<<", kvA6[0].key: "<<kvA6[0].key<<endl;
 			partition_type pA0 = getpartition(enablebufferA, kvA0[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA2 = getpartition(enablebufferA, kvA2[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA4 = getpartition(enablebufferA, kvA4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pA6 = getpartition(enablebufferA, kvA6[0], currentLOP, upperlimit, globalparams.batch_range_pow);
-			// cout<<"runpipeline: after getpartition(enablebufferA, ... kvA0[0].key: "<<kvA0[0].key<<", kvA0[1].key: "<<kvA0[1].key<<", kvA0[2].key: "<<kvA0[2].key<<", kvA0[3].key: "<<kvA0[3].key<<endl;
 			
 			/// LOADING FROM AND INTO B
 			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
@@ -3209,7 +3207,7 @@ processallvertices(
 	return;
 }
 
-// process edges phase (bfs,sssp,etc.)
+// process edges phase (bfs,sssp,etc.)		
 batch_type 
 	#ifdef SW 
 	acts::
@@ -3256,6 +3254,7 @@ processactivevertices(
 		
 			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
 			value_t sourcedata = activevertex.value;
+			value_t updateval = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"processactivevertices: actvv_id: "<<actvv_id<<endl;
@@ -3317,6 +3316,8 @@ processactivevertices(
 			{%for v in context['VECTOR_SIZE_seq']%}
 			keyvalue_t vertexupdate{{v}};
 			keyvalue_t vertex2update{{v}};
+			bool_type en{{v}};
+			bool_type e2n{{v}};
 			{%endfor%}
 			keyvalue_t dummyvertexupdate; dummyvertexupdate.key = INVALIDDATA; dummyvertexupdate.value = INVALIDDATA;
 			
@@ -3346,34 +3347,44 @@ processactivevertices(
 					
 					{%for v in context['4_seq']%}
 					vertexupdate{{2*v}}.key = E.data[{{v}}].key;
-					vertexupdate{{2*v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate{{2*v}}.value = updateval; 
 					vertexupdate{{2*v+1}}.key = E.data[{{v}}].value;
-					vertexupdate{{2*v+1}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertexupdate{{2*v+1}}.value = updateval; 
 					{%endfor%}
 					
 					{%for v in context['4_seq']%}
 					vertex2update{{2*v}}.key = E.data[{{4+v}}].key;
-					vertex2update{{2*v}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+					vertex2update{{2*v}}.value = updateval; 
 					vertex2update{{2*v+1}}.key = E.data[{{4+v}}].value;
-					vertex2update{{2*v+1}}.value = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo);
+					vertex2update{{2*v+1}}.value = updateval;
 					{%endfor%}
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend))){ buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
-					else {
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend))){ en{{v}} = OFF; }
+					else { en{{v}} = ON; }
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} > colend))){ e2n{{v}} = OFF; }
+					else { e2n{{v}} = ON; }
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(en{{v}} == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
 						#endif
 						buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
+					else { buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
 					{%endfor%}
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} > colend))){ buffer2[{{v}}][buffersize_kvs] = dummyvertexupdate; }
-					else { 
+					if(e2n{{v}} == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices: vertex2update{{v}}.key: "<<vertex2update{{v}}.key<<", vertex2update{{v}}.value: "<<vertex2update{{v}}.value<<endl;
 						#endif
 						buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
+					else { buffer2[{{v}}][buffersize_kvs] = dummyvertexupdate; }
 					{%endfor%}
 					
 					#ifdef _DEBUGMODE_CHECKS2
@@ -3382,10 +3393,10 @@ processactivevertices(
 					#ifdef _DEBUGMODE_STATS
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate{{v}}.key; }
+					if(en{{v}} == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate{{v}}.key; }
 					{%endfor%}
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if (!(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} > colend)))){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update{{v}}.key; }
+					if(e2n{{v}} == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update{{v}}.key; }
 					{%endfor%}
 					#endif
 					
