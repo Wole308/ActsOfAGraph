@@ -21,6 +21,9 @@
 #include "mutategraph.h"
 using namespace std;
 
+/** mutated edge: [setof(8,16,32,64...) | numitems | data(kv,kv,kv,kv...)] */
+/** longword.data = longword.data | 0xF000000000000000; // 0x[metadata:8]000000000000000; */
+
 mutategraph::mutategraph(graph * _graphobj, stats * _statsobj){
 	parametersobj = new parameters();
 	utilityobj = new utility();
@@ -36,7 +39,8 @@ mutategraph::~mutategraph(){}
 
 arbval_t mutategraph::shrink(unsigned int x){
 	arbval_t result;
-	cout<<"x [before shrink]: x: "<<x<<endl;
+	// unsigned int xx = x;
+	// cout<<"x [before shrink]: x: "<<x<<endl;
 	if(x > 0 && x <= (1 << 8)){
 		result.x = x & 0xFF; 
 		result.numbits = 8;
@@ -50,7 +54,9 @@ arbval_t mutategraph::shrink(unsigned int x){
 		result.x = x;
 		result.numbits = 32;
 	}
-	cout<<"x [after shrink]: result.x: "<<result.x<<", result.numbits: "<<result.numbits<<endl;
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"x [before shrink]: x: "<<x<<", x [after shrink]: result.x: "<<result.x<<", result.numbits: "<<result.numbits<<endl;
+	#endif 
 	return result;
 }
 void mutategraph::push(uuint64_dt * longword, arbval_t kv){
@@ -70,30 +76,40 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
-	value_t buffersize_kvs = 0;
-	uuint64_dt commitvertexupdate;
-	uuint64_dt longword; longword.data = 0;
-	unsigned int currpartition = 0;
-	unsigned int currbitoffset = 0;
-	unsigned int numitems = 0;
-	unsigned int header_bitsize = 0;
-	bool commit = false;
+	unsigned int totalnumedgesprocessed = 0;
+	unsigned int totalnumcommits = 0;
 	
 	// for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){
-	for(unsigned int vid=1; vid<2; vid++){
+	for(unsigned int vid=1; vid<3; vid++){
+		cout<<endl<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> mutategraph::mutate: vid: "<<vid<<endl;
 		edge_t vptr_begin = vertexptrbuffer[vid];
 		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
 		
+		value_t buffersize_kvs = 0;
+		uuint64_dt commitvertexupdate;
+		uuint64_dt longword; longword.data = 0;
+		unsigned int currpartition = 0;
+		unsigned int currbitoffset = 0;
+		unsigned int numitems = 0;
+		unsigned int header_bitsize = 0;
+		bool commit = false;
+		
+		unsigned int llpartition = edgedatabuffer[vptr_begin].dstvid >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH));
+		currpartition = llpartition;
+		arbval_t newx = shrink(edgedatabuffer[vptr_begin].dstvid);
+		header_bitsize = newx.numbits;
+		
 		for(unsigned int k=0; k<edges_size; k++){
+			totalnumedgesprocessed += 1;
 			edge2_type edge = edgedatabuffer[vptr_begin + k];
-			cout<<"edge.dstvid: "<<edge.dstvid<<endl;
+			// cout<<"+++ edge.dstvid: "<<edge.dstvid<<", header_bitsize: "<<header_bitsize<<", numitems: "<<numitems<<endl;
 			
 			unsigned int llpartition = edge.dstvid >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH));
-	
 			arbval_t newx = shrink(edge.dstvid);
+			cout<<"+++ edge.dstvid: "<<edge.dstvid<<", llpartition: "<<llpartition<<", x[after shrink] "<<newx.x<<", newx.numbits: "<<newx.numbits<<", header_bitsize: "<<header_bitsize<<", numitems: "<<numitems<<endl;
 			
-			if(llpartition != currpartition || currbitoffset + newx.numbits > 64){
+			if(newx.numbits != header_bitsize || llpartition != currpartition || currbitoffset + newx.numbits > 64){
 				commit = true;
 				commitvertexupdate = longword;
 			} else {
@@ -104,24 +120,56 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 				header_bitsize = newx.numbits;
 			}
 			
-			if(commit == true){ 
-				cout<<"..............................committing..."<<endl; 
-				// longword.data = longword.data | 0xF000000000000000; // 0x[metadata:8]000000000000000;
+			if(commit == true){
+				cout<<"..........committing... RESON: ";
+				if(newx.numbits != header_bitsize){ cout<<"new shrinked bitsize. "; }
+				if(llpartition != currpartition){ cout<<"change in last level partition. "; }
+				if(currbitoffset + newx.numbits > 64){ cout<<"long word full. "; }
+				cout<<""<<endl;
+				// cout<<"+++ header_bitsize: "<<header_bitsize<<", numitems: "<<numitems<<endl;
 				
-				if(header_bitsize == 0){ longword.data = longword.data | numitems << 4; }
+				totalnumcommits += 1;
 				
-				if(header_bitsize == 0){ longword.data = longword.data | 0x1000000000000000; }
-				else if(header_bitsize == 8){ longword.data = longword.data | 0x3000000000000000; }
-				else if(header_bitsize == 16){ longword.data = longword.data | 0x1000000000000000; }
-				else if(header_bitsize == 24){ longword.data = longword.data | 0x1000000000000000; }
-				else { }
+				#ifdef KKK
+				if(header_bitsize == 8){
+					longword.data = longword.data | 0x1000000000000000;
+				} else if(header_bitsize == 16){
+					longword.data = longword.data | 0x2000000000000000;
+				} else if(header_bitsize == 32){
+					longword.data = longword.data | 0x3000000000000000;
+				} else if(header_bitsize == 64){
+					longword.data = longword.data | 0x4000000000000000;
+				} else {
+					cout<<"mutategraph:: ERROR. should NEVER get here 3. exiting..."<<endl;
+					exit(EXIT_FAILURE);
+				}
 				
-				// buffer1[{{v}}][buffersize{{v}}_kvs] = commitvertexupdate{{v}}; buffersize{{v}}_kvs += 1; 
+				if(numitems == 1){
+					longword.data = longword.data | 0x0000000000000000;
+				} else if(numitems == 2){
+					longword.data = longword.data | 0x0100000000000000;
+				} else if(numitems == 3){
+					longword.data = longword.data | 0x0200000000000000;
+				} else if(numitems == 4){
+					longword.data = longword.data | 0x0300000000000000;
+				} else if(numitems == 5){
+					longword.data = longword.data | 0x0400000000000000;
+				} else if(numitems == 6){
+					longword.data = longword.data | 0x0500000000000000;
+				} else if(numitems == 7){
+					longword.data = longword.data | 0x0600000000000000;
+				} else if(numitems == 8){
+					longword.data = longword.data | 0x0700000000000000;
+				} else {
+					cout<<"mutategraph:: ERROR. should NEVER get here 4. exiting..."<<endl;
+					exit(EXIT_FAILURE);
+				}
+				#endif 
+				
+				cout<<"longword.data: "<<(unsigned long)longword.data<<" (committed?"<<commit<<")"<<endl;
+				utilityobj->ulongtobinary(longword.data);
+				utilityobj->printcodedkeyvalue("processactivevertices.longword.data", longword.data, header_bitsize);
 			}
-			
-			cout<<"longword.data: "<<(unsigned long)longword.data<<" (committed?"<<commit<<")"<<endl;
-			utilityobj->ulongtobinary(longword.data);
-			utilityobj->printcodedkeyvalue("processactivevertices.longword.data", longword.data, newx.numbits);
 			
 			if(commit == true){
 				longword.data = 0;
@@ -136,98 +184,7 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 			if(commit== true){ commit = false; }
 		}
 	}
-	
-	
-	
-	
-	
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	value_t buffersize{{v}}_kvs = 0; // NEWCHANGE.
-	{%endfor%}
-	{%for v in context['VECTOR_SIZE_seq']%}
-	uuint64_dt commitvertexupdate{{v}};
-	uuint64_dt commitvertex2update{{v}};
-	uuint64_dt longword{{v}}; longword{{v}}.data = 0; // REMOVEME.
-	unsigned int currpartition{{v}} = 0;
-	unsigned int currbitoffset{{v}} = 0;
-	bool commit{{v}} = false;
-	bool en{{v}} = false;
-	{%endfor%} */
-	
-	// #ifdef GGG
-	/////////////////////////////////////
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	cout<<"vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
-	{%endfor%} */
-	
-	// {%for v in context['VECTOR_SIZE_seq']%}
-	// if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend))){ en{{v}} = false; }
-	// else { en{{v}} = true; }
-	// {%endfor%}
-	
-	// {%for v in context['VECTOR_SIZE_seq']%}
-	// if(en{{v}} == true){ cout<<"vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl; }
-	// {%endfor%}
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	unsigned int llpartition{{v}} = NAp;
-	if(en{{v}} == true){ llpartition{{v}} = (vertexupdate{{v}}.key - 0) >> (globalparams.batch_range_pow - (NUM_PARTITIONS_POW * TREE_DEPTH)); } // FIXME. upperlimit
-	{%endfor%} */
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	arbval_t newx{{v}};
-	if(en{{v}} == true){ newx{{v}} = shrink(vertexupdate{{v}}.key); }
-	{%endfor%} */
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	if(en{{v}} == false){
-		// do nothing.
-	} else if(llpartition{{v}} != currpartition{{v}} || currbitoffset{{v}} + newx{{v}}.numbits >= 64){
-		commit{{v}} = true;
-		commitvertexupdate{{v}} = longword{{v}};
-	} else {
-		push(&longword{{v}}, newx{{v}});
-		currpartition{{v}} = llpartition{{v}};
-		currbitoffset{{v}} += newx{{v}}.numbits;
-	}
-	{%endfor%} */
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	if(en{{v}} == true && commit{{v}} == true){ 
-		cout<<"committing at v: {{v}}..."<<endl;
-		// buffer1[{{v}}][buffersize{{v}}_kvs] = commitvertexupdate{{v}}; buffersize{{v}}_kvs += 1; 
-	}
-	{%endfor%} */
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	if(en{{v}} == true && commit{{v}} == true){
-		longword{{v}}.data = 0;
-		push(&longword{{v}}, newx{{v}});
-		currpartition{{v}} = llpartition{{v}};
-		currbitoffset{{v}} = 0;
-		currbitoffset{{v}} += newx{{v}}.numbits;
-	}
-	{%endfor%} */
-	// {%for v in context['VECTOR_SIZE_seq']%}
-	// cout<<"[after possible commit]: commit{{v}}: "<<commit{{v}}<<", currpartition{{v}}: "<<currpartition{{v}}<<", currbitoffset{{v}}: "<<currbitoffset{{v}}<<endl;
-	// {%endfor%}
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	if(en{{v}} == true && commit{{v}} == true){ commit{{v}} = false; }
-	{%endfor%} */
-	
-	/** {%for v in context['VECTOR_SIZE_seq']%}
-	cout<<endl<<"printing current state for v: {{v}}"<<endl;
-	cout<<"longword{{v}}.data: "<<(unsigned long)longword{{v}}.data<<endl;
-	actsutilityobj->ulongtobinary(longword{{v}}.data);
-	actsutilityobj->printcodedkeyvalue("processactivevertices.longword{{v}}.data", longword{{v}}.data, newx{{v}}.numbits);
-	{%endfor%} */
-	
-	// exit(EXIT_SUCCESS);
-	/////////////////////////////////////
-	// #endif
-	
+	cout<<"totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<endl;
 	return;
 }
 
