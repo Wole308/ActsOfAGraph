@@ -86,8 +86,8 @@ int actsutility::bitExtracted(unsigned long number, int k, int p){
     return (((1 << k) - 1) & (number >> p));
 }
 void actsutility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
-	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
-	longword = longword - MASK;
+	// cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
+	// longword = longword - MASK;
 	if(setsize == 8){ 
 		cout<<"longword("<<8<<", "<<0<<"): "<<bitExtracted(longword, 8, 0)<<endl;
 		cout<<"longword("<<8<<", "<<8<<"): "<<bitExtracted(longword, 8, 8)<<endl;

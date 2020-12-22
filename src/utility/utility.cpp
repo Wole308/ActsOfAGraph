@@ -149,29 +149,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ2_KVS: "<<APPLYVERTEXBUFFERSZ2_KVS<<std::endl;
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS2: "<<NUMLASTLEVELPARTITIONS2<<std::endl;
-
-	#ifdef ACTSMODEL
-	std::cout<<"=== parameters perculier to actsmodel only "<<std::endl;
-	std::cout<<"host:: CAPSULEMETADATADRAMSZ: "<<CAPSULEMETADATADRAMSZ<<std::endl;
-	std::cout<<"host:: STATSDRAMSZ: "<<STATSDRAMSZ<<std::endl;
-	std::cout<<"host:: CAPSULESZ: "<<CAPSULESZ<<std::endl;
-	std::cout<<"host:: CAPSULESZ_KVS: "<<CAPSULESZ_KVS<<std::endl;
-	std::cout<<"host:: BASEOFFSET_CAPSULES: "<<BASEOFFSET_CAPSULES<<std::endl;
-	std::cout<<"host:: BASEOFFSET_CAPSULES_KVS: "<<BASEOFFSET_CAPSULES_KVS<<std::endl;	
-	std::cout<<"host:: KVSTATS_SIZE: "<<KVSTATS_SIZE<<std::endl;
-	std::cout<<"host:: NFACTOR: "<<NFACTOR<<std::endl;
-	#endif
-	
-	#ifdef ACTSMODEL
-	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL"<<std::endl;
-	#endif 
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP1)
-	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWGROUP1"<<std::endl;
-	#endif 
-	#if defined(ACTSMODEL_LW) && defined(ACTSMODEL_LWGROUP2)
-	std::cout<<"host::ACTS MODEL USED:: ACTSMODEL_LWGROUP2"<<std::endl;
-	#endif 
-	
+ 
 	#ifdef INMEMORYGP
 	std::cout<<"host:: INMEMORYGP enabled "<<std::endl;
 	#endif 
@@ -258,7 +236,6 @@ void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }
 }
 void utility::printmessages(string message, uint512_vec_dt * keyvalues){
-	#ifdef ACTSMODEL_LW
 	cout<<"utility::printmessages::"<<message<<":: printing messages (after kernel launch) "<<endl;
 	cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
 	cout<<"MESSAGES_PROCESSCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0].key<<endl;
@@ -274,7 +251,6 @@ void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 	cout<<"MESSAGES_BATCHSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
 	cout<<"MESSAGES_RUNSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 	cout<<"MESSAGES_NEXTBATCHOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
-	#endif 
 	return;
 }
 void utility::printvalues(string message, unsigned int * values, unsigned int size){
@@ -330,7 +306,6 @@ void utility::printstructuresbeforekernelrun(string message, uint512_vec_dt * kv
 	for(unsigned int i=0; i<size; i++){ // NUMSUBCPUTHREADS
 		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
 		
-		#ifdef ACTSMODEL_LW
 		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][i];
 		cout<<"utility::printstructuresafterkernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
 		cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
@@ -348,22 +323,18 @@ void utility::printstructuresbeforekernelrun(string message, uint512_vec_dt * kv
 		cout<<"MESSAGES_BATCHSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_RUNSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
-		#endif 
 		
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram.first16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram.last16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+KVDATA_BATCHSIZE_KVS-2]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::vertex ptrs", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTEXPTR_KVS]), 16);
 		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace (before kernel launch)::vertex datas", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTICESDATA_KVS]), 16);
-		#ifdef ACTSMODEL_LW
 		printkeyvalues("utility::printstructuresbeforekernelrun:: global capsule (before kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
-		#endif 
 	}
 }
 void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size){
 	cout<<"utility::printstructuresafterkernelrun:: printing structures (after kernel launch). "<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ // NUMSUBCPUTHREADS
-		#ifdef ACTSMODEL_LW
 		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[0][i];
 		cout<<"utility::printstructuresafterkernelrun:: printing messages (after kernel launch) for subthread: "<<i<<endl;
 		cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
@@ -381,7 +352,6 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		cout<<"MESSAGES_BATCHSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_RUNSIZE: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl;
 		cout<<"MESSAGES_NEXTBATCHOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key<<endl;
-		#endif 
 		
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.first16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS]), 16);
 		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram.last16", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAM_KVS+KVDATA_BATCHSIZE_KVS-2]), 16);
@@ -389,9 +359,7 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::kvdram workspace", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::vertex ptrs", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTEXPTR_KVS]), 16);
 		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace (after kernel launch)::vertex datas", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_VERTICESDATA_KVS]), 16);
-		#ifdef ACTSMODEL_LW
 		printkeyvalues("utility::printstructuresafterkernelrun:: global capsule (after kernel launch)::kvstatsdram", (keyvalue_t *)(&kvsourcedram[0][i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
-		#endif 
 	}
 }
 void utility::printcontainer(container_t * container){
@@ -674,11 +642,14 @@ void utility::ulongtobinary(unsigned long n){
 int utility::bitExtracted(unsigned long number, int k, int p){ 
 	// Function to extract k bits from p position (starting from end) 
 	// and returns the extracted value as integer 
+	// https://www.geeksforgeeks.org/extract-k-bits-given-position-number/
+	// NOTE: last bit to the right: p=0
     return (((1 << k) - 1) & (number >> p));
 }
 void utility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
-	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
-	longword = longword - MASK;
+	// cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
+	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword<<endl;
+	// longword = longword - MASK;
 	if(setsize == 8){ 
 		cout<<"longword("<<8<<", "<<0<<"): "<<bitExtracted(longword, 8, 0)<<endl;
 		cout<<"longword("<<8<<", "<<8<<"): "<<bitExtracted(longword, 8, 8)<<endl;
@@ -702,11 +673,14 @@ void utility::printcodedkeyvalue(string message, unsigned long longword, unsigne
 	}
 	return;
 }
+#ifdef GHG
 int updateBits(int n, int m, int i, int j){ 
+	// https://www.geeksforgeeks.org/insertion-m-n-m-starts-bit-j-ends-bit/
     /* Create a mask to clear bits i through j 
       in n. EXAMPLE: i = 2, j = 4. Result 
       should be 11100011. For simplicity, we'll 
       use just 8 bits for the example. */
+	// NOTE: last bit to the right: i=0
   
     int allOnes = ~0; // will equal sequence of all ls 
   
@@ -724,7 +698,57 @@ int updateBits(int n, int m, int i, int j){
     int m_shifted = m << i;   // Move m into correct position. 
   
     return (n_cleared | m_shifted); // OR them, and we're done! 
+}  
+unsigned long utility::updatebitsinlong(unsigned long n, unsigned long m, unsigned long i, unsigned long j){ 
+	// https://www.geeksforgeeks.org/insertion-m-n-m-starts-bit-j-ends-bit/
+    /* Create a mask to clear bits i through j 
+      in n. EXAMPLE: i = 2, j = 4. Result 
+      should be 11100011. For simplicity, we'll 
+      use just 8 bits for the example. */
+	  
+	// NOTE: last bit to the right: i=0
+	// NOTE: i is start (counting from behind)
+	// NOTE: j is end (counting from behind)
+	// NOTE: i < j
+	// NOTE: m is bits to insert (must be equal to j-1)
+	// NOTE: n is father word
+  
+    unsigned long allOnes = ~0; // will equal sequence of all ls 
+	cout<<"AAA."<<endl;
+	ulongtobinary(allOnes);
+	// cout<<"allOnes: "<<(unsigned long)ulongtobinary(allOnes)<<endl;
+  
+    // ls before position j, then 0s. left = 11100000 
+    unsigned long left= allOnes << (j + 1); 
+	cout<<"BBB."<<endl;
+	ulongtobinary(left);
+	// cout<<"left: "<<(unsigned long)ulongtobinary(left)<<endl;
+  
+    // l's after position i. right = 00000011 
+    unsigned long right = ((1 << i) - 1); 
+	cout<<"CCC."<<endl;
+	ulongtobinary(right);
+	// cout<<"right: "<<(unsigned long)ulongtobinary(right)<<endl;
+  
+    // All ls, except for 0s between i and j. mask 11100011 
+    unsigned long mask = left | right; 
+	cout<<"DDD."<<endl;
+	ulongtobinary(mask);
+	// cout<<"mask: "<<(unsigned long)ulongtobinary(mask)<<endl;
+  
+    /* Clear bits j through i then put min there */
+    unsigned long n_cleared = n & mask; // Clear bits j through i. 
+    unsigned long m_shifted = m << i;   // Move m into correct position. 
+	cout<<"DDD."<<endl;
+	ulongtobinary(n_cleared);
+	ulongtobinary(m_shifted);
+  
+	// cout<<"(n_cleared | m_shifted): "<<(unsigned long)ulongtobinary((n_cleared | m_shifted))<<endl;
+	cout<<"EEE."<<endl;
+	ulongtobinary((n_cleared | m_shifted));
+    return (n_cleared | m_shifted); // OR them, and we're done! 
 } 
+#endif
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {

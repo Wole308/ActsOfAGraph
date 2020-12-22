@@ -77,6 +77,7 @@ public:
 	void dectobinary(int n);
 	void ulongtobinary(unsigned long n);
 	int bitExtracted(unsigned long number, int k, int p);
+	unsigned long updatebitsinlong(unsigned long n, unsigned long m, unsigned long i, unsigned long j);
 	void printcodedkeyvalue(string message, unsigned long number, unsigned int setsize);
 	
 	#ifdef FPGA_IMPL

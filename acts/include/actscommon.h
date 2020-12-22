@@ -298,7 +298,7 @@ typedef struct {
 
 #define NOBUFFERADDRESS 999999999
 
-#define MASK 0 // 0xF000000000000000 // 0x[metadata:8]000000000000000;
+// #define MASK 0 // 0xF000000000000000 // 0x[metadata:8]000000000000000;
 #endif 
 
 

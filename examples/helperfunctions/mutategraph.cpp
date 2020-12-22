@@ -37,7 +37,7 @@ mutategraph::mutategraph(){
 }
 mutategraph::~mutategraph(){} 
 
-arbval_t mutategraph::shrink(unsigned int x){
+/** arbval_t mutategraph::shrink(unsigned int x){
 	arbval_t result;
 	// unsigned int xx = x;
 	// cout<<"x [before shrink]: x: "<<x<<endl;
@@ -48,12 +48,83 @@ arbval_t mutategraph::shrink(unsigned int x){
 		result.x = x & 0xFFFF;
 		result.numbits = 16;
 	} else if(x > (1 << (8+8)) && x <= (1 << (8+8+8))){
+		
+		cout<<"let's see 24: x: "<<x<<endl;
+		
+		cout<<"let's see 24: lowerlimit: "<<(1 << (8+8))<<endl;
+		cout<<"let's see 24: upperlimit: "<<(1 << (8+8+8))<<endl;
+		
+		exit(EXIT_SUCCESS); //1 0000 0000 0000 0000
+		
 		result.x = x & 0xFFFFFF;
 		result.numbits = 24;
 	} else {
 		result.x = x;
 		result.numbits = 32;
 	}
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"x [before shrink]: x: "<<x<<", x [after shrink]: result.x: "<<result.x<<", result.numbits: "<<result.numbits<<endl;
+	#endif 
+	return result;
+} */
+arbval_t mutategraph::shrink(unsigned int x){ // REMOVEME.
+	arbval_t result;
+	/* if(x >= 0 && x < 256){
+		result.x = x & 0xFF; 
+		result.numbits = 8;
+	} else if(x >= 256 && x < 65536){
+		result.x = x & 0xFFFF;
+		result.numbits = 16;
+	} else if(x >= 65536 && x < 16777216){
+		result.x = x & 0xFFFFFF;
+		result.numbits = 24;
+	} else {
+		result.x = x;
+		result.numbits = 32;
+	} */
+	
+	/* if(x >= 0 && x < 256){
+		result.x = x & 0xFF; 
+		result.numbits = 8;
+	} else if(x >= 256 && x < 65536){
+		result.x = x & 0xFFFF;
+		result.numbits = 16;
+	} else if(x >= 65536 && x < 16777216){
+		result.x = x & 0xFFFFFF;
+		result.numbits = 24;
+	} else {
+		result.x = x;
+		result.numbits = 32;
+	} */
+	
+	/* if(x > 0 && x <= (1 << 7)){
+		result.x = x & 0xFF; 
+		result.numbits = 8;
+	} else if(x > (1 << 7) && x <= (1 << (7+7))){
+		result.x = x & 0xFFFF;
+		result.numbits = 16;
+	} else if(x > (1 << (7+7)) && x <= (1 << (7+7+7))){
+		result.x = x & 0xFFFFFF;
+		result.numbits = 24;
+	} else {
+		result.x = x;
+		result.numbits = 32;
+	} */
+	
+	if(x >= 0 && x < (1 << 10)){
+		result.x = x & 0xFF; 
+		result.numbits = 10;
+	} else if(x >= (1 << 10) && x < (1 << 20)){
+		result.x = x & 0xFFFF;
+		result.numbits = 16;
+	} else if(x >= (1 << 16) && x < (1 << 22)){
+		result.x = x & 0xFFFFFF;
+		result.numbits = 22;
+	} else {
+		result.x = x;
+		result.numbits = 32;
+	}
+	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"x [before shrink]: x: "<<x<<", x [after shrink]: result.x: "<<result.x<<", result.numbits: "<<result.numbits<<endl;
 	#endif 
@@ -78,10 +149,20 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 	
 	unsigned int totalnumedgesprocessed = 0;
 	unsigned int totalnumcommits = 0;
+	unsigned int commitreasontype1 = 0;
+	unsigned int commitreasontype2 = 0;
+	unsigned int commitreasontype3 = 0;
+	unsigned int header_bitsize8count = 0;
+	unsigned int header_bitsize16count = 0;
+	unsigned int header_bitsize24count = 0;
+	unsigned int header_bitsize32count = 0;
+	unsigned int numitemscount[16]; for(unsigned int i=0; i<16; i++){ numitemscount[i] = 0; }
 	
-	// for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){
-	for(unsigned int vid=1; vid<3; vid++){
-		cout<<endl<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> mutategraph::mutate: vid: "<<vid<<endl;
+	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
+	// for(unsigned int vid=0; vid<12800; vid++){ // 3
+		#ifdef _DEBUGMODE_HOSTPRINTS//3
+		cout<<endl<<">>> mutategraph::mutate: vid: "<<vid<<endl;
+		#endif 
 		edge_t vptr_begin = vertexptrbuffer[vid];
 		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
@@ -103,13 +184,15 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 		for(unsigned int k=0; k<edges_size; k++){
 			totalnumedgesprocessed += 1;
 			edge2_type edge = edgedatabuffer[vptr_begin + k];
-			// cout<<"+++ edge.dstvid: "<<edge.dstvid<<", header_bitsize: "<<header_bitsize<<", numitems: "<<numitems<<endl;
 			
 			unsigned int llpartition = edge.dstvid >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH));
 			arbval_t newx = shrink(edge.dstvid);
+			#ifdef _DEBUGMODE_HOSTPRINTS//3
 			cout<<"+++ edge.dstvid: "<<edge.dstvid<<", llpartition: "<<llpartition<<", x[after shrink] "<<newx.x<<", newx.numbits: "<<newx.numbits<<", header_bitsize: "<<header_bitsize<<", numitems: "<<numitems<<endl;
+			#endif 
 			
-			if(newx.numbits != header_bitsize || llpartition != currpartition || currbitoffset + newx.numbits > 64){
+			// if(newx.numbits != header_bitsize || llpartition != currpartition || currbitoffset + newx.numbits > 64){
+			if(newx.numbits != header_bitsize || currbitoffset + newx.numbits > 64){
 				commit = true;
 				commitvertexupdate = longword;
 			} else {
@@ -121,12 +204,46 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 			}
 			
 			if(commit == true){
+				#ifdef _DEBUGMODE_HOSTPRINTS//3
 				cout<<"..........committing... RESON: ";
-				if(newx.numbits != header_bitsize){ cout<<"new shrinked bitsize. "; }
-				if(llpartition != currpartition){ cout<<"change in last level partition. "; }
-				if(currbitoffset + newx.numbits > 64){ cout<<"long word full. "; }
+				if(newx.numbits != header_bitsize){ cout<<"new shrinked bitsize. "; commitreasontype1 += 1; }
+				if(llpartition != currpartition){ cout<<"change in last level partition. "; commitreasontype2 += 1; }
+				if(currbitoffset + newx.numbits > 64){ cout<<"long word full. "; commitreasontype3 += 1; }
 				cout<<""<<endl;
-				// cout<<"+++ header_bitsize: "<<header_bitsize<<", numitems: "<<numitems<<endl;
+				#endif 
+				
+				if(newx.numbits != header_bitsize){ commitreasontype1 += 1; }
+				if(llpartition != currpartition){ commitreasontype2 += 1; }
+				if(currbitoffset + newx.numbits > 64){ commitreasontype3 += 1; }
+				
+				/* if(header_bitsize == 8){
+					header_bitsize8count += 1;
+				} else if(header_bitsize == 16){
+					header_bitsize16count += 1;
+				} else if(header_bitsize == 24){
+					header_bitsize24count += 1;
+				} else if(header_bitsize == 32){
+					header_bitsize32count += 1;
+				} else {
+					cout<<"mutategraph:: ERROR. should NEVER get here 2. exiting..."<<endl;
+					exit(EXIT_FAILURE);
+				} */
+				if(header_bitsize == 10){ // REMOVEME.
+					header_bitsize8count += 1;
+				} else if(header_bitsize == 16){
+					header_bitsize16count += 1;
+				} else if(header_bitsize == 22){
+					header_bitsize24count += 1;
+				} else if(header_bitsize == 32){
+					header_bitsize32count += 1;
+				} else {
+					cout<<"mutategraph:: ERROR. should NEVER get here 2. exiting..."<<endl;
+					exit(EXIT_FAILURE);
+				}
+				numitemscount[numitems] += 1;
+				// if(numitems == 0){ // FIXME. why ???
+					// exit(EXIT_FAILURE);
+				// }
 				
 				totalnumcommits += 1;
 				
@@ -166,9 +283,13 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 				}
 				#endif 
 				
+				#ifdef _DEBUGMODE_HOSTPRINTS
 				cout<<"longword.data: "<<(unsigned long)longword.data<<" (committed?"<<commit<<")"<<endl;
 				utilityobj->ulongtobinary(longword.data);
+				#endif 
+				#ifdef _DEBUGMODE_HOSTPRINTS//3
 				utilityobj->printcodedkeyvalue("processactivevertices.longword.data", longword.data, header_bitsize);
+				#endif 
 			}
 			
 			if(commit == true){
@@ -184,9 +305,31 @@ void mutategraph::mutate(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, 
 			if(commit== true){ commit = false; }
 		}
 	}
-	cout<<"totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<endl;
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"STATS: totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<", reduction factor: "<<(float)((float)totalnumedgesprocessed / (float)totalnumcommits)<<endl;
+	cout<<"STATS: numcommits from: new shrinked bitsize: "<<commitreasontype1<<endl;
+	cout<<"STATS: numcommits from: change in last level partition: "<<commitreasontype2<<endl;
+	cout<<"STATS: numcommits from: long word full: "<<commitreasontype3<<endl;
+	
+	cout<<"STATS: numcommits from: header_bitsize8count: "<<header_bitsize8count<<endl;
+	cout<<"STATS: numcommits from: header_bitsize16count: "<<header_bitsize16count<<endl;
+	cout<<"STATS: numcommits from: header_bitsize24count: "<<header_bitsize24count<<endl;
+	cout<<"STATS: numcommits from: header_bitsize32count: "<<header_bitsize32count<<endl;
+
+	for(unsigned int i=0; i<16; i++){ cout<<"STATS: commits with "<<i<<" items: (numitemscount["<<i<<"]): "<<numitemscount[i]<<endl; }
+	
+	// unsigned int header_bitsize8count = 0;
+	// unsigned int header_bitsize16count = 0;
+	// unsigned int header_bitsize24count = 0;
+	// unsigned int header_bitsize32count = 0;
+	
+	#endif 
 	return;
 }
+
+// if(newx.numbits != header_bitsize){ cout<<"new shrinked bitsize. "; commitreasontype1 += 1; }
+				// if(llpartition != currpartition){ cout<<"change in last level partition. "; commitreasontype2 += 1; }
+				// if(currbitoffset + newx.numbits > 64){ cout<<"long word full. "; commitreasontype3 += 1; }
 
 
 
