@@ -26,7 +26,7 @@ using namespace std;
 #define PROCESSALLEDGES
 #define COLLECTSTATS
 #define PARTITIONUPDATES
-// #define REDUCEUPDATES
+#define REDUCEUPDATES
 
 #define NUMPIPELINES 3
 #if NUMPIPELINES==2
@@ -39,11 +39,7 @@ using namespace std;
 #define PP2
 #endif
 
-#ifdef EDGEPACKING
-#define NUMVERTEXPARTITIONSPERLOAD 1 // CRITICAL FIXME.
-#else 
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
-#endif 
 
 class acts {
 public:
@@ -51,12 +47,10 @@ public:
 	~acts();
 	
 	unsigned int amin(unsigned int val1, unsigned int val2);
-	batch_type allignlowerto4_KV(batch_type val);
-	batch_type allignhigherto4_KV(batch_type val);
 	batch_type allignlower_KV(batch_type val);
 	batch_type allignhigher_KV(batch_type val);
-	batch_type allignlowerto16_KV(batch_type val);
-	batch_type allignhigherto16_KV(batch_type val);
+	batch_type allignlowerto4_KV(batch_type val);
+	batch_type allignhigherto4_KV(batch_type val);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
@@ -65,7 +59,7 @@ public:
 	void resetmanykeyandvalues(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type size, unsigned int resetval);
 	void resetmanykeyandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval);
-	void resetmanyvalues(buffer_type buffer0[NUM_PARTITIONS],buffer_type buffer1[NUM_PARTITIONS],buffer_type buffer2[NUM_PARTITIONS],buffer_type buffer3[NUM_PARTITIONS],buffer_type buffer4[NUM_PARTITIONS],buffer_type buffer5[NUM_PARTITIONS],buffer_type buffer6[NUM_PARTITIONS],buffer_type buffer7[NUM_PARTITIONS], buffer_type size, unsigned int resetval);
+	void resetmanyvalues({%for v in context['VECTOR_SIZE_seq']%}buffer_type buffer{{v}}[NUM_PARTITIONS],{%endfor%} buffer_type size, unsigned int resetval);
 	buffer_type getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
 	buffer_type getchunksize(buffer_type buffersz, travstate_t travstate, buffer_type localoffset);
 	partition_type getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow);
@@ -73,6 +67,7 @@ public:
 	value_t reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	value_t processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo);
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
+	void copykeyvalues(keyvalue_t * buffer1, keyvalue_t * buffer2, buffer_type size);
 	buffer_type getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
 	unsigned int withinvalidrange(buffer_type val1, buffer_type val2);
 	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type skipspacing[NUM_PARTITIONS]);
@@ -91,9 +86,7 @@ public:
 	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);
 	bool inreducestage(unsigned int currentLOP, globalparams_t globalparams);
 	void calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size);
-	mail_t shrink(unsigned int x);
-	void push(uuint64_dt * longword, mail_t kv);
-
+	
 	// collect globalstats functions
 	void readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset_kvs);
 
@@ -139,27 +132,21 @@ public:
 	void process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t statsbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], vertex_t upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
 	// in-memory partition functions (1)
-	void combineSetof1stoSetof2_I0(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
+	{%for n in context['4_seq']%}
+	void combineSetof1stoSetof2_I{{n}}(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
 																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
 																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof1stoSetof2_I1(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof1stoSetof2_I2(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof1stoSetof2_I3(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof2stoSetof4_I0(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M3[PADDEDDESTBUFFER_SIZE], 
+	{%endfor%}
+	{%for n in context['2_seq']%}
+	void combineSetof2stoSetof4_I{{n}}(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M3[PADDEDDESTBUFFER_SIZE], 
 																keyvalue_t buffer_setof4R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R3[PADDEDDESTBUFFER_SIZE], 
 																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof2stoSetof4_I1(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M3[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof4R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R3[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof4stoSetof8_I0(bool_type enable, keyvalue_t buffer_setof4M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M3[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M4[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M5[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M6[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M7[PADDEDDESTBUFFER_SIZE],				
+	{%endfor%}
+	{%for n in context['1_seq']%}
+	void combineSetof4stoSetof8_I{{n}}(bool_type enable, keyvalue_t buffer_setof4M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M3[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M4[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M5[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M6[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M7[PADDEDDESTBUFFER_SIZE],				
 																keyvalue_t buffer_setof8R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R3[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R4[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R5[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R6[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R7[PADDEDDESTBUFFER_SIZE],
 																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
+	{%endfor%}
 
 	void combineSetof1stoSetof2s(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof2stoSetof4s(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams);
@@ -173,7 +160,7 @@ public:
 									unsigned int currentLOP, unsigned int upperlimit, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams);
 	
 	// process edges phase
-	void processallvertices(
+	void processedges(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -192,25 +179,6 @@ public:
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
-		
-	batch_type processactivevertices_compactgraph(
-		bool_type enable,
-		uint512_dt * kvdram,
-		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		travstate_t actvvtravstate,
-		globalparams_t globalparams
-		);
-		
-	batch_type processactivevertices_noncompactgraph(
-		bool_type enable,
-		uint512_dt * kvdram,
-		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		travstate_t actvvtravstate,
-		globalparams_t globalparams
-		);
 	
 	// collectstats phase
 	void collectstats(
@@ -285,6 +253,7 @@ private:
 	#endif
 };
 #endif 
+
 
 
 

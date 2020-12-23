@@ -4876,12 +4876,308 @@ processallvertices(
 	return;
 }
 
-// process edges phase (bfs,sssp,etc.)		
+// process edges phase for compacted graph (bfs,sssp,etc.)		
 batch_type 
 	#ifdef SW 
 	acts::
 	#endif
-processactivevertices(
+processactivevertices_compactgraph(
+		bool_type enable,
+		uint512_dt * kvdram,
+		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		travstate_t actvvtravstate,
+		globalparams_t globalparams){
+	if(enable == OFF){ return 0; }
+	
+	uint512_dt E;
+	#pragma HLS ARRAY_PARTITION variable=E complete
+	
+	value_t buffersize_kvs = 0;
+	batch_type saveoffset_kvs = 0;
+	
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"processactivevertices_compactgraph: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
+	cout<<"processactivevertices_compactgraph: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
+	cout<<"processactivevertices_compactgraph: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
+	#endif
+	
+	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<"### processactivevertices_compactgraph: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
+		#endif
+		
+		actvvtravstate.i_kvs = offset_kvs;
+		readkeyvalues(ON, kvdram, actvvs, globalparams.baseoffset_activevertices_kvs + offset_kvs, PADDEDDESTBUFFER_SIZE, actvvtravstate);
+		
+		buffer_type chunk_size = getchunksize_kvs(PADDEDDESTBUFFER_SIZE, actvvtravstate, 0);
+		for(batch_type actvv_id=0; actvv_id<chunk_size * VECTOR_SIZE; actvv_id++){
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			cout<<endl<<"processactivevertices_compactgraph: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
+			#endif 
+		
+			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
+			value_t sourcedata = activevertex.value;
+			value_t updateval = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
+			
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			cout<<"processactivevertices_compactgraph: actvv_id: "<<actvv_id<<endl;
+			cout<<"processactivevertices_compactgraph: activevertex.key (vid): "<<activevertex.key<<endl;
+			cout<<"processactivevertices_compactgraph: activevertex.value (vdata): "<<activevertex.value<<endl;
+			#endif 
+			
+			vector_type yloc;
+			vector_type xloc;
+			keyvalue_t keyvalue;
+			edge_t edges_beginoffset;
+			edge_t edges_endoffset;
+			
+			yloc = (activevertex.key / 2) / VECTOR_SIZE;
+			xloc = (activevertex.key / 2) % VECTOR_SIZE;
+			keyvalue = kvdram[globalparams.baseoffset_vertexptr_kvs + yloc].data[xloc];
+			if(activevertex.key % 2 == 0){ edges_beginoffset = keyvalue.key; }
+			else { edges_beginoffset = keyvalue.value; } 
+			
+			yloc = ((activevertex.key + 1) / 2) / VECTOR_SIZE;
+			xloc = ((activevertex.key + 1) / 2) % VECTOR_SIZE;
+			keyvalue = kvdram[globalparams.baseoffset_vertexptr_kvs + yloc].data[xloc];
+			if((activevertex.key + 1) % 2 == 0){ edges_endoffset = keyvalue.key; }
+			else { edges_endoffset = keyvalue.value; } 
+			
+			batch_type edges_size = edges_endoffset - edges_beginoffset;
+			
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			cout<<"processactivevertices_compactgraph: sourcedata: "<<sourcedata<<endl;
+			cout<<"processactivevertices_compactgraph: edges_beginoffset: "<<edges_beginoffset<<endl;	
+			cout<<"processactivevertices_compactgraph: edges_endoffset: "<<edges_endoffset<<endl;	
+			cout<<"processactivevertices_compactgraph: edges_size: "<<edges_size<<endl;
+			#endif 
+			
+			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR_SIZE;
+			batch_type edgesize_kvs = (allignhigher_KV(edges_endoffset) - allignlower_KV(edges_beginoffset)) / VECTOR_SIZE;
+			
+			if((offset_kvs * VECTOR_SIZE) + actvv_id >= globalparams.actvvsize){ edgesize_kvs = 0; } // IAMPROBLEM?
+			batch_type edgesend_kvs = edgesbegin_kvs + edgesize_kvs;
+			batch_type edgeid_kvs = edgesbegin_kvs;
+			
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			if((offset_kvs * VECTOR_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
+			cout<<"processactivevertices_compactgraph: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
+			cout<<"processactivevertices_compactgraph: edgesize_kvs: "<<edgesize_kvs<<endl;
+			cout<<"processactivevertices_compactgraph: edgesend_kvs: "<<edgesend_kvs<<endl;
+			cout<<"processactivevertices_compactgraph: edgeid_kvs: "<<edgeid_kvs<<endl;
+			#endif
+			
+			vector_type colstart = edges_beginoffset % VECTOR_SIZE;
+			vector_type colend = (edges_endoffset-1) % VECTOR_SIZE;
+			#ifdef _DEBUGMODE_CHECKS2
+			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_compactgraph: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
+			#endif
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			cout<<"processactivevertices_compactgraph: colstart: "<<colstart<<", colend: "<<colend<<endl;
+			#endif
+			
+			keyvalue_t vertexupdate0;
+			keyvalue_t vertex2update0;
+			bool_type en0;
+			bool_type e2n0;
+			keyvalue_t vertexupdate1;
+			keyvalue_t vertex2update1;
+			bool_type en1;
+			bool_type e2n1;
+			keyvalue_t vertexupdate2;
+			keyvalue_t vertex2update2;
+			bool_type en2;
+			bool_type e2n2;
+			keyvalue_t vertexupdate3;
+			keyvalue_t vertex2update3;
+			bool_type en3;
+			bool_type e2n3;
+			keyvalue_t vertexupdate4;
+			keyvalue_t vertex2update4;
+			bool_type en4;
+			bool_type e2n4;
+			keyvalue_t vertexupdate5;
+			keyvalue_t vertex2update5;
+			bool_type en5;
+			bool_type e2n5;
+			keyvalue_t vertexupdate6;
+			keyvalue_t vertex2update6;
+			bool_type en6;
+			bool_type e2n6;
+			keyvalue_t vertexupdate7;
+			keyvalue_t vertex2update7;
+			bool_type en7;
+			bool_type e2n7;
+			keyvalue_t dummyvertexupdate; dummyvertexupdate.key = INVALIDDATA; dummyvertexupdate.value = INVALIDDATA;
+			
+			unsigned int edgesread_kvs = 0;
+			batch_type workedgesize_kvs = edgesize_kvs;
+			batch_type workedgesbegin_kvs = edgesbegin_kvs;
+			if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
+			#ifdef _DEBUGMODE_CHECKS2
+			unsigned int errcount = 0;
+			#endif
+			
+			while(true){
+				actsutilityobj->checkoutofbounds("workedgesize_kvs 45", workedgesize_kvs, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+				
+				for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
+				#pragma HLS PIPELINE II=1
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					cout<<"processactivevertices_compactgraph.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					#endif
+					
+					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					actsutilityobj->printcodedkeyvalue("E.data[0]", E.data[0]);
+					actsutilityobj->printcodedkeyvalue("E.data[1]", E.data[1]);
+					actsutilityobj->printcodedkeyvalue("E.data[2]", E.data[2]);
+					actsutilityobj->printcodedkeyvalue("E.data[3]", E.data[3]);
+					actsutilityobj->printcodedkeyvalue("E.data[4]", E.data[4]);
+					actsutilityobj->printcodedkeyvalue("E.data[5]", E.data[5]);
+					actsutilityobj->printcodedkeyvalue("E.data[6]", E.data[6]);
+					actsutilityobj->printcodedkeyvalue("E.data[7]", E.data[7]);
+					#endif
+					// cout<<"colstart: "<<colstart<<", colend: "<<colend<<endl;
+					// exit(EXIT_SUCCESS);
+					
+					vertexupdate0 = E.data[0];
+					vertexupdate1 = E.data[1];
+					vertexupdate2 = E.data[2];
+					vertexupdate3 = E.data[3];
+					vertexupdate4 = E.data[4];
+					vertexupdate5 = E.data[5];
+					vertexupdate6 = E.data[6];
+					vertexupdate7 = E.data[7];
+					
+					if(((edgeid_kvs == edgesbegin_kvs) && (0 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (0 > colend))){ en0 = OFF; }
+					else { en0 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (1 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (1 > colend))){ en1 = OFF; }
+					else { en1 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (2 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (2 > colend))){ en2 = OFF; }
+					else { en2 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (3 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (3 > colend))){ en3 = OFF; }
+					else { en3 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (4 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (4 > colend))){ en4 = OFF; }
+					else { en4 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (5 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (5 > colend))){ en5 = OFF; }
+					else { en5 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (6 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (6 > colend))){ en6 = OFF; }
+					else { en6 = ON; }
+					if(((edgeid_kvs == edgesbegin_kvs) && (7 < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && (7 > colend))){ en7 = OFF; }
+					else { en7 = ON; }
+					
+					if(en0 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
+						#endif
+						buffer1[0][buffersize_kvs] = vertexupdate0; }
+					else { buffer1[0][buffersize_kvs] = dummyvertexupdate; }
+					if(en1 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
+						#endif
+						buffer1[1][buffersize_kvs] = vertexupdate1; }
+					else { buffer1[1][buffersize_kvs] = dummyvertexupdate; }
+					if(en2 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
+						#endif
+						buffer1[2][buffersize_kvs] = vertexupdate2; }
+					else { buffer1[2][buffersize_kvs] = dummyvertexupdate; }
+					if(en3 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
+						#endif
+						buffer1[3][buffersize_kvs] = vertexupdate3; }
+					else { buffer1[3][buffersize_kvs] = dummyvertexupdate; }
+					if(en4 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
+						#endif
+						buffer1[4][buffersize_kvs] = vertexupdate4; }
+					else { buffer1[4][buffersize_kvs] = dummyvertexupdate; }
+					if(en5 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
+						#endif
+						buffer1[5][buffersize_kvs] = vertexupdate5; }
+					else { buffer1[5][buffersize_kvs] = dummyvertexupdate; }
+					if(en6 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
+						#endif
+						buffer1[6][buffersize_kvs] = vertexupdate6; }
+					else { buffer1[6][buffersize_kvs] = dummyvertexupdate; }
+					if(en7 == ON){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"processactivevertices_compactgraph: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
+						#endif
+						buffer1[7][buffersize_kvs] = vertexupdate7; }
+					else { buffer1[7][buffersize_kvs] = dummyvertexupdate; }
+					
+					#ifdef _DEBUGMODE_CHECKS2
+					actsutilityobj->checkoutofbounds("buffersize_kvs 45", buffersize_kvs, PADDEDDESTBUFFER_SIZE, workedgesbegin_kvs, edgeid_kvs, workedgesize_kvs);
+					#endif
+					
+					#ifdef _DEBUGMODE_STATS
+					actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
+					if(en0 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate0.key; }
+					if(en1 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate1.key; }
+					if(en2 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate2.key; }
+					if(en3 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate3.key; }
+					if(en4 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate4.key; }
+					if(en5 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate5.key; }
+					if(en6 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate6.key; }
+					if(en7 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate7.key; }
+					#endif
+					
+					buffersize_kvs += 1;
+				}
+				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
+					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					cout<<"processactivevertices_compactgraph: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					#endif 
+					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					// savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
+					saveoffset_kvs += buffersize_kvs;
+					buffersize_kvs = 0;
+				}
+				
+				edgesread_kvs += workedgesize_kvs;
+				workedgesbegin_kvs += workedgesize_kvs;
+				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
+				
+				#ifdef _DEBUGMODE_CHECKS2
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_compactgraph: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif
+				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
+				if(workedgesize_kvs == 0){ break; }
+				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
+				if(errcount++ > 64){ cout<<"processactivevertices_compactgraph:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif
+			}
+		}
+	}
+	#ifdef _DEBUGMODE_STATS
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key = edges_count;
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
+	#endif
+	return saveoffset_kvs;
+}
+
+// process edges phase for non compacted graph (bfs,sssp,etc.)		
+batch_type 
+	#ifdef SW 
+	acts::
+	#endif
+processactivevertices_noncompactgraph(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -4902,14 +5198,14 @@ processactivevertices(
 	unsigned int edgesdstv_sum = 0;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"processactivevertices: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
-	cout<<"processactivevertices: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
-	cout<<"processactivevertices: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
+	cout<<"processactivevertices_noncompactgraph: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
+	cout<<"processactivevertices_noncompactgraph: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
+	cout<<"processactivevertices_noncompactgraph: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
 	#endif
 	
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"### processactivevertices: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
+		cout<<"### processactivevertices_noncompactgraph: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
 		actvvtravstate.i_kvs = offset_kvs;
@@ -4918,7 +5214,7 @@ processactivevertices(
 		buffer_type chunk_size = getchunksize_kvs(PADDEDDESTBUFFER_SIZE, actvvtravstate, 0);
 		for(batch_type actvv_id=0; actvv_id<chunk_size * VECTOR_SIZE; actvv_id++){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<endl<<"processactivevertices: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
+			cout<<endl<<"processactivevertices_noncompactgraph: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
 			#endif 
 		
 			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
@@ -4926,9 +5222,9 @@ processactivevertices(
 			value_t updateval = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactivevertices: actvv_id: "<<actvv_id<<endl;
-			cout<<"processactivevertices: activevertex.key (vid): "<<activevertex.key<<endl;
-			cout<<"processactivevertices: activevertex.value (vdata): "<<activevertex.value<<endl;
+			cout<<"processactivevertices_noncompactgraph: actvv_id: "<<actvv_id<<endl;
+			cout<<"processactivevertices_noncompactgraph: activevertex.key (vid): "<<activevertex.key<<endl;
+			cout<<"processactivevertices_noncompactgraph: activevertex.value (vdata): "<<activevertex.value<<endl;
 			#endif 
 			
 			vector_type yloc;
@@ -4952,10 +5248,10 @@ processactivevertices(
 			batch_type edges_size = edges_endoffset - edges_beginoffset;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactivevertices: sourcedata: "<<sourcedata<<endl;
-			cout<<"processactivevertices: edges_beginoffset: "<<edges_beginoffset<<endl;	
-			cout<<"processactivevertices: edges_endoffset: "<<edges_endoffset<<endl;	
-			cout<<"processactivevertices: edges_size: "<<edges_size<<endl;
+			cout<<"processactivevertices_noncompactgraph: sourcedata: "<<sourcedata<<endl;
+			cout<<"processactivevertices_noncompactgraph: edges_beginoffset: "<<edges_beginoffset<<endl;	
+			cout<<"processactivevertices_noncompactgraph: edges_endoffset: "<<edges_endoffset<<endl;	
+			cout<<"processactivevertices_noncompactgraph: edges_size: "<<edges_size<<endl;
 			#endif 
 			
 			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR2_SIZE;
@@ -4967,19 +5263,19 @@ processactivevertices(
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if((offset_kvs * VECTOR_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
-			cout<<"processactivevertices: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
-			cout<<"processactivevertices: edgesize_kvs: "<<edgesize_kvs<<endl;
-			cout<<"processactivevertices: edgesend_kvs: "<<edgesend_kvs<<endl;
-			cout<<"processactivevertices: edgeid_kvs: "<<edgeid_kvs<<endl;
+			cout<<"processactivevertices_noncompactgraph: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
+			cout<<"processactivevertices_noncompactgraph: edgesize_kvs: "<<edgesize_kvs<<endl;
+			cout<<"processactivevertices_noncompactgraph: edgesend_kvs: "<<edgesend_kvs<<endl;
+			cout<<"processactivevertices_noncompactgraph: edgeid_kvs: "<<edgeid_kvs<<endl;
 			#endif
 			
 			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
 			vector_type colend = (edges_endoffset-1) % VECTOR2_SIZE;
 			#ifdef _DEBUGMODE_CHECKS2
-			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
+			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_noncompactgraph: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactivevertices: colstart: "<<colstart<<", colend: "<<colend<<endl;
+			cout<<"processactivevertices_noncompactgraph: colstart: "<<colstart<<", colend: "<<colend<<endl;
 			#endif
 			
 			keyvalue_t vertexupdate0;
@@ -5030,33 +5326,20 @@ processactivevertices(
 				for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
 				#pragma HLS PIPELINE II=1
 					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"processactivevertices.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					cout<<"processactivevertices_noncompactgraph.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
 					#endif
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
 					#ifdef _DEBUGMODE_KERNELPRINTS
-					#ifdef EDGEPACKING
-					actsutilityobj->printcodedkeyvalue("E.data[0]", E.data[0]);
-					actsutilityobj->printcodedkeyvalue("E.data[1]", E.data[1]);
-					actsutilityobj->printcodedkeyvalue("E.data[2]", E.data[2]);
-					actsutilityobj->printcodedkeyvalue("E.data[3]", E.data[3]);
-					actsutilityobj->printcodedkeyvalue("E.data[4]", E.data[4]);
-					actsutilityobj->printcodedkeyvalue("E.data[5]", E.data[5]);
-					actsutilityobj->printcodedkeyvalue("E.data[6]", E.data[6]);
-					actsutilityobj->printcodedkeyvalue("E.data[7]", E.data[7]);
-					#else 
-					cout<<"processactivevertices: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
-					cout<<"processactivevertices: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
-					cout<<"processactivevertices: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
-					cout<<"processactivevertices: E.data[3].key: "<<E.data[3].key<<", E.data[3].value: "<<E.data[3].value<<endl;
-					cout<<"processactivevertices: E.data[4].key: "<<E.data[4].key<<", E.data[4].value: "<<E.data[4].value<<endl;
-					cout<<"processactivevertices: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
-					cout<<"processactivevertices: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
-					cout<<"processactivevertices: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
-					#endif 
+					cout<<"processactivevertices_noncompactgraph: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[3].key: "<<E.data[3].key<<", E.data[3].value: "<<E.data[3].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[4].key: "<<E.data[4].key<<", E.data[4].value: "<<E.data[4].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
+					cout<<"processactivevertices_noncompactgraph: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
 					#endif
-					// cout<<"colstart: "<<colstart<<", colend: "<<colend<<endl;
-					// exit(EXIT_SUCCESS);
 					
 					vertexupdate0.key = E.data[0].key;
 					vertexupdate0.value = updateval; 
@@ -5128,98 +5411,98 @@ processactivevertices(
 					
 					if(en0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
 						#endif
 						buffer1[0][buffersize_kvs] = vertexupdate0; }
 					else { buffer1[0][buffersize_kvs] = dummyvertexupdate; }
 					if(en1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
 						#endif
 						buffer1[1][buffersize_kvs] = vertexupdate1; }
 					else { buffer1[1][buffersize_kvs] = dummyvertexupdate; }
 					if(en2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
 						#endif
 						buffer1[2][buffersize_kvs] = vertexupdate2; }
 					else { buffer1[2][buffersize_kvs] = dummyvertexupdate; }
 					if(en3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
 						#endif
 						buffer1[3][buffersize_kvs] = vertexupdate3; }
 					else { buffer1[3][buffersize_kvs] = dummyvertexupdate; }
 					if(en4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
 						#endif
 						buffer1[4][buffersize_kvs] = vertexupdate4; }
 					else { buffer1[4][buffersize_kvs] = dummyvertexupdate; }
 					if(en5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
 						#endif
 						buffer1[5][buffersize_kvs] = vertexupdate5; }
 					else { buffer1[5][buffersize_kvs] = dummyvertexupdate; }
 					if(en6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
 						#endif
 						buffer1[6][buffersize_kvs] = vertexupdate6; }
 					else { buffer1[6][buffersize_kvs] = dummyvertexupdate; }
 					if(en7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
 						#endif
 						buffer1[7][buffersize_kvs] = vertexupdate7; }
 					else { buffer1[7][buffersize_kvs] = dummyvertexupdate; }
 					
 					if(e2n0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
 						#endif
 						buffer2[0][buffersize_kvs] = vertex2update0; }
 					else { buffer2[0][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
 						#endif
 						buffer2[1][buffersize_kvs] = vertex2update1; }
 					else { buffer2[1][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
 						#endif
 						buffer2[2][buffersize_kvs] = vertex2update2; }
 					else { buffer2[2][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
 						#endif
 						buffer2[3][buffersize_kvs] = vertex2update3; }
 					else { buffer2[3][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
 						#endif
 						buffer2[4][buffersize_kvs] = vertex2update4; }
 					else { buffer2[4][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
 						#endif
 						buffer2[5][buffersize_kvs] = vertex2update5; }
 					else { buffer2[5][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
 						#endif
 						buffer2[6][buffersize_kvs] = vertex2update6; }
 					else { buffer2[6][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
+						cout<<"processactivevertices_noncompactgraph: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
 						#endif
 						buffer2[7][buffersize_kvs] = vertex2update7; }
 					else { buffer2[7][buffersize_kvs] = dummyvertexupdate; }
@@ -5251,7 +5534,7 @@ processactivevertices(
 				}
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
 					#ifdef _DEBUGMODE_KERNELPRINTS3
-					cout<<"processactivevertices: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					cout<<"processactivevertices_noncompactgraph: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
 					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
@@ -5264,12 +5547,12 @@ processactivevertices(
 				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
 				
 				#ifdef _DEBUGMODE_CHECKS2
-				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactgraph: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
 				if(workedgesize_kvs == 0){ break; }
 				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
-				if(errcount++ > 64){ cout<<"processactivevertices:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(errcount++ > 64){ cout<<"processactivevertices_noncompactgraph:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 			}
 		}
@@ -5410,11 +5693,19 @@ dispatch(uint512_dt * kvdram){
 				sweepparams,
 				avtravstate);
 			#else
-			globalparams.runsize_kvs = processactivevertices(
+			globalparams.runsize_kvs = 
+				#ifdef EDGEPACKING
+				processactivevertices_compactgraph
+				#else 
+				processactivevertices_noncompactgraph	
+				#endif 
+				(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,
+				#ifndef EDGEPACKING
 				buffer2,
+				#endif
 				buffer3,
 				avtravstate,
 				globalparams

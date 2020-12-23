@@ -70,6 +70,7 @@
 #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
+// #define _DEBUGMODE_PROCACTVVSPRINTS //
 #endif
 #if defined(SW) & defined(TESTKERNEL)
 #define _DEBUGMODE_STATS // 

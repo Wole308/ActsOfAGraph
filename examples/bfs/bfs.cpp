@@ -22,7 +22,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
-#include "../../examples/helperfunctions/mutategraph.h"
+#include "../../examples/helperfunctions/compactgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
@@ -42,7 +42,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	utilityobj = new utility(); 
 	postprocessobj = new postprocess(graphobj, statsobj); 
 	loadgraphobj = new loadgraph(graphobj, statsobj); 
-	mutategraphobj = new mutategraph(graphobj, statsobj);
+	compactgraphobj = new compactgraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 
 	#ifdef FPGA_IMPL
@@ -89,7 +89,7 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	
 	#ifdef EDGEPACKING
-	mutategraphobj->mutate(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
+	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
 	utilityobj->printvalues("bfs::run:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
 	// exit(EXIT_SUCCESS);
