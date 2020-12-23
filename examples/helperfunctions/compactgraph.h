@@ -23,7 +23,9 @@ public:
 	mail_t shrink(unsigned int x);
 	void push(uuint64_dt * longword, mail_t kv);
 	void compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * packedvertexptrbuffer, uuint64_dt * packededgedatabuffer);		
-
+	
+	void verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * packedvertexptrbuffer, uuint64_dt * packededgedatabuffer, unsigned int * numitemspacked);
+	
 private:
 	parameters * parametersobj;
 	utility * utilityobj;
