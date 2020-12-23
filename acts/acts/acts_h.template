@@ -26,7 +26,7 @@ using namespace std;
 #define PROCESSALLEDGES
 #define COLLECTSTATS
 #define PARTITIONUPDATES
-#define REDUCEUPDATES
+// #define REDUCEUPDATES
 
 #define NUMPIPELINES 3
 #if NUMPIPELINES==2
@@ -39,7 +39,11 @@ using namespace std;
 #define PP2
 #endif
 
+#ifdef EDGEPACKING
+#define NUMVERTEXPARTITIONSPERLOAD 1 // CRITICAL FIXME.
+#else 
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
+#endif 
 
 class acts {
 public:

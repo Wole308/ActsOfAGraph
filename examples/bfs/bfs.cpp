@@ -52,6 +52,10 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#endif
 	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	
+	packedvertexptrbuffer = new edge_t[KVDATA_RANGE];
+	// packededgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
+	packededgedatabuffer = new uuint64_dt[PADDEDEDGES_BATCHSIZE];
+	
 	#ifdef FPGA_IMPL
 	setupkernelobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer);
 	#endif
@@ -79,16 +83,20 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(1);
 	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	
-	//
-	edge2_type * mutated_edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
-	edge_t * mutated_vertexptrbuffer = new edge_t[KVDATA_RANGE];
-	mutategraphobj->mutate(vertexptrbuffer, edgedatabuffer, mutated_vertexptrbuffer, mutated_edgedatabuffer);
-	exit(EXIT_SUCCESS);
-	//
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
+	
+	#ifdef EDGEPACKING
+	mutategraphobj->mutate(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
+	utilityobj->printvalues("bfs::run:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
+	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
+	// exit(EXIT_SUCCESS);
+	#else
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	#endif 
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){

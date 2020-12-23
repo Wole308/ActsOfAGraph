@@ -189,7 +189,11 @@
 
 /** ACTS constraints equation! (NUM_PARTITIONS_POWx = KVDATA_RANGE_PERSSDPARTITION_POW - SRAMSZ_POW) */
 // #define SRAMSZ_POW 10 // 
+#ifdef EDGEPACKING
 #define SRAMSZ_POW 14 // CRITICAL NEWCHANGE.
+#else 
+#define SRAMSZ_POW 10	
+#endif 
 #define SRAMSZ (1 << SRAMSZ_POW)
 
 #define APPROXTREE_DEPTH ((BATCH_RANGE_POW - SRAMSZ_POW + NUM_PARTITIONS_POW - 1) / NUM_PARTITIONS_POW)
@@ -431,13 +435,13 @@ typedef struct {
 } uint64_dt;
 #endif
 
-#ifdef _WIDEWORD
-typedef ap_uint<64> uuint64_dt;
-#else
+// #ifdef _WIDEWORD
+// typedef ap_uint<64> uuint64_dt;
+// #else
 typedef struct {
 	unsigned long data;
 } uuint64_dt;
-#endif
+// #endif
 
 typedef struct {
 	keyvalue_t data[VECTOR_SIZE];

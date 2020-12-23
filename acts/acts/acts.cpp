@@ -5035,6 +5035,16 @@ processactivevertices(
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
 					#ifdef _DEBUGMODE_KERNELPRINTS
+					#ifdef EDGEPACKING
+					actsutilityobj->printcodedkeyvalue("E.data[0]", E.data[0]);
+					actsutilityobj->printcodedkeyvalue("E.data[1]", E.data[1]);
+					actsutilityobj->printcodedkeyvalue("E.data[2]", E.data[2]);
+					actsutilityobj->printcodedkeyvalue("E.data[3]", E.data[3]);
+					actsutilityobj->printcodedkeyvalue("E.data[4]", E.data[4]);
+					actsutilityobj->printcodedkeyvalue("E.data[5]", E.data[5]);
+					actsutilityobj->printcodedkeyvalue("E.data[6]", E.data[6]);
+					actsutilityobj->printcodedkeyvalue("E.data[7]", E.data[7]);
+					#else 
 					cout<<"processactivevertices: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
 					cout<<"processactivevertices: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
 					cout<<"processactivevertices: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
@@ -5043,7 +5053,10 @@ processactivevertices(
 					cout<<"processactivevertices: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
 					cout<<"processactivevertices: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
 					cout<<"processactivevertices: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
+					#endif 
 					#endif
+					// cout<<"colstart: "<<colstart<<", colend: "<<colend<<endl;
+					// exit(EXIT_SUCCESS);
 					
 					vertexupdate0.key = E.data[0].key;
 					vertexupdate0.value = updateval; 

@@ -28,6 +28,7 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize);
 	void printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE], unsigned int size);
 	void printedges(string message, edge2_type * edges, unsigned int size);
+	void printpackededges(string message, uuint64_dt * edges, unsigned int size);
 	void printmessages(string message, uint512_vec_dt * keyvalues);
 	void printallparameters();
 	void printvalues(string message, unsigned int * values, unsigned int size);
@@ -61,6 +62,7 @@ public:
 	void setarray(unsigned int array[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int _1dimsize, unsigned int _2dimsize, unsigned int value);
 	void copy(unsigned int * array1, unsigned int * array2, unsigned int size);
 	void countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value);
+	unsigned int countvalues(string message, keyvalue_t * keyvalue, unsigned int size);
 	unsigned int countvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit);
 	unsigned int geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex);
@@ -78,8 +80,8 @@ public:
 	void ulongtobinary(unsigned long n);
 	int bitExtracted(unsigned long number, int k, int p);
 	unsigned long updatebitsinlong(unsigned long n, unsigned long m, unsigned long i, unsigned long j);
-	void printcodedkeyvalue(string message, unsigned long number, unsigned int setsize);
-	void printcodedkeyvalue2(string message, unsigned long number, unsigned int setsize);
+	void printcodedkeyvalue(string message, unsigned long number);
+	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);

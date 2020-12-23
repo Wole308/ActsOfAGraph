@@ -83,32 +83,26 @@ void actsutility::ulongtobinary(unsigned long n){
 int actsutility::bitExtracted(unsigned long number, int k, int p){ 
 	// Function to extract k bits from p position (starting from end) 
 	// and returns the extracted value as integer 
+	// https://www.geeksforgeeks.org/extract-k-bits-given-position-number/
+	// NOTE: last bit to the right: p=0
     return (((1 << k) - 1) & (number >> p));
 }
-void actsutility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
-	// cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
-	// longword = longword - MASK;
-	if(setsize == 8){ 
-		cout<<"longword("<<8<<", "<<0<<"): "<<bitExtracted(longword, 8, 0)<<endl;
-		cout<<"longword("<<8<<", "<<8<<"): "<<bitExtracted(longword, 8, 8)<<endl;
-		cout<<"longword("<<8<<", "<<16<<"): "<<bitExtracted(longword, 8, 16)<<endl;
-		cout<<"longword("<<8<<", "<<24<<"): "<<bitExtracted(longword, 8, 24)<<endl;
-		cout<<"longword("<<8<<", "<<32<<"): "<<bitExtracted(longword, 8, 32)<<endl;
-		cout<<"longword("<<8<<", "<<40<<"): "<<bitExtracted(longword, 8, 40)<<endl;
-		cout<<"longword("<<8<<", "<<48<<"): "<<bitExtracted(longword, 8, 48)<<endl;
-		cout<<"longword("<<8<<", "<<56<<"): "<<bitExtracted(longword, 8, 56)<<endl;
-	} else if(setsize == 16){ 
-		cout<<"longword("<<16<<", "<<0<<"): "<<bitExtracted(longword, 16, 0)<<endl;
-		cout<<"longword("<<16<<", "<<16<<"): "<<bitExtracted(longword, 16, 16)<<endl;
-		cout<<"longword("<<16<<", "<<32<<"): "<<bitExtracted(longword, 16, 32)<<endl;
-		cout<<"longword("<<16<<", "<<48<<"): "<<bitExtracted(longword, 16, 48)<<endl;
-	} else if(setsize == 24){ 
-		cout<<"longword("<<24<<", "<<0<<"): "<<bitExtracted(longword, 24, 0)<<endl;
-		cout<<"longword("<<24<<", "<<24<<"): "<<bitExtracted(longword, 24, 24)<<endl;
-	} else { 
-		cout<<"longword("<<32<<", "<<0<<"): "<<bitExtracted(longword, 32, 0)<<endl;
-		cout<<"longword("<<32<<", "<<32<<"): "<<bitExtracted(longword, 32, 32)<<endl;
-	}
+void actsutility::printcodedkeyvalue(string message, unsigned long longword){ 
+	cout<<"printcodedkeyvalue: "<<message<<endl;
+	cout<<"["<<bitExtracted(longword, 8, 56)<<", "<<bitExtracted(longword, 14, 42)<<", "<<bitExtracted(longword, 14, 28)<<", "<<bitExtracted(longword, 14, 14)<<", "<<bitExtracted(longword, 14, 0)<<"]"<<endl;
+	return;
+}
+void actsutility::printcodedkeyvalue(string message, keyvalue_t * keyvalue){ 
+	cout<<"printcodedkeyvalue: "<<message<<endl;
+	unsigned long * longword = (unsigned long *)&keyvalue[0];
+	
+	cout<<"["<<bitExtracted(longword[0], 8, 56)<<", "<<bitExtracted(longword[0], 14, 42)<<", "<<bitExtracted(longword[0], 14, 28)<<", "<<bitExtracted(longword[0], 14, 14)<<", "<<bitExtracted(longword[0], 14, 0)<<"]"<<endl;
+	return;
+}
+void actsutility::printcodedkeyvalue(string message, keyvalue_t keyvalue){ 
+	cout<<"printcodedkeyvalue: "<<message<<endl;
+	unsigned long * longword = (unsigned long *)&keyvalue;
+	cout<<"["<<bitExtracted(*longword, 8, 56)<<", "<<bitExtracted(*longword, 14, 42)<<", "<<bitExtracted(*longword, 14, 28)<<", "<<bitExtracted(*longword, 14, 14)<<", "<<bitExtracted(*longword, 14, 0)<<"]"<<endl;
 	return;
 }
 

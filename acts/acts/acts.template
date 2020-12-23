@@ -3340,10 +3340,18 @@ processactivevertices(
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
 					#ifdef _DEBUGMODE_KERNELPRINTS
+					#ifdef EDGEPACKING
+					{%for v in context['VECTOR_SIZE_seq']%}
+					actsutilityobj->printcodedkeyvalue("E.data[{{v}}]", E.data[{{v}}]);
+					{%endfor%}
+					#else 
 					{%for v in context['VECTOR_SIZE_seq']%}
 					cout<<"processactivevertices: E.data[{{v}}].key: "<<E.data[{{v}}].key<<", E.data[{{v}}].value: "<<E.data[{{v}}].value<<endl;
 					{%endfor%}
+					#endif 
 					#endif
+					// cout<<"colstart: "<<colstart<<", colend: "<<colend<<endl;
+					// exit(EXIT_SUCCESS);
 					
 					{%for v in context['4_seq']%}
 					vertexupdate{{2*v}}.key = E.data[{{v}}].key;

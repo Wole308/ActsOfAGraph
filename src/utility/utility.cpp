@@ -235,6 +235,13 @@ void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }
 }
+void utility::printpackededges(string message, uuint64_dt * edges, unsigned int size){
+	cout<<endl<<"utility::printpackededges:"<<message<<endl;
+	for(unsigned int i=0; i<size; i++){ 
+		// ulongtobinary(edges[i].data);
+		printcodedkeyvalue("printpackededges.edges["+std::to_string(i)+"].data", edges[i].data);
+	}
+}
 void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 	cout<<"utility::printmessages::"<<message<<":: printing messages (after kernel launch) "<<endl;
 	cout<<"MESSAGES_RUNKERNELCOMMANDID: "<<keyvalues[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNKERNELCOMMANDID].data[0].key<<endl;
@@ -481,6 +488,12 @@ void utility::countkeyvalueswithvalueequalto(string message, keyvalue_t * keyval
 	for(unsigned int i=0; i<size; i++){ if(keyvalues[i].value == value){ count += 1; } }
 	cout<<"utility::countkeyvalueswithvalueequalto::"<<message<<":: keyvalues with value equal to "<<value<<": "<<count<<endl;
 }
+unsigned int utility::countvalues(string message, keyvalue_t * keyvalue, unsigned int size){
+	unsigned int totalcount = 0;
+	for(unsigned int i=0; i<size; i++){ totalcount += keyvalue[i].value; }
+	cout<<"utility::countvalues::"<<message<<":: total values counted: "<<totalcount<<endl<<endl;
+	return totalcount;
+}
 unsigned int utility::countvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
 	unsigned int count = 0;
 	unsigned int totalsize = 0;
@@ -597,6 +610,12 @@ void utility::getmarkerpositions(keyvalue_t * stats, batch_type size){
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
 }
 
+void utility::calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size){
+	for(buffer_type i=1; i<size; i++){ 
+		keyvalues[i].key = keyvalues[i-1].key + keyvalues[i-1].value; 
+	}
+	return;
+}
 void utility::dectobinary(int n){ 
     // array to store binary number 
     int binaryNum[32]; 
@@ -646,41 +665,9 @@ int utility::bitExtracted(unsigned long number, int k, int p){
 	// NOTE: last bit to the right: p=0
     return (((1 << k) - 1) & (number >> p));
 }
-void utility::printcodedkeyvalue(string message, unsigned long longword, unsigned int setsize){ 
-	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword<<endl;
-	
-	cout<<"longword("<<14<<", "<<0<<"): "<<bitExtracted(longword, 14, 0)<<endl;
-	cout<<"longword("<<28<<", "<<14<<"): "<<bitExtracted(longword, 14, 14)<<endl;
-	cout<<"longword("<<42<<", "<<28<<"): "<<bitExtracted(longword, 14, 28)<<endl;
-	cout<<"longword("<<56<<", "<<42<<"): "<<bitExtracted(longword, 14, 42)<<endl;
-	cout<<"[m]longword("<<8<<", "<<56<<"): "<<bitExtracted(longword, 8, 56)<<endl;
-	return;
-}
-void utility::printcodedkeyvalue2(string message, unsigned long longword, unsigned int setsize){ 
-	// cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword - MASK<<endl;
-	cout<<"printcodedkeyvalue:"<<message<<", longword (metadata + data): "<<(unsigned long)longword<<", longword (data only): "<<(unsigned long)longword<<endl;
-	// longword = longword - MASK;
-	if(setsize == 8){ 
-		cout<<"longword("<<8<<", "<<0<<"): "<<bitExtracted(longword, 8, 0)<<endl;
-		cout<<"longword("<<8<<", "<<8<<"): "<<bitExtracted(longword, 8, 8)<<endl;
-		cout<<"longword("<<8<<", "<<16<<"): "<<bitExtracted(longword, 8, 16)<<endl;
-		cout<<"longword("<<8<<", "<<24<<"): "<<bitExtracted(longword, 8, 24)<<endl;
-		cout<<"longword("<<8<<", "<<32<<"): "<<bitExtracted(longword, 8, 32)<<endl;
-		cout<<"longword("<<8<<", "<<40<<"): "<<bitExtracted(longword, 8, 40)<<endl;
-		cout<<"longword("<<8<<", "<<48<<"): "<<bitExtracted(longword, 8, 48)<<endl;
-		cout<<"longword("<<8<<", "<<56<<"): "<<bitExtracted(longword, 8, 56)<<endl;
-	} else if(setsize == 16){ 
-		cout<<"longword("<<16<<", "<<0<<"): "<<bitExtracted(longword, 16, 0)<<endl;
-		cout<<"longword("<<16<<", "<<16<<"): "<<bitExtracted(longword, 16, 16)<<endl;
-		cout<<"longword("<<16<<", "<<32<<"): "<<bitExtracted(longword, 16, 32)<<endl;
-		cout<<"longword("<<16<<", "<<48<<"): "<<bitExtracted(longword, 16, 48)<<endl;
-	} else if(setsize == 24){ 
-		cout<<"longword("<<24<<", "<<0<<"): "<<bitExtracted(longword, 24, 0)<<endl;
-		cout<<"longword("<<24<<", "<<24<<"): "<<bitExtracted(longword, 24, 24)<<endl;
-	} else { 
-		cout<<"longword("<<32<<", "<<0<<"): "<<bitExtracted(longword, 32, 0)<<endl;
-		cout<<"longword("<<32<<", "<<32<<"): "<<bitExtracted(longword, 32, 32)<<endl;
-	}
+void utility::printcodedkeyvalue(string message, unsigned long longword){ 
+	cout<<"printcodedkeyvalue: "<<message<<endl;
+	cout<<"["<<bitExtracted(longword, 8, 56)<<", "<<bitExtracted(longword, 14, 42)<<", "<<bitExtracted(longword, 14, 28)<<", "<<bitExtracted(longword, 14, 14)<<", "<<bitExtracted(longword, 14, 0)<<"]"<<endl;
 	return;
 }
 

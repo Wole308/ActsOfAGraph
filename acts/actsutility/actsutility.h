@@ -19,7 +19,9 @@ public:
 	void dectobinary(int n);
 	void ulongtobinary(unsigned long n);
 	int bitExtracted(unsigned long number, int k, int p);
-	void printcodedkeyvalue(string message, unsigned long number, unsigned int setsize);
+	void printcodedkeyvalue(string message, unsigned long longword);
+	void printcodedkeyvalue(string message, keyvalue_t * keyvalue);
+	void printcodedkeyvalue(string message, keyvalue_t keyvalue);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	void checkoutofbounds(unsigned int enable, string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
