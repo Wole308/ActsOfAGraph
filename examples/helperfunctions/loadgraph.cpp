@@ -238,7 +238,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_VERTEXPTR)+"]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		#ifdef EDGEPACKING
-		utilityobj->printpackededges("loadedges_rowwise.edges[i]", (uuint64_dt *)&edges[i][BASEOFFSET_EDGESDATA], 8);
+		utilityobj->printpackededges("loadedges_rowwise.edges["+std::to_string(i)+"]", (uuint64_dt *)&edges[i][BASEOFFSET_EDGESDATA], 8);
 		#else 
 		utilityobj->printvalues("loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8);
 		#endif 

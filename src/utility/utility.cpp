@@ -237,8 +237,7 @@ void utility::printedges(string message, edge2_type * edges, unsigned int size){
 }
 void utility::printpackededges(string message, uuint64_dt * edges, unsigned int size){
 	cout<<endl<<"utility::printpackededges:"<<message<<endl;
-	for(unsigned int i=0; i<size; i++){ 
-		// ulongtobinary(edges[i].data);
+	for(unsigned int i=0; i<size; i++){
 		printcodedkeyvalue("printpackededges.edges["+std::to_string(i)+"].data", edges[i].data);
 	}
 }
@@ -666,7 +665,7 @@ int utility::bitExtracted(unsigned long number, int k, int p){
     return (((1 << k) - 1) & (number >> p));
 }
 void utility::printcodedkeyvalue(string message, unsigned long longword){ 
-	cout<<"printcodedkeyvalue: "<<message<<endl;
+	cout<<"printcodedkeyvalue: "<<message<<": ";
 	cout<<"["<<bitExtracted(longword, 8, 56)<<", "<<bitExtracted(longword, 14, 42)<<", "<<bitExtracted(longword, 14, 28)<<", "<<bitExtracted(longword, 14, 14)<<", "<<bitExtracted(longword, 14, 0)<<"]"<<endl;
 	return;
 }

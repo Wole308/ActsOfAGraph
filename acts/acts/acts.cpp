@@ -5144,7 +5144,6 @@ processactivevertices_compactgraph(
 					cout<<"processactivevertices_compactgraph: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
-					// savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
 					saveoffset_kvs += buffersize_kvs;
 					buffersize_kvs = 0;
 				}
