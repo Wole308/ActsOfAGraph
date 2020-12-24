@@ -159,7 +159,7 @@ void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer,
 	}
 	return;
 }
-#ifdef EDGEPACKING
+#ifdef COMPACTEDGES
 void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
 #else 
 void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
@@ -169,19 +169,17 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ counts[i] = 0; }
 	unsigned int index = 0;
 	
-	#ifdef EDGEPACKING
-	unsigned int packingfactor = 2;
-	#else 
+	#ifdef COMPACTEDGES
 	unsigned int packingfactor = 1;
+	#else 
+	unsigned int packingfactor = 2;
 	#endif
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){
+	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){ // FIXME.
 		if(vid % 1000000 == 0){ cout<<"### loadgraph::loadedges_rowwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		
 		edge_t vptr_begin = vertexptrbuffer[vid];
-		edge_t vptr_end;
-		if(vid < KVDATA_RANGE-1){ vptr_end = vertexptrbuffer[vid+1]; } 
-		else { vptr_end = graphobj->getedgessize(col); }
+		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
@@ -192,7 +190,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 		#endif 
 		
 		for(unsigned int k=0; k<edges_size; k++){
-			#ifdef EDGEPACKING
+			#ifdef COMPACTEDGES
 			unsigned int subthread = (index / VECTOR_SIZE) % NUMSUBCPUTHREADS;
 			#else 
 			unsigned int subthread = (index / VECTOR2_SIZE) % NUMSUBCPUTHREADS;
@@ -202,7 +200,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 			utilityobj->checkoutofbounds("loadgraph::loadedges_rowwise. packingfactor*BASEOFFSET_EDGESDATA + counts[subthread]", packingfactor*BASEOFFSET_EDGESDATA + counts[subthread], PADDEDKVSOURCEDRAMSZ*packingfactor, packingfactor*BASEOFFSET_EDGESDATA, counts[subthread], PADDEDKVSOURCEDRAMSZ*packingfactor);				
 			#endif 
 		
-			#ifdef EDGEPACKING
+			#ifdef COMPACTEDGES
 			edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]] = edgedatabuffer[index];
 			#else 
 			edges[subthread][packingfactor*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index].dstvid;
@@ -233,26 +231,32 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 		container->actvvsize[i] = 0;
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printvalues("loadedges_rowwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_VERTEXPTR)+"]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		#ifdef EDGEPACKING
-		utilityobj->printpackededges("loadedges_rowwise.edges["+std::to_string(i)+"]", (uuint64_dt *)&edges[i][BASEOFFSET_EDGESDATA], 8);
+		#ifdef COMPACTEDGES
+		utilityobj->printpackededges("loadgraph::loadedges_rowwise.compactedges["+std::to_string(i)+"]", (uuint64_dt *)&edges[i][BASEOFFSET_EDGESDATA], 8);
 		#else 
-		utilityobj->printvalues("loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8);
+		utilityobj->printvalues("loadgraph::loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8);
 		#endif 
 	}
 	#endif
 }
-void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container){
+#ifdef COMPACTEDGES
+void loadgraph::loadoffsetmarkers(uuint64_dt * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container)
+#else 
+void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container)
+#endif 
+{
 	cout<<"loadgraph::loadoffsetmarkers"<<endl;
 	
-	#ifdef SINELEVALUEEDGETYPE
-	unsigned int baseoffset_edgedata = 2*BASEOFFSET_EDGESDATA;
-	#else 
+	#ifdef COMPACTEDGES
 	unsigned int baseoffset_edgedata = BASEOFFSET_EDGESDATA;
-	#endif
+	#else 
+	unsigned int baseoffset_edgedata = 2*BASEOFFSET_EDGESDATA;
+	#endif 
+	
 	unsigned int totalnumpartitions = 0;
 	for(unsigned int k=0; k<=TREE_DEPTH; k++){ totalnumpartitions += (unsigned int)pow(NUM_PARTITIONS, k); } 
 	
@@ -268,14 +272,24 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		cout<<"loadgraph::loadoffsetmarkers:: edgessize[0]["<<i<<"]: "<<container->edgessize[i]<<endl;
-		edge_type * edgesptr = (edge_type *)&edges[i][baseoffset_edgedata];
+		#ifdef COMPACTEDGES
+		uuint64_dt * edgesptr = (uuint64_dt *)&edges[i][baseoffset_edgedata];
+		#else 
+		edge_type * edgesptr = (edge_type *)&edges[i][baseoffset_edgedata];	
+		#endif
 		keyvalue_t * statsptr = (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM];
 		for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){ tempstats[k].key = 0; tempstats[k].value = 0; }
 		
 		for(unsigned int k=0; k<container->edgessize[i]; k++){
 			keyvalue_t keyvalue;
+			#ifdef COMPACTEDGES
+			uuint64_dt longword = edgesptr[k];
+			keyvalue.key = utilityobj->getkey(longword.data); 
+			keyvalue.value = 0;
+			#else
 			keyvalue.key = edgesptr[k].dstvid;
 			keyvalue.value = 0;
+			#endif 
 			
 			for(unsigned int CLOP=1; CLOP<=TREE_DEPTH; CLOP++){
 				
@@ -283,6 +297,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 				for(unsigned int k=0; k<CLOP; k++){ offset += (unsigned int)pow(NUM_PARTITIONS, k); } 
 				
 				unsigned int partitionCLOP = getglobalpartition(keyvalue, 0, BATCH_RANGE_POW, CLOP);
+				
 				#ifdef _DEBUGMODE_CHECKS
 				utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP", partitionCLOP, pow(NUM_PARTITIONS, TREE_DEPTH), keyvalue.key, NAp, NAp);
 				utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP", offset + partitionCLOP, KVSTATSDRAMSZ, keyvalue.key, NAp, NAp);
@@ -301,10 +316,8 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){
 			statsptr[k * VECTOR_SIZE].key = tempstats[k].key;
 			statsptr[k * VECTOR_SIZE].value = 0;
+			// statsptr[k * VECTOR_SIZE].value = tempstats[k].value; // REMOVEME
 		}
-		
-		// utilityobj->printkeyvalues(")))))))))))))))))))))))))))))))))) loadoffsetmarkers.tempstats", tempstats, 1+NUM_PARTITIONS);
-		// exit(EXIT_SUCCESS);
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats, totalnumpartitions);
@@ -318,8 +331,10 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[0][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
 	utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[0][BASEOFFSET_STATSDRAM], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 	#endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
+
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<srcvids.size(); k++){
@@ -686,7 +701,7 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 2;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#else 
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;

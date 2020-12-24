@@ -59,6 +59,8 @@ void actsutility::dectobinary(int n){
 	return;
 } 
 void actsutility::ulongtobinary(unsigned long n){ 
+	cout<<"actsutility::ulongtobinary: "<<(unsigned long)n<<" in decimal is: ";
+	
     // array to store binary number 
     int binaryNum[64]; 
   
@@ -73,7 +75,7 @@ void actsutility::ulongtobinary(unsigned long n){
     } 
   
     // printing binary array in reverse order 
-	cout<<"actsutility::ulongtobinary: "<<(unsigned long)n<<" in decimal is: ";
+	// cout<<"actsutility::ulongtobinary: "<<(unsigned long)n<<" in decimal is: ";
     for (int j = i - 1; j >= 0; j--){
         cout << binaryNum[j]; 
 	}
@@ -81,6 +83,13 @@ void actsutility::ulongtobinary(unsigned long n){
 	return;
 } 
 int actsutility::bitExtracted(unsigned long number, int k, int p){ 
+	// Function to extract k bits from p position (starting from end) 
+	// and returns the extracted value as integer 
+	// https://www.geeksforgeeks.org/extract-k-bits-given-position-number/
+	// NOTE: last bit to the right: p=0
+    return (((1 << k) - 1) & (number >> p));
+}
+int actsutility::bitExtracted(unsigned int number, int k, int p){ 
 	// Function to extract k bits from p position (starting from end) 
 	// and returns the extracted value as integer 
 	// https://www.geeksforgeeks.org/extract-k-bits-given-position-number/
@@ -95,7 +104,6 @@ void actsutility::printcodedkeyvalue(string message, unsigned long longword){
 void actsutility::printcodedkeyvalue(string message, keyvalue_t * keyvalue){ 
 	cout<<"printcodedkeyvalue: "<<message<<endl;
 	unsigned long * longword = (unsigned long *)&keyvalue[0];
-	
 	cout<<"["<<bitExtracted(longword[0], 8, 56)<<", "<<bitExtracted(longword[0], 14, 42)<<", "<<bitExtracted(longword[0], 14, 28)<<", "<<bitExtracted(longword[0], 14, 14)<<", "<<bitExtracted(longword[0], 14, 0)<<"]"<<endl;
 	return;
 }
@@ -105,7 +113,13 @@ void actsutility::printcodedkeyvalue(string message, keyvalue_t keyvalue){
 	cout<<"["<<bitExtracted(*longword, 8, 56)<<", "<<bitExtracted(*longword, 14, 42)<<", "<<bitExtracted(*longword, 14, 28)<<", "<<bitExtracted(*longword, 14, 14)<<", "<<bitExtracted(*longword, 14, 0)<<"]"<<endl;
 	return;
 }
+/** 
+100000000000 00110000000000010000000000000101
 
+[keyvalue]100000000000 00110000000000010000000000000101
+[value]100000000000 
+[key]00110000000000010000000000000101 
+*/
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }

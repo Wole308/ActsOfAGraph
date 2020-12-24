@@ -66,14 +66,9 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
-	std::cout<<"host:: BATCH_RANGE2: "<<BATCH_RANGE2<<std::endl;
-	std::cout<<"host:: BATCH_RANGE2_POW: "<<BATCH_RANGE2_POW<<std::endl;
 	std::cout<<"host:: EDGESSZ: "<<EDGESSZ<<std::endl; 
 	
-	std::cout<<"host:: (float)APPROXTREE_DEPTH: "<<(float)APPROXTREE_DEPTH<<std::endl;
-	std::cout<<"host:: APPROXTREE_DEPTH: "<<APPROXTREE_DEPTH<<std::endl;
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
-	std::cout<<"host:: TREE_DEPTH2: "<<TREE_DEPTH2<<std::endl;
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION_POW: "<<KVDATA_RANGE_PERSSDPARTITION_POW<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION: "<<KVDATA_RANGE_PERSSDPARTITION<<std::endl;
@@ -145,10 +140,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<std::endl;
-	std::cout<<"host:: APPLYVERTEXBUFFERSZ2: "<<APPLYVERTEXBUFFERSZ2<<std::endl;
-	std::cout<<"host:: APPLYVERTEXBUFFERSZ2_KVS: "<<APPLYVERTEXBUFFERSZ2_KVS<<std::endl;
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
-	std::cout<<"host:: NUMLASTLEVELPARTITIONS2: "<<NUMLASTLEVELPARTITIONS2<<std::endl;
  
 	#ifdef INMEMORYGP
 	std::cout<<"host:: INMEMORYGP enabled "<<std::endl;
@@ -668,6 +660,44 @@ void utility::printcodedkeyvalue(string message, unsigned long longword){
 	cout<<"printcodedkeyvalue: "<<message<<": ";
 	cout<<"["<<bitExtracted(longword, 8, 56)<<", "<<bitExtracted(longword, 14, 42)<<", "<<bitExtracted(longword, 14, 28)<<", "<<bitExtracted(longword, 14, 14)<<", "<<bitExtracted(longword, 14, 0)<<"]"<<endl;
 	return;
+}
+void utility::printcodedkeyvalue(string message, keyvalue_t keyvalue){ 
+	cout<<"utility::printcodedkeyvalue: "<<message<<endl;
+	unsigned long * longword = (unsigned long *)&keyvalue;
+	cout<<"["<<bitExtracted(*longword, 8, 56)<<", "<<bitExtracted(*longword, 14, 42)<<", "<<bitExtracted(*longword, 14, 28)<<", "<<bitExtracted(*longword, 14, 14)<<", "<<bitExtracted(*longword, 14, 0)<<"]"<<endl;
+	return;
+}
+void utility::getkeys(unsigned long longword, keyy_t * keys){ 
+	unsigned int h = bitExtracted(longword, 8, 56);
+	unsigned int a = bitExtracted(longword, 14, 0);
+	unsigned int b = bitExtracted(longword, 14, 14);
+	unsigned int c = bitExtracted(longword, 14, 28);
+	unsigned int d = bitExtracted(longword, 14, 42);
+	
+	unsigned int ax = (h * (1 << SRAMSZ_POW)) + a; 
+	unsigned int bx = (h * (1 << SRAMSZ_POW)) + b; 
+	unsigned int cx = (h * (1 << SRAMSZ_POW)) + c; 
+	unsigned int dx = (h * (1 << SRAMSZ_POW)) + d; 
+			
+	keys[0] = ax;
+	keys[1] = bx;
+	keys[2] = cx;
+	keys[3] = dx;
+	return;
+}
+keyy_t utility::getkey(unsigned long longword){ 
+	unsigned int h = bitExtracted(longword, 8, 56);
+	unsigned int a = bitExtracted(longword, 14, 0);
+	unsigned int b = bitExtracted(longword, 14, 14);
+	unsigned int c = bitExtracted(longword, 14, 28);
+	unsigned int d = bitExtracted(longword, 14, 42);
+	
+	unsigned int ax = (h * (1 << SRAMSZ_POW)) + a; 
+	unsigned int bx = (h * (1 << SRAMSZ_POW)) + b; 
+	unsigned int cx = (h * (1 << SRAMSZ_POW)) + c; 
+	unsigned int dx = (h * (1 << SRAMSZ_POW)) + d; 
+			
+	return ax;
 }
 
 #ifdef FPGA_IMPL

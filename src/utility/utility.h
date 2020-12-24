@@ -76,12 +76,15 @@ public:
 	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing);
 	void getmarkerpositions(keyvalue_t * stats, batch_type size);
 	
+	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
 	void dectobinary(int n);
 	void ulongtobinary(unsigned long n);
 	int bitExtracted(unsigned long number, int k, int p);
 	unsigned long updatebitsinlong(unsigned long n, unsigned long m, unsigned long i, unsigned long j);
 	void printcodedkeyvalue(string message, unsigned long number);
-	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
+	void printcodedkeyvalue(string message, keyvalue_t keyvalue);
+	void getkeys(unsigned long longword, keyy_t * keys);
+	keyy_t getkey(unsigned long longword);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);

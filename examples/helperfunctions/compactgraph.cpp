@@ -76,7 +76,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	unsigned int * numitemspacked = new unsigned int[PADDEDEDGES_BATCHSIZE];
 	for(unsigned int i=0; i<PADDEDEDGES_BATCHSIZE; i++){ numitemspacked[i] = 0; }
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
+	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){ // FIXME.
 	// for(unsigned int vid=0; vid<24; vid++){
 		#if defined(_DEBUGMODE_HOSTPRINTS) && defined(_DEBUGMODE_COMPACTGRAPH)
 		cout<<endl<<">>> compactgraph::compact: vid: "<<vid<<endl;
@@ -248,7 +248,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	
 	verify(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer, numitemspacked);
 	#endif
-	exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS);
 	return ;
 }
 
@@ -331,8 +331,8 @@ void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer,
 			cout<<"dx: "<<dx<<endl;
 			#endif 
 			
-			// edges_c_count += 1;
-			edges_c_count += numitemspacked[vptr_begin + k];
+			edges_c_count += 1;
+			// edges_c_count += numitemspacked[vptr_begin + k];
 			edgesdstv_c_sum += ax;
 			edgesdstv_c_sum += bx;
 			edgesdstv_c_sum += cx;

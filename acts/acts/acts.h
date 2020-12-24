@@ -26,7 +26,7 @@ using namespace std;
 #define PROCESSALLEDGES
 #define COLLECTSTATS
 #define PARTITIONUPDATES
-// #define REDUCEUPDATES
+#define REDUCEUPDATES
 
 #define NUMPIPELINES 3
 #if NUMPIPELINES==2
@@ -39,11 +39,17 @@ using namespace std;
 #define PP2
 #endif
 
-#ifdef EDGEPACKING
-#define NUMVERTEXPARTITIONSPERLOAD 1 // CRITICAL FIXME.
-#else 
+#ifdef PR_ALGORITHM // FIXME.
 #define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
 #endif 
+#ifdef BFS_ALGORITHM
+#define NUMVERTEXPARTITIONSPERLOAD 1
+#endif 
+#ifdef SSSP_ALGORITHM
+#define NUMVERTEXPARTITIONSPERLOAD 1
+#endif 
+
+// #define _DEBUGMODE_PARTITIONCHECKS
 
 class acts {
 public:
@@ -57,6 +63,9 @@ public:
 	batch_type allignhigher_KV(batch_type val);
 	batch_type allignlowerto16_KV(batch_type val);
 	batch_type allignhigherto16_KV(batch_type val);
+	int bitExtracted(unsigned long number, int k, int p);
+	int bitExtracted(unsigned int number, int k, int p);
+	keyy_t getkey(keyvalue_t keyvalue);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
@@ -193,7 +202,7 @@ public:
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
 		
-	batch_type processactivevertices_compactgraph(
+	batch_type processactivevertices_compactedges(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -202,7 +211,7 @@ public:
 		globalparams_t globalparams
 		);
 		
-	batch_type processactivevertices_noncompactgraph(
+	batch_type processactivevertices_noncompactedges(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],

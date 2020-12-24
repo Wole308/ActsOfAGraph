@@ -60,7 +60,6 @@ creategraphs::~creategraphs() {
 	}
 	
 	clearedges(edgesbuffer);
-	// clearedges(edges2buffer);	
 }
 
 void creategraphs::run(){
@@ -74,10 +73,6 @@ void creategraphs::run(){
 	resetdatastructures(0);
 	cout<<endl<< TIMINGRESULTSCOLOR << "creategraphs::start: creating graph for group 0..." << RESET <<endl;
 	start();
-	
-	/* resetdatastructures(1);
-	cout<<endl<< TIMINGRESULTSCOLOR << "creategraphs::start: creating graph for group 1..." << RESET <<endl;
-	start(); */
 	
 	return;
 }
@@ -129,12 +124,6 @@ void creategraphs::start(){
 			if (line.find("%") == 0){ continue; }
 			if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats
 			if ((alllinecount % 1000000) == 0){ cout<<"creategraphs::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
-			
-			/* if(graphobj->getdataset().graphorder == SRC_DST){
-				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
-			} else {
-				sscanf(line.c_str(), "%i %i", &dstv, &srcv);
-			} */
 			
 			if(graphobj->getdataset().graphorder == SRC_DST){
 				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
@@ -214,9 +203,6 @@ void creategraphs::start(){
 	writeedgestofile(edgesbuffer); 
 	clearedges(edgesbuffer); 
 
-	// writeedgestofile(edges2buffer); // FIXME.
-	// clearedges(edges2buffer); 
-	
 	writevertexptrstofile();
 
 	cout<<"creategraphs:: start finished. closing files... "<<endl;
@@ -328,26 +314,11 @@ void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNU
 	cout<<">>> creategraphs::writeedgestofile:: total number of edges written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumedges<<endl;
 	return;
 }
-/* void creategraphs::writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]){
-	cout<<"creategraphs::writeedgestofile<edge2_type> started."<<endl;
-	edge_t totalnumedges = 0;
-	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){
-		totalnumedgeswritten[j] += edges2buffer[j].size();
-		totalnumedges += edges2buffer[j].size();
-		if(edges2buffer[j].size() > 0){ if(fwrite(edges2buffer[j].data(), (edges2buffer[j].size() * sizeof(edge2_type)), 1, graphobj->getnvmeFd_edges_w()[j]) == 0){ cout<<"ERROR:writetofile:edges2buffer: fwrite error 34"<<endl; exit(EXIT_FAILURE); }}
-	}
-	cout<<">>> creategraphs::writeedgestofile:: total number of edges written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumedges<<endl;
-	return;
-} */
 
 void creategraphs::clearedges(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){ edgesbuffer[j].clear(); }
 	return;
 }
-/* void creategraphs::clearedges(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]){
-	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){ edges2buffer[j].clear(); }
-	return;
-} */
 
 void creategraphs::writevertexptrstofile(){
 	cout<<"creategraphs:: writevertexptrstofile... "<<endl;
@@ -409,22 +380,12 @@ void creategraphs::writevertexptrstofile(){
 
 unsigned int creategraphs::getbank(vertex_t vertexid){
 	unsigned int bank;
-	#if NUMGROUPS==1
 	bank = vertexid / KVDATA_RANGE_PERSSDPARTITION;
-	#else 
-	if(groupid == HIGHINDEGREESGROUPID){ bank = vertexid / (KVDATA_RANGE_PERSSDPARTITION / graphobj->getdataset().skewratio); }
-	else { bank = vertexid / KVDATA_RANGE_PERSSDPARTITION; }
-	#endif
 	if(bank >= graphobj->getnumedgebanks()){ cout<<"creategraphs:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", graphobj->getdataset().num_vertices: "<<graphobj->getdataset().num_vertices<<", graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl; exit(EXIT_FAILURE); }  	
 	return bank;	
 }
 unsigned int creategraphs::getgroup(unsigned int vid){
-	#if NUMGROUPS==1
 	return 0;
-	#else 
-	if(vertexindegrees[vid] >= YDIMENSIONTHRESHOLD){ return HIGHINDEGREESGROUPID; }
-	else { return LOWINDEGREESGROUPID; }
-	#endif 
 }
 unsigned int creategraphs::gettransformedglobalid(unsigned int vertexid){
 	if(global_to_transfglobal_ids[vertexid] == INVALIDDATA){ return vertexid; }

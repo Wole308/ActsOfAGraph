@@ -80,23 +80,25 @@ runsummary_t bfs::run(){
 	
 	container_t container;
 	vector<value_t> activevertices;
-	// activevertices.push_back(1);
-	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	activevertices.push_back(1);
+	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
-	
-	#ifdef EDGEPACKING
+	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
 	utilityobj->printvalues("bfs::run:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
 	// exit(EXIT_SUCCESS);
+	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	// exit(EXIT_SUCCESS);
 	#else
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	#endif 
+	#endif
+	// exit(EXIT_SUCCESS);
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){

@@ -106,7 +106,50 @@ allignhigherto16_KV(batch_type val){
 	batch_type fac = (val + (16 - 1)) / 16;
 	return (fac * 16);
 }
+int 
+	#ifdef SW 
+	acts::
+	#endif 
+bitExtracted(unsigned long number, int k, int p){ return (((1 << k) - 1) & (number >> p)); }
+int 
+	#ifdef SW 
+	acts::
+	#endif 
+bitExtracted(unsigned int number, int k, int p){ return (((1 << k) - 1) & (number >> p)); }
+keyy_t 
+	#ifdef SW 
+	acts::
+	#endif 
+getkey(keyvalue_t keyvalue){
+	keyy_t key = 0;
+	#ifdef COMPACTEDGES
+		/**
+		[keyvalue]100000000000 00110000000000010000000000000101
+		[value]100000000000 
+		[key]00110000000000010000000000000101 
+		*/
+		#ifdef SW 
+		unsigned long * longword = (unsigned long *)&keyvalue;
 
+		unsigned int h = bitExtracted(*longword, 8, 56);
+		unsigned int a = bitExtracted(*longword, 14, 0);
+		unsigned int b = bitExtracted(*longword, 14, 14);
+		unsigned int c = bitExtracted(*longword, 14, 28);
+		unsigned int d = bitExtracted(*longword, 14, 42);
+		
+		unsigned int ax = (h * (1 << SRAMSZ_POW)) + a; 
+		unsigned int bx = (h * (1 << SRAMSZ_POW)) + b; 
+		unsigned int cx = (h * (1 << SRAMSZ_POW)) + c; 
+		unsigned int dx = (h * (1 << SRAMSZ_POW)) + d; 
+		key = ax;
+		#else 
+			NOT IMPLEMENTED
+		#endif
+	#else 
+		key = keyvalue.key;
+	#endif 
+	return key;
+}
 batch_type
 	#ifdef SW 
 	acts::
@@ -254,9 +297,10 @@ partition_type
 	#endif 
 getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
 	partition_type partition;
+	
 	#ifdef OPTMZ
 	if(enable == ON){
-		partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
+		partition = ((getkey(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
 	} else {
 		partition = 0;
 	}
@@ -1881,122 +1925,6 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		localcapsule[7][p].key = 0;
 		localcapsule[7][p].value = 0; 
 	}
-	
-	/* PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2
-		keyvalue_t keyvalue0 = sourcebuffer[0][i];
-		keyvalue_t keyvalue1 = sourcebuffer[1][i];
-		keyvalue_t keyvalue2 = sourcebuffer[2][i];
-		keyvalue_t keyvalue3 = sourcebuffer[3][i];
-		keyvalue_t keyvalue4 = sourcebuffer[4][i];
-		keyvalue_t keyvalue5 = sourcebuffer[5][i];
-		keyvalue_t keyvalue6 = sourcebuffer[6][i];
-		keyvalue_t keyvalue7 = sourcebuffer[7][i];
-		
-		partition_type p0 = 0;
-		if(keyvalue0.value != INVALIDDATA){ p0 = getpartition(ON, keyvalue0, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p1 = 0;
-		if(keyvalue1.value != INVALIDDATA){ p1 = getpartition(ON, keyvalue1, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p2 = 0;
-		if(keyvalue2.value != INVALIDDATA){ p2 = getpartition(ON, keyvalue2, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p3 = 0;
-		if(keyvalue3.value != INVALIDDATA){ p3 = getpartition(ON, keyvalue3, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p4 = 0;
-		if(keyvalue4.value != INVALIDDATA){ p4 = getpartition(ON, keyvalue4, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p5 = 0;
-		if(keyvalue5.value != INVALIDDATA){ p5 = getpartition(ON, keyvalue5, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p6 = 0;
-		if(keyvalue6.value != INVALIDDATA){ p6 = getpartition(ON, keyvalue6, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		partition_type p7 = 0;
-		if(keyvalue7.value != INVALIDDATA){ p7 = getpartition(ON, keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
-		
-		if(localcapsule[0][p0].value == 0){ 
-			localcapsule[0][p0].key = emptyslot[0]; emptyslot[0] += 4;
-		} else if(localcapsule[0][p0].value % 4 == 0){ 
-			localcapsule[0][p0].key = emptyslot[0]; emptyslot[0] += 4;
-		} else {}
-		if(localcapsule[1][p1].value == 0){ 
-			localcapsule[1][p1].key = emptyslot[1]; emptyslot[1] += 4;
-		} else if(localcapsule[1][p1].value % 4 == 0){ 
-			localcapsule[1][p1].key = emptyslot[1]; emptyslot[1] += 4;
-		} else {}
-		if(localcapsule[2][p2].value == 0){ 
-			localcapsule[2][p2].key = emptyslot[2]; emptyslot[2] += 4;
-		} else if(localcapsule[2][p2].value % 4 == 0){ 
-			localcapsule[2][p2].key = emptyslot[2]; emptyslot[2] += 4;
-		} else {}
-		if(localcapsule[3][p3].value == 0){ 
-			localcapsule[3][p3].key = emptyslot[3]; emptyslot[3] += 4;
-		} else if(localcapsule[3][p3].value % 4 == 0){ 
-			localcapsule[3][p3].key = emptyslot[3]; emptyslot[3] += 4;
-		} else {}
-		if(localcapsule[4][p4].value == 0){ 
-			localcapsule[4][p4].key = emptyslot[4]; emptyslot[4] += 4;
-		} else if(localcapsule[4][p4].value % 4 == 0){ 
-			localcapsule[4][p4].key = emptyslot[4]; emptyslot[4] += 4;
-		} else {}
-		if(localcapsule[5][p5].value == 0){ 
-			localcapsule[5][p5].key = emptyslot[5]; emptyslot[5] += 4;
-		} else if(localcapsule[5][p5].value % 4 == 0){ 
-			localcapsule[5][p5].key = emptyslot[5]; emptyslot[5] += 4;
-		} else {}
-		if(localcapsule[6][p6].value == 0){ 
-			localcapsule[6][p6].key = emptyslot[6]; emptyslot[6] += 4;
-		} else if(localcapsule[6][p6].value % 4 == 0){ 
-			localcapsule[6][p6].key = emptyslot[6]; emptyslot[6] += 4;
-		} else {}
-		if(localcapsule[7][p7].value == 0){ 
-			localcapsule[7][p7].key = emptyslot[7]; emptyslot[7] += 4;
-		} else if(localcapsule[7][p7].value % 4 == 0){ 
-			localcapsule[7][p7].key = emptyslot[7]; emptyslot[7] += 4;
-		} else {}
-		
-		buffer_type loc0 = localcapsule[0][p0].key + (localcapsule[0][p0].value % 4);
-		buffer_type loc1 = localcapsule[1][p1].key + (localcapsule[1][p1].value % 4);
-		buffer_type loc2 = localcapsule[2][p2].key + (localcapsule[2][p2].value % 4);
-		buffer_type loc3 = localcapsule[3][p3].key + (localcapsule[3][p3].value % 4);
-		buffer_type loc4 = localcapsule[4][p4].key + (localcapsule[4][p4].value % 4);
-		buffer_type loc5 = localcapsule[5][p5].key + (localcapsule[5][p5].value % 4);
-		buffer_type loc6 = localcapsule[6][p6].key + (localcapsule[6][p6].value % 4);
-		buffer_type loc7 = localcapsule[7][p7].key + (localcapsule[7][p7].value % 4);
-		
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[0][p0].value", localcapsule[0][p0].value % 4, 4, localcapsule[0][p0].value, localcapsule[0][p0].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc0", loc0, SRCBUFFER_SIZE, localcapsule[0][p0].key, localcapsule[0][p0].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[1][p1].value", localcapsule[1][p1].value % 4, 4, localcapsule[1][p1].value, localcapsule[1][p1].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc1", loc1, SRCBUFFER_SIZE, localcapsule[1][p1].key, localcapsule[1][p1].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[2][p2].value", localcapsule[2][p2].value % 4, 4, localcapsule[2][p2].value, localcapsule[2][p2].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc2", loc2, SRCBUFFER_SIZE, localcapsule[2][p2].key, localcapsule[2][p2].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[3][p3].value", localcapsule[3][p3].value % 4, 4, localcapsule[3][p3].value, localcapsule[3][p3].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc3", loc3, SRCBUFFER_SIZE, localcapsule[3][p3].key, localcapsule[3][p3].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[4][p4].value", localcapsule[4][p4].value % 4, 4, localcapsule[4][p4].value, localcapsule[4][p4].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc4", loc4, SRCBUFFER_SIZE, localcapsule[4][p4].key, localcapsule[4][p4].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[5][p5].value", localcapsule[5][p5].value % 4, 4, localcapsule[5][p5].value, localcapsule[5][p5].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc5", loc5, SRCBUFFER_SIZE, localcapsule[5][p5].key, localcapsule[5][p5].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[6][p6].value", localcapsule[6][p6].value % 4, 4, localcapsule[6][p6].value, localcapsule[6][p6].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc6", loc6, SRCBUFFER_SIZE, localcapsule[6][p6].key, localcapsule[6][p6].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.localcapsule[7][p7].value", localcapsule[7][p7].value % 4, 4, localcapsule[7][p7].value, localcapsule[7][p7].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues3.loc7", loc7, SRCBUFFER_SIZE, localcapsule[7][p7].key, localcapsule[7][p7].value, NAp);
-		#endif
-		
-		destbuffer[0][loc0] = keyvalue0;
-		localcapsule[0][p0].value += 1;
-		destbuffer[1][loc1] = keyvalue1;
-		localcapsule[1][p1].value += 1;
-		destbuffer[2][loc2] = keyvalue2;
-		localcapsule[2][p2].value += 1;
-		destbuffer[3][loc3] = keyvalue3;
-		localcapsule[3][p3].value += 1;
-		destbuffer[4][loc4] = keyvalue4;
-		localcapsule[4][p4].value += 1;
-		destbuffer[5][loc5] = keyvalue5;
-		localcapsule[5][p5].value += 1;
-		destbuffer[6][loc6] = keyvalue6;
-		localcapsule[6][p6].value += 1;
-		destbuffer[7][loc7] = keyvalue7;
-		localcapsule[7][p7].value += 1;
-	} */
 
 	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
@@ -2027,15 +1955,6 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		bool_type valid7 = ON;
 		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ valid7 = ON; } else { valid7 = OFF; }
 		
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue0.key: "<<keyvalue0.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue1.key: "<<keyvalue1.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue2.key: "<<keyvalue2.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue3.key: "<<keyvalue3.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue4.key: "<<keyvalue4.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue5.key: "<<keyvalue5.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue6.key: "<<keyvalue6.key<<endl;
-		// 		// cout<<"runpipeline: before preparekeyvalues3.getpartition(enablebufferA, ... keyvalue7.key: "<<keyvalue7.key<<endl;
-		// 		
 		partition_type p0 = 0;
 		if(valid0 == ON){ 
 			
@@ -2069,15 +1988,6 @@ preparekeyvalues3(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 			
 			p7 = getpartition(ON, keyvalue7, currentLOP, upperlimit, globalparams.batch_range_pow); } // NEWCHANGE.
 		
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue0.key: "<<keyvalue0.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue1.key: "<<keyvalue1.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue2.key: "<<keyvalue2.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue3.key: "<<keyvalue3.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue4.key: "<<keyvalue4.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue5.key: "<<keyvalue5.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue6.key: "<<keyvalue6.key<<endl;
-		// 		// cout<<"runpipeline: after preparekeyvalues3.getpartition(enablebufferA, ... keyvalue7.key: "<<keyvalue7.key<<endl;
-		// 		
 		if(valid0 == ON){ // NEWCHANGE. CHECKWITHVHLS.
 			if(localcapsule[0][p0].value == 0){ 
 				localcapsule[0][p0].key = emptyslot[0]; emptyslot[0] += 4;
@@ -3863,7 +3773,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	if(shiftcount >= 3){ enablebufferD = ON; } else { enablebufferD = OFF; }
 	#endif 
 	
-	#ifdef _DEBUGMODE_CHECKS2 
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 	unsigned int before_pcountso1[NUM_PARTITIONS];
 	unsigned int before_pcountso2[NUM_PARTITIONS];
 	unsigned int before_pcountso4[NUM_PARTITIONS];
@@ -3906,6 +3816,18 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		bufferBcapsule[2][p].value = 0;
 		bufferBcapsule[3][p].value = 0;
 		
+		
+		
+		
+		
+		
+		// for(unsigned int m=0; m<NUM_PARTITIONS; m++){ cout<<"--- buffer1capsule[0]["<<p<<"].key: "<<buffer1capsule[0][p].key<<endl; }
+		
+		
+		
+		
+		
+		
 		#ifdef _DEBUGMODE_CHECKS2
 		if(p<NUM_PARTITIONS-1){ actsutilityobj->checkoutofbounds(ON, "runp: bufferDcapsule[" + std::to_string(p+1) + "].key", bufferDcapsule[p+1].key, (PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) + 1, NAp, NAp, NAp); }
 
@@ -3918,6 +3840,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		actsutilityobj->checkoutofbounds(ON, "runp: bufferBcapsule[3][" + std::to_string(p) + "].key", bufferBcapsule[3][p].key, SRCBUFFER_SIZE+1, NAp, NAp, NAp);
 		#endif 
 	}
+	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
@@ -3943,7 +3866,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	for(unsigned int v=0; v<0; v++){ actsutilityobj->printkeyvalues("[before] runpipeline.bufferA[0]", bufferA[v], 16); }
 	for(unsigned int v=0; v<0; v++){ actsutilityobj->printkeyvalues("[before] runpipeline.bufferBcapsule[v]", (keyvalue_t *)bufferBcapsule[v], NUM_PARTITIONS); }
 	#endif
-	#ifdef _DEBUGMODE_CHECKS2
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 	keyvalue_t CHK[4]; 
 	keyvalue_t CHKK[8]; 
 	#endif
@@ -4044,7 +3967,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			cout<<endl;
 			#endif
 			
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkn(enablebufferA, "kvA0", kvA0, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			actsutilityobj->checkn(enablebufferA, "kvA2", kvA2, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			actsutilityobj->checkn(enablebufferA, "kvA4", kvA4, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
@@ -4058,7 +3981,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			
 			/// LOADING FROM AND INTO B
 			buffer_type posB0 = bufferBcapsule[0][pA0].key + bufferBcapsule[0][pA0].value;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferB, "posB0", posB0, 2);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB0", posB0, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB0", posB0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4070,7 +3993,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferBcapsule[0][pA0].value += 2;
 		
 			buffer_type posB2 = bufferBcapsule[1][pA2].key + bufferBcapsule[1][pA2].value; 
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferB, "posB2", posB2, 2);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB2", posB2, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB2", posB2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4082,7 +4005,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferBcapsule[1][pA2].value += 2;
 			
 			buffer_type posB4 = bufferBcapsule[2][pA4].key + bufferBcapsule[2][pA4].value; 
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferB, "posB4", posB4, 2);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB4", posB4, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB4", posB4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4094,7 +4017,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferBcapsule[2][pA4].value += 2;
 			
 			buffer_type posB6 = bufferBcapsule[3][pA6].key + bufferBcapsule[3][pA6].value; 
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferB, "posB6", posB6, 2);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB6", posB6, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferB, "posB6", posB6, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4110,7 +4033,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			partition_type pB4 = getpartition(enablebufferB, kvB4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type pB6 = getpartition(enablebufferB, kvB6[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			CHK[0] = kvB0[0]; CHK[1] = kvB1[0]; CHK[2] = kvB0[1]; CHK[3] = kvB1[1];
 			actsutilityobj->checkn(enablebufferB, "kvB0,kvB1", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			CHK[0] = kvB2[0]; CHK[1] = kvB3[0]; CHK[2] = kvB2[1]; CHK[3] = kvB3[1];
@@ -4123,7 +4046,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			
 			/// LOADING FROM AND INTO C
 			buffer_type posC0 = bufferCcapsule[0][pB0].key + bufferCcapsule[0][pB0].value;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkoutofbounds(enablebufferC, "posC0", posC0, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferC, "posC0", posC0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -4132,7 +4055,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferCcapsule[0][pB0].value += 1;
 			
 			buffer_type _posC0 = bufferCcapsule[0][pB2].key + bufferCcapsule[0][pB2].value;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkoutofbounds(enablebufferC, "_posC0", _posC0, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferC, "_posC0", _posC0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -4141,7 +4064,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferCcapsule[0][pB2].value += 1;
 			
 			buffer_type posC4 = bufferCcapsule[1][pB4].key + bufferCcapsule[1][pB4].value;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkoutofbounds(enablebufferC, "posC4", posC4, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferC, "posC4", posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -4150,7 +4073,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferCcapsule[1][pB4].value += 1;
 			
 			buffer_type _posC4 = bufferCcapsule[1][pB6].key + bufferCcapsule[1][pB6].value;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkoutofbounds(enablebufferC, "_posC4", _posC4, SRCBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferC, "_posC4", _posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
@@ -4163,7 +4086,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			partition_type pC4 = getpartition(enablebufferC, kvC4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			partition_type _pC4 = getpartition(enablebufferC, _kvC4[0], currentLOP, upperlimit, globalparams.batch_range_pow);
 			
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			CHK[0] = kvC0[0]; CHK[1] = kvC1[0]; CHK[2] = kvC2[0]; CHK[3] = kvC3[0];
 			actsutilityobj->checkn(enablebufferC, "kvC0[0],kvC1[0],kvC2[0],kvC3[0]", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
 			
@@ -4181,7 +4104,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			buffer_type posD0 = bufferDcapsule[pC0].key + tempbufferDcapsule[pC0];
 			unsigned int yoffset0 = posD0 / 8;
 			unsigned int xoffset0 = posD0 % 8;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferD, "posD0", posD0, 4);
 			actsutilityobj->checkoutofbounds(enablebufferD, "posD0", posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset0", yoffset0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4197,7 +4120,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			buffer_type _posD0 = bufferDcapsule[_pC0].key + tempbufferDcapsule[_pC0];
 			unsigned int yoffset1 = _posD0 / 8;
 			unsigned int xoffset1 = _posD0 % 8;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferD, "_posD0", _posD0, 4);
 			actsutilityobj->checkoutofbounds(enablebufferD, "_posD0", _posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset1", yoffset1, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4213,7 +4136,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			buffer_type __posD0 = bufferDcapsule[pC4].key + tempbufferDcapsule[pC4];
 			unsigned int yoffset2 = __posD0 / 8;
 			unsigned int xoffset2 = __posD0 % 8;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferD, "__posD0", __posD0, 4);
 			actsutilityobj->checkoutofbounds(enablebufferD, "__posD0", __posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset2", yoffset2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4229,7 +4152,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			buffer_type ___posD0 = bufferDcapsule[_pC4].key + tempbufferDcapsule[_pC4];
 			unsigned int yoffset3 = ___posD0 / 8;
 			unsigned int xoffset3 = ___posD0 % 8;
-			#ifdef _DEBUGMODE_CHECKS2
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkfordivisibleby(enablebufferD, "___posD0", ___posD0, 4);
 			actsutilityobj->checkoutofbounds(enablebufferD, "___posD0", ___posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset3", yoffset3, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
@@ -4257,21 +4180,21 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 			bufferD[4][yoffset] = dummykv; bufferD[5][yoffset] = dummykv; bufferD[6][yoffset] = dummykv; bufferD[7][yoffset] = dummykv; 
 			bufferDcapsule[p].value += 4;
 		}
-		#ifdef _DEBUGMODE_CHECKS2
+		#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 		actsutilityobj->checkfordivisibleby(enablebufferD, "bufferDcapsule[p].value", bufferDcapsule[p].value, 8);
 		#endif
 	}
 	
-	#if defined(_DEBUGMODE_CHECKS2) && not defined(OPTMZ) // OPTMZ enables has 'random values present from prevs'
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && not defined(OPTMZ) // OPTMZ enables has 'random values present from prevs'
 	actsutilityobj->checkprofile(enablebufferB, "runpipeline::checkprofile::bufferB", bufferB, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkprofile(enablebufferC, "runpipeline::checkprofile::bufferC", bufferC, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	actsutilityobj->checkprofile(enablebufferD, "runpipeline::checkprofile::bufferD", bufferD, SRCBUFFER_SIZE, currentLOP, upperlimit, globalparams.batch_range_pow, 4, SRCBUFFER_SIZE*VECTOR_SIZE); 
 	#endif 
-	#ifdef _DEBUGMODE_CHECKS2
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 	actsutilityobj->checkbufferprofile(enablebufferD, "runpipeline::checkbufferprofile::bufferD", bufferD, (keyvalue_t *)bufferDcapsule, currentLOP, upperlimit, globalparams.batch_range_pow); 
 	#endif
 	
-	#ifdef _DEBUGMODE_CHECKS2
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 	unsigned int after_pcountso1[NUM_PARTITIONS];
 	unsigned int after_pcountso2[NUM_PARTITIONS];
 	unsigned int after_pcountso4[NUM_PARTITIONS];
@@ -4281,7 +4204,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 						after_pcountso1, after_pcountso2, after_pcountso4, after_pcountso8,
 						currentLOP, upperlimit, globalparams.batch_range_pow);
 	#endif
-	#ifdef _DEBUGMODE_CHECKS2
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 		#ifndef SIMPLEANDFASTPREPAREFUNC // NEWCHANGE. not applicable 
 		actsutilityobj->hcheckforequal(enablebufferD, "runpipeline: checking if before_pcountso1 == after_pcountso2", before_pcountso1, after_pcountso2, NUM_PARTITIONS, NAp, NAp, NAp);
 		#endif 
@@ -4621,29 +4544,31 @@ partitionupdates_finegrainedpipeline(
 		#endif 
 		
 		pp0cutoff = preparekeyvalues_finegrainedpipeline(ON, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp0, pp0readsize_kvs, pp0cutoffs, globalparams);
-			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && not defined(SIMPLEANDFASTPREPAREFUNC)
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, itercount%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp0cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
 			#endif 
+		// exit(EXIT_SUCCESS); // REMOVEME.
 		#ifdef FPP1
 		savekeyvalues(pp1writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams); 
-			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && not defined(SIMPLEANDFASTPREPAREFUNC)
 			if(pp1writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, (itercount+1)%MYSTATSYSIZE); }
 			#endif 
 		#endif 
 		
 		runpipeline(ON, buffer_setof1, templocalcapsule_so1, buffer_setof2, templocalcapsule_so2, buffer_setof4, templocalcapsule_so4, buffer_setof8, templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, pp0cutoff, pp0cutoffs, itercount, globalparams);
+		// exit(EXIT_SUCCESS); // REMOVEME.
 		#ifdef FPP1
 		readkeyvalues(ON, kvdram, sourcebuffer, (sourcebaseaddr_kvs + pp1readoffset_kvs), pp1readsize_kvs, ptravstatepp1);
 		#endif
 		
 		savekeyvalues(pp0writeen, kvdram, buffer_setof8, globalstatsbuffer, templocalcapsule_so8, destbaseaddr_kvs, globalparams);
-			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && not defined(SIMPLEANDFASTPREPAREFUNC)
 			if(pp0writeen==ON){ actsutilityobj->collectstats(ON, buffer_setof8, (keyvalue_t *)templocalcapsule_so8, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 1, itercount%MYSTATSYSIZE); }
 			#endif
 		#ifdef FPP1
 		pp1cutoff = preparekeyvalues_finegrainedpipeline(pp1partitionen, sourcebuffer, buffer_setof1, templocalcapsule_so1, sweepparams.currentLOP, sweepparams.upperlimit, ptravstatepp1, pp1readsize_kvs, pp1cutoffs, globalparams);
-			#if defined(_DEBUGMODE_CHECKS2) && not defined(SIMPLEANDFASTPREPAREFUNC)
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && not defined(SIMPLEANDFASTPREPAREFUNC)
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff , sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 0, (itercount+1)%MYSTATSYSIZE);
 			actsutilityobj->collectstats(ON, buffer_setof1, pp1cutoff, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 1);
 			#endif 
@@ -4683,7 +4608,7 @@ partitionupdates_finegrainedpipeline(
 		
 		itercount += NUMACTSFASTPIPELINES;
 		
-		#ifdef _DEBUGMODE_CHECKS2
+		#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 		if(itercount%MYSTATSYSIZE == MYSTATSYSIZE-1){ actsutilityobj->intrapartitioncheck(); }
 		#endif
 	}
@@ -4881,7 +4806,7 @@ batch_type
 	#ifdef SW 
 	acts::
 	#endif
-processactivevertices_compactgraph(
+processactivevertices_compactedges(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -4901,14 +4826,14 @@ processactivevertices_compactgraph(
 	unsigned int edgesdstv_sum = 0;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"processactivevertices_compactgraph: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
-	cout<<"processactivevertices_compactgraph: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
-	cout<<"processactivevertices_compactgraph: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
+	cout<<"processactivevertices_compactedges: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
+	cout<<"processactivevertices_compactedges: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
+	cout<<"processactivevertices_compactedges: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
 	#endif
 	
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"### processactivevertices_compactgraph: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
+		cout<<"### processactivevertices_compactedges: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
 		actvvtravstate.i_kvs = offset_kvs;
@@ -4917,7 +4842,7 @@ processactivevertices_compactgraph(
 		buffer_type chunk_size = getchunksize_kvs(PADDEDDESTBUFFER_SIZE, actvvtravstate, 0);
 		for(batch_type actvv_id=0; actvv_id<chunk_size * VECTOR_SIZE; actvv_id++){
 			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-			cout<<endl<<"processactivevertices_compactgraph: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
+			cout<<endl<<"processactivevertices_compactedges: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
 			#endif 
 		
 			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
@@ -4925,9 +4850,9 @@ processactivevertices_compactgraph(
 			value_t updateval = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 			
 			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-			cout<<"processactivevertices_compactgraph: actvv_id: "<<actvv_id<<endl;
-			cout<<"processactivevertices_compactgraph: activevertex.key (vid): "<<activevertex.key<<endl;
-			cout<<"processactivevertices_compactgraph: activevertex.value (vdata): "<<activevertex.value<<endl;
+			cout<<"processactivevertices_compactedges: actvv_id: "<<actvv_id<<endl;
+			cout<<"processactivevertices_compactedges: activevertex.key (vid): "<<activevertex.key<<endl;
+			cout<<"processactivevertices_compactedges: activevertex.value (vdata): "<<activevertex.value<<endl;
 			#endif 
 			
 			vector_type yloc;
@@ -4951,10 +4876,10 @@ processactivevertices_compactgraph(
 			batch_type edges_size = edges_endoffset - edges_beginoffset;
 			
 			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-			cout<<"processactivevertices_compactgraph: sourcedata: "<<sourcedata<<endl;
-			cout<<"processactivevertices_compactgraph: edges_beginoffset: "<<edges_beginoffset<<endl;	
-			cout<<"processactivevertices_compactgraph: edges_endoffset: "<<edges_endoffset<<endl;	
-			cout<<"processactivevertices_compactgraph: edges_size: "<<edges_size<<endl;
+			cout<<"processactivevertices_compactedges: sourcedata: "<<sourcedata<<endl;
+			cout<<"processactivevertices_compactedges: edges_beginoffset: "<<edges_beginoffset<<endl;	
+			cout<<"processactivevertices_compactedges: edges_endoffset: "<<edges_endoffset<<endl;	
+			cout<<"processactivevertices_compactedges: edges_size: "<<edges_size<<endl;
 			#endif 
 			
 			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR_SIZE;
@@ -4966,19 +4891,19 @@ processactivevertices_compactgraph(
 			
 			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 			if((offset_kvs * VECTOR_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
-			cout<<"processactivevertices_compactgraph: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
-			cout<<"processactivevertices_compactgraph: edgesize_kvs: "<<edgesize_kvs<<endl;
-			cout<<"processactivevertices_compactgraph: edgesend_kvs: "<<edgesend_kvs<<endl;
-			cout<<"processactivevertices_compactgraph: edgeid_kvs: "<<edgeid_kvs<<endl;
+			cout<<"processactivevertices_compactedges: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
+			cout<<"processactivevertices_compactedges: edgesize_kvs: "<<edgesize_kvs<<endl;
+			cout<<"processactivevertices_compactedges: edgesend_kvs: "<<edgesend_kvs<<endl;
+			cout<<"processactivevertices_compactedges: edgeid_kvs: "<<edgeid_kvs<<endl;
 			#endif
 			
 			vector_type colstart = edges_beginoffset % VECTOR_SIZE;
 			vector_type colend = (edges_endoffset-1) % VECTOR_SIZE;
 			#ifdef _DEBUGMODE_CHECKS2
-			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_compactgraph: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
+			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_compactedges: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
 			#endif
 			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-			cout<<"processactivevertices_compactgraph: colstart: "<<colstart<<", colend: "<<colend<<endl;
+			cout<<"processactivevertices_compactedges: colstart: "<<colstart<<", colend: "<<colend<<endl;
 			#endif
 			
 			keyvalue_t vertexupdate0;
@@ -5029,7 +4954,7 @@ processactivevertices_compactgraph(
 				for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
 				#pragma HLS PIPELINE II=1
 					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-					cout<<"processactivevertices_compactgraph.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					cout<<"processactivevertices_compactedges.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
 					#endif
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
@@ -5074,49 +4999,49 @@ processactivevertices_compactgraph(
 					
 					if(en0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
 						#endif
 						buffer1[0][buffersize_kvs] = vertexupdate0; }
 					else { buffer1[0][buffersize_kvs] = dummyvertexupdate; }
 					if(en1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
 						#endif
 						buffer1[1][buffersize_kvs] = vertexupdate1; }
 					else { buffer1[1][buffersize_kvs] = dummyvertexupdate; }
 					if(en2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
 						#endif
 						buffer1[2][buffersize_kvs] = vertexupdate2; }
 					else { buffer1[2][buffersize_kvs] = dummyvertexupdate; }
 					if(en3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
 						#endif
 						buffer1[3][buffersize_kvs] = vertexupdate3; }
 					else { buffer1[3][buffersize_kvs] = dummyvertexupdate; }
 					if(en4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
 						#endif
 						buffer1[4][buffersize_kvs] = vertexupdate4; }
 					else { buffer1[4][buffersize_kvs] = dummyvertexupdate; }
 					if(en5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
 						#endif
 						buffer1[5][buffersize_kvs] = vertexupdate5; }
 					else { buffer1[5][buffersize_kvs] = dummyvertexupdate; }
 					if(en6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
 						#endif
 						buffer1[6][buffersize_kvs] = vertexupdate6; }
 					else { buffer1[6][buffersize_kvs] = dummyvertexupdate; }
 					if(en7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_compactgraph: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
+						cout<<"processactivevertices_compactedges: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
 						#endif
 						buffer1[7][buffersize_kvs] = vertexupdate7; }
 					else { buffer1[7][buffersize_kvs] = dummyvertexupdate; }
@@ -5141,7 +5066,7 @@ processactivevertices_compactgraph(
 				}
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
 					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-					cout<<"processactivevertices_compactgraph: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					cout<<"processactivevertices_compactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
 					saveoffset_kvs += buffersize_kvs;
@@ -5153,12 +5078,12 @@ processactivevertices_compactgraph(
 				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
 				
 				#ifdef _DEBUGMODE_CHECKS2
-				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_compactgraph: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_compactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
 				if(workedgesize_kvs == 0){ break; }
 				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
-				if(errcount++ > 64){ cout<<"processactivevertices_compactgraph:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(errcount++ > 64){ cout<<"processactivevertices_compactedges:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 			}
 		}
@@ -5168,6 +5093,28 @@ processactivevertices_compactgraph(
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
 	#endif
+	
+	/* uint512_dt kvs = kvdram[globalparams.baseoffset_kvdram_kvs];
+	cout<<"kvs.data[0].key: "<<kvs.data[0].key<<", kvs.data[0].value: "<<kvs.data[0].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[0]", kvs.data[0]);
+	cout<<"kvs.data[1].key: "<<kvs.data[1].key<<", kvs.data[1].value: "<<kvs.data[1].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[1]", kvs.data[1]);
+	cout<<"kvs.data[2].key: "<<kvs.data[2].key<<", kvs.data[2].value: "<<kvs.data[2].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[2]", kvs.data[2]);
+	cout<<"kvs.data[3].key: "<<kvs.data[3].key<<", kvs.data[3].value: "<<kvs.data[3].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[3]", kvs.data[3]);
+	cout<<"kvs.data[4].key: "<<kvs.data[4].key<<", kvs.data[4].value: "<<kvs.data[4].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[4]", kvs.data[4]);
+	cout<<"kvs.data[5].key: "<<kvs.data[5].key<<", kvs.data[5].value: "<<kvs.data[5].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[5]", kvs.data[5]);
+	cout<<"kvs.data[6].key: "<<kvs.data[6].key<<", kvs.data[6].value: "<<kvs.data[6].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[6]", kvs.data[6]);
+	cout<<"kvs.data[7].key: "<<kvs.data[7].key<<", kvs.data[7].value: "<<kvs.data[7].value<<endl;
+	actsutilityobj->printcodedkeyvalue("kvs.data[7]", kvs.data[7]);
+	for(unsigned int i=0; i<VECTOR_SIZE; i++){
+		cout<<"------ getkey(kvs.data[i]): "<<getkey(kvs.data[i])<<endl;
+	} */
+	// exit(EXIT_SUCCESS);
 	return saveoffset_kvs;
 }
 
@@ -5176,7 +5123,7 @@ batch_type
 	#ifdef SW 
 	acts::
 	#endif
-processactivevertices_noncompactgraph(
+processactivevertices_noncompactedges(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -5197,14 +5144,14 @@ processactivevertices_noncompactgraph(
 	unsigned int edgesdstv_sum = 0;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"processactivevertices_noncompactgraph: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
-	cout<<"processactivevertices_noncompactgraph: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
-	cout<<"processactivevertices_noncompactgraph: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
+	cout<<"processactivevertices_noncompactedges: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
+	cout<<"processactivevertices_noncompactedges: actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;	
+	cout<<"processactivevertices_noncompactedges: globalparams.actvvsize: "<<globalparams.actvvsize<<endl;	
 	#endif
 	
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"### processactivevertices_noncompactgraph: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
+		cout<<"### processactivevertices_noncompactedges: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
 		actvvtravstate.i_kvs = offset_kvs;
@@ -5213,7 +5160,7 @@ processactivevertices_noncompactgraph(
 		buffer_type chunk_size = getchunksize_kvs(PADDEDDESTBUFFER_SIZE, actvvtravstate, 0);
 		for(batch_type actvv_id=0; actvv_id<chunk_size * VECTOR_SIZE; actvv_id++){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<endl<<"processactivevertices_noncompactgraph: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
+			cout<<endl<<"processactivevertices_noncompactedges: actvv_id: "<<actvv_id<<", sz: "<<chunk_size * VECTOR_SIZE<<endl;
 			#endif 
 		
 			keyvalue_t activevertex = actvvs[actvv_id % VECTOR_SIZE][actvv_id / VECTOR_SIZE];
@@ -5221,9 +5168,9 @@ processactivevertices_noncompactgraph(
 			value_t updateval = processedgefunc(sourcedata, 1, 1, globalparams.GraphIter, globalparams.GraphAlgo); 
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactivevertices_noncompactgraph: actvv_id: "<<actvv_id<<endl;
-			cout<<"processactivevertices_noncompactgraph: activevertex.key (vid): "<<activevertex.key<<endl;
-			cout<<"processactivevertices_noncompactgraph: activevertex.value (vdata): "<<activevertex.value<<endl;
+			cout<<"processactivevertices_noncompactedges: actvv_id: "<<actvv_id<<endl;
+			cout<<"processactivevertices_noncompactedges: activevertex.key (vid): "<<activevertex.key<<endl;
+			cout<<"processactivevertices_noncompactedges: activevertex.value (vdata): "<<activevertex.value<<endl;
 			#endif 
 			
 			vector_type yloc;
@@ -5247,10 +5194,10 @@ processactivevertices_noncompactgraph(
 			batch_type edges_size = edges_endoffset - edges_beginoffset;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactivevertices_noncompactgraph: sourcedata: "<<sourcedata<<endl;
-			cout<<"processactivevertices_noncompactgraph: edges_beginoffset: "<<edges_beginoffset<<endl;	
-			cout<<"processactivevertices_noncompactgraph: edges_endoffset: "<<edges_endoffset<<endl;	
-			cout<<"processactivevertices_noncompactgraph: edges_size: "<<edges_size<<endl;
+			cout<<"processactivevertices_noncompactedges: sourcedata: "<<sourcedata<<endl;
+			cout<<"processactivevertices_noncompactedges: edges_beginoffset: "<<edges_beginoffset<<endl;	
+			cout<<"processactivevertices_noncompactedges: edges_endoffset: "<<edges_endoffset<<endl;	
+			cout<<"processactivevertices_noncompactedges: edges_size: "<<edges_size<<endl;
 			#endif 
 			
 			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR2_SIZE;
@@ -5262,19 +5209,19 @@ processactivevertices_noncompactgraph(
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if((offset_kvs * VECTOR_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
-			cout<<"processactivevertices_noncompactgraph: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
-			cout<<"processactivevertices_noncompactgraph: edgesize_kvs: "<<edgesize_kvs<<endl;
-			cout<<"processactivevertices_noncompactgraph: edgesend_kvs: "<<edgesend_kvs<<endl;
-			cout<<"processactivevertices_noncompactgraph: edgeid_kvs: "<<edgeid_kvs<<endl;
+			cout<<"processactivevertices_noncompactedges: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
+			cout<<"processactivevertices_noncompactedges: edgesize_kvs: "<<edgesize_kvs<<endl;
+			cout<<"processactivevertices_noncompactedges: edgesend_kvs: "<<edgesend_kvs<<endl;
+			cout<<"processactivevertices_noncompactedges: edgeid_kvs: "<<edgeid_kvs<<endl;
 			#endif
 			
 			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
 			vector_type colend = (edges_endoffset-1) % VECTOR2_SIZE;
 			#ifdef _DEBUGMODE_CHECKS2
-			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_noncompactgraph: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
+			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_noncompactedges: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"processactivevertices_noncompactgraph: colstart: "<<colstart<<", colend: "<<colend<<endl;
+			cout<<"processactivevertices_noncompactedges: colstart: "<<colstart<<", colend: "<<colend<<endl;
 			#endif
 			
 			keyvalue_t vertexupdate0;
@@ -5325,19 +5272,19 @@ processactivevertices_noncompactgraph(
 				for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
 				#pragma HLS PIPELINE II=1
 					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"processactivevertices_noncompactgraph.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					cout<<"processactivevertices_noncompactedges.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
 					#endif
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
 					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"processactivevertices_noncompactgraph: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[3].key: "<<E.data[3].key<<", E.data[3].value: "<<E.data[3].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[4].key: "<<E.data[4].key<<", E.data[4].value: "<<E.data[4].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
-					cout<<"processactivevertices_noncompactgraph: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[0].key: "<<E.data[0].key<<", E.data[0].value: "<<E.data[0].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[1].key: "<<E.data[1].key<<", E.data[1].value: "<<E.data[1].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[2].key: "<<E.data[2].key<<", E.data[2].value: "<<E.data[2].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[3].key: "<<E.data[3].key<<", E.data[3].value: "<<E.data[3].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[4].key: "<<E.data[4].key<<", E.data[4].value: "<<E.data[4].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[5].key: "<<E.data[5].key<<", E.data[5].value: "<<E.data[5].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[6].key: "<<E.data[6].key<<", E.data[6].value: "<<E.data[6].value<<endl;
+					cout<<"processactivevertices_noncompactedges: E.data[7].key: "<<E.data[7].key<<", E.data[7].value: "<<E.data[7].value<<endl;
 					#endif
 					
 					vertexupdate0.key = E.data[0].key;
@@ -5410,98 +5357,98 @@ processactivevertices_noncompactgraph(
 					
 					if(en0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate0.key: "<<vertexupdate0.key<<", vertexupdate0.value: "<<vertexupdate0.value<<endl;
 						#endif
 						buffer1[0][buffersize_kvs] = vertexupdate0; }
 					else { buffer1[0][buffersize_kvs] = dummyvertexupdate; }
 					if(en1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate1.key: "<<vertexupdate1.key<<", vertexupdate1.value: "<<vertexupdate1.value<<endl;
 						#endif
 						buffer1[1][buffersize_kvs] = vertexupdate1; }
 					else { buffer1[1][buffersize_kvs] = dummyvertexupdate; }
 					if(en2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate2.key: "<<vertexupdate2.key<<", vertexupdate2.value: "<<vertexupdate2.value<<endl;
 						#endif
 						buffer1[2][buffersize_kvs] = vertexupdate2; }
 					else { buffer1[2][buffersize_kvs] = dummyvertexupdate; }
 					if(en3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate3.key: "<<vertexupdate3.key<<", vertexupdate3.value: "<<vertexupdate3.value<<endl;
 						#endif
 						buffer1[3][buffersize_kvs] = vertexupdate3; }
 					else { buffer1[3][buffersize_kvs] = dummyvertexupdate; }
 					if(en4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate4.key: "<<vertexupdate4.key<<", vertexupdate4.value: "<<vertexupdate4.value<<endl;
 						#endif
 						buffer1[4][buffersize_kvs] = vertexupdate4; }
 					else { buffer1[4][buffersize_kvs] = dummyvertexupdate; }
 					if(en5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate5.key: "<<vertexupdate5.key<<", vertexupdate5.value: "<<vertexupdate5.value<<endl;
 						#endif
 						buffer1[5][buffersize_kvs] = vertexupdate5; }
 					else { buffer1[5][buffersize_kvs] = dummyvertexupdate; }
 					if(en6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate6.key: "<<vertexupdate6.key<<", vertexupdate6.value: "<<vertexupdate6.value<<endl;
 						#endif
 						buffer1[6][buffersize_kvs] = vertexupdate6; }
 					else { buffer1[6][buffersize_kvs] = dummyvertexupdate; }
 					if(en7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertexupdate7.key: "<<vertexupdate7.key<<", vertexupdate7.value: "<<vertexupdate7.value<<endl;
 						#endif
 						buffer1[7][buffersize_kvs] = vertexupdate7; }
 					else { buffer1[7][buffersize_kvs] = dummyvertexupdate; }
 					
 					if(e2n0 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update0.key: "<<vertex2update0.key<<", vertex2update0.value: "<<vertex2update0.value<<endl;
 						#endif
 						buffer2[0][buffersize_kvs] = vertex2update0; }
 					else { buffer2[0][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n1 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update1.key: "<<vertex2update1.key<<", vertex2update1.value: "<<vertex2update1.value<<endl;
 						#endif
 						buffer2[1][buffersize_kvs] = vertex2update1; }
 					else { buffer2[1][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n2 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update2.key: "<<vertex2update2.key<<", vertex2update2.value: "<<vertex2update2.value<<endl;
 						#endif
 						buffer2[2][buffersize_kvs] = vertex2update2; }
 					else { buffer2[2][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n3 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update3.key: "<<vertex2update3.key<<", vertex2update3.value: "<<vertex2update3.value<<endl;
 						#endif
 						buffer2[3][buffersize_kvs] = vertex2update3; }
 					else { buffer2[3][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n4 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update4.key: "<<vertex2update4.key<<", vertex2update4.value: "<<vertex2update4.value<<endl;
 						#endif
 						buffer2[4][buffersize_kvs] = vertex2update4; }
 					else { buffer2[4][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n5 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update5.key: "<<vertex2update5.key<<", vertex2update5.value: "<<vertex2update5.value<<endl;
 						#endif
 						buffer2[5][buffersize_kvs] = vertex2update5; }
 					else { buffer2[5][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n6 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update6.key: "<<vertex2update6.key<<", vertex2update6.value: "<<vertex2update6.value<<endl;
 						#endif
 						buffer2[6][buffersize_kvs] = vertex2update6; }
 					else { buffer2[6][buffersize_kvs] = dummyvertexupdate; }
 					if(e2n7 == ON){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"processactivevertices_noncompactgraph: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
+						cout<<"processactivevertices_noncompactedges: vertex2update7.key: "<<vertex2update7.key<<", vertex2update7.value: "<<vertex2update7.value<<endl;
 						#endif
 						buffer2[7][buffersize_kvs] = vertex2update7; }
 					else { buffer2[7][buffersize_kvs] = dummyvertexupdate; }
@@ -5533,7 +5480,7 @@ processactivevertices_noncompactgraph(
 				}
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
 					#ifdef _DEBUGMODE_KERNELPRINTS3
-					cout<<"processactivevertices_noncompactgraph: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					cout<<"processactivevertices_noncompactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
 					savevertices(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
@@ -5546,12 +5493,12 @@ processactivevertices_noncompactgraph(
 				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
 				
 				#ifdef _DEBUGMODE_CHECKS2
-				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactgraph: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
 				if(workedgesize_kvs == 0){ break; }
 				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
-				if(errcount++ > 64){ cout<<"processactivevertices_noncompactgraph:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(errcount++ > 64){ cout<<"processactivevertices_noncompactedges:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 			}
 		}
@@ -5693,16 +5640,16 @@ dispatch(uint512_dt * kvdram){
 				avtravstate);
 			#else
 			globalparams.runsize_kvs = 
-				#ifdef EDGEPACKING
-				processactivevertices_compactgraph
+				#ifdef COMPACTEDGES
+				processactivevertices_compactedges
 				#else 
-				processactivevertices_noncompactgraph	
+				processactivevertices_noncompactedges	
 				#endif 
 				(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,
-				#ifndef EDGEPACKING
+				#ifndef COMPACTEDGES
 				buffer2,
 				#endif
 				buffer3,
@@ -5785,8 +5732,12 @@ dispatch(uint512_dt * kvdram){
 				sweepparams.worksourcebaseaddress_kvs,
 				sweepparams.workdestbaseaddress_kvs);
 			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
-			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
-			if(config.enablepartition == ON){ actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams); }
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && defined(COLLECTSTATSOFFLINE)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
+			if(config.enablepartition == ON){ 
+				// exit(EXIT_SUCCESS);
+				actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams); 
+				// exit(EXIT_SUCCESS);
+				}
 			#endif
 			#endif
 			
