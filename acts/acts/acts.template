@@ -150,6 +150,35 @@ getkey(keyvalue_t keyvalue){
 	#endif 
 	return key;
 }
+/* keyy_t 
+	#ifdef SW 
+	acts::
+	#endif 
+getkey(keyvalue_t keyvalue){
+	keyy_t key = 0;
+	#ifdef COMPACTEDGES
+		#ifdef SW 
+		unsigned long * longword = (unsigned long *)&keyvalue;
+
+		unsigned int h = bitExtracted(*longword, 8, 56);
+		unsigned int a = bitExtracted(*longword, 14, 0);
+		unsigned int b = bitExtracted(*longword, 14, 14);
+		unsigned int c = bitExtracted(*longword, 14, 28);
+		unsigned int d = bitExtracted(*longword, 14, 42);
+		
+		unsigned int ax = (h * (1 << SRAMSZ_POW)) + a; 
+		unsigned int bx = (h * (1 << SRAMSZ_POW)) + b; 
+		unsigned int cx = (h * (1 << SRAMSZ_POW)) + c; 
+		unsigned int dx = (h * (1 << SRAMSZ_POW)) + d; 
+		key = ax;
+		#else 
+			NOT IMPLEMENTED
+		#endif
+	#else 
+		key = keyvalue.key;
+	#endif 
+	return key;
+} */
 batch_type
 	#ifdef SW 
 	acts::
@@ -294,7 +323,8 @@ getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex
 	
 	#ifdef ENABLE_PERFECTACCURACY
 		#ifdef _DEBUGMODE_CHECKS2
-		if(partition >= NUM_PARTITIONS){ cout<<"acts::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<endl; exit(EXIT_FAILURE); }
+		// if(partition >= NUM_PARTITIONS){ cout<<"acts::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<endl; exit(EXIT_FAILURE); }
+		if(partition >= NUM_PARTITIONS){ cout<<"acts::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<endl; exit(EXIT_FAILURE); }
 		#endif
 	#endif 
 	#ifndef ENABLE_PERFECTACCURACY
@@ -2235,19 +2265,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		bufferBcapsule[1][p].value = 0;
 		bufferBcapsule[2][p].value = 0;
 		bufferBcapsule[3][p].value = 0;
-		
-		
-		
-		
-		
-		
-		// for(unsigned int m=0; m<NUM_PARTITIONS; m++){ cout<<"--- buffer1capsule[0]["<<p<<"].key: "<<buffer1capsule[0][p].key<<endl; }
-		
-		
-		
-		
-		
-		
+
 		#ifdef _DEBUGMODE_CHECKS2
 		if(p<NUM_PARTITIONS-1){ actsutilityobj->checkoutofbounds(ON, "runp: bufferDcapsule[" + std::to_string(p+1) + "].key", bufferDcapsule[p+1].key, (PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) + 1, NAp, NAp, NAp); }
 
@@ -2260,7 +2278,6 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 		actsutilityobj->checkoutofbounds(ON, "runp: bufferBcapsule[3][" + std::to_string(p) + "].key", bufferBcapsule[3][p].key, SRCBUFFER_SIZE+1, NAp, NAp, NAp);
 		#endif 
 	}
-	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
@@ -2941,7 +2958,7 @@ partitionupdates_finegrainedpipeline(
 
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<approxendoffset_kvs; offset_kvs+=approxskip_kvs){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		actsutilityobj->print6("### dispatch::partition:: offset0_kvs", "size0_kvs", "begin_kvs", "end_kvs", "skip", "itercount", pp0readoffset_kvs, pp0readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);
 		#ifdef FPP1
 		actsutilityobj->print6("### dispatch::partition:: offset1_kvs", "size1_kvs", "begin_kvs", "end_kvs", "skip", "itercount", pp1readoffset_kvs, pp1readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);
