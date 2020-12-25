@@ -21,8 +21,6 @@
 #include "compactgraph.h"
 using namespace std;
 
-// #define _DEBUGMODE_COMPACTGRAPH
-
 /** compactd edge: [setof(8,16,32,64...) | numitems | data(kv,kv,kv,kv...)] */
 /** longword.data = longword.data | 0xF000000000000000; // 0x[metadata:8]000000000000000; */
 

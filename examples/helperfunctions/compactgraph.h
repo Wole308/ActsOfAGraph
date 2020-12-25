@@ -13,6 +13,7 @@
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
 using namespace std;
+// #define _DEBUGMODE_COMPACTGRAPH
 
 class compactgraph {
 public:
