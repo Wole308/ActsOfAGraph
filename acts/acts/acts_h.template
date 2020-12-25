@@ -39,17 +39,16 @@ using namespace std;
 #define PP2
 #endif
 
-#ifdef PR_ALGORITHM // FIXME.
-#define NUMVERTEXPARTITIONSPERLOAD ((PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / 2)) // FIXME. this removes applyv from being a variable
+#ifdef PR_ALGORITHM
+#define VDATAPACKINGFACTOR 1
 #endif 
 #ifdef BFS_ALGORITHM
-#define NUMVERTEXPARTITIONSPERLOAD 1
+#define VDATAPACKINGFACTOR 16
 #endif 
 #ifdef SSSP_ALGORITHM
-#define NUMVERTEXPARTITIONSPERLOAD 1
-#endif 
-
-// #define _DEBUGMODE_PARTITIONCHECKS
+#define VDATAPACKINGFACTOR 1
+#endif
+#define LOADFACTORFORREDUCE ((1024 * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR)) // FIXME. this removes applyv from being a variable
 
 class acts {
 public:
@@ -63,9 +62,12 @@ public:
 	batch_type allignhigher_KV(batch_type val);
 	batch_type allignlowerto16_KV(batch_type val);
 	batch_type allignhigherto16_KV(batch_type val);
-	int bitExtracted(unsigned long number, int k, int p);
-	int bitExtracted(unsigned int number, int k, int p);
+	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
+	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
+	void WRITETO_ULONG(unsigned long data, unsigned long index, unsigned long size, unsigned int value);
 	keyy_t getkey(keyvalue_t keyvalue);
+	void setkey(keyvalue_t * keyvalue, keyy_t key);
+	keyy_t getkeys(keyvalue_t keyvalue);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
@@ -94,7 +96,7 @@ public:
 	batch_type get_num_source_partitions(step_type currentLOP);
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
-	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t moretravstates[NUMVERTEXPARTITIONSPERLOAD]);
+	travstate_t gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t moretravstates[LOADFACTORFORREDUCE]);
 	bool inprocessedgesstage(unsigned int currentLOP);
 	bool incollectstatsstage(unsigned int currentLOP, globalparams_t globalparams);
 	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);

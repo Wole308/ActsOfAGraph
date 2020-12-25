@@ -297,6 +297,12 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+#define BitVal(data,y) ( (data>>y) & 1)      /** Return Data.Y value   **/
+#define SetBit(data,y)    data |= (1 << y)    /** Set Data.Y   to 1    **/
+#define ClearBit(data,y)  data &= ~(1 << y)   /** Clear Data.Y to 0    **/
+#define TogleBit(data,y)     (data ^=BitVal(y))     /** Togle Data.Y  value  **/
+#define Togle(data)   (data =~data )         /** Togle Data value     **/
+
 #define GETMASK(index, size) (((1 << (size)) - 1) << (index))
 #define READFROM(data, index, size) (((data) & GETMASK((index), (size))) >> (index))
 #define WRITETO(data, index, size, value) ((data) = ((data) & (~GETMASK((index), (size)))) | ((value) << (index)))
@@ -318,8 +324,20 @@ struct _bitData {
 
 #define NUM_KAPI 3 // number of kernel args per instance
 
-// #define NUMGROUPS 1
-// #define LOWINDEGREESGROUPID 0
+#ifdef KOOOOOOOO
+#define BitVal(data,y) ( (data>>y) & 1)      /** Return Data.Y value   **/
+#define SetBit(data,y)    data |= (1 << y)    /** Set Data.Y   to 1    **/
+#define ClearBit(data,y)  data &= ~(1 << y)   /** Clear Data.Y to 0    **/
+#define TogleBit(data,y)     (data ^=BitVal(y))     /** Togle Data.Y  value  **/
+#define Togle(data)   (data =~data )         /** Togle Data value     **/
+
+#define GETMASK(index, size) (((1 << (size)) - 1) << (index))
+#define READFROM(data, index, size) (((data) & GETMASK((index), (size))) >> (index))
+#define WRITETO(data, index, size, value) ((data) = ((data) & (~GETMASK((index), (size)))) | ((value) << (index)))
+#define FIELD(data, name, index, size) \
+  inline decltype(data) name() { return READFROM(data, index, size); } \
+  inline void set_##name(decltype(data) value) { WRITETO(data, index, size, value); }
+#endif 
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

@@ -81,8 +81,8 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
-	for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
+	for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
