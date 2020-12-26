@@ -249,7 +249,6 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	// exit(EXIT_SUCCESS);
 	return ;
 }
-
 void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * packedvertexptrbuffer, uuint64_dt * packededgedatabuffer, unsigned int * numitemspacked){
 	unsigned int edges_nc_count = 0;
 	unsigned int edgesdstv_nc_sum = 0;

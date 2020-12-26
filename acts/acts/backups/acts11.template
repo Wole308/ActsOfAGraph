@@ -1746,7 +1746,10 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		{%endfor%}
 		#endif
 		
+		
+		
 		for(buffer_type t=0; t<4; t++){
+			/* ////////////////////////////////////////////////
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON){
 				locs{{v}}[t] = keys{{v}}[t] - upperlimit;
@@ -1755,7 +1758,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cellindexs{{v}}[t] = colindexs{{v}}[t] * 2; // max:62
 			}
 			{%endfor%}
+			////////////////////////////////////////////////
 			
+			////////////////////////////////////////////////
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON){
@@ -1777,7 +1782,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE*4);
 			#endif
 			#endif
+			////////////////////////////////////////////////
 			
+			////////////////////////////////////////////////
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(locs{{v}}[t] >= globalparams.applyvertexbuffersz && en{{v}} == ON){ locs{{v}}[t] = 0; }
 			if(en{{v}} == ON){ vprop{{v}}[t] = destbuffer[{{v}}][rowindexs{{v}}[t]]; }
@@ -1786,7 +1793,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			if(en{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - cellindexs{{v}}[t] - 2, 2, rettemps{{v}}[t]); }
 			if(en{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
 			{%endfor%}
+			////////////////////////////////////////////////
 			
+			////////////////////////////////////////////////
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON){ 
@@ -1797,6 +1806,118 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			}
 			{%endfor%}
 			#endif
+			//////////////////////////////////////////////// */
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			locs{{v}}[t] = keys{{v}}[t] - upperlimit;
+			{%endfor%}
+			
+			
+			
+			
+			
+			// {%for v in context['VECTOR_SIZE_seq']%}
+			// if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ en{{v}} = ON; } else { en{{v}} = OFF; }
+			// {%endfor%}
+			
+			
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+			{%endfor%}
+			#endif
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			#ifdef _DEBUGMODE_CHECKS2
+			if(locs{{v}}[t] >= globalparams.applyvertexbuffersz && en{{v}} == ON){
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->globalstats_counterrorsinreduce(1);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				#ifdef ENABLE_VOICEOUTREDUCEERRORS
+				cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				#endif 
+				#ifdef ENABLE_PERFECTACCURACY
+				if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
+				#endif 
+				#endif
+				locs{{v}}[t] = 0;
+			} // REMOVEME.
+			#endif
+			{%endfor%}
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			rowindexs{{v}}[t] = locs{{v}}[t] / (2 * VDATAPACKINGFACTOR); // max:511
+			colindexs{{v}}[t] = locs{{v}}[t] % (2 * VDATAPACKINGFACTOR); // max:31
+			cellindexs{{v}}[t] = colindexs{{v}}[t] * 2; // max:62
+			{%endfor%}
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ cout<<"reduce_bfs: rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", cellindexs{{v}}[t]: "<<cellindexs{{v}}[t]<<endl; }
+			{%endfor%}
+			#endif 
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ rowindexs{{v}}[t] = 0; cellindexs{{v}}[t] = 0; }
+			{%endfor%}
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs{{v}}[t]", rowindexs{{v}}[t], 512, keyvalue{{v}}.key, keyvalue{{v}}.value, locs{{v}}[t]); }
+			{%endfor%}
+			#endif
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ vprop{{v}}[t] = destbuffer[{{v}}][rowindexs{{v}}[t]]; }
+			{%endfor%}
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ cout<<"reduce_bfs: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl; }
+			{%endfor%}
+			#endif 
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ actsutilityobj->checkoutofbounds("reduce_bfs.(64 - cellindexs{{v}}[t])", cellindexs{{v}}[t], 64, cellindexs{{v}}[t], NAp, NAp); }
+			{%endfor%}
+			#endif
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ temps{{v}}[t] = READFROM_ULONG(vprop{{v}}[t], 64 - cellindexs{{v}}[t] - 2, 2); }
+			{%endfor%}
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ rettemps{{v}}[t] = reducefunc(temps{{v}}[t], NAp, GraphIter, GraphAlgo); }
+			{%endfor%}
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps{{v}}[t]: "<<rettemps{{v}}[t]<<endl; }
+			{%endfor%}
+			#endif 
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - cellindexs{{v}}[t] - 2, 2, 1); }
+			{%endfor%}
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
+			{%endfor%}
+			
+			#ifdef _DEBUGMODE_STATS
+			actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE*4);
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+			{%endfor%}
+			#endif
+			
+			
 		}
 	}
 	return;
