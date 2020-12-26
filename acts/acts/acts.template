@@ -1715,7 +1715,6 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs{{v}}[4];
 	vertex_t rowindexs{{v}}[4];
 	vertex_t colindexs{{v}}[4];
-	vertex_t cellindexs{{v}}[4];
 	value_t temps{{v}}[4];
 	value_t rettemps{{v}}[4];
 	keyvalue_t vprop{{v}}[4];
@@ -1748,12 +1747,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		
 		for(buffer_type t=0; t<4; t++){
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(en{{v}} == ON){
-				locs{{v}}[t] = keys{{v}}[t] - upperlimit;
-				rowindexs{{v}}[t] = locs{{v}}[t] / (2 * VDATAPACKINGFACTOR); // max:511
-				colindexs{{v}}[t] = locs{{v}}[t] % (2 * VDATAPACKINGFACTOR); // max:31
-				cellindexs{{v}}[t] = colindexs{{v}}[t] * 2; // max:62
-			}
+			if(en{{v}} == ON){ locs{{v}}[t] = keys{{v}}[t] - upperlimit; }
+			if(en{{v}} == ON){ rowindexs{{v}}[t] = locs{{v}}[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en{{v}} == ON){ colindexs{{v}}[t] = (locs{{v}}[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
 			{%endfor%}
 			
 			#ifdef _DEBUGMODE_CHECKS2
@@ -1767,7 +1763,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				if(locs{{v}}[t] >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
 				#endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs{{v}}[t]", rowindexs{{v}}[t], 512, keyvalue{{v}}.key, keyvalue{{v}}.value, locs{{v}}[t]);
-				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - cellindexs{{v}}[t])", cellindexs{{v}}[t], 64, cellindexs{{v}}[t], NAp, NAp);
+				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs{{v}}[t])", colindexs{{v}}[t], 64, colindexs{{v}}[t], NAp, NAp);
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
@@ -1781,17 +1777,17 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(locs{{v}}[t] >= globalparams.applyvertexbuffersz && en{{v}} == ON){ locs{{v}}[t] = 0; }
 			if(en{{v}} == ON){ vprop{{v}}[t] = destbuffer[{{v}}][rowindexs{{v}}[t]]; }
-			if(en{{v}} == ON){ temps{{v}}[t] = READFROM_ULONG(vprop{{v}}[t], 64 - cellindexs{{v}}[t] - 2, 2); }
+			if(en{{v}} == ON){ temps{{v}}[t] = READFROM_ULONG(vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2); }
 			if(en{{v}} == ON){ rettemps{{v}}[t] = reducefunc(temps{{v}}[t], NAp, GraphIter, GraphAlgo); }
-			if(en{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - cellindexs{{v}}[t] - 2, 2, rettemps{{v}}[t]); }
+			if(en{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2, rettemps{{v}}[t]); }
 			if(en{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
 			{%endfor%}
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", cellindexs{{v}}[t]: "<<cellindexs{{v}}[t]<<endl;
+				cout<<"reduce_bfs: rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<endl;
 				cout<<"reduce_bfs: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps{{v}}[t]: "<<rettemps{{v}}[t]<<endl;
 			}
