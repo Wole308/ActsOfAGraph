@@ -77,14 +77,20 @@ public:
 	void getmarkerpositions(keyvalue_t * stats, batch_type size);
 	
 	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
-	void dectobinary(int n);
-	void ulongtobinary(unsigned long n);
-	int bitExtracted(unsigned long number, int k, int p);
-	unsigned long updatebitsinlong(unsigned long n, unsigned long m, unsigned long i, unsigned long j);
-	void printcodedkeyvalue(string message, unsigned long number);
-	void printcodedkeyvalue(string message, keyvalue_t keyvalue);
-	void getkeys(unsigned long longword, keyy_t * keys);
-	keyy_t getkey(unsigned long longword);
+	
+	// compact graph utilities
+	void DECTOBINARY(int n);
+	void ULONGTOBINARY(unsigned long n);
+	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
+	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
+	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
+	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value);
+	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value);
+	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
+	void PARSE(string message, unsigned long longword);
+	unsigned int PARSE(unsigned long longword, unsigned int * _items);
+	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
+	unsigned int GETKEY(unsigned long longword);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);

@@ -230,7 +230,7 @@ void utility::printedges(string message, edge2_type * edges, unsigned int size){
 void utility::printpackededges(string message, uuint64_dt * edges, unsigned int size){
 	cout<<endl<<"utility::printpackededges:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){
-		printcodedkeyvalue("printpackededges.edges["+std::to_string(i)+"].data", edges[i].data);
+		// printcodedkeyvalue("printpackededges.edges["+std::to_string(i)+"].data", edges[i].data);
 	}
 }
 void utility::printmessages(string message, uint512_vec_dt * keyvalues){
@@ -607,7 +607,9 @@ void utility::calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int si
 	}
 	return;
 }
-void utility::dectobinary(int n){ 
+
+// compact graph utilities
+void utility::DECTOBINARY(int n){ 
     // array to store binary number 
     int binaryNum[32]; 
   
@@ -627,7 +629,7 @@ void utility::dectobinary(int n){
 	}
 	return;
 } 
-void utility::ulongtobinary(unsigned long n){ 
+void utility::ULONGTOBINARY(unsigned long n){ 
     // array to store binary number 
     int binaryNum[64]; 
   
@@ -642,62 +644,93 @@ void utility::ulongtobinary(unsigned long n){
     } 
   
     // printing binary array in reverse order 
-	cout<<"utility::ulongtobinary: "<<(unsigned long)n<<" in decimal is: ";
+	cout<<"utility::ULONGTOBINARY: "<<(unsigned long)n<<" in decimal is: ";
     for (int j = i - 1; j >= 0; j--){
         cout << binaryNum[j]; 
 	}
 	cout<<endl;
 	return;
 } 
-int utility::bitExtracted(unsigned long number, int k, int p){ 
-	// Function to extract k bits from p position (starting from end) 
-	// and returns the extracted value as integer 
-	// https://www.geeksforgeeks.org/extract-k-bits-given-position-number/
-	// NOTE: last bit to the right: p=0
-    return (((1 << k) - 1) & (number >> p));
+unsigned long utility::GETMASK_ULONG(unsigned long index, unsigned long size){
+	unsigned long A = ((1 << (size)) - 1);
+	unsigned long B = A << index;
+	return B;
 }
-void utility::printcodedkeyvalue(string message, unsigned long longword){ 
-	cout<<"printcodedkeyvalue: "<<message<<": ";
-	cout<<"["<<bitExtracted(longword, 8, 56)<<", "<<bitExtracted(longword, 14, 42)<<", "<<bitExtracted(longword, 14, 28)<<", "<<bitExtracted(longword, 14, 14)<<", "<<bitExtracted(longword, 14, 0)<<"]"<<endl;
+unsigned int utility::READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size){ 
+	#ifdef SW
+	return (((data) & GETMASK_ULONG((index), (size))) >> (index)); 
+	#else 
+	NOT IMPLEMENTED.
+	#endif 
+}
+unsigned int utility::READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size){
+	#ifdef SW
+	unsigned long * data = (unsigned long *)&keyvalue;
+	return READFROM_ULONG(*data, index, size);
+	#else 
+	NOT IMPLEMENTED.
+	#endif 
+}
+void utility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value){ 
+	#ifdef SW
+	unsigned long tempdata = *data;
+	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+	*data = tempdata;
+	#else 
+	NOT IMPLEMENTED.
+	#endif
+	return; 
+}
+void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value){ 
+	#ifdef SW
+	unsigned long * data = (unsigned long *)keyvalue;
+	return WRITETO_ULONG(data, index, size, value);
+	#else 
+	NOT IMPLEMENTED.
+	#endif
+	return; 
+}
+void utility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz){
+	longword->data = (longword->data << databitsz) | data;
 	return;
 }
-void utility::printcodedkeyvalue(string message, keyvalue_t keyvalue){ 
-	cout<<"utility::printcodedkeyvalue: "<<message<<endl;
+void utility::PARSE(string message, unsigned long longword){ 
+	cout<<"utility::PARSE::"<<message<<" message"<<endl;
+	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	unsigned int item = 0;
+	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
+	for(unsigned int i=0; i<numitems; i++){
+		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << SRAMSZ_POW)) + item)<<endl;
+	}
+	return;
+}
+unsigned int utility::PARSE(unsigned long longword, unsigned int * _items){ 
+	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	if(numitems > 3){
+		cout<<"utility::PARSE. numitems > 3. exiting..."<<endl;
+		ULONGTOBINARY(longword);
+		PARSE("compactgraph::verify actual committing...", longword);
+		exit(EXIT_FAILURE);
+	}
+	unsigned int item = 0;
+	for(unsigned int i=0; i<numitems; i++){
+		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		_items[i] = ((streetaddr * (1 << SRAMSZ_POW)) + item);
+	}
+	return numitems;
+}
+unsigned int utility::PARSE(keyvalue_t keyvalue, unsigned int * _items){
 	unsigned long * longword = (unsigned long *)&keyvalue;
-	cout<<"["<<bitExtracted(*longword, 8, 56)<<", "<<bitExtracted(*longword, 14, 42)<<", "<<bitExtracted(*longword, 14, 28)<<", "<<bitExtracted(*longword, 14, 14)<<", "<<bitExtracted(*longword, 14, 0)<<"]"<<endl;
-	return;
+	return PARSE(*longword, _items);
 }
-void utility::getkeys(unsigned long longword, keyy_t * keys){ 
-	unsigned int h = bitExtracted(longword, 8, 56);
-	unsigned int a = bitExtracted(longword, 14, 0);
-	unsigned int b = bitExtracted(longword, 14, 14);
-	unsigned int c = bitExtracted(longword, 14, 28);
-	unsigned int d = bitExtracted(longword, 14, 42);
-	
-	unsigned int ax = (h * (1 << SRAMSZ_POW)) + a; 
-	unsigned int bx = (h * (1 << SRAMSZ_POW)) + b; 
-	unsigned int cx = (h * (1 << SRAMSZ_POW)) + c; 
-	unsigned int dx = (h * (1 << SRAMSZ_POW)) + d; 
-			
-	keys[0] = ax;
-	keys[1] = bx;
-	keys[2] = cx;
-	keys[3] = dx;
-	return;
-}
-keyy_t utility::getkey(unsigned long longword){ 
-	unsigned int h = bitExtracted(longword, 8, 56);
-	unsigned int a = bitExtracted(longword, 14, 0);
-	unsigned int b = bitExtracted(longword, 14, 14);
-	unsigned int c = bitExtracted(longword, 14, 28);
-	unsigned int d = bitExtracted(longword, 14, 42);
-	
-	unsigned int ax = (h * (1 << SRAMSZ_POW)) + a; 
-	unsigned int bx = (h * (1 << SRAMSZ_POW)) + b; 
-	unsigned int cx = (h * (1 << SRAMSZ_POW)) + c; 
-	unsigned int dx = (h * (1 << SRAMSZ_POW)) + d; 
-			
-	return ax;
+unsigned int utility::GETKEY(unsigned long longword){ 
+	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+	return ((streetaddr * (1 << SRAMSZ_POW)) + item);
 }
 
 #ifdef FPGA_IMPL

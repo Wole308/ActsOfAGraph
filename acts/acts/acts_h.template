@@ -67,9 +67,8 @@ public:
 	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
 	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value);
 	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value);
-	keyy_t getkey(keyvalue_t keyvalue);
-	void setkey(keyvalue_t * keyvalue, keyy_t key);
-	void getkeys(keyvalue_t keyvalue, keyy_t keys[4]);
+	keyy_t GETKEY(keyvalue_t keyvalue);
+	unsigned int GETKEYS(keyvalue_t keyvalue, keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA]);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);

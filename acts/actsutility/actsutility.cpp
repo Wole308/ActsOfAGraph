@@ -38,7 +38,7 @@ actsutility::actsutility(){
 }
 actsutility::~actsutility(){}
 
-void actsutility::dectobinary(int n){ 
+/* void actsutility::dectobinary(int n){ 
     // array to store binary number 
     int binaryNum[32]; 
   
@@ -113,6 +113,7 @@ void actsutility::printcodedkeyvalue(string message, keyvalue_t keyvalue){
 	cout<<"["<<bitExtracted(*longword, 8, 56)<<", "<<bitExtracted(*longword, 14, 42)<<", "<<bitExtracted(*longword, 14, 28)<<", "<<bitExtracted(*longword, 14, 14)<<", "<<bitExtracted(*longword, 14, 0)<<"]"<<endl;
 	return;
 }
+ */
 /** 
 100000000000 00110000000000010000000000000101
 
@@ -120,6 +121,9 @@ void actsutility::printcodedkeyvalue(string message, keyvalue_t keyvalue){
 [value]100000000000 
 [key]00110000000000010000000000000101 
 */
+
+
+
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }
@@ -1343,6 +1347,128 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	return;
 }
 
-
+void actsutility::DECTOBINARY(int n){ 
+    // array to store binary number 
+    int binaryNum[32]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	return;
+} 
+void actsutility::ULONGTOBINARY(unsigned long n){ 
+    // array to store binary number 
+    int binaryNum[64]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+	cout<<"actsutility::ULONGTOBINARY: "<<(unsigned long)n<<" in decimal is: ";
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	cout<<endl;
+	return;
+} 
+unsigned long actsutility::GETMASK_ULONG(unsigned long index, unsigned long size){
+	unsigned long A = ((1 << (size)) - 1);
+	unsigned long B = A << index;
+	return B;
+}
+unsigned int actsutility::READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size){ 
+	#ifdef SW
+	return (((data) & GETMASK_ULONG((index), (size))) >> (index)); 
+	#else 
+	NOT IMPLEMENTED.
+	#endif 
+}
+unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size){
+	#ifdef SW
+	unsigned long * data = (unsigned long *)&keyvalue;
+	return READFROM_ULONG(*data, index, size);
+	#else 
+	NOT IMPLEMENTED.
+	#endif 
+}
+void actsutility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value){ 
+	#ifdef SW
+	unsigned long tempdata = *data;
+	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+	*data = tempdata;
+	#else 
+	NOT IMPLEMENTED.
+	#endif
+	return; 
+}
+void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value){ 
+	#ifdef SW
+	unsigned long * data = (unsigned long *)keyvalue;
+	return WRITETO_ULONG(data, index, size, value);
+	#else 
+	NOT IMPLEMENTED.
+	#endif
+	return; 
+}
+void actsutility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz){
+	longword->data = (longword->data << databitsz) | data;
+	return;
+}
+void actsutility::PARSE(string message, unsigned long longword){ 
+	cout<<"actsutility::PARSE::"<<message<<" message"<<endl;
+	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	unsigned int item = 0;
+	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
+	for(unsigned int i=0; i<numitems; i++){
+		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << SRAMSZ_POW)) + item)<<endl;
+	}
+	return;
+}
+unsigned int actsutility::PARSE(unsigned long longword, unsigned int * _items){ 
+	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	if(numitems > COMPACTPARAM_ITEMSIZE_TOTALDATA){
+		cout<<"actsutility::PARSE. numitems > 3. exiting..."<<endl;
+		ULONGTOBINARY(longword);
+		PARSE("compactgraph::verify actual committing...", longword);
+		exit(EXIT_FAILURE);
+	}
+	unsigned int item = 0;
+	for(unsigned int i=0; i<numitems; i++){
+		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		_items[i] = ((streetaddr * (1 << SRAMSZ_POW)) + item);
+	}
+	return numitems;
+}
+unsigned int actsutility::PARSE(keyvalue_t keyvalue, unsigned int * _items){
+	unsigned long * longword = (unsigned long *)&keyvalue;
+	return PARSE(*longword, _items);
+}
+unsigned int actsutility::GETKEY(unsigned long longword){ 
+	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+	return ((streetaddr * (1 << SRAMSZ_POW)) + item);
+}
 
 

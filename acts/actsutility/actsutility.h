@@ -16,13 +16,13 @@ public:
 	actsutility();
 	~actsutility();
 	
-	void dectobinary(int n);
+	/* void dectobinary(int n);
 	void ulongtobinary(unsigned long n);
 	int bitExtracted(unsigned long number, int k, int p);
 	int bitExtracted(unsigned int number, int k, int p);
 	void printcodedkeyvalue(string message, unsigned long longword);
 	void printcodedkeyvalue(string message, keyvalue_t * keyvalue);
-	void printcodedkeyvalue(string message, keyvalue_t keyvalue);
+	void printcodedkeyvalue(string message, keyvalue_t keyvalue); */
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	void checkoutofbounds(unsigned int enable, string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
@@ -155,6 +155,20 @@ public:
 							unsigned int currentLOP, unsigned int upperlimit, unsigned int batch_range_pow);
 	void intrapartitioncheck();
 	void postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], travstate_t ptravstate, sweepparams_t sweepparams, globalparams_t globalparams);
+	
+	// compact graph utilities
+	void DECTOBINARY(int n);
+	void ULONGTOBINARY(unsigned long n);
+	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
+	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
+	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
+	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value);
+	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value);
+	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
+	void PARSE(string message, unsigned long longword);
+	unsigned int PARSE(unsigned long longword, unsigned int * _items);
+	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
+	unsigned int GETKEY(unsigned long longword);
 	
 private:
 	#ifdef SW 

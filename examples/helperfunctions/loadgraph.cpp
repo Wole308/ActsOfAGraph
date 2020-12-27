@@ -284,7 +284,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 			keyvalue_t keyvalue;
 			#ifdef COMPACTEDGES
 			uuint64_dt longword = edgesptr[k];
-			keyvalue.key = utilityobj->getkey(longword.data); 
+			keyvalue.key = utilityobj->GETKEY(longword.data); 
 			keyvalue.value = 0;
 			#else
 			keyvalue.key = edgesptr[k].dstvid;

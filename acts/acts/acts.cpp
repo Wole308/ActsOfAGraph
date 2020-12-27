@@ -163,77 +163,57 @@ WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, un
 	#endif
 	return; 
 }
-keyy_t 
+keyy_t
 	#ifdef SW 
 	acts::
 	#endif 
-getkey(keyvalue_t keyvalue){
-	keyy_t key = 0;
+GETKEY(keyvalue_t keyvalue){ 
 	#ifdef COMPACTEDGES
-		if(keyvalue.value == INVALIDDATA){
-			key = keyvalue.key;
-		} else {
-			// [keyvalue]100000000000 00110000000000010000000000000101
-			// [value]100000000000 
-			// [key]00110000000000010000000000000101 
-			#ifdef SW
-			unsigned long * longword = (unsigned long *)&keyvalue;
-			key = (READFROM_ULONG(*longword, 56, 8) * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 0, 14); 
-			#else 
-				NOT IMPLEMENTED
-			#endif
-		}
-	#else 
-		key = keyvalue.key;
-	#endif 
-	return key;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-setkey(keyvalue_t * keyvalue, keyy_t key){
-	#ifdef COMPACTEDGES
+	if(keyvalue.value == INVALIDDATA){
+		return keyvalue.key;
+	} else {
+		// [keyvalue]100000000000 00110000000000010000000000000101
+		// [value]100000000000 
+		// [key]00110000000000010000000000000101 
 		#ifdef SW
-		unsigned long * longword = (unsigned long *)keyvalue;
-		WRITETO_ULONG(longword, 0, 14, key % (1 << SRAMSZ_POW));
-		WRITETO_ULONG(longword, 56, 8, (key >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH)))); // FIXME. use globalparams.treedepth?
-		
-		WRITETO_ULONG(longword, 0, 14, 0);
-		WRITETO_ULONG(longword, 56, 8, 0);
+		unsigned long * longword = (unsigned long *)&keyvalue;
+		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+		unsigned int item = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		return ((streetaddr * (1 << SRAMSZ_POW)) + item);
 		#else 
 		NOT IMPLEMENTED
 		#endif
+	}
 	#else 
-		keyvalue->key = key;
-	#endif 
-	return;
+	return keyvalue.key;
+	#endif
 }
-void 
+unsigned int 
 	#ifdef SW 
 	acts::
 	#endif 
-getkeys(keyvalue_t keyvalue, keyy_t keys[4]){
+GETKEYS(keyvalue_t keyvalue, keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA]){
 	#ifdef SW
 		unsigned long * longword = (unsigned long *)&keyvalue;
-		unsigned int h = READFROM_ULONG(*longword, 56, 8);
-		
-		keys[0] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 0, 14); 
-		keys[1] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 14, 14); 
-		keys[2] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 28, 14); 
-		keys[3] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 42, 14); 
+
+		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+		keys[0] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		keys[1] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 1*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		keys[2] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 2*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"h: "<<h<<endl;
-		cout<<"READFROM_ULONG(*longword, 0, 14): "<<READFROM_ULONG(*longword, 0, 14)<<endl;
-		cout<<"READFROM_ULONG(*longword, 14, 14): "<<READFROM_ULONG(*longword, 14, 14)<<endl;
-		cout<<"READFROM_ULONG(*longword, 28, 14): "<<READFROM_ULONG(*longword, 28, 14)<<endl;
-		cout<<"READFROM_ULONG(*longword, 42, 14): "<<READFROM_ULONG(*longword, 42, 14)<<endl;
+		cout<<"streetaddr: "<<streetaddr<<endl;
+		cout<<"numitems: "<<numitems<<endl;
+		cout<<"keys[0]: "<<keys[0]<<endl;
+		cout<<"keys[1]: "<<keys[1]<<endl;
+		cout<<"keys[2]: "<<keys[2]<<endl;
 		#endif 
 	#else 
-		NOT IMPLEMENTED
+	NOT IMPLEMENTED
 	#endif
-	return;
+	return numitems;
 }
 batch_type
 	#ifdef SW 
@@ -384,7 +364,7 @@ getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex
 	partition_type partition;
 	
 	#ifdef OPTMZ
-	if(enable == ON){ partition = ((getkey(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
+	if(enable == ON){ partition = ((GETKEY(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
 	else { partition = 0; }
 	#else 
 	partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
@@ -2705,70 +2685,78 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 	
-	keyy_t keys0[4]; 
-	vertex_t locs0[4];
-	vertex_t rowindexs0[4];
-	vertex_t colindexs0[4];
-	value_t temps0[4];
-	value_t rettemps0[4];
-	keyvalue_t vprop0[4];
+	keyy_t keys0[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en0;
-	keyy_t keys1[4]; 
-	vertex_t locs1[4];
-	vertex_t rowindexs1[4];
-	vertex_t colindexs1[4];
-	value_t temps1[4];
-	value_t rettemps1[4];
-	keyvalue_t vprop1[4];
+	bool_type en20;
+	keyy_t keys1[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en1;
-	keyy_t keys2[4]; 
-	vertex_t locs2[4];
-	vertex_t rowindexs2[4];
-	vertex_t colindexs2[4];
-	value_t temps2[4];
-	value_t rettemps2[4];
-	keyvalue_t vprop2[4];
+	bool_type en21;
+	keyy_t keys2[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en2;
-	keyy_t keys3[4]; 
-	vertex_t locs3[4];
-	vertex_t rowindexs3[4];
-	vertex_t colindexs3[4];
-	value_t temps3[4];
-	value_t rettemps3[4];
-	keyvalue_t vprop3[4];
+	bool_type en22;
+	keyy_t keys3[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en3;
-	keyy_t keys4[4]; 
-	vertex_t locs4[4];
-	vertex_t rowindexs4[4];
-	vertex_t colindexs4[4];
-	value_t temps4[4];
-	value_t rettemps4[4];
-	keyvalue_t vprop4[4];
+	bool_type en23;
+	keyy_t keys4[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en4;
-	keyy_t keys5[4]; 
-	vertex_t locs5[4];
-	vertex_t rowindexs5[4];
-	vertex_t colindexs5[4];
-	value_t temps5[4];
-	value_t rettemps5[4];
-	keyvalue_t vprop5[4];
+	bool_type en24;
+	keyy_t keys5[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en5;
-	keyy_t keys6[4]; 
-	vertex_t locs6[4];
-	vertex_t rowindexs6[4];
-	vertex_t colindexs6[4];
-	value_t temps6[4];
-	value_t rettemps6[4];
-	keyvalue_t vprop6[4];
+	bool_type en25;
+	keyy_t keys6[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en6;
-	keyy_t keys7[4]; 
-	vertex_t locs7[4];
-	vertex_t rowindexs7[4];
-	vertex_t colindexs7[4];
-	value_t temps7[4];
-	value_t rettemps7[4];
-	keyvalue_t vprop7[4];
+	bool_type en26;
+	keyy_t keys7[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en7;
+	bool_type en27;
 
 	REDUCE_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz
@@ -2795,53 +2783,62 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ en6 = ON; } else { en6 = OFF; }
 		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ en7 = ON; } else { en7 = OFF; }
 		
-		getkeys(keyvalue0, keys0);
-		getkeys(keyvalue1, keys1);
-		getkeys(keyvalue2, keys2);
-		getkeys(keyvalue3, keys3);
-		getkeys(keyvalue4, keys4);
-		getkeys(keyvalue5, keys5);
-		getkeys(keyvalue6, keys6);
-		getkeys(keyvalue7, keys7);
+		unsigned int numvalidkeys0 = GETKEYS(keyvalue0, keys0);
+		unsigned int numvalidkeys1 = GETKEYS(keyvalue1, keys1);
+		unsigned int numvalidkeys2 = GETKEYS(keyvalue2, keys2);
+		unsigned int numvalidkeys3 = GETKEYS(keyvalue3, keys3);
+		unsigned int numvalidkeys4 = GETKEYS(keyvalue4, keys4);
+		unsigned int numvalidkeys5 = GETKEYS(keyvalue5, keys5);
+		unsigned int numvalidkeys6 = GETKEYS(keyvalue6, keys6);
+		unsigned int numvalidkeys7 = GETKEYS(keyvalue7, keys7);
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys0["<<t<<"]: "<<keys0[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys1["<<t<<"]: "<<keys1[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys2["<<t<<"]: "<<keys2[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys3["<<t<<"]: "<<keys3[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys4["<<t<<"]: "<<keys4[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys5["<<t<<"]: "<<keys5[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys6["<<t<<"]: "<<keys6[t]<<endl; }
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys7["<<t<<"]: "<<keys7[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys0["<<t<<"]: "<<keys0[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys1["<<t<<"]: "<<keys1[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys2["<<t<<"]: "<<keys2[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys3["<<t<<"]: "<<keys3[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys4["<<t<<"]: "<<keys4[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys5["<<t<<"]: "<<keys5[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys6["<<t<<"]: "<<keys6[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys7["<<t<<"]: "<<keys7[t]<<endl; }
 		#endif
 		
-		for(buffer_type t=0; t<4; t++){
-			if(en0 == ON){ locs0[t] = keys0[t] - upperlimit; }
-			if(en0 == ON){ rowindexs0[t] = locs0[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en0 == ON){ colindexs0[t] = (locs0[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en1 == ON){ locs1[t] = keys1[t] - upperlimit; }
-			if(en1 == ON){ rowindexs1[t] = locs1[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en1 == ON){ colindexs1[t] = (locs1[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en2 == ON){ locs2[t] = keys2[t] - upperlimit; }
-			if(en2 == ON){ rowindexs2[t] = locs2[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en2 == ON){ colindexs2[t] = (locs2[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en3 == ON){ locs3[t] = keys3[t] - upperlimit; }
-			if(en3 == ON){ rowindexs3[t] = locs3[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en3 == ON){ colindexs3[t] = (locs3[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en4 == ON){ locs4[t] = keys4[t] - upperlimit; }
-			if(en4 == ON){ rowindexs4[t] = locs4[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en4 == ON){ colindexs4[t] = (locs4[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en5 == ON){ locs5[t] = keys5[t] - upperlimit; }
-			if(en5 == ON){ rowindexs5[t] = locs5[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en5 == ON){ colindexs5[t] = (locs5[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en6 == ON){ locs6[t] = keys6[t] - upperlimit; }
-			if(en6 == ON){ rowindexs6[t] = locs6[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en6 == ON){ colindexs6[t] = (locs6[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
-			if(en7 == ON){ locs7[t] = keys7[t] - upperlimit; }
-			if(en7 == ON){ rowindexs7[t] = locs7[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en7 == ON){ colindexs7[t] = (locs7[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){
+			if(t < numvalidkeys0){ en20 = ON; } else { en20 = OFF; }
+			if(t < numvalidkeys1){ en21 = ON; } else { en21 = OFF; }
+			if(t < numvalidkeys2){ en22 = ON; } else { en22 = OFF; }
+			if(t < numvalidkeys3){ en23 = ON; } else { en23 = OFF; }
+			if(t < numvalidkeys4){ en24 = ON; } else { en24 = OFF; }
+			if(t < numvalidkeys5){ en25 = ON; } else { en25 = OFF; }
+			if(t < numvalidkeys6){ en26 = ON; } else { en26 = OFF; }
+			if(t < numvalidkeys7){ en27 = ON; } else { en27 = OFF; }
+			
+			if(en0 == ON && en20 == ON){ locs0[t] = keys0[t] - upperlimit; }
+			if(en0 == ON && en20 == ON){ rowindexs0[t] = locs0[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en0 == ON && en20 == ON){ colindexs0[t] = (locs0[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en1 == ON && en21 == ON){ locs1[t] = keys1[t] - upperlimit; }
+			if(en1 == ON && en21 == ON){ rowindexs1[t] = locs1[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en1 == ON && en21 == ON){ colindexs1[t] = (locs1[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en2 == ON && en22 == ON){ locs2[t] = keys2[t] - upperlimit; }
+			if(en2 == ON && en22 == ON){ rowindexs2[t] = locs2[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en2 == ON && en22 == ON){ colindexs2[t] = (locs2[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en3 == ON && en23 == ON){ locs3[t] = keys3[t] - upperlimit; }
+			if(en3 == ON && en23 == ON){ rowindexs3[t] = locs3[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en3 == ON && en23 == ON){ colindexs3[t] = (locs3[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en4 == ON && en24 == ON){ locs4[t] = keys4[t] - upperlimit; }
+			if(en4 == ON && en24 == ON){ rowindexs4[t] = locs4[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en4 == ON && en24 == ON){ colindexs4[t] = (locs4[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en5 == ON && en25 == ON){ locs5[t] = keys5[t] - upperlimit; }
+			if(en5 == ON && en25 == ON){ rowindexs5[t] = locs5[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en5 == ON && en25 == ON){ colindexs5[t] = (locs5[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en6 == ON && en26 == ON){ locs6[t] = keys6[t] - upperlimit; }
+			if(en6 == ON && en26 == ON){ rowindexs6[t] = locs6[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en6 == ON && en26 == ON){ colindexs6[t] = (locs6[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(en7 == ON && en27 == ON){ locs7[t] = keys7[t] - upperlimit; }
+			if(en7 == ON && en27 == ON){ rowindexs7[t] = locs7[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en7 == ON && en27 == ON){ colindexs7[t] = (locs7[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
 			
 			#ifdef _DEBUGMODE_CHECKS2
-			if(en0 == ON){
+			if(en0 == ON && en20 == ON){
 				if(locs0[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs0[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs0[t]: "<<locs0[t]<<", keyvalue0.key: "<<keyvalue0.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2855,7 +2852,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en1 == ON){
+			if(en1 == ON && en21 == ON){
 				if(locs1[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs1[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs1[t]: "<<locs1[t]<<", keyvalue1.key: "<<keyvalue1.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2869,7 +2866,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en2 == ON){
+			if(en2 == ON && en22 == ON){
 				if(locs2[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs2[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs2[t]: "<<locs2[t]<<", keyvalue2.key: "<<keyvalue2.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2883,7 +2880,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en3 == ON){
+			if(en3 == ON && en23 == ON){
 				if(locs3[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs3[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs3[t]: "<<locs3[t]<<", keyvalue3.key: "<<keyvalue3.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2897,7 +2894,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en4 == ON){
+			if(en4 == ON && en24 == ON){
 				if(locs4[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs4[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs4[t]: "<<locs4[t]<<", keyvalue4.key: "<<keyvalue4.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2911,7 +2908,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en5 == ON){
+			if(en5 == ON && en25 == ON){
 				if(locs5[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs5[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs5[t]: "<<locs5[t]<<", keyvalue5.key: "<<keyvalue5.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2925,7 +2922,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en6 == ON){
+			if(en6 == ON && en26 == ON){
 				if(locs6[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs6[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs6[t]: "<<locs6[t]<<", keyvalue6.key: "<<keyvalue6.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2939,7 +2936,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				#endif
 			}
-			if(en7 == ON){
+			if(en7 == ON && en27 == ON){
 				if(locs7[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs7[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs7[t]: "<<locs7[t]<<", keyvalue7.key: "<<keyvalue7.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -2958,99 +2955,99 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			#endif
 			#endif
 			
-			if(locs0[t] >= globalparams.applyvertexbuffersz && en0 == ON){ locs0[t] = 0; }
-			if(en0 == ON){ vprop0[t] = destbuffer[0][rowindexs0[t]]; }
-			if(en0 == ON){ temps0[t] = READFROM_ULONG(vprop0[t], 64 - colindexs0[t] - 2, 2); }
-			if(en0 == ON){ rettemps0[t] = reducefunc(temps0[t], NAp, GraphIter, GraphAlgo); }
-			if(en0 == ON){ WRITETO_ULONG(&vprop0[t], 64 - colindexs0[t] - 2, 2, rettemps0[t]); }
-			if(en0 == ON){ destbuffer[0][rowindexs0[t]] = vprop0[t]; }
-			if(locs1[t] >= globalparams.applyvertexbuffersz && en1 == ON){ locs1[t] = 0; }
-			if(en1 == ON){ vprop1[t] = destbuffer[1][rowindexs1[t]]; }
-			if(en1 == ON){ temps1[t] = READFROM_ULONG(vprop1[t], 64 - colindexs1[t] - 2, 2); }
-			if(en1 == ON){ rettemps1[t] = reducefunc(temps1[t], NAp, GraphIter, GraphAlgo); }
-			if(en1 == ON){ WRITETO_ULONG(&vprop1[t], 64 - colindexs1[t] - 2, 2, rettemps1[t]); }
-			if(en1 == ON){ destbuffer[1][rowindexs1[t]] = vprop1[t]; }
-			if(locs2[t] >= globalparams.applyvertexbuffersz && en2 == ON){ locs2[t] = 0; }
-			if(en2 == ON){ vprop2[t] = destbuffer[2][rowindexs2[t]]; }
-			if(en2 == ON){ temps2[t] = READFROM_ULONG(vprop2[t], 64 - colindexs2[t] - 2, 2); }
-			if(en2 == ON){ rettemps2[t] = reducefunc(temps2[t], NAp, GraphIter, GraphAlgo); }
-			if(en2 == ON){ WRITETO_ULONG(&vprop2[t], 64 - colindexs2[t] - 2, 2, rettemps2[t]); }
-			if(en2 == ON){ destbuffer[2][rowindexs2[t]] = vprop2[t]; }
-			if(locs3[t] >= globalparams.applyvertexbuffersz && en3 == ON){ locs3[t] = 0; }
-			if(en3 == ON){ vprop3[t] = destbuffer[3][rowindexs3[t]]; }
-			if(en3 == ON){ temps3[t] = READFROM_ULONG(vprop3[t], 64 - colindexs3[t] - 2, 2); }
-			if(en3 == ON){ rettemps3[t] = reducefunc(temps3[t], NAp, GraphIter, GraphAlgo); }
-			if(en3 == ON){ WRITETO_ULONG(&vprop3[t], 64 - colindexs3[t] - 2, 2, rettemps3[t]); }
-			if(en3 == ON){ destbuffer[3][rowindexs3[t]] = vprop3[t]; }
-			if(locs4[t] >= globalparams.applyvertexbuffersz && en4 == ON){ locs4[t] = 0; }
-			if(en4 == ON){ vprop4[t] = destbuffer[4][rowindexs4[t]]; }
-			if(en4 == ON){ temps4[t] = READFROM_ULONG(vprop4[t], 64 - colindexs4[t] - 2, 2); }
-			if(en4 == ON){ rettemps4[t] = reducefunc(temps4[t], NAp, GraphIter, GraphAlgo); }
-			if(en4 == ON){ WRITETO_ULONG(&vprop4[t], 64 - colindexs4[t] - 2, 2, rettemps4[t]); }
-			if(en4 == ON){ destbuffer[4][rowindexs4[t]] = vprop4[t]; }
-			if(locs5[t] >= globalparams.applyvertexbuffersz && en5 == ON){ locs5[t] = 0; }
-			if(en5 == ON){ vprop5[t] = destbuffer[5][rowindexs5[t]]; }
-			if(en5 == ON){ temps5[t] = READFROM_ULONG(vprop5[t], 64 - colindexs5[t] - 2, 2); }
-			if(en5 == ON){ rettemps5[t] = reducefunc(temps5[t], NAp, GraphIter, GraphAlgo); }
-			if(en5 == ON){ WRITETO_ULONG(&vprop5[t], 64 - colindexs5[t] - 2, 2, rettemps5[t]); }
-			if(en5 == ON){ destbuffer[5][rowindexs5[t]] = vprop5[t]; }
-			if(locs6[t] >= globalparams.applyvertexbuffersz && en6 == ON){ locs6[t] = 0; }
-			if(en6 == ON){ vprop6[t] = destbuffer[6][rowindexs6[t]]; }
-			if(en6 == ON){ temps6[t] = READFROM_ULONG(vprop6[t], 64 - colindexs6[t] - 2, 2); }
-			if(en6 == ON){ rettemps6[t] = reducefunc(temps6[t], NAp, GraphIter, GraphAlgo); }
-			if(en6 == ON){ WRITETO_ULONG(&vprop6[t], 64 - colindexs6[t] - 2, 2, rettemps6[t]); }
-			if(en6 == ON){ destbuffer[6][rowindexs6[t]] = vprop6[t]; }
-			if(locs7[t] >= globalparams.applyvertexbuffersz && en7 == ON){ locs7[t] = 0; }
-			if(en7 == ON){ vprop7[t] = destbuffer[7][rowindexs7[t]]; }
-			if(en7 == ON){ temps7[t] = READFROM_ULONG(vprop7[t], 64 - colindexs7[t] - 2, 2); }
-			if(en7 == ON){ rettemps7[t] = reducefunc(temps7[t], NAp, GraphIter, GraphAlgo); }
-			if(en7 == ON){ WRITETO_ULONG(&vprop7[t], 64 - colindexs7[t] - 2, 2, rettemps7[t]); }
-			if(en7 == ON){ destbuffer[7][rowindexs7[t]] = vprop7[t]; }
+			if(locs0[t] >= globalparams.applyvertexbuffersz && en0 == ON && en20 == ON){ locs0[t] = 0; }
+			if(en0 == ON && en20 == ON){ vprop0[t] = destbuffer[0][rowindexs0[t]]; }
+			if(en0 == ON && en20 == ON){ temps0[t] = READFROM_ULONG(vprop0[t], 64 - colindexs0[t] - 2, 2); }
+			if(en0 == ON && en20 == ON){ rettemps0[t] = reducefunc(temps0[t], NAp, GraphIter, GraphAlgo); }
+			if(en0 == ON && en20 == ON){ WRITETO_ULONG(&vprop0[t], 64 - colindexs0[t] - 2, 2, rettemps0[t]); }
+			if(en0 == ON && en20 == ON){ destbuffer[0][rowindexs0[t]] = vprop0[t]; }
+			if(locs1[t] >= globalparams.applyvertexbuffersz && en1 == ON && en21 == ON){ locs1[t] = 0; }
+			if(en1 == ON && en21 == ON){ vprop1[t] = destbuffer[1][rowindexs1[t]]; }
+			if(en1 == ON && en21 == ON){ temps1[t] = READFROM_ULONG(vprop1[t], 64 - colindexs1[t] - 2, 2); }
+			if(en1 == ON && en21 == ON){ rettemps1[t] = reducefunc(temps1[t], NAp, GraphIter, GraphAlgo); }
+			if(en1 == ON && en21 == ON){ WRITETO_ULONG(&vprop1[t], 64 - colindexs1[t] - 2, 2, rettemps1[t]); }
+			if(en1 == ON && en21 == ON){ destbuffer[1][rowindexs1[t]] = vprop1[t]; }
+			if(locs2[t] >= globalparams.applyvertexbuffersz && en2 == ON && en22 == ON){ locs2[t] = 0; }
+			if(en2 == ON && en22 == ON){ vprop2[t] = destbuffer[2][rowindexs2[t]]; }
+			if(en2 == ON && en22 == ON){ temps2[t] = READFROM_ULONG(vprop2[t], 64 - colindexs2[t] - 2, 2); }
+			if(en2 == ON && en22 == ON){ rettemps2[t] = reducefunc(temps2[t], NAp, GraphIter, GraphAlgo); }
+			if(en2 == ON && en22 == ON){ WRITETO_ULONG(&vprop2[t], 64 - colindexs2[t] - 2, 2, rettemps2[t]); }
+			if(en2 == ON && en22 == ON){ destbuffer[2][rowindexs2[t]] = vprop2[t]; }
+			if(locs3[t] >= globalparams.applyvertexbuffersz && en3 == ON && en23 == ON){ locs3[t] = 0; }
+			if(en3 == ON && en23 == ON){ vprop3[t] = destbuffer[3][rowindexs3[t]]; }
+			if(en3 == ON && en23 == ON){ temps3[t] = READFROM_ULONG(vprop3[t], 64 - colindexs3[t] - 2, 2); }
+			if(en3 == ON && en23 == ON){ rettemps3[t] = reducefunc(temps3[t], NAp, GraphIter, GraphAlgo); }
+			if(en3 == ON && en23 == ON){ WRITETO_ULONG(&vprop3[t], 64 - colindexs3[t] - 2, 2, rettemps3[t]); }
+			if(en3 == ON && en23 == ON){ destbuffer[3][rowindexs3[t]] = vprop3[t]; }
+			if(locs4[t] >= globalparams.applyvertexbuffersz && en4 == ON && en24 == ON){ locs4[t] = 0; }
+			if(en4 == ON && en24 == ON){ vprop4[t] = destbuffer[4][rowindexs4[t]]; }
+			if(en4 == ON && en24 == ON){ temps4[t] = READFROM_ULONG(vprop4[t], 64 - colindexs4[t] - 2, 2); }
+			if(en4 == ON && en24 == ON){ rettemps4[t] = reducefunc(temps4[t], NAp, GraphIter, GraphAlgo); }
+			if(en4 == ON && en24 == ON){ WRITETO_ULONG(&vprop4[t], 64 - colindexs4[t] - 2, 2, rettemps4[t]); }
+			if(en4 == ON && en24 == ON){ destbuffer[4][rowindexs4[t]] = vprop4[t]; }
+			if(locs5[t] >= globalparams.applyvertexbuffersz && en5 == ON && en25 == ON){ locs5[t] = 0; }
+			if(en5 == ON && en25 == ON){ vprop5[t] = destbuffer[5][rowindexs5[t]]; }
+			if(en5 == ON && en25 == ON){ temps5[t] = READFROM_ULONG(vprop5[t], 64 - colindexs5[t] - 2, 2); }
+			if(en5 == ON && en25 == ON){ rettemps5[t] = reducefunc(temps5[t], NAp, GraphIter, GraphAlgo); }
+			if(en5 == ON && en25 == ON){ WRITETO_ULONG(&vprop5[t], 64 - colindexs5[t] - 2, 2, rettemps5[t]); }
+			if(en5 == ON && en25 == ON){ destbuffer[5][rowindexs5[t]] = vprop5[t]; }
+			if(locs6[t] >= globalparams.applyvertexbuffersz && en6 == ON && en26 == ON){ locs6[t] = 0; }
+			if(en6 == ON && en26 == ON){ vprop6[t] = destbuffer[6][rowindexs6[t]]; }
+			if(en6 == ON && en26 == ON){ temps6[t] = READFROM_ULONG(vprop6[t], 64 - colindexs6[t] - 2, 2); }
+			if(en6 == ON && en26 == ON){ rettemps6[t] = reducefunc(temps6[t], NAp, GraphIter, GraphAlgo); }
+			if(en6 == ON && en26 == ON){ WRITETO_ULONG(&vprop6[t], 64 - colindexs6[t] - 2, 2, rettemps6[t]); }
+			if(en6 == ON && en26 == ON){ destbuffer[6][rowindexs6[t]] = vprop6[t]; }
+			if(locs7[t] >= globalparams.applyvertexbuffersz && en7 == ON && en27 == ON){ locs7[t] = 0; }
+			if(en7 == ON && en27 == ON){ vprop7[t] = destbuffer[7][rowindexs7[t]]; }
+			if(en7 == ON && en27 == ON){ temps7[t] = READFROM_ULONG(vprop7[t], 64 - colindexs7[t] - 2, 2); }
+			if(en7 == ON && en27 == ON){ rettemps7[t] = reducefunc(temps7[t], NAp, GraphIter, GraphAlgo); }
+			if(en7 == ON && en27 == ON){ WRITETO_ULONG(&vprop7[t], 64 - colindexs7[t] - 2, 2, rettemps7[t]); }
+			if(en7 == ON && en27 == ON){ destbuffer[7][rowindexs7[t]] = vprop7[t]; }
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			if(en0 == ON){ 
+			if(en0 == ON && en20 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs0[t]: "<<locs0[t]<<", keyvalue0.key: "<<keyvalue0.key<<", keyvalue0.value: "<<keyvalue0.value<<", keys0[t]: "<<keys0[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs0[t]: "<<rowindexs0[t]<<", colindexs0[t]: "<<colindexs0[t]<<", colindexs0[t]: "<<colindexs0[t]<<endl;
 				cout<<"reduce_bfs: vprop0[t].key: "<<vprop0[t].key<<", vprop0[t].value: "<<vprop0[t].value<<", rowindexs0[t]: "<<rowindexs0[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps0[t]: "<<rettemps0[t]<<endl;
 			}
-			if(en1 == ON){ 
+			if(en1 == ON && en21 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs1[t]: "<<locs1[t]<<", keyvalue1.key: "<<keyvalue1.key<<", keyvalue1.value: "<<keyvalue1.value<<", keys1[t]: "<<keys1[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs1[t]: "<<rowindexs1[t]<<", colindexs1[t]: "<<colindexs1[t]<<", colindexs1[t]: "<<colindexs1[t]<<endl;
 				cout<<"reduce_bfs: vprop1[t].key: "<<vprop1[t].key<<", vprop1[t].value: "<<vprop1[t].value<<", rowindexs1[t]: "<<rowindexs1[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps1[t]: "<<rettemps1[t]<<endl;
 			}
-			if(en2 == ON){ 
+			if(en2 == ON && en22 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs2[t]: "<<locs2[t]<<", keyvalue2.key: "<<keyvalue2.key<<", keyvalue2.value: "<<keyvalue2.value<<", keys2[t]: "<<keys2[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs2[t]: "<<rowindexs2[t]<<", colindexs2[t]: "<<colindexs2[t]<<", colindexs2[t]: "<<colindexs2[t]<<endl;
 				cout<<"reduce_bfs: vprop2[t].key: "<<vprop2[t].key<<", vprop2[t].value: "<<vprop2[t].value<<", rowindexs2[t]: "<<rowindexs2[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps2[t]: "<<rettemps2[t]<<endl;
 			}
-			if(en3 == ON){ 
+			if(en3 == ON && en23 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs3[t]: "<<locs3[t]<<", keyvalue3.key: "<<keyvalue3.key<<", keyvalue3.value: "<<keyvalue3.value<<", keys3[t]: "<<keys3[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs3[t]: "<<rowindexs3[t]<<", colindexs3[t]: "<<colindexs3[t]<<", colindexs3[t]: "<<colindexs3[t]<<endl;
 				cout<<"reduce_bfs: vprop3[t].key: "<<vprop3[t].key<<", vprop3[t].value: "<<vprop3[t].value<<", rowindexs3[t]: "<<rowindexs3[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps3[t]: "<<rettemps3[t]<<endl;
 			}
-			if(en4 == ON){ 
+			if(en4 == ON && en24 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs4[t]: "<<locs4[t]<<", keyvalue4.key: "<<keyvalue4.key<<", keyvalue4.value: "<<keyvalue4.value<<", keys4[t]: "<<keys4[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs4[t]: "<<rowindexs4[t]<<", colindexs4[t]: "<<colindexs4[t]<<", colindexs4[t]: "<<colindexs4[t]<<endl;
 				cout<<"reduce_bfs: vprop4[t].key: "<<vprop4[t].key<<", vprop4[t].value: "<<vprop4[t].value<<", rowindexs4[t]: "<<rowindexs4[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps4[t]: "<<rettemps4[t]<<endl;
 			}
-			if(en5 == ON){ 
+			if(en5 == ON && en25 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs5[t]: "<<locs5[t]<<", keyvalue5.key: "<<keyvalue5.key<<", keyvalue5.value: "<<keyvalue5.value<<", keys5[t]: "<<keys5[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs5[t]: "<<rowindexs5[t]<<", colindexs5[t]: "<<colindexs5[t]<<", colindexs5[t]: "<<colindexs5[t]<<endl;
 				cout<<"reduce_bfs: vprop5[t].key: "<<vprop5[t].key<<", vprop5[t].value: "<<vprop5[t].value<<", rowindexs5[t]: "<<rowindexs5[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps5[t]: "<<rettemps5[t]<<endl;
 			}
-			if(en6 == ON){ 
+			if(en6 == ON && en26 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs6[t]: "<<locs6[t]<<", keyvalue6.key: "<<keyvalue6.key<<", keyvalue6.value: "<<keyvalue6.value<<", keys6[t]: "<<keys6[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs6[t]: "<<rowindexs6[t]<<", colindexs6[t]: "<<colindexs6[t]<<", colindexs6[t]: "<<colindexs6[t]<<endl;
 				cout<<"reduce_bfs: vprop6[t].key: "<<vprop6[t].key<<", vprop6[t].value: "<<vprop6[t].value<<", rowindexs6[t]: "<<rowindexs6[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps6[t]: "<<rettemps6[t]<<endl;
 			}
-			if(en7 == ON){ 
+			if(en7 == ON && en27 == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs7[t]: "<<locs7[t]<<", keyvalue7.key: "<<keyvalue7.key<<", keyvalue7.value: "<<keyvalue7.value<<", keys7[t]: "<<keys7[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs7[t]: "<<rowindexs7[t]<<", colindexs7[t]: "<<colindexs7[t]<<", colindexs7[t]: "<<colindexs7[t]<<endl;
 				cout<<"reduce_bfs: vprop7[t].key: "<<vprop7[t].key<<", vprop7[t].value: "<<vprop7[t].value<<", rowindexs7[t]: "<<rowindexs7[t]<<endl;
@@ -5227,6 +5224,7 @@ processactivevertices_compactedges(
 	#ifdef _DEBUGMODE_STATS
 	unsigned int edges_count = 0;
 	unsigned int edgesdstv_sum = 0;
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"processactivevertices_compactedges: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
@@ -5362,14 +5360,14 @@ processactivevertices_compactedges(
 					
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
 					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
-					actsutilityobj->printcodedkeyvalue("E.data[0]", E.data[0]);
-					actsutilityobj->printcodedkeyvalue("E.data[1]", E.data[1]);
-					actsutilityobj->printcodedkeyvalue("E.data[2]", E.data[2]);
-					actsutilityobj->printcodedkeyvalue("E.data[3]", E.data[3]);
-					actsutilityobj->printcodedkeyvalue("E.data[4]", E.data[4]);
-					actsutilityobj->printcodedkeyvalue("E.data[5]", E.data[5]);
-					actsutilityobj->printcodedkeyvalue("E.data[6]", E.data[6]);
-					actsutilityobj->printcodedkeyvalue("E.data[7]", E.data[7]);
+					actsutilityobj->PARSE("E.data[0]", E.data[0]);
+					actsutilityobj->PARSE("E.data[1]", E.data[1]);
+					actsutilityobj->PARSE("E.data[2]", E.data[2]);
+					actsutilityobj->PARSE("E.data[3]", E.data[3]);
+					actsutilityobj->PARSE("E.data[4]", E.data[4]);
+					actsutilityobj->PARSE("E.data[5]", E.data[5]);
+					actsutilityobj->PARSE("E.data[6]", E.data[6]);
+					actsutilityobj->PARSE("E.data[7]", E.data[7]);
 					#endif
 					
 					vertexupdate0 = E.data[0];
@@ -5453,14 +5451,30 @@ processactivevertices_compactedges(
 					
 					#ifdef _DEBUGMODE_STATS
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
-					if(en0 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate0.key; }
-					if(en1 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate1.key; }
-					if(en2 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate2.key; }
-					if(en3 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate3.key; }
-					if(en4 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate4.key; }
-					if(en5 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate5.key; }
-					if(en6 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate6.key; }
-					if(en7 == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate7.key; }
+					if(en0 == ON){ unsigned int numitems0 = actsutilityobj->PARSE(vertexupdate0, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems0); edges_count += numitems0; 
+						for(unsigned int t=0; t<numitems0; t++){ edgesdstv_sum += keys[t]; }}
+					if(en1 == ON){ unsigned int numitems1 = actsutilityobj->PARSE(vertexupdate1, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems1); edges_count += numitems1; 
+						for(unsigned int t=0; t<numitems1; t++){ edgesdstv_sum += keys[t]; }}
+					if(en2 == ON){ unsigned int numitems2 = actsutilityobj->PARSE(vertexupdate2, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems2); edges_count += numitems2; 
+						for(unsigned int t=0; t<numitems2; t++){ edgesdstv_sum += keys[t]; }}
+					if(en3 == ON){ unsigned int numitems3 = actsutilityobj->PARSE(vertexupdate3, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems3); edges_count += numitems3; 
+						for(unsigned int t=0; t<numitems3; t++){ edgesdstv_sum += keys[t]; }}
+					if(en4 == ON){ unsigned int numitems4 = actsutilityobj->PARSE(vertexupdate4, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems4); edges_count += numitems4; 
+						for(unsigned int t=0; t<numitems4; t++){ edgesdstv_sum += keys[t]; }}
+					if(en5 == ON){ unsigned int numitems5 = actsutilityobj->PARSE(vertexupdate5, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems5); edges_count += numitems5; 
+						for(unsigned int t=0; t<numitems5; t++){ edgesdstv_sum += keys[t]; }}
+					if(en6 == ON){ unsigned int numitems6 = actsutilityobj->PARSE(vertexupdate6, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems6); edges_count += numitems6; 
+						for(unsigned int t=0; t<numitems6; t++){ edgesdstv_sum += keys[t]; }}
+					if(en7 == ON){ unsigned int numitems7 = actsutilityobj->PARSE(vertexupdate7, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems7); edges_count += numitems7; 
+						for(unsigned int t=0; t<numitems7; t++){ edgesdstv_sum += keys[t]; }}
 					#endif
 					
 					buffersize_kvs += 1;
@@ -5469,7 +5483,7 @@ processactivevertices_compactedges(
 					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					cout<<"processactivevertices_compactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
-					// savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
 					saveoffset_kvs += buffersize_kvs;
 					buffersize_kvs = 0;
 				}
@@ -5489,12 +5503,12 @@ processactivevertices_compactedges(
 			}
 		}
 	}
-	cout<<"acts:: -------------------------------------------- edges_count: "<<edges_count<<endl;
 	#ifdef _DEBUGMODE_STATS
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key = edges_count;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
 	#endif
+	// exit(EXIT_SUCCESS);
 	return saveoffset_kvs;
 }
 

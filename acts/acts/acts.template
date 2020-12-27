@@ -163,77 +163,57 @@ WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, un
 	#endif
 	return; 
 }
-keyy_t 
+keyy_t
 	#ifdef SW 
 	acts::
 	#endif 
-getkey(keyvalue_t keyvalue){
-	keyy_t key = 0;
+GETKEY(keyvalue_t keyvalue){ 
 	#ifdef COMPACTEDGES
-		if(keyvalue.value == INVALIDDATA){
-			key = keyvalue.key;
-		} else {
-			// [keyvalue]100000000000 00110000000000010000000000000101
-			// [value]100000000000 
-			// [key]00110000000000010000000000000101 
-			#ifdef SW
-			unsigned long * longword = (unsigned long *)&keyvalue;
-			key = (READFROM_ULONG(*longword, 56, 8) * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 0, 14); 
-			#else 
-				NOT IMPLEMENTED
-			#endif
-		}
-	#else 
-		key = keyvalue.key;
-	#endif 
-	return key;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-setkey(keyvalue_t * keyvalue, keyy_t key){
-	#ifdef COMPACTEDGES
+	if(keyvalue.value == INVALIDDATA){
+		return keyvalue.key;
+	} else {
+		// [keyvalue]100000000000 00110000000000010000000000000101
+		// [value]100000000000 
+		// [key]00110000000000010000000000000101 
 		#ifdef SW
-		unsigned long * longword = (unsigned long *)keyvalue;
-		WRITETO_ULONG(longword, 0, 14, key % (1 << SRAMSZ_POW));
-		WRITETO_ULONG(longword, 56, 8, (key >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH)))); // FIXME. use globalparams.treedepth?
-		
-		WRITETO_ULONG(longword, 0, 14, 0);
-		WRITETO_ULONG(longword, 56, 8, 0);
+		unsigned long * longword = (unsigned long *)&keyvalue;
+		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+		unsigned int item = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		return ((streetaddr * (1 << SRAMSZ_POW)) + item);
 		#else 
 		NOT IMPLEMENTED
 		#endif
+	}
 	#else 
-		keyvalue->key = key;
-	#endif 
-	return;
+	return keyvalue.key;
+	#endif
 }
-void 
+unsigned int 
 	#ifdef SW 
 	acts::
 	#endif 
-getkeys(keyvalue_t keyvalue, keyy_t keys[4]){
+GETKEYS(keyvalue_t keyvalue, keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA]){
 	#ifdef SW
 		unsigned long * longword = (unsigned long *)&keyvalue;
-		unsigned int h = READFROM_ULONG(*longword, 56, 8);
-		
-		keys[0] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 0, 14); 
-		keys[1] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 14, 14); 
-		keys[2] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 28, 14); 
-		keys[3] = (h * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, 42, 14); 
+
+		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+		keys[0] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		keys[1] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 1*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		keys[2] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 2*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"h: "<<h<<endl;
-		cout<<"READFROM_ULONG(*longword, 0, 14): "<<READFROM_ULONG(*longword, 0, 14)<<endl;
-		cout<<"READFROM_ULONG(*longword, 14, 14): "<<READFROM_ULONG(*longword, 14, 14)<<endl;
-		cout<<"READFROM_ULONG(*longword, 28, 14): "<<READFROM_ULONG(*longword, 28, 14)<<endl;
-		cout<<"READFROM_ULONG(*longword, 42, 14): "<<READFROM_ULONG(*longword, 42, 14)<<endl;
+		cout<<"streetaddr: "<<streetaddr<<endl;
+		cout<<"numitems: "<<numitems<<endl;
+		cout<<"keys[0]: "<<keys[0]<<endl;
+		cout<<"keys[1]: "<<keys[1]<<endl;
+		cout<<"keys[2]: "<<keys[2]<<endl;
 		#endif 
 	#else 
-		NOT IMPLEMENTED
+	NOT IMPLEMENTED
 	#endif
-	return;
+	return numitems;
 }
 batch_type
 	#ifdef SW 
@@ -364,7 +344,7 @@ getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex
 	partition_type partition;
 	
 	#ifdef OPTMZ
-	if(enable == ON){ partition = ((getkey(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
+	if(enable == ON){ partition = ((GETKEY(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
 	else { partition = 0; }
 	#else 
 	partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
@@ -1711,14 +1691,15 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
 	
 	{%for v in context['VECTOR_SIZE_seq']%}
-	keyy_t keys{{v}}[4]; 
-	vertex_t locs{{v}}[4];
-	vertex_t rowindexs{{v}}[4];
-	vertex_t colindexs{{v}}[4];
-	value_t temps{{v}}[4];
-	value_t rettemps{{v}}[4];
-	keyvalue_t vprop{{v}}[4];
+	keyy_t keys{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA]; 
+	vertex_t locs{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t rowindexs{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	vertex_t colindexs{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t rettemps{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	keyvalue_t vprop{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en{{v}};
+	bool_type en2{{v}};
 	{%endfor%}
 
 	REDUCE_LOOP: for(buffer_type i=0; i<chunk_size; i++){
@@ -1737,24 +1718,28 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		getkeys(keyvalue{{v}}, keys{{v}});
+		unsigned int numvalidkeys{{v}} = GETKEYS(keyvalue{{v}}, keys{{v}});
 		{%endfor%}
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
-		for(buffer_type t=0; t<4; t++){ cout<<"reduce_bfs: keys{{v}}["<<t<<"]: "<<keys{{v}}[t]<<endl; }
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){ cout<<"reduce_bfs: keys{{v}}["<<t<<"]: "<<keys{{v}}[t]<<endl; }
 		{%endfor%}
 		#endif
 		
-		for(buffer_type t=0; t<4; t++){
+		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(en{{v}} == ON){ locs{{v}}[t] = keys{{v}}[t] - upperlimit; }
-			if(en{{v}} == ON){ rowindexs{{v}}[t] = locs{{v}}[t] / (2 * VDATAPACKINGFACTOR); } // max:511
-			if(en{{v}} == ON){ colindexs{{v}}[t] = (locs{{v}}[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
+			if(t < numvalidkeys{{v}}){ en2{{v}} = ON; } else { en2{{v}} = OFF; }
+			{%endfor%}
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			if(en{{v}} == ON && en2{{v}} == ON){ locs{{v}}[t] = keys{{v}}[t] - upperlimit; }
+			if(en{{v}} == ON && en2{{v}} == ON){ rowindexs{{v}}[t] = locs{{v}}[t] / (2 * VDATAPACKINGFACTOR); } // max:511
+			if(en{{v}} == ON && en2{{v}} == ON){ colindexs{{v}}[t] = (locs{{v}}[t] % (2 * VDATAPACKINGFACTOR)) * 2; } // max:31
 			{%endfor%}
 			
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(en{{v}} == ON){
+			if(en{{v}} == ON && en2{{v}} == ON){
 				if(locs{{v}}[t] >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
 				if(locs{{v}}[t] >= globalparams.applyvertexbuffersz){ cout<<"ERROR SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -1775,17 +1760,17 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			#endif
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(locs{{v}}[t] >= globalparams.applyvertexbuffersz && en{{v}} == ON){ locs{{v}}[t] = 0; }
-			if(en{{v}} == ON){ vprop{{v}}[t] = destbuffer[{{v}}][rowindexs{{v}}[t]]; }
-			if(en{{v}} == ON){ temps{{v}}[t] = READFROM_ULONG(vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2); }
-			if(en{{v}} == ON){ rettemps{{v}}[t] = reducefunc(temps{{v}}[t], NAp, GraphIter, GraphAlgo); }
-			if(en{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2, rettemps{{v}}[t]); }
-			if(en{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
+			if(locs{{v}}[t] >= globalparams.applyvertexbuffersz && en{{v}} == ON && en2{{v}} == ON){ locs{{v}}[t] = 0; }
+			if(en{{v}} == ON && en2{{v}} == ON){ vprop{{v}}[t] = destbuffer[{{v}}][rowindexs{{v}}[t]]; }
+			if(en{{v}} == ON && en2{{v}} == ON){ temps{{v}}[t] = READFROM_ULONG(vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2); }
+			if(en{{v}} == ON && en2{{v}} == ON){ rettemps{{v}}[t] = reducefunc(temps{{v}}[t], NAp, GraphIter, GraphAlgo); }
+			if(en{{v}} == ON && en2{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2, rettemps{{v}}[t]); }
+			if(en{{v}} == ON && en2{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
 			{%endfor%}
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(en{{v}} == ON){ 
+			if(en{{v}} == ON && en2{{v}} == ON){ 
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<endl;
 				cout<<"reduce_bfs: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
@@ -3397,6 +3382,7 @@ processactivevertices_compactedges(
 	#ifdef _DEBUGMODE_STATS
 	unsigned int edges_count = 0;
 	unsigned int edgesdstv_sum = 0;
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"processactivevertices_compactedges: actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<endl;
@@ -3507,7 +3493,7 @@ processactivevertices_compactedges(
 					E = kvdram[globalparams.baseoffset_edgesdata_kvs + edgeid_kvs];
 					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					{%for v in context['VECTOR_SIZE_seq']%}
-					actsutilityobj->printcodedkeyvalue("E.data[{{v}}]", E.data[{{v}}]);
+					actsutilityobj->PARSE("E.data[{{v}}]", E.data[{{v}}]);
 					{%endfor%}
 					#endif
 					
@@ -3536,7 +3522,9 @@ processactivevertices_compactedges(
 					#ifdef _DEBUGMODE_STATS
 					actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(en{{v}} == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate{{v}}.key; }
+					if(en{{v}} == ON){ unsigned int numitems{{v}} = actsutilityobj->PARSE(vertexupdate{{v}}, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems{{v}}); edges_count += numitems{{v}}; 
+						for(unsigned int t=0; t<numitems{{v}}; t++){ edgesdstv_sum += keys[t]; }}
 					{%endfor%}
 					#endif
 					
@@ -3546,7 +3534,7 @@ processactivevertices_compactedges(
 					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					cout<<"processactivevertices_compactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
-					// savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
 					saveoffset_kvs += buffersize_kvs;
 					buffersize_kvs = 0;
 				}
@@ -3571,6 +3559,7 @@ processactivevertices_compactedges(
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
 	#endif
+	// exit(EXIT_SUCCESS);
 	return saveoffset_kvs;
 }
 

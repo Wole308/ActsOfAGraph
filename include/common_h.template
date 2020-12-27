@@ -355,20 +355,22 @@ struct _bitData {
 
 #define NUM_KAPI 3 // number of kernel args per instance
 
-#ifdef KOOOOOOOO
-#define BitVal(data,y) ( (data>>y) & 1)      /** Return Data.Y value   **/
-#define SetBit(data,y)    data |= (1 << y)    /** Set Data.Y   to 1    **/
-#define ClearBit(data,y)  data &= ~(1 << y)   /** Clear Data.Y to 0    **/
-#define TogleBit(data,y)     (data ^=BitVal(y))     /** Togle Data.Y  value  **/
-#define Togle(data)   (data =~data )         /** Togle Data value     **/
+// compact graph information
+#define COMPACTPARAM_BITSIZE_TOTALDATA 52
+#define COMPACTPARAM_BITSIZE_EACHDATA SRAMSZ_POW
+#define COMPACTPARAM_BITSIZE_NUMITEMS 4
+#define COMPACTPARAM_BITSIZE_STREETADDR 8
+#define COMPACTPARAM_BITSIZE_LONGWORD 64
 
-#define GETMASK(index, size) (((1 << (size)) - 1) << (index))
-#define READFROM(data, index, size) (((data) & GETMASK((index), (size))) >> (index))
-#define WRITETO(data, index, size, value) ((data) = ((data) & (~GETMASK((index), (size)))) | ((value) << (index)))
-#define FIELD(data, name, index, size) \
-  inline decltype(data) name() { return READFROM(data, index, size); } \
-  inline void set_##name(decltype(data) value) { WRITETO(data, index, size, value); }
-#endif 
+#define COMPACTPARAM_STARTOFFSET_DATA 0 // 0
+#define COMPACTPARAM_STARTOFFSET_NUMITEMS (COMPACTPARAM_STARTOFFSET_DATA + COMPACTPARAM_BITSIZE_TOTALDATA) // 52
+#define COMPACTPARAM_STARTOFFSET_STREETADDR (COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS) //56
+
+#define COMPACTPARAM_ENDOFFSET_DATA (COMPACTPARAM_STARTOFFSET_DATA + COMPACTPARAM_BITSIZE_TOTALDATA) // 52
+#define COMPACTPARAM_ENDOFFSET_NUMITEMS (COMPACTPARAM_ENDOFFSET_DATA + COMPACTPARAM_BITSIZE_NUMITEMS) // 56
+#define COMPACTPARAM_ENDOFFSET_STREETADDR (COMPACTPARAM_ENDOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_STREETADDR) //56
+
+#define COMPACTPARAM_ITEMSIZE_TOTALDATA 3
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

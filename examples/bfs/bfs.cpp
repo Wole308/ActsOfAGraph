@@ -81,9 +81,9 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
-	for(unsigned int i=0; i<10; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<10; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
@@ -93,16 +93,17 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	utilityobj->printvalues("bfs::run:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
-	// exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	// exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	#else
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	#endif
-	// exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
@@ -144,6 +145,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int edgesdstv2_sum = 0;
 	unsigned int edges3_count = 0;
 	unsigned int edgesdstv3_sum = 0;
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
@@ -156,9 +158,12 @@ void bfs::verify(vector<vertex_t> &activevertices){
 		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
 		for(unsigned int j=0; j<sz; j++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				if(kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v].key != INVALIDDATA){
-					edges3_count += 1;
-					edgesdstv3_sum += kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v].key;
+				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
+				
+				if(keyvalue.key != INVALIDDATA && keyvalue.key != INVALIDDATA){
+					unsigned int numitems = utilityobj->PARSE(keyvalue, keys);
+					edges3_count += numitems; 
+					for(unsigned int t=0; t<numitems; t++){ edgesdstv3_sum += keys[t]; }
 				}
 			}
 		}
