@@ -5469,7 +5469,7 @@ processactivevertices_compactedges(
 					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					cout<<"processactivevertices_compactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
-					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					// savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
 					saveoffset_kvs += buffersize_kvs;
 					buffersize_kvs = 0;
 				}
@@ -5489,6 +5489,7 @@ processactivevertices_compactedges(
 			}
 		}
 	}
+	cout<<"acts:: -------------------------------------------- edges_count: "<<edges_count<<endl;
 	#ifdef _DEBUGMODE_STATS
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key = edges_count;
 	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;

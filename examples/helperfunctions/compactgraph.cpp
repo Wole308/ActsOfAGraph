@@ -340,11 +340,11 @@ void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer,
 		#endif 
 	}
 	
-	cout<<"--- edges_nc_count (non compact): "<<edges_nc_count<<endl;
-	cout<<"--- edgesdstv_nc_sum (non compact): "<<edgesdstv_nc_sum<<endl;
+	cout<<"--- compactgraph:: edges_nc_count (non compact): "<<edges_nc_count<<endl;
+	cout<<"--- compactgraph:: edgesdstv_nc_sum (non compact): "<<edgesdstv_nc_sum<<endl;
 	
-	cout<<"--- edges_c_count (compact): "<<edges_c_count<<endl;
-	cout<<"--- edgesdstv_c_sum (compact): "<<edgesdstv_c_sum<<endl;
+	cout<<"--- compactgraph:: edges_c_count (compact): "<<edges_c_count<<endl;
+	cout<<"--- compactgraph:: edgesdstv_c_sum (compact): "<<edgesdstv_c_sum<<endl;
 	return;
 }
 

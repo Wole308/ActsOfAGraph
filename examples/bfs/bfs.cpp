@@ -30,7 +30,7 @@
 #include "../include/examplescommon.h"
 #include "bfs.h"
 using namespace std;
-// #define PROCESSACTIVEVERTICESTEST
+#define PROCESSACTIVEVERTICESTEST
 
 bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
@@ -81,10 +81,11 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
+	for(unsigned int i=0; i<10; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
@@ -135,6 +136,7 @@ runsummary_t bfs::run(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 void bfs::verify(vector<vertex_t> &activevertices){
+	cout<<"bfs::verify. verifying..."<<endl;
 	#ifdef PROCESSACTIVEVERTICESTEST
 	unsigned int edges1_count = 0;
 	unsigned int edgesdstv1_sum = 0;
@@ -150,7 +152,9 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; }				
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		for(unsigned int j=0; j<kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key; j++){
+		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
+		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
+		for(unsigned int j=0; j<sz; j++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				if(kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v].key != INVALIDDATA){
 					edges3_count += 1;
@@ -164,8 +168,8 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip)  edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram) edges3_count: "<<edges3_count<<", edgesdstv2_sum: "<<edgesdstv3_sum<<endl;
 	
-	if(edges1_count != edges2_count || edges1_count != edges3_count){ cout<<"bfs::verify: ERROR: edges_count != edges1_count. exiting..."<<endl; exit(EXIT_FAILURE); }
-	if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum) && false){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
+	if(edges1_count != edges2_count || edges1_count != edges3_count){ cout<<"bfs::verify: ERROR: edges1_count != edges2_count || edges1_count != edges3_count. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+	if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum) && false){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
 	cout<<"bfs::verify: verify successful."<<endl;
 	#endif
 	return;
