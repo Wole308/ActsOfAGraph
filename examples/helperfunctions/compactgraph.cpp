@@ -41,12 +41,13 @@ compactgraph::compactgraph(){
 compactgraph::~compactgraph(){} 
 
 unsigned int compactgraph::getllpartition(unsigned int data){
-	return data >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH));;
+	return data >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * TREE_DEPTH));
 }
 mail_t compactgraph::shrink(unsigned int x){
 	mail_t mail;
 	mail.x = x % (1 << SRAMSZ_POW);
 	mail.streetaddr = getllpartition(x);
+	if(mail.streetaddr >= 256){ cout<<"compactgraph::shrink: mail.streetaddr >= 256. exiting..."<<endl; exit(EXIT_FAILURE); }
 	mail.houseno = SRAMSZ_POW;
 	
 	#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
@@ -246,7 +247,6 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	
 	verify(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer, numitemspacked);
 	#endif
-	// exit(EXIT_SUCCESS);
 	return ;
 }
 void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * packedvertexptrbuffer, uuint64_dt * packededgedatabuffer, unsigned int * numitemspacked){

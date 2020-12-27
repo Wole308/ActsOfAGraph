@@ -172,17 +172,51 @@ GETKEY(keyvalue_t keyvalue){
 	if(keyvalue.value == INVALIDDATA){
 		return keyvalue.key;
 	} else {
-		// [keyvalue]100000000000 00110000000000010000000000000101
-		// [value]100000000000 
-		// [key]00110000000000010000000000000101 
 		#ifdef SW
 		unsigned long * longword = (unsigned long *)&keyvalue;
 		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 		unsigned int item = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		// actsutilityobj->ULONGTOBINARY(*longword);
+		// actsutilityobj->PARSE("GETKEY::", *longword);
+		// cout<<"###streetaddr: "<<streetaddr<<endl;
+		// cout<<"###numitems: "<<numitems<<endl;
+		// cout<<"###item: "<<item<<endl;
+		// cout<<"###a key: "<<((streetaddr * (1 << SRAMSZ_POW)) + item)<<endl;
 		return ((streetaddr * (1 << SRAMSZ_POW)) + item);
+		// exit(EXIT_SUCCESS);
+		
+		
+		
+		
+		/* unsigned int streetaddr2 = READFROM_ULONG(keyvalue.value, COMPACTPARAM_STARTOFFSET_STREETADDR-32, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int item2 = READFROM_ULONG(keyvalue.key, 0, COMPACTPARAM_BITSIZE_EACHDATA);
+		// return ((streetaddr2 * (1 << SRAMSZ_POW)) + item2);
+		actsutilityobj->ULONGTOBINARY(*longword);
+		actsutilityobj->PARSE("GETKEY::", *longword);
+		cout<<"---streetaddr2: "<<streetaddr2<<endl;
+		cout<<"---item2: "<<item2<<endl;
+		cout<<"---a key2: "<<((streetaddr2 * (1 << SRAMSZ_POW)) + item2)<<endl;
+		// exit(EXIT_SUCCESS);
+		
+		unsigned int streetaddr3 = READFROM_ULONG(keyvalue.value, COMPACTPARAM_STARTOFFSET_STREETADDR-32, COMPACTPARAM_BITSIZE_STREETADDR);
+		cout<<"^^^streetaddr3: "<<streetaddr3<<endl;
+		cout<<"^^^partition: "<<streetaddr3 / NUM_PARTITIONS<<endl;
+		// exit(EXIT_SUCCESS); 
+		
+		toppartition + (streetaddr3 / (1 << (NUM_PARTITIONS_POW * currentLOP)));
+		
+		
+		exit(EXIT_SUCCESS); */
+		
 		#else 
+		// [keyvalue]100000000000 00110000000000010000000000000101
+		// [value]100000000000 
+		// [key]00110000000000010000000000000101 
 		NOT IMPLEMENTED
+		unsigned int streetaddr = keyvalue.value.range(COMPACTPARAM_STARTOFFSET_STREETADDR-32, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int item = keyvalue.key.range(0, COMPACTPARAM_BITSIZE_EACHDATA);
+		return ((streetaddr * (1 << SRAMSZ_POW)) + item);
 		#endif
 	}
 	#else 
@@ -336,12 +370,80 @@ getchunksize(buffer_type buffersz, travstate_t travstate, buffer_type localoffse
 	else {}
 	return chunksz;
 }
+
+#ifdef KOOOKOOOO
 partition_type
 	#ifdef SW 
 	acts::
 	#endif 
 getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
 	partition_type partition;
+	
+	#ifdef OPTMZ
+	if(enable == ON){ partition = ((GETKEY(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
+	else { partition = 0; }
+	#else 
+	partition = ((keyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)));
+	#endif 
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	if(partition >= NUM_PARTITIONS){ actsutilityobj->globalstats_counterrorsingetpartition(1); }
+	#endif 
+	
+	#ifdef ENABLE_PERFECTACCURACY
+		#ifdef _DEBUGMODE_CHECKS2
+		if(partition >= NUM_PARTITIONS){ cout<<"acts::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<endl; exit(EXIT_FAILURE); }
+		#endif
+	#endif 
+	#ifndef ENABLE_PERFECTACCURACY
+		if(partition >= NUM_PARTITIONS){ partition = (((1 << NUM_PARTITIONS_POW) - 1) & (partition >> (1 - 1))); } // FIXME. REMOVEME. PERFECTIONTEST.
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("acts::getpartition 2", partition, NUM_PARTITIONS, keyvalue.key, upperlimit, currentLOP);
+	#endif
+	return partition;
+}
+#endif
+
+partition_type
+	#ifdef SW 
+	acts::
+	#endif 
+getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
+	partition_type partition;
+	
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	if(keyvalue.value == INVALIDDATA){
+		if(enable == ON){ partition = ((GETKEY(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
+		else { partition = 0; }
+	} else {
+		/* partition_type toppartition = (upperlimit >> (batch_range_pow - (NUM_PARTITIONS_POW * TREE_DEPTH)));
+		// unsigned int streetaddr = keyvalue.value.range(COMPACTPARAM_STARTOFFSET_STREETADDR-32, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int streetaddr = READFROM_ULONG(keyvalue.value, COMPACTPARAM_STARTOFFSET_STREETADDR-32, COMPACTPARAM_BITSIZE_STREETADDR);
+		streetaddr = 
+		partition = streetaddr - toppartition; */
+		
+		// cout<<"upperlimit: "<<upperlimit<<endl;
+		// cout<<"batch_range_pow: "<<batch_range_pow<<endl;
+		// cout<<"keyvalue.value: "<<keyvalue.value<<endl;
+		// cout<<"streetaddr: "<<streetaddr<<endl;
+		// cout<<"toppartition: "<<toppartition<<endl;
+		// cout<<"partition: "<<partition<<endl;
+		// exit(EXIT_SUCCESS);
+		
+	}
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	#ifdef OPTMZ
 	if(enable == ON){ partition = ((GETKEY(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
@@ -3508,6 +3610,7 @@ processactivevertices_compactedges(
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if(en{{v}} == ON){ 
+						// GETKEY(vertexupdate{{v}}); // REMOVEME.
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"processactivevertices_compactedges: vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
 						#endif

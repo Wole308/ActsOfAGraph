@@ -83,8 +83,8 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<10; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
-	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
@@ -93,12 +93,9 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	utilityobj->printvalues("bfs::run:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	#else
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
@@ -138,7 +135,7 @@ runsummary_t bfs::run(){
 }
 void bfs::verify(vector<vertex_t> &activevertices){
 	cout<<"bfs::verify. verifying..."<<endl;
-	#ifdef PROCESSACTIVEVERTICESTEST
+	#if defined(PROCESSACTIVEVERTICESTEST) && defined(ENABLE_PERFECTACCURACY)
 	unsigned int edges1_count = 0;
 	unsigned int edgesdstv1_sum = 0;
 	unsigned int edges2_count = 0;

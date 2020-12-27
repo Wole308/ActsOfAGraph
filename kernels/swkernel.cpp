@@ -33,7 +33,7 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], uns
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		kernelobjs[i]->topkernel((uint512_dt *)kvsourcedram[i]);
 		// exit(EXIT_SUCCESS); 
-		// break;
+		break;
 	}
 	
 	#ifdef _DEBUGMODE_TIMERS3
