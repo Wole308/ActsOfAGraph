@@ -3301,7 +3301,6 @@ partitionupdates_finegrainedpipeline_unevencutoffs(
 	buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 
-	// MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + 2*SRCBUFFER_SIZE; offset_kvs+=WORKBUFFER_SIZE * NUMACTSFASTPIPELINES){
 	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + 3*SRCBUFFER_SIZE; offset_kvs+=WORKBUFFER_SIZE * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -3615,7 +3614,7 @@ processactivevertices_compactedges_givenvids(
 	#endif
 	
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"### processactivevertices_compactedges_givenvids: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
@@ -3756,7 +3755,7 @@ processactivevertices_compactedges_givenvids(
 					buffersize_kvs += 1;
 				}
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
-					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					cout<<"processactivevertices_compactedges_givenvids: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
@@ -3911,7 +3910,7 @@ processactivevertices_compactedges_givenoffsets(
 				}
 				
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
-					#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					cout<<"processactivevertices_compactedges_givenoffsets: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
@@ -3972,7 +3971,7 @@ processactivevertices_noncompactedges(
 	#endif
 	
 	for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"### processactivevertices_noncompactedges: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
 		#endif
 		
@@ -4136,7 +4135,7 @@ processactivevertices_noncompactedges(
 					buffersize_kvs += 1;
 				}
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
-					#ifdef _DEBUGMODE_KERNELPRINTS3
+					#ifdef _DEBUGMODE_KERNELPRINTS2
 					cout<<"processactivevertices_noncompactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
 					#endif 
 					savevertices(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
