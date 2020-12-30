@@ -82,10 +82,10 @@ runsummary_t bfs::run(){
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
 	// for(unsigned int i=1; i<2; i++){ activevertices.push_back(i); }
-	for(unsigned int i=1; i<500; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=1; i<500; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
@@ -114,6 +114,8 @@ runsummary_t bfs::run(){
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 		
 		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
+		verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, 1);
+		exit(EXIT_SUCCESS);
 		verify(activevertices);
 		exit(EXIT_SUCCESS);
 		
@@ -136,6 +138,7 @@ runsummary_t bfs::run(){
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
+
 void bfs::verify(vector<vertex_t> &activevertices){
 	cout<<"bfs::verify. verifying..."<<endl;
 	#if defined(PROCESSACTIVEVERTICESTEST) && defined(ENABLE_PERFECTACCURACY)
@@ -179,7 +182,57 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	#endif
 	return;
 }
-
+void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP){
+	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
+	unsigned int baseoffset_stats_kvs = BASEOFFSET_STATSDRAM_KVS + 1;
+	unsigned int baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE;
+	if(CLOP == 1){ baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
+	else if(CLOP == 2){ baseoffset_kvdram = BASEOFFSET_KVDRAM; }
+	else if(CLOP == 3){ baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
+	else if(CLOP == 4){ baseoffset_kvdram = BASEOFFSET_KVDRAM; }
+	else { baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"bfs::verifykvbuffer:: numberofpartitions: "<<NUM_PARTITIONS<<", rangeperpartition: "<<rangeperpartition<<", baseoffset_stats_kvs: "<<baseoffset_stats_kvs<<", baseoffset_kvdram: "<<baseoffset_kvdram<<endl;
+	utilityobj->printkeyvalues("bfs::verifykvbuffer. stats 45", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE);
+	#endif
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+			unsigned int numerrorkeys = 0;
+			
+			unsigned int upperlimit = 0;
+			unsigned int lowerindex = upperlimit + (p * rangeperpartition);
+			unsigned int upperindex = upperlimit + ((p+1) * rangeperpartition);
+			
+			unsigned int begin = stats[i][baseoffset_stats_kvs + p].data[0].key;
+			unsigned int end = stats[i][baseoffset_stats_kvs + p].data[0].key + stats[i][baseoffset_stats_kvs + p].data[0].value;
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			cout<<"bfs::verifykvbuffer:: begin: "<<begin<<", end: "<<end<<". ["<<lowerindex<<"->"<<upperindex<<"]"<<endl;
+			#endif 
+			
+			for(unsigned int k=begin; k<end; k++){
+				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA || kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
+					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
+					if(thiskey < lowerindex || thiskey >= upperindex){
+						if(numerrorkeys < 8){
+							cout<<"bfs::geterrorkeyvalues::ERROR KEYVALUE. index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 					
+							exit(EXIT_FAILURE);
+						}
+						cout<<"bfs::geterrorkeyvalues::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
+						exit(EXIT_FAILURE);
+						
+						numerrorkeys += 1;
+					}
+				}
+			}
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"bfs::verifykvbuffer:: "<<numerrorkeys<<" errors seen for partition "<<p<<". ["<<lowerindex<<" -> "<<upperindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
+			#endif
+		}
+		// exit(EXIT_SUCCESS);
+	}
+	return;
+}
 
 
 

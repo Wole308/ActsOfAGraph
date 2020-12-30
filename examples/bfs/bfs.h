@@ -20,7 +20,9 @@ public:
 	void finish();
 	
 	runsummary_t run();
+	
 	void verify(vector<vertex_t> &activevertices);
+	void verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP);
 
 private:
 	graph * graphobj;

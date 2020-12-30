@@ -732,6 +732,22 @@ unsigned int utility::GETKEY(unsigned long longword){
 	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 	return ((streetaddr * (1 << SRAMSZ_POW)) + item);
 }
+keyy_t utility::GETKEY(keyvalue_t keyvalue){ 
+	#ifdef COMPACTEDGES
+	if(keyvalue.value == INVALIDDATA){
+		return keyvalue.key;
+	} else {
+		unsigned long * longword = (unsigned long *)&keyvalue;
+		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+		unsigned int item = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+		// cout<<"--- utility::GETKEY:: streetaddr: "<<streetaddr<<", item: "<<item<<endl;
+		return ((streetaddr * (1 << SRAMSZ_POW)) + item);
+	}
+	#else 
+	return keyvalue.key;
+	#endif
+}
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {

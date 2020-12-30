@@ -91,6 +91,7 @@ public:
 	unsigned int PARSE(unsigned long longword, unsigned int * _items);
 	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
 	unsigned int GETKEY(unsigned long longword);
+	keyy_t GETKEY(keyvalue_t keyvalue);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);

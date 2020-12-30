@@ -413,7 +413,7 @@ partition_type
 getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int batch_range_pow){
 	partition_type partition;
 	
-	
+	// FIXME.
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	if(keyvalue.value == INVALIDDATA){
 		if(enable == ON){ partition = ((GETKEY(keyvalue) - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); } 
@@ -4297,7 +4297,6 @@ dispatch(uint512_dt * kvdram){
 			#else
 			globalparams.runsize_kvs = 
 				#ifdef COMPACTEDGES
-				// processactivevertices_compactedges_givenvids
 				processactivevertices_compactedges_givenoffsets
 				#else 
 				processactivevertices_noncompactedges	
@@ -4421,7 +4420,9 @@ dispatch(uint512_dt * kvdram){
 				destoffset = globalstatsbuffer[NUM_PARTITIONS-1].key + globalstatsbuffer[NUM_PARTITIONS-1].value + 64; }
 			
 			#ifdef _DEBUGMODE_CHECKS
-			if(config.enablereduce == OFF){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
+			// if(config.enablereduce == ON){ 
+				actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); 
+				// }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			actsutilityobj->printglobalvars();
