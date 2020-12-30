@@ -565,7 +565,7 @@ unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimi
 	return partition;
 }
 
-void utility::printedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
+void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
 	*edges_count = 0;
 	*edgesdstv_sum = 0;
 	for(unsigned int i=0; i<srcvids.size(); i++){

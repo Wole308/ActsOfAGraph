@@ -24,7 +24,7 @@
 #include "acts.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 2
+#define NUMACTSFASTPIPELINES 2//1,2 // CRITICAL FIXME
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -5143,7 +5143,8 @@ partitionupdates_finegrainedpipeline_unevencutoffs(
 	buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 
-	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + 2*SRCBUFFER_SIZE; offset_kvs+=WORKBUFFER_SIZE * NUMACTSFASTPIPELINES){
+	// MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + 2*SRCBUFFER_SIZE; offset_kvs+=WORKBUFFER_SIZE * NUMACTSFASTPIPELINES){
+	MAINLOOP_PARTITION: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + 3*SRCBUFFER_SIZE; offset_kvs+=WORKBUFFER_SIZE * NUMACTSFASTPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print6("### dispatch::partition:: offset0_kvs", "size0_kvs", "begin_kvs", "end_kvs", "skip", "itercount", offset_kvs, pp0readsize_kvs, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);

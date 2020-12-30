@@ -82,11 +82,12 @@ runsummary_t bfs::run(){
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
 	// for(unsigned int i=1; i<2; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=1; i<500; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } // 
+	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } // 
+	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
-	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
@@ -102,7 +103,6 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	#endif
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
@@ -114,8 +114,8 @@ runsummary_t bfs::run(){
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 		
 		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-		verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, 1);
-		exit(EXIT_SUCCESS);
+		// verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, 1);
+		// exit(EXIT_SUCCESS);
 		verify(activevertices);
 		exit(EXIT_SUCCESS);
 		
@@ -148,22 +148,30 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int edgesdstv2_sum = 0;
 	unsigned int edges3_count = 0;
 	unsigned int edgesdstv3_sum = 0;
+	unsigned int edges4_count = 0;
+	unsigned int edgesdstv4_sum = 0;
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	
+	// 1st check
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
-	utilityobj->printedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
+	utilityobj->collectedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; }				
+	// 2nd check
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
+		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
+		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
+	}				
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+	// 3rd check
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
 		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
 		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
 		for(unsigned int j=0; j<sz; j++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
 				
-				if(keyvalue.key != INVALIDDATA && keyvalue.key != INVALIDDATA){
+				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ // keyvalue.key
 					unsigned int numitems = utilityobj->PARSE(keyvalue, keys);
 					edges3_count += numitems; 
 					for(unsigned int t=0; t<numitems; t++){ edgesdstv3_sum += keys[t]; }
@@ -172,17 +180,23 @@ void bfs::verify(vector<vertex_t> &activevertices){
 		}
 	}
 	
+	// 4th check
+	verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, 1, &edges4_count, &edgesdstv4_sum);
+	
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip)  edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram) edges3_count: "<<edges3_count<<", edgesdstv2_sum: "<<edgesdstv3_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram) edges3_count: "<<edges3_count<<", edgesdstv3_sum: "<<edgesdstv3_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (CLOP="<<1<<") edges4_count: "<<edges4_count<<", edgesdstv4_sum: "<<edgesdstv4_sum<<endl;
 	
-	if(edges1_count != edges2_count || edges1_count != edges3_count){ cout<<"bfs::verify: ERROR: edges1_count != edges2_count || edges1_count != edges3_count. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-	if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum) && false){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+	if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: ERROR: edges1_count != edges2_count || edges1_count != edges3_count. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+	if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv2_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
 	cout<<"bfs::verify: verify successful."<<endl;
 	#endif
 	return;
 }
-void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP){
+void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	
 	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
 	unsigned int baseoffset_stats_kvs = BASEOFFSET_STATSDRAM_KVS + 1;
 	unsigned int baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE;
@@ -196,7 +210,7 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 	utilityobj->printkeyvalues("bfs::verifykvbuffer. stats 45", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE);
 	#endif
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
 		for(unsigned int p=0; p<NUM_PARTITIONS; p++){
 			unsigned int numerrorkeys = 0;
 			
@@ -205,13 +219,14 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 			unsigned int upperindex = upperlimit + ((p+1) * rangeperpartition);
 			
 			unsigned int begin = stats[i][baseoffset_stats_kvs + p].data[0].key;
-			unsigned int end = stats[i][baseoffset_stats_kvs + p].data[0].key + stats[i][baseoffset_stats_kvs + p].data[0].value;
+			unsigned int size = stats[i][baseoffset_stats_kvs + p].data[0].value;
+			unsigned int end = begin + size;
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"bfs::verifykvbuffer:: begin: "<<begin<<", end: "<<end<<". ["<<lowerindex<<"->"<<upperindex<<"]"<<endl;
 			#endif 
 			
-			for(unsigned int k=begin; k<end; k++){
-				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA || kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
+			for(unsigned int k=begin; k<begin + size; k++){
+				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
 					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
 					if(thiskey < lowerindex || thiskey >= upperindex){
 						if(numerrorkeys < 8){
@@ -223,14 +238,20 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 						
 						numerrorkeys += 1;
 					}
+					
+					unsigned int numitems = utilityobj->PARSE(kvbuffer[i][baseoffset_kvdram + k], keys);
+					*edges4_count += numitems; 
+					for(unsigned int t=0; t<numitems; t++){ *edgesdstv4_sum += keys[t]; }
 				}
 			}
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"bfs::verifykvbuffer:: "<<numerrorkeys<<" errors seen for partition "<<p<<". ["<<lowerindex<<" -> "<<upperindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
 			#endif
 		}
+		// cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram) *edges4_count: "<<*edges4_count<<", *edgesdstv4_sum: "<<*edgesdstv4_sum<<endl;
 		// exit(EXIT_SUCCESS);
 	}
+	// cout<<"+++++++++++++++++++++++++++++ bfs:verify (CLOP="<<CLOP<<") *edges4_count: "<<*edges4_count<<", *edgesdstv4_sum: "<<*edgesdstv4_sum<<endl;
 	return;
 }
 

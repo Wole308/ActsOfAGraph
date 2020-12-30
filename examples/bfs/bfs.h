@@ -22,7 +22,7 @@ public:
 	runsummary_t run();
 	
 	void verify(vector<vertex_t> &activevertices);
-	void verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP);
+	void verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum);					
 
 private:
 	graph * graphobj;
