@@ -81,10 +81,12 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
-	// for(unsigned int i=0; i<10; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=1; i<2; i++){ activevertices.push_back(i); }
+	for(unsigned int i=1; i<500; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
-	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
@@ -106,7 +108,8 @@ runsummary_t bfs::run(){
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		
-		loadgraphobj->loadactvvertices(activevertices, (keyvalue_t **)kvbuffer, &container);
+		// loadgraphobj->loadactvvertices(activevertices, (keyvalue_t **)kvbuffer, &container);
+		loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); // for COMPACTEDGES
 		loadgraphobj->loadmessages(kvbuffer, &container, GraphIter, BREADTHFIRSTSEARCH);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 		

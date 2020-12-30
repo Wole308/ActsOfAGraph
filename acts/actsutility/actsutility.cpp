@@ -1358,6 +1358,10 @@ void actsutility::PARSE(string message, unsigned long longword){
 	}
 	return;
 }
+void actsutility::PARSE(string message, keyvalue_t keyvalue){
+	unsigned long * longword = (unsigned long *)&keyvalue;
+	PARSE(message, *longword);
+}
 unsigned int actsutility::PARSE(unsigned long longword, unsigned int * _items){ 
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);

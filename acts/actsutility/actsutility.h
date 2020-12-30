@@ -166,6 +166,7 @@ public:
 	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value);
 	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
 	void PARSE(string message, unsigned long longword);
+	void PARSE(string message, keyvalue_t keyvalue);
 	unsigned int PARSE(unsigned long longword, unsigned int * _items);
 	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
 	unsigned int GETKEY(unsigned long longword);
