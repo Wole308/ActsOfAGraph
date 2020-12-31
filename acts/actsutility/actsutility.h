@@ -155,7 +155,9 @@ public:
 	void DECTOBINARY(int n);
 	void ULONGTOBINARY(unsigned long n);
 	void ULONGTOBINARY(keyvalue_t keyvalue);
+	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
 	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
+	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
 	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
 	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
 	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);

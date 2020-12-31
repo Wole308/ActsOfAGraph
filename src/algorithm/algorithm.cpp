@@ -101,8 +101,8 @@ value_t algorithm::cummulate(value_t data1, value_t data2){
 	else { return data2; }
 }
 value_t algorithm::vertex_initdata(){ 
-	#ifdef COMPACTEDGES
-	return 0;
+	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+	return UNVISITED;
 	// return INFINITI; 
 	#else 
 	return INFINITI; 

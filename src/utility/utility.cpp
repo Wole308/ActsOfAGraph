@@ -651,6 +651,11 @@ void utility::ULONGTOBINARY(unsigned long n){
 	cout<<endl;
 	return;
 } 
+void utility::ULONGTOBINARY(keyvalue_t keyvalue){ 
+	unsigned long * longword = (unsigned long *)&keyvalue;
+	ULONGTOBINARY(*longword);
+	return;
+} 
 unsigned int utility::GETMASK_UINT(unsigned int index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
@@ -660,6 +665,13 @@ unsigned long utility::GETMASK_ULONG(unsigned long index, unsigned long size){
 	unsigned long A = ((1 << (size)) - 1);
 	unsigned long B = A << index;
 	return B;
+}
+unsigned int utility::READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+	#ifdef SW
+	return (((data) & GETMASK_UINT((index), (size))) >> (index)); 
+	#else 
+	NOT IMPLEMENTED.
+	#endif 
 }
 unsigned int utility::READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size){ 
 	#ifdef SW

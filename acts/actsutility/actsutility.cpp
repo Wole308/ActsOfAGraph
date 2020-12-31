@@ -1319,10 +1319,22 @@ void actsutility::ULONGTOBINARY(keyvalue_t keyvalue){
 	ULONGTOBINARY(*longword);
 	return;
 } 
+unsigned int actsutility::GETMASK_UINT(unsigned int index, unsigned int size){
+	unsigned int A = ((1 << (size)) - 1);
+	unsigned int B = A << index;
+	return B;
+}
 unsigned long actsutility::GETMASK_ULONG(unsigned long index, unsigned long size){
 	unsigned long A = ((1 << (size)) - 1);
 	unsigned long B = A << index;
 	return B;
+}
+unsigned int actsutility::READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+	#ifdef SW
+	return (((data) & GETMASK_UINT((index), (size))) >> (index)); 
+	#else 
+	NOT IMPLEMENTED.
+	#endif 
 }
 unsigned int actsutility::READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size){ 
 	#ifdef SW

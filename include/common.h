@@ -341,10 +341,21 @@ struct _bitData {
 
 #define COMPACTPARAM_ITEMSIZE_TOTALDATA 3
 
-// compact BFS definitions
+// inmemory BFS definitions
 #define UNVISITED 0
 #define VISITED_IN_CURRENT_ITERATION 1
 #define VISITED_IN_PAST_ITERATION 2
+
+// packing efficiencies
+#ifdef PR_ALGORITHM
+#define VDATAPACKINGFACTOR 1
+#endif 
+#ifdef BFS_ALGORITHM
+#define VDATAPACKINGFACTOR 16
+#endif 
+#ifdef SSSP_ALGORITHM
+#define VDATAPACKINGFACTOR 1
+#endif
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

@@ -32,12 +32,6 @@
 using namespace std;
 #define PROCESSACTIVEVERTICESTEST
 
-/*
-00 UNVISITED
-01 VISITED IN CURRENT ITERATION
-11 VISITED IN PAST ITERATION
-*/
-
 bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
@@ -59,7 +53,6 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	
 	packedvertexptrbuffer = new edge_t[KVDATA_RANGE];
-	// packededgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	packededgedatabuffer = new uuint64_dt[PADDEDEDGES_BATCHSIZE];
 	
 	#ifdef FPGA_IMPL
@@ -87,7 +80,7 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
-	for(unsigned int i=1; i<2; i++){ activevertices.push_back(i); }
+	for(unsigned int i=1; i<3; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } // 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } // 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } //
@@ -114,24 +107,16 @@ runsummary_t bfs::run(){
 	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		
-		// loadgraphobj->loadactvvertices(activevertices, (keyvalue_t **)kvbuffer, &container);
-		loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); // for COMPACTEDGES
+		loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 		loadgraphobj->loadmessages(kvbuffer, &container, GraphIter, BREADTHFIRSTSEARCH);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 		
 		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-		// verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, 1);
-		// exit(EXIT_SUCCESS);
 		verify(activevertices);
+		// exit(EXIT_SUCCESS);
+		
+		apply((keyvalue_t **)kvbuffer, activevertices);
 		exit(EXIT_SUCCESS);
-		
-		#ifdef FPGA_IMPL
-		setupkernelobj->readfromkernel(0, (uint512_vec_dt **)kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-		#endif
-		postprocessobj->cummulateandcommitverticesdata((value_t **)kvbuffer, tempvertexdatabuffer, 0 * KVDATA_RANGE_PERSSDPARTITION);
-		activevertices.clear();
-		postprocessobj->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, BREADTHFIRSTSEARCH);
-		
 		if(activevertices.size() == 0){ break; }
 	}
 	cout<<endl;
@@ -143,6 +128,37 @@ runsummary_t bfs::run(){
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
+}
+void bfs::apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &activevertices){
+	activevertices.clear();
+	unsigned int baseoffset = BASEOFFSET_VERTICESDATA;
+	unsigned long vdata = UNVISITED;
+	for(unsigned int k=0; k<KVDATA_RANGE/32; k++){
+		for(unsigned int t = 0; t < 64; t+=2){
+			vdata = UNVISITED;
+			unsigned int vid = k*32 + t/2;
+			unsigned int index = 64 - t - 2;
+			unsigned int bitsize = 2;
+			
+			if(vid % 1000000 == 0){ cout<<"bfs::apply: vid: "<<vid<<endl; }
+			
+			for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+				unsigned int vdataj = utilityobj->READFROM_ULONG(kvbuffer[j][baseoffset + k], index, bitsize);
+				if(vdataj == VISITED_IN_CURRENT_ITERATION){ vdata = VISITED_IN_CURRENT_ITERATION; activevertices.push_back(vid); }
+			}
+			for(unsigned int j = 0; j < NUMSUBCPUTHREADS; j++){
+				utilityobj->WRITETO_ULONG(&kvbuffer[j][baseoffset + k], index, bitsize, vdata);
+			}
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			if(vdata == VISITED_IN_CURRENT_ITERATION){ cout<<"bfs::apply: VISITED_IN_CURRENT_ITERATION seen @ (k:"<<k<<", t:"<<t<<", vid:"<<vid<<"): vdata: "<<vdata<<endl; }
+			#endif
+		}
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"bfs::apply: number of active vertices for next iteration: "<<activevertices.size()<<endl;
+	for(unsigned int i=0; i<utilityobj->hmin(activevertices.size(), 16); i++){ cout<<"bfs::apply: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
+	#endif
+	return;
 }
 
 void bfs::verify(vector<vertex_t> &activevertices){

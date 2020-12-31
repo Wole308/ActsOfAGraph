@@ -499,41 +499,6 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
-reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
-	value_t temp = 0;
-	#ifdef PR_ALGORITHM
-	temp = vtemp + res;
-	#elif defined(BFS_ALGORITHM)
-		#ifdef COMPACTEDGES
-		if(vtemp == UNVISITED){ temp = VISITED_IN_CURRENT_ITERATION; } 
-		else if(vtemp == VISITED_IN_CURRENT_ITERATION){ temp = VISITED_IN_CURRENT_ITERATION; } 
-		else if(vtemp == VISITED_IN_PAST_ITERATION){ temp = VISITED_IN_PAST_ITERATION; } 
-		else {
-			#ifdef _DEBUGMODE_CHECKS2
-			cout<<"reducefunc: ERROR. should never get here. exiting..."<<endl;
-			exit(EXIT_FAILURE);
-			#endif 
-		}
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(vtemp == UNVISITED){ cout<<"$$$reducefunc: UNVISITED"<<endl; } 
-		else if(vtemp == VISITED_IN_CURRENT_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_CURRENT_ITERATION"<<endl; } 
-		else if(vtemp == VISITED_IN_PAST_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_PAST_ITERATION"<<endl; } 
-		else { }
-		#endif
-		#else 
-		temp = amin(vtemp, GraphIter);
-		#endif 
-	#elif defined(SSSP_ALGORITHM)
-	temp = amin(vtemp, res);
-	#elif defined(BC_ALGORITHM)
-	temp = amin(vtemp, res);
-	#endif
-	return temp;
-}
-value_t 
-	#ifdef SW 
-	acts::
-	#endif 
 processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef PR_ALGORITHM
@@ -544,23 +509,6 @@ processedgefunc(value_t Uprop, unsigned int edgeweight, unsigned int voutdegree,
 	res = Uprop + edgeweight;
 	#elif defined(BC_ALGORITHM)
 	res = Uprop + edgeweight;
-	#endif
-	return res;
-}
-value_t 
-	#ifdef SW 
-	acts::
-	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
-	value_t res = 0;
-	#ifdef PR_ALGORITHM
-	res = value1 + value2;
-	#elif defined(BFS_ALGORITHM)
-	res = amin(value1, value2);
-	#elif defined(SSSP_ALGORITHM)
-	res = amin(value1, value2);
-	#elif defined(BC_ALGORITHM)
-	res = amin(value1, value2);
 	#endif
 	return res;
 }
@@ -1687,7 +1635,11 @@ readvertices(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZ
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
+	cout<< TIMINGRESULTSCOLOR<<"readvertices:: vertices read: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<< TIMINGRESULTSCOLOR<<"readvertices:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs - BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	cout<< TIMINGRESULTSCOLOR<<"readvertices:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
 	return;
 }
@@ -1719,6 +1671,50 @@ replicatedata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTB
 		{%endfor%}
 	}
 	return;
+}
+
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	value_t temp = 0;
+	#ifdef PR_ALGORITHM
+	temp = vtemp + res;
+	#elif defined(BFS_ALGORITHM)
+	temp = amin(vtemp, GraphIter);
+	#elif defined(SSSP_ALGORITHM)
+	temp = amin(vtemp, res);
+	#elif defined(BC_ALGORITHM)
+	temp = amin(vtemp, res);
+	#endif
+	return temp;
+}
+
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+reducefunc_bfs(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	value_t temp = 0;
+	
+	if(vtemp == UNVISITED){ temp = VISITED_IN_CURRENT_ITERATION; } 
+	else if(vtemp == VISITED_IN_CURRENT_ITERATION){ temp = VISITED_IN_CURRENT_ITERATION; } 
+	else if(vtemp == VISITED_IN_PAST_ITERATION){ temp = VISITED_IN_PAST_ITERATION; } 
+	else {
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"reducefunc: ERROR. should never get here. exiting..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(vtemp == UNVISITED){ cout<<"$$$reducefunc: UNVISITED"<<endl; } 
+	else if(vtemp == VISITED_IN_CURRENT_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_CURRENT_ITERATION"<<endl; } 
+	else if(vtemp == VISITED_IN_PAST_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_PAST_ITERATION"<<endl; } 
+	else { }
+	#endif
+	return temp;
 }
 
 void 
@@ -1897,17 +1893,17 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			if(locs{{v}}[t] >= globalparams.applyvertexbuffersz && en{{v}} == ON && en2{{v}} == ON){ locs{{v}}[t] = 0; }
 			if(en{{v}} == ON && en2{{v}} == ON){ vprop{{v}}[t] = destbuffer[{{v}}][rowindexs{{v}}[t]]; }
 			if(en{{v}} == ON && en2{{v}} == ON){ temps{{v}}[t] = READFROM_ULONG(vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2); }
-			if(en{{v}} == ON && en2{{v}} == ON){ rettemps{{v}}[t] = reducefunc(temps{{v}}[t], NAp, GraphIter, GraphAlgo); }
+			if(en{{v}} == ON && en2{{v}} == ON){ rettemps{{v}}[t] = reducefunc_bfs(temps{{v}}[t], NAp, GraphIter, GraphAlgo); }
 			if(en{{v}} == ON && en2{{v}} == ON){ WRITETO_ULONG(&vprop{{v}}[t], 64 - colindexs{{v}}[t] - 2, 2, rettemps{{v}}[t]); }
 			if(en{{v}} == ON && en2{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
 			{%endfor%}
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON && en2{{v}} == ON){ 
-				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys{{v}}[t]: "<<keys{{v}}[t]<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", bitpos: "<<64 - colindexs{{v}}[t] - 2<<endl;
-				// cout<<"REDUCE_BFS: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
+				cout<<"REDUCE_BFS: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps{{v}}[t]: "<<temps{{v}}[t]<<", rettemps{{v}}[t]: "<<rettemps{{v}}[t]<<endl;
 			}
 			{%endfor%}
@@ -1915,6 +1911,38 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		}
 	}
 	return;
+}
+
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+	value_t res = 0;
+	#ifdef PR_ALGORITHM
+	res = value1 + value2;
+	#elif defined(BFS_ALGORITHM)
+	res = amin(value1, value2);
+	#elif defined(SSSP_ALGORITHM)
+	res = amin(value1, value2);
+	#elif defined(BC_ALGORITHM)
+	res = amin(value1, value2);
+	#endif
+	return res;
+}
+
+keyvalue_t 
+	#ifdef SW 
+	acts::
+	#endif 
+mergefunc_bfs(keyvalue_t data1, keyvalue_t data2, unsigned int GraphAlgo){
+	keyy_t key = data1.key | data2.key;
+	value_t value = data1.value | data2.value;
+	
+	keyvalue_t res;
+	res.key = key;
+	res.value = value;
+	return res;
 }
 
 void 
@@ -1945,22 +1973,6 @@ unifydata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFE
 		value_t data2 = INFINITI;
 		#endif
 		
-		// value_t data1 = 0;
-		// value_t data2 = 0;
-		// if(GraphAlgo == PAGERANK){
-			// data1 = 0;
-			// data2 = 0;
-		// } else if (GraphAlgo == BREADTHFIRSTSEARCH){
-			// data1 = INFINITI;
-			// data2 = INFINITI;
-		// } else if (GraphAlgo == SSSP){
-			// data1 = INFINITI;
-			// data2 = INFINITI;
-		// } else { 
-			// data1 = 0;
-			// data2 = 0;
-		// }
-		
 		for(vector_type v=0; v<VECTOR_SIZE; v++){ // unify multple sources
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("unifydata", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
@@ -1971,6 +1983,34 @@ unifydata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFE
 		
 		destbuffer[dest_v][destoffset_kvs + dest_i].key = data1; // set to single destination
 		destbuffer[dest_v][destoffset_kvs + dest_i].value = data2; // set to single destination
+		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
+	}	
+	return;
+}
+
+void 
+	#ifdef SW 
+	acts::
+	#endif
+unifydata_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type destoffset, buffer_type size, unsigned int GraphAlgo){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = (APPLYVERTEXBUFFERSZ / 2);
+	
+	buffer_type dest_v = 0;
+	buffer_type dest_i = 0;
+	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
+	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE
+		keyvalue_t data = sourcebuffer[0][i];
+		for(vector_type v=0; v<VECTOR_SIZE; v++){
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("unifydata", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
+			#endif
+			
+			data = mergefunc_bfs(data, sourcebuffer[v][i], GraphAlgo);
+		}
+		destbuffer[dest_v][destoffset_kvs + dest_i] = data;
 		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
 	}	
 	return;
@@ -2004,6 +2044,10 @@ savevertices(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZ
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<< TIMINGRESULTSCOLOR<<"savevertices:: vertices saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<< TIMINGRESULTSCOLOR<<"savevertices:: vertices saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	cout<< TIMINGRESULTSCOLOR<<"savevertices:: vertices saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#endif
 	return;
 }
 
@@ -2014,11 +2058,9 @@ void
 	#endif
 apply_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]){
 	if(enable == OFF){ return; }
-	
 	// for(unsigned int i=0; i<PADDEDDESTBUFFER_SIZE; i++){
 		// for(unsigned int i=0; i<)
 	// }
-	
 	return;
 }
 
@@ -3427,13 +3469,17 @@ reduceupdates(
 
 		readkeyvalues(ON, kvdram, keyvaluesbuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate);
 	
-		#ifdef BFS_ALGORITHM
+		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 		reduce_bfs(ON, keyvaluesbuffer, tempverticesbuffer, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, rtravstate, globalparams);
 		#else 
 		reduce(ON, keyvaluesbuffer, tempverticesbuffer, sweepparams.upperlimit, globalparams.GraphIter, globalparams.GraphAlgo, rtravstate, globalparams);
-		#endif 
+		#endif
 	}
+	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+	unifydata_bfs(config.enablereduce, tempverticesbuffer, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), globalparams.GraphAlgo);
+	#else 
 	unifydata(config.enablereduce, tempverticesbuffer, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), globalparams.GraphAlgo);
+	#endif
 	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savevertices(config.enablereduce, kvdram, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 	return;
 }
@@ -4302,6 +4348,9 @@ dispatch(uint512_dt * kvdram){
 				batch_type ntravszs = 0;
 				for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[k].value; }
 				if(ntravszs > 0){ enreduce = ON; } else { enreduce = OFF; }}
+				
+				// enreduce = ON;
+				
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->setstructs(config, sweepparams, travstate);
 			actsutilityobj->clearallstats();
