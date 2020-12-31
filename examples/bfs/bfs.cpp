@@ -32,6 +32,12 @@
 using namespace std;
 #define PROCESSACTIVEVERTICESTEST
 
+/*
+00 UNVISITED
+01 VISITED IN CURRENT ITERATION
+11 VISITED IN PAST ITERATION
+*/
+
 bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
@@ -81,13 +87,13 @@ runsummary_t bfs::run(){
 	container_t container;
 	vector<value_t> activevertices;
 	// activevertices.push_back(1);
-	// for(unsigned int i=1; i<2; i++){ activevertices.push_back(i); }
+	for(unsigned int i=1; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } // 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } // 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } //
-	for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
@@ -153,6 +159,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int edges5_count = 0;
 	unsigned int edgesdstv5_sum = 0;
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	
 	// 1st check
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
@@ -173,7 +180,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
 				
-				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ // keyvalue.key
+				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){
 					unsigned int numitems = utilityobj->PARSE(keyvalue, keys);
 					edges3_count += numitems; 
 					for(unsigned int t=0; t<numitems; t++){ edgesdstv3_sum += keys[t]; }
@@ -181,9 +188,9 @@ void bfs::verify(vector<vertex_t> &activevertices){
 			}
 		}
 	}
+	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
 	
 	// 4th check
-	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
 	

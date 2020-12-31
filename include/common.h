@@ -341,6 +341,11 @@ struct _bitData {
 
 #define COMPACTPARAM_ITEMSIZE_TOTALDATA 3
 
+// compact BFS definitions
+#define UNVISITED 0
+#define VISITED_IN_CURRENT_ITERATION 1
+#define VISITED_IN_PAST_ITERATION 2
+
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))
 typedef unsigned long edge_t;
@@ -350,6 +355,7 @@ typedef unsigned int edge_t;
 
 typedef unsigned int keyy_t;
 typedef unsigned int value_t;
+typedef unsigned int value2_dt;
 
 typedef struct {
 	unsigned int key;

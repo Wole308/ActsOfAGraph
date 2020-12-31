@@ -24,7 +24,7 @@
 #include "acts.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 2//1,2 // CRITICAL FIXME
+#define NUMACTSFASTPIPELINES 2
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -140,13 +140,26 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value){ 
+WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value){
 	#ifdef SW
-	unsigned long tempdata = *data;
-	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
-	*data = tempdata;
+		unsigned long tempdata = *data;
+		unsigned long A = ((value) << (index));
+		unsigned long B = (~GETMASK_ULONG((index), (size)));
+		unsigned long C = ((tempdata) & (B));
+		unsigned long D = (C) | A;
+		*data = D;
+		// (tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+		// *data = tempdata;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"WRITETO_ULONG. index: "<<index<<", size: "<<size<<", value: "<<value<<endl;
+		cout<<"WRITETO_ULONG. tempdata"<<endl; actsutilityobj->ULONGTOBINARY(tempdata);
+		cout<<"WRITETO_ULONG. A"<<endl; actsutilityobj->ULONGTOBINARY(A);
+		cout<<"WRITETO_ULONG. B (~mask)"<<endl; actsutilityobj->ULONGTOBINARY(B);
+		cout<<"WRITETO_ULONG. C"<<endl; actsutilityobj->ULONGTOBINARY(C);
+		cout<<"WRITETO_ULONG. D (result)"<<endl; actsutilityobj->ULONGTOBINARY(D);
+		#endif 
 	#else 
-	NOT IMPLEMENTED.
+		NOT IMPLEMENTED.
 	#endif
 	return; 
 }
@@ -154,7 +167,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value){ 
+WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value){ 
 	#ifdef SW
 	unsigned long * data = (unsigned long *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
@@ -491,7 +504,25 @@ reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Grap
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;
 	#elif defined(BFS_ALGORITHM)
-	temp = amin(vtemp, GraphIter);
+		#ifdef COMPACTEDGES
+		if(vtemp == UNVISITED){ temp = VISITED_IN_CURRENT_ITERATION; } 
+		else if(vtemp == VISITED_IN_CURRENT_ITERATION){ temp = VISITED_IN_CURRENT_ITERATION; } 
+		else if(vtemp == VISITED_IN_PAST_ITERATION){ temp = VISITED_IN_PAST_ITERATION; } 
+		else {
+			#ifdef _DEBUGMODE_CHECKS2
+			cout<<"reducefunc: ERROR. should never get here. exiting..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(vtemp == UNVISITED){ cout<<"$$$reducefunc: UNVISITED"<<endl; } 
+		else if(vtemp == VISITED_IN_CURRENT_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_CURRENT_ITERATION"<<endl; } 
+		else if(vtemp == VISITED_IN_PAST_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_PAST_ITERATION"<<endl; } 
+		else { }
+		#endif
+		#else 
+		temp = amin(vtemp, GraphIter);
+		#endif 
 	#elif defined(SSSP_ALGORITHM)
 	temp = amin(vtemp, res);
 	#elif defined(BC_ALGORITHM)
@@ -1797,8 +1828,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop{{v}}[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en{{v}};
 	bool_type en2{{v}};
@@ -1871,13 +1902,13 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			if(en{{v}} == ON && en2{{v}} == ON){ destbuffer[{{v}}][rowindexs{{v}}[t]] = vprop{{v}}[t]; }
 			{%endfor%}
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON && en2{{v}} == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<endl;
-				cout<<"reduce_bfs: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps{{v}}[t]: "<<rettemps{{v}}[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys{{v}}[t]: "<<keys{{v}}[t]<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", bitpos: "<<64 - colindexs{{v}}[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps{{v}}[t]: "<<temps{{v}}[t]<<", rettemps{{v}}[t]: "<<rettemps{{v}}[t]<<endl;
 			}
 			{%endfor%}
 			#endif
@@ -1973,6 +2004,21 @@ savevertices(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZ
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<< TIMINGRESULTSCOLOR<<"savevertices:: vertices saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
+	return;
+}
+
+// apply functions 
+void 
+	#ifdef SW 
+	acts::
+	#endif
+apply_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	// for(unsigned int i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+		// for(unsigned int i=0; i<)
+	// }
+	
 	return;
 }
 

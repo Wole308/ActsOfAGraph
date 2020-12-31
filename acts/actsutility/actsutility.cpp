@@ -1314,6 +1314,11 @@ void actsutility::ULONGTOBINARY(unsigned long n){
 	cout<<endl;
 	return;
 } 
+void actsutility::ULONGTOBINARY(keyvalue_t keyvalue){ 
+	unsigned long * longword = (unsigned long *)&keyvalue;
+	ULONGTOBINARY(*longword);
+	return;
+} 
 unsigned long actsutility::GETMASK_ULONG(unsigned long index, unsigned long size){
 	unsigned long A = ((1 << (size)) - 1);
 	unsigned long B = A << index;
@@ -1334,7 +1339,7 @@ unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, unsigned long inde
 	NOT IMPLEMENTED.
 	#endif 
 }
-void actsutility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value){ 
+void actsutility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value){ 
 	#ifdef SW
 	unsigned long tempdata = *data;
 	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
@@ -1344,7 +1349,7 @@ void actsutility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsig
 	#endif
 	return; 
 }
-void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value){ 
+void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value){ 
 	#ifdef SW
 	unsigned long * data = (unsigned long *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
@@ -1399,5 +1404,10 @@ unsigned int actsutility::GETKEY(unsigned long longword){
 	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 	return ((streetaddr * (1 << SRAMSZ_POW)) + item);
 }
+
+
+
+
+
 
 

@@ -154,11 +154,12 @@ public:
 	// compact graph utilities
 	void DECTOBINARY(int n);
 	void ULONGTOBINARY(unsigned long n);
+	void ULONGTOBINARY(keyvalue_t keyvalue);
 	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
 	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
 	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
-	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value);
-	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value);
+	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
+	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
 	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
 	void PARSE(string message, unsigned long longword);
 	void PARSE(string message, keyvalue_t keyvalue);

@@ -24,7 +24,7 @@
 #include "acts.h"
 using namespace std;
 
-#define NUMACTSFASTPIPELINES 2//1,2 // CRITICAL FIXME
+#define NUMACTSFASTPIPELINES 2
 #if NUMACTSFASTPIPELINES==1
 #define FPP0
 #endif 
@@ -140,13 +140,26 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value){ 
+WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value){
 	#ifdef SW
-	unsigned long tempdata = *data;
-	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
-	*data = tempdata;
+		unsigned long tempdata = *data;
+		unsigned long A = ((value) << (index));
+		unsigned long B = (~GETMASK_ULONG((index), (size)));
+		unsigned long C = ((tempdata) & (B));
+		unsigned long D = (C) | A;
+		*data = D;
+		// (tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+		// *data = tempdata;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"WRITETO_ULONG. index: "<<index<<", size: "<<size<<", value: "<<value<<endl;
+		cout<<"WRITETO_ULONG. tempdata"<<endl; actsutilityobj->ULONGTOBINARY(tempdata);
+		cout<<"WRITETO_ULONG. A"<<endl; actsutilityobj->ULONGTOBINARY(A);
+		cout<<"WRITETO_ULONG. B (~mask)"<<endl; actsutilityobj->ULONGTOBINARY(B);
+		cout<<"WRITETO_ULONG. C"<<endl; actsutilityobj->ULONGTOBINARY(C);
+		cout<<"WRITETO_ULONG. D (result)"<<endl; actsutilityobj->ULONGTOBINARY(D);
+		#endif 
 	#else 
-	NOT IMPLEMENTED.
+		NOT IMPLEMENTED.
 	#endif
 	return; 
 }
@@ -154,7 +167,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value){ 
+WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value){ 
 	#ifdef SW
 	unsigned long * data = (unsigned long *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
@@ -511,7 +524,25 @@ reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Grap
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;
 	#elif defined(BFS_ALGORITHM)
-	temp = amin(vtemp, GraphIter);
+		#ifdef COMPACTEDGES
+		if(vtemp == UNVISITED){ temp = VISITED_IN_CURRENT_ITERATION; } 
+		else if(vtemp == VISITED_IN_CURRENT_ITERATION){ temp = VISITED_IN_CURRENT_ITERATION; } 
+		else if(vtemp == VISITED_IN_PAST_ITERATION){ temp = VISITED_IN_PAST_ITERATION; } 
+		else {
+			#ifdef _DEBUGMODE_CHECKS2
+			cout<<"reducefunc: ERROR. should never get here. exiting..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(vtemp == UNVISITED){ cout<<"$$$reducefunc: UNVISITED"<<endl; } 
+		else if(vtemp == VISITED_IN_CURRENT_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_CURRENT_ITERATION"<<endl; } 
+		else if(vtemp == VISITED_IN_PAST_ITERATION){ cout<<"$$$reducefunc: VISITED_IN_PAST_ITERATION"<<endl; } 
+		else { }
+		#endif
+		#else 
+		temp = amin(vtemp, GraphIter);
+		#endif 
 	#elif defined(SSSP_ALGORITHM)
 	temp = amin(vtemp, res);
 	#elif defined(BC_ALGORITHM)
@@ -2791,8 +2822,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps0[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps0[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop0[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en0;
 	bool_type en20;
@@ -2800,8 +2831,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps1[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps1[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop1[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en1;
 	bool_type en21;
@@ -2809,8 +2840,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps2[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps2[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop2[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en2;
 	bool_type en22;
@@ -2818,8 +2849,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps3[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps3[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop3[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en3;
 	bool_type en23;
@@ -2827,8 +2858,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps4[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps4[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop4[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en4;
 	bool_type en24;
@@ -2836,8 +2867,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps5[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps5[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop5[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en5;
 	bool_type en25;
@@ -2845,8 +2876,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps6[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps6[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop6[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en6;
 	bool_type en26;
@@ -2854,8 +2885,8 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 	vertex_t locs7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t rowindexs7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	vertex_t colindexs7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t temps7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	value_t rettemps7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	value_t temps7[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
+	value_t rettemps7[COMPACTPARAM_ITEMSIZE_TOTALDATA]; // FIXME. should have bitsize of 2
 	keyvalue_t vprop7[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	bool_type en7;
 	bool_type en27;
@@ -3114,54 +3145,54 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			if(en7 == ON && en27 == ON){ WRITETO_ULONG(&vprop7[t], 64 - colindexs7[t] - 2, 2, rettemps7[t]); }
 			if(en7 == ON && en27 == ON){ destbuffer[7][rowindexs7[t]] = vprop7[t]; }
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			if(en0 == ON && en20 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs0[t]: "<<locs0[t]<<", keys0[t]: "<<keys0[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs0[t]: "<<rowindexs0[t]<<", colindexs0[t]: "<<colindexs0[t]<<", colindexs0[t]: "<<colindexs0[t]<<endl;
-				cout<<"reduce_bfs: vprop0[t].key: "<<vprop0[t].key<<", vprop0[t].value: "<<vprop0[t].value<<", rowindexs0[t]: "<<rowindexs0[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps0[t]: "<<rettemps0[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs0[t]: "<<locs0[t]<<", keys0[t]: "<<keys0[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys0[t]: "<<keys0[t]<<", rowindexs0[t]: "<<rowindexs0[t]<<", colindexs0[t]: "<<colindexs0[t]<<", bitpos: "<<64 - colindexs0[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop0[t].key: "<<vprop0[t].key<<", vprop0[t].value: "<<vprop0[t].value<<", rowindexs0[t]: "<<rowindexs0[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps0[t]: "<<temps0[t]<<", rettemps0[t]: "<<rettemps0[t]<<endl;
 			}
 			if(en1 == ON && en21 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs1[t]: "<<locs1[t]<<", keys1[t]: "<<keys1[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs1[t]: "<<rowindexs1[t]<<", colindexs1[t]: "<<colindexs1[t]<<", colindexs1[t]: "<<colindexs1[t]<<endl;
-				cout<<"reduce_bfs: vprop1[t].key: "<<vprop1[t].key<<", vprop1[t].value: "<<vprop1[t].value<<", rowindexs1[t]: "<<rowindexs1[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps1[t]: "<<rettemps1[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs1[t]: "<<locs1[t]<<", keys1[t]: "<<keys1[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys1[t]: "<<keys1[t]<<", rowindexs1[t]: "<<rowindexs1[t]<<", colindexs1[t]: "<<colindexs1[t]<<", bitpos: "<<64 - colindexs1[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop1[t].key: "<<vprop1[t].key<<", vprop1[t].value: "<<vprop1[t].value<<", rowindexs1[t]: "<<rowindexs1[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps1[t]: "<<temps1[t]<<", rettemps1[t]: "<<rettemps1[t]<<endl;
 			}
 			if(en2 == ON && en22 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs2[t]: "<<locs2[t]<<", keys2[t]: "<<keys2[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs2[t]: "<<rowindexs2[t]<<", colindexs2[t]: "<<colindexs2[t]<<", colindexs2[t]: "<<colindexs2[t]<<endl;
-				cout<<"reduce_bfs: vprop2[t].key: "<<vprop2[t].key<<", vprop2[t].value: "<<vprop2[t].value<<", rowindexs2[t]: "<<rowindexs2[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps2[t]: "<<rettemps2[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs2[t]: "<<locs2[t]<<", keys2[t]: "<<keys2[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys2[t]: "<<keys2[t]<<", rowindexs2[t]: "<<rowindexs2[t]<<", colindexs2[t]: "<<colindexs2[t]<<", bitpos: "<<64 - colindexs2[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop2[t].key: "<<vprop2[t].key<<", vprop2[t].value: "<<vprop2[t].value<<", rowindexs2[t]: "<<rowindexs2[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps2[t]: "<<temps2[t]<<", rettemps2[t]: "<<rettemps2[t]<<endl;
 			}
 			if(en3 == ON && en23 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs3[t]: "<<locs3[t]<<", keys3[t]: "<<keys3[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs3[t]: "<<rowindexs3[t]<<", colindexs3[t]: "<<colindexs3[t]<<", colindexs3[t]: "<<colindexs3[t]<<endl;
-				cout<<"reduce_bfs: vprop3[t].key: "<<vprop3[t].key<<", vprop3[t].value: "<<vprop3[t].value<<", rowindexs3[t]: "<<rowindexs3[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps3[t]: "<<rettemps3[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs3[t]: "<<locs3[t]<<", keys3[t]: "<<keys3[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys3[t]: "<<keys3[t]<<", rowindexs3[t]: "<<rowindexs3[t]<<", colindexs3[t]: "<<colindexs3[t]<<", bitpos: "<<64 - colindexs3[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop3[t].key: "<<vprop3[t].key<<", vprop3[t].value: "<<vprop3[t].value<<", rowindexs3[t]: "<<rowindexs3[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps3[t]: "<<temps3[t]<<", rettemps3[t]: "<<rettemps3[t]<<endl;
 			}
 			if(en4 == ON && en24 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs4[t]: "<<locs4[t]<<", keys4[t]: "<<keys4[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs4[t]: "<<rowindexs4[t]<<", colindexs4[t]: "<<colindexs4[t]<<", colindexs4[t]: "<<colindexs4[t]<<endl;
-				cout<<"reduce_bfs: vprop4[t].key: "<<vprop4[t].key<<", vprop4[t].value: "<<vprop4[t].value<<", rowindexs4[t]: "<<rowindexs4[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps4[t]: "<<rettemps4[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs4[t]: "<<locs4[t]<<", keys4[t]: "<<keys4[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys4[t]: "<<keys4[t]<<", rowindexs4[t]: "<<rowindexs4[t]<<", colindexs4[t]: "<<colindexs4[t]<<", bitpos: "<<64 - colindexs4[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop4[t].key: "<<vprop4[t].key<<", vprop4[t].value: "<<vprop4[t].value<<", rowindexs4[t]: "<<rowindexs4[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps4[t]: "<<temps4[t]<<", rettemps4[t]: "<<rettemps4[t]<<endl;
 			}
 			if(en5 == ON && en25 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs5[t]: "<<locs5[t]<<", keys5[t]: "<<keys5[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs5[t]: "<<rowindexs5[t]<<", colindexs5[t]: "<<colindexs5[t]<<", colindexs5[t]: "<<colindexs5[t]<<endl;
-				cout<<"reduce_bfs: vprop5[t].key: "<<vprop5[t].key<<", vprop5[t].value: "<<vprop5[t].value<<", rowindexs5[t]: "<<rowindexs5[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps5[t]: "<<rettemps5[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs5[t]: "<<locs5[t]<<", keys5[t]: "<<keys5[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys5[t]: "<<keys5[t]<<", rowindexs5[t]: "<<rowindexs5[t]<<", colindexs5[t]: "<<colindexs5[t]<<", bitpos: "<<64 - colindexs5[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop5[t].key: "<<vprop5[t].key<<", vprop5[t].value: "<<vprop5[t].value<<", rowindexs5[t]: "<<rowindexs5[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps5[t]: "<<temps5[t]<<", rettemps5[t]: "<<rettemps5[t]<<endl;
 			}
 			if(en6 == ON && en26 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs6[t]: "<<locs6[t]<<", keys6[t]: "<<keys6[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs6[t]: "<<rowindexs6[t]<<", colindexs6[t]: "<<colindexs6[t]<<", colindexs6[t]: "<<colindexs6[t]<<endl;
-				cout<<"reduce_bfs: vprop6[t].key: "<<vprop6[t].key<<", vprop6[t].value: "<<vprop6[t].value<<", rowindexs6[t]: "<<rowindexs6[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps6[t]: "<<rettemps6[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs6[t]: "<<locs6[t]<<", keys6[t]: "<<keys6[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys6[t]: "<<keys6[t]<<", rowindexs6[t]: "<<rowindexs6[t]<<", colindexs6[t]: "<<colindexs6[t]<<", bitpos: "<<64 - colindexs6[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop6[t].key: "<<vprop6[t].key<<", vprop6[t].value: "<<vprop6[t].value<<", rowindexs6[t]: "<<rowindexs6[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps6[t]: "<<temps6[t]<<", rettemps6[t]: "<<rettemps6[t]<<endl;
 			}
 			if(en7 == ON && en27 == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs7[t]: "<<locs7[t]<<", keys7[t]: "<<keys7[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-				cout<<"reduce_bfs: rowindexs7[t]: "<<rowindexs7[t]<<", colindexs7[t]: "<<colindexs7[t]<<", colindexs7[t]: "<<colindexs7[t]<<endl;
-				cout<<"reduce_bfs: vprop7[t].key: "<<vprop7[t].key<<", vprop7[t].value: "<<vprop7[t].value<<", rowindexs7[t]: "<<rowindexs7[t]<<endl;
-				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps7[t]: "<<rettemps7[t]<<endl;
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs7[t]: "<<locs7[t]<<", keys7[t]: "<<keys7[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS: keys7[t]: "<<keys7[t]<<", rowindexs7[t]: "<<rowindexs7[t]<<", colindexs7[t]: "<<colindexs7[t]<<", bitpos: "<<64 - colindexs7[t] - 2<<endl;
+				// cout<<"REDUCE_BFS: vprop7[t].key: "<<vprop7[t].key<<", vprop7[t].value: "<<vprop7[t].value<<", rowindexs7[t]: "<<rowindexs7[t]<<endl;
+				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps7[t]: "<<temps7[t]<<", rettemps7[t]: "<<rettemps7[t]<<endl;
 			}
 			#endif
 		}
@@ -3273,6 +3304,21 @@ savevertices(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZ
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<< TIMINGRESULTSCOLOR<<"savevertices:: vertices saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
+	return;
+}
+
+// apply functions 
+void 
+	#ifdef SW 
+	acts::
+	#endif
+apply_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]){
+	if(enable == OFF){ return; }
+	
+	// for(unsigned int i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+		// for(unsigned int i=0; i<)
+	// }
+	
 	return;
 }
 

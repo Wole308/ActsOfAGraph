@@ -651,6 +651,11 @@ void utility::ULONGTOBINARY(unsigned long n){
 	cout<<endl;
 	return;
 } 
+unsigned int utility::GETMASK_UINT(unsigned int index, unsigned int size){
+	unsigned int A = ((1 << (size)) - 1);
+	unsigned int B = A << index;
+	return B;
+}
 unsigned long utility::GETMASK_ULONG(unsigned long index, unsigned long size){
 	unsigned long A = ((1 << (size)) - 1);
 	unsigned long B = A << index;
@@ -671,7 +676,17 @@ unsigned int utility::READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, u
 	NOT IMPLEMENTED.
 	#endif 
 }
-void utility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value){ 
+void utility::WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){ 
+	#ifdef SW
+	unsigned int tempdata = *data;
+	(tempdata) = ((tempdata) & (~GETMASK_UINT((index), (size)))) | ((value) << (index));
+	*data = tempdata;
+	#else 
+	NOT IMPLEMENTED.
+	#endif
+	return; 
+}
+void utility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value){ 
 	#ifdef SW
 	unsigned long tempdata = *data;
 	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
@@ -681,7 +696,7 @@ void utility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned 
 	#endif
 	return; 
 }
-void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value){ 
+void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value){ 
 	#ifdef SW
 	unsigned long * data = (unsigned long *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);

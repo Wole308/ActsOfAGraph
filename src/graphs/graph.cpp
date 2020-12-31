@@ -475,7 +475,19 @@ void graph::loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, ve
 }
 value_t * graph::generateverticesdata(){ 
 	cout<<"generating vertices data... "<<endl;
-	for(unsigned int k=0; k<KVDATA_RANGE; k++){ vertexdatabuffer[k] = algorithmobj->vertex_initdata(); } 
+	for(unsigned int k=0; k<KVDATA_RANGE; k++){
+		vertexdatabuffer[k] = algorithmobj->vertex_initdata(); 
+		
+		/* #ifdef COMPACTEDGES
+		// utilityobj->
+		vertexdatabuffer[k] = 0;
+		
+		
+		// vertexdatabuffer[k] = algorithmobj->vertex_initdata(); // FIXME.
+		#else 
+		vertexdatabuffer[k] = algorithmobj->vertex_initdata(); 
+		#endif  */
+	} 
 	return vertexdatabuffer;
 }
 value_t * graph::generatetempverticesdata(){ 

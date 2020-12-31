@@ -65,8 +65,8 @@ public:
 	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
 	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
 	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
-	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned int value);
-	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned int value);
+	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
+	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
 	keyy_t GETKEY(keyvalue_t keyvalue);
 	unsigned int GETKEYS(keyvalue_t keyvalue, keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA]);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
@@ -147,6 +147,9 @@ public:
 
 	void savevertices(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 	
+	// apply functions 
+	void apply_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]);
+
 	// process-edges function
 	void process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], vertex_t upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 	
