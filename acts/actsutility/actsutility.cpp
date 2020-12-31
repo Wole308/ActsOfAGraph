@@ -374,6 +374,7 @@ void actsutility::clearglobalvars(){
 	globalvar_inmemory_totalvalidkeyvalues = 0;
 	globalstats_totalkvsreduced = 0;
 	globalstats_reduce_validkvsreduced = 0;
+	globalstats_reduce_var1 = 0;
 	globalstats_totalkvsreducewritten = 0;
 	globalstats_totalkvsprocessed = 0;
 	globalstats_processedges_validkvsprocessed = 0;
@@ -595,6 +596,10 @@ void actsutility::globalstats_reduce_countvalidkvsreduced(unsigned int count){
 	globalstats_reduce_validkvsreduced += count;
 	return;
 }
+void actsutility::globalstats_reduce_countvar1(unsigned int count){
+	globalstats_reduce_var1 += count;
+	return;
+}
 void actsutility::globalstats_countkvsreducewritten(unsigned int count){
 	globalstats_totalkvsreducewritten += count;
 	return;
@@ -629,6 +634,12 @@ void actsutility::globalstats_countkvsmerged(unsigned int count){
 }
 unsigned int actsutility::globalstats_getcounterrorsinreduce(){
 	return globalvar_errorsinreduce;
+}
+unsigned int actsutility::globalstats_getcountvalidkvsreduced(){
+	return globalstats_reduce_validkvsreduced;
+}
+unsigned int actsutility::globalstats_getreducevar1(){
+	return globalstats_reduce_var1;
 }
 unsigned int actsutility::globalstats_getcounterrorsinprocessedges(){
 	return globalvar_errorsinprocessedges;

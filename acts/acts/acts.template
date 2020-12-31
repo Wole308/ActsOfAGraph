@@ -1853,6 +1853,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs{{v}}[t])", colindexs{{v}}[t], 64, colindexs{{v}}[t], NAp, NAp);
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
+				actsutilityobj->globalstats_reduce_countvar1(keys{{v}}[t]);
 				#endif
 			}
 			{%endfor%}
@@ -1873,7 +1874,7 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON && en2{{v}} == ON){ 
-				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}[t]: "<<locs{{v}}[t]<<", keys{{v}}[t]: "<<keys{{v}}[t]<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"reduce_bfs: rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<", colindexs{{v}}[t]: "<<colindexs{{v}}[t]<<endl;
 				cout<<"reduce_bfs: vprop{{v}}[t].key: "<<vprop{{v}}[t].key<<", vprop{{v}}[t].value: "<<vprop{{v}}[t].value<<", rowindexs{{v}}[t]: "<<rowindexs{{v}}[t]<<endl;
 				cout<<"REDUCEFUNC RESULT @ reduce_bfs:: rettemps{{v}}[t]: "<<rettemps{{v}}[t]<<endl;
@@ -4182,6 +4183,10 @@ dispatch(uint512_dt * kvdram){
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	#endif
 	
 	keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer1
@@ -4420,9 +4425,12 @@ dispatch(uint512_dt * kvdram){
 				destoffset = globalstatsbuffer[NUM_PARTITIONS-1].key + globalstatsbuffer[NUM_PARTITIONS-1].value + 64; }
 			
 			#ifdef _DEBUGMODE_CHECKS
-			// if(config.enablereduce == ON){ 
-				actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); 
-				// }
+			if(config.enablereduce == ON){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
+			#endif
+			#ifdef _DEBUGMODE_STATS
+			if(config.enablereduce == ON){ 
+				edges_count = actsutilityobj->globalstats_getcountvalidkvsreduced(); 
+				edgesdstv_sum = actsutilityobj->globalstats_getreducevar1(); }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			actsutilityobj->printglobalvars();
@@ -4438,6 +4446,10 @@ dispatch(uint512_dt * kvdram){
 	}
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key = edges_count;
+	kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key = edgesdstv_sum;
 	#endif
 	return;
 }

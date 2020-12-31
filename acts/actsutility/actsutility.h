@@ -16,14 +16,6 @@ public:
 	actsutility();
 	~actsutility();
 	
-	/* void dectobinary(int n);
-	void ulongtobinary(unsigned long n);
-	int bitExtracted(unsigned long number, int k, int p);
-	int bitExtracted(unsigned int number, int k, int p);
-	void printcodedkeyvalue(string message, unsigned long longword);
-	void printcodedkeyvalue(string message, keyvalue_t * keyvalue);
-	void printcodedkeyvalue(string message, keyvalue_t keyvalue); */
-	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	void checkoutofbounds(unsigned int enable, string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
 	void checkforequal(string message, unsigned int data1, unsigned int data2, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);
@@ -95,6 +87,7 @@ public:
 	void globalstats_countkvspartitioned(unsigned int count);
 	void globalstats_countkvsreduced(unsigned int count);
 	void globalstats_reduce_countvalidkvsreduced(unsigned int count);
+	void globalstats_reduce_countvar1(unsigned int count);
 	void globalstats_countkvsreducewritten(unsigned int count);
 	void globalstats_countkvsprocessed(unsigned int count);
 	void globalstats_processedges_countvalidkvsprocessed(unsigned int count);
@@ -104,6 +97,8 @@ public:
 	void globalstats_counterrorsinprocessedges(unsigned int count);
 	void globalstats_countkvsmerged(unsigned int count);
 	unsigned int globalstats_getcounterrorsinreduce();
+	unsigned int globalstats_getcountvalidkvsreduced();
+	unsigned int globalstats_getreducevar1();
 	unsigned int globalstats_getcounterrorsinprocessedges();
 	unsigned int globalstats_getcountnumvalidprocessedges();
 	
@@ -191,6 +186,7 @@ private:
 	unsigned int globalstats_totalkvspartitionswritten_actual;
 	unsigned int globalstats_totalkvsreduced;
 	unsigned int globalstats_reduce_validkvsreduced;
+	unsigned int globalstats_reduce_var1;
 	unsigned int globalstats_totalkvsprocessed;
 	unsigned int globalstats_processedges_validkvsprocessed;
 	unsigned int globalstats_totalkvsreducewritten;
