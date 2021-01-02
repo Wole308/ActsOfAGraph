@@ -156,7 +156,8 @@ void bfs::apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &active
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"bfs::apply: number of active vertices for next iteration: "<<activevertices.size()<<endl;
-	for(unsigned int i=0; i<utilityobj->hmin(activevertices.size(), 16); i++){ cout<<"bfs::apply: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
+	for(unsigned int i=0; i<activevertices.size(); i++){ cout<<"bfs::apply: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
+	// for(unsigned int i=0; i<utilityobj->hmin(activevertices.size(), 16); i++){ cout<<"bfs::apply: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
 	#endif
 	return;
 }
@@ -177,18 +178,18 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	
-	// 1st check
+	// 1st check (scanning edges in file...)
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	utilityobj->collectedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
 	
-	// 2nd check
+	// 2nd check (stats collected during acts.procactvvs stage)
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
 		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
 		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
 	}				
 	
-	// 3rd check
+	// 3rd check (stats collected after proc acts.procactvvs stage)
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
 		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
 		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
@@ -206,11 +207,11 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	}
 	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
 	
-	// 4th check
+	// 4th check (checking reduced vertices...)
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
 	
-	// 5th check
+	// 5th check (stats collected during acts.reduce phase)
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
 		edges5_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
 		edgesdstv5_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
@@ -248,7 +249,7 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 	else { baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"bfs::verifykvbuffer:: numberofpartitions: "<<(1 << (NUM_PARTITIONS_POW * CLOP))<<", rangeperpartition: "<<rangeperpartition<<", baseoffset_stats_kvs: "<<baseoffset_stats_kvs<<", statsoffset: "<<statsoffset<<", baseoffset_kvdram: "<<baseoffset_kvdram<<endl;
-	utilityobj->printkeyvalues("bfs::verifykvbuffer. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE);
+	if(false){ utilityobj->printkeyvalues("bfs::verifykvbuffer. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE); }
 	#endif
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS

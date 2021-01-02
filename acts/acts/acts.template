@@ -4348,9 +4348,6 @@ dispatch(uint512_dt * kvdram){
 				batch_type ntravszs = 0;
 				for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[k].value; }
 				if(ntravszs > 0){ enreduce = ON; } else { enreduce = OFF; }}
-				
-				// enreduce = ON;
-				
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->setstructs(config, sweepparams, travstate);
 			actsutilityobj->clearallstats();
