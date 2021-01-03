@@ -56,6 +56,7 @@ typedef struct {
 typedef struct {
 	unsigned int currentLOP;
 	unsigned int upperlimit;
+	unsigned int upperpartition;
 	unsigned int source_partition;
 	unsigned int worksourcebaseaddress_kvs;
 	unsigned int workdestbaseaddress_kvs;
@@ -72,6 +73,8 @@ typedef struct {
 	unsigned int size_kvs;
 	unsigned int skip;
 	unsigned int skip_kvs;
+	unsigned int v;
+	unsigned int k;
 	unsigned int info;
 } travstate_t;
 

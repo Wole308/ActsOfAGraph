@@ -565,22 +565,6 @@ unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimi
 	return partition;
 }
 
-void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
-	*edges_count = 0;
-	*edgesdstv_sum = 0;
-	for(unsigned int i=0; i<srcvids.size(); i++){
-		unsigned int vid = srcvids[i];
-		edge_t vptr_begin = vertexptrbuffer[vid];
-		edge_t vptr_end = vertexptrbuffer[vid+1];
-		edge_t edges_size = vptr_end - vptr_begin;
-		
-		for(unsigned int k=0; k<edges_size; k++){
-			*edges_count += 1;
-			*edgesdstv_sum += edgedatabuffer[vptr_begin + k].dstvid;
-		}
-	}
-	return;
-}
 void utility::calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing){
 	buffer[0].key += base;
 	for(buffer_type i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
@@ -831,6 +815,57 @@ void utility::set_callback(cl_event event, const char *queue_name) {
       clSetEventCallback(event, CL_COMPLETE, event_cb, (void *)queue_name));
 }
 #endif 
+
+void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
+	*edges_count = 0;
+	*edgesdstv_sum = 0;
+	for(unsigned int i=0; i<srcvids.size(); i++){
+		unsigned int vid = srcvids[i];
+		edge_t vptr_begin = vertexptrbuffer[vid];
+		edge_t vptr_end = vertexptrbuffer[vid+1];
+		edge_t edges_size = vptr_end - vptr_begin;
+		
+		for(unsigned int k=0; k<edges_size; k++){
+			*edges_count += 1;
+			*edgesdstv_sum += edgedatabuffer[vptr_begin + k].dstvid;
+		}
+	}
+	return;
+}
+unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer){
+	unsigned int * labels = new unsigned int[KVDATA_RANGE];
+	vector<value_t> activevertices;
+	for(unsigned int i=0; i<KVDATA_RANGE; i++){ labels[i] = UNVISITED; }
+	unsigned int edges1_count = 0;
+	unsigned int edgesdstv1_sum = 0;
+	
+	for(unsigned int i=0; i<srcvids.size(); i++){
+		unsigned int vid = srcvids[i];
+		edge_t vptr_begin = vertexptrbuffer[vid];
+		edge_t vptr_end = vertexptrbuffer[vid+1];
+		edge_t edges_size = vptr_end - vptr_begin;
+		
+		for(unsigned int k=0; k<edges_size; k++){
+			unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
+			if(labels[dstvid] == UNVISITED){ labels[dstvid] = VISITED_IN_CURRENT_ITERATION; activevertices.push_back(dstvid); edgesdstv1_sum += dstvid; }
+			else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } // labels[dstvid] = VISITED_IN_CURRENT_ITERATION; }
+			else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } // labels[dstvid] = VISITED_IN_PAST_ITERATION; }
+			else{ cout<<"utility::runbfs_sw: should never get here. exiting..."<<endl; exit(EXIT_FAILURE); }
+		}
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"+++++++++++++++++++++++++++++ utility::runbfs_sw (nextit acvvs) edges1_count: NAp, edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
+	cout<<"utility::runbfs_sw: number of active vertices for next iteration: "<<activevertices.size()<<endl;
+	// for(unsigned int i=0; i<activevertices.size(); i++){ cout<<"utility::runbfs_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
+	for(unsigned int i=0; i<hmin(activevertices.size(), 16); i++){ cout<<"utility::runbfs_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
+	#endif
+	delete labels;
+	return edgesdstv1_sum;
+}
+
+
+
 
 
 

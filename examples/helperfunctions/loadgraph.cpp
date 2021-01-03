@@ -337,10 +337,10 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, vptr_type * vptrs[NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<srcvids.size(); k++){
-			// kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = srcvids[k];
-			// kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].value = 777;//NAp;
-			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k]].key; // vertexptrbuffer[srcvids[k]];
-			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].value = vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k] + 1].key - vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k]].key;
+			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = srcvids[k];
+			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].value = 777;//NAp;
+			// kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k]].key; // vertexptrbuffer[srcvids[k]];
+			// kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].value = vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k] + 1].key - vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k]].key;
 		}
 		container->actvvsize[i] = srcvids.size();
 		#ifdef _DEBUGMODE_HOSTPRINTS2

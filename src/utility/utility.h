@@ -72,7 +72,6 @@ public:
 	void clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
 	
-	void collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum);
 	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing);
 	void getmarkerpositions(keyvalue_t * stats, batch_type size);
 	
@@ -96,6 +95,9 @@ public:
 	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
 	unsigned int GETKEY(unsigned long longword);
 	keyy_t GETKEY(keyvalue_t keyvalue);
+	
+	void collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum);
+	unsigned int runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);
