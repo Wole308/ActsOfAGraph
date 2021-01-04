@@ -30,11 +30,15 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], uns
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
+	#ifdef MULTIACTSINSTANCES
+	kernelobjs[0]->topkernel((uint512_dt **)kvsourcedram);
+	#else 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		kernelobjs[i]->topkernel((uint512_dt *)kvsourcedram[i]);
 		// exit(EXIT_SUCCESS); 
 		// break;
 	}
+	#endif 
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
