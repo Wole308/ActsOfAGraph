@@ -872,6 +872,11 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 		
 		rootactvvs.clear();
 		for(unsigned int i=0; i<activevertices.size(); i++){ rootactvvs.push_back(activevertices[i]); }
+		activevertices.clear();
+		
+		for(unsigned int i=0; i<KVDATA_RANGE; i++){ 
+			if(labels[i] == VISITED_IN_CURRENT_ITERATION){ labels[i] = VISITED_IN_PAST_ITERATION;  }
+		}
 	}
 	delete labels;
 	return edgesdstv1_sum;

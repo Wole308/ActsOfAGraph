@@ -3477,7 +3477,7 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram[NUMSUBCPUTHREADS], keyva
 		}
 		
 		if(actvvstravstate.k >= PADDEDDESTBUFFER_SIZE-32){
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"unifydata_bfs: saving and clearning actvvs... i: "<<actvvstravstate.i<<", i_kvs: "<<actvvstravstate.i_kvs<<", (v: "<<actvvstravstate.v<<", k: "<<actvvstravstate.k<<")"<<endl;
 			#endif
 			for(unsigned int n=0; n<NUMSUBCPUTHREADS; n++){ // CRITICAL FIXME. CAN NOT UNROLL
@@ -6187,7 +6187,7 @@ processactivevertices_compactedges(
 		actvvtravstate.i_kvs = offset_kvs;
 		
 		// get offsets 
-		#ifndef KOOOKOOOO // 
+		#ifndef KOOOKOOOO
 		readkeyvalues(ON, kvdram, actvvs, globalparams.baseoffset_activevertices_kvs + offset_kvs, PADDEDDESTBUFFER_SIZE, actvvtravstate);
 		processactivevertices_generateoffsets(kvdram, actvvs, offsets, actvvtravstate, globalparams);
 		#else
@@ -7499,7 +7499,7 @@ dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actv
 	
 	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[i].i<<", i_kvs: "<<actvvstravstate[i].i_kvs<<", (v: "<<actvvstravstate[i].v<<", k: "<<actvvstravstate[i].k<<")"<<endl;
 		#endif
 		for(unsigned int n=0; n<NUMSUBCPUTHREADS; n++){ // CRITICAL FIXME. CAN NOT UNROLL
@@ -7527,6 +7527,7 @@ dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actv
 			kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key = 0;
 		}
 		kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key = actvvstravstate[i].i;
+		cout<<"########################################################### actvvstravstate[0].i: "<<actvvstravstate[i].i<<endl;
 	}
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS

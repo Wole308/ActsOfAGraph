@@ -82,8 +82,8 @@ runsummary_t bfs::run(){
 	// set root vid
 	container_t container;
 	vector<value_t> activevertices;
-	// activevertices.push_back(1);
-	for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
+	activevertices.push_back(1);
+	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
@@ -114,7 +114,7 @@ runsummary_t bfs::run(){
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 		
 	//////////////
-	unsigned int NumGraphIters = 1;//2;
+	unsigned int NumGraphIters = 2;//2;
 	loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadmessages(kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
