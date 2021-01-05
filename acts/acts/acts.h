@@ -145,6 +145,8 @@ public:
 
 	void replicatedata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
 
+	void replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
+
 	value_t reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	
 	value_t reducefunc_bfs(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
@@ -160,6 +162,10 @@ public:
 	void unifydata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type destoffset, buffer_type size, unsigned int GraphAlgo);
 
 	travstate_t unifydata_bfs(bool_type enable, uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
+									sweepparams_t sweepparams, globalparams_t globalparams);
+	
+	travstate_t unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram, keyvalue_t sourcebuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 									sweepparams_t sweepparams, globalparams_t globalparams);
 	
@@ -294,6 +300,31 @@ public:
 		travstate_t rtravstate,
 		travstate_t actvvstravstate);
 		
+	travstate_t reduceupdates_sync(
+			// bool_type enable,
+			// uint512_dt * kvdram[NUMSUBCPUTHREADS],
+			// keyvalue_t verticesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			// keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			// keyvalue_t tempverticesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			// keyvalue_t actvvs[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			// config_t config[NUMSUBCPUTHREADS],
+			// globalparams_t globalparams[NUMSUBCPUTHREADS],
+			// sweepparams_t sweepparams,
+			// travstate_t rtravstate[NUMSUBCPUTHREADS],
+			// travstate_t actvvstravstate[NUMSUBCPUTHREADS]
+			bool_type enable,
+			uint512_dt * kvdram[NUMSUBCPUTHREADS],
+			keyvalue_t verticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			keyvalue_t tempverticesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			config_t config,
+			globalparams_t globalparams,
+			sweepparams_t sweepparams,
+			travstate_t rtravstate[NUMSUBCPUTHREADS],
+			travstate_t actvvstravstate
+			);
+		
 	// process vertices
 	void processallvertices(
 		bool_type enable,
@@ -355,6 +386,8 @@ public:
 	void dispatch_partitiononly(uint512_dt * kvdram);
 	
 	void dispatch_reduceonly(uint512_dt * kvdram);
+	
+	void dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS]);
 	
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);

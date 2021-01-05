@@ -206,6 +206,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int actvvs_count = 0;
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
+	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	
 	// 1st check (scanning edges in file...)
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
@@ -237,7 +238,6 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
 	
 	// 4th check (checking edges in acts.LLOP...)
-	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
 	
 	// 5th check (stats collected during acts.reduce phase)
@@ -251,6 +251,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 		actvvs_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key; 
 	}
 	
+	cout<<"-------------- CLOP: "<<CLOP<<" -----------------"<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip, from file) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, during proc actvvs)  edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after proc actvvs) edges3_count: "<<edges3_count<<", edgesdstv3_sum: "<<edgesdstv3_sum<<endl;
@@ -261,7 +262,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	if(CLOP == 1){
 		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
 		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else if(CLOP == TREE_DEPTH + 1){
+	} else if(CLOP == TREE_DEPTH){
 		if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
 		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
 	} else {
