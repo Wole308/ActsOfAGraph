@@ -165,7 +165,7 @@ public:
 								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 									sweepparams_t sweepparams, globalparams_t globalparams);
 	
-	travstate_t unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram, keyvalue_t sourcebuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+	travstate_t unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram[NUMSUBCPUTHREADS], keyvalue_t sourcebuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 									sweepparams_t sweepparams, globalparams_t globalparams);
 	
@@ -381,7 +381,7 @@ public:
 	
 	void dispatch_reduceonly(uint512_dt * kvdram);
 	
-	void dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS]);
+	void dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actvvstravstate[NUMSUBCPUTHREADS]);
 	
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);

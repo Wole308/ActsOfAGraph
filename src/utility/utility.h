@@ -97,7 +97,7 @@ public:
 	keyy_t GETKEY(keyvalue_t keyvalue);
 	
 	void collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum);
-	unsigned int runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer);
+	unsigned int runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);
