@@ -559,8 +559,8 @@ void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUT
 	return;
 }
 unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
-	// partition_type partition = (keyvalue.key - upperlimit) / (BATCH_RANGE / pow(NUM_PARTITIONS, treedepth));
-	partition_type partition = ((keyvalue.key - upperlimit) >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * treedepth)));
+	// unsigned int partition = (keyvalue.key - upperlimit) / (BATCH_RANGE / pow(NUM_PARTITIONS, treedepth));
+	unsigned int partition = ((keyvalue.key - upperlimit) >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * treedepth)));
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	checkoutofbounds("loadgraph::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
@@ -568,18 +568,18 @@ unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimi
 	return partition;
 }
 
-void utility::calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing){
+void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing){
 	buffer[0].key += base;
-	for(buffer_type i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
+	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
 	return;
 }
-void utility::getmarkerpositions(keyvalue_t * stats, batch_type size){
-	batch_type * skipspacing = new batch_type[size];
-	for(partition_type p=0; p<size; p++){ 
-		batch_type A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
-		batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
+void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
+	unsigned int * skipspacing = new unsigned int[size];
+	for(unsigned int p=0; p<size; p++){ 
+		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
+		unsigned int B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
 		if(B < 80){ B = B * 2; } 
-		batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
+		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
 		// skipspacing[p] = 0;

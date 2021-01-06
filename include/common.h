@@ -1,8 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define SWEMU // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -66,7 +69,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-// #define _DEBUGMODE_KERNELPRINTS2 //
+#define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //

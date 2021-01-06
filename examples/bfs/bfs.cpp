@@ -78,13 +78,11 @@ runsummary_t bfs::run(){
 	graphobj->openfilesforreading(0);
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
-	cout<<"---- runsummary_t bfs::run. seen A."<<endl;
 	
 	// set root vid
 	unsigned int NumGraphIters = 1; //2;
 	container_t container;
 	vector<value_t> activevertices;
-	cout<<"---- runsummary_t bfs::run. seen B."<<endl;
 	
 	// activevertices.push_back(2);
 	// activevertices.push_back(3);
@@ -99,32 +97,26 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(12);
 	// activevertices.push_back(13);
 	
-	// activevertices.push_back(1);
+	activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	vector<value_t> activevertices2;
 	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
-	cout<<"---- runsummary_t bfs::run. seen C."<<endl;
 	
 	// load dram
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef COMPACTEDGES
-	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
-	cout<<"---- runsummary_t bfs::run. seen C1."<<endl;
-	// exit(EXIT_SUCCESS);
-	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
-	cout<<"---- runsummary_t bfs::run. seen C2."<<endl;
+	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer); 
+	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK); 			
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	cout<<"---- runsummary_t bfs::run. seen C3."<<endl;
-	// exit(EXIT_SUCCESS);
 	#else
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
@@ -132,18 +124,15 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadmessages(kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
-	cout<<"---- runsummary_t bfs::run. seen D."<<endl;
 	
 	// run bfs
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 
 	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-	cout<<"---- runsummary_t bfs::run. seen E."<<endl;
 	
 	utilityobj->stopTIME("bfs::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	cout<<"---- runsummary_t bfs::run. seen F."<<endl;
 	
 	// verify 
 	verify(activevertices);

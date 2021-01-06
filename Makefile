@@ -120,20 +120,20 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[0]
@@ -177,8 +177,7 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
 	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
-	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt
-
+	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:

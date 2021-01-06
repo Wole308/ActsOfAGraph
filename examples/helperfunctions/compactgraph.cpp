@@ -77,9 +77,8 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	unsigned int * numitemspacked = new unsigned int[PADDEDEDGES_BATCHSIZE];
 	for(unsigned int i=0; i<PADDEDEDGES_BATCHSIZE; i++){ numitemspacked[i] = 0; }
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){ // FIXME.
-	// for(unsigned int vid=0; vid<3; vid++){
-		#if defined(_DEBUGMODE_HOSTPRINTS3) || defined(_DEBUGMODE_COMPACTGRAPH)
+	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
+		#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
 		if(vid % 100000 == 0){ cout<<endl<<">>> compactgraph::compact: vid: "<<vid<<endl; }
 		#endif 
 		edge_t vptr_begin = vertexptrbuffer[vid];

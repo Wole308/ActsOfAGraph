@@ -72,8 +72,8 @@ public:
 	void clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
 	
-	void calculateoffsets(keyvalue_t * buffer, buffer_type size, batch_type base, batch_type * skipspacing);
-	void getmarkerpositions(keyvalue_t * stats, batch_type size);
+	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing);
+	void getmarkerpositions(keyvalue_t * stats, unsigned int size);
 	
 	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
 	
