@@ -79,8 +79,8 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){ // FIXME.
 	// for(unsigned int vid=0; vid<3; vid++){
-		#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
-		cout<<endl<<">>> compactgraph::compact: vid: "<<vid<<endl;
+		#if defined(_DEBUGMODE_HOSTPRINTS3) || defined(_DEBUGMODE_COMPACTGRAPH)
+		if(vid % 100000 == 0){ cout<<endl<<">>> compactgraph::compact: vid: "<<vid<<endl; }
 		#endif 
 		edge_t vptr_begin = vertexptrbuffer[vid];
 		edge_t vptr_end = vertexptrbuffer[vid+1];
@@ -141,6 +141,9 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 				utilityobj->PARSE("compactgraph:: actual committing...", longword.data);
 				#endif 
 				// exit(EXIT_SUCCESS);
+				#ifdef _DEBUGMODE_CHECKS2
+				utilityobj->checkoutofbounds("compactgraph 211", committededgescount, PADDEDEDGES_BATCHSIZE, NAp, NAp, NAp);
+				#endif 
 				packededgedatabuffer[committededgescount] = longword;
 				numitemspacked[committededgescount] = numitems;
 				
@@ -150,6 +153,9 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 				counts2[vid].value += 1;
 				#ifdef _DEBUGMODE_STATS
 				totalnumcommits += 1;
+				#ifdef _DEBUGMODE_CHECKS2
+				utilityobj->checkoutofbounds("compactgraph 212", numitems, 16, NAp, NAp, NAp);
+				#endif 
 				numitemscount[numitems] += 1;
 				#endif
 				numitems = 0;
@@ -203,6 +209,9 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 			utilityobj->ULONGTOBINARY(longword.data);
 			utilityobj->PARSE("compactgraph:: actual committing...", longword.data);
 			#endif
+			#ifdef _DEBUGMODE_CHECKS2
+			utilityobj->checkoutofbounds("compactgraph 213", committededgescount, PADDEDEDGES_BATCHSIZE, NAp, NAp, NAp);
+			#endif
 			packededgedatabuffer[committededgescount] = longword;
 			numitemspacked[committededgescount] = numitems;
 			
@@ -212,6 +221,9 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 			counts2[vid].value += 1;
 			#ifdef _DEBUGMODE_STATS
 			totalnumcommits += 1;
+			#ifdef _DEBUGMODE_CHECKS2
+			utilityobj->checkoutofbounds("compactgraph 214", numitems, 16, NAp, NAp, NAp);
+			#endif
 			numitemscount[numitems] += 1;
 			#endif
 			numitems = 0;
@@ -220,11 +232,17 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 		}
 		////////		
 	}
-	utilityobj->calculateunallignedoffsets(counts1, KVDATA_RANGE);
+	cout<<"--- utility::compactgraph::compact..."<<endl;
+	// exit(EXIT_SUCCESS);
+	// utilityobj->calculateunallignedoffsets(counts1, KVDATA_RANGE); // FIXME.
 	utilityobj->calculateunallignedoffsets(counts2, KVDATA_RANGE);
+	cout<<"--- utility::compactgraph::compacttttt..."<<endl;
+	// exit(EXIT_SUCCESS);
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ packedvertexptrbuffer[i] = counts2[i].key; }
+	cout<<"--- utility::compactgraph::compactttttnnnnn..."<<endl;
+	// exit(EXIT_SUCCESS);
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"STATS: totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<", reduction factor: "<<(float)((float)totalnumedgesprocessed / (float)totalnumcommits)<<endl;
 	cout<<"STATS: numcommits from: new shrinked bitsize: "<<commitreasontype1<<endl;
 	cout<<"STATS: numcommits from: change in last level partition: "<<commitreasontype2<<endl;
@@ -247,7 +265,10 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	
 	verify(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer, numitemspacked);
 	#endif
-	return ;
+	delete counts1;
+	delete counts2;
+	delete numitemspacked;
+	return;
 }
 void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * packedvertexptrbuffer, uuint64_dt * packededgedatabuffer, unsigned int * numitemspacked){
 	unsigned int edges_nc_count = 0;

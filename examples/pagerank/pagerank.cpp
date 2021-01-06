@@ -45,7 +45,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	
 	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
 	#endif
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();

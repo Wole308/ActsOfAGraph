@@ -17,63 +17,22 @@ public:
 
 	#define TOTALNUMKERNELS 1
 	// #define TOTALNUMKERNELS NUMSUBCPUTHREADS //
-	
-	#define NUMHBMSPERKERNEL 1
-	
-	#define TOTALNUMACTCUSTORUN 1
-	// #define TOTALNUMACTCUSTORUN NUMSUBCPUTHREADS //
-	
-	#define NUMACTSCUSPERKERNEL NUMINSTANCES
-	
-	#define TOTALAVAILABLEACTSCUS (TOTALNUMKERNELS * NUMACTSCUSPERKERNEL)
-	
-	#define NUMACTIVEKERNELS ((TOTALNUMACTCUSTORUN + (NUMACTSCUSPERKERNEL - 1)) / NUMACTSCUSPERKERNEL)
 
-	#define NUMACTIVEINSTANCES 1
-		
-	/** #ifdef TESTKERNEL_ACTSMAX
-		#define TOTALNUMKERNELS NUMSUBWORKERS
-		
-		#define NUMHBMSPERKERNEL 1
-		
-		#define TOTALNUMACTCUSTORUN NUMSUBWORKERS
-		
-		#define NUMACTSCUSPERKERNEL NUMINSTANCES
-		
-		#define TOTALAVAILABLEACTSCUS (TOTALNUMKERNELS * NUMACTSCUSPERKERNEL)
-		
-		// #define NUMACTIVEKERNELS 1
-		#define NUMACTIVEKERNELS ((TOTALNUMACTCUSTORUN + (NUMACTSCUSPERKERNEL - 1)) / NUMACTSCUSPERKERNEL)
-		
-		#define NUMACTIVEINSTANCES 1
-	#else
-		// #define TOTALNUMKERNELS 1
-		#define TOTALNUMKERNELS NUMSUBCPUTHREADS //
-		
-		#define NUMHBMSPERKERNEL 1
-		
-		// #define TOTALNUMACTCUSTORUN 1
-		#define TOTALNUMACTCUSTORUN NUMSUBCPUTHREADS //
-		
-		#define NUMACTSCUSPERKERNEL NUMINSTANCES
-		
-		#define TOTALAVAILABLEACTSCUS (TOTALNUMKERNELS * NUMACTSCUSPERKERNEL)
-		
-		#define NUMACTIVEKERNELS ((TOTALNUMACTCUSTORUN + (NUMACTSCUSPERKERNEL - 1)) / NUMACTSCUSPERKERNEL)
+	// #define TOTALNUMBUFFERS 1
+	#define TOTALNUMBUFFERS NUMSUBCPUTHREADS //
 
-		#define NUMACTIVEINSTANCES 1
-	#endif */
-	
+	#define NUMACTIVEKERNELS TOTALNUMKERNELS 
+
 	#ifdef FPGA_IMPL 
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
-	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
-	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS],  unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
+	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS],  unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]);
 	
-	void readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
-	void readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int beginoffset[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
+	void readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS], unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]);			
 	
-	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMCPUTHREADS][NUMSUBCPUTHREADS]);			
+	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);			
 	void finishOCL();
 	#endif 
 private:
@@ -84,9 +43,9 @@ private:
 	stats * statsobj;
 	
 	#ifdef FPGA_IMPL 
-	cl_mem_ext_ptr_t inoutBufExt[TOTALAVAILABLEACTSCUS];
+	cl_mem_ext_ptr_t inoutBufExt[TOTALNUMBUFFERS];
 
-    cl::Buffer buffer_kvsourcedram[TOTALNUMACTCUSTORUN];
+    cl::Buffer buffer_kvsourcedram[TOTALNUMBUFFERS];
 	
 	cl::Kernel krnls[TOTALNUMKERNELS];
 	

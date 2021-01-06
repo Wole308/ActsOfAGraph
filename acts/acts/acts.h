@@ -66,14 +66,15 @@ public:
 	batch_type allignhigher_KV(batch_type val);
 	batch_type allignlowerto16_KV(batch_type val);
 	batch_type allignhigherto16_KV(batch_type val);
+	ulong_dt CONVERTTOLONG_KV(keyvalue_t keyvalue);
+	keyvalue_t CONVERTTOKV_ULONG(ulong_dt data);
 	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
-	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
+	ulong_dt GETMASK_ULONG(ulong_dt index, ulong_dt size);
 	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
-	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
-	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
-	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
-	keyy_t GETKEY(keyvalue_t keyvalue);
+	unsigned int READFROM_ULONG(ulong_dt data, ulong_dt index, ulong_dt size);
+	unsigned int READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size);
+	void WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value);
+	void WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value);
 	unsigned int GETKEYS(keyvalue_t keyvalue, keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA]);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
@@ -106,8 +107,11 @@ public:
 	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);
 	bool inreducestage(unsigned int currentLOP, globalparams_t globalparams);
 	void calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size);
-	mail_t shrink(unsigned int x);
-	void push(uuint64_dt * longword, mail_t kv);
+	keyvalue_t getkeyvalue(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v);
+	uint512_vec_dt getkeyvalues(uint512_dt * keyvalues, unsigned int offset_kvs);
+	void setkeyvalue(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyvalue_t keyvalue);
+	void setkeyvalues(uint512_dt * keyvalues, unsigned int offset_kvs, uint512_vec_dt D);
+	void setkey(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyy_t key);
 	
 	// partition function 
 	partition_type getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow);
@@ -143,6 +147,8 @@ public:
 	// reduce functions
 	void readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 
+	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
+	
 	void replicatedata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
 
 	void replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
@@ -168,8 +174,6 @@ public:
 	travstate_t unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram[NUMSUBCPUTHREADS], keyvalue_t sourcebuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 									sweepparams_t sweepparams, globalparams_t globalparams);
-	
-	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 	
 	// apply functions 
 	void apply_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]);
@@ -301,23 +305,12 @@ public:
 		travstate_t actvvstravstate);
 		
 	travstate_t reduceupdates_sync(
-			// bool_type enable,
-			// uint512_dt * kvdram[NUMSUBCPUTHREADS],
-			// keyvalue_t verticesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			// keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			// keyvalue_t tempverticesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			// keyvalue_t actvvs[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			// config_t config[NUMSUBCPUTHREADS],
-			// globalparams_t globalparams[NUMSUBCPUTHREADS],
-			// sweepparams_t sweepparams,
-			// travstate_t rtravstate[NUMSUBCPUTHREADS],
-			// travstate_t actvvstravstate[NUMSUBCPUTHREADS]
 			bool_type enable,
 			uint512_dt * kvdram[NUMSUBCPUTHREADS],
 			keyvalue_t verticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 			keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 			keyvalue_t tempverticesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 			config_t config,
 			globalparams_t globalparams,
 			sweepparams_t sweepparams,
@@ -383,18 +376,22 @@ public:
 
 	void dispatch(uint512_dt * kvdram);
 	
-	void dispatch_partitiononly(uint512_dt * kvdram);
+	void dispatch_partitiononly(uint512_dt * kvdram, globalparams_t globalparams);
 	
-	void dispatch_reduceonly(uint512_dt * kvdram);
+	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
-	void dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actvvstravstate[NUMSUBCPUTHREADS]);
+	void dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);
 	#endif 
 	
-	#ifdef MULTIACTSINSTANCES
+	#if defined(MULTIACTSINSTANCES) && defined(SW)
 	void topkernel(uint512_dt * kvdram[NUMSUBCPUTHREADS]);
+	#endif 
+	
+	#if defined(MULTIACTSINSTANCES) && defined(FPGA_IMPL)
+	void topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15);
 	#endif 
 private:
 	#ifndef FPGA_IMPL

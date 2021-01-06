@@ -56,7 +56,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	packededgedatabuffer = new uuint64_dt[PADDEDEDGES_BATCHSIZE];
 	
 	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
 	#endif
 }
 bfs::~bfs(){
@@ -78,80 +78,79 @@ runsummary_t bfs::run(){
 	graphobj->openfilesforreading(0);
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
+	cout<<"---- runsummary_t bfs::run. seen A."<<endl;
 	
 	// set root vid
+	unsigned int NumGraphIters = 1; //2;
 	container_t container;
 	vector<value_t> activevertices;
-	activevertices.push_back(1);
+	cout<<"---- runsummary_t bfs::run. seen B."<<endl;
+	
+	// activevertices.push_back(2);
+	// activevertices.push_back(3);
+	// activevertices.push_back(4);
+	// activevertices.push_back(5);
+	// activevertices.push_back(6);
+	// activevertices.push_back(7);
+	// activevertices.push_back(8);
+	// activevertices.push_back(9);
+	// activevertices.push_back(10);
+	// activevertices.push_back(11);
+	// activevertices.push_back(12);
+	// activevertices.push_back(13);
+	
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	vector<value_t> activevertices2;
 	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
+	cout<<"---- runsummary_t bfs::run. seen C."<<endl;
 	
 	// load dram
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
 	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer);
-	utilityobj->printvalues("bfs::run:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
+	cout<<"---- runsummary_t bfs::run. seen C1."<<endl;
+	// exit(EXIT_SUCCESS);
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK);
+	cout<<"---- runsummary_t bfs::run. seen C2."<<endl;
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	cout<<"---- runsummary_t bfs::run. seen C3."<<endl;
+	// exit(EXIT_SUCCESS);
 	#else
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	#endif
-	
-	// run bfs
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	
-	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-		
-	//////////////
-	unsigned int NumGraphIters = 2;//2;
 	loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadmessages(kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
+	cout<<"---- runsummary_t bfs::run. seen D."<<endl;
 	
+	// run bfs
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+
 	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
+	cout<<"---- runsummary_t bfs::run. seen E."<<endl;
 	
-	verify(activevertices);
-	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	// exit(EXIT_SUCCESS);
-	
-	// apply((keyvalue_t **)kvbuffer, activevertices);
-	//////////////////
-	
-	/* for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: graph iteration "<<GraphIter<<" of bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-		
-		loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-		loadgraphobj->loadmessages(kvbuffer, &container, GraphIter, BREADTHFIRSTSEARCH);
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
-		
-		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-		verify(activevertices);
-		// exit(EXIT_SUCCESS);
-		
-		apply((keyvalue_t **)kvbuffer, activevertices);
-		// exit(EXIT_SUCCESS);
-		// break;
-		// if(activevertices.size() == 0){ break; }
-	} */
-	cout<<""<<endl;
-	finish();
 	utilityobj->stopTIME("bfs::start2: finished start2. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	cout<<"---- runsummary_t bfs::run. seen F."<<endl;
 	
 	// verify 
-	// unsigned int edgesdstv1_sum = utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	verify(activevertices);
+	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	// apply((keyvalue_t **)kvbuffer, activevertices);
 	
+	finish();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
@@ -276,7 +275,6 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.reduce stage    ) edges5_count: "<<edges5_count<<", edgesdstv5_sum: "<<edgesdstv5_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<endl;
 	
-	// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key = GraphIter;
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
 	if(CLOP == 1){

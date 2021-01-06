@@ -53,7 +53,7 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsig
 }
 
 #ifdef FPGA_IMPL 
-void kernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMFLAGS][NUMSUBCPUTHREADS]){
+void kernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);
 }
 

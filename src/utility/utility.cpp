@@ -589,7 +589,9 @@ void utility::getmarkerpositions(keyvalue_t * stats, batch_type size){
 }
 
 void utility::calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size){
-	for(buffer_type i=1; i<size; i++){ 
+	cout<<"--- utility::calculateunallignedoffsets..."<<". size: "<<size<<endl;
+	for(unsigned int i=1; i<size; i++){ 
+		if(i%100000==0){ cout<<"--- utility::calculateunallignedoffsets... i: "<<i<<", size: "<<size<<endl; }
 		keyvalues[i].key = keyvalues[i-1].key + keyvalues[i-1].value; 
 	}
 	return;
@@ -654,54 +656,30 @@ unsigned long utility::GETMASK_ULONG(unsigned long index, unsigned long size){
 	return B;
 }
 unsigned int utility::READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
-	#ifdef SW
 	return (((data) & GETMASK_UINT((index), (size))) >> (index)); 
-	#else 
-	NOT IMPLEMENTED.
-	#endif 
 }
 unsigned int utility::READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size){ 
-	#ifdef SW
 	return (((data) & GETMASK_ULONG((index), (size))) >> (index)); 
-	#else 
-	NOT IMPLEMENTED.
-	#endif 
 }
 unsigned int utility::READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size){
-	#ifdef SW
 	unsigned long * data = (unsigned long *)&keyvalue;
 	return READFROM_ULONG(*data, index, size);
-	#else 
-	NOT IMPLEMENTED.
-	#endif 
 }
 void utility::WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){ 
-	#ifdef SW
 	unsigned int tempdata = *data;
 	(tempdata) = ((tempdata) & (~GETMASK_UINT((index), (size)))) | ((value) << (index));
 	*data = tempdata;
-	#else 
-	NOT IMPLEMENTED.
-	#endif
 	return; 
 }
 void utility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value){ 
-	#ifdef SW
 	unsigned long tempdata = *data;
 	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
 	*data = tempdata;
-	#else 
-	NOT IMPLEMENTED.
-	#endif
 	return; 
 }
 void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value){ 
-	#ifdef SW
 	unsigned long * data = (unsigned long *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
-	#else 
-	NOT IMPLEMENTED.
-	#endif
 	return; 
 }
 void utility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz){
@@ -856,9 +834,17 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
-				if(labels[dstvid] == UNVISITED){ labels[dstvid] = VISITED_IN_CURRENT_ITERATION; activevertices.push_back(dstvid); edgesdstv1_sum += dstvid; }
-				else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } // labels[dstvid] = VISITED_IN_CURRENT_ITERATION; }
-				else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } // labels[dstvid] = VISITED_IN_PAST_ITERATION; }
+				if(labels[dstvid] == UNVISITED){ 
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					cout<<"utility::runbfs_sw: ACTIVE VERTICES seen for next iteration. dstvid: "<<dstvid<<endl;
+					#endif
+					
+					labels[dstvid] = VISITED_IN_CURRENT_ITERATION; 
+					activevertices.push_back(dstvid); 
+					edgesdstv1_sum += dstvid; 
+				}
+				else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } 
+				else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } 
 				else{ cout<<"utility::runbfs_sw: should never get here. exiting..."<<endl; exit(EXIT_FAILURE); }
 			}
 		}

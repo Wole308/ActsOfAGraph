@@ -56,7 +56,7 @@ bfs_ext::bfs_ext(unsigned int algorithmid, unsigned int datasetid, std::string b
 	#endif 
 	
 	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
 	#endif
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();

@@ -153,21 +153,23 @@ public:
 	
 	// compact graph utilities
 	void DECTOBINARY(int n);
-	void ULONGTOBINARY(unsigned long n);
+	void ULONGTOBINARY(ulong_dt n);
 	void ULONGTOBINARY(keyvalue_t keyvalue);
+	ulong_dt CONVERTTOLONG_KV(keyvalue_t keyvalue);
+	keyvalue_t CONVERTTOKV_ULONG(ulong_dt data);
 	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
-	unsigned long GETMASK_ULONG(unsigned long index, unsigned long size);
+	ulong_dt GETMASK_ULONG(ulong_dt index, ulong_dt size);
 	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-	unsigned int READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size);
-	unsigned int READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size);
-	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
-	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
+	unsigned int READFROM_ULONG(ulong_dt data, ulong_dt index, ulong_dt size);
+	unsigned int READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size);
+	void WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value);
+	void WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value);
 	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
-	void PARSE(string message, unsigned long longword);
+	void PARSE(string message, ulong_dt longword);
 	void PARSE(string message, keyvalue_t keyvalue);
-	unsigned int PARSE(unsigned long longword, unsigned int * _items);
+	unsigned int PARSE(ulong_dt longword, unsigned int * _items);
 	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
-	unsigned int GETKEY(unsigned long longword);
+	unsigned int GETKEY(ulong_dt longword);
 	
 private:
 	#ifdef SW 

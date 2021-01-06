@@ -189,6 +189,7 @@
 #define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE
 #define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
 #define EDGES_BATCHSIZE (MAXKVDATA_BATCHSIZE * NUMSUBCPUTHREADS)
+// #define EDGES_BATCHSIZE (MAXKVDATA_BATCHSIZE * 16) // FIXME./////////////////////////////////////////////////////////
 #define EDGES_BATCHSIZE_KVS (EDGES_BATCHSIZE / VECTOR_SIZE)
 #define PADDEDEDGES_BATCHSIZE (EDGES_BATCHSIZE + 1000000)
 
@@ -445,6 +446,12 @@ typedef struct {
 	unsigned long data;
 } uuint64_dt;
 // #endif
+
+#ifdef _WIDEWORD
+typedef ap_uint<64> ulong_dt;
+#else
+typedef unsigned long ulong_dt;
+#endif
 
 typedef struct {
 	keyvalue_t data[VECTOR_SIZE];

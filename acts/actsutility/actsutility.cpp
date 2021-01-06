@@ -1292,7 +1292,7 @@ void actsutility::DECTOBINARY(int n){
 	}
 	return;
 } 
-void actsutility::ULONGTOBINARY(unsigned long n){ 
+void actsutility::ULONGTOBINARY(ulong_dt n){ 
     // array to store binary number 
     int binaryNum[64]; 
   
@@ -1307,7 +1307,7 @@ void actsutility::ULONGTOBINARY(unsigned long n){
     } 
   
     // printing binary array in reverse order 
-	cout<<"actsutility::ULONGTOBINARY: "<<(unsigned long)n<<" in decimal is: ";
+	cout<<"actsutility::ULONGTOBINARY: "<<(ulong_dt)n<<" in decimal is: ";
     for (int j = i - 1; j >= 0; j--){
         cout << binaryNum[j]; 
 	}
@@ -1315,58 +1315,106 @@ void actsutility::ULONGTOBINARY(unsigned long n){
 	return;
 } 
 void actsutility::ULONGTOBINARY(keyvalue_t keyvalue){ 
-	unsigned long * longword = (unsigned long *)&keyvalue;
+	ulong_dt * longword = (ulong_dt *)&keyvalue;
 	ULONGTOBINARY(*longword);
 	return;
 } 
+ulong_dt actsutility::CONVERTTOLONG_KV(keyvalue_t keyvalue){
+	ulong_dt data;
+	#ifdef FPGA_IMPL
+	data.range(31, 0) = keyvalue.key; 
+	data.range(63, 32) = keyvalue.value; 
+	return data;
+	#else
+	return data; // NOT IMPLEMENTED.
+	#endif
+}
+keyvalue_t actsutility::CONVERTTOKV_ULONG(ulong_dt data){
+	keyvalue_t keyvalue;
+	#ifdef FPGA_IMPL
+	keyvalue.key = data.range(31, 0); 
+	keyvalue.value = data.range(63, 32); 
+	return keyvalue;
+	#else
+	return keyvalue; // NOT IMPLEMENTED.
+	#endif
+}
 unsigned int actsutility::GETMASK_UINT(unsigned int index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned long actsutility::GETMASK_ULONG(unsigned long index, unsigned long size){
-	unsigned long A = ((1 << (size)) - 1);
-	unsigned long B = A << index;
+ulong_dt actsutility::GETMASK_ULONG(ulong_dt index, ulong_dt size){
+	ulong_dt A = ((1 << (size)) - 1);
+	ulong_dt B = A << index;
 	return B;
 }
 unsigned int actsutility::READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
-	#ifdef SW
 	return (((data) & GETMASK_UINT((index), (size))) >> (index)); 
-	#else 
-	NOT IMPLEMENTED.
-	#endif 
 }
-unsigned int actsutility::READFROM_ULONG(unsigned long data, unsigned long index, unsigned long size){ 
-	#ifdef SW
+unsigned int actsutility::READFROM_ULONG(ulong_dt data, ulong_dt index, ulong_dt size){ 
 	return (((data) & GETMASK_ULONG((index), (size))) >> (index)); 
-	#else 
-	NOT IMPLEMENTED.
-	#endif 
 }
-unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, unsigned long index, unsigned long size){
+unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size){
+	// #ifdef SW
+	// ulong_dt * data = (ulong_dt *)&keyvalue;
+	// return READFROM_ULONG(*data, index, size);
+	// #else 
+	// NOT IMPLEMENTED.
+	// #endif 
+	
+	ulong_dt data;
 	#ifdef SW
-	unsigned long * data = (unsigned long *)&keyvalue;
-	return READFROM_ULONG(*data, index, size);
-	#else 
-	NOT IMPLEMENTED.
+	ulong_dt * thisdata = (ulong_dt *)&keyvalue;
+	data = *thisdata;
+	#else
+	data = CONVERTTOLONG_KV(keyvalue); // CRITICAL CHECKME.
 	#endif 
+	return READFROM_ULONG(data, index, size);
 }
-void actsutility::WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value){ 
-	#ifdef SW
-	unsigned long tempdata = *data;
+void actsutility::WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value){ 
+	/* #ifdef SW
+	ulong_dt tempdata = *data;
 	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
 	*data = tempdata;
 	#else 
 	NOT IMPLEMENTED.
+	#endif */
+	
+	ulong_dt tempdata = *data;
+	ulong_dt A = ((value) << (index));
+	ulong_dt B = (~GETMASK_ULONG((index), (size)));
+	ulong_dt C = ((tempdata) & (B));
+	ulong_dt D = (C) | A;
+	*data = D;
+	// (tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+	// *data = tempdata;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actsutility::WRITETO_ULONG. index: "<<index<<", size: "<<size<<", value: "<<value<<endl;
+	cout<<"actsutility::WRITETO_ULONG. tempdata"<<endl; actsutilityobj->ULONGTOBINARY(tempdata);
+	cout<<"actsutility::WRITETO_ULONG. A"<<endl; actsutilityobj->ULONGTOBINARY(A);
+	cout<<"actsutility::WRITETO_ULONG. B (~mask)"<<endl; actsutilityobj->ULONGTOBINARY(B);
+	cout<<"actsutility::WRITETO_ULONG. C"<<endl; actsutilityobj->ULONGTOBINARY(C);
+	cout<<"actsutility::WRITETO_ULONG. D (result)"<<endl; actsutilityobj->ULONGTOBINARY(D);
 	#endif
 	return; 
 }
-void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value){ 
-	#ifdef SW
-	unsigned long * data = (unsigned long *)keyvalue;
+void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
+	/* #ifdef SW
+	ulong_dt * data = (ulong_dt *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
 	#else 
 	NOT IMPLEMENTED.
+	#endif */
+	
+	#ifdef SW
+	ulong_dt * data = (ulong_dt *)keyvalue;
+	return WRITETO_ULONG(data, index, size, value);
+	#else
+	ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
+	return WRITETO_ULONG(&data, index, size, value);
+	*keyvalue = CONVERTTOKV_ULONG(data);
 	#endif
 	return; 
 }
@@ -1374,7 +1422,7 @@ void actsutility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int da
 	longword->data = (longword->data << databitsz) | data;
 	return;
 }
-void actsutility::PARSE(string message, unsigned long longword){ 
+void actsutility::PARSE(string message, ulong_dt longword){ 
 	cout<<"actsutility::PARSE::"<<message<<" message"<<endl;
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
@@ -1387,10 +1435,10 @@ void actsutility::PARSE(string message, unsigned long longword){
 	return;
 }
 void actsutility::PARSE(string message, keyvalue_t keyvalue){
-	unsigned long * longword = (unsigned long *)&keyvalue;
+	ulong_dt * longword = (ulong_dt *)&keyvalue;
 	PARSE(message, *longword);
 }
-unsigned int actsutility::PARSE(unsigned long longword, unsigned int * _items){ 
+unsigned int actsutility::PARSE(ulong_dt longword, unsigned int * _items){ 
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 	if(numitems > COMPACTPARAM_ITEMSIZE_TOTALDATA){
@@ -1407,10 +1455,10 @@ unsigned int actsutility::PARSE(unsigned long longword, unsigned int * _items){
 	return numitems;
 }
 unsigned int actsutility::PARSE(keyvalue_t keyvalue, unsigned int * _items){
-	unsigned long * longword = (unsigned long *)&keyvalue;
+	ulong_dt * longword = (ulong_dt *)&keyvalue;
 	return PARSE(*longword, _items);
 }
-unsigned int actsutility::GETKEY(unsigned long longword){ 
+unsigned int actsutility::GETKEY(ulong_dt longword){ 
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);

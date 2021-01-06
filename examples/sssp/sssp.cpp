@@ -54,7 +54,7 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 	#endif 
 	
 	#ifdef FPGA_IMPL
-	setupkernelobj[i]->loadOCLstructures(binaryFile, (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
 	#endif
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();

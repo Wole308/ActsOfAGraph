@@ -16,7 +16,7 @@ context['ALGORITHM'] = sys.argv[3]
 context['DATASET'] = sys.argv[4]
 context['NUMSUPERCPUTHREADS'] = sys.argv[5]
 context['NUMCPUTHREADS'] = sys.argv[6] # FIXME. this is overriden in common.h
-context['NUMSUBCPUTHREADS_POW'] = sys.argv[7]
+context['NUMSUBCPUTHREADS_POW'] = int(sys.argv[7])
 context['LOCKE'] = sys.argv[8]
 context['EVALUATION_TYPE'] = sys.argv[9]
 context['EVALUATION_PARAM0'] = int(sys.argv[10])
@@ -127,6 +127,7 @@ context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
 context['NUMCOMPUTEUNITS'] = 1 #16
+context['NUMSUBCPUTHREADS'] = 2**context['NUMSUBCPUTHREADS_POW']
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
@@ -136,6 +137,7 @@ print ('DATASET: ' + str(context['DATASET']))
 print ('NUMSUPERCPUTHREADS: ' + str(context['NUMSUPERCPUTHREADS']))
 print ('NUMCPUTHREADS: ' + str(context['NUMCPUTHREADS']))
 print ('NUMSUBCPUTHREADS_POW: ' + str(context['NUMSUBCPUTHREADS_POW']))
+print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
 print ('LOCKE: ' + str(context['LOCKE']))
 print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('EVALUATION_PARAM0: ' + str(context['EVALUATION_PARAM0']))
@@ -357,6 +359,10 @@ for i in range (0,15):
 context['COMPUTEUNITS_seq'] = []
 for i in range (0,(context['NUMCOMPUTEUNITS'])):
 		context['COMPUTEUNITS_seq'].append(i)
+        
+context['NUMSUBCPUTHREADS_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS'])):
+		context['NUMSUBCPUTHREADS_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
