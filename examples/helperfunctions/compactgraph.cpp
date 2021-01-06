@@ -231,15 +231,9 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 		}
 		////////		
 	}
-	cout<<"--- utility::compactgraph::compact..."<<endl;
-	// exit(EXIT_SUCCESS);
-	// utilityobj->calculateunallignedoffsets(counts1, KVDATA_RANGE); // FIXME.
+	utilityobj->calculateunallignedoffsets(counts1, KVDATA_RANGE); // FIXME.
 	utilityobj->calculateunallignedoffsets(counts2, KVDATA_RANGE);
-	cout<<"--- utility::compactgraph::compacttttt..."<<endl;
-	// exit(EXIT_SUCCESS);
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ packedvertexptrbuffer[i] = counts2[i].key; }
-	cout<<"--- utility::compactgraph::compactttttnnnnn..."<<endl;
-	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"STATS: totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<", reduction factor: "<<(float)((float)totalnumedgesprocessed / (float)totalnumcommits)<<endl;

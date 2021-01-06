@@ -589,9 +589,7 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 }
 
 void utility::calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size){
-	cout<<"--- utility::calculateunallignedoffsets..."<<". size: "<<size<<endl;
-	for(unsigned int i=1; i<size; i++){ 
-		if(i%100000==0){ cout<<"--- utility::calculateunallignedoffsets... i: "<<i<<", size: "<<size<<endl; }
+	for(unsigned int i=1; i<size; i++){
 		keyvalues[i].key = keyvalues[i-1].key + keyvalues[i-1].value; 
 	}
 	return;

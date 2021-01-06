@@ -2228,7 +2228,7 @@ travstate_t
 	#ifdef SW 
 	acts::
 	#endif
-unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram[NUMSUBCPUTHREADS], keyvalue_t sourcebuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+unifydata_bfs_syn(bool_type enable, {%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t sourcebuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 				travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 					sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return actvvstravstate; }
@@ -2282,10 +2282,9 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram[NUMSUBCPUTHREADS], keyva
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"unifydata_bfs: saving and clearning actvvs... i: "<<actvvstravstate.i<<", i_kvs: "<<actvvstravstate.i_kvs<<", (v: "<<actvvstravstate.v<<", k: "<<actvvstravstate.k<<")"<<endl;
 			#endif
-			for(unsigned int n=0; n<NUMSUBCPUTHREADS; n++){ // CRITICAL FIXME. CAN NOT UNROLL
-			#pragma HLS UNROLL
-				savekeyvalues(ON, kvdram[n], actvvs, globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvstravstate.k);
-			}
+			{%for i in context['NUMSUBCPUTHREADS_seq']%}
+			savekeyvalues(ON, kvdram{{i}}, actvvs, globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvstravstate.k);
+			{%endfor%}
 
 			actvvstravstate.i += actvvstravstate.k * VECTOR_SIZE;
 			actvvstravstate.i_kvs += actvvstravstate.k;
@@ -3758,7 +3757,7 @@ travstate_t
 	#endif
 reduceupdates_sync(
 		bool_type enable,
-		uint512_dt * kvdram[NUMSUBCPUTHREADS],
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
 		keyvalue_t verticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -3773,7 +3772,7 @@ reduceupdates_sync(
 	analysis_type analysis_reduceloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
 	if(enable == OFF){ return actvvstravstate; }
 
-	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == 0){ readkeyvalues(config.enablereduce, kvdram[0], verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == 0){ readkeyvalues(config.enablereduce, kvdram0, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 	replicatedata_syn(config.enablereduce, verticesbuffer, tempverticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
 	
 	batch_type maxsz_kvs = 0;
@@ -3798,10 +3797,9 @@ reduceupdates_sync(
 			}
 		}
 
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		#pragma HLS UNROLL
-			readkeyvalues(en[i], kvdram[i], keyvaluesbuffer[i], (sweepparams.worksourcebaseaddress_kvs + rtravstate[i].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[i]);
-		}
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}
+		readkeyvalues(en[{{i}}], kvdram{{i}}, keyvaluesbuffer[{{i}}], (sweepparams.worksourcebaseaddress_kvs + rtravstate[{{i}}].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[{{i}}]);
+		{%endfor%}
 		
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		#pragma HLS UNROLL
@@ -3814,11 +3812,11 @@ reduceupdates_sync(
 	}
 	
 	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-	actvvstravstate = unifydata_bfs_syn(config.enablereduce, kvdram, tempverticesbuffer, verticesbuffer, actvvs, actvvstravstate, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, globalparams);
+	actvvstravstate = unifydata_bfs_syn(config.enablereduce, {%for i in context['NUMSUBCPUTHREADS_seq']%}kvdram{{i}},{%endfor%} tempverticesbuffer, verticesbuffer, actvvs, actvvstravstate, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, globalparams);
 	#else 
 	unifydata_syn(config.enablereduce, tempverticesbuffer, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), globalparams.GraphAlgo);
 	#endif
-	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(config.enablereduce, kvdram[0], verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(config.enablereduce, kvdram0, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 	return actvvstravstate;
 }
 
@@ -4408,25 +4406,9 @@ processactivevertices_compactedges(
 				if(errcount++ > 64){ cout<<"processactivevertices_compactedges:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 			}
-			// break; // REMOVEME!!!!!!!!!!!!!!
 		}
 	}
 	#ifdef _DEBUGMODE_STATS
-	// kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key = edges_count;
-	// kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key = edgesdstv_sum;
-	// kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key = saveoffset_kvs;
-	
-	// setkeyvalue(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 0, edges_count);
-	// setkeyvalue(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 1, edgesdstv_sum);
-	// setkeyvalue(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 2, saveoffset_kvs);
-	
-	// keyvalue_t kvedges_count; kvedges_count.key = edges_count;
-	// keyvalue_t kvedgesdstv_sum; kvedgesdstv_sum.key = edgesdstv_sum;
-	// keyvalue_t kvsaveoffset_kvs; kvsaveoffset_kvs.key = saveoffset_kvs;
-	// setkeyvalue(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 0, kvedges_count);
-	// setkeyvalue(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 1, kvedgesdstv_sum);
-	// setkeyvalue(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 2, kvsaveoffset_kvs);
-	
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 0, edges_count);
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 1, edgesdstv_sum);
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 2, saveoffset_kvs);
@@ -5193,11 +5175,6 @@ dispatch_partitiononly(uint512_dt * kvdram, globalparams_t globalparams){
 				(
 				config.enablepartition,
 				kvdram,
-				// buffer3,
-				// buffer4,
-				// buffer5,
-				// buffer6,
-				// buffer7,
 				buffer1,
 				buffer2,
 				buffer3,
@@ -5365,7 +5342,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]){
+dispatch_reduceonly_sync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]){
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -5413,8 +5390,10 @@ dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actv
 		#endif 
 		
 		sweepparams = getsweepparams(globalparams[0], currentLOP, source_partition);
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}
+		rtravstate[{{i}}] = gettravstate(kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker, source_partition, moretravstates[{{i}}]);
+		{%endfor%}
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-			rtravstate[i] = gettravstate(kvdram[i], globalparams[i], currentLOP, sourcestatsmarker, source_partition, moretravstates[i]);
 			if((source_partition % LOADFACTORFORREDUCE) == 0){
 				batch_type ntravszs = 0;
 				for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[i][k].value; }
@@ -5428,7 +5407,7 @@ dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actv
 		
 		actvvstravstate[0] = reduceupdates_sync(
 			config[0].enablereduce,
-			kvdram,
+			{%for i in context['NUMSUBCPUTHREADS_seq']%}kvdram{{i}},{%endfor%}
 			buffer1,
 			buffer2,
 			buffer3,
@@ -5447,12 +5426,14 @@ dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actv
 	}
 	
 	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+	{%for i in context['NUMSUBCPUTHREADS_seq']%}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[{{i}}].i<<", i_kvs: "<<actvvstravstate[{{i}}].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram{{i}}, buffer2, globalparams[{{i}}].baseoffset_activevertices_kvs + actvvstravstate[{{i}}].i_kvs, actvvstravstate[0].k + 1);
+	{%endfor%}
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
 	#pragma HLS UNROLL
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[i].i<<", i_kvs: "<<actvvstravstate[i].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
-		#endif
-		savekeyvalues(ON, kvdram[i], buffer2, globalparams[i].baseoffset_activevertices_kvs + actvvstravstate[i].i_kvs, actvvstravstate[0].k + 1);
 		actvvstravstate[i].i += (actvvstravstate[0].k * VECTOR_SIZE) + actvvstravstate[0].v;
 		actvvstravstate[i].i_kvs += actvvstravstate[0].k;
 	}
@@ -5465,24 +5446,17 @@ dispatch_reduceonly_sync(uint512_dt * kvdram[NUMSUBCPUTHREADS], travstate_t actv
 	actsutilityobj->printglobalvars();
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-		if(i==0){
-			setkey(kvdram[i], PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-			setkey(kvdram[i], PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-			setkey(kvdram[i], PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate[i].i);
-			
-			// kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key = actsutilityobj->globalstats_getcountvalidkvsreduced(); 
-			// kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key = actsutilityobj->globalstats_getreducevar1();
-			// kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key = actvvstravstate[i].i;
-		} else {
-			// kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key = 0; 
-			// kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key = 0;
-			// kvdram[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key = 0;
-			setkey(kvdram[i], PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
-			setkey(kvdram[i], PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
-			setkey(kvdram[i], PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
-		}
-	}
+	{%for i in context['NUMSUBCPUTHREADS_seq']%}
+	{%if(i==0)%}
+	setkey(kvdram{{i}}, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(kvdram{{i}}, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(kvdram{{i}}, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate[{{i}}].i);
+	{%else%}
+		setkey(kvdram{{i}}, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram{{i}}, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram{{i}}, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	{%endif%}
+	{%endfor%}
 	cout<<"dispatch_reduceonly: number of active vertices for next iteration: "<<actvvstravstate[0].i<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -5530,72 +5504,11 @@ topkernel(uint512_dt * kvdram){
 }
 #endif
  
-#if defined(MULTIACTSINSTANCES) && defined(SW)
-topkernel(uint512_dt * kvdram[NUMSUBCPUTHREADS]){
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0 // max_read_burst_length=64 max_write_burst_length=64
-
-#pragma HLS INTERFACE s_axilite port = kvdram bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
-#pragma HLS DATA_PACK variable = kvdram
-
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printparameters();
-	#endif 
+#if defined(MULTIACTSINSTANCES)// && defined(SW)
+topkernel({%for i in context['NUMSUBCPUTHREADS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%}){
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	#ifdef _WIDEWORD
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; }
-	#else
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; }
-	#endif
-	#endif
-	
-	globalparams_t globalparams[NUMSUBCPUTHREADS];
-	globalparams[0] = getglobalparams(kvdram[0]);
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams[i] = globalparams[0]; }
-	
-	// for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		// dispatch_partitiononly(kvdram[i], globalparams[i]);
-		// dispatch_reduceonly(kvdram[i], globalparams[i]);
-	// }
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	for(unsigned int i = 0; i < 1; i++){ actsutilityobj->printkeyvalues("[BEFORE]topkernel.kvdram[" +std::to_string(i) + "][BASEOFFSET_ACTIVEVERTICES]", (keyvalue_t *)&kvdram[i][BASEOFFSET_ACTIVEVERTICES_KVS], 16); }
-	#endif
-	travstate_t actvvstravstate[NUMSUBCPUTHREADS];
-	for(unsigned int GraphIter=0; GraphIter<globalparams[0].GraphIter; GraphIter++){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> Light weight ACTS: Graph Iteration: "<<GraphIter<<endl;
-		#endif 
-		
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		#pragma HLS UNROLL
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<">>> Light weight ACTS: Partitioning Instance: "<<i<<endl;
-			#endif
-			dispatch_partitiononly(kvdram[i], globalparams[i]);
-		}
-		dispatch_reduceonly_sync(kvdram, actvvstravstate, globalparams);
-		
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		#pragma HLS UNROLL
-			globalparams[i].actvvsize = actvvstravstate[0].i;
-		}
-	}
-	return;
-}
-#endif 
-
-#if defined(MULTIACTSINSTANCES) && defined(FPGA_IMPL)
-topkernel(
-	{%for i in context['NUMSUBCPUTHREADS_seq']%}
-	{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}
-	{%endfor%}
-	){
 {%for i in context['NUMSUBCPUTHREADS_seq']%}
-#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}} // 16_seq
+#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
 		
 {%for i in context['NUMSUBCPUTHREADS_seq']%}
@@ -5623,10 +5536,50 @@ topkernel(
 	{%endfor%}
 	#endif
 	#endif
+	
+	globalparams_t globalparams[NUMSUBCPUTHREADS];
+	#pragma HLS array_partition variable = globalparams
+	globalparams[0] = getglobalparams(kvdram0);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams[i] = globalparams[0]; }
+	
+	// cout<<"-- BASEOFFSET_KVDRAM_KVS: "<<BASEOFFSET_KVDRAM_KVS<<endl;
+	// cout<<"-- BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<BASEOFFSET_KVDRAMWORKSPACE_KVS<<endl;
+	// cout<<"-- BASEOFFSET_STATSDRAM_KVS: "<<BASEOFFSET_STATSDRAM_KVS<<endl;
+	// cout<<"-- BASEOFFSET_ACTIVEVERTICES_KVS: "<<BASEOFFSET_ACTIVEVERTICES_KVS<<endl;
+	// cout<<"-- BASEOFFSET_EDGESDATA_KVS: "<<BASEOFFSET_EDGESDATA_KVS<<endl;
+	// cout<<"-- BASEOFFSET_VERTEXPTR_KVS: "<<BASEOFFSET_VERTEXPTR_KVS<<endl;
+	// actsutilityobj->printkeyvalues("-- topkernel.baseoffset_activevertices_kvs --", (keyvalue_t *)&kvdram0[globalparams[0].baseoffset_activevertices_kvs], 16);
+	// actsutilityobj->printkeyvalues("-- topkernel.BASEOFFSET_KVDRAM_KVS --", (keyvalue_t *)&kvdram0[BASEOFFSET_KVDRAM_KVS], 16);
+	// actsutilityobj->printkeyvalues("-- topkernel.BASEOFFSET_KVDRAMWORKSPACE_KVS --", (keyvalue_t *)&kvdram0[BASEOFFSET_KVDRAMWORKSPACE_KVS], 16);
+	// actsutilityobj->printkeyvalues("-- topkernel.BASEOFFSET_STATSDRAM_KVS --", (keyvalue_t *)&kvdram0[BASEOFFSET_STATSDRAM_KVS], 16);
+	// actsutilityobj->printkeyvalues("-- topkernel.BASEOFFSET_ACTIVEVERTICES_KVS --", (keyvalue_t *)&kvdram0[BASEOFFSET_ACTIVEVERTICES_KVS], 16);
+	// actsutilityobj->printkeyvalues("-- topkernel.BASEOFFSET_EDGESDATA_KVS --", (keyvalue_t *)&kvdram0[BASEOFFSET_EDGESDATA_KVS], 16);
+	// actsutilityobj->printkeyvalues("-- topkernel.BASEOFFSET_VERTEXPTR_KVS --", (keyvalue_t *)&kvdram0[BASEOFFSET_VERTEXPTR_KVS], 16);
+	// cout<<"--- globalparams[0].actvvsize: "<<globalparams[0].actvvsize<<endl;
+	// exit(EXIT_SUCCESS);
+	
+	travstate_t actvvstravstate[NUMSUBCPUTHREADS];
+	for(unsigned int GraphIter=0; GraphIter<globalparams[0].GraphIter; GraphIter++){
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<">>> Light weight ACTS: Graph Iteration: "<<GraphIter<<endl;
+		#endif 
+	
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<">>> Light weight ACTS: Partitioning Instance: {{i}}"<<endl;
+		#endif
+		dispatch_partitiononly(kvdram{{i}}, globalparams[{{i}}]);
+		{%endfor%}
+		dispatch_reduceonly_sync({%for i in context['NUMSUBCPUTHREADS_seq']%}kvdram{{i}},{%endfor%} actvvstravstate, globalparams);
+		
+		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+		#pragma HLS UNROLL
+			globalparams[i].actvvsize = actvvstravstate[0].i;
+		}
+	}
 	return;
 }
-#endif 
-
+#endif
 }
 
 

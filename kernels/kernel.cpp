@@ -62,6 +62,7 @@ void kernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMS
 }
 void kernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
+	NOT USED.
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		beginoffset[i] = BASEOFFSET_KVDRAM + kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NEXTBATCHOFFSET].data[0].key;
 		size[i] = kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHSIZE].data[0].key;

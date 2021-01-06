@@ -45,6 +45,9 @@ unsigned int loadgraph::getglobalpartition(keyvalue_t keyvalue, vertex_t upperli
 }
 
 void loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vertex_t offset, vertex_t size){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadvertexdata:: loading vertex datas... "<<endl;
+	#endif 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		memcpy(&kvbuffer[i][BASEOFFSET_VERTICESDATA], &vertexdatabuffer[offset], size * sizeof(value_t));
 		#ifdef _DEBUGMODE_HOSTPRINTS2
@@ -54,6 +57,9 @@ void loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer
 	return;
 }
 void loadgraph::loadvertexptrs(unsigned int col, edge_t * vertexptrbuffer, value_t * vertexdatabuffer, vptr_type * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadvertexptrs:: loading vertex pointers... "<<endl;
+	#endif 
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(col);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<KVDATA_RANGE; k++){
@@ -73,6 +79,9 @@ void loadgraph::loadvertexptrs(unsigned int col, edge_t * vertexptrbuffer, value
 	return;
 }
 void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadedges_columnwise:: loading edges (columnwise)... "<<endl;
+	#endif 
 	unsigned int beginsrcvoffset = 0;
 	graphobj->loadvertexptrsfromfile(col, beginsrcvoffset, container->tempvertexptrs[0], 0, 2); 
 	unsigned int beginvptr = container->tempvertexptrs[0][0];
@@ -165,6 +174,9 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, uu
 void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
 #endif
 {
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadedges_rowwise:: loading edges (rowwise)... "<<endl;
+	#endif 
 	unsigned int counts[NUMSUBCPUTHREADS];
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ counts[i] = 0; }
 	unsigned int index = 0;
@@ -176,7 +188,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	#endif
 	
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
-		#ifdef _DEBUGMODE_HOSTPRINTS3
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		#endif 
 		
@@ -251,8 +263,9 @@ void loadgraph::loadoffsetmarkers(uuint64_dt * edges[NUMSUBCPUTHREADS], keyvalue
 void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container)
 #endif 
 {
-	cout<<"loadgraph::loadoffsetmarkers"<<endl;
-	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadoffsetmarkers:: loading offset markers... "<<endl;
+	#endif 
 	#ifdef COMPACTEDGES
 	unsigned int baseoffset_edgedata = BASEOFFSET_EDGESDATA;
 	#else 
@@ -273,7 +286,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){ tempstats[k].key = 0; tempstats[k].value = 0; }
 	
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		#ifdef _DEBUGMODE_HOSTPRINTS3
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"loadgraph::loadoffsetmarkers:: edgessize[0]["<<i<<"]: "<<container->edgessize[i]<<endl;
 		#endif 
 		#ifdef COMPACTEDGES 
@@ -285,7 +298,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){ tempstats[k].key = 0; tempstats[k].value = 0; }
 		
 		for(unsigned int k=0; k<container->edgessize[i]; k++){
-			#ifdef _DEBUGMODE_HOSTPRINTS3
+			#ifdef _DEBUGMODE_HOSTPRINTS
 			if(k % 100000 == 0){ cout<<"### loadgraph::loadoffsetmarkers:: k: "<<k<<endl; }
 			#endif 
 			
@@ -306,14 +319,13 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 				
 				unsigned int partitionCLOP = getglobalpartition(keyvalue, 0, BATCH_RANGE_POW, CLOP);
 				
-				#ifdef _DEBUGMODE_CHECKS2
+				#ifdef _DEBUGMODE_CHECKS
 				utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP", partitionCLOP, pow(NUM_PARTITIONS, TREE_DEPTH), keyvalue.key, NAp, NAp);
 				utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP", offset + partitionCLOP, KVSTATSDRAMSZ, keyvalue.key, NAp, NAp);
 				#endif
 				tempstats[offset + partitionCLOP].value += 1;
 			}
 		}
-		cout<<"loadgraph::loadoffsetmarkers:: SEEN A: "<<endl;
 		
 		for(unsigned int CLOP=1; CLOP<=TREE_DEPTH; CLOP++){
 			unsigned int offset = 0;
@@ -344,6 +356,9 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	return;
 }
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, vptr_type * vptrs[NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadactvvertices:: loading active vertices... "<<endl;
+	#endif 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<srcvids.size(); k++){
 			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = srcvids[k];
@@ -711,7 +726,7 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 3;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1; // 2 + 1
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#else 
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;

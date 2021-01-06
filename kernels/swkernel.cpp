@@ -31,7 +31,25 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], uns
 	#endif
 	
 	#ifdef MULTIACTSINSTANCES
-	kernelobjs[0]->topkernel((uint512_dt **)kvsourcedram);
+	// kernelobjs[0]->topkernel((uint512_dt **)kvsourcedram);
+	kernelobjs[0]->topkernel(
+		(uint512_dt *)kvsourcedram[0],
+		(uint512_dt *)kvsourcedram[1],
+		(uint512_dt *)kvsourcedram[2],
+		(uint512_dt *)kvsourcedram[3],
+		(uint512_dt *)kvsourcedram[4],
+		(uint512_dt *)kvsourcedram[5],
+		(uint512_dt *)kvsourcedram[6],
+		(uint512_dt *)kvsourcedram[7],
+		(uint512_dt *)kvsourcedram[8],
+		(uint512_dt *)kvsourcedram[9],
+		(uint512_dt *)kvsourcedram[10],
+		(uint512_dt *)kvsourcedram[11],
+		(uint512_dt *)kvsourcedram[12],
+		(uint512_dt *)kvsourcedram[13],
+		(uint512_dt *)kvsourcedram[14],
+		(uint512_dt *)kvsourcedram[15]
+		);
 	#else 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		kernelobjs[i]->topkernel((uint512_dt *)kvsourcedram[i]);

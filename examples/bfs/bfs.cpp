@@ -97,14 +97,14 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(12);
 	// activevertices.push_back(13);
 	
-	activevertices.push_back(1);
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -131,7 +131,7 @@ runsummary_t bfs::run(){
 
 	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
 	
-	utilityobj->stopTIME("bfs::start2: finished start2. Time Elapsed: ", begintime, NAp);
+	utilityobj->stopTIME(">>> bfs::finished:. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
 	// verify 
@@ -315,10 +315,10 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
 					if(thiskey < lowerindex || thiskey >= upperindex){
 						if(numerrorkeys < 8){
-							cout<<"bfs::geterrorkeyvalues::ERROR KEYVALUE. index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 					
+							cout<<"bfs::verifykvbuffer::ERROR KEYVALUE. index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 					
 							exit(EXIT_FAILURE);
 						}
-						cout<<"bfs::geterrorkeyvalues::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
+						cout<<"bfs::verifykvbuffer::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
 						exit(EXIT_FAILURE);
 						
 						numerrorkeys += 1;
