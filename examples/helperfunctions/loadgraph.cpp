@@ -522,7 +522,7 @@ vertex_t loadgraph::loadedges_columnwise(unsigned int col, vertex_t srcvoffset, 
 	graphobj->loadvertexptrsfromfile(col, beginsrcvoffset, container->tempvertexptrs[0], 0, 2); 
 	unsigned int beginvptr = container->tempvertexptrs[0][0];
 	
-	edge_t approxnumedges = utilityobj->hmin(graphobj->getedgessize(col) - beginvptr, EDGES_BATCHSIZE);
+	edge_t approxnumedges = utilityobj->hmin(graphobj->getedgessize(col) - beginvptr, EDGES_BATCHSIZE); // FIXME. CHECKME. ACCURACYCHECKPOINT.
 	
 	graphobj->loadedgesfromfile(col, beginvptr + approxnumedges - 1, container->tempedges[0], 0, 2);
 	unsigned int endsrcvoffset = utilityobj->allignhigher_KV(container->tempedges[0][0].srcvid);

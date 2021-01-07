@@ -50,10 +50,15 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 	#endif
-	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
-	
+
+	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
+		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
+		packededgedatabuffer = new uuint64_dt[2 * graphobj->get_num_edges()];
+	} else {
+		edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
+		packededgedatabuffer = new uuint64_dt[graphobj->get_num_edges()];
+	}
 	packedvertexptrbuffer = new edge_t[KVDATA_RANGE];
-	packededgedatabuffer = new uuint64_dt[PADDEDEDGES_BATCHSIZE];
 	
 	#ifdef FPGA_IMPL
 	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
@@ -197,7 +202,9 @@ void bfs::apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &active
 }
 
 void bfs::verify(vector<vertex_t> &activevertices){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"bfs::verify. verifying..."<<endl;
+	#endif 
 	#if defined(PROCESSACTIVEVERTICESTEST) && defined(ENABLE_PERFECTACCURACY)
 	unsigned int edges1_count = 0;
 	unsigned int edgesdstv1_sum = 0;
@@ -281,6 +288,9 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	return;
 }
 void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"bfs::verify. verifying kvbuffer..."<<endl;
+	#endif 
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	
 	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
@@ -290,12 +300,15 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 	unsigned int baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE;
 	if(CLOP % 2 == 0){ baseoffset_kvdram = BASEOFFSET_KVDRAM; }
 	else { baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"bfs::verifykvbuffer:: numberofpartitions: "<<(1 << (NUM_PARTITIONS_POW * CLOP))<<", rangeperpartition: "<<rangeperpartition<<", baseoffset_stats_kvs: "<<baseoffset_stats_kvs<<", statsoffset: "<<statsoffset<<", baseoffset_kvdram: "<<baseoffset_kvdram<<endl;
 	if(false){ utilityobj->printkeyvalues("bfs::verifykvbuffer. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE); }
 	#endif
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		cout<<"bfs::verifykvbuffer:: verifying thread: "<<i<<" of "<<NUMSUBCPUTHREADS<<" threads..."<<endl;
+		#endif 
 		for(unsigned int p=0; p<numberofpartitions; p++){
 			unsigned int numerrorkeys = 0;
 			
@@ -311,11 +324,13 @@ void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt
 			#endif 
 			
 			for(unsigned int k=begin; k<begin + size; k++){
+				keyvalue_t keyvalue = kvbuffer[i][baseoffset_kvdram + k];
 				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
 					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
 					if(thiskey < lowerindex || thiskey >= upperindex){
 						if(numerrorkeys < 8){
-							cout<<"bfs::verifykvbuffer::ERROR KEYVALUE. index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 					
+							cout<<"bfs::verifykvbuffer::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
+							utilityobj->PARSE(keyvalue, keys);
 							exit(EXIT_FAILURE);
 						}
 						cout<<"bfs::verifykvbuffer::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 

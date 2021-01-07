@@ -40,13 +40,13 @@ typedef unsigned int step_type;
 typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
 #endif
-/* typedef unsigned int batch_type; // CRITICAL FIXME?
-typedef unsigned int buffer_type;
-typedef unsigned int partition_type;
-typedef unsigned int vector_type;
-typedef unsigned int step_type;
-typedef unsigned int bool_type;
-typedef unsigned int analysis_type; */
+// typedef unsigned int batch_type; // CRITICAL FIXME?
+// typedef unsigned int buffer_type;
+// typedef unsigned int partition_type;
+// typedef unsigned int vector_type;
+// typedef unsigned int step_type;
+// typedef unsigned int bool_type;
+// typedef unsigned int analysis_type;
 
 typedef struct {
 	unsigned int key;
@@ -198,10 +198,10 @@ typedef struct {
 
 #define KVDRAMPADDING ((MAXKVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE) * (NUM_PARTITIONS * VECTOR_SIZE * 2) * 2)
 
-#define KVDRAMSZ (MAXKVDATA_BATCHSIZE + KVDRAMPADDING) // CRITICAL FIXMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE.
+#define KVDRAMSZ (MAXKVDATA_BATCHSIZE + KVDRAMPADDING) 
 #define KVDRAMSZ_KVS (KVDRAMSZ / VECTOR_SIZE)
 
-#define KVDRAMWORKSPACESZ KVDRAMSZ // CRITICAL FIXMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE.
+#define KVDRAMWORKSPACESZ KVDRAMSZ 
 #define KVDRAMWORKSPACESZ_KVS (KVDRAMWORKSPACESZ / VECTOR_SIZE)
 
 #define KVSTATSDRAMSZ (NUMLASTLEVELPARTITIONS * (TREE_DEPTH + 1) * VECTOR_SIZE)

@@ -74,8 +74,8 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	keyvalue_t * counts2 = new keyvalue_t[KVDATA_RANGE];
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ counts2[i].key = 0; counts2[i].value = 0; }
 	unsigned int committededgescount = 0;
-	unsigned int * numitemspacked = new unsigned int[PADDEDEDGES_BATCHSIZE];
-	for(unsigned int i=0; i<PADDEDEDGES_BATCHSIZE; i++){ numitemspacked[i] = 0; }
+	unsigned int * numitemspacked = new unsigned int[graphobj->get_num_edges()];
+	for(unsigned int i=0; i<graphobj->get_num_edges(); i++){ numitemspacked[i] = 0; }
 	
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
 		#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
