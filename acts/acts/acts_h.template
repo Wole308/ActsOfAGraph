@@ -321,7 +321,6 @@ public:
 	travstate_t reduceupdates_sync(
 			bool_type enable,
 			{%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
-			config_t config,
 			globalparams_t globalparams[NUMSUBCPUTHREADS],
 			sweepparams_t sweepparams,
 			travstate_t actvvstravstate,

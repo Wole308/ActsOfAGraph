@@ -2464,10 +2464,9 @@ unifydata_bfs_syn(bool_type enable, {%for i in context['NUMSUBCPUTHREADS_seq']%}
 	
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
 	#pragma HLS UNROLL
-		actvvscapsule0[v].key = 0; actvvscapsule0[v].value = 0; 
-		actvvscapsule1[v].key = 0; actvvscapsule1[v].value = 0; 
-		actvvscapsule2[v].key = 0; actvvscapsule2[v].value = 0; 
-		actvvscapsule3[v].key = 0; actvvscapsule3[v].value = 0; 
+		{%for i in context['4_seq']%}
+		actvvscapsule{{i}}[v].key = 0; actvvscapsule{{i}}[v].value = 0; 
+		{%endfor%}
 	}
 	
 	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
@@ -2508,41 +2507,25 @@ unifydata_bfs_syn(bool_type enable, {%for i in context['NUMSUBCPUTHREADS_seq']%}
 			for(unsigned int t = 0; t < 32; t+=4){
 			#pragma HLS UNROLL
 				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
-			
-				unsigned int vid0 = voffset + i*32 + t; // CRITICAL FIXME. can use less logic.
-				unsigned int index0 = 64 - 2*t - 2;
-				unsigned int bitsize0 = 2;
-				unsigned int vdata0 = READFROM_ULONG(data, index0, bitsize0); // CRITICAL FIXME. can use less logic.
-				
-				unsigned int vid1 = voffset + i*32 + (t+1);
-				unsigned int index1 = 64 - 2*(t+1) - 2;
-				unsigned int bitsize1 = 2;
-				unsigned int vdata1 = READFROM_ULONG(data, index1, bitsize1);
-				
-				unsigned int vid2 = voffset + i*32 + (t+2);
-				unsigned int index2 = 64 - 2*(t+2) - 2;
-				unsigned int bitsize2 = 2;
-				unsigned int vdata2 = READFROM_ULONG(data, index2, bitsize2);
-				
-				unsigned int vid3 = voffset + i*32 + (t+3);
-				unsigned int index3 = 64 - 2*(t+3) - 2;
-				unsigned int bitsize3 = 2;
-				unsigned int vdata3 = READFROM_ULONG(data, index3, bitsize3);
+				{%for i in context['4_seq']%}
+				unsigned int vid{{i}} = voffset + i*32 + (t+{{i}}); // CRITICAL FIXME. can use less logic.
+				unsigned int index{{i}} = 64 - 2*(t+{{i}}) - 2;
+				unsigned int bitsize{{i}} = 2;
+				unsigned int vdata{{i}} = READFROM_ULONG(data, index{{i}}, bitsize{{i}}); // CRITICAL FIXME. can use less logic.
+				{%endfor%}
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS3
 				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
 				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
 				#endif
 				
-				if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvs0[t/4][actvvscapsule0[t/4].value].key = vid0; actvvs0[t/4][actvvscapsule0[t/4].value].value = 777; }
-				if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvs1[t/4][actvvscapsule1[t/4].value].key = vid1; actvvs1[t/4][actvvscapsule1[t/4].value].value = 777; }
-				if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvs2[t/4][actvvscapsule2[t/4].value].key = vid2; actvvs2[t/4][actvvscapsule2[t/4].value].value = 777; }
-				if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvs3[t/4][actvvscapsule3[t/4].value].key = vid3; actvvs3[t/4][actvvscapsule3[t/4].value].value = 777; }
+				{%for i in context['4_seq']%}
+				if(vdata{{i}} == VISITED_IN_CURRENT_ITERATION){ actvvs{{i}}[t/4][actvvscapsule{{i}}[t/4].value].key = vid{{i}}; actvvs{{i}}[t/4][actvvscapsule{{i}}[t/4].value].value = 777; }
+				{%endfor%}
 				
-				if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule0[t/4].value++; }
-				if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule1[t/4].value++; }
-				if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule2[t/4].value++; }
-				if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule3[t/4].value++; }
+				{%for i in context['4_seq']%}
+				if(vdata{{i}} == VISITED_IN_CURRENT_ITERATION){ actvvscapsule{{i}}[t/4].value++; }
+				{%endfor%}
 			}
 		}
 		
@@ -2557,41 +2540,21 @@ unifydata_bfs_syn(bool_type enable, {%for i in context['NUMSUBCPUTHREADS_seq']%}
 	#pragma HLS PIPELINE II=2
 		for(vector_type v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS UNROLL
-			if(actvvscapsule0[v].value > 0 && (actvvscapsule0[v].value % 4) > 0){ // CRITICAL FIXME. can use less logic.
-				if(k >= actvvscapsule0[v].value % 4){
-					actvvs0[v][actvvscapsule0[v].value] = dummykv;
-					actvvscapsule0[v].value++;
+			{%for i in context['4_seq']%}
+			if(actvvscapsule{{i}}[v].value > 0 && (actvvscapsule{{i}}[v].value % 4) > 0){ // CRITICAL FIXME. can use less logic.
+				if(k >= actvvscapsule{{i}}[v].value % 4){
+					actvvs{{i}}[v][actvvscapsule{{i}}[v].value] = dummykv;
+					actvvscapsule{{i}}[v].value++;
 				}
 			}
-			
-			if(actvvscapsule1[v].value > 0 && (actvvscapsule1[v].value % 4) > 0){
-				if(k >= actvvscapsule1[v].value % 4){
-					actvvs1[v][actvvscapsule1[v].value] = dummykv;
-					actvvscapsule1[v].value++;
-				}
-			}
-			
-			if(actvvscapsule2[v].value > 0 && (actvvscapsule2[v].value % 4) > 0){
-				if(k >= actvvscapsule2[v].value % 4){
-					actvvs2[v][actvvscapsule2[v].value] = dummykv;
-					actvvscapsule2[v].value++;
-				}
-			}
-			
-			if(actvvscapsule3[v].value > 0 && (actvvscapsule3[v].value % 4) > 0){
-				if(k >= actvvscapsule3[v].value % 4){
-					actvvs3[v][actvvscapsule3[v].value] = dummykv;
-					actvvscapsule3[v].value++;
-				}
-			}
+			{%endfor%}
 		}
 	}
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
 	#pragma HLS UNROLL
-		cutoffs0[v] = actvvscapsule0[v].value; 
-		cutoffs1[v] = actvvscapsule1[v].value; 
-		cutoffs2[v] = actvvscapsule2[v].value; 
-		cutoffs3[v] = actvvscapsule3[v].value; 
+		{%for i in context['4_seq']%}
+		cutoffs{{i}}[v] = actvvscapsule{{i}}[v].value; 
+		{%endfor%}
 	}
 	return;
 }
@@ -4540,7 +4503,6 @@ travstate_t
 reduceupdates_sync(
 		bool_type enable,
 		{%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
-		config_t config,
 		globalparams_t globalparams[NUMSUBCPUTHREADS],
 		sweepparams_t sweepparams,
 		travstate_t actvvstravstate,
@@ -4597,10 +4559,10 @@ reduceupdates_sync(
 		{%endfor%}
 		
 		// load vertices
-		if(index == 0){ readkeyvalues(config.enablereduce, kvdram0, sourceverticesbuffer, (globalparams[0].baseoffset_verticesdata_kvs + ((sweepparams.source_partition + index) * ((globalparams[0].applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+		if(index == 0){ readkeyvalues(ON, kvdram0, sourceverticesbuffer, (globalparams[0].baseoffset_verticesdata_kvs + ((sweepparams.source_partition + index) * ((globalparams[0].applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 		
 		// replicate
-		replicatedata_syn(config.enablereduce, sourceverticesbuffer, {%for i in context['NUMSUBCPUTHREADS_seq']%}tempverticesbuffer{{i}},{%endfor%} ((sweepparams.source_partition + index) % LOADFACTORFORREDUCE) * ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+		replicatedata_syn(ON, sourceverticesbuffer, {%for i in context['NUMSUBCPUTHREADS_seq']%}tempverticesbuffer{{i}},{%endfor%} ((sweepparams.source_partition + index) % LOADFACTORFORREDUCE) * ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
 		
 		// calculate offsets and sizes
 		batch_type maxsz_kvs = 0;
@@ -4635,11 +4597,11 @@ reduceupdates_sync(
 		}
 		
 		// unify
-		unifydata_bfs_syn(config.enablereduce, {%for i in context['NUMSUBCPUTHREADS_seq']%}tempverticesbuffer{{i}},{%endfor%} destverticesbuffer, {%for i in context['4_seq']%}actvvs{{i}}, capsule{{i}}_so1, cutoffs{{i}}, {%endfor%}
+		unifydata_bfs_syn(ON, {%for i in context['NUMSUBCPUTHREADS_seq']%}tempverticesbuffer{{i}},{%endfor%} destverticesbuffer, {%for i in context['4_seq']%}actvvs{{i}}, capsule{{i}}_so1, cutoffs{{i}}, {%endfor%}
 							((sweepparams.source_partition + index) % LOADFACTORFORREDUCE) * ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, globalparams[0]);
 
 		// store bits 
-		if(index == LOADFACTORFORREDUCE-1){ savekeyvalues(config.enablereduce, kvdram0, destverticesbuffer, (globalparams[0].baseoffset_verticesdata_kvs + (((sweepparams.source_partition + index) - (LOADFACTORFORREDUCE-1)) * ((globalparams[0].applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+		if(index == LOADFACTORFORREDUCE-1){ savekeyvalues(ON, kvdram0, destverticesbuffer, (globalparams[0].baseoffset_verticesdata_kvs + (((sweepparams.source_partition + index) - (LOADFACTORFORREDUCE-1)) * ((globalparams[0].applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 		
 		// run pipeline
 		{%for i in context['4_seq']%}
@@ -4650,12 +4612,12 @@ reduceupdates_sync(
 		{%for i in context['4_seq']%}
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule{{i}}_so8.value: "<<capsule{{i}}_so8.value<<endl; }
-		if(pp0writeen == ON){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer{{i}}_setof8", buffer{{i}}_setof8, 4); }
+		if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer{{i}}_setof8", buffer{{i}}_setof8, 4); }
 		#endif 
 		savekeyvalues_sync(pp0writeen, {%for j in context['NUMSUBCPUTHREADS_seq']%}kvdram{{j}},{%endfor%} buffer{{i}}_setof8, globalparams[0].baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule{{i}}_so8.value); 
 		if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule{{i}}_so8.value / VECTOR_SIZE; }
 		{%endfor%}
-		if(pp0writeen == ON){ exit(EXIT_SUCCESS); }
+		// if(pp0writeen == ON){ exit(EXIT_SUCCESS); }
 		itercount += 1;
 	}
 	return actvvstravstate;
@@ -6245,7 +6207,6 @@ dispatch_reduceonly_sync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt 
 		actvvstravstate[0] = reduceupdates_sync(
 			config[0].enablereduce,
 			{%for i in context['NUMSUBCPUTHREADS_seq']%}kvdram{{i}},{%endfor%}
-			config[0],
 			globalparams,
 			sweepparams,
 			actvvstravstate[0],
