@@ -317,15 +317,6 @@ public:
 			travstate_t rtravstate[NUMSUBCPUTHREADS],
 			travstate_t actvvstravstate
 			);
-			
-	travstate_t reduceupdates_sync(
-			bool_type enable,
-			{%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
-			globalparams_t globalparams[NUMSUBCPUTHREADS],
-			sweepparams_t sweepparams,
-			travstate_t actvvstravstate,
-			unsigned int sourcestatsmarker
-			);
 		
 	// process vertices
 	void processallvertices(
@@ -390,6 +381,10 @@ public:
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	void dispatch_reduceonly_sync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
+	
+	void dispatch_reduceonly_serialsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
+	
+	travstate_t dispatch_reduceonly_parallelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);

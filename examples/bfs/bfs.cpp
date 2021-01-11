@@ -102,14 +102,14 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(12);
 	// activevertices.push_back(13);
 	
-	activevertices.push_back(1);
+	// activevertices.push_back(2);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -217,6 +217,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int edges5_count = 0;
 	unsigned int edgesdstv5_sum = 0;
 	unsigned int actvvs_count = 0;
+	unsigned int actvvs_verbosecount = 0;
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
@@ -261,7 +262,18 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	
 	// 6th check 
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
-		actvvs_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key; 
+		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
+		actvvs_verbosecount += sz;
+		keyvalue_t * KV = (keyvalue_t *)&kvbuffer[0][BASEOFFSET_ACTIVEVERTICES_KVS];
+		for(unsigned int k=0; k<sz; k++){
+			if(KV[k].key == INVALIDDATA || KV[k].value == INVALIDDATA){}
+			else {
+				#ifdef _DEBUGMODE_HOSTPRINTS
+				cout<<"bfs:verify: actvvid: "<<KV[k].key<<endl;
+				#endif 
+				actvvs_count += 1;
+			}
+		}
 	}
 	
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip, edges in file               ) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
@@ -269,7 +281,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.procactvvs stage) edges3_count: "<<edges3_count<<", edgesdstv3_sum: "<<edgesdstv3_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after CLOP="<<CLOP<<" stage         ) edges4_count: "<<edges4_count<<", edgesdstv4_sum: "<<edgesdstv4_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.reduce stage    ) edges5_count: "<<edges5_count<<", edgesdstv5_sum: "<<edgesdstv5_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<"(actvvs_verbosecount:"<<actvvs_verbosecount<<")"<<endl;
 	
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	

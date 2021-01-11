@@ -4539,7 +4539,7 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 				unsigned int vdata = READFROM_ULONG(data, index, bitsize);
 				
 				if(vdata == VISITED_IN_CURRENT_ITERATION){
-					#ifdef _DEBUGMODE_KERNELPRINTS3
+					#ifdef _DEBUGMODE_KERNELPRINTS
 					cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. vid: "<<vid<<endl;
 					#endif
 					#ifdef _DEBUGMODE_CHECKS2
@@ -4553,7 +4553,7 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 					WRITETO_ULONG(&data, index, bitsize, VISITED_IN_PAST_ITERATION);
 				}
 			}
-			exit(EXIT_SUCCESS); // REMOVEME.
+			// exit(EXIT_SUCCESS); // REMOVEME.
 		}
 		
 		if(actvvstravstate.k >= PADDEDDESTBUFFER_SIZE-32){
@@ -4578,7 +4578,6 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 	return actvvstravstate;
 }
 
-#ifdef DELETEME.
 void 
 	#ifdef SW 
 	acts::
@@ -4916,433 +4915,6 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 			for(unsigned int t = 0; t < 32; t+=4){
 			#pragma HLS UNROLL
 				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
-			
-				unsigned int vid0 = voffset + i*32 + t; // CRITICAL FIXME. can use less logic.
-				unsigned int index0 = 64 - 2*t - 2;
-				unsigned int bitsize0 = 2;
-				unsigned int vdata0 = READFROM_ULONG(data, index0, bitsize0); // CRITICAL FIXME. can use less logic.
-				
-				unsigned int vid1 = voffset + i*32 + (t+1);
-				unsigned int index1 = 64 - 2*(t+1) - 2;
-				unsigned int bitsize1 = 2;
-				unsigned int vdata1 = READFROM_ULONG(data, index1, bitsize1);
-				
-				unsigned int vid2 = voffset + i*32 + (t+2);
-				unsigned int index2 = 64 - 2*(t+2) - 2;
-				unsigned int bitsize2 = 2;
-				unsigned int vdata2 = READFROM_ULONG(data, index2, bitsize2);
-				
-				unsigned int vid3 = voffset + i*32 + (t+3);
-				unsigned int index3 = 64 - 2*(t+3) - 2;
-				unsigned int bitsize3 = 2;
-				unsigned int vdata3 = READFROM_ULONG(data, index3, bitsize3);
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS3
-				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
-				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
-				#endif
-				
-				if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvs0[t/4][actvvscapsule0[t/4].value].key = vid0; actvvs0[t/4][actvvscapsule0[t/4].value].value = 777; }
-				if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvs1[t/4][actvvscapsule1[t/4].value].key = vid1; actvvs1[t/4][actvvscapsule1[t/4].value].value = 777; }
-				if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvs2[t/4][actvvscapsule2[t/4].value].key = vid2; actvvs2[t/4][actvvscapsule2[t/4].value].value = 777; }
-				if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvs3[t/4][actvvscapsule3[t/4].value].key = vid3; actvvs3[t/4][actvvscapsule3[t/4].value].value = 777; }
-				
-				if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule0[t/4].value++; }
-				if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule1[t/4].value++; }
-				if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule2[t/4].value++; }
-				if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule3[t/4].value++; }
-			}
-		}
-		
-		destbuffer[dest_v][destoffset_kvs + dest_i] = data;
-		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
-	}
-	
-	keyvalue_t dummykv;
-	dummykv.key = 0;
-	dummykv.value = INVALIDDATA;
-	for(vector_type k=0; k<4; k++){
-	#pragma HLS PIPELINE II=2
-		for(vector_type v=0; v<VECTOR_SIZE; v++){
-		#pragma HLS UNROLL
-			if(actvvscapsule0[v].value > 0 && (actvvscapsule0[v].value % 4) > 0){ // CRITICAL FIXME. can use less logic.
-				if(k >= actvvscapsule0[v].value % 4){
-					actvvs0[v][actvvscapsule0[v].value] = dummykv;
-					actvvscapsule0[v].value++;
-				}
-			}
-			
-			if(actvvscapsule1[v].value > 0 && (actvvscapsule1[v].value % 4) > 0){
-				if(k >= actvvscapsule1[v].value % 4){
-					actvvs1[v][actvvscapsule1[v].value] = dummykv;
-					actvvscapsule1[v].value++;
-				}
-			}
-			
-			if(actvvscapsule2[v].value > 0 && (actvvscapsule2[v].value % 4) > 0){
-				if(k >= actvvscapsule2[v].value % 4){
-					actvvs2[v][actvvscapsule2[v].value] = dummykv;
-					actvvscapsule2[v].value++;
-				}
-			}
-			
-			if(actvvscapsule3[v].value > 0 && (actvvscapsule3[v].value % 4) > 0){
-				if(k >= actvvscapsule3[v].value % 4){
-					actvvs3[v][actvvscapsule3[v].value] = dummykv;
-					actvvscapsule3[v].value++;
-				}
-			}
-		}
-	}
-	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
-	#pragma HLS UNROLL
-		cutoffs0[v] = actvvscapsule0[v].value; 
-		cutoffs1[v] = actvvscapsule1[v].value; 
-		cutoffs2[v] = actvvscapsule2[v].value; 
-		cutoffs3[v] = actvvscapsule3[v].value; 
-	}
-	return;
-}
-#endif 
-
-void 
-	#ifdef SW 
-	acts::
-	#endif
-unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-					keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule0[8], buffer_type cutoffs0[VECTOR_SIZE],
-					keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule1[8], buffer_type cutoffs1[VECTOR_SIZE],
-					keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule2[8], buffer_type cutoffs2[VECTOR_SIZE],
-					keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule3[8], buffer_type cutoffs3[VECTOR_SIZE],
-					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	buffer_type dest_v = 0;
-	buffer_type dest_i = 0;
-	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
-	
-	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
-	#pragma HLS UNROLL
-		actvvscapsule0[v].key = 0; actvvscapsule0[v].value = 0; 
-		actvvscapsule1[v].key = 0; actvvscapsule1[v].value = 0; 
-		actvvscapsule2[v].key = 0; actvvscapsule2[v].value = 0; 
-		actvvscapsule3[v].key = 0; actvvscapsule3[v].value = 0; 
-	}
-	
-	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE
-		keyvalue_t data; data.key = 0; data.value = 0;
-		
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("unifydata_bfs.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
-		#endif
-		#ifndef KOOOKOOOO
-			for(vector_type v=0; v<VECTOR_SIZE; v++){
-			#pragma HLS UNROLL
-				data.key = data.key | sourcebuffer0[v][i].key;
-				data.value = data.value | sourcebuffer0[v][i].value;
-				data.key = data.key | sourcebuffer1[v][i].key;
-				data.value = data.value | sourcebuffer1[v][i].value;
-				data.key = data.key | sourcebuffer2[v][i].key;
-				data.value = data.value | sourcebuffer2[v][i].value;
-				data.key = data.key | sourcebuffer3[v][i].key;
-				data.value = data.value | sourcebuffer3[v][i].value;
-				data.key = data.key | sourcebuffer4[v][i].key;
-				data.value = data.value | sourcebuffer4[v][i].value;
-				data.key = data.key | sourcebuffer5[v][i].key;
-				data.value = data.value | sourcebuffer5[v][i].value;
-				data.key = data.key | sourcebuffer6[v][i].key;
-				data.value = data.value | sourcebuffer6[v][i].value;
-				data.key = data.key | sourcebuffer7[v][i].key;
-				data.value = data.value | sourcebuffer7[v][i].value;
-				data.key = data.key | sourcebuffer8[v][i].key;
-				data.value = data.value | sourcebuffer8[v][i].value;
-				data.key = data.key | sourcebuffer9[v][i].key;
-				data.value = data.value | sourcebuffer9[v][i].value;
-				data.key = data.key | sourcebuffer10[v][i].key;
-				data.value = data.value | sourcebuffer10[v][i].value;
-				data.key = data.key | sourcebuffer11[v][i].key;
-				data.value = data.value | sourcebuffer11[v][i].value;
-				data.key = data.key | sourcebuffer12[v][i].key;
-				data.value = data.value | sourcebuffer12[v][i].value;
-				data.key = data.key | sourcebuffer13[v][i].key;
-				data.value = data.value | sourcebuffer13[v][i].value;
-				data.key = data.key | sourcebuffer14[v][i].key;
-				data.value = data.value | sourcebuffer14[v][i].value;
-				data.key = data.key | sourcebuffer15[v][i].key;
-				data.value = data.value | sourcebuffer15[v][i].value;
-			}
-		#else 
-			data.key = 
- sourcebuffer0[0][i].key 
-| sourcebuffer0[1][i].key 
-| sourcebuffer0[2][i].key 
-| sourcebuffer0[3][i].key 
-| sourcebuffer0[4][i].key 
-| sourcebuffer0[5][i].key 
-| sourcebuffer0[6][i].key 
-| sourcebuffer0[7][i].key 
-| sourcebuffer1[0][i].key 
-| sourcebuffer1[1][i].key 
-| sourcebuffer1[2][i].key 
-| sourcebuffer1[3][i].key 
-| sourcebuffer1[4][i].key 
-| sourcebuffer1[5][i].key 
-| sourcebuffer1[6][i].key 
-| sourcebuffer1[7][i].key 
-| sourcebuffer2[0][i].key 
-| sourcebuffer2[1][i].key 
-| sourcebuffer2[2][i].key 
-| sourcebuffer2[3][i].key 
-| sourcebuffer2[4][i].key 
-| sourcebuffer2[5][i].key 
-| sourcebuffer2[6][i].key 
-| sourcebuffer2[7][i].key 
-| sourcebuffer3[0][i].key 
-| sourcebuffer3[1][i].key 
-| sourcebuffer3[2][i].key 
-| sourcebuffer3[3][i].key 
-| sourcebuffer3[4][i].key 
-| sourcebuffer3[5][i].key 
-| sourcebuffer3[6][i].key 
-| sourcebuffer3[7][i].key 
-| sourcebuffer4[0][i].key 
-| sourcebuffer4[1][i].key 
-| sourcebuffer4[2][i].key 
-| sourcebuffer4[3][i].key 
-| sourcebuffer4[4][i].key 
-| sourcebuffer4[5][i].key 
-| sourcebuffer4[6][i].key 
-| sourcebuffer4[7][i].key 
-| sourcebuffer5[0][i].key 
-| sourcebuffer5[1][i].key 
-| sourcebuffer5[2][i].key 
-| sourcebuffer5[3][i].key 
-| sourcebuffer5[4][i].key 
-| sourcebuffer5[5][i].key 
-| sourcebuffer5[6][i].key 
-| sourcebuffer5[7][i].key 
-| sourcebuffer6[0][i].key 
-| sourcebuffer6[1][i].key 
-| sourcebuffer6[2][i].key 
-| sourcebuffer6[3][i].key 
-| sourcebuffer6[4][i].key 
-| sourcebuffer6[5][i].key 
-| sourcebuffer6[6][i].key 
-| sourcebuffer6[7][i].key 
-| sourcebuffer7[0][i].key 
-| sourcebuffer7[1][i].key 
-| sourcebuffer7[2][i].key 
-| sourcebuffer7[3][i].key 
-| sourcebuffer7[4][i].key 
-| sourcebuffer7[5][i].key 
-| sourcebuffer7[6][i].key 
-| sourcebuffer7[7][i].key 
-| sourcebuffer8[0][i].key 
-| sourcebuffer8[1][i].key 
-| sourcebuffer8[2][i].key 
-| sourcebuffer8[3][i].key 
-| sourcebuffer8[4][i].key 
-| sourcebuffer8[5][i].key 
-| sourcebuffer8[6][i].key 
-| sourcebuffer8[7][i].key 
-| sourcebuffer9[0][i].key 
-| sourcebuffer9[1][i].key 
-| sourcebuffer9[2][i].key 
-| sourcebuffer9[3][i].key 
-| sourcebuffer9[4][i].key 
-| sourcebuffer9[5][i].key 
-| sourcebuffer9[6][i].key 
-| sourcebuffer9[7][i].key 
-| sourcebuffer10[0][i].key 
-| sourcebuffer10[1][i].key 
-| sourcebuffer10[2][i].key 
-| sourcebuffer10[3][i].key 
-| sourcebuffer10[4][i].key 
-| sourcebuffer10[5][i].key 
-| sourcebuffer10[6][i].key 
-| sourcebuffer10[7][i].key 
-| sourcebuffer11[0][i].key 
-| sourcebuffer11[1][i].key 
-| sourcebuffer11[2][i].key 
-| sourcebuffer11[3][i].key 
-| sourcebuffer11[4][i].key 
-| sourcebuffer11[5][i].key 
-| sourcebuffer11[6][i].key 
-| sourcebuffer11[7][i].key 
-| sourcebuffer12[0][i].key 
-| sourcebuffer12[1][i].key 
-| sourcebuffer12[2][i].key 
-| sourcebuffer12[3][i].key 
-| sourcebuffer12[4][i].key 
-| sourcebuffer12[5][i].key 
-| sourcebuffer12[6][i].key 
-| sourcebuffer12[7][i].key 
-| sourcebuffer13[0][i].key 
-| sourcebuffer13[1][i].key 
-| sourcebuffer13[2][i].key 
-| sourcebuffer13[3][i].key 
-| sourcebuffer13[4][i].key 
-| sourcebuffer13[5][i].key 
-| sourcebuffer13[6][i].key 
-| sourcebuffer13[7][i].key 
-| sourcebuffer14[0][i].key 
-| sourcebuffer14[1][i].key 
-| sourcebuffer14[2][i].key 
-| sourcebuffer14[3][i].key 
-| sourcebuffer14[4][i].key 
-| sourcebuffer14[5][i].key 
-| sourcebuffer14[6][i].key 
-| sourcebuffer14[7][i].key 
-| sourcebuffer15[0][i].key 
-| sourcebuffer15[1][i].key 
-| sourcebuffer15[2][i].key 
-| sourcebuffer15[3][i].key 
-| sourcebuffer15[4][i].key 
-| sourcebuffer15[5][i].key 
-| sourcebuffer15[6][i].key 
-| sourcebuffer15[7][i].key 
-			;
-			
-			data.value = 
- sourcebuffer0[0][i].value 
-| sourcebuffer0[1][i].value 
-| sourcebuffer0[2][i].value 
-| sourcebuffer0[3][i].value 
-| sourcebuffer0[4][i].value 
-| sourcebuffer0[5][i].value 
-| sourcebuffer0[6][i].value 
-| sourcebuffer0[7][i].value 
-| sourcebuffer1[0][i].value 
-| sourcebuffer1[1][i].value 
-| sourcebuffer1[2][i].value 
-| sourcebuffer1[3][i].value 
-| sourcebuffer1[4][i].value 
-| sourcebuffer1[5][i].value 
-| sourcebuffer1[6][i].value 
-| sourcebuffer1[7][i].value 
-| sourcebuffer2[0][i].value 
-| sourcebuffer2[1][i].value 
-| sourcebuffer2[2][i].value 
-| sourcebuffer2[3][i].value 
-| sourcebuffer2[4][i].value 
-| sourcebuffer2[5][i].value 
-| sourcebuffer2[6][i].value 
-| sourcebuffer2[7][i].value 
-| sourcebuffer3[0][i].value 
-| sourcebuffer3[1][i].value 
-| sourcebuffer3[2][i].value 
-| sourcebuffer3[3][i].value 
-| sourcebuffer3[4][i].value 
-| sourcebuffer3[5][i].value 
-| sourcebuffer3[6][i].value 
-| sourcebuffer3[7][i].value 
-| sourcebuffer4[0][i].value 
-| sourcebuffer4[1][i].value 
-| sourcebuffer4[2][i].value 
-| sourcebuffer4[3][i].value 
-| sourcebuffer4[4][i].value 
-| sourcebuffer4[5][i].value 
-| sourcebuffer4[6][i].value 
-| sourcebuffer4[7][i].value 
-| sourcebuffer5[0][i].value 
-| sourcebuffer5[1][i].value 
-| sourcebuffer5[2][i].value 
-| sourcebuffer5[3][i].value 
-| sourcebuffer5[4][i].value 
-| sourcebuffer5[5][i].value 
-| sourcebuffer5[6][i].value 
-| sourcebuffer5[7][i].value 
-| sourcebuffer6[0][i].value 
-| sourcebuffer6[1][i].value 
-| sourcebuffer6[2][i].value 
-| sourcebuffer6[3][i].value 
-| sourcebuffer6[4][i].value 
-| sourcebuffer6[5][i].value 
-| sourcebuffer6[6][i].value 
-| sourcebuffer6[7][i].value 
-| sourcebuffer7[0][i].value 
-| sourcebuffer7[1][i].value 
-| sourcebuffer7[2][i].value 
-| sourcebuffer7[3][i].value 
-| sourcebuffer7[4][i].value 
-| sourcebuffer7[5][i].value 
-| sourcebuffer7[6][i].value 
-| sourcebuffer7[7][i].value 
-| sourcebuffer8[0][i].value 
-| sourcebuffer8[1][i].value 
-| sourcebuffer8[2][i].value 
-| sourcebuffer8[3][i].value 
-| sourcebuffer8[4][i].value 
-| sourcebuffer8[5][i].value 
-| sourcebuffer8[6][i].value 
-| sourcebuffer8[7][i].value 
-| sourcebuffer9[0][i].value 
-| sourcebuffer9[1][i].value 
-| sourcebuffer9[2][i].value 
-| sourcebuffer9[3][i].value 
-| sourcebuffer9[4][i].value 
-| sourcebuffer9[5][i].value 
-| sourcebuffer9[6][i].value 
-| sourcebuffer9[7][i].value 
-| sourcebuffer10[0][i].value 
-| sourcebuffer10[1][i].value 
-| sourcebuffer10[2][i].value 
-| sourcebuffer10[3][i].value 
-| sourcebuffer10[4][i].value 
-| sourcebuffer10[5][i].value 
-| sourcebuffer10[6][i].value 
-| sourcebuffer10[7][i].value 
-| sourcebuffer11[0][i].value 
-| sourcebuffer11[1][i].value 
-| sourcebuffer11[2][i].value 
-| sourcebuffer11[3][i].value 
-| sourcebuffer11[4][i].value 
-| sourcebuffer11[5][i].value 
-| sourcebuffer11[6][i].value 
-| sourcebuffer11[7][i].value 
-| sourcebuffer12[0][i].value 
-| sourcebuffer12[1][i].value 
-| sourcebuffer12[2][i].value 
-| sourcebuffer12[3][i].value 
-| sourcebuffer12[4][i].value 
-| sourcebuffer12[5][i].value 
-| sourcebuffer12[6][i].value 
-| sourcebuffer12[7][i].value 
-| sourcebuffer13[0][i].value 
-| sourcebuffer13[1][i].value 
-| sourcebuffer13[2][i].value 
-| sourcebuffer13[3][i].value 
-| sourcebuffer13[4][i].value 
-| sourcebuffer13[5][i].value 
-| sourcebuffer13[6][i].value 
-| sourcebuffer13[7][i].value 
-| sourcebuffer14[0][i].value 
-| sourcebuffer14[1][i].value 
-| sourcebuffer14[2][i].value 
-| sourcebuffer14[3][i].value 
-| sourcebuffer14[4][i].value 
-| sourcebuffer14[5][i].value 
-| sourcebuffer14[6][i].value 
-| sourcebuffer14[7][i].value 
-| sourcebuffer15[0][i].value 
-| sourcebuffer15[1][i].value 
-| sourcebuffer15[2][i].value 
-| sourcebuffer15[3][i].value 
-| sourcebuffer15[4][i].value 
-| sourcebuffer15[5][i].value 
-| sourcebuffer15[6][i].value 
-| sourcebuffer15[7][i].value 
-			;
-		#endif 
-		
-		if(data.key != 0 || data.value != 0){
-			for(unsigned int t = 0; t < 32; t+=4){
-			#pragma HLS UNROLL
-				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
-			
 				unsigned int vid0 = voffset + i*32 + (t+0); // CRITICAL FIXME. can use less logic.
 				unsigned int index0 = 64 - 2*(t+0) - 2;
 				unsigned int bitsize0 = 2;
@@ -5360,27 +4932,7 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 				unsigned int bitsize3 = 2;
 				unsigned int vdata3 = READFROM_ULONG(data, index3, bitsize3); // CRITICAL FIXME. can use less logic.
 				
-				// unsigned int vid0 = voffset + i*32 + t; // CRITICAL FIXME. can use less logic.
-				// unsigned int index0 = 64 - 2*t - 2;
-				// unsigned int bitsize0 = 2;
-				// unsigned int vdata0 = READFROM_ULONG(data, index0, bitsize0); // CRITICAL FIXME. can use less logic.
-				
-				// unsigned int vid1 = voffset + i*32 + (t+1);
-				// unsigned int index1 = 64 - 2*(t+1) - 2;
-				// unsigned int bitsize1 = 2;
-				// unsigned int vdata1 = READFROM_ULONG(data, index1, bitsize1);
-				
-				// unsigned int vid2 = voffset + i*32 + (t+2);
-				// unsigned int index2 = 64 - 2*(t+2) - 2;
-				// unsigned int bitsize2 = 2;
-				// unsigned int vdata2 = READFROM_ULONG(data, index2, bitsize2);
-				
-				// unsigned int vid3 = voffset + i*32 + (t+3);
-				// unsigned int index3 = 64 - 2*(t+3) - 2;
-				// unsigned int bitsize3 = 2;
-				// unsigned int vdata3 = READFROM_ULONG(data, index3, bitsize3);
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS3
+				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
 				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
 				#endif
@@ -5394,16 +4946,6 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 				if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule1[t/4].value++; }
 				if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule2[t/4].value++; }
 				if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule3[t/4].value++; }
-				
-				// if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvs0[t/4][actvvscapsule0[t/4].value].key = vid0; actvvs0[t/4][actvvscapsule0[t/4].value].value = 777; }
-				// if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvs1[t/4][actvvscapsule1[t/4].value].key = vid1; actvvs1[t/4][actvvscapsule1[t/4].value].value = 777; }
-				// if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvs2[t/4][actvvscapsule2[t/4].value].key = vid2; actvvs2[t/4][actvvscapsule2[t/4].value].value = 777; }
-				// if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvs3[t/4][actvvscapsule3[t/4].value].key = vid3; actvvs3[t/4][actvvscapsule3[t/4].value].value = 777; }
-				
-				// if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule0[t/4].value++; }
-				// if(vdata1 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule1[t/4].value++; }
-				// if(vdata2 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule2[t/4].value++; }
-				// if(vdata3 == VISITED_IN_CURRENT_ITERATION){ actvvscapsule3[t/4].value++; }
 			}
 		}
 		
@@ -5442,36 +4984,6 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 					actvvscapsule3[v].value++;
 				}
 			}
-			
-			
-			/* if(actvvscapsule0[v].value > 0 && (actvvscapsule0[v].value % 4) > 0){ // CRITICAL FIXME. can use less logic.
-				if(k >= actvvscapsule0[v].value % 4){
-					actvvs0[v][actvvscapsule0[v].value] = dummykv;
-					actvvscapsule0[v].value++;
-				}
-			}
-			
-			if(actvvscapsule1[v].value > 0 && (actvvscapsule1[v].value % 4) > 0){
-				if(k >= actvvscapsule1[v].value % 4){
-					actvvs1[v][actvvscapsule1[v].value] = dummykv;
-					actvvscapsule1[v].value++;
-				}
-			}
-			
-			if(actvvscapsule2[v].value > 0 && (actvvscapsule2[v].value % 4) > 0){
-				if(k >= actvvscapsule2[v].value % 4){
-					actvvs2[v][actvvscapsule2[v].value] = dummykv;
-					actvvscapsule2[v].value++;
-				}
-			}
-			
-			if(actvvscapsule3[v].value > 0 && (actvvscapsule3[v].value % 4) > 0){
-				if(k >= actvvscapsule3[v].value % 4){
-					actvvs3[v][actvvscapsule3[v].value] = dummykv;
-					actvvscapsule3[v].value++;
-				}
-			} */
-			
 		}
 	}
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
@@ -5480,12 +4992,6 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 		cutoffs1[v] = actvvscapsule1[v].value; 
 		cutoffs2[v] = actvvscapsule2[v].value; 
 		cutoffs3[v] = actvvscapsule3[v].value; 
-		
-		// cutoffs0[v] = actvvscapsule0[v].value; 
-		// cutoffs1[v] = actvvscapsule1[v].value; 
-		// cutoffs2[v] = actvvscapsule2[v].value; 
-		// cutoffs3[v] = actvvscapsule3[v].value; 
-		
 	}
 	return;
 }
@@ -7027,7 +6533,7 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	return;
 }
 
-skeyvalue_t 
+/* skeyvalue_t 
 	#ifdef SW 
 	acts::
 	#endif
@@ -7348,6 +6854,426 @@ runpipeline_1partition(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDD
 			buffer_type _posC4 = bufferCcapsule[1].key + bufferCcapsule[1].value;
 			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
 			actsutilityobj->checkoutofbounds(enablebufferC, "_posC4", _posC4, SRCBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferC, "_posC4", _posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			_kvC4[0] = bufferC[4][_posC4]; _kvC5[0] = bufferC[5][_posC4]; _kvC6[0] = bufferC[6][_posC4]; _kvC7[0] = bufferC[7][_posC4];
+			bufferC[4][_posC4] = kvB6[0]; bufferC[5][_posC4] = kvB7[0]; bufferC[6][_posC4] = kvB6[1]; bufferC[7][_posC4] = kvB7[1];
+			bufferCcapsule[1].value += 1;
+			
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			CHK[0] = kvC0[0]; CHK[1] = kvC1[0]; CHK[2] = kvC2[0]; CHK[3] = kvC3[0];
+			actsutilityobj->checkn(enablebufferC, "kvC0[0],kvC1[0],kvC2[0],kvC3[0]", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			
+			CHK[0] = _kvC0[0]; CHK[1] = _kvC1[0]; CHK[2] = _kvC2[0]; CHK[3] = _kvC3[0];
+			actsutilityobj->checkn(enablebufferC, "_kvC0[0],_kvC1[0],_kvC2[0],_kvC3[0]", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			
+			CHK[0] = kvC4[0]; CHK[1] = kvC5[0]; CHK[2] = kvC6[0]; CHK[3] = kvC7[0];
+			actsutilityobj->checkn(enablebufferC, "kvC4[0],kvC5[0],kvC6[0],kvC7[0]", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			
+			CHK[0] = _kvC4[0]; CHK[1] = _kvC5[0]; CHK[2] = _kvC6[0]; CHK[3] = _kvC7[0];
+			actsutilityobj->checkn(enablebufferC, "_kvC4[0],_kvC5[0],_kvC6[0],_kvC7[0]", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			#endif
+			
+			/// LOADING FROM AND INTO D
+			buffer_type posD0 = bufferDcapsule.key + tempbufferDcapsule;
+			unsigned int yoffset0 = posD0 / 8;
+			unsigned int xoffset0 = posD0 % 8;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferD, "posD0", posD0, 4);
+			actsutilityobj->checkoutofbounds(enablebufferD, "posD0", posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset0", yoffset0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "xoffset0+4", xoffset0+4, VECTOR_SIZE+1, NAp, NAp, NAp);
+			#endif 
+			if(xoffset0 == 0){
+				bufferD[0][yoffset0] = kvC0[0]; bufferD[1][yoffset0] = kvC1[0]; bufferD[2][yoffset0] = kvC2[0]; bufferD[3][yoffset0] = kvC3[0]; 
+			} else {
+				bufferD[4][yoffset0] = kvC0[0]; bufferD[5][yoffset0] = kvC1[0]; bufferD[6][yoffset0] = kvC2[0]; bufferD[7][yoffset0] = kvC3[0]; 
+			}
+			if(!((kvC0[0].value == INVALIDDATA) && (kvC1[0].value == INVALIDDATA) && (kvC2[0].value == INVALIDDATA) && (kvC3[0].value == INVALIDDATA))){ tempbufferDcapsule += 4; }
+			
+			buffer_type _posD0 = bufferDcapsule.key + tempbufferDcapsule;
+			unsigned int yoffset1 = _posD0 / 8;
+			unsigned int xoffset1 = _posD0 % 8;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferD, "_posD0", _posD0, 4);
+			actsutilityobj->checkoutofbounds(enablebufferD, "_posD0", _posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset1", yoffset1, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "xoffset1+4", xoffset1+4, VECTOR_SIZE+1, NAp, NAp, NAp);
+			#endif 
+			if(xoffset1 == 0){
+				bufferD[0][yoffset1] = _kvC0[0]; bufferD[1][yoffset1] = _kvC1[0]; bufferD[2][yoffset1] = _kvC2[0]; bufferD[3][yoffset1] = _kvC3[0]; 
+			} else {
+				bufferD[4][yoffset1] = _kvC0[0]; bufferD[5][yoffset1] = _kvC1[0]; bufferD[6][yoffset1] = _kvC2[0]; bufferD[7][yoffset1] = _kvC3[0]; 
+			}
+			if(!((_kvC0[0].value == INVALIDDATA) && (_kvC1[0].value == INVALIDDATA) && (_kvC2[0].value == INVALIDDATA) && (_kvC3[0].value == INVALIDDATA))){ tempbufferDcapsule += 4; }
+			
+			buffer_type __posD0 = bufferDcapsule.key + tempbufferDcapsule;
+			unsigned int yoffset2 = __posD0 / 8;
+			unsigned int xoffset2 = __posD0 % 8;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferD, "__posD0", __posD0, 4);
+			actsutilityobj->checkoutofbounds(enablebufferD, "__posD0", __posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset2", yoffset2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "xoffset2+4", xoffset2+4, VECTOR_SIZE+1, NAp, NAp, NAp);
+			#endif 
+			if(xoffset2 == 0){
+				bufferD[0][yoffset2] = kvC4[0]; bufferD[1][yoffset2] = kvC5[0]; bufferD[2][yoffset2] = kvC6[0]; bufferD[3][yoffset2] = kvC7[0]; 
+			} else {
+				bufferD[4][yoffset2] = kvC4[0]; bufferD[5][yoffset2] = kvC5[0]; bufferD[6][yoffset2] = kvC6[0]; bufferD[7][yoffset2] = kvC7[0]; 
+			}
+			if(!((kvC4[0].value == INVALIDDATA) && (kvC5[0].value == INVALIDDATA) && (kvC6[0].value == INVALIDDATA) && (kvC7[0].value == INVALIDDATA))){ tempbufferDcapsule += 4; }
+			
+			buffer_type ___posD0 = bufferDcapsule.key + tempbufferDcapsule;
+			unsigned int yoffset3 = ___posD0 / 8;
+			unsigned int xoffset3 = ___posD0 % 8;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferD, "___posD0", ___posD0, 4);
+			actsutilityobj->checkoutofbounds(enablebufferD, "___posD0", ___posD0, PADDEDDESTBUFFER_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "yoffset3", yoffset3, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferD, "xoffset3+4", xoffset3+4, VECTOR_SIZE+1, NAp, NAp, NAp);
+			#endif 
+			if(xoffset3 == 0){
+				bufferD[0][yoffset3] = _kvC4[0]; bufferD[1][yoffset3] = _kvC5[0]; bufferD[2][yoffset3] = _kvC6[0]; bufferD[3][yoffset3] = _kvC7[0]; 
+			} else {
+				bufferD[4][yoffset3] = _kvC4[0]; bufferD[5][yoffset3] = _kvC5[0]; bufferD[6][yoffset3] = _kvC6[0]; bufferD[7][yoffset3] = _kvC7[0]; 
+			}
+			if(!((_kvC4[0].value == INVALIDDATA) && (_kvC5[0].value == INVALIDDATA) && (_kvC6[0].value == INVALIDDATA) && (_kvC7[0].value == INVALIDDATA))){ tempbufferDcapsule += 4; }
+		}
+	}
+	bufferDcapsule.value = tempbufferDcapsule; 
+	
+	if(bufferDcapsule.value % 8 == 4){
+		unsigned int yoffset = (bufferDcapsule.key + bufferDcapsule.value) / VECTOR_SIZE;
+		bufferD[4][yoffset] = dummykv; bufferD[5][yoffset] = dummykv; bufferD[6][yoffset] = dummykv; bufferD[7][yoffset] = dummykv; 
+		bufferDcapsule.value += 4;
+	}
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+	actsutilityobj->checkfordivisibleby(enablebufferD, "bufferDcapsule.value", bufferDcapsule.value, 8);
+	#endif
+	return bufferDcapsule;
+}
+ */
+skeyvalue_t 
+	#ifdef SW 
+	acts::
+	#endif
+runpipeline_1partition(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[VECTOR_SIZE], 
+				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4], 
+					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2],
+						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule,
+							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
+	analysis_type analysis_srcbuffersz = PADDEDDESTBUFFER_SIZE;
+	if(enable == OFF){ return bufferDcapsule; }
+	
+	unsigned int upperlimit = sweepparams.upperlimit;
+	unsigned int upperpartition = sweepparams.upperpartition;
+	
+	keyvalue_t kvA0[4];
+	keyvalue_t kvA2[4];
+	keyvalue_t kvA4[4];
+	keyvalue_t kvA6[4];
+	#pragma HLS ARRAY_PARTITION variable=kvA0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvA6 complete
+	
+	keyvalue_t kvB0[4];
+	keyvalue_t kvB1[4];
+	keyvalue_t kvB2[4];
+	keyvalue_t kvB3[4];
+	keyvalue_t kvB4[4];
+	keyvalue_t kvB5[4];
+	keyvalue_t kvB6[4];
+	keyvalue_t kvB7[4];
+	#pragma HLS ARRAY_PARTITION variable=kvB0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB1 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB3 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB5 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB6 complete
+	#pragma HLS ARRAY_PARTITION variable=kvB7 complete
+	
+	keyvalue_t kvC0[4];
+	keyvalue_t kvC1[4];
+	keyvalue_t kvC2[4];
+	keyvalue_t kvC3[4];
+	keyvalue_t kvC4[4];
+	keyvalue_t kvC5[4];
+	keyvalue_t kvC6[4];
+	keyvalue_t kvC7[4];
+	#pragma HLS ARRAY_PARTITION variable=kvC0 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC1 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC2 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC3 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC4 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC5 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC6 complete
+	#pragma HLS ARRAY_PARTITION variable=kvC7 complete
+	
+	keyvalue_t _kvC0[4];
+	keyvalue_t _kvC1[4];
+	keyvalue_t _kvC2[4];
+	keyvalue_t _kvC3[4];
+	keyvalue_t _kvC4[4];
+	keyvalue_t _kvC5[4];
+	keyvalue_t _kvC6[4];
+	keyvalue_t _kvC7[4];
+	#pragma HLS ARRAY_PARTITION variable=_kvC0 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC1 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC2 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC3 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC4 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC5 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC6 complete
+	#pragma HLS ARRAY_PARTITION variable=_kvC7 complete
+	
+	buffer_type tempcutoffs[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=tempcutoffs complete
+	
+	bool_type enablebufferA = ON;
+	bool_type enablebufferB = ON;
+	bool_type enablebufferC = ON;
+	bool_type enablebufferD = ON;
+	#ifdef OPTMZ
+	if(shiftcount >= 1){ enablebufferB = ON; } else { enablebufferB = OFF; }
+	if(shiftcount >= 2){ enablebufferC = ON; } else { enablebufferC = OFF; }
+	if(shiftcount >= 3){ enablebufferD = ON; } else { enablebufferD = OFF; }
+	#endif
+	
+	#pragma HLS PIPELINE II=2
+	bufferDcapsule.key = 0;
+	bufferDcapsule.value = 0;
+	
+	bufferCcapsule[0].key = (bufferBcapsule[0].key + bufferBcapsule[1].key) / 2;
+	bufferCcapsule[1].key = (bufferBcapsule[2].key + bufferBcapsule[3].key) / 2;
+	bufferCcapsule[0].value = 0;
+	bufferCcapsule[1].value = 0;
+	
+	bufferBcapsule[0].key = (buffer1capsule[0].key + buffer1capsule[1].key) / 2;
+	bufferBcapsule[1].key = (buffer1capsule[2].key + buffer1capsule[3].key) / 2;
+	bufferBcapsule[2].key = (buffer1capsule[4].key + buffer1capsule[5].key) / 2;
+	bufferBcapsule[3].key = (buffer1capsule[6].key + buffer1capsule[7].key) / 2;
+	bufferBcapsule[0].value = 0;
+	bufferBcapsule[1].value = 0;
+	bufferBcapsule[2].value = 0;
+	bufferBcapsule[3].value = 0;
+
+	#if defined(_DEBUGMODE_CHECKS2) && defined(SW)
+	actsutilityobj->checkoutofbounds(ON, "runp: bufferCcapsule[0].key", bufferCcapsule[0].key, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds(ON, "runp: bufferCcapsule[1].key", bufferCcapsule[1].key, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+	
+	actsutilityobj->checkoutofbounds(ON, "runp: bufferBcapsule[0].key", bufferBcapsule[0].key, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds(ON, "runp: bufferBcapsule[1].key", bufferBcapsule[1].key, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds(ON, "runp: bufferBcapsule[2].key", bufferBcapsule[2].key, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+	actsutilityobj->checkoutofbounds(ON, "runp: bufferBcapsule[3].key", bufferBcapsule[3].key, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+	#endif
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkfordivisibleby(enablebufferD, "bufferDcapsule.key", bufferDcapsule.key, 1);
+	
+	actsutilityobj->checkfordivisibleby(enablebufferC, "bufferCcapsule[0].key", bufferCcapsule[0].key, 1);
+	actsutilityobj->checkfordivisibleby(enablebufferC, "bufferCcapsule[1].key", bufferCcapsule[1].key, 1);
+	
+	actsutilityobj->checkfordivisibleby(enablebufferB, "bufferBcapsule[0].key", bufferBcapsule[0].key, 2);
+	actsutilityobj->checkfordivisibleby(enablebufferB, "bufferBcapsule[1].key", bufferBcapsule[1].key, 2);
+	actsutilityobj->checkfordivisibleby(enablebufferB, "bufferBcapsule[2].key", bufferBcapsule[2].key, 2);
+	actsutilityobj->checkfordivisibleby(enablebufferB, "bufferBcapsule[3].key", bufferBcapsule[3].key, 2);
+	
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[0].key", buffer1capsule[0].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[1].key", buffer1capsule[1].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[2].key", buffer1capsule[2].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[3].key", buffer1capsule[3].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[4].key", buffer1capsule[4].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[5].key", buffer1capsule[5].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[6].key", buffer1capsule[6].key, 4);
+	actsutilityobj->checkfordivisibleby(enablebufferA, "buffer1capsule[7].key", buffer1capsule[7].key, 4);
+	#endif
+	#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+	keyvalue_t CHK[4]; 
+	keyvalue_t CHKK[8]; 
+	#endif
+	
+	keyvalue_t dummykv;
+	dummykv.key = 0;
+	dummykv.value = INVALIDDATA;
+	
+	value_t tempbufferDcapsule = bufferDcapsule.value; 
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
+	#pragma HLS PIPELINE II=1
+		tempcutoffs[v] = cutoffs[v]; 
+	}
+	unsigned int n=0;
+	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<PADDEDDESTBUFFER_SIZE; k+=4){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		#pragma HLS PIPELINE II=4
+		
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(k % 16 == 0){ cout<<"k: "<<k<<endl; }
+			#endif
+			
+			#ifdef SIMPLEANDFASTPREPAREFUNC
+			if(k < tempcutoffs[0+n]){ kvA0[0] = bufferA[0+n][k]; kvA0[1] = bufferA[0+n][k+1]; kvA0[2] = bufferA[0+n][k+2]; kvA0[3] = bufferA[0+n][k+3]; } 
+			else { kvA0[0] = dummykv; kvA0[1] = dummykv; kvA0[2] = dummykv; kvA0[3] = dummykv; }
+			if(k < tempcutoffs[2+n]){ kvA2[0] = bufferA[2+n][k]; kvA2[1] = bufferA[2+n][k+1]; kvA2[2] = bufferA[2+n][k+2]; kvA2[3] = bufferA[2+n][k+3]; } 
+			else { kvA2[0] = dummykv; kvA2[1] = dummykv; kvA2[2] = dummykv; kvA2[3] = dummykv; }
+			if(k < tempcutoffs[4+n]){ kvA4[0] = bufferA[4+n][k]; kvA4[1] = bufferA[4+n][k+1]; kvA4[2] = bufferA[4+n][k+2]; kvA4[3] = bufferA[4+n][k+3]; } 
+			else { kvA4[0] = dummykv; kvA4[1] = dummykv; kvA4[2] = dummykv; kvA4[3] = dummykv; }
+			if(k < tempcutoffs[6+n]){ kvA6[0] = bufferA[6+n][k]; kvA6[1] = bufferA[6+n][k+1]; kvA6[2] = bufferA[6+n][k+2]; kvA6[3] = bufferA[6+n][k+3]; } 
+			else { kvA6[0] = dummykv; kvA6[1] = dummykv; kvA6[2] = dummykv; kvA6[3] = dummykv; }
+			#else 
+			if(k < cutoff){
+				kvA0[0] = bufferA[0+n][k];
+				kvA0[1] = bufferA[0+n][k+1];
+				kvA0[2] = bufferA[0+n][k+2];
+				kvA0[3] = bufferA[0+n][k+3];
+				
+				kvA2[0] = bufferA[2+n][k]; 
+				kvA2[1] = bufferA[2+n][k+1];
+				kvA2[2] = bufferA[2+n][k+2];
+				kvA2[3] = bufferA[2+n][k+3];
+				
+				kvA4[0] = bufferA[4+n][k];
+				kvA4[1] = bufferA[4+n][k+1];
+				kvA4[2] = bufferA[4+n][k+2];
+				kvA4[3] = bufferA[4+n][k+3];
+				
+				kvA6[0] = bufferA[6+n][k];
+				kvA6[1] = bufferA[6+n][k+1];
+				kvA6[2] = bufferA[6+n][k+2];
+				kvA6[3] = bufferA[6+n][k+3];
+			} else {
+				kvA0[0] = dummykv;
+				kvA0[1] = dummykv;
+				kvA0[2] = dummykv;
+				kvA0[3] = dummykv;
+				
+				kvA2[0] = dummykv; 
+				kvA2[1] = dummykv;
+				kvA2[2] = dummykv;
+				kvA2[3] = dummykv;
+				
+				kvA4[0] = dummykv;
+				kvA4[1] = dummykv;
+				kvA4[2] = dummykv;
+				kvA4[3] = dummykv;
+				
+				kvA6[0] = dummykv;
+				kvA6[1] = dummykv;
+				kvA6[2] = dummykv;
+				kvA6[3] = dummykv;
+			}
+			#endif 
+		
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA0["<<m<<"].key: "<<kvA0[m].key<<", kvA0["<<m<<"].value: "<<kvA0[m].value<<endl; }
+			cout<<endl;
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA2["<<m<<"].key: "<<kvA2[m].key<<", kvA2["<<m<<"].value: "<<kvA2[m].value<<endl; }
+			cout<<endl;
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA4["<<m<<"].key: "<<kvA4[m].key<<", kvA4["<<m<<"].value: "<<kvA4[m].value<<endl; }
+			cout<<endl;
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA6["<<m<<"].key: "<<kvA6[m].key<<", kvA6["<<m<<"].value: "<<kvA6[m].value<<endl; }
+			cout<<endl;
+			#endif
+			
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkn(enablebufferA, "kvA0", kvA0, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			actsutilityobj->checkn(enablebufferA, "kvA2", kvA2, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			actsutilityobj->checkn(enablebufferA, "kvA4", kvA4, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			actsutilityobj->checkn(enablebufferA, "kvA6", kvA6, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			#endif
+			
+			/// LOADING FROM AND INTO B
+			buffer_type posB0 = bufferBcapsule[0].key + bufferBcapsule[0].value;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferB, "posB0", posB0, 2);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB0", posB0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB0", posB0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			kvB0[0] = bufferB[0][posB0]; kvB1[0] = bufferB[1][posB0];
+			kvB0[1] = bufferB[0][posB0+1]; kvB1[1] = bufferB[1][posB0+1];
+			bufferB[0][posB0] = kvA0[0]; bufferB[1][posB0] = kvA0[1]; 
+			bufferB[0][posB0+1] = kvA0[2]; bufferB[1][posB0+1] = kvA0[3];
+			bufferBcapsule[0].value += 2;
+		
+			buffer_type posB2 = bufferBcapsule[1].key + bufferBcapsule[1].value; 
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferB, "posB2", posB2, 2);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB2", posB2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB2", posB2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			kvB2[0] = bufferB[2][posB2]; kvB3[0] = bufferB[3][posB2];
+			kvB2[1] = bufferB[2][posB2+1]; kvB3[1] = bufferB[3][posB2+1];
+			bufferB[2][posB2] = kvA2[0]; bufferB[3][posB2] = kvA2[1];
+			bufferB[2][posB2+1] = kvA2[2]; bufferB[3][posB2+1] = kvA2[3];
+			bufferBcapsule[1].value += 2;
+			
+			buffer_type posB4 = bufferBcapsule[2].key + bufferBcapsule[2].value; 
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferB, "posB4", posB4, 2);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB4", posB4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB4", posB4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			kvB4[0] = bufferB[4][posB4]; kvB5[0] = bufferB[5][posB4];
+			kvB4[1] = bufferB[4][posB4+1]; kvB5[1] = bufferB[5][posB4+1];
+			bufferB[4][posB4] = kvA4[0]; bufferB[5][posB4] = kvA4[1];
+			bufferB[4][posB4+1] = kvA4[2]; bufferB[5][posB4+1] = kvA4[3];
+			bufferBcapsule[2].value += 2;
+			
+			buffer_type posB6 = bufferBcapsule[3].key + bufferBcapsule[3].value; 
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkfordivisibleby(enablebufferB, "posB6", posB6, 2);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB6", posB6, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferB, "posB6", posB6, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			kvB6[0] = bufferB[6][posB6]; kvB7[0] = bufferB[7][posB6];
+			kvB6[1] = bufferB[6][posB6+1]; kvB7[1] = bufferB[7][posB6+1];
+			bufferB[6][posB6] = kvA6[0]; bufferB[7][posB6] = kvA6[1];
+			bufferB[6][posB6+1] = kvA6[2]; bufferB[7][posB6+1] = kvA6[3];
+			bufferBcapsule[3].value += 2;
+			
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			CHK[0] = kvB0[0]; CHK[1] = kvB1[0]; CHK[2] = kvB0[1]; CHK[3] = kvB1[1];
+			actsutilityobj->checkn(enablebufferB, "kvB0,kvB1", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			CHK[0] = kvB2[0]; CHK[1] = kvB3[0]; CHK[2] = kvB2[1]; CHK[3] = kvB3[1];
+			actsutilityobj->checkn(enablebufferB, "kvB2,kvB3", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			CHK[0] = kvB4[0]; CHK[1] = kvB5[0]; CHK[2] = kvB4[1]; CHK[3] = kvB5[1];
+			actsutilityobj->checkn(enablebufferB, "kvB4,kvB5", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			CHK[0] = kvB6[0]; CHK[1] = kvB7[0]; CHK[2] = kvB6[1]; CHK[3] = kvB7[1];
+			actsutilityobj->checkn(enablebufferB, "kvB6,kvB7", CHK, currentLOP, upperlimit, globalparams.batch_range_pow, 4);
+			#endif
+			
+			/// LOADING FROM AND INTO C
+			buffer_type posC0 = bufferCcapsule[0].key + bufferCcapsule[0].value;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkoutofbounds(enablebufferC, "posC0", posC0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferC, "posC0", posC0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			kvC0[0] = bufferC[0][posC0]; kvC1[0] = bufferC[1][posC0]; kvC2[0] = bufferC[2][posC0]; kvC3[0] = bufferC[3][posC0];
+			bufferC[0][posC0] = kvB0[0]; bufferC[1][posC0] = kvB1[0]; bufferC[2][posC0] = kvB0[1]; bufferC[3][posC0] = kvB1[1];
+			bufferCcapsule[0].value += 1;
+			
+			buffer_type _posC0 = bufferCcapsule[0].key + bufferCcapsule[0].value;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkoutofbounds(enablebufferC, "_posC0", _posC0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferC, "_posC0", _posC0, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			_kvC0[0] = bufferC[0][_posC0]; _kvC1[0] = bufferC[1][_posC0]; _kvC2[0] = bufferC[2][_posC0]; _kvC3[0] = bufferC[3][_posC0];
+			bufferC[0][_posC0] = kvB2[0]; bufferC[1][_posC0] = kvB3[0]; bufferC[2][_posC0] = kvB2[1]; bufferC[3][_posC0] = kvB3[1];
+			bufferCcapsule[0].value += 1;
+			
+			buffer_type posC4 = bufferCcapsule[1].key + bufferCcapsule[1].value;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkoutofbounds(enablebufferC, "posC4", posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds(enablebufferC, "posC4", posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif 
+			kvC4[0] = bufferC[4][posC4]; kvC5[0] = bufferC[5][posC4]; kvC6[0] = bufferC[6][posC4]; kvC7[0] = bufferC[7][posC4]; 
+			bufferC[4][posC4] = kvB4[0]; bufferC[5][posC4] = kvB5[0]; bufferC[6][posC4] = kvB4[1]; bufferC[7][posC4] = kvB5[1];
+			bufferCcapsule[1].value += 1;
+			
+			buffer_type _posC4 = bufferCcapsule[1].key + bufferCcapsule[1].value;
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
+			actsutilityobj->checkoutofbounds(enablebufferC, "_posC4", _posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			actsutilityobj->checkoutofbounds(enablebufferC, "_posC4", _posC4, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif 
 			_kvC4[0] = bufferC[4][_posC4]; _kvC5[0] = bufferC[5][_posC4]; _kvC6[0] = bufferC[6][_posC4]; _kvC7[0] = bufferC[7][_posC4];
@@ -7912,7 +7838,7 @@ travstate_t
 	#ifdef SW 
 	acts::
 	#endif
-reduceupdates_sync(
+reduceupdates_sync( // REMOVEME. DEPRECIATED.
 		bool_type enable,
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,		keyvalue_t verticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -7936,7 +7862,7 @@ keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t te
 	
 	MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
 		#endif
 		
@@ -8057,248 +7983,6 @@ keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t te
 	unifydata_syn(config.enablereduce, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15,, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), globalparams.GraphAlgo);
 	#endif
 	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(config.enablereduce, kvdram0, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
-	return actvvstravstate;
-}
-
-travstate_t
-	#ifdef SW 
-	acts::
-	#endif
-reduceupdates_sync(
-		bool_type enable,
-uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,		globalparams_t globalparams[NUMSUBCPUTHREADS],
-		sweepparams_t sweepparams,
-		travstate_t actvvstravstate,
-		unsigned int sourcestatsmarker
-		){
-	analysis_type analysis_reduceloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
-	if(enable == OFF){ return actvvstravstate; }
-	
-	keyvalue_t sourceverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = sourceverticesbuffer
-	keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer0
-	keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer1
-	keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer2
-	keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer3
-	keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer4
-	keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer5
-	keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer6
-	keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer7
-	keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer8
-	keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer9
-	keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer10
-	keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer11
-	keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer12
-	keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer13
-	keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer14
-	keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer15
-	keyvalue_t destverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = destverticesbuffer
-	keyvalue_t vertexupdatesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = vertexupdatesbuffer
-	
-	keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs0
-	keyvalue_t buffer0_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer0_setof2
-	keyvalue_t buffer0_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer0_setof4
-	keyvalue_t buffer0_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer0_setof8
-	keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs1
-	keyvalue_t buffer1_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer1_setof2
-	keyvalue_t buffer1_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer1_setof4
-	keyvalue_t buffer1_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer1_setof8
-	keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs2
-	keyvalue_t buffer2_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer2_setof2
-	keyvalue_t buffer2_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer2_setof4
-	keyvalue_t buffer2_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer2_setof8
-	keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs3
-	keyvalue_t buffer3_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer3_setof2
-	keyvalue_t buffer3_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer3_setof4
-	keyvalue_t buffer3_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer3_setof8
-	skeyvalue_t capsule0_so1[8];
-	skeyvalue_t capsule0_so2[4];
-	skeyvalue_t capsule0_so4[2];
-	skeyvalue_t capsule0_so8;
-	skeyvalue_t capsule1_so1[8];
-	skeyvalue_t capsule1_so2[4];
-	skeyvalue_t capsule1_so4[2];
-	skeyvalue_t capsule1_so8;
-	skeyvalue_t capsule2_so1[8];
-	skeyvalue_t capsule2_so2[4];
-	skeyvalue_t capsule2_so4[2];
-	skeyvalue_t capsule2_so8;
-	skeyvalue_t capsule3_so1[8];
-	skeyvalue_t capsule3_so2[4];
-	skeyvalue_t capsule3_so4[2];
-	skeyvalue_t capsule3_so8;
-	buffer_type cutoffs0[VECTOR_SIZE];
-	buffer_type cutoffs1[VECTOR_SIZE];
-	buffer_type cutoffs2[VECTOR_SIZE];
-	buffer_type cutoffs3[VECTOR_SIZE];
-	
-	travstate_t rtravstate[NUMSUBCPUTHREADS];
-	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
-	unsigned int itercount = 0;
-	bool_type pp0writeen = ON;
-	
-	MAIN_LOOP: for(unsigned int index=0; index<LOADFACTORFORREDUCE; index+=1){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"reduceupdates_sync: index: "<<index<<endl;
-		#endif
-		
-		if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
-		for(unsigned int v=0; v<8; v++){  capsule0_so1[v].key = 0; capsule0_so1[v].value = 0;  capsule1_so1[v].key = 0; capsule1_so1[v].value = 0;  capsule2_so1[v].key = 0; capsule2_so1[v].value = 0;  capsule3_so1[v].key = 0; capsule3_so1[v].value = 0;  }
-		rtravstate[0] = gettravstate(kvdram0, globalparams[0], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[0]);
-		rtravstate[1] = gettravstate(kvdram1, globalparams[1], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[1]);
-		rtravstate[2] = gettravstate(kvdram2, globalparams[2], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[2]);
-		rtravstate[3] = gettravstate(kvdram3, globalparams[3], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[3]);
-		rtravstate[4] = gettravstate(kvdram4, globalparams[4], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[4]);
-		rtravstate[5] = gettravstate(kvdram5, globalparams[5], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[5]);
-		rtravstate[6] = gettravstate(kvdram6, globalparams[6], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[6]);
-		rtravstate[7] = gettravstate(kvdram7, globalparams[7], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[7]);
-		rtravstate[8] = gettravstate(kvdram8, globalparams[8], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[8]);
-		rtravstate[9] = gettravstate(kvdram9, globalparams[9], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[9]);
-		rtravstate[10] = gettravstate(kvdram10, globalparams[10], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[10]);
-		rtravstate[11] = gettravstate(kvdram11, globalparams[11], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[11]);
-		rtravstate[12] = gettravstate(kvdram12, globalparams[12], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[12]);
-		rtravstate[13] = gettravstate(kvdram13, globalparams[13], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[13]);
-		rtravstate[14] = gettravstate(kvdram14, globalparams[14], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[14]);
-		rtravstate[15] = gettravstate(kvdram15, globalparams[15], sweepparams.currentLOP, sourcestatsmarker + index, sweepparams.source_partition + index, moretravstates[15]);
-		
-		// load vertices
-		if(index == 0){ readkeyvalues(ON, kvdram0, sourceverticesbuffer, (globalparams[0].baseoffset_verticesdata_kvs + ((sweepparams.source_partition + index) * ((globalparams[0].applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
-		
-		// replicate
-		replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, ((sweepparams.source_partition + index) % LOADFACTORFORREDUCE) * ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
-		
-		// calculate offsets and sizes
-		batch_type maxsz_kvs = 0;
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
-		unsigned int en[NUMSUBCPUTHREADS];
-		
-		MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
-		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
-			#endif
-			
-			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-			#pragma HLS UNROLL
-				if(offset_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
-			}
-			
-			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-			#pragma HLS UNROLL
-				if(en[i] == ON){
-					rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; 
-				}
-			}
-
-			readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
-			readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
-			readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
-			readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
-			readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
-			readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
-			readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
-			readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
-			readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
-			readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
-			readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
-			readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-			readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-			readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
-			readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
-			readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
-			
-			reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[0], globalparams[0]);
-			reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[1], globalparams[0]);
-			reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[2], globalparams[0]);
-			reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[3], globalparams[0]);
-			reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[4], globalparams[0]);
-			reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[5], globalparams[0]);
-			reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[6], globalparams[0]);
-			reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[7], globalparams[0]);
-			reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[8], globalparams[0]);
-			reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[9], globalparams[0]);
-			reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[10], globalparams[0]);
-			reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[11], globalparams[0]);
-			reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[12], globalparams[0]);
-			reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[13], globalparams[0]);
-			reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[14], globalparams[0]);
-			reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, globalparams[0].GraphIter, globalparams[0].GraphAlgo, rtravstate[15], globalparams[0]);
-		}
-		
-		// unify
-		unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destverticesbuffer, actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3, 							((sweepparams.source_partition + index) % LOADFACTORFORREDUCE) * ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams[0].applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, globalparams[0]);
-
-		// store bits 
-		if(index == LOADFACTORFORREDUCE-1){ savekeyvalues(ON, kvdram0, destverticesbuffer, (globalparams[0].baseoffset_verticesdata_kvs + (((sweepparams.source_partition + index) - (LOADFACTORFORREDUCE-1)) * ((globalparams[0].applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
-		
-		// run pipeline
-		capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount, globalparams[0]);
-		capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount, globalparams[0]);
-		capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount, globalparams[0]);
-		capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount, globalparams[0]);
-
-		// store actvvs
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule0_so8.value: "<<capsule0_so8.value<<endl; }
-		// if(pp0writeen == ON){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer0_setof8", buffer0_setof8, 4); }
-		#endif 
-		savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer0_setof8, globalparams[0].baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value); 
-		if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule1_so8.value: "<<capsule1_so8.value<<endl; }
-		// if(pp0writeen == ON){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer1_setof8", buffer1_setof8, 4); }
-		#endif 
-		savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer1_setof8, globalparams[0].baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value); 
-		if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule2_so8.value: "<<capsule2_so8.value<<endl; }
-		// if(pp0writeen == ON){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer2_setof8", buffer2_setof8, 4); }
-		#endif 
-		savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer2_setof8, globalparams[0].baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value); 
-		if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule2_so8.value / VECTOR_SIZE; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule3_so8.value: "<<capsule3_so8.value<<endl; }
-		// if(pp0writeen == ON){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer3_setof8", buffer3_setof8, 4); }
-		#endif 
-		savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer3_setof8, globalparams[0].baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value); 
-		if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule3_so8.value / VECTOR_SIZE; }
-		// if(pp0writeen == ON){ exit(EXIT_SUCCESS); }
-		itercount += 1;
-	}
 	return actvvstravstate;
 }
 
@@ -10264,45 +9948,72 @@ dispatch_reduceonly_sync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
 	for(unsigned int k=0; k<globalparams[0].treedepth; k++){ sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); }
 			
-	#ifdef REDUCEUPDATES
-	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1)
-	#else 
-	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=LOADFACTORFORREDUCE)
-	#endif 
-	{
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		sweepparams = getsweepparams(globalparams[0], currentLOP, source_partition);
-		// FIXME? DEPRECIATED?
 		rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[0].begin_kvs: "<<rtravstate[0].begin_kvs<<", rtravstate[0].end_kvs: "<<rtravstate[0].end_kvs<<", rtravstate[0].size_kvs: "<<rtravstate[0].size_kvs<<endl;
+		#endif 
 		rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[1].begin_kvs: "<<rtravstate[1].begin_kvs<<", rtravstate[1].end_kvs: "<<rtravstate[1].end_kvs<<", rtravstate[1].size_kvs: "<<rtravstate[1].size_kvs<<endl;
+		#endif 
 		rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[2].begin_kvs: "<<rtravstate[2].begin_kvs<<", rtravstate[2].end_kvs: "<<rtravstate[2].end_kvs<<", rtravstate[2].size_kvs: "<<rtravstate[2].size_kvs<<endl;
+		#endif 
 		rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[3].begin_kvs: "<<rtravstate[3].begin_kvs<<", rtravstate[3].end_kvs: "<<rtravstate[3].end_kvs<<", rtravstate[3].size_kvs: "<<rtravstate[3].size_kvs<<endl;
+		#endif 
 		rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[4].begin_kvs: "<<rtravstate[4].begin_kvs<<", rtravstate[4].end_kvs: "<<rtravstate[4].end_kvs<<", rtravstate[4].size_kvs: "<<rtravstate[4].size_kvs<<endl;
+		#endif 
 		rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[5].begin_kvs: "<<rtravstate[5].begin_kvs<<", rtravstate[5].end_kvs: "<<rtravstate[5].end_kvs<<", rtravstate[5].size_kvs: "<<rtravstate[5].size_kvs<<endl;
+		#endif 
 		rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[6].begin_kvs: "<<rtravstate[6].begin_kvs<<", rtravstate[6].end_kvs: "<<rtravstate[6].end_kvs<<", rtravstate[6].size_kvs: "<<rtravstate[6].size_kvs<<endl;
+		#endif 
 		rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[7].begin_kvs: "<<rtravstate[7].begin_kvs<<", rtravstate[7].end_kvs: "<<rtravstate[7].end_kvs<<", rtravstate[7].size_kvs: "<<rtravstate[7].size_kvs<<endl;
+		#endif 
 		rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[8].begin_kvs: "<<rtravstate[8].begin_kvs<<", rtravstate[8].end_kvs: "<<rtravstate[8].end_kvs<<", rtravstate[8].size_kvs: "<<rtravstate[8].size_kvs<<endl;
+		#endif 
 		rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[9].begin_kvs: "<<rtravstate[9].begin_kvs<<", rtravstate[9].end_kvs: "<<rtravstate[9].end_kvs<<", rtravstate[9].size_kvs: "<<rtravstate[9].size_kvs<<endl;
+		#endif 
 		rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[10].begin_kvs: "<<rtravstate[10].begin_kvs<<", rtravstate[10].end_kvs: "<<rtravstate[10].end_kvs<<", rtravstate[10].size_kvs: "<<rtravstate[10].size_kvs<<endl;
+		#endif 
 		rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[11].begin_kvs: "<<rtravstate[11].begin_kvs<<", rtravstate[11].end_kvs: "<<rtravstate[11].end_kvs<<", rtravstate[11].size_kvs: "<<rtravstate[11].size_kvs<<endl;
+		#endif 
 		rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker, source_partition, moretravstates[12]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[12].begin_kvs: "<<rtravstate[12].begin_kvs<<", rtravstate[12].end_kvs: "<<rtravstate[12].end_kvs<<", rtravstate[12].size_kvs: "<<rtravstate[12].size_kvs<<endl;
+		#endif 
 		rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker, source_partition, moretravstates[13]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[13].begin_kvs: "<<rtravstate[13].begin_kvs<<", rtravstate[13].end_kvs: "<<rtravstate[13].end_kvs<<", rtravstate[13].size_kvs: "<<rtravstate[13].size_kvs<<endl;
+		#endif 
 		rtravstate[14] = gettravstate(kvdram14, globalparams[14], currentLOP, sourcestatsmarker, source_partition, moretravstates[14]);
-		// FIXME? DEPRECIATED?
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[14].begin_kvs: "<<rtravstate[14].begin_kvs<<", rtravstate[14].end_kvs: "<<rtravstate[14].end_kvs<<", rtravstate[14].size_kvs: "<<rtravstate[14].size_kvs<<endl;
+		#endif 
 		rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker, source_partition, moretravstates[15]);
+		#ifdef REDUCEUPDATES
+		cout<<"### partition: "<<sweepparams.source_partition<<", rtravstate[15].begin_kvs: "<<rtravstate[15].begin_kvs<<", rtravstate[15].end_kvs: "<<rtravstate[15].end_kvs<<", rtravstate[15].size_kvs: "<<rtravstate[15].size_kvs<<endl;
+		#endif 
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 			if((source_partition % LOADFACTORFORREDUCE) == 0){
 				batch_type ntravszs = 0;
@@ -10310,12 +10021,11 @@ dispatch_reduceonly_sync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * 
 				if(ntravszs > 0){ enreduce[i] = ON; } else { enreduce[i] = OFF; }}
 			config[i].enablereduce = ON;
 			if(enreduce[i] == OFF){ rtravstate[i].begin_kvs = 0; rtravstate[i].end_kvs = 0; config[i].enablereduce = OFF; }
-			#ifdef _DEBUGMODE_KERNELPRINTS3
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(config[i].enablereduce == ON){ actsutilityobj->print7("### dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, rtravstate[i].begin_kvs * VECTOR_SIZE, rtravstate[i].end_kvs * VECTOR_SIZE, (rtravstate[i].end_kvs - rtravstate[i].begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }							
 			#endif
 		}
 		
-		#ifdef REDUCEUPDATES
 		actvvstravstate[0] = reduceupdates_sync(
 			config[0].enablereduce,
 kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,			buffer1,
@@ -10327,16 +10037,6 @@ buffer40,buffer41,buffer42,buffer43,buffer44,buffer45,buffer46,buffer47,buffer48
 			rtravstate,
 			actvvstravstate[0]);
 		sourcestatsmarker += 1;
-		#endif 
-		#ifdef REDUCEUPDATES_PARALLEL
-		actvvstravstate[0] = reduceupdates_sync(
-			config[0].enablereduce,
-kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,			globalparams,
-			sweepparams,
-			actvvstravstate[0],
-			sourcestatsmarker);
-		sourcestatsmarker += LOADFACTORFORREDUCE;
-		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->printglobalvars();
@@ -10484,6 +10184,1654 @@ kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,
 	}
 	#endif
 	return;
+}
+
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]){
+	analysis_type analysis_numllops = 1;
+	analysis_type analysis_numsourcepartitions = 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	#endif
+	
+	keyvalue_t verticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = verticesbuffer
+	keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs
+	keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = keyvaluesbuffer
+	keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer0
+	keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer1
+	keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer2
+	keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer3
+	keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer4
+	keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer5
+	keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer6
+	keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer7
+	keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer8
+	keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer9
+	keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer10
+	keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer11
+	keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer12
+	keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer13
+	keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer14
+	keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer15
+	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; //
+	
+	config_t config[NUMSUBCPUTHREADS];
+	sweepparams_t sweepparams;
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actvvstravstate[i].i=0; actvvstravstate[i].i_kvs=0; actvvstravstate[i].v=0; actvvstravstate[i].k=0; }
+	#ifdef _DEBUGMODE_CHECKS2
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(globalparams[i].runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams[i].runsize: "<<globalparams[i].runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }}
+	#endif
+	travstate_t rtravstate[NUMSUBCPUTHREADS];// FIXME? DEPRECIATED?
+	
+	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	unsigned int sourcestatsmarker = 0;
+	bool_type enreduce[NUMSUBCPUTHREADS];
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
+	for(unsigned int k=0; k<globalparams[0].treedepth; k++){ sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); }
+			
+	#ifdef REDUCEUPDATES
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1)
+	#else 
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=LOADFACTORFORREDUCE)
+	#endif 
+	{
+		sweepparams = getsweepparams(globalparams[0], currentLOP, source_partition);
+		rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
+		rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
+		rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
+		rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
+		rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
+		rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
+		rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
+		rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
+		rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
+		rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
+		rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
+		rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
+		rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker, source_partition, moretravstates[12]);
+		rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker, source_partition, moretravstates[13]);
+		rtravstate[14] = gettravstate(kvdram14, globalparams[14], currentLOP, sourcestatsmarker, source_partition, moretravstates[14]);
+		rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker, source_partition, moretravstates[15]);
+		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+			if((source_partition % LOADFACTORFORREDUCE) == 0){
+				batch_type ntravszs = 0;
+				for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[i][k].value; }
+				if(ntravszs > 0){ enreduce[i] = ON; } else { enreduce[i] = OFF; }}
+			config[i].enablereduce = ON;
+			if(enreduce[i] == OFF){ rtravstate[i].begin_kvs = 0; rtravstate[i].end_kvs = 0; config[i].enablereduce = OFF; }
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(config[i].enablereduce == ON){ actsutilityobj->print7("### dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, rtravstate[i].begin_kvs * VECTOR_SIZE, rtravstate[i].end_kvs * VECTOR_SIZE, (rtravstate[i].end_kvs - rtravstate[i].begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }							
+			#endif
+		}
+		
+		config_t _config = config[0];
+		globalparams_t _globalparams = globalparams[0];
+		travstate_t _actvvstravstate = actvvstravstate[0];
+		if(_config.enablereduce == ON){ 
+
+			if((sweepparams.source_partition % LOADFACTORFORREDUCE) == 0){ readkeyvalues(_config.enablereduce, kvdram0, verticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+			replicatedata_syn(_config.enablereduce, verticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+			
+			batch_type maxsz_kvs = 0;
+			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
+			unsigned int en[NUMSUBCPUTHREADS];
+			
+			MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
+				#endif
+				
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+				#pragma HLS UNROLL
+					if(offset_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
+				}
+				
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+				#pragma HLS UNROLL
+					if(en[i] == ON){
+						rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; 
+					}
+				}
+
+				readkeyvalues(en[0], kvdram0, keyvaluesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
+				readkeyvalues(en[1], kvdram1, keyvaluesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
+				readkeyvalues(en[2], kvdram2, keyvaluesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
+				readkeyvalues(en[3], kvdram3, keyvaluesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
+				readkeyvalues(en[4], kvdram4, keyvaluesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
+				readkeyvalues(en[5], kvdram5, keyvaluesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
+				readkeyvalues(en[6], kvdram6, keyvaluesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
+				readkeyvalues(en[7], kvdram7, keyvaluesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
+				readkeyvalues(en[8], kvdram8, keyvaluesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
+				readkeyvalues(en[9], kvdram9, keyvaluesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
+				readkeyvalues(en[10], kvdram10, keyvaluesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
+				readkeyvalues(en[11], kvdram11, keyvaluesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
+				readkeyvalues(en[12], kvdram12, keyvaluesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
+				readkeyvalues(en[13], kvdram13, keyvaluesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
+				readkeyvalues(en[14], kvdram14, keyvaluesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
+				readkeyvalues(en[15], kvdram15, keyvaluesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
+				
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[0], keyvaluesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				#else 
+				reduce(en[0], keyvaluesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[1], keyvaluesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				#else 
+				reduce(en[1], keyvaluesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[2], keyvaluesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				#else 
+				reduce(en[2], keyvaluesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[3], keyvaluesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				#else 
+				reduce(en[3], keyvaluesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[4], keyvaluesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				#else 
+				reduce(en[4], keyvaluesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[5], keyvaluesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				#else 
+				reduce(en[5], keyvaluesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[6], keyvaluesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				#else 
+				reduce(en[6], keyvaluesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[7], keyvaluesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				#else 
+				reduce(en[7], keyvaluesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[8], keyvaluesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				#else 
+				reduce(en[8], keyvaluesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[9], keyvaluesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				#else 
+				reduce(en[9], keyvaluesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[10], keyvaluesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				#else 
+				reduce(en[10], keyvaluesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[11], keyvaluesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				#else 
+				reduce(en[11], keyvaluesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[12], keyvaluesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				#else 
+				reduce(en[12], keyvaluesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[13], keyvaluesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				#else 
+				reduce(en[13], keyvaluesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[14], keyvaluesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				#else 
+				reduce(en[14], keyvaluesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[15], keyvaluesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				#else 
+				reduce(en[15], keyvaluesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				#endif
+			}
+			
+			#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+			_actvvstravstate = unifydata_bfs_syn(_config.enablereduce, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, verticesbuffer, actvvs, _actvvstravstate, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+			#else 
+			unifydata_syn(_config.enablereduce, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15,, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), _globalparams.GraphAlgo);
+			#endif
+			if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(_config.enablereduce, kvdram0, verticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+			actvvstravstate[0] = _actvvstravstate;
+		
+		}
+		sourcestatsmarker += 1;
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		actsutilityobj->printglobalvars();
+		actsutilityobj->clearglobalvars();
+		#endif
+	}
+	
+	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[0].i<<", i_kvs: "<<actvvstravstate[0].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram0, actvvs, globalparams[0].baseoffset_activevertices_kvs + actvvstravstate[0].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[1].i<<", i_kvs: "<<actvvstravstate[1].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram1, actvvs, globalparams[1].baseoffset_activevertices_kvs + actvvstravstate[1].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[2].i<<", i_kvs: "<<actvvstravstate[2].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram2, actvvs, globalparams[2].baseoffset_activevertices_kvs + actvvstravstate[2].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[3].i<<", i_kvs: "<<actvvstravstate[3].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram3, actvvs, globalparams[3].baseoffset_activevertices_kvs + actvvstravstate[3].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[4].i<<", i_kvs: "<<actvvstravstate[4].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram4, actvvs, globalparams[4].baseoffset_activevertices_kvs + actvvstravstate[4].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[5].i<<", i_kvs: "<<actvvstravstate[5].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram5, actvvs, globalparams[5].baseoffset_activevertices_kvs + actvvstravstate[5].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[6].i<<", i_kvs: "<<actvvstravstate[6].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram6, actvvs, globalparams[6].baseoffset_activevertices_kvs + actvvstravstate[6].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[7].i<<", i_kvs: "<<actvvstravstate[7].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram7, actvvs, globalparams[7].baseoffset_activevertices_kvs + actvvstravstate[7].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[8].i<<", i_kvs: "<<actvvstravstate[8].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram8, actvvs, globalparams[8].baseoffset_activevertices_kvs + actvvstravstate[8].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[9].i<<", i_kvs: "<<actvvstravstate[9].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram9, actvvs, globalparams[9].baseoffset_activevertices_kvs + actvvstravstate[9].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[10].i<<", i_kvs: "<<actvvstravstate[10].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram10, actvvs, globalparams[10].baseoffset_activevertices_kvs + actvvstravstate[10].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[11].i<<", i_kvs: "<<actvvstravstate[11].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram11, actvvs, globalparams[11].baseoffset_activevertices_kvs + actvvstravstate[11].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[12].i<<", i_kvs: "<<actvvstravstate[12].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram12, actvvs, globalparams[12].baseoffset_activevertices_kvs + actvvstravstate[12].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[13].i<<", i_kvs: "<<actvvstravstate[13].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram13, actvvs, globalparams[13].baseoffset_activevertices_kvs + actvvstravstate[13].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[14].i<<", i_kvs: "<<actvvstravstate[14].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram14, actvvs, globalparams[14].baseoffset_activevertices_kvs + actvvstravstate[14].i_kvs, actvvstravstate[0].k + 1);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[15].i<<", i_kvs: "<<actvvstravstate[15].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
+	#endif
+	savekeyvalues(ON, kvdram15, actvvs, globalparams[15].baseoffset_activevertices_kvs + actvvstravstate[15].i_kvs, actvvstravstate[0].k + 1);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+	#pragma HLS UNROLL
+		actvvstravstate[i].i += (actvvstravstate[0].k * VECTOR_SIZE) + actvvstravstate[0].v;
+		actvvstravstate[i].i_kvs += actvvstravstate[0].k;
+	}
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS
+	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate[0].i);
+		setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+		setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+		setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+		setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	cout<<"dispatch_reduceonly: number of active vertices for next iteration: "<<actvvstravstate[0].i<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i: "<<actvvstravstate[i].i<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i_kvs: "<<actvvstravstate[i].i_kvs<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].v: "<<actvvstravstate[i].v<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].k: "<<actvvstravstate[i].k<<endl;
+	}
+	#endif
+	return;
+}
+
+#ifdef XXX
+travstate_t 
+	#ifdef SW 
+	acts::
+	#endif 
+dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]){
+	analysis_type analysis_numllops = 1;
+	analysis_type analysis_numsourcepartitions = 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	#endif
+	
+	keyvalue_t sourceverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = sourceverticesbuffer
+	keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer0
+	keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer1
+	keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer2
+	keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer3
+	keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer4
+	keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer5
+	keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer6
+	keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer7
+	keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer8
+	keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer9
+	keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer10
+	keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer11
+	keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer12
+	keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer13
+	keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer14
+	keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer15
+	keyvalue_t destverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = destverticesbuffer
+	keyvalue_t vertexupdatesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = vertexupdatesbuffer
+	
+	keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs0
+	keyvalue_t buffer0_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof2
+	keyvalue_t buffer0_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof4
+	keyvalue_t buffer0_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof8
+	keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs1
+	keyvalue_t buffer1_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof2
+	keyvalue_t buffer1_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof4
+	keyvalue_t buffer1_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof8
+	keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs2
+	keyvalue_t buffer2_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof2
+	keyvalue_t buffer2_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof4
+	keyvalue_t buffer2_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof8
+	keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs3
+	keyvalue_t buffer3_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof2
+	keyvalue_t buffer3_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof4
+	keyvalue_t buffer3_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof8
+	skeyvalue_t capsule0_so1[8];
+	skeyvalue_t capsule0_so2[4];
+	skeyvalue_t capsule0_so4[2];
+	skeyvalue_t capsule0_so8;
+	skeyvalue_t capsule1_so1[8];
+	skeyvalue_t capsule1_so2[4];
+	skeyvalue_t capsule1_so4[2];
+	skeyvalue_t capsule1_so8;
+	skeyvalue_t capsule2_so1[8];
+	skeyvalue_t capsule2_so2[4];
+	skeyvalue_t capsule2_so4[2];
+	skeyvalue_t capsule2_so8;
+	skeyvalue_t capsule3_so1[8];
+	skeyvalue_t capsule3_so2[4];
+	skeyvalue_t capsule3_so4[2];
+	skeyvalue_t capsule3_so8;
+	buffer_type cutoffs0[VECTOR_SIZE];
+	buffer_type cutoffs1[VECTOR_SIZE];
+	buffer_type cutoffs2[VECTOR_SIZE];
+	buffer_type cutoffs3[VECTOR_SIZE];
+	
+	travstate_t rtravstate[NUMSUBCPUTHREADS];
+	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
+	unsigned int itercount = 0;
+	bool_type pp0writeen = ON;
+	bool_type enreduce[NUMSUBCPUTHREADS];
+	// config_t config[NUMSUBCPUTHREADS];
+	sweepparams_t sweepparams;
+	
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
+	actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
+	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	unsigned int sourcestatsmarker = 0;
+	for(unsigned int k=0; k<globalparams[0].treedepth; k++){ sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); }
+	#ifdef _DEBUGMODE_CHECKS2
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(globalparams[i].runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams[i].runsize: "<<globalparams[i].runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }}
+	#endif
+	batch_type NNNntravszs = 0;
+	
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
+		sweepparams = getsweepparams(globalparams[0], currentLOP, source_partition);
+		if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
+		for(unsigned int v=0; v<8; v++){  capsule0_so1[v].key = 0; capsule0_so1[v].value = 0;  capsule1_so1[v].key = 0; capsule1_so1[v].value = 0;  capsule2_so1[v].key = 0; capsule2_so1[v].value = 0;  capsule3_so1[v].key = 0; capsule3_so1[v].value = 0;  }
+		
+		rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
+		rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
+		rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
+		rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
+		rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
+		rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
+		rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
+		rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
+		rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
+		rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
+		rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
+		rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
+		rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker, source_partition, moretravstates[12]);
+		rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker, source_partition, moretravstates[13]);
+		rtravstate[14] = gettravstate(kvdram14, globalparams[14], currentLOP, sourcestatsmarker, source_partition, moretravstates[14]);
+		rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker, source_partition, moretravstates[15]);
+		
+		if((source_partition % LOADFACTORFORREDUCE) == 0){
+			NNNntravszs = 0;
+			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+				for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ NNNntravszs += moretravstates[i][k].value; }
+			}
+		}
+		if(NNNntravszs == 0){
+			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ rtravstate[i].begin_kvs = 0; rtravstate[i].end_kvs = 0; }
+		}
+		
+		// config_t _config = config[0];
+		globalparams_t _globalparams = globalparams[0];
+		
+		if(NNNntravszs > 0){
+			// load vertices
+			if((sweepparams.source_partition % LOADFACTORFORREDUCE) == 0){ readkeyvalues(ON, kvdram0, sourceverticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+			
+			// replicate
+			replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+			
+			// calculate offsets and sizes
+			batch_type maxsz_kvs = 0;
+			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
+			unsigned int en[NUMSUBCPUTHREADS];
+			
+			MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
+				#endif
+				
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+				#pragma HLS UNROLL
+					if(offset_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
+				}
+				
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+				#pragma HLS UNROLL
+					if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; }
+				}
+
+				readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
+				readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
+				readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
+				readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
+				readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
+				readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
+				readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
+				readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
+				readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
+				readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
+				readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
+				readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
+				readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
+				readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
+				readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
+				readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
+				
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				#else 
+				reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				#else 
+				reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				#else 
+				reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				#else 
+				reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				#else 
+				reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				#else 
+				reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				#else 
+				reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				#else 
+				reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				#else 
+				reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				#else 
+				reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				#else 
+				reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				#else 
+				reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				#else 
+				reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				#else 
+				reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				#else 
+				reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				#else 
+				reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				#endif
+			}
+			
+			// unify
+			unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destverticesbuffer, actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3, 								(sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+			// store bits
+			if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(ON, kvdram0, destverticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+			
+			// run pipeline
+			capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount, _globalparams);
+			capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount, _globalparams);
+			capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount, _globalparams);
+			capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount, _globalparams);
+
+			// store actvvs
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule0_so8.value: "<<capsule0_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer0_setof8", buffer0_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule0_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule1_so8.value: "<<capsule1_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer1_setof8", buffer1_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule1_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule2_so8.value: "<<capsule2_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer2_setof8", buffer2_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer2_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule2_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule2_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule3_so8.value: "<<capsule3_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer3_setof8", buffer3_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer3_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule3_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule3_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+		
+			itercount += 1;
+		}
+		sourcestatsmarker += 1;
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		actsutilityobj->printglobalvars();
+		actsutilityobj->clearglobalvars();
+		#endif
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	cout<<"dispatch_reduceonly: number of active vertices for next iteration (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i: "<<actvvstravstate[i].i<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i_kvs: "<<actvvstravstate[i].i_kvs<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].v: "<<actvvstravstate[i].v<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].k: "<<actvvstravstate[i].k<<endl;
+	}
+	#endif
+	return actvvstravstate;
+}
+#endif 
+
+#ifdef XXX
+travstate_t
+	#ifdef SW 
+	acts::
+	#endif 
+dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]){
+	analysis_type analysis_numllops = 1;
+	analysis_type analysis_numsourcepartitions = 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	#endif
+	
+	keyvalue_t sourceverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = sourceverticesbuffer
+	keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer0
+	keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer1
+	keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer2
+	keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer3
+	keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer4
+	keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer5
+	keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer6
+	keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer7
+	keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer8
+	keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer9
+	keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer10
+	keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer11
+	keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer12
+	keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer13
+	keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer14
+	keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer15
+	keyvalue_t destverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = destverticesbuffer
+	keyvalue_t vertexupdatesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = vertexupdatesbuffer
+	
+	keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs0
+	keyvalue_t buffer0_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof2
+	keyvalue_t buffer0_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof4
+	keyvalue_t buffer0_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof8
+	keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs1
+	keyvalue_t buffer1_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof2
+	keyvalue_t buffer1_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof4
+	keyvalue_t buffer1_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof8
+	keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs2
+	keyvalue_t buffer2_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof2
+	keyvalue_t buffer2_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof4
+	keyvalue_t buffer2_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof8
+	keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs3
+	keyvalue_t buffer3_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof2
+	keyvalue_t buffer3_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof4
+	keyvalue_t buffer3_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof8
+	skeyvalue_t capsule0_so1[8];
+	skeyvalue_t capsule0_so2[4];
+	skeyvalue_t capsule0_so4[2];
+	skeyvalue_t capsule0_so8;
+	skeyvalue_t capsule1_so1[8];
+	skeyvalue_t capsule1_so2[4];
+	skeyvalue_t capsule1_so4[2];
+	skeyvalue_t capsule1_so8;
+	skeyvalue_t capsule2_so1[8];
+	skeyvalue_t capsule2_so2[4];
+	skeyvalue_t capsule2_so4[2];
+	skeyvalue_t capsule2_so8;
+	skeyvalue_t capsule3_so1[8];
+	skeyvalue_t capsule3_so2[4];
+	skeyvalue_t capsule3_so4[2];
+	skeyvalue_t capsule3_so8;
+	buffer_type cutoffs0[VECTOR_SIZE];
+	buffer_type cutoffs1[VECTOR_SIZE];
+	buffer_type cutoffs2[VECTOR_SIZE];
+	buffer_type cutoffs3[VECTOR_SIZE];
+	
+	travstate_t rtravstate[NUMSUBCPUTHREADS];
+	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
+	unsigned int itercount = 0;
+	bool_type pp0writeen = ON;
+	bool_type enreduce[NUMSUBCPUTHREADS];
+	sweepparams_t sweepparams;
+	
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
+	actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
+	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	unsigned int sourcestatsmarker = 0;
+	for(unsigned int k=0; k<globalparams[0].treedepth; k++){ sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); }
+	#ifdef _DEBUGMODE_CHECKS2
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(globalparams[i].runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams[i].runsize: "<<globalparams[i].runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }}
+	#endif
+	batch_type NNNntravszs = 0;
+	
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=LOADFACTORFORREDUCE){
+		MAIN_LOOP2: for(batch_type index=0; index<LOADFACTORFORREDUCE; index+=1){
+			unsigned int spartition = source_partition + index;
+			
+			sweepparams = getsweepparams(globalparams[0], currentLOP, spartition);
+			if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
+			for(unsigned int v=0; v<8; v++){  capsule0_so1[v].key = 0; capsule0_so1[v].value = 0;  capsule1_so1[v].key = 0; capsule1_so1[v].value = 0;  capsule2_so1[v].key = 0; capsule2_so1[v].value = 0;  capsule3_so1[v].key = 0; capsule3_so1[v].value = 0;  }
+			
+			rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker + index, spartition, moretravstates[0]);
+			rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker + index, spartition, moretravstates[1]);
+			rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker + index, spartition, moretravstates[2]);
+			rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker + index, spartition, moretravstates[3]);
+			rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker + index, spartition, moretravstates[4]);
+			rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker + index, spartition, moretravstates[5]);
+			rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker + index, spartition, moretravstates[6]);
+			rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker + index, spartition, moretravstates[7]);
+			rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker + index, spartition, moretravstates[8]);
+			rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker + index, spartition, moretravstates[9]);
+			rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker + index, spartition, moretravstates[10]);
+			rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker + index, spartition, moretravstates[11]);
+			rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker + index, spartition, moretravstates[12]);
+			rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker + index, spartition, moretravstates[13]);
+			rtravstate[14] = gettravstate(kvdram14, globalparams[14], currentLOP, sourcestatsmarker + index, spartition, moretravstates[14]);
+			rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker + index, spartition, moretravstates[15]);
+			
+			if(index == 0){
+				NNNntravszs = 0;
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
+					for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ NNNntravszs += moretravstates[i][k].value; }
+				}
+			}
+			if(NNNntravszs == 0){
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ rtravstate[i].begin_kvs = 0; rtravstate[i].end_kvs = 0; }
+			}
+			
+			globalparams_t _globalparams = globalparams[0];
+			
+			if(NNNntravszs > 0){
+				if(index == 0){ readkeyvalues(ON, kvdram0, sourceverticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + (spartition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+				
+				replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+				
+				batch_type maxsz_kvs = 0;
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
+				unsigned int en[NUMSUBCPUTHREADS];
+				
+				MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
+				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
+					#endif
+					
+					for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+					#pragma HLS UNROLL
+						if(offset_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
+					}
+					
+					for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+					#pragma HLS UNROLL
+						if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; }
+					}
+
+					readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
+					readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
+					readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
+					readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
+					readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
+					readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
+					readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
+					readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
+					readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
+					readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
+					readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
+					readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
+					readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
+					readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
+					readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
+					readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
+					
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+					#else 
+					reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+					#else 
+					reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+					#else 
+					reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+					#else 
+					reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+					#else 
+					reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+					#else 
+					reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+					#else 
+					reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+					#else 
+					reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+					#else 
+					reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+					#else 
+					reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+					#else 
+					reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+					#else 
+					reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+					#else 
+					reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+					#else 
+					reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+					#else 
+					reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+					reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+					#else 
+					reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+					#endif
+				}
+				
+				unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destverticesbuffer, actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3, 									index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+
+				if(index == LOADFACTORFORREDUCE-1){ savekeyvalues(ON, kvdram0, destverticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + ((spartition - (LOADFACTORFORREDUCE-1)) * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+				
+				capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount, _globalparams);
+				capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount, _globalparams);
+				capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount, _globalparams);
+				capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount, _globalparams);
+
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule0_so8.value: "<<capsule0_so8.value<<endl; }
+				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer0_setof8", buffer0_setof8, 4); }
+				#endif 
+				savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value); 
+				if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule0_so8.value; }
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule1_so8.value: "<<capsule1_so8.value<<endl; }
+				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer1_setof8", buffer1_setof8, 4); }
+				#endif 
+				savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value); 
+				if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule1_so8.value; }
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule2_so8.value: "<<capsule2_so8.value<<endl; }
+				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer2_setof8", buffer2_setof8, 4); }
+				#endif 
+				savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer2_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value); 
+				if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule2_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule2_so8.value; }
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule3_so8.value: "<<capsule3_so8.value<<endl; }
+				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer3_setof8", buffer3_setof8, 4); }
+				#endif 
+				savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer3_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value); 
+				if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule3_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule3_so8.value; }
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+				#endif
+			
+				itercount += 1;
+			}
+		}
+		sourcestatsmarker += LOADFACTORFORREDUCE;
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		actsutilityobj->printglobalvars();
+		actsutilityobj->clearglobalvars();
+		#endif
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	cout<<"dispatch_reduceonly: number of active vertices for next iteration (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i: "<<actvvstravstate[i].i<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i_kvs: "<<actvvstravstate[i].i_kvs<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].v: "<<actvvstravstate[i].v<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].k: "<<actvvstravstate[i].k<<endl;
+	}
+	#endif
+	return actvvstravstate;
+}
+#endif 
+
+travstate_t
+	#ifdef SW 
+	acts::
+	#endif 
+dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]){
+	analysis_type analysis_numllops = 1;
+	analysis_type analysis_numsourcepartitions = 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	#endif
+	
+	keyvalue_t sourceverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = sourceverticesbuffer
+	keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer0
+	keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer1
+	keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer2
+	keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer3
+	keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer4
+	keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer5
+	keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer6
+	keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer7
+	keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer8
+	keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer9
+	keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer10
+	keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer11
+	keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer12
+	keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer13
+	keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer14
+	keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = tempverticesbuffer15
+	keyvalue_t destverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = destverticesbuffer
+	keyvalue_t vertexupdatesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = vertexupdatesbuffer
+	
+	keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs0
+	keyvalue_t buffer0_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof2
+	keyvalue_t buffer0_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof4
+	keyvalue_t buffer0_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer0_setof8
+	keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs1
+	keyvalue_t buffer1_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof2
+	keyvalue_t buffer1_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof4
+	keyvalue_t buffer1_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer1_setof8
+	keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs2
+	keyvalue_t buffer2_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof2
+	keyvalue_t buffer2_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof4
+	keyvalue_t buffer2_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer2_setof8
+	keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = actvvs3
+	keyvalue_t buffer3_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof2
+	keyvalue_t buffer3_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof4
+	keyvalue_t buffer3_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer3_setof8
+	skeyvalue_t capsule0_so1[8];
+	skeyvalue_t capsule0_so2[4];
+	skeyvalue_t capsule0_so4[2];
+	skeyvalue_t capsule0_so8;
+	skeyvalue_t capsule1_so1[8];
+	skeyvalue_t capsule1_so2[4];
+	skeyvalue_t capsule1_so4[2];
+	skeyvalue_t capsule1_so8;
+	skeyvalue_t capsule2_so1[8];
+	skeyvalue_t capsule2_so2[4];
+	skeyvalue_t capsule2_so4[2];
+	skeyvalue_t capsule2_so8;
+	skeyvalue_t capsule3_so1[8];
+	skeyvalue_t capsule3_so2[4];
+	skeyvalue_t capsule3_so4[2];
+	skeyvalue_t capsule3_so8;
+	buffer_type cutoffs0[VECTOR_SIZE];
+	buffer_type cutoffs1[VECTOR_SIZE];
+	buffer_type cutoffs2[VECTOR_SIZE];
+	buffer_type cutoffs3[VECTOR_SIZE];
+	
+	travstate_t rtravstate[NUMSUBCPUTHREADS];
+	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
+	unsigned int itercount = 0;
+	bool_type pp0writeen = ON;
+	bool_type enreduce[NUMSUBCPUTHREADS];
+	sweepparams_t sweepparams;
+	
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
+	actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
+	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	unsigned int sourcestatsmarker = 0;
+	for(unsigned int k=0; k<globalparams[0].treedepth; k++){ sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); }
+	#ifdef _DEBUGMODE_CHECKS2
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(globalparams[i].runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams[i].runsize: "<<globalparams[i].runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }}
+	#endif
+	batch_type ntravszs = 0;
+	globalparams_t _globalparams = globalparams[0];
+	
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=LOADFACTORFORREDUCE){
+		readkeyvalues(ON, kvdram0, sourceverticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + (num_source_partitions * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
+		replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, 0, ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+		
+		rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
+		rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
+		rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
+		rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
+		rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
+		rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
+		rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
+		rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
+		rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
+		rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
+		rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
+		rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
+		rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker, source_partition, moretravstates[12]);
+		rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker, source_partition, moretravstates[13]);
+		rtravstate[14] = gettravstate(kvdram14, globalparams[14], currentLOP, sourcestatsmarker, source_partition, moretravstates[14]);
+		rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker, source_partition, moretravstates[15]);
+		ntravszs = 0;
+		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[i][k].value; }}
+			
+		MAIN_LOOP2: for(batch_type index=0; index<LOADFACTORFORREDUCE; index+=1){
+			unsigned int spartition = source_partition + index;
+			
+			sweepparams = getsweepparams(globalparams[0], currentLOP, spartition);
+			if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
+			for(unsigned int v=0; v<8; v++){  capsule0_so1[v].key = 0; capsule0_so1[v].value = 0;  capsule1_so1[v].key = 0; capsule1_so1[v].value = 0;  capsule2_so1[v].key = 0; capsule2_so1[v].value = 0;  capsule3_so1[v].key = 0; capsule3_so1[v].value = 0;  }
+			
+			if(index > 0){ rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker + index, spartition, moretravstates[0]); }
+			if(index > 0){ rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker + index, spartition, moretravstates[1]); }
+			if(index > 0){ rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker + index, spartition, moretravstates[2]); }
+			if(index > 0){ rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker + index, spartition, moretravstates[3]); }
+			if(index > 0){ rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker + index, spartition, moretravstates[4]); }
+			if(index > 0){ rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker + index, spartition, moretravstates[5]); }
+			if(index > 0){ rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker + index, spartition, moretravstates[6]); }
+			if(index > 0){ rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker + index, spartition, moretravstates[7]); }
+			if(index > 0){ rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker + index, spartition, moretravstates[8]); }
+			if(index > 0){ rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker + index, spartition, moretravstates[9]); }
+			if(index > 0){ rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker + index, spartition, moretravstates[10]); }
+			if(index > 0){ rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker + index, spartition, moretravstates[11]); }
+			if(index > 0){ rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker + index, spartition, moretravstates[12]); }
+			if(index > 0){ rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker + index, spartition, moretravstates[13]); }
+			if(index > 0){ rtravstate[14] = gettravstate(kvdram14, globalparams[14], currentLOP, sourcestatsmarker + index, spartition, moretravstates[14]); }
+			if(index > 0){ rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker + index, spartition, moretravstates[15]); }
+			
+			if(ntravszs == 0){ for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ rtravstate[i].begin_kvs = 0; rtravstate[i].end_kvs = 0; }}
+			
+			batch_type maxsz_kvs = 0;
+			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
+			unsigned int en[NUMSUBCPUTHREADS];
+			
+			MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
+				#endif
+				
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+				#pragma HLS UNROLL
+					if(offset_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
+				}
+				
+				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+				#pragma HLS UNROLL
+					if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; }
+				}
+
+				readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
+				readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
+				readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
+				readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
+				readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
+				readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
+				readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
+				readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
+				readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
+				readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
+				readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
+				readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
+				readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
+				readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
+				readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
+				readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
+				
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				#else 
+				reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				#else 
+				reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				#else 
+				reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				#else 
+				reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				#else 
+				reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				#else 
+				reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				#else 
+				reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				#else 
+				reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				#else 
+				reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				#else 
+				reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				#else 
+				reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				#else 
+				reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				#else 
+				reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				#else 
+				reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				#else 
+				reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				#endif
+				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+				reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				#else 
+				reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				#endif
+			}
+			
+			unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destverticesbuffer, actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3, 								index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+			
+			capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount, _globalparams);
+			capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount, _globalparams);
+			capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount, _globalparams);
+			capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount, _globalparams);
+
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule0_so8.value: "<<capsule0_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer0_setof8", buffer0_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule0_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule1_so8.value: "<<capsule1_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer1_setof8", buffer1_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule1_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule2_so8.value: "<<capsule2_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer2_setof8", buffer2_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer2_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule2_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule2_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule3_so8.value: "<<capsule3_so8.value<<endl; }
+			if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] reduceupdates_sync->runpipeline_1partition.buffer3_setof8", buffer3_setof8, 4); }
+			#endif 
+			savekeyvalues_sync(pp0writeen, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, buffer3_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value); 
+			if(pp0writeen == ON){ actvvstravstate.i_kvs += capsule3_so8.value / VECTOR_SIZE; actvvstravstate.i += capsule3_so8.value; }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
+			#endif
+			itercount += 1;
+			
+			// pp1
+			if(index < LOADFACTORFORREDUCE-1){ replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, (index + 1) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)); }
+		}
+		
+		savekeyvalues(ON, kvdram0, destverticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
+		sourcestatsmarker += LOADFACTORFORREDUCE;
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		actsutilityobj->printglobalvars();
+		actsutilityobj->clearglobalvars();
+		#endif
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
+	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
+	cout<<"dispatch_reduceonly: number of active vertices for next iteration (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i: "<<actvvstravstate[i].i<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].i_kvs: "<<actvvstravstate[i].i_kvs<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].v: "<<actvvstravstate[i].v<<endl;
+		cout<<"dispatch_reduceonly:: actvvstravstate[i].k: "<<actvvstravstate[i].k<<endl;
+	}
+	#endif
+	return actvvstravstate;
 }
 
 // top
@@ -10726,7 +12074,12 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 		#endif
 		dispatch_partitiononly(kvdram15, globalparams[15]);
 		
-		dispatch_reduceonly_sync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, actvvstravstate, globalparams);
+		#ifdef REDUCEUPDATES
+		dispatch_reduceonly_serialsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, actvvstravstate, globalparams);
+		#endif 
+		#ifdef REDUCEUPDATES_PARALLEL
+		actvvstravstate[0] = dispatch_reduceonly_parallelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, actvvstravstate[0], globalparams);
+		#endif 
 		
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		#pragma HLS UNROLL
