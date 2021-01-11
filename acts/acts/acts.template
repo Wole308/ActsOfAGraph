@@ -6732,10 +6732,6 @@ dispatch_reduceonly_parallelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uin
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	#ifdef _DEBUGMODE_STATS
-	unsigned int edges_count = 0;
-	unsigned int edgesdstv_sum = 0;
-	#endif
 	
 	keyvalue_t sourceverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = sourceverticesbuffer
@@ -6776,10 +6772,8 @@ dispatch_reduceonly_parallelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uin
 	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
 	unsigned int itercount = 0;
 	bool_type pp0writeen = ON;
-	bool_type enreduce[NUMSUBCPUTHREADS];
 	sweepparams_t sweepparams;
 	
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
 	actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
 	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
@@ -6801,7 +6795,7 @@ dispatch_reduceonly_parallelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uin
 		MAIN_LOOP2: for(batch_type index=0; index<LOADFACTORFORREDUCE; index+=1){
 			unsigned int spartition = source_partition + index;
 			
-			sweepparams = getsweepparams(globalparams[0], currentLOP, spartition);
+			sweepparams = getsweepparams(_globalparams, currentLOP, spartition);
 			if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
 			for(unsigned int v=0; v<8; v++){ {%for i in context['4_seq']%} capsule{{i}}_so1[v].key = 0; capsule{{i}}_so1[v].value = 0; {%endfor%} }
 			
@@ -6901,8 +6895,7 @@ dispatch_reduceonly_parallelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uin
 			}	
 			#endif 
 			
-			unifydata_bfs_syn(ON, {%for i in context['NUMSUBCPUTHREADS_seq']%}tempverticesbuffer{{i}},{%endfor%} destverticesbuffer, {%for i in context['4_seq']%}actvvs{{i}}, capsule{{i}}_so1, cutoffs{{i}}, {%endfor%}
-								index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+			unifydata_bfs_syn(ON, {%for i in context['NUMSUBCPUTHREADS_seq']%}tempverticesbuffer{{i}},{%endfor%} destverticesbuffer, {%for i in context['4_seq']%}actvvs{{i}}, capsule{{i}}_so1, cutoffs{{i}}, {%endfor%} index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
 			
 			{%for i in context['4_seq']%}
 			capsule{{i}}_so8 = runpipeline_1partition(ON, actvvs{{i}}, capsule{{i}}_so1, buffer{{i}}_setof2, capsule{{i}}_so2, buffer{{i}}_setof4, capsule{{i}}_so4, buffer{{i}}_setof8, capsule{{i}}_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs{{i}}, itercount, _globalparams);

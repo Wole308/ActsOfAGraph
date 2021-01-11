@@ -10595,10 +10595,10 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	#ifdef _DEBUGMODE_STATS
-	unsigned int edges_count = 0;
-	unsigned int edgesdstv_sum = 0;
-	#endif
+	// #ifdef _DEBUGMODE_STATS
+	// unsigned int edges_count = 0;
+	// unsigned int edgesdstv_sum = 0;
+	// #endif
 	
 	keyvalue_t sourceverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = sourceverticesbuffer
@@ -10700,18 +10700,15 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
 	unsigned int itercount = 0;
 	bool_type pp0writeen = ON;
-	bool_type enreduce[NUMSUBCPUTHREADS];
+	// bool_type enreduce[NUMSUBCPUTHREADS];
 	sweepparams_t sweepparams;
 	
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
+	// for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ enreduce[i] = ON; }
 	actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
 	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 	unsigned int sourcestatsmarker = 0;
 	for(unsigned int k=0; k<globalparams[0].treedepth; k++){ sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); }
-	#ifdef _DEBUGMODE_CHECKS2
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(globalparams[i].runsize >= MAXKVDATA_BATCHSIZE){ cout<<"dispatch:ERROR. runsize too large!. globalparams[i].runsize: "<<globalparams[i].runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }}
-	#endif
 	batch_type ntravszs = 0;
 	globalparams_t _globalparams = globalparams[0];
 	
@@ -10741,7 +10738,7 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 		MAIN_LOOP2: for(batch_type index=0; index<LOADFACTORFORREDUCE; index+=1){
 			unsigned int spartition = source_partition + index;
 			
-			sweepparams = getsweepparams(globalparams[0], currentLOP, spartition);
+			sweepparams = getsweepparams(_globalparams, currentLOP, spartition);
 			if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
 			for(unsigned int v=0; v<8; v++){  capsule0_so1[v].key = 0; capsule0_so1[v].value = 0;  capsule1_so1[v].key = 0; capsule1_so1[v].value = 0;  capsule2_so1[v].key = 0; capsule2_so1[v].value = 0;  capsule3_so1[v].key = 0; capsule3_so1[v].value = 0;  }
 			
@@ -10770,574 +10767,6 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 			unsigned int en[NUMSUBCPUTHREADS];
 			unsigned int enpp0[NUMSUBCPUTHREADS];
 			unsigned int enpp1[NUMSUBCPUTHREADS];
-			
-			/** MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
-				#endif
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(offset_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
-				}
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; }
-				}
-
-				readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
-				readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
-				readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
-				readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
-				readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
-				readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
-				readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
-				readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
-				readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
-				readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
-				readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
-				readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-				readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-				readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
-				readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
-				readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
-				
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-				#else 
-				reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-				#else 
-				reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-				#else 
-				reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-				#else 
-				reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-				#else 
-				reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-				#else 
-				reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-				#else 
-				reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-				#else 
-				reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-				#else 
-				reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-				#else 
-				reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-				#else 
-				reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-				#else 
-				reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#else 
-				reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#else 
-				reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-				#else 
-				reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-				#else 
-				reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-				#endif
-			} */
-			/** MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=2*rtravstate[0].skip_kvs){
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
-				
-				//////
-				batch_type offset1_kvs = offset_kvs;
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset1_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset1_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
-				#endif
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(offset1_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
-				}
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset1_kvs; }
-				}
-
-				readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[0]);
-				readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[1]);
-				readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[2]);
-				readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[3]);
-				readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[4]);
-				readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[5]);
-				readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[6]);
-				readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[7]);
-				readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[8]);
-				readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[9]);
-				readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[10]);
-				readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-				readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-				readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[13]);
-				readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[14]);
-				readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstate[15]);
-				
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-				#else 
-				reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-				#else 
-				reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-				#else 
-				reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-				#else 
-				reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-				#else 
-				reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-				#else 
-				reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-				#else 
-				reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-				#else 
-				reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-				#else 
-				reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-				#else 
-				reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-				#else 
-				reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-				#else 
-				reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#else 
-				reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#else 
-				reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-				#else 
-				reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-				#else 
-				reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-				#endif
-				
-				//////
-				batch_type offset2_kvs = offset_kvs + rtravstate[0].skip_kvs;
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset2_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset2_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
-				#endif
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(offset2_kvs < rtravstate[i].size_kvs){ en[i] = ON; } else { en[i] = OFF; }
-				}
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset2_kvs; }
-				}
-
-				readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[0]);
-				readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[1]);
-				readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[2]);
-				readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[3]);
-				readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[4]);
-				readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[5]);
-				readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[6]);
-				readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[7]);
-				readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[8]);
-				readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[9]);
-				readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[10]);
-				readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-				readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-				readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[13]);
-				readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[14]);
-				readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstate[15]);
-				
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-				#else 
-				reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-				#else 
-				reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-				#else 
-				reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-				#else 
-				reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-				#else 
-				reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-				#else 
-				reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-				#else 
-				reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-				#else 
-				reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-				#else 
-				reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-				#else 
-				reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-				#else 
-				reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-				#else 
-				reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#else 
-				reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#else 
-				reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-				#else 
-				reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-				#else 
-				reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-				#endif
-			} */
-			/** MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=2*rtravstate[0].skip_kvs){
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
-				
-				//////
-				batch_type offset1_kvs = offset_kvs;
-				batch_type offset2_kvs = offset_kvs + rtravstate[0].skip_kvs;
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset1_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset1_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset2_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset2_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
-				#endif
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(offset1_kvs < rtravstate[i].size_kvs){ enpp0[i] = ON; } else { enpp0[i] = OFF; }
-					if(offset2_kvs < rtravstate[i].size_kvs){ enpp1[i] = ON; } else { enpp1[i] = OFF; }
-				}
-				
-				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
-				#pragma HLS UNROLL
-					if(enpp0[i] == ON){ rtravstatepp0[i].i_kvs = rtravstatepp0[i].begin_kvs + offset1_kvs; }
-					if(enpp1[i] == ON){ rtravstatepp1[i].i_kvs = rtravstatepp1[i].begin_kvs + offset2_kvs; }
-				}
-				
-				readkeyvalues(enpp0[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[0].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[0]);
-				readkeyvalues(enpp0[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[1].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[1]);
-				readkeyvalues(enpp0[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[2].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[2]);
-				readkeyvalues(enpp0[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[3].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[3]);
-				readkeyvalues(enpp0[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[4].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[4]);
-				readkeyvalues(enpp0[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[5].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[5]);
-				readkeyvalues(enpp0[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[6].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[6]);
-				readkeyvalues(enpp0[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[7].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[7]);
-				readkeyvalues(enpp0[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[8].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[8]);
-				readkeyvalues(enpp0[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[9].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[9]);
-				readkeyvalues(enpp0[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[10].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[10]);
-				readkeyvalues(enpp0[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[11].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[11]);
-				readkeyvalues(enpp0[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[12].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[12]);
-				readkeyvalues(enpp0[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[13].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[13]);
-				readkeyvalues(enpp0[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[14].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[14]);
-				readkeyvalues(enpp0[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[15].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[15]);
-				
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[0], _globalparams);
-				#else 
-				reduce(enpp0[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[0], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[1], _globalparams);
-				#else 
-				reduce(enpp0[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[1], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[2], _globalparams);
-				#else 
-				reduce(enpp0[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[2], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[3], _globalparams);
-				#else 
-				reduce(enpp0[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[3], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[4], _globalparams);
-				#else 
-				reduce(enpp0[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[4], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[5], _globalparams);
-				#else 
-				reduce(enpp0[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[5], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[6], _globalparams);
-				#else 
-				reduce(enpp0[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[6], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[7], _globalparams);
-				#else 
-				reduce(enpp0[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[7], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[8], _globalparams);
-				#else 
-				reduce(enpp0[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[8], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[9], _globalparams);
-				#else 
-				reduce(enpp0[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[9], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[10], _globalparams);
-				#else 
-				reduce(enpp0[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[10], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[11], _globalparams);
-				#else 
-				reduce(enpp0[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[11], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[12], _globalparams);
-				#else 
-				reduce(enpp0[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[12], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
-				#else 
-				reduce(enpp0[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[14], _globalparams);
-				#else 
-				reduce(enpp0[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[14], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp0[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[15], _globalparams);
-				#else 
-				reduce(enpp0[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[15], _globalparams);
-				#endif
-				
-				readkeyvalues(enpp1[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[0].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[0]);
-				readkeyvalues(enpp1[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[1].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[1]);
-				readkeyvalues(enpp1[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[2].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[2]);
-				readkeyvalues(enpp1[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[3].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[3]);
-				readkeyvalues(enpp1[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[4].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[4]);
-				readkeyvalues(enpp1[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[5].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[5]);
-				readkeyvalues(enpp1[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[6].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[6]);
-				readkeyvalues(enpp1[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[7].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[7]);
-				readkeyvalues(enpp1[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[8].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[8]);
-				readkeyvalues(enpp1[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[9].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[9]);
-				readkeyvalues(enpp1[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[10].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[10]);
-				readkeyvalues(enpp1[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[11].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[11]);
-				readkeyvalues(enpp1[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[12].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[12]);
-				readkeyvalues(enpp1[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[13].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[13]);
-				readkeyvalues(enpp1[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[14].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[14]);
-				readkeyvalues(enpp1[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[15].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[15]);
-				
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams);
-				#else 
-				reduce(enpp1[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[1], _globalparams);
-				#else 
-				reduce(enpp1[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[1], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[2], _globalparams);
-				#else 
-				reduce(enpp1[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[2], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[3], _globalparams);
-				#else 
-				reduce(enpp1[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[3], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[4], _globalparams);
-				#else 
-				reduce(enpp1[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[4], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[5], _globalparams);
-				#else 
-				reduce(enpp1[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[5], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[6], _globalparams);
-				#else 
-				reduce(enpp1[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[6], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[7], _globalparams);
-				#else 
-				reduce(enpp1[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[7], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[8], _globalparams);
-				#else 
-				reduce(enpp1[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[8], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[9], _globalparams);
-				#else 
-				reduce(enpp1[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[9], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[10], _globalparams);
-				#else 
-				reduce(enpp1[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[10], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[11], _globalparams);
-				#else 
-				reduce(enpp1[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[11], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[12], _globalparams);
-				#else 
-				reduce(enpp1[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[12], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams);
-				#else 
-				reduce(enpp1[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[14], _globalparams);
-				#else 
-				reduce(enpp1[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[14], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(enpp1[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[15], _globalparams);
-				#else 
-				reduce(enpp1[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[15], _globalparams);
-				#endif
-			} */
 			
 			batch_type offset1_kvs;
 			batch_type offset2_kvs;
@@ -11580,114 +11009,113 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 					if(en[i] == ON){ rtravstate[i].i_kvs = rtravstate[i].begin_kvs + offset_kvs; }
 				}
 
-				readkeyvalues(en[0], kvdram0, vertexupdatesbuffer[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
-				readkeyvalues(en[1], kvdram1, vertexupdatesbuffer[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
-				readkeyvalues(en[2], kvdram2, vertexupdatesbuffer[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
-				readkeyvalues(en[3], kvdram3, vertexupdatesbuffer[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
-				readkeyvalues(en[4], kvdram4, vertexupdatesbuffer[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
-				readkeyvalues(en[5], kvdram5, vertexupdatesbuffer[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
-				readkeyvalues(en[6], kvdram6, vertexupdatesbuffer[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
-				readkeyvalues(en[7], kvdram7, vertexupdatesbuffer[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
-				readkeyvalues(en[8], kvdram8, vertexupdatesbuffer[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
-				readkeyvalues(en[9], kvdram9, vertexupdatesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
-				readkeyvalues(en[10], kvdram10, vertexupdatesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
-				readkeyvalues(en[11], kvdram11, vertexupdatesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-				readkeyvalues(en[12], kvdram12, vertexupdatesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-				readkeyvalues(en[13], kvdram13, vertexupdatesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
-				readkeyvalues(en[14], kvdram14, vertexupdatesbuffer[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
-				readkeyvalues(en[15], kvdram15, vertexupdatesbuffer[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
+				readkeyvalues(en[0], kvdram0, vertexupdatesbufferpp0[0], (sweepparams.worksourcebaseaddress_kvs + rtravstate[0].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[0]);
+				readkeyvalues(en[1], kvdram1, vertexupdatesbufferpp0[1], (sweepparams.worksourcebaseaddress_kvs + rtravstate[1].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[1]);
+				readkeyvalues(en[2], kvdram2, vertexupdatesbufferpp0[2], (sweepparams.worksourcebaseaddress_kvs + rtravstate[2].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[2]);
+				readkeyvalues(en[3], kvdram3, vertexupdatesbufferpp0[3], (sweepparams.worksourcebaseaddress_kvs + rtravstate[3].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[3]);
+				readkeyvalues(en[4], kvdram4, vertexupdatesbufferpp0[4], (sweepparams.worksourcebaseaddress_kvs + rtravstate[4].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[4]);
+				readkeyvalues(en[5], kvdram5, vertexupdatesbufferpp0[5], (sweepparams.worksourcebaseaddress_kvs + rtravstate[5].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[5]);
+				readkeyvalues(en[6], kvdram6, vertexupdatesbufferpp0[6], (sweepparams.worksourcebaseaddress_kvs + rtravstate[6].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[6]);
+				readkeyvalues(en[7], kvdram7, vertexupdatesbufferpp0[7], (sweepparams.worksourcebaseaddress_kvs + rtravstate[7].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[7]);
+				readkeyvalues(en[8], kvdram8, vertexupdatesbufferpp0[8], (sweepparams.worksourcebaseaddress_kvs + rtravstate[8].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[8]);
+				readkeyvalues(en[9], kvdram9, vertexupdatesbufferpp0[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
+				readkeyvalues(en[10], kvdram10, vertexupdatesbufferpp0[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
+				readkeyvalues(en[11], kvdram11, vertexupdatesbufferpp0[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
+				readkeyvalues(en[12], kvdram12, vertexupdatesbufferpp0[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
+				readkeyvalues(en[13], kvdram13, vertexupdatesbufferpp0[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
+				readkeyvalues(en[14], kvdram14, vertexupdatesbufferpp0[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
+				readkeyvalues(en[15], kvdram15, vertexupdatesbufferpp0[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
 				
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				reduce_bfs(en[0], vertexupdatesbufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
 				#else 
-				reduce(en[0], vertexupdatesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+				reduce(en[0], vertexupdatesbufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				reduce_bfs(en[1], vertexupdatesbufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
 				#else 
-				reduce(en[1], vertexupdatesbuffer[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+				reduce(en[1], vertexupdatesbufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				reduce_bfs(en[2], vertexupdatesbufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
 				#else 
-				reduce(en[2], vertexupdatesbuffer[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+				reduce(en[2], vertexupdatesbufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				reduce_bfs(en[3], vertexupdatesbufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
 				#else 
-				reduce(en[3], vertexupdatesbuffer[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+				reduce(en[3], vertexupdatesbufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				reduce_bfs(en[4], vertexupdatesbufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
 				#else 
-				reduce(en[4], vertexupdatesbuffer[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+				reduce(en[4], vertexupdatesbufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				reduce_bfs(en[5], vertexupdatesbufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
 				#else 
-				reduce(en[5], vertexupdatesbuffer[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+				reduce(en[5], vertexupdatesbufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				reduce_bfs(en[6], vertexupdatesbufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
 				#else 
-				reduce(en[6], vertexupdatesbuffer[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+				reduce(en[6], vertexupdatesbufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				reduce_bfs(en[7], vertexupdatesbufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
 				#else 
-				reduce(en[7], vertexupdatesbuffer[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+				reduce(en[7], vertexupdatesbufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				reduce_bfs(en[8], vertexupdatesbufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
 				#else 
-				reduce(en[8], vertexupdatesbuffer[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+				reduce(en[8], vertexupdatesbufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				reduce_bfs(en[9], vertexupdatesbufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
 				#else 
-				reduce(en[9], vertexupdatesbuffer[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+				reduce(en[9], vertexupdatesbufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				reduce_bfs(en[10], vertexupdatesbufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
 				#else 
-				reduce(en[10], vertexupdatesbuffer[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+				reduce(en[10], vertexupdatesbufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				reduce_bfs(en[11], vertexupdatesbufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
 				#else 
-				reduce(en[11], vertexupdatesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+				reduce(en[11], vertexupdatesbufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				reduce_bfs(en[12], vertexupdatesbufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
 				#else 
-				reduce(en[12], vertexupdatesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+				reduce(en[12], vertexupdatesbufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				reduce_bfs(en[13], vertexupdatesbufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
 				#else 
-				reduce(en[13], vertexupdatesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+				reduce(en[13], vertexupdatesbufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				reduce_bfs(en[14], vertexupdatesbufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
 				#else 
-				reduce(en[14], vertexupdatesbuffer[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+				reduce(en[14], vertexupdatesbufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				reduce_bfs(en[15], vertexupdatesbufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
 				#else 
-				reduce(en[15], vertexupdatesbuffer[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+				reduce(en[15], vertexupdatesbufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
 				#endif
 			}	
 			#endif 
 			
-			unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destverticesbuffer, actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3, 								index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+			unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destverticesbuffer, actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3,  index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
 			
 			capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount, _globalparams);
 			capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount, _globalparams);
 			capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount, _globalparams);
 			capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount, _globalparams);
-			// pp1
-			if(index < LOADFACTORFORREDUCE-1){ replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, (index + 1) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)); }
+			if(index < LOADFACTORFORREDUCE-1){ replicatedata_syn(ON, sourceverticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, (index + 1) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)); } // pp1
 
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(pp0writeen == ON){ cout<<"reduceupdates_sync: savekeyvalues_sync called. "<<"capsule0_so8.value: "<<capsule0_so8.value<<endl; }
