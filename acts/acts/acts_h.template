@@ -304,20 +304,6 @@ public:
 		travstate_t rtravstate,
 		travstate_t actvvstravstate);
 		
-	travstate_t reduceupdates_sync(
-			bool_type enable,
-			{%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
-			keyvalue_t verticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			keyvalue_t keyvaluesbuffer[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			{%for i in context['NUMSUBCPUTHREADS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
-			config_t config,
-			globalparams_t globalparams,
-			sweepparams_t sweepparams,
-			travstate_t rtravstate[NUMSUBCPUTHREADS],
-			travstate_t actvvstravstate
-			);
-		
 	// process vertices
 	void processallvertices(
 		bool_type enable,
@@ -339,21 +325,12 @@ public:
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
 		
-	void processactivevertices_generateoffsets(
+	void generateoffsets(
 			uint512_dt * kvdram, 
 			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			travstate_t actvvtravstate, 
 			globalparams_t globalparams);
-	
-	batch_type processactivevertices_compactedges_givenvids(
-		bool_type enable,
-		uint512_dt * kvdram,
-		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		travstate_t actvvtravstate,
-		globalparams_t globalparams
-		);
 	
 	batch_type processactivevertices_compactedges(
 		bool_type enable,
@@ -379,8 +356,6 @@ public:
 	void dispatch_partitiononly(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
-	
-	void dispatch_reduceonly_sync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
 	void dispatch_reduceonly_serialsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
