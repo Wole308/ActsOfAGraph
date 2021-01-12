@@ -174,7 +174,7 @@ READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size){
 	ulong_dt * thisdata = (ulong_dt *)&keyvalue;
 	data = *thisdata;
 	#else
-	data = CONVERTTOLONG_KV(keyvalue); // CRITICAL CHECKME.
+	data = CONVERTTOLONG_KV(keyvalue); // VHLS CRITICAL CHECKME.
 	#endif 
 	return READFROM_ULONG(data, index, size);
 }
@@ -207,15 +207,100 @@ void
 	acts::
 	#endif
 WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
-	#ifdef SW
-	ulong_dt * data = (ulong_dt *)keyvalue;
-	return WRITETO_ULONG(data, index, size, value);
-	#else
+	// #ifdef SW
+	// ulong_dt * data = (ulong_dt *)keyvalue;
+	// return WRITETO_ULONG(data, index, size, value);
+	// #else
+	// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
+	// return WRITETO_ULONG(&data, index, size, value);
+	// *keyvalue = CONVERTTOKV_ULONG(data);
+	// #endif
+	
+	
+	#ifdef _WIDEWORD
 	ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-	return WRITETO_ULONG(&data, index, size, value);
+	WRITETO_ULONG(&data, index, size, value);
 	*keyvalue = CONVERTTOKV_ULONG(data);
-	#endif
+	return;
+	#else 
+	ulong_dt * data = (ulong_dt *)keyvalue;
+	WRITETO_ULONG(data, index, size, value);
+	return;
+	#endif 
 }
+
+
+#ifdef XXX
+void
+	#ifdef SW 
+	acts::
+	#endif
+WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value){
+	ulong_dt tempdata = *data;
+	ulong_dt A = ((value) << (index));
+	ulong_dt B = (~GETMASK_ULONG((index), (size)));
+	ulong_dt C = ((tempdata) & (B));
+	ulong_dt D = (C) | A;
+	*data = D;
+	// (tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+	// *data = tempdata;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"WRITETO_ULONG. index: "<<index<<", size: "<<size<<", value: "<<value<<endl;
+	cout<<"WRITETO_ULONG. tempdata"<<endl; actsutilityobj->ULONGTOBINARY(tempdata);
+	cout<<"WRITETO_ULONG. A"<<endl; actsutilityobj->ULONGTOBINARY(A);
+	cout<<"WRITETO_ULONG. B (~mask)"<<endl; actsutilityobj->ULONGTOBINARY(B);
+	cout<<"WRITETO_ULONG. C"<<endl; actsutilityobj->ULONGTOBINARY(C);
+	cout<<"WRITETO_ULONG. D (result)"<<endl; actsutilityobj->ULONGTOBINARY(D);
+	#endif
+	return; 
+}
+keyvalue_t
+	#ifdef SW 
+	acts::
+	#endif
+WRITETO_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){
+	#ifdef _WIDEWORD
+	if(index > 64){ cout<<"WRITETO_ULONG: index >= 64. exiting... index: "<<index<<", size: "<<size<<endl; exit(EXIT_FAILURE); } // REMOVEME.
+	if(index + size > 64){ cout<<"WRITETO_ULONG: index + size >= 64. exiting... index: "<<index<<", size: "<<size<<endl; exit(EXIT_FAILURE); } // REMOVEME.
+
+	ulong_dt uldata;
+	uldata.range(63, 0) = 0;
+	// uldata.range(31, 0) = keyvalue.key; 
+	// uldata.range(63, 32) = keyvalue.value; 
+	
+	unsigned int A = keyvalue.value;
+	unsigned int B = keyvalue.key;
+	
+	uldata.range(31, 0) = A; 
+	uldata.range(63, 32) = B; 
+	
+	
+	// WRITETO_ULONG(&uldata, index, size, value);
+	
+	unsigned int kindex = 2;
+	unsigned int ksize = 2;
+	unsigned int kvalue = 2;
+	// uldata.range(kindex + ksize, kindex) = 2;
+	uldata.range(4, 2) = 2;
+	
+	A = uldata.range(31, 0);
+	B = uldata.range(63, 32);
+	
+	// keyvalue.key = uldata.range(31, 0); 
+	// keyvalue.value = uldata.range(63, 32); 
+	keyvalue.value = A; 
+	keyvalue.key = B; 
+	return keyvalue;
+	#else 
+	ulong_dt * data = (ulong_dt *)keyvalue;
+	WRITETO_ULONG(data, index, size, value);
+	return;
+	#endif 
+}
+#endif 
+
+
 unsigned int 
 	#ifdef SW 
 	acts::
@@ -827,7 +912,7 @@ uint512_vec_dt
 	acts::
 	#endif
 getkeyvalues(uint512_dt * keyvalues, unsigned int offset_kvs){
-	#pragma HLS INLINE // NEWCHANGE
+	#pragma HLS INLINE
 	uint512_vec_dt D;
 	#pragma HLS ARRAY_PARTITION variable=D complete
 	
@@ -2086,8 +2171,11 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		#pragma HLS PIPELINE
 			#ifdef _WIDEWORD // CRITICAL VHLS CHECKME.
 			{%for v in context['VECTOR_SIZE_seq']%}
-			keyy_t keys{{v}} = partitionupperlimit{{v}} + longdata{{v}}.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			
+			
+			// keyy_t keys{{v}} = partitionupperlimit{{v}} + longdata{{v}}.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys{{v}};
 			if(t==0){
 				keys{{v}} = partitionupperlimit{{v}} + longdata{{v}}.range(13, 0); // data1
 			} else if(t==1){
@@ -2100,7 +2188,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
+			// #endif 
+			
+			
 			{%endfor%}
 			#else 
 			{%for v in context['VECTOR_SIZE_seq']%}
@@ -2153,14 +2243,16 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop{{v}} = destbuffer[{{v}}][rowindexs{{v}}]; 
 				temps{{v}} = READFROM_ULONG(vprop{{v}}, 64 - colindexs{{v}} - 2, 2); 
 				rettemps{{v}} = reducefunc_bfs(temps{{v}}, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop{{v}}, 64 - colindexs{{v}} - 2, 2, rettemps{{v}}); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs{{v}} - 2)<<", colindexs{{v}}: "<<colindexs{{v}}<<endl;
+				WRITETO_ULONG(&vprop{{v}}, 64 - colindexs{{v}} - 2, 2, rettemps{{v}});
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs{{v}} - 2)<<", vprop{{v}}.key: "<<vprop{{v}}.key<<", vprop{{v}}.value: "<<vprop{{v}}.value<<endl;
 				destbuffer[{{v}}][rowindexs{{v}}] = vprop{{v}}; 
 			}
 			{%endfor%}
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(en{{v}} == ON && en2{{v}} == ON){ 
+			if(en{{v}} == ON && en2{{v}} == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs{{v}}: "<<locs{{v}}<<", keys{{v}}: "<<keys{{v}}<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys{{v}}: "<<keys{{v}}<<", rowindexs{{v}}: "<<rowindexs{{v}}<<", colindexs{{v}}: "<<colindexs{{v}}<<", bitpos: "<<64 - colindexs{{v}} - 2<<endl;
 				cout<<"REDUCE_BFS: vprop{{v}}.key: "<<vprop{{v}}.key<<", vprop{{v}}.value: "<<vprop{{v}}.value<<", rowindexs{{v}}: "<<rowindexs{{v}}<<endl;
@@ -2494,8 +2586,8 @@ unifydata_bfs_syn(bool_type enable, {%for i in context['NUMSUBCPUTHREADS_seq']%}
 				#endif 
 		
 				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
-				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
+				cout<<"unifydata_bfs_syn: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
+				cout<<"unifydata_bfs_syn: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
 				#endif
 				
 				{%for i in context['4_seq']%}
@@ -2531,6 +2623,7 @@ unifydata_bfs_syn(bool_type enable, {%for i in context['NUMSUBCPUTHREADS_seq']%}
 	#pragma HLS UNROLL
 		{%for i in context['4_seq']%}
 		cutoffs{{i}}[v] = actvvscapsule{{i}}[v].value; 
+		// cout<<"----- unifydata_bfs_syn: actvvscapsule{{i}}[v].value: "<<actvvscapsule{{i}}[v].value<<endl;
 		{%endfor%}
 	}
 	return;
@@ -6086,7 +6179,7 @@ dispatch_reduceonly_parallelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}uin
 				{%endfor%} 
 
 				{%for i in context['4_seq']%}
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS2
 				if(pp0writeen == ON){ cout<<"dispatch_reduceonly_parallelsync: savekeyvalues_sync called. "<<"capsule{{i}}_so8.value: "<<capsule{{i}}_so8.value<<endl; }
 				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] dispatch_reduceonly_parallelsync->runpipeline_1partition.buffer{{i}}_setof8", buffer{{i}}_setof8, 4); }
 				#endif 
@@ -6217,22 +6310,18 @@ topkernel({%for i in context['NUMSUBCPUTHREADS_seq']%}{%if(i>0)%},{%endif%}uint5
 		cout<<">>> Light weight ACTS: Graph Iteration: "<<GraphIter<<endl;
 		#endif 
 		
-		#ifdef HW
+		/* #ifdef HW
 		//////////
 		dispatch_partitiononly(kvdram0, globalparams[0]);
 		return; // CRITICAL REMOVEME.
 		/////////////
-		#endif 
+		#endif  */
 	
 		{%for i in context['NUMSUBCPUTHREADS_seq']%}
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: {{i}}"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram{{i}}, globalparams[{{i}}]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram{{i}}, globalparams[{{i}}]);
 		{%endfor%}
 		
 		#ifdef REDUCEUPDATES

@@ -174,7 +174,7 @@ READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size){
 	ulong_dt * thisdata = (ulong_dt *)&keyvalue;
 	data = *thisdata;
 	#else
-	data = CONVERTTOLONG_KV(keyvalue); // CRITICAL CHECKME.
+	data = CONVERTTOLONG_KV(keyvalue); // VHLS CRITICAL CHECKME.
 	#endif 
 	return READFROM_ULONG(data, index, size);
 }
@@ -207,15 +207,100 @@ void
 	acts::
 	#endif
 WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
-	#ifdef SW
-	ulong_dt * data = (ulong_dt *)keyvalue;
-	return WRITETO_ULONG(data, index, size, value);
-	#else
+	// #ifdef SW
+	// ulong_dt * data = (ulong_dt *)keyvalue;
+	// return WRITETO_ULONG(data, index, size, value);
+	// #else
+	// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
+	// return WRITETO_ULONG(&data, index, size, value);
+	// *keyvalue = CONVERTTOKV_ULONG(data);
+	// #endif
+	
+	
+	#ifdef _WIDEWORD
 	ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-	return WRITETO_ULONG(&data, index, size, value);
+	WRITETO_ULONG(&data, index, size, value);
 	*keyvalue = CONVERTTOKV_ULONG(data);
-	#endif
+	return;
+	#else 
+	ulong_dt * data = (ulong_dt *)keyvalue;
+	WRITETO_ULONG(data, index, size, value);
+	return;
+	#endif 
 }
+
+
+#ifdef XXX
+void
+	#ifdef SW 
+	acts::
+	#endif
+WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value){
+	ulong_dt tempdata = *data;
+	ulong_dt A = ((value) << (index));
+	ulong_dt B = (~GETMASK_ULONG((index), (size)));
+	ulong_dt C = ((tempdata) & (B));
+	ulong_dt D = (C) | A;
+	*data = D;
+	// (tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
+	// *data = tempdata;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"WRITETO_ULONG. index: "<<index<<", size: "<<size<<", value: "<<value<<endl;
+	cout<<"WRITETO_ULONG. tempdata"<<endl; actsutilityobj->ULONGTOBINARY(tempdata);
+	cout<<"WRITETO_ULONG. A"<<endl; actsutilityobj->ULONGTOBINARY(A);
+	cout<<"WRITETO_ULONG. B (~mask)"<<endl; actsutilityobj->ULONGTOBINARY(B);
+	cout<<"WRITETO_ULONG. C"<<endl; actsutilityobj->ULONGTOBINARY(C);
+	cout<<"WRITETO_ULONG. D (result)"<<endl; actsutilityobj->ULONGTOBINARY(D);
+	#endif
+	return; 
+}
+keyvalue_t
+	#ifdef SW 
+	acts::
+	#endif
+WRITETO_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){
+	#ifdef _WIDEWORD
+	if(index > 64){ cout<<"WRITETO_ULONG: index >= 64. exiting... index: "<<index<<", size: "<<size<<endl; exit(EXIT_FAILURE); } // REMOVEME.
+	if(index + size > 64){ cout<<"WRITETO_ULONG: index + size >= 64. exiting... index: "<<index<<", size: "<<size<<endl; exit(EXIT_FAILURE); } // REMOVEME.
+
+	ulong_dt uldata;
+	uldata.range(63, 0) = 0;
+	// uldata.range(31, 0) = keyvalue.key; 
+	// uldata.range(63, 32) = keyvalue.value; 
+	
+	unsigned int A = keyvalue.value;
+	unsigned int B = keyvalue.key;
+	
+	uldata.range(31, 0) = A; 
+	uldata.range(63, 32) = B; 
+	
+	
+	// WRITETO_ULONG(&uldata, index, size, value);
+	
+	unsigned int kindex = 2;
+	unsigned int ksize = 2;
+	unsigned int kvalue = 2;
+	// uldata.range(kindex + ksize, kindex) = 2;
+	uldata.range(4, 2) = 2;
+	
+	A = uldata.range(31, 0);
+	B = uldata.range(63, 32);
+	
+	// keyvalue.key = uldata.range(31, 0); 
+	// keyvalue.value = uldata.range(63, 32); 
+	keyvalue.value = A; 
+	keyvalue.key = B; 
+	return keyvalue;
+	#else 
+	ulong_dt * data = (ulong_dt *)keyvalue;
+	WRITETO_ULONG(data, index, size, value);
+	return;
+	#endif 
+}
+#endif 
+
+
 unsigned int 
 	#ifdef SW 
 	acts::
@@ -997,7 +1082,7 @@ uint512_vec_dt
 	acts::
 	#endif
 getkeyvalues(uint512_dt * keyvalues, unsigned int offset_kvs){
-	#pragma HLS INLINE // NEWCHANGE
+	#pragma HLS INLINE
 	uint512_vec_dt D;
 	#pragma HLS ARRAY_PARTITION variable=D complete
 	
@@ -3748,8 +3833,11 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){
 		#pragma HLS PIPELINE
 			#ifdef _WIDEWORD // CRITICAL VHLS CHECKME.
-			keyy_t keys0 = partitionupperlimit0 + longdata0.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			
+			
+			// keyy_t keys0 = partitionupperlimit0 + longdata0.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys0;
 			if(t==0){
 				keys0 = partitionupperlimit0 + longdata0.range(13, 0); // data1
 			} else if(t==1){
@@ -3762,9 +3850,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys1 = partitionupperlimit1 + longdata1.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys1 = partitionupperlimit1 + longdata1.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys1;
 			if(t==0){
 				keys1 = partitionupperlimit1 + longdata1.range(13, 0); // data1
 			} else if(t==1){
@@ -3777,9 +3870,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys2 = partitionupperlimit2 + longdata2.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys2 = partitionupperlimit2 + longdata2.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys2;
 			if(t==0){
 				keys2 = partitionupperlimit2 + longdata2.range(13, 0); // data1
 			} else if(t==1){
@@ -3792,9 +3890,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys3 = partitionupperlimit3 + longdata3.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys3 = partitionupperlimit3 + longdata3.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys3;
 			if(t==0){
 				keys3 = partitionupperlimit3 + longdata3.range(13, 0); // data1
 			} else if(t==1){
@@ -3807,9 +3910,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys4 = partitionupperlimit4 + longdata4.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys4 = partitionupperlimit4 + longdata4.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys4;
 			if(t==0){
 				keys4 = partitionupperlimit4 + longdata4.range(13, 0); // data1
 			} else if(t==1){
@@ -3822,9 +3930,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys5 = partitionupperlimit5 + longdata5.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys5 = partitionupperlimit5 + longdata5.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys5;
 			if(t==0){
 				keys5 = partitionupperlimit5 + longdata5.range(13, 0); // data1
 			} else if(t==1){
@@ -3837,9 +3950,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys6 = partitionupperlimit6 + longdata6.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys6 = partitionupperlimit6 + longdata6.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys6;
 			if(t==0){
 				keys6 = partitionupperlimit6 + longdata6.range(13, 0); // data1
 			} else if(t==1){
@@ -3852,9 +3970,14 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
-			keyy_t keys7 = partitionupperlimit7 + longdata7.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			#ifdef XXX
+			// #endif 
+			
+			
+			
+			
+			// keyy_t keys7 = partitionupperlimit7 + longdata7.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+			// #ifdef XXX
+			keyy_t keys7;
 			if(t==0){
 				keys7 = partitionupperlimit7 + longdata7.range(13, 0); // data1
 			} else if(t==1){
@@ -3867,7 +3990,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
 				#endif 
 			}
-			#endif 
+			// #endif 
+			
+			
 			#else 
 			keyy_t keys0 = partitionupperlimit0 + READFROM_ULONG(*longdata0, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 			keyy_t keys1 = partitionupperlimit1 + READFROM_ULONG(*longdata1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
@@ -4056,7 +4181,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop0 = destbuffer[0][rowindexs0]; 
 				temps0 = READFROM_ULONG(vprop0, 64 - colindexs0 - 2, 2); 
 				rettemps0 = reducefunc_bfs(temps0, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop0, 64 - colindexs0 - 2, 2, rettemps0); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs0 - 2)<<", colindexs0: "<<colindexs0<<endl;
+				WRITETO_ULONG(&vprop0, 64 - colindexs0 - 2, 2, rettemps0);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs0 - 2)<<", vprop0.key: "<<vprop0.key<<", vprop0.value: "<<vprop0.value<<endl;
 				destbuffer[0][rowindexs0] = vprop0; 
 			}
 			if(locs1 >= globalparams.applyvertexbuffersz && en1 == ON && en21 == ON){ locs1 = 0; }
@@ -4064,7 +4191,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop1 = destbuffer[1][rowindexs1]; 
 				temps1 = READFROM_ULONG(vprop1, 64 - colindexs1 - 2, 2); 
 				rettemps1 = reducefunc_bfs(temps1, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop1, 64 - colindexs1 - 2, 2, rettemps1); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs1 - 2)<<", colindexs1: "<<colindexs1<<endl;
+				WRITETO_ULONG(&vprop1, 64 - colindexs1 - 2, 2, rettemps1);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs1 - 2)<<", vprop1.key: "<<vprop1.key<<", vprop1.value: "<<vprop1.value<<endl;
 				destbuffer[1][rowindexs1] = vprop1; 
 			}
 			if(locs2 >= globalparams.applyvertexbuffersz && en2 == ON && en22 == ON){ locs2 = 0; }
@@ -4072,7 +4201,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop2 = destbuffer[2][rowindexs2]; 
 				temps2 = READFROM_ULONG(vprop2, 64 - colindexs2 - 2, 2); 
 				rettemps2 = reducefunc_bfs(temps2, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop2, 64 - colindexs2 - 2, 2, rettemps2); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs2 - 2)<<", colindexs2: "<<colindexs2<<endl;
+				WRITETO_ULONG(&vprop2, 64 - colindexs2 - 2, 2, rettemps2);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs2 - 2)<<", vprop2.key: "<<vprop2.key<<", vprop2.value: "<<vprop2.value<<endl;
 				destbuffer[2][rowindexs2] = vprop2; 
 			}
 			if(locs3 >= globalparams.applyvertexbuffersz && en3 == ON && en23 == ON){ locs3 = 0; }
@@ -4080,7 +4211,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop3 = destbuffer[3][rowindexs3]; 
 				temps3 = READFROM_ULONG(vprop3, 64 - colindexs3 - 2, 2); 
 				rettemps3 = reducefunc_bfs(temps3, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop3, 64 - colindexs3 - 2, 2, rettemps3); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs3 - 2)<<", colindexs3: "<<colindexs3<<endl;
+				WRITETO_ULONG(&vprop3, 64 - colindexs3 - 2, 2, rettemps3);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs3 - 2)<<", vprop3.key: "<<vprop3.key<<", vprop3.value: "<<vprop3.value<<endl;
 				destbuffer[3][rowindexs3] = vprop3; 
 			}
 			if(locs4 >= globalparams.applyvertexbuffersz && en4 == ON && en24 == ON){ locs4 = 0; }
@@ -4088,7 +4221,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop4 = destbuffer[4][rowindexs4]; 
 				temps4 = READFROM_ULONG(vprop4, 64 - colindexs4 - 2, 2); 
 				rettemps4 = reducefunc_bfs(temps4, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop4, 64 - colindexs4 - 2, 2, rettemps4); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs4 - 2)<<", colindexs4: "<<colindexs4<<endl;
+				WRITETO_ULONG(&vprop4, 64 - colindexs4 - 2, 2, rettemps4);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs4 - 2)<<", vprop4.key: "<<vprop4.key<<", vprop4.value: "<<vprop4.value<<endl;
 				destbuffer[4][rowindexs4] = vprop4; 
 			}
 			if(locs5 >= globalparams.applyvertexbuffersz && en5 == ON && en25 == ON){ locs5 = 0; }
@@ -4096,7 +4231,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop5 = destbuffer[5][rowindexs5]; 
 				temps5 = READFROM_ULONG(vprop5, 64 - colindexs5 - 2, 2); 
 				rettemps5 = reducefunc_bfs(temps5, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop5, 64 - colindexs5 - 2, 2, rettemps5); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs5 - 2)<<", colindexs5: "<<colindexs5<<endl;
+				WRITETO_ULONG(&vprop5, 64 - colindexs5 - 2, 2, rettemps5);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs5 - 2)<<", vprop5.key: "<<vprop5.key<<", vprop5.value: "<<vprop5.value<<endl;
 				destbuffer[5][rowindexs5] = vprop5; 
 			}
 			if(locs6 >= globalparams.applyvertexbuffersz && en6 == ON && en26 == ON){ locs6 = 0; }
@@ -4104,7 +4241,9 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop6 = destbuffer[6][rowindexs6]; 
 				temps6 = READFROM_ULONG(vprop6, 64 - colindexs6 - 2, 2); 
 				rettemps6 = reducefunc_bfs(temps6, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop6, 64 - colindexs6 - 2, 2, rettemps6); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs6 - 2)<<", colindexs6: "<<colindexs6<<endl;
+				WRITETO_ULONG(&vprop6, 64 - colindexs6 - 2, 2, rettemps6);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs6 - 2)<<", vprop6.key: "<<vprop6.key<<", vprop6.value: "<<vprop6.value<<endl;
 				destbuffer[6][rowindexs6] = vprop6; 
 			}
 			if(locs7 >= globalparams.applyvertexbuffersz && en7 == ON && en27 == ON){ locs7 = 0; }
@@ -4112,54 +4251,56 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 				vprop7 = destbuffer[7][rowindexs7]; 
 				temps7 = READFROM_ULONG(vprop7, 64 - colindexs7 - 2, 2); 
 				rettemps7 = reducefunc_bfs(temps7, NAp, GraphIter, GraphAlgo); 
-				WRITETO_ULONG(&vprop7, 64 - colindexs7 - 2, 2, rettemps7); 
+				// cout<<"^&*RRREDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs7 - 2)<<", colindexs7: "<<colindexs7<<endl;
+				WRITETO_ULONG(&vprop7, 64 - colindexs7 - 2, 2, rettemps7);
+				// cout<<"REDUCE_BFS SEEN @ reduce_bfs:: addr: "<<(64 - colindexs7 - 2)<<", vprop7.key: "<<vprop7.key<<", vprop7.value: "<<vprop7.value<<endl;
 				destbuffer[7][rowindexs7] = vprop7; 
 			}
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			if(en0 == ON && en20 == ON){ 
+			if(en0 == ON && en20 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs0: "<<locs0<<", keys0: "<<keys0<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys0: "<<keys0<<", rowindexs0: "<<rowindexs0<<", colindexs0: "<<colindexs0<<", bitpos: "<<64 - colindexs0 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop0.key: "<<vprop0.key<<", vprop0.value: "<<vprop0.value<<", rowindexs0: "<<rowindexs0<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps0: "<<temps0<<", rettemps0: "<<rettemps0<<endl;
 			}
-			if(en1 == ON && en21 == ON){ 
+			if(en1 == ON && en21 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs1: "<<locs1<<", keys1: "<<keys1<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys1: "<<keys1<<", rowindexs1: "<<rowindexs1<<", colindexs1: "<<colindexs1<<", bitpos: "<<64 - colindexs1 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop1.key: "<<vprop1.key<<", vprop1.value: "<<vprop1.value<<", rowindexs1: "<<rowindexs1<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps1: "<<temps1<<", rettemps1: "<<rettemps1<<endl;
 			}
-			if(en2 == ON && en22 == ON){ 
+			if(en2 == ON && en22 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs2: "<<locs2<<", keys2: "<<keys2<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys2: "<<keys2<<", rowindexs2: "<<rowindexs2<<", colindexs2: "<<colindexs2<<", bitpos: "<<64 - colindexs2 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop2.key: "<<vprop2.key<<", vprop2.value: "<<vprop2.value<<", rowindexs2: "<<rowindexs2<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps2: "<<temps2<<", rettemps2: "<<rettemps2<<endl;
 			}
-			if(en3 == ON && en23 == ON){ 
+			if(en3 == ON && en23 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs3: "<<locs3<<", keys3: "<<keys3<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys3: "<<keys3<<", rowindexs3: "<<rowindexs3<<", colindexs3: "<<colindexs3<<", bitpos: "<<64 - colindexs3 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop3.key: "<<vprop3.key<<", vprop3.value: "<<vprop3.value<<", rowindexs3: "<<rowindexs3<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps3: "<<temps3<<", rettemps3: "<<rettemps3<<endl;
 			}
-			if(en4 == ON && en24 == ON){ 
+			if(en4 == ON && en24 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs4: "<<locs4<<", keys4: "<<keys4<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys4: "<<keys4<<", rowindexs4: "<<rowindexs4<<", colindexs4: "<<colindexs4<<", bitpos: "<<64 - colindexs4 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop4.key: "<<vprop4.key<<", vprop4.value: "<<vprop4.value<<", rowindexs4: "<<rowindexs4<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps4: "<<temps4<<", rettemps4: "<<rettemps4<<endl;
 			}
-			if(en5 == ON && en25 == ON){ 
+			if(en5 == ON && en25 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs5: "<<locs5<<", keys5: "<<keys5<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys5: "<<keys5<<", rowindexs5: "<<rowindexs5<<", colindexs5: "<<colindexs5<<", bitpos: "<<64 - colindexs5 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop5.key: "<<vprop5.key<<", vprop5.value: "<<vprop5.value<<", rowindexs5: "<<rowindexs5<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps5: "<<temps5<<", rettemps5: "<<rettemps5<<endl;
 			}
-			if(en6 == ON && en26 == ON){ 
+			if(en6 == ON && en26 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs6: "<<locs6<<", keys6: "<<keys6<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys6: "<<keys6<<", rowindexs6: "<<rowindexs6<<", colindexs6: "<<colindexs6<<", bitpos: "<<64 - colindexs6 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop6.key: "<<vprop6.key<<", vprop6.value: "<<vprop6.value<<", rowindexs6: "<<rowindexs6<<endl;
 				cout<<"REDUCE_BFS RESULT @ reduce_bfs:: temps6: "<<temps6<<", rettemps6: "<<rettemps6<<endl;
 			}
-			if(en7 == ON && en27 == ON){ 
+			if(en7 == ON && en27 == ON){
 				cout<<"REDUCE_BFS SEEN @ reduce_bfs:: i: "<<i<<", locs7: "<<locs7<<", keys7: "<<keys7<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 				cout<<"REDUCE_BFS: keys7: "<<keys7<<", rowindexs7: "<<rowindexs7<<", colindexs7: "<<colindexs7<<", bitpos: "<<64 - colindexs7 - 2<<endl;
 				cout<<"REDUCE_BFS: vprop7.key: "<<vprop7.key<<", vprop7.value: "<<vprop7.value<<", rowindexs7: "<<rowindexs7<<endl;
@@ -4838,8 +4979,8 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 				#endif 
 		
 				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
-				cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
+				cout<<"unifydata_bfs_syn: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vid0: "<<vid0<<", vid1: "<<vid1<<", vid2: "<<vid2<<", vid3: "<<vid3<<endl;
+				cout<<"unifydata_bfs_syn: ACTIVE VERTICES seen for next iteration. t: "<<t<<", vdata0: "<<vdata0<<", vdata1: "<<vdata1<<", vdata2: "<<vdata2<<", vdata3: "<<vdata3<<endl;
 				#endif
 				
 				if(vdata0 == VISITED_IN_CURRENT_ITERATION){ actvvs0[h][actvvscapsule0[h].value].key = vid0; actvvs0[h][actvvscapsule0[h].value].value = 777; }
@@ -4892,9 +5033,13 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 	UNIFYDATA_LOOP3: for(vector_type v=0; v<VECTOR_SIZE; v++){ 
 	#pragma HLS UNROLL
 		cutoffs0[v] = actvvscapsule0[v].value; 
+		// cout<<"----- unifydata_bfs_syn: actvvscapsule0[v].value: "<<actvvscapsule0[v].value<<endl;
 		cutoffs1[v] = actvvscapsule1[v].value; 
+		// cout<<"----- unifydata_bfs_syn: actvvscapsule1[v].value: "<<actvvscapsule1[v].value<<endl;
 		cutoffs2[v] = actvvscapsule2[v].value; 
+		// cout<<"----- unifydata_bfs_syn: actvvscapsule2[v].value: "<<actvvscapsule2[v].value<<endl;
 		cutoffs3[v] = actvvscapsule3[v].value; 
+		// cout<<"----- unifydata_bfs_syn: actvvscapsule3[v].value: "<<actvvscapsule3[v].value<<endl;
 	}
 	return;
 }
@@ -9844,7 +9989,7 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 				if(index < LOADFACTORFORREDUCE-1){ rtravstate[15] = gettravstate(kvdram15, globalparams[15], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[15]); }
  
 
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS2
 				if(pp0writeen == ON){ cout<<"dispatch_reduceonly_parallelsync: savekeyvalues_sync called. "<<"capsule0_so8.value: "<<capsule0_so8.value<<endl; }
 				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] dispatch_reduceonly_parallelsync->runpipeline_1partition.buffer0_setof8", buffer0_setof8, 4); }
 				#endif 
@@ -9853,7 +9998,7 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
 				#endif
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS2
 				if(pp0writeen == ON){ cout<<"dispatch_reduceonly_parallelsync: savekeyvalues_sync called. "<<"capsule1_so8.value: "<<capsule1_so8.value<<endl; }
 				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] dispatch_reduceonly_parallelsync->runpipeline_1partition.buffer1_setof8", buffer1_setof8, 4); }
 				#endif 
@@ -9862,7 +10007,7 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
 				#endif
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS2
 				if(pp0writeen == ON){ cout<<"dispatch_reduceonly_parallelsync: savekeyvalues_sync called. "<<"capsule2_so8.value: "<<capsule2_so8.value<<endl; }
 				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] dispatch_reduceonly_parallelsync->runpipeline_1partition.buffer2_setof8", buffer2_setof8, 4); }
 				#endif 
@@ -9871,7 +10016,7 @@ dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync.actvvstravstate.i", actvvstravstate.i, ACTIVEVERTICESSZ, NAp, NAp, NAp);
 				#endif
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS2
 				if(pp0writeen == ON){ cout<<"dispatch_reduceonly_parallelsync: savekeyvalues_sync called. "<<"capsule3_so8.value: "<<capsule3_so8.value<<endl; }
 				if(pp0writeen == ON && false){ actsutilityobj->printkeyvalues("+++[viewing] dispatch_reduceonly_parallelsync->runpipeline_1partition.buffer3_setof8", buffer3_setof8, 4); }
 				#endif 
@@ -10135,141 +10280,77 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 		cout<<">>> Light weight ACTS: Graph Iteration: "<<GraphIter<<endl;
 		#endif 
 		
-		#ifdef HW
+		/* #ifdef HW
 		//////////
 		dispatch_partitiononly(kvdram0, globalparams[0]);
 		return; // CRITICAL REMOVEME.
 		/////////////
-		#endif 
+		#endif  */
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 0"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram0, globalparams[0]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram0, globalparams[0]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 1"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram1, globalparams[1]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram1, globalparams[1]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 2"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram2, globalparams[2]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram2, globalparams[2]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 3"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram3, globalparams[3]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram3, globalparams[3]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 4"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram4, globalparams[4]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram4, globalparams[4]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 5"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram5, globalparams[5]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram5, globalparams[5]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 6"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram6, globalparams[6]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram6, globalparams[6]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 7"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram7, globalparams[7]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram7, globalparams[7]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 8"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram8, globalparams[8]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram8, globalparams[8]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 9"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram9, globalparams[9]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram9, globalparams[9]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 10"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram10, globalparams[10]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram10, globalparams[10]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 11"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram11, globalparams[11]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram11, globalparams[11]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 12"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram12, globalparams[12]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram12, globalparams[12]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 13"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram13, globalparams[13]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram13, globalparams[13]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 14"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram14, globalparams[14]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram14, globalparams[14]);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<">>> Light weight ACTS: Partitioning Instance: 15"<<endl;
 		#endif
-		
-		// #ifdef SW  // CRITICAL REMOVEME. just for testing.
-		dispatch_partitiononly(kvdram15, globalparams[15]); // CRITICAL FIXME.
-		// #endif 
-		
+		dispatch_partitiononly(kvdram15, globalparams[15]);
 		
 		#ifdef REDUCEUPDATES
 		dispatch_reduceonly_serialsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, actvvstravstate, globalparams);

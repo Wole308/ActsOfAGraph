@@ -104,7 +104,7 @@ runsummary_t bfs::run(){
 	
 	// activevertices.push_back(2);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } 
+	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
