@@ -54,26 +54,13 @@ Resolving Gunrock error on Slurm:
 srun: error: nibbler1: task 0: Exited with exit code 35
 
 Important Gunrock paths:
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_proclem.cuh* (specifies maximum number of iterations)
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop* (the main loop)
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core* (defines advance and filter ops, launches advance and filter ops)
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Run*
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch* (the advance function)
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch* (the filter function)
+/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/Launch
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor/Core
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Filter
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh (shows the assigned advance, filter or compute types based on parameters spaecified)
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/BP_filter/kernel.cuh/Launch
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/app/enactor_loop.cuh/Iteration_Loop
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh/Core
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/oprtr.cuh/Advance
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/oprtr/AE_advance/kernel.cuh/Launch
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh
-/net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests
-
-
 
 
 

@@ -207,16 +207,6 @@ void
 	acts::
 	#endif
 WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
-	// #ifdef SW
-	// ulong_dt * data = (ulong_dt *)keyvalue;
-	// return WRITETO_ULONG(data, index, size, value);
-	// #else
-	// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-	// return WRITETO_ULONG(&data, index, size, value);
-	// *keyvalue = CONVERTTOKV_ULONG(data);
-	// #endif
-	
-	
 	#ifdef _WIDEWORD
 	ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
 	WRITETO_ULONG(&data, index, size, value);
@@ -228,79 +218,6 @@ WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt val
 	return;
 	#endif 
 }
-
-
-#ifdef XXX
-void
-	#ifdef SW 
-	acts::
-	#endif
-WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value){
-	ulong_dt tempdata = *data;
-	ulong_dt A = ((value) << (index));
-	ulong_dt B = (~GETMASK_ULONG((index), (size)));
-	ulong_dt C = ((tempdata) & (B));
-	ulong_dt D = (C) | A;
-	*data = D;
-	// (tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
-	// *data = tempdata;
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"WRITETO_ULONG. index: "<<index<<", size: "<<size<<", value: "<<value<<endl;
-	cout<<"WRITETO_ULONG. tempdata"<<endl; actsutilityobj->ULONGTOBINARY(tempdata);
-	cout<<"WRITETO_ULONG. A"<<endl; actsutilityobj->ULONGTOBINARY(A);
-	cout<<"WRITETO_ULONG. B (~mask)"<<endl; actsutilityobj->ULONGTOBINARY(B);
-	cout<<"WRITETO_ULONG. C"<<endl; actsutilityobj->ULONGTOBINARY(C);
-	cout<<"WRITETO_ULONG. D (result)"<<endl; actsutilityobj->ULONGTOBINARY(D);
-	#endif
-	return; 
-}
-keyvalue_t
-	#ifdef SW 
-	acts::
-	#endif
-WRITETO_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){
-	#ifdef _WIDEWORD
-	if(index > 64){ cout<<"WRITETO_ULONG: index >= 64. exiting... index: "<<index<<", size: "<<size<<endl; exit(EXIT_FAILURE); } // REMOVEME.
-	if(index + size > 64){ cout<<"WRITETO_ULONG: index + size >= 64. exiting... index: "<<index<<", size: "<<size<<endl; exit(EXIT_FAILURE); } // REMOVEME.
-
-	ulong_dt uldata;
-	uldata.range(63, 0) = 0;
-	// uldata.range(31, 0) = keyvalue.key; 
-	// uldata.range(63, 32) = keyvalue.value; 
-	
-	unsigned int A = keyvalue.value;
-	unsigned int B = keyvalue.key;
-	
-	uldata.range(31, 0) = A; 
-	uldata.range(63, 32) = B; 
-	
-	
-	// WRITETO_ULONG(&uldata, index, size, value);
-	
-	unsigned int kindex = 2;
-	unsigned int ksize = 2;
-	unsigned int kvalue = 2;
-	// uldata.range(kindex + ksize, kindex) = 2;
-	uldata.range(4, 2) = 2;
-	
-	A = uldata.range(31, 0);
-	B = uldata.range(63, 32);
-	
-	// keyvalue.key = uldata.range(31, 0); 
-	// keyvalue.value = uldata.range(63, 32); 
-	keyvalue.value = A; 
-	keyvalue.key = B; 
-	return keyvalue;
-	#else 
-	ulong_dt * data = (ulong_dt *)keyvalue;
-	WRITETO_ULONG(data, index, size, value);
-	return;
-	#endif 
-}
-#endif 
-
-
 unsigned int 
 	#ifdef SW 
 	acts::
@@ -3833,166 +3750,134 @@ reduce_bfs(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFF
 		for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){
 		#pragma HLS PIPELINE
 			#ifdef _WIDEWORD // CRITICAL VHLS CHECKME.
-			
-			
-			// keyy_t keys0 = partitionupperlimit0 + longdata0.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys0;
-			if(t==0){
-				keys0 = partitionupperlimit0 + longdata0.range(13, 0); // data1
-			} else if(t==1){
-				keys0 = partitionupperlimit0 + longdata0.range(27, 14); // data2
-			} else if(t==2){
-				keys0 = partitionupperlimit0 + longdata0.range(41, 28); // data3
-			} else {
-				keys0 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys0 = partitionupperlimit0 + longdata0.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys0;
+				if(t==0){
+					keys0 = partitionupperlimit0 + longdata0.range(13, 0); // data1
+				} else if(t==1){
+					keys0 = partitionupperlimit0 + longdata0.range(27, 14); // data2
+				} else if(t==2){
+					keys0 = partitionupperlimit0 + longdata0.range(41, 28); // data3
+				} else {
+					keys0 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys1 = partitionupperlimit1 + longdata1.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys1;
-			if(t==0){
-				keys1 = partitionupperlimit1 + longdata1.range(13, 0); // data1
-			} else if(t==1){
-				keys1 = partitionupperlimit1 + longdata1.range(27, 14); // data2
-			} else if(t==2){
-				keys1 = partitionupperlimit1 + longdata1.range(41, 28); // data3
-			} else {
-				keys1 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys1 = partitionupperlimit1 + longdata1.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys1;
+				if(t==0){
+					keys1 = partitionupperlimit1 + longdata1.range(13, 0); // data1
+				} else if(t==1){
+					keys1 = partitionupperlimit1 + longdata1.range(27, 14); // data2
+				} else if(t==2){
+					keys1 = partitionupperlimit1 + longdata1.range(41, 28); // data3
+				} else {
+					keys1 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys2 = partitionupperlimit2 + longdata2.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys2;
-			if(t==0){
-				keys2 = partitionupperlimit2 + longdata2.range(13, 0); // data1
-			} else if(t==1){
-				keys2 = partitionupperlimit2 + longdata2.range(27, 14); // data2
-			} else if(t==2){
-				keys2 = partitionupperlimit2 + longdata2.range(41, 28); // data3
-			} else {
-				keys2 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys2 = partitionupperlimit2 + longdata2.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys2;
+				if(t==0){
+					keys2 = partitionupperlimit2 + longdata2.range(13, 0); // data1
+				} else if(t==1){
+					keys2 = partitionupperlimit2 + longdata2.range(27, 14); // data2
+				} else if(t==2){
+					keys2 = partitionupperlimit2 + longdata2.range(41, 28); // data3
+				} else {
+					keys2 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys3 = partitionupperlimit3 + longdata3.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys3;
-			if(t==0){
-				keys3 = partitionupperlimit3 + longdata3.range(13, 0); // data1
-			} else if(t==1){
-				keys3 = partitionupperlimit3 + longdata3.range(27, 14); // data2
-			} else if(t==2){
-				keys3 = partitionupperlimit3 + longdata3.range(41, 28); // data3
-			} else {
-				keys3 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys3 = partitionupperlimit3 + longdata3.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys3;
+				if(t==0){
+					keys3 = partitionupperlimit3 + longdata3.range(13, 0); // data1
+				} else if(t==1){
+					keys3 = partitionupperlimit3 + longdata3.range(27, 14); // data2
+				} else if(t==2){
+					keys3 = partitionupperlimit3 + longdata3.range(41, 28); // data3
+				} else {
+					keys3 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys4 = partitionupperlimit4 + longdata4.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys4;
-			if(t==0){
-				keys4 = partitionupperlimit4 + longdata4.range(13, 0); // data1
-			} else if(t==1){
-				keys4 = partitionupperlimit4 + longdata4.range(27, 14); // data2
-			} else if(t==2){
-				keys4 = partitionupperlimit4 + longdata4.range(41, 28); // data3
-			} else {
-				keys4 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys4 = partitionupperlimit4 + longdata4.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys4;
+				if(t==0){
+					keys4 = partitionupperlimit4 + longdata4.range(13, 0); // data1
+				} else if(t==1){
+					keys4 = partitionupperlimit4 + longdata4.range(27, 14); // data2
+				} else if(t==2){
+					keys4 = partitionupperlimit4 + longdata4.range(41, 28); // data3
+				} else {
+					keys4 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys5 = partitionupperlimit5 + longdata5.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys5;
-			if(t==0){
-				keys5 = partitionupperlimit5 + longdata5.range(13, 0); // data1
-			} else if(t==1){
-				keys5 = partitionupperlimit5 + longdata5.range(27, 14); // data2
-			} else if(t==2){
-				keys5 = partitionupperlimit5 + longdata5.range(41, 28); // data3
-			} else {
-				keys5 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys5 = partitionupperlimit5 + longdata5.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys5;
+				if(t==0){
+					keys5 = partitionupperlimit5 + longdata5.range(13, 0); // data1
+				} else if(t==1){
+					keys5 = partitionupperlimit5 + longdata5.range(27, 14); // data2
+				} else if(t==2){
+					keys5 = partitionupperlimit5 + longdata5.range(41, 28); // data3
+				} else {
+					keys5 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys6 = partitionupperlimit6 + longdata6.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys6;
-			if(t==0){
-				keys6 = partitionupperlimit6 + longdata6.range(13, 0); // data1
-			} else if(t==1){
-				keys6 = partitionupperlimit6 + longdata6.range(27, 14); // data2
-			} else if(t==2){
-				keys6 = partitionupperlimit6 + longdata6.range(41, 28); // data3
-			} else {
-				keys6 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys6 = partitionupperlimit6 + longdata6.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys6;
+				if(t==0){
+					keys6 = partitionupperlimit6 + longdata6.range(13, 0); // data1
+				} else if(t==1){
+					keys6 = partitionupperlimit6 + longdata6.range(27, 14); // data2
+				} else if(t==2){
+					keys6 = partitionupperlimit6 + longdata6.range(41, 28); // data3
+				} else {
+					keys6 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
-			
-			
-			// keyy_t keys7 = partitionupperlimit7 + longdata7.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
-			// #ifdef XXX
-			keyy_t keys7;
-			if(t==0){
-				keys7 = partitionupperlimit7 + longdata7.range(13, 0); // data1
-			} else if(t==1){
-				keys7 = partitionupperlimit7 + longdata7.range(27, 14); // data2
-			} else if(t==2){
-				keys7 = partitionupperlimit7 + longdata7.range(41, 28); // data3
-			} else {
-				keys7 = 0;
-				#ifdef _DEBUGMODE_CHECKS2
-				cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+			keyy_t keys7 = partitionupperlimit7 + longdata7.range(COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA + COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA); 
+				#ifdef XXX
+				keyy_t keys7;
+				if(t==0){
+					keys7 = partitionupperlimit7 + longdata7.range(13, 0); // data1
+				} else if(t==1){
+					keys7 = partitionupperlimit7 + longdata7.range(27, 14); // data2
+				} else if(t==2){
+					keys7 = partitionupperlimit7 + longdata7.range(41, 28); // data3
+				} else {
+					keys7 = 0;
+					#ifdef _DEBUGMODE_CHECKS2
+					cout<<"reduce_bfs. should never get here. exiting..."<<endl; exit(EXIT_FAILURE);
+					#endif 
+				}
 				#endif 
-			}
-			// #endif 
-			
-			
 			#else 
 			keyy_t keys0 = partitionupperlimit0 + READFROM_ULONG(*longdata0, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 			keyy_t keys1 = partitionupperlimit1 + READFROM_ULONG(*longdata1, COMPACTPARAM_STARTOFFSET_DATA + t*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
@@ -5032,14 +4917,10 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 	}
 	UNIFYDATA_LOOP3: for(vector_type v=0; v<VECTOR_SIZE; v++){ 
 	#pragma HLS UNROLL
-		cutoffs0[v] = actvvscapsule0[v].value; 
-		// cout<<"----- unifydata_bfs_syn: actvvscapsule0[v].value: "<<actvvscapsule0[v].value<<endl;
-		cutoffs1[v] = actvvscapsule1[v].value; 
-		// cout<<"----- unifydata_bfs_syn: actvvscapsule1[v].value: "<<actvvscapsule1[v].value<<endl;
-		cutoffs2[v] = actvvscapsule2[v].value; 
-		// cout<<"----- unifydata_bfs_syn: actvvscapsule2[v].value: "<<actvvscapsule2[v].value<<endl;
-		cutoffs3[v] = actvvscapsule3[v].value; 
-		// cout<<"----- unifydata_bfs_syn: actvvscapsule3[v].value: "<<actvvscapsule3[v].value<<endl;
+		cutoffs0[v] = actvvscapsule0[v].value;
+		cutoffs1[v] = actvvscapsule1[v].value;
+		cutoffs2[v] = actvvscapsule2[v].value;
+		cutoffs3[v] = actvvscapsule3[v].value;
 	}
 	return;
 }

@@ -1,2 +1,0 @@
-iterations, num-runs,avgElapsed,preprocess_time,postprocess_time,load_time,nodes_visited,edges_visited,src
-30, 20,199.664,3924.3,7.88212,7042.17,0,0,largestdegree
