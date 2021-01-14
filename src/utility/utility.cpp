@@ -818,11 +818,11 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 	vector<value_t> activevertices;
 	for(unsigned int i=0; i<srcvids.size(); i++){ rootactvvs.push_back(srcvids[i]); }
 	unsigned int edges1_count = 0;
-	unsigned int edgesdstv1_sum = 0;
+	unsigned int actvvsdstv1_sum = 0;
 	
 	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
 		edges1_count = 0;
-		edgesdstv1_sum = 0;
+		actvvsdstv1_sum = 0;
 	
 		for(unsigned int i=0; i<rootactvvs.size(); i++){
 			unsigned int vid = rootactvvs[i];
@@ -839,7 +839,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 					
 					labels[dstvid] = VISITED_IN_CURRENT_ITERATION; 
 					activevertices.push_back(dstvid); 
-					edgesdstv1_sum += dstvid; 
+					actvvsdstv1_sum += dstvid; 
 				}
 				else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } 
 				else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } 
@@ -848,7 +848,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 		}
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<"+++++++++++++++++++++++++++++ utility::runbfs_sw (nextit acvvs) edges1_count: NAp, edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
+		cout<<"+++++++++++++++++++++++++++++ utility::runbfs_sw (nextit acvvs) edges1_count: NAp, actvvsdstv1_sum: "<<actvvsdstv1_sum<<endl;
 		cout<<"utility::runbfs_sw: number of active vertices for next iteration: "<<activevertices.size()<<endl;
 		// for(unsigned int i=0; i<activevertices.size(); i++){ cout<<"utility::runbfs_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
 		for(unsigned int i=0; i<hmin(activevertices.size(), 16); i++){ cout<<"utility::runbfs_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
@@ -863,7 +863,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 		}
 	}
 	delete labels;
-	return edgesdstv1_sum;
+	return actvvsdstv1_sum;
 }
 
 

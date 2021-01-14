@@ -373,7 +373,7 @@ struct _bitData {
 // inmemory BFS definitions
 #define UNVISITED 0
 #define VISITED_IN_CURRENT_ITERATION 1
-#define VISITED_IN_PAST_ITERATION 2
+#define VISITED_IN_PAST_ITERATION 3//2 // CRITICAL FIXME?
 
 // packing efficiencies
 #ifdef PR_ALGORITHM

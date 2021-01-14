@@ -162,8 +162,8 @@ void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer,
 			#endif
 		}
 		#ifdef _DEBUGMODE_HOSTPRINTS
-		utilityobj->printkeyvalues("loadgraph::loadvertexptrs::first", &(keyvalue_t *)kvbuffer[i][BASEOFFSET_VERTEXPTR], 16);
-		utilityobj->printkeyvalues("loadgraph::loadvertexptrs::last", &(keyvalue_t *)kvbuffer[i][BASEOFFSET_VERTEXPTR+KVDATA_RANGE-16], 16);
+		utilityobj->printkeyvalues("loadgraph::loadedges_columnwise::first", &(keyvalue_t *)kvbuffer[i][BASEOFFSET_VERTEXPTR], 16);
+		utilityobj->printkeyvalues("loadgraph::loadedges_columnwise::last", &(keyvalue_t *)kvbuffer[i][BASEOFFSET_VERTEXPTR+KVDATA_RANGE-16], 16);
 		#endif 
 	}
 	return;
@@ -355,22 +355,20 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	#endif
 	return;
 }
-void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, vptr_type * vptrs[NUMSUBCPUTHREADS], keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
+void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, vptr_type * vptrs[NUMSUBCPUTHREADS], keyy_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::loadactvvertices:: loading active vertices... "<<endl;
-	#endif 
+	#endif
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<srcvids.size(); k++){
-			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = srcvids[k];
-			kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].value = NAp;
-			// kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].key = vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k]].key; // vertexptrbuffer[srcvids[k]];
-			// kvbuffer[i][BASEOFFSET_ACTIVEVERTICES + k].value = vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k] + 1].key - vptrs[i][2*BASEOFFSET_VERTEXPTR + srcvids[k]].key;
+			kvbuffer[i][2*BASEOFFSET_ACTIVEVERTICES + k] = srcvids[k];
 		}
 		container->actvvsize[i] = srcvids.size();
-		#ifdef _DEBUGMODE_HOSTPRINTS2
-		utilityobj->printkeyvalues("loadgraph::loadvertexptrs::first", &kvbuffer[i][BASEOFFSET_ACTIVEVERTICES], utilityobj->hmin(16, srcvids.size()));
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		utilityobj->printkeyvalues("loadgraph::loadactvvertices", (keyvalue_t *)&kvbuffer[i][2*BASEOFFSET_ACTIVEVERTICES], utilityobj->hmin(16, srcvids.size()));
 		#endif
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

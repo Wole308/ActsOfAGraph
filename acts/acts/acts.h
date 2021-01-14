@@ -75,6 +75,7 @@ public:
 	void resetmanykeyandvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval);
 	void resetmanykeyandvalues(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type size, unsigned int resetval);
 	void resetmanykeyandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
+	void resetmanykeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval);
 	void resetmanyvalues(buffer_type buffer0[NUM_PARTITIONS],buffer_type buffer1[NUM_PARTITIONS],buffer_type buffer2[NUM_PARTITIONS],buffer_type buffer3[NUM_PARTITIONS],buffer_type buffer4[NUM_PARTITIONS],buffer_type buffer5[NUM_PARTITIONS],buffer_type buffer6[NUM_PARTITIONS],buffer_type buffer7[NUM_PARTITIONS], buffer_type size, unsigned int resetval);
 	buffer_type getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
@@ -332,7 +333,7 @@ public:
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
 		
-	void generateoffsets(
+	buffer_type generateoffsets(
 			uint512_dt * kvdram, 
 			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
