@@ -66,7 +66,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-// #define _DEBUGMODE_KERNELPRINTS2 //
+#define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -82,7 +82,7 @@
 // #define _DEBUGMODE_HOSTPRINTS2 //
 #define _DEBUGMODE_HOSTPRINTS3 //
 // #define _DEBUGMODE_TIMERS
-// #define _DEBUGMODE_TIMERS2
+#define _DEBUGMODE_TIMERS2
 #define _DEBUGMODE_TIMERS3
 
 ////////////////
@@ -435,13 +435,9 @@ typedef struct {
 } uint64_dt;
 #endif
 
-// #ifdef _WIDEWORD
-// typedef ap_uint<64> uuint64_dt;
-// #else
 typedef struct {
 	unsigned long data;
 } uuint64_dt;
-// #endif
 
 #ifdef _WIDEWORD
 typedef ap_uint<64> ulong_dt;

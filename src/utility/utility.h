@@ -35,8 +35,8 @@ public:
 	void printvalues(string message, vector<value_t> & values, unsigned int size);
 	void printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
 	void printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold);
-	void printstructuresbeforekernelrun(string message, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);
-	void printstructuresafterkernelrun(string message, uint512_vec_dt * kvsourcedram[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int size);
+	void printstructuresbeforekernelrun(string message, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int size);
+	void printstructuresafterkernelrun(string message, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int size);
 	void printcontainer(container_t * container);
 	
 	void checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3);

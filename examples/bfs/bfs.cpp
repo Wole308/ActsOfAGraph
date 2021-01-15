@@ -85,7 +85,7 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 3; //2;
+	unsigned int NumGraphIters = 1; //2;
 	container_t container;
 	vector<value_t> activevertices;
 	
@@ -102,14 +102,14 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(12);
 	// activevertices.push_back(13);
 	
-	activevertices.push_back(1);
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -136,7 +136,7 @@ runsummary_t bfs::run(){
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 
 	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-	
+
 	utilityobj->stopTIME(">>> bfs::finished:. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
@@ -223,6 +223,13 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	
+	/* // 1st print (kvdram & kvdramworkspace)
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		utilityobj->printkeyvalues("kvbuffer["+std::to_string(i)<<"][BASEOFFSET_KVDRAM_KVS]", (keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAM_KVS], 16);
+		utilityobj->printkeyvalues("kvbuffer["+std::to_string(i)<<"][BASEOFFSET_KVDRAMWORKSPACE_KVS]", (keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], 16);
+	}
+	exit(EXIT_SUCCESS); */
+	
 	// 1st check (scanning edges in file...)
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
@@ -232,7 +239,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
 		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
-	}				
+	}
 	
 	// 3rd check (stats collected after acts.procactvvs stage)
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
@@ -289,6 +296,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
+	#ifdef _DEBUGMODE_HOSTCHECKS2
 	if(CLOP == 1){
 		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
 		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
@@ -300,6 +308,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
 	}
 	cout<<"bfs::verify: verify successful."<<endl;
+	#endif 
 	#endif
 	return;
 }

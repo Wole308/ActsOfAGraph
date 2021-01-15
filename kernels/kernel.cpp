@@ -29,8 +29,8 @@ kernel::kernel(stats * _statsobj){
 kernel::~kernel(){} 
 
 void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){			
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt **)kvsourcedram, NUMSUBCPUTHREADS);
 	#endif
 	
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
@@ -45,10 +45,9 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsig
 	readfromkernel(flag, kvsourcedram);
 	#endif
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_vec_dt* (*)[NUMSUBCPUTHREADS])kvsourcedram, 1);
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	utilityobj->printstructuresafterkernelrun("kernel::launchkernel", (uint512_vec_dt **)kvsourcedram, NUMSUBCPUTHREADS);
 	#endif
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
