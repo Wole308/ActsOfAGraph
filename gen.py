@@ -127,7 +127,7 @@ context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
 context['NUMSUBCPUTHREADS'] = 14
-context['NUMCOMPUTEUNITS'] = 1 # context['NUMSUBCPUTHREADS']
+context['NUMCOMPUTEUNITS'] = context['NUMSUBCPUTHREADS']
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))

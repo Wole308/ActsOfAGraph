@@ -85,7 +85,7 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 1; //2;
+	unsigned int NumGraphIters = 7; //2;
 	container_t container;
 	vector<value_t> activevertices;
 	
@@ -102,14 +102,14 @@ runsummary_t bfs::run(){
 	// activevertices.push_back(12);
 	// activevertices.push_back(13);
 	
-	// activevertices.push_back(1);
+	activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -351,7 +351,6 @@ void bfs::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 	vector<value_t> activevertices;
 
 	unsigned int baseoffset = BASEOFFSET_VERTICESDATA;
-	unsigned long vdata = UNVISITED;
 	unsigned int totalnumactvvs = 0;
 	
 	for(unsigned int i=0; i<1; i++){
@@ -360,7 +359,6 @@ void bfs::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 			keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_VERTICESDATA + k];
 			
 			for(unsigned int t = 0; t < 64; t+=2){
-				vdata = UNVISITED;
 				unsigned int vid = k*32 + t/2;
 				unsigned int index = t;
 				unsigned int bitsize = 2;
@@ -371,7 +369,7 @@ void bfs::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 				if(vdataj == VISITED_IN_PAST_ITERATION){
 					totalnumactvvs += 1; 
 					#ifdef _DEBUGMODE_HOSTPRINTS3
-					if(totalnumactvvs < 16){ cout<<"bfs::verifyvertexdata: VISITED_IN_CURRENT_ITERATION seen @ (k:"<<k<<", t:"<<t<<", vid:"<<vid<<"): vdata: "<<vdata<<endl; }
+					if(totalnumactvvs < 16){ cout<<"bfs::verifyvertexdata: VISITED_IN_CURRENT_ITERATION seen @ k:"<<k<<", t:"<<t<<", vid:"<<vid<<endl; }
 					#endif
 				}
 			}

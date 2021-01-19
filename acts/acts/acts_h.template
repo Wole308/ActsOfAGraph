@@ -46,8 +46,9 @@ using namespace std;
 // [key]00110000000000010000000000000101 
 
 #define PIPELINED_SYNCACTVVS
-#define LOGRUNSTATS
+#define LOGKERNELSTATS
 #define RUNSTATSSZ 64
+#define ACTVVSFLUSHSZ 4
 
 class acts {
 public:
@@ -375,7 +376,7 @@ public:
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp0{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
-			travstate_t actvvstravstate, buffer_type returnstats[RUNSTATSSZ], globalparams_t globalparams[NUMSUBCPUTHREADS]);
+			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
 
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);

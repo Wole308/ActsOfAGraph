@@ -852,6 +852,8 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 		for(unsigned int i=0; i<hmin(activevertices.size(), 0); i++){ cout<<"utility::runbfs_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
 		#endif
 		
+		if(activevertices.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
+		
 		rootactvvs.clear();
 		for(unsigned int i=0; i<activevertices.size(); i++){ rootactvvs.push_back(activevertices[i]); }
 		activevertices.clear();
