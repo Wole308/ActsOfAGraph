@@ -144,6 +144,7 @@ runsummary_t bfs::run(){
 	verify(activevertices);
 	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	verifyvertexdata((keyvalue_t **)kvbuffer);
+	verifykernelreturnvalues(kvbuffer);
 	// apply((keyvalue_t **)kvbuffer, activevertices);
 	
 	finish();
@@ -217,9 +218,10 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int cctv = 0;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
-		actvvs_verbosecount += sz;
+		if(i==0){ actvvs_verbosecount = sz; }
 		keyy_t * KK = (keyy_t *)&kvbuffer[i][BASEOFFSET_ACTIVEVERTICES_KVS];
 		unsigned int localactvvs_count = 0;
+		unsigned int localactvvsdstv1_sum = 0;
 		for(unsigned int k=0; k<sz; k++){
 			if(KK[k] != INVALIDDATA){
 				if(i==0){
@@ -230,10 +232,11 @@ void bfs::verify(vector<vertex_t> &activevertices){
 					actvvsdstv1_sum += KK[k];
 				}
 				localactvvs_count += 1;
+				localactvvsdstv1_sum += KK[k]; 
 				cctv += 1;
 			}
 		}
-		cout<<"bfs::verifyactvvs: num actvvs found in kvbuffer["<<i<<"]: localactvvs_count: "<<localactvvs_count<<endl;
+		cout<<"bfs::verifyactvvs: num actvvs found in kvbuffer["<<i<<"]: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	}
 	
 	// 7th view
@@ -376,6 +379,17 @@ void bfs::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"bfs::verifyvertexdata: number of active vertices for next iteration (subthread "<<i<<"): "<<totalnumactvvs<<endl;
 		#endif
+	}
+	return;
+}
+void bfs::verifykernelreturnvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"bfs::verifykernelreturnvalues: results returned from kernel... "<<endl;
+	#endif
+	
+	for(unsigned int i=0; i<16; i++){
+		keyvalue_t keyvalue = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
+		cout<<"bfs::verifykernelreturnvalues:: active vertices from GraphIter "<<i<<": "<<keyvalue.key<<endl;
 	}
 	return;
 }
