@@ -115,7 +115,7 @@ do
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -140,7 +140,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $HW__ACTGRAPH_SETUP__VHLS
+	for setup in $HW__ACTGRAPH_SETUP__VHLS
 	
 	do 
 		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
@@ -442,8 +442,8 @@ do
 		do
 		
 		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ0
+		# for numsubcputhreads_pow in $THREADPOW_EQ4
+		for numsubcputhreads_pow in $THREADPOW_EQ0
 		# for numsubcputhreads_pow in $THREADPOW_EQ1
 		
 		do

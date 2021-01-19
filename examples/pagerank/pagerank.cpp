@@ -80,8 +80,8 @@ runsummary_t pagerank::run(){
 		setupkernelobj->startSRteration();
 		#endif
 		
-		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += NUMSUPERCPUTHREADS){ //2 graphobj->getnumedgebanks()
-			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: "<<NUMSUPERCPUTHREADS<<"]"<< RESET <<endl;
+		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += 1){ //2 graphobj->getnumedgebanks()
+			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: 1]"<< RESET <<endl;
 			WorkerThread(0, col, activevertices, &container, GraphIter);
 			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
 			break; // REMOVEME.
@@ -118,7 +118,7 @@ void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vecto
 	
 	for(unsigned int iteration_idx=0; iteration_idx<iteration_size; iteration_idx++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<endl<<"PP&A:: [col:"<<col<<"][size:"<<graphobj->getnumedgebanks()<<"][step:"<<NUMSUPERCPUTHREADS<<"], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
+		cout<<endl<<"PP&A:: [col:"<<col<<"][size:"<<graphobj->getnumedgebanks()<<"][step:1], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
 		#endif
 		
 		#ifdef INMEMORYGP

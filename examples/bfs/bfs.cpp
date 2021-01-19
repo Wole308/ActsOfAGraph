@@ -143,6 +143,7 @@ runsummary_t bfs::run(){
 	// verify 
 	verify(activevertices);
 	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	verifyvertexdata((keyvalue_t **)kvbuffer);
 	// apply((keyvalue_t **)kvbuffer, activevertices);
 	
 	finish();
@@ -150,6 +151,233 @@ runsummary_t bfs::run(){
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
+}
+
+void bfs::verify(vector<vertex_t> &activevertices){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"bfs::verify. verifying..."<<endl;
+	#endif 
+	#if defined(PROCESSACTIVEVERTICESTEST) && defined(ENABLE_PERFECTACCURACY)
+	unsigned int edges1_count = 0;
+	unsigned int edgesdstv1_sum = 0;
+	unsigned int edges2_count = 0;
+	unsigned int edgesdstv2_sum = 0;
+	unsigned int edges3_count = 0;
+	unsigned int edgesdstv3_sum = 0;
+	unsigned int edges4_count = 0;
+	unsigned int edgesdstv4_sum = 0;
+	unsigned int edges5_count = 0;
+	unsigned int edgesdstv5_sum = 0;
+	unsigned int actvvs_count = 0;
+	unsigned int actvvs_verbosecount = 0;
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
+	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
+	
+	// 1st check (scanning edges in file...)
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
+	utilityobj->collectedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
+	
+	// 2nd check (stats collected during acts.procactvvs stage)
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
+		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
+	}
+	
+	// 3rd check (stats collected after acts.procactvvs stage)
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
+		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
+		for(unsigned int j=0; j<sz; j++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
+				
+				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){
+					unsigned int numitems = utilityobj->PARSE(keyvalue, keys);
+					edges3_count += numitems; 
+					for(unsigned int t=0; t<numitems; t++){ edgesdstv3_sum += keys[t]; }
+				}
+			}
+		}
+	}
+	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
+	
+	// 4th check (checking edges in acts.LLOP...)
+	verifykvLOP((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
+	
+	// 5th check (stats collected during acts.reduce phase)
+	for(unsigned int i=0; i<1; i++){ 
+		edges5_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
+		edgesdstv5_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
+	}
+
+	// 6th check 
+	unsigned int actvvsdstv1_sum = 0;
+	unsigned int cctv = 0;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
+		actvvs_verbosecount += sz;
+		keyy_t * KK = (keyy_t *)&kvbuffer[i][BASEOFFSET_ACTIVEVERTICES_KVS];
+		unsigned int localactvvs_count = 0;
+		for(unsigned int k=0; k<sz; k++){
+			if(KK[k] != INVALIDDATA){
+				if(i==0){
+					#ifdef _DEBUGMODE_HOSTPRINTS
+					if(cctv < 16){ cout<<"bfs:verify: actvvid: "<<KK[k]<<endl; }
+					#endif 
+					actvvs_count += 1;
+					actvvsdstv1_sum += KK[k];
+				}
+				localactvvs_count += 1;
+				cctv += 1;
+			}
+		}
+		cout<<"bfs::verifyactvvs: num actvvs found in kvbuffer["<<i<<"]: localactvvs_count: "<<localactvvs_count<<endl;
+	}
+	
+	// 7th view
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		cout<<endl<<"[7th view]: subthread: "<<i<<endl;
+		keyy_t * KK = (keyy_t *)&kvbuffer[0][BASEOFFSET_ACTIVEVERTICES_KVS];
+		for(unsigned int k=0; k<4; k++){
+			if(KK[k] != INVALIDDATA){
+				#ifdef _DEBUGMODE_HOSTPRINTS3
+				cout<<"bfs:verify: actvvid: "<<KK[k]<<endl;
+				#endif
+			}
+		}
+	}
+	
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip, edges in file               ) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, during acts.procactvvs stage ) edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.procactvvs stage) edges3_count: "<<edges3_count<<", edgesdstv3_sum: "<<edgesdstv3_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after CLOP="<<CLOP<<" stage         ) edges4_count: "<<edges4_count<<", edgesdstv4_sum: "<<edgesdstv4_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.reduce stage    ) edges5_count: "<<edges5_count<<", edgesdstv5_sum: "<<edgesdstv5_sum<<endl;
+	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<" (actvvs_verbosecount:"<<actvvs_verbosecount<<", actvvsdstv1_sum:"<<actvvsdstv1_sum<<")"<<endl;
+	
+	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
+	
+	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
+	if(CLOP == 1){
+		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+	} else if(CLOP == TREE_DEPTH){
+		if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+	} else {
+		if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+	}
+	cout<<"bfs::verify: verify successful."<<endl;
+	#endif 
+	#endif
+	return;
+}
+void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"bfs::verify. verifying kvbuffer..."<<endl;
+	#endif 
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	
+	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
+	unsigned int numberofpartitions = 1 << (NUM_PARTITIONS_POW * CLOP);
+	unsigned int statsoffset = 0; for(unsigned int k=0; k<CLOP; k++){ statsoffset += (unsigned int)pow(NUM_PARTITIONS, k); } 
+	unsigned int baseoffset_stats_kvs = BASEOFFSET_STATSDRAM_KVS + statsoffset;
+	unsigned int baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE;
+	if(CLOP % 2 == 0){ baseoffset_kvdram = BASEOFFSET_KVDRAM; }
+	else { baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"bfs::verifykvLOP:: numberofpartitions: "<<(1 << (NUM_PARTITIONS_POW * CLOP))<<", rangeperpartition: "<<rangeperpartition<<", baseoffset_stats_kvs: "<<baseoffset_stats_kvs<<", statsoffset: "<<statsoffset<<", baseoffset_kvdram: "<<baseoffset_kvdram<<endl;
+	if(false){ utilityobj->printkeyvalues("bfs::verifykvLOP. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE); }
+	#endif
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		cout<<"bfs::verifykvLOP:: verifying thread: "<<i<<" of "<<NUMSUBCPUTHREADS<<" threads..."<<endl;
+		#endif 
+		for(unsigned int p=0; p<numberofpartitions; p++){
+			unsigned int numerrorkeys = 0;
+			
+			unsigned int upperlimit = 0;
+			unsigned int lowerindex = upperlimit + (p * rangeperpartition);
+			unsigned int upperindex = upperlimit + ((p+1) * rangeperpartition);
+			
+			unsigned int begin = stats[i][baseoffset_stats_kvs + p].data[0].key;
+			unsigned int size = stats[i][baseoffset_stats_kvs + p].data[0].value;
+			unsigned int end = begin + size;
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"bfs::verifykvLOP:: begin: "<<begin<<", size: "<<size<<", end: "<<end<<". ["<<lowerindex<<"->"<<upperindex<<"]"<<endl;
+			#endif 
+			
+			for(unsigned int k=begin; k<begin + size; k++){
+				keyvalue_t keyvalue = kvbuffer[i][baseoffset_kvdram + k];
+				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
+					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
+					if(thiskey < lowerindex || thiskey >= upperindex){
+						if(numerrorkeys < 8){
+							cout<<"bfs::verifykvLOP::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
+							utilityobj->PARSE(keyvalue, keys);
+							exit(EXIT_FAILURE);
+						}
+						cout<<"bfs::verifykvLOP::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
+						exit(EXIT_FAILURE);
+						
+						numerrorkeys += 1;
+					}
+					
+					unsigned int numitems = utilityobj->PARSE(kvbuffer[i][baseoffset_kvdram + k], keys);
+					*edges4_count += numitems; 
+					for(unsigned int t=0; t<numitems; t++){ *edgesdstv4_sum += keys[t]; }
+				}
+			}
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"bfs::verifykvLOP:: "<<numerrorkeys<<" errors seen for partition "<<p<<". ["<<lowerindex<<" -> "<<upperindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
+			#endif
+		}
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		cout<<""<<endl;
+		#endif
+	}
+	return;
+}
+void bfs::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"bfs::verifyvertexdata: verifying vertex data... "<<endl;
+	#endif
+	vector<value_t> activevertices;
+
+	unsigned int baseoffset = BASEOFFSET_VERTICESDATA;
+	unsigned long vdata = UNVISITED;
+	unsigned int totalnumactvvs = 0;
+	
+	for(unsigned int i=0; i<1; i++){
+		totalnumactvvs = 0;
+		for(unsigned int k=0; k<KVDATA_RANGE/32; k++){
+			keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_VERTICESDATA + k];
+			
+			for(unsigned int t = 0; t < 64; t+=2){
+				vdata = UNVISITED;
+				unsigned int vid = k*32 + t/2;
+				unsigned int index = t;
+				unsigned int bitsize = 2;
+				
+				if(vid % 1000000 == 0){ cout<<"bfs::verifyvertexdata: vid: "<<vid<<endl; }
+				
+				unsigned int vdataj = utilityobj->READFROM_ULONG(keyvalue, index, bitsize);
+				if(vdataj == VISITED_IN_PAST_ITERATION){
+					totalnumactvvs += 1; 
+					#ifdef _DEBUGMODE_HOSTPRINTS3
+					if(totalnumactvvs < 16){ cout<<"bfs::verifyvertexdata: VISITED_IN_CURRENT_ITERATION seen @ (k:"<<k<<", t:"<<t<<", vid:"<<vid<<"): vdata: "<<vdata<<endl; }
+					#endif
+				}
+			}
+		}
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		cout<<"bfs::verifyvertexdata: number of active vertices for next iteration (subthread "<<i<<"): "<<totalnumactvvs<<endl;
+		#endif
+	}
+	return;
 }
 void bfs::apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &activevertices){
 	activevertices.clear();
@@ -201,185 +429,6 @@ void bfs::apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &active
 	#endif
 	return;
 }
-
-void bfs::verify(vector<vertex_t> &activevertices){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"bfs::verify. verifying..."<<endl;
-	#endif 
-	#if defined(PROCESSACTIVEVERTICESTEST) && defined(ENABLE_PERFECTACCURACY)
-	unsigned int edges1_count = 0;
-	unsigned int edgesdstv1_sum = 0;
-	unsigned int edges2_count = 0;
-	unsigned int edgesdstv2_sum = 0;
-	unsigned int edges3_count = 0;
-	unsigned int edgesdstv3_sum = 0;
-	unsigned int edges4_count = 0;
-	unsigned int edgesdstv4_sum = 0;
-	unsigned int edges5_count = 0;
-	unsigned int edgesdstv5_sum = 0;
-	unsigned int actvvs_count = 0;
-	unsigned int actvvs_verbosecount = 0;
-	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
-	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
-	
-	/* // 1st print (kvdram & kvdramworkspace)
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		utilityobj->printkeyvalues("kvbuffer["+std::to_string(i)<<"][BASEOFFSET_KVDRAM_KVS]", (keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAM_KVS], 16);
-		utilityobj->printkeyvalues("kvbuffer["+std::to_string(i)<<"][BASEOFFSET_KVDRAMWORKSPACE_KVS]", (keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], 16);
-	}
-	exit(EXIT_SUCCESS); */
-	
-	// 1st check (scanning edges in file...)
-	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
-	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
-	utilityobj->collectedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
-	
-	// 2nd check (stats collected during acts.procactvvs stage)
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
-		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
-	}
-	
-	// 3rd check (stats collected after acts.procactvvs stage)
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
-		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
-		for(unsigned int j=0; j<sz; j++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
-				
-				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){
-					unsigned int numitems = utilityobj->PARSE(keyvalue, keys);
-					edges3_count += numitems; 
-					for(unsigned int t=0; t<numitems; t++){ edgesdstv3_sum += keys[t]; }
-				}
-			}
-		}
-	}
-	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
-	
-	// 4th check (checking edges in acts.LLOP...)
-	verifykvbuffer((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
-	
-	// 5th check (stats collected during acts.reduce phase)
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		edges5_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
-		edgesdstv5_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
-	}
-
-	// 6th check 
-	unsigned int actvvsdstv1_sum = 0;
-	unsigned int cctv = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
-		actvvs_verbosecount += sz;
-		keyy_t * KK = (keyy_t *)&kvbuffer[0][BASEOFFSET_ACTIVEVERTICES_KVS];
-		for(unsigned int k=0; k<sz; k++){
-			if(KK[k] != INVALIDDATA){
-				#ifdef _DEBUGMODE_HOSTPRINTS
-				if(cctv < 16){ cout<<"bfs:verify: actvvid: "<<KK[k]<<endl; }
-				#endif 
-				actvvs_count += 1;
-				actvvsdstv1_sum += KK[k];
-				cctv += 1;
-			}
-		}
-	}
-	
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (offchip, edges in file               ) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, during acts.procactvvs stage ) edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.procactvvs stage) edges3_count: "<<edges3_count<<", edgesdstv3_sum: "<<edgesdstv3_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after CLOP="<<CLOP<<" stage         ) edges4_count: "<<edges4_count<<", edgesdstv4_sum: "<<edgesdstv4_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.reduce stage    ) edges5_count: "<<edges5_count<<", edgesdstv5_sum: "<<edgesdstv5_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<" (actvvs_verbosecount:"<<actvvs_verbosecount<<", actvvsdstv1_sum:"<<actvvsdstv1_sum<<")"<<endl;
-	
-	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
-	
-	#ifdef _DEBUGMODE_HOSTCHECKS2
-	if(CLOP == 1){
-		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else if(CLOP == TREE_DEPTH){
-		if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else {
-		if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	}
-	cout<<"bfs::verify: verify successful."<<endl;
-	#endif 
-	#endif
-	return;
-}
-void bfs::verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"bfs::verify. verifying kvbuffer..."<<endl;
-	#endif 
-	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
-	
-	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
-	unsigned int numberofpartitions = 1 << (NUM_PARTITIONS_POW * CLOP);
-	unsigned int statsoffset = 0; for(unsigned int k=0; k<CLOP; k++){ statsoffset += (unsigned int)pow(NUM_PARTITIONS, k); } 
-	unsigned int baseoffset_stats_kvs = BASEOFFSET_STATSDRAM_KVS + statsoffset;
-	unsigned int baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE;
-	if(CLOP % 2 == 0){ baseoffset_kvdram = BASEOFFSET_KVDRAM; }
-	else { baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"bfs::verifykvbuffer:: numberofpartitions: "<<(1 << (NUM_PARTITIONS_POW * CLOP))<<", rangeperpartition: "<<rangeperpartition<<", baseoffset_stats_kvs: "<<baseoffset_stats_kvs<<", statsoffset: "<<statsoffset<<", baseoffset_kvdram: "<<baseoffset_kvdram<<endl;
-	if(false){ utilityobj->printkeyvalues("bfs::verifykvbuffer. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE); }
-	#endif
-	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"bfs::verifykvbuffer:: verifying thread: "<<i<<" of "<<NUMSUBCPUTHREADS<<" threads..."<<endl;
-		#endif 
-		for(unsigned int p=0; p<numberofpartitions; p++){
-			unsigned int numerrorkeys = 0;
-			
-			unsigned int upperlimit = 0;
-			unsigned int lowerindex = upperlimit + (p * rangeperpartition);
-			unsigned int upperindex = upperlimit + ((p+1) * rangeperpartition);
-			
-			unsigned int begin = stats[i][baseoffset_stats_kvs + p].data[0].key;
-			unsigned int size = stats[i][baseoffset_stats_kvs + p].data[0].value;
-			unsigned int end = begin + size;
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"bfs::verifykvbuffer:: begin: "<<begin<<", size: "<<size<<", end: "<<end<<". ["<<lowerindex<<"->"<<upperindex<<"]"<<endl;
-			#endif 
-			
-			for(unsigned int k=begin; k<begin + size; k++){
-				keyvalue_t keyvalue = kvbuffer[i][baseoffset_kvdram + k];
-				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
-					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
-					if(thiskey < lowerindex || thiskey >= upperindex){
-						if(numerrorkeys < 8){
-							cout<<"bfs::verifykvbuffer::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
-							utilityobj->PARSE(keyvalue, keys);
-							exit(EXIT_FAILURE);
-						}
-						cout<<"bfs::verifykvbuffer::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
-						exit(EXIT_FAILURE);
-						
-						numerrorkeys += 1;
-					}
-					
-					unsigned int numitems = utilityobj->PARSE(kvbuffer[i][baseoffset_kvdram + k], keys);
-					*edges4_count += numitems; 
-					for(unsigned int t=0; t<numitems; t++){ *edgesdstv4_sum += keys[t]; }
-				}
-			}
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"bfs::verifykvbuffer:: "<<numerrorkeys<<" errors seen for partition "<<p<<". ["<<lowerindex<<" -> "<<upperindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
-			#endif
-		}
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<""<<endl;
-		#endif
-	}
-	return;
-}
-
 
 
 

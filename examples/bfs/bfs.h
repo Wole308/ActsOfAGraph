@@ -23,8 +23,9 @@ public:
 	void apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &activevertices);
 	
 	void verify(vector<vertex_t> &activevertices);
-	void verifykvbuffer(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum);					
-
+	void verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum);					
+	void verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
+	
 private:
 	graph * graphobj;
 	parameters * parametersobj;

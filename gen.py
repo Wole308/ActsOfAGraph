@@ -126,8 +126,8 @@ context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORK
 context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
-context['NUMCOMPUTEUNITS'] = 1 #16
-context['NUMSUBCPUTHREADS'] = 2**context['NUMSUBCPUTHREADS_POW']
+context['NUMSUBCPUTHREADS'] = 14
+context['NUMCOMPUTEUNITS'] = 1 # context['NUMSUBCPUTHREADS']
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
@@ -320,6 +320,10 @@ context['16_seq'] = []
 for i in range (0,16):
 		context['16_seq'].append(i)
         
+context['15_seq'] = []
+for i in range (0,15):
+		context['15_seq'].append(i)
+        
 context['8_seq'] = []
 for i in range (0,8):
 		context['8_seq'].append(i)
@@ -352,9 +356,9 @@ context['1_seq'] = []
 for i in range (0,1):
 		context['1_seq'].append(i)
         
-context['15_seq'] = []
-for i in range (0,15):
-		context['15_seq'].append(i)
+context['k_seq'] = []
+for i in range (0,4):
+		context['k_seq'].append(i)
         
 context['COMPUTEUNITS_seq'] = []
 for i in range (0,(context['NUMCOMPUTEUNITS'])):

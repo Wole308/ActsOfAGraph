@@ -51,8 +51,8 @@ void utility::printallparameters(){
 	std::cout<<"host:: NUMWORKERS: "<<NUMWORKERS<<std::endl;
 	std::cout<<"host:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
 	std::cout<<"host:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
-	std::cout<<"host:: NUMSUPERCPUTHREADS: "<<NUMSUPERCPUTHREADS<<std::endl;
-	std::cout<<"host:: NUMCPUTHREADS: "<<NUMCPUTHREADS<<std::endl;
+	// std::cout<<"host:: NUMSUPERCPUTHREADS: "<<NUMSUPERCPUTHREADS<<std::endl;
+	// std::cout<<"host:: NUMCPUTHREADS: "<<NUMCPUTHREADS<<std::endl;
 	std::cout<<"host:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
 	std::cout<<"host:: NUMUTILITYTHREADS: "<<NUMUTILITYTHREADS<<std::endl;
 	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
@@ -469,8 +469,8 @@ unsigned int utility::allignlower_KV(unsigned int val){
 	unsigned int fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-void utility::setarray(unsigned int array[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int _1dimsize, unsigned int _2dimsize, unsigned int value){
-	for (int i = 0; i < _1dimsize; i++){ for(unsigned int j = 0; j < _2dimsize; j++){ array[i][j] = value; }}
+void utility::setarray(unsigned int array[NUMSUBCPUTHREADS], unsigned int size, unsigned int value){
+	for(unsigned int i = 0; i < size; i++){ array[i] = value; }
 }
 void utility::copy(unsigned int * array1, unsigned int * array2, unsigned int size){
 	for(unsigned int i=0; i<size; i++){ array1[i] = array2[i]; }
@@ -544,14 +544,12 @@ void utility::paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned 
 	for(unsigned v=size; v<(size + num); v++){ keyvalues[v].key = padddata; keyvalues[v].value = padddata; }
 	return;
 }
-void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]){
-	for(unsigned int i=0; i<NUMCPUTHREADS; i++){
-		for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
-			for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){
-					kvbuffer[i][j][k].data[v].key = 0;
-					kvbuffer[i][j][k].data[v].value = 0;
-				}
+void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
+	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){
+		for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				kvbuffer[j][k].data[v].key = 0;
+				kvbuffer[j][k].data[v].value = 0;
 			}
 		}
 	}

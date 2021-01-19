@@ -59,7 +59,7 @@ public:
 	void allignandappendinvalids(keyvalue_t * buffer, unsigned int size);
 	unsigned int allignhigher_KV(unsigned int val);
 	unsigned int allignlower_KV(unsigned int val);
-	void setarray(unsigned int array[NUMCPUTHREADS][NUMSUBCPUTHREADS], unsigned int _1dimsize, unsigned int _2dimsize, unsigned int value);
+	void setarray(unsigned int array[NUMSUBCPUTHREADS], unsigned int size, unsigned int value);
 	void copy(unsigned int * array1, unsigned int * array2, unsigned int size);
 	void countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value);
 	unsigned int countvalues(string message, keyvalue_t * keyvalue, unsigned int size);
@@ -69,7 +69,7 @@ public:
 	void createdirectory(const char* directory);
 	void countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data);
 	void paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned int padddata);
-	void clearkeyvalues(uint512_vec_dt * kvbuffer[NUMCPUTHREADS][NUMSUBCPUTHREADS]);
+	void clearkeyvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
 	
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing);
