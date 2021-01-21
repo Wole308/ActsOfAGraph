@@ -80,7 +80,7 @@ public:
 	void resetmanykeyandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetmanykeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval);
-	void resetmanyvalues(buffer_type buffer0[NUM_PARTITIONS],buffer_type buffer1[NUM_PARTITIONS],buffer_type buffer2[NUM_PARTITIONS],buffer_type buffer3[NUM_PARTITIONS],buffer_type buffer4[NUM_PARTITIONS],buffer_type buffer5[NUM_PARTITIONS],buffer_type buffer6[NUM_PARTITIONS],buffer_type buffer7[NUM_PARTITIONS], buffer_type size, unsigned int resetval);
+	void resetmanyvalues({%for v in context['VECTOR_SIZE_seq']%}buffer_type buffer{{v}}[NUM_PARTITIONS],{%endfor%} buffer_type size, unsigned int resetval);
 	buffer_type getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
 	buffer_type getchunksize(buffer_type buffersz, travstate_t travstate, buffer_type localoffset);
 	partition_type getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow);
@@ -145,17 +145,17 @@ public:
 
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 	
-	void savekeyvalues_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
+	void savekeyvalues_sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 	
-	void savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
+	void savekeyvalues_pipeline_sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 	
-	void savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+	void savekeyvalues_pipeline_sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 	
-	void savekeyvalues_pipeline_2sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+	void savekeyvalues_pipeline_2sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 	
 	void replicatedata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
 
-	void replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
+	void replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t destbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} buffer_type sourceoffset, buffer_type size);
 
 	value_t reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	
@@ -175,15 +175,14 @@ public:
 								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 									sweepparams_t sweepparams, globalparams_t globalparams);
 	
-	travstate_t unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+	travstate_t unifydata_bfs_syn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 						sweepparams_t sweepparams, globalparams_t globalparams);
 						
-	bool_type unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-					keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule0[8], buffer_type cutoffs0[VECTOR_SIZE],
-					keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule1[8], buffer_type cutoffs1[VECTOR_SIZE],
-					keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule2[8], buffer_type cutoffs2[VECTOR_SIZE],
-					keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule3[8], buffer_type cutoffs3[VECTOR_SIZE],
+	bool_type unifydata_bfs_syn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+					{%for i in context['k_seq']%}
+					keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule{{i}}[8], buffer_type cutoffs{{i}}[VECTOR_SIZE],
+					{%endfor%}
 					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 	// apply functions 
@@ -195,27 +194,21 @@ public:
 	void process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t statsbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
 	// in-memory partition functions (1)
-	void combineSetof1stoSetof2_I0(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
+	{%for n in context['4_seq']%}
+	void combineSetof1stoSetof2_I{{n}}(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
 																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
 																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof1stoSetof2_I1(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof1stoSetof2_I2(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof1stoSetof2_I3(bool_type enable, keyvalue_t buffer_setof1M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof1M1[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof2R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2R1[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof2stoSetof4_I0(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M3[PADDEDDESTBUFFER_SIZE], 
+	{%endfor%}
+	{%for n in context['2_seq']%}
+	void combineSetof2stoSetof4_I{{n}}(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M3[PADDEDDESTBUFFER_SIZE], 
 																keyvalue_t buffer_setof4R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R3[PADDEDDESTBUFFER_SIZE], 
 																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof2stoSetof4_I1(bool_type enable, keyvalue_t buffer_setof2M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2M3[PADDEDDESTBUFFER_SIZE], 
-																keyvalue_t buffer_setof4R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4R3[PADDEDDESTBUFFER_SIZE], 
-																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
-	void combineSetof4stoSetof8_I0(bool_type enable, keyvalue_t buffer_setof4M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M3[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M4[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M5[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M6[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M7[PADDEDDESTBUFFER_SIZE],				
+	{%endfor%}
+	{%for n in context['1_seq']%}
+	void combineSetof4stoSetof8_I{{n}}(bool_type enable, keyvalue_t buffer_setof4M0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M3[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M4[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M5[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M6[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4M7[PADDEDDESTBUFFER_SIZE],				
 																keyvalue_t buffer_setof8R0[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R1[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R2[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R3[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R4[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R5[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R6[PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof8R7[PADDEDDESTBUFFER_SIZE],
 																	skeyvalue_t localcapsuleM[NUM_PARTITIONS], skeyvalue_t localcapsuleN[NUM_PARTITIONS], skeyvalue_t localcapsuleR[NUM_PARTITIONS], globalparams_t globalparams);
+	{%endfor%}
 
 	void combineSetof1stoSetof2s(bool_type enable, keyvalue_t buffer_setof1[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], globalparams_t globalparams);
 	void combineSetof2stoSetof4s(bool_type enable, keyvalue_t buffer_setof2[8][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer_setof4[8][PADDEDDESTBUFFER_SIZE], skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS], skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS], globalparams_t globalparams);
@@ -378,19 +371,20 @@ public:
 	
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
-	void dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
+	void dispatch_reduceonly_serialsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
-	travstate_t dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, 
-keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-keyvalue_t vubufferpp00[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp01[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp02[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp03[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp04[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp05[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp06[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp07[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp08[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp09[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp010[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp011[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp16[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp17[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp18[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp19[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp110[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp111[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
+	travstate_t dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
+			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
+			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp0{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
+			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
+			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
 
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);
 	#endif 
 	
 	#if defined(MULTIACTSINSTANCES)
-	void topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11);
+	void topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
 	#endif 
 private:
 	#ifndef FPGA_IMPL
@@ -398,6 +392,7 @@ private:
 	#endif
 };
 #endif 
+
 
 
 

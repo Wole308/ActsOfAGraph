@@ -2305,6 +2305,8 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 
 		{%for v in context['VECTOR_SIZE_seq']%}
 		unsigned int partitionupperlimit{{v}} = streetaddr{{v}} * (1 << globalparams.applyvertexbuffersz_pow); // CRITICAL VHLS CHECKME. (dataset dependent).
+		// unsigned int partitionupperlimit{{v}} = streetaddr{{v}} * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL VHLS CHECKME. (dataset dependent).
+		
 		{%endfor%}
 		
 		REDUCE_LOOP2: for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){
@@ -6277,7 +6279,12 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 	for(unsigned int i=1; i<NUMCOMPUTEUNITS; i++){ offsetsandsizes[i].key = 0; offsetsandsizes[i].value = 0; }
 	unsigned int reducesubchunksz = (_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2; // NOT USED.
 	unsigned int reducechunksz_kvs = (reducesubchunksz * LOADFACTORFORREDUCE) / VECTOR_SIZE;
-
+	// cout<<"^^^ reducesubchunksz: "<<reducesubchunksz<<endl;
+	// cout<<"^^^ reducechunksz_kvs: "<<reducechunksz_kvs<<endl;
+	// cout<<"^^^ PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;
+	// cout<<"^^^ ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2): "<<((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)<<endl;
+	// exit(EXIT_SUCCESS);
+	
 	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions + 1; source_partition+=_globalparams.loadfactorforreduce){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_sourceploop avg=analysis_sourceploop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -6298,8 +6305,23 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 		if((ntravszs == 0) || (source_partition >= num_source_partitions)){ enablereduce = OFF; } else { enablereduce = ON; }
 		
 		if(enablereduce == ON || enableflush == ON){
-			readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
-			replicatedata_syn(enablereduce, sourcevbuffer, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} 0, reducesubchunksz);
+			
+			readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
+			replicatedata_syn(enablereduce, sourcevbuffer, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} 0, ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+			
+			// readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
+			// replicatedata_syn(enablereduce, sourcevbuffer, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} 0, reducesubchunksz);
+			
+			
+			// readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs)
+			// unsigned int loadszforreduce = (_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2;
+			/* cout<<"^^^ _globalparams.applyvertexbuffersz_kvs: "<<_globalparams.applyvertexbuffersz_kvs<<endl;
+			cout<<"^^^ VDATAPACKINGFACTOR: "<<VDATAPACKINGFACTOR<<endl;
+			cout<<"^^^ PADDEDDESTBUFFER_SIZE: "<<PADDEDDESTBUFFER_SIZE<<endl;
+			cout<<"^^^ reducesubchunksz: "<<reducesubchunksz<<endl;
+			cout<<"^^^ reducechunksz_kvs: "<<(reducesubchunksz * LOADFACTORFORREDUCE) / VECTOR_SIZE<<endl;
+			cout<<"^^^ ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2): "<<((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)<<endl;
+			exit(EXIT_SUCCESS); */
 			
 			MAIN_LOOP2: for(batch_type index=0; index<_globalparams.loadfactorforreduce; index+=1){
 				unsigned int spartition = source_partition + index;
@@ -6427,6 +6449,20 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 				
 				bool_type nonzeroactvvsreturned = unifydata_bfs_syn(enablereduce, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} destvbuffer, 
 						{%for i in context['k_seq']%}actvvs{{i}}, capsule{{i}}_so1, cutoffs{{i}}, {%endfor%}
+						index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+				
+				// overlap functions for next iteration
+				if(index < _globalparams.loadfactorforreduce-1){ 
+					replicatedata_syn(enablereduce, sourcevbuffer, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} (index + 1) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)); // pp1
+					{%for i in context['COMPUTEUNITS_seq']%}
+					rtravstate[{{i}}] = gettravstate(enablereduce, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[{{i}}]);
+					{%endfor%}
+				}
+				
+				
+				
+				/* bool_type nonzeroactvvsreturned = unifydata_bfs_syn(enablereduce, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} destvbuffer, 
+						{%for i in context['k_seq']%}actvvs{{i}}, capsule{{i}}_so1, cutoffs{{i}}, {%endfor%}
 						index * reducesubchunksz, reducesubchunksz, sweepparams, _globalparams);
 				
 				// overlap functions for next iteration
@@ -6435,7 +6471,9 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 					{%for i in context['COMPUTEUNITS_seq']%}
 					rtravstate[{{i}}] = gettravstate(enablereduce, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[{{i}}]);
 					{%endfor%}
-				}
+				} */
+				
+				
 				
 				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 4)){
 					#ifdef PIPELINED_SYNCACTVVS
@@ -6462,7 +6500,11 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 				itercount += 1;
 			}
 	
-			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
+			// savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
+			
+			
+			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); 
+			
 		}
 		
 		sourcestatsmarker += _globalparams.loadfactorforreduce;

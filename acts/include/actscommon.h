@@ -129,7 +129,8 @@ typedef struct {
 	unsigned int batch_range_pow;
 	unsigned int applyvertexbuffersz;
 	unsigned int applyvertexbuffersz_kvs;
-
+	unsigned int applyvertexbuffersz_pow;
+	unsigned int loadfactorforreduce;
 	unsigned int baseoffset_messagesdram_kvs;
 	unsigned int baseoffset_kvdrambuffer_kvs;
 	unsigned int baseoffset_kvdram_kvs;

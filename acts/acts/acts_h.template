@@ -39,7 +39,7 @@ using namespace std;
 #define PP2
 #endif
 
-#define LOADFACTORFORREDUCE ((1024 * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR)) // CRITICAL AUTOMATEME. (dataset dependent).
+#define MAXLOADFACTORFORREDUCE 64
 
 // [keyvalue]100000000000 00110000000000010000000000000101
 // [value]100000000000 
@@ -48,7 +48,6 @@ using namespace std;
 #define PIPELINED_SYNCACTVVS
 #define LOGKERNELSTATS
 #define RUNSTATSSZ 64
-#define ACTVVSFLUSHSZ 4
 
 class acts {
 public:
