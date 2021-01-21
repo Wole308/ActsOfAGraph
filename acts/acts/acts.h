@@ -39,7 +39,6 @@ using namespace std;
 #define PP2
 #endif
 
-// #define LOADFACTORFORREDUCE ((1024 * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR)) // CRITICAL AUTOMATEME. (dataset dependent).
 #define MAXLOADFACTORFORREDUCE 64
 
 // [keyvalue]100000000000 00110000000000010000000000000101
@@ -152,6 +151,8 @@ public:
 	void savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 	
 	void savekeyvalues_pipeline_2sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+	
+	void savekeyvalues_pipeline_3sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 	
 	void replicatedata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
 

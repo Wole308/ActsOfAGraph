@@ -152,6 +152,8 @@ public:
 	
 	void savekeyvalues_pipeline_2sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 	
+	void savekeyvalues_pipeline_3sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+	
 	void replicatedata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size);
 
 	void replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t destbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} buffer_type sourceoffset, buffer_type size);

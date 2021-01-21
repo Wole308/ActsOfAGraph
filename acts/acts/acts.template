@@ -2052,6 +2052,93 @@ savekeyvalues_pipeline_2sync(bool_type enable, {%for i in context['COMPUTEUNITS_
 }
 
 void 
+	#ifdef SW
+	acts::
+	#endif 
+savekeyvalues_pipeline_3sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
+	
+	{%for i in context['COMPUTEUNITS_seq']%}
+	{%if(i>0)%}
+	static keyvalue_t buffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	{%endif%}
+	{%endfor%}
+	
+	{%for i in context['COMPUTEUNITS_seq']%}
+	{%if(i>0)%}
+	static keyvalue_t bufferC{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	{%endif%}
+	{%endfor%}
+	
+	offsetsandsizes[0].key = offset_kvs;
+	offsetsandsizes[0].value = size_kvs;
+	
+	// commit
+	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		
+		#ifdef _WIDEWORD
+		{%for i in context['COMPUTEUNITS_seq']%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i}}].key + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = buffer{{i}}[{{v}}][i].key; 
+		kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i}}].key + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = buffer{{i}}[{{v}}][i].value;
+		{%endfor%}	
+		{%endfor%}
+		#else 
+		{%for i in context['COMPUTEUNITS_seq']%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i}}].key + i].data[{{v}}] = buffer{{i}}[{{v}}][i]; 
+		{%endfor%}	
+		{%endfor%}
+		#endif
+	}
+	
+	// move
+	SAVEKEYVALUESSYNC_LOOP2: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
+	
+		{%for i in context['COMPUTEUNITS_seq']%}
+		{%if(i<context['NUMCOMPUTEUNITS']-1)%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		bufferC{{i+1}}[{{v}}][i] = buffer{{i}}[{{v}}][i]; 
+		{%endfor%}
+		
+		{%endif%}
+		{%endfor%}
+	}
+	
+	// sync
+	SAVEKEYVALUESSYNC_LOOP3: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
+	
+		{%for i in context['COMPUTEUNITS_seq']%}
+		{%if(i>0)%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer{{i}}[{{v}}][i] = bufferC{{i}}[{{v}}][i]; 
+		{%endfor%}
+	
+		{%endif%}
+		{%endfor%}
+	}
+	
+	// shift offsets and sizes
+	SAVEKEYVALUESSYNC_LOOP4: for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
+	#pragma HLS PIPELINE II=1
+		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
+		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
+	#endif
+	return;
+}
+
+void 
 	#ifdef SW 
 	acts::
 	#endif 
@@ -2088,7 +2175,6 @@ void
 replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t destbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} buffer_type sourceoffset, buffer_type size){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = PADDEDDESTBUFFER_SIZE;
-	// cout<<"replicatedata_syn:: sourceoffset: "<<sourceoffset<<", size: "<<size<<endl;
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("replicatedata_syn.0", sourceoffset + size, (PADDEDDESTBUFFER_SIZE * VECTOR_SIZE) + 1, sourceoffset, size, PADDEDDESTBUFFER_SIZE);
 	#endif
@@ -6444,7 +6530,8 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 					capsule{{i%2}}_so8 = runpipeline_1partition(ON, actvvs{{i}}, capsule{{i}}_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer{{i%2}}_setof8, capsule{{i%2}}_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs{{i}}, itercount_actvvs, _globalparams);
 					// savekeyvalues_pipeline_sync
 					// savekeyvalues_pipeline_2sync
-					savekeyvalues_pipeline_2sync(writeen_actvvs, {%for j in context['COMPUTEUNITS_seq']%}kvdram{{j}},{%endfor%} offsetsandsizes, buffer{{i%2}}_setof8, actvvstravstate.i_kvs, capsule{{i%2}}_so8.value / VECTOR_SIZE, _globalparams); 
+					// savekeyvalues_pipeline_3sync
+					savekeyvalues_pipeline_3sync(writeen_actvvs, {%for j in context['COMPUTEUNITS_seq']%}kvdram{{j}},{%endfor%} offsetsandsizes, buffer{{i%2}}_setof8, actvvstravstate.i_kvs, capsule{{i%2}}_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule{{i%2}}_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule{{i%2}}_so8.value; }
 					itercount_actvvs += 1;
 					{%endfor%}
