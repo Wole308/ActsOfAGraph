@@ -85,31 +85,18 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 7; //2;
+	unsigned int NumGraphIters = 1; //2;
 	container_t container;
 	vector<value_t> activevertices;
-	
-	// activevertices.push_back(2);
-	// activevertices.push_back(3);
-	// activevertices.push_back(4);
-	// activevertices.push_back(5);
-	// activevertices.push_back(6);
-	// activevertices.push_back(7);
-	// activevertices.push_back(8);
-	// activevertices.push_back(9);
-	// activevertices.push_back(10);
-	// activevertices.push_back(11);
-	// activevertices.push_back(12);
-	// activevertices.push_back(13);
-	
-	activevertices.push_back(1);
+
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -144,6 +131,7 @@ runsummary_t bfs::run(){
 	verify(activevertices);
 	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	verifyvertexdata((keyvalue_t **)kvbuffer);
+	verifyactvvsdata((keyvalue_t **)kvbuffer);
 	verifykernelreturnvalues(kvbuffer);
 	// apply((keyvalue_t **)kvbuffer, activevertices);
 	
@@ -158,7 +146,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"bfs::verify. verifying..."<<endl;
 	#endif 
-	#if defined(PROCESSACTIVEVERTICESTEST) && defined(ENABLE_PERFECTACCURACY)
+	#if defined(PROCESSACTIVEVERTICESTEST) //&& defined(ENABLE_PERFECTACCURACY)
 	unsigned int edges1_count = 0;
 	unsigned int edgesdstv1_sum = 0;
 	unsigned int edges2_count = 0;
@@ -240,7 +228,7 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	}
 	
 	// 7th view
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+	for(unsigned int i=0; i<0; i++){ // NUMSUBCPUTHREADS
 		cout<<endl<<"[7th view]: subthread: "<<i<<endl;
 		keyy_t * KK = (keyy_t *)&kvbuffer[0][BASEOFFSET_ACTIVEVERTICES_KVS];
 		for(unsigned int k=0; k<4; k++){
@@ -295,7 +283,7 @@ void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * 
 	if(false){ utilityobj->printkeyvalues("bfs::verifykvLOP. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE); }
 	#endif
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // 1, NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"bfs::verifykvLOP:: verifying thread: "<<i<<" of "<<NUMSUBCPUTHREADS<<" threads..."<<endl;
 		#endif 
@@ -318,13 +306,31 @@ void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * 
 				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
 					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
 					if(thiskey < lowerindex || thiskey >= upperindex){
+						#ifdef ENABLE_PERFECTACCURACY
 						if(numerrorkeys < 8){
 							cout<<"bfs::verifykvLOP::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
 							utilityobj->PARSE(keyvalue, keys);
+							
+							/* /////////////////////////////////
+							unsigned long * llongword = (unsigned long *)&keyvalue;
+							
+							unsigned int streetaddr = utilityobj->READFROM_ULONG(*llongword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
+							unsigned int numitems = utilityobj->READFROM_ULONG(*llongword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+							cout<<"streetaddr: "<<streetaddr<<endl;
+							cout<<"numitems: "<<numitems<<endl;
+							
+							unsigned int item = 0;
+							for(unsigned int i=0; i<numitems; i++){
+								item = utilityobj->READFROM_ULONG(*llongword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
+								cout<<"item: "<<item<<endl;
+							}
+							////////////////////////////////////// */
+							
 							exit(EXIT_FAILURE);
 						}
 						cout<<"bfs::verifykvLOP::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
 						exit(EXIT_FAILURE);
+						#endif 
 						
 						numerrorkeys += 1;
 					}
@@ -377,6 +383,37 @@ void bfs::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"bfs::verifyvertexdata: number of active vertices for next iteration (subthread "<<i<<"): "<<totalnumactvvs<<endl;
 		#endif
+	}
+	return;
+}
+void bfs::verifyactvvsdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"bfs::verifyactvvsdata: verifying actvvs data... "<<endl;
+	#endif
+	
+	unsigned int actvvs_count = 0;
+	unsigned int actvvsdstv1_sum = 0;
+	unsigned int cctv = 0;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		unsigned int sz = 16; // just-for-test
+		keyy_t * KK = (keyy_t *)&kvbuffer[i][BASEOFFSET_ACTIVEVERTICES];
+		unsigned int localactvvs_count = 0;
+		unsigned int localactvvsdstv1_sum = 0;
+		for(unsigned int k=0; k<sz; k++){
+			if(KK[k] != INVALIDDATA){
+				if(i==0){
+					#ifdef _DEBUGMODE_HOSTPRINTS3
+					if(cctv < 16){ cout<<"bfs:verifyactvvsdata: actvvid: "<<KK[k]<<endl; }
+					#endif 
+					actvvs_count += 1;
+					actvvsdstv1_sum += KK[k];
+				}
+				localactvvs_count += 1;
+				localactvvsdstv1_sum += KK[k]; 
+				cctv += 1;
+			}
+		}
+		cout<<"bfs::verifyactvvsdata: some actvvs found in kvbuffer["<<i<<"]: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	}
 	return;
 }

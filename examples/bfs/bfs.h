@@ -24,6 +24,7 @@ public:
 	void verify(vector<vertex_t> &activevertices);
 	void verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum);					
 	void verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
+	void verifyactvvsdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
 	void verifykernelreturnvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
 	void apply(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], vector<value_t> &activevertices);
 	

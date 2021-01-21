@@ -82,6 +82,7 @@ HOST_SRCS += kernels/swkernel.cpp
 HOST_SRCS += kernels/goclkernel.cpp
 # HOST_SRCS += acts/actsutility/actsutility.cpp
 HOST_SRCS += src/graphs/creategraphs.cpp
+HOST_SRCS += src/graphs/mysort.cpp
 HOST_SRCS += acts/sortreduce/sr.cpp
 
 # sort-reduce files
@@ -130,10 +131,10 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[0]
@@ -268,7 +269,7 @@ run_grafboost_nthreads_debug:
 	
 ### generate source files (python)
 generatesrcs:
-	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS_POW) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
+	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
 
 # Cleaning stuff
 clean:

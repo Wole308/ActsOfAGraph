@@ -16,7 +16,7 @@ context['ALGORITHM'] = sys.argv[3]
 context['DATASET'] = sys.argv[4]
 context['NUMSUPERCPUTHREADS'] = sys.argv[5]
 context['NUMCPUTHREADS'] = sys.argv[6] # FIXME. this is overriden in common.h
-context['NUMSUBCPUTHREADS_POW'] = int(sys.argv[7])
+context['NUMSUBCPUTHREADS'] = int(sys.argv[7])
 context['LOCKE'] = sys.argv[8]
 context['EVALUATION_TYPE'] = sys.argv[9]
 context['EVALUATION_PARAM0'] = int(sys.argv[10])
@@ -126,7 +126,6 @@ context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORK
 context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
-context['NUMSUBCPUTHREADS'] = 14
 context['NUMCOMPUTEUNITS'] = context['NUMSUBCPUTHREADS']
     
 print ('Generating sources... ')
@@ -136,7 +135,7 @@ print ('ALGORITHM: ' + str(context['ALGORITHM']))
 print ('DATASET: ' + str(context['DATASET']))
 print ('NUMSUPERCPUTHREADS: ' + str(context['NUMSUPERCPUTHREADS']))
 print ('NUMCPUTHREADS: ' + str(context['NUMCPUTHREADS']))
-print ('NUMSUBCPUTHREADS_POW: ' + str(context['NUMSUBCPUTHREADS_POW']))
+print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
 print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
 print ('LOCKE: ' + str(context['LOCKE']))
 print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))

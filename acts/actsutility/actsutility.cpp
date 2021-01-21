@@ -1430,7 +1430,7 @@ void actsutility::PARSE(string message, ulong_dt longword){
 	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
 	for(unsigned int i=0; i<numitems; i++){
 		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << SRAMSZ_POW)) + item)<<endl;
+		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item)<<endl;
 	}
 	return;
 }
@@ -1450,7 +1450,7 @@ unsigned int actsutility::PARSE(ulong_dt longword, unsigned int * _items){
 	unsigned int item = 0;
 	for(unsigned int i=0; i<numitems; i++){
 		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		_items[i] = ((streetaddr * (1 << SRAMSZ_POW)) + item);
+		_items[i] = ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 	}
 	return numitems;
 }
@@ -1462,7 +1462,7 @@ unsigned int actsutility::GETKEY(ulong_dt longword){
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-	return ((streetaddr * (1 << SRAMSZ_POW)) + item);
+	return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 }
 
 

@@ -45,22 +45,25 @@ unsigned int compactgraph::getllpartition(unsigned int data){
 }
 mail_t compactgraph::shrink(unsigned int x){
 	mail_t mail;
-	mail.x = x % (1 << SRAMSZ_POW);
+	mail.x = x % (1 << APPLYVERTEXBUFFERSZ_POW); // APPLYVERTEXBUFFERSZ_POW
 	mail.streetaddr = getllpartition(x);
 	if(mail.streetaddr >= 256){ cout<<"compactgraph::shrink: mail.streetaddr >= 256. exiting..."<<endl; exit(EXIT_FAILURE); }
 	mail.houseno = SRAMSZ_POW;
 	
 	#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
-	cout<<"x [before shrink]: x: "<<x<<", x [after shrink]: mail.x: "<<mail.x<<", mail.houseno: "<<mail.houseno<<endl;
+	cout<<"x [before shrink]: x: "<<x<<", x [after shrink]: mail.x: "<<mail.x<<", mail.streetaddr: "<<mail.streetaddr<<", mail.houseno: "<<mail.houseno<<endl;
 	#endif 
 	return mail;
 }
 
 void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, edge_t * packedvertexptrbuffer, uuint64_dt * packededgedatabuffer){				
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"compactgraph::compact:: compacting graph... "<<endl;
+	#endif 
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
-	#ifdef _DEBUGMODE_STATS
+	#ifdef _COMPACTGRAPH_STATS
 	unsigned int totalnumedgesprocessed = 0;
 	unsigned int totalnumcommits = 0;
 	unsigned int commitreasontype1 = 0;
@@ -78,6 +81,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	for(unsigned int i=0; i<graphobj->get_num_edges(); i++){ numitemspacked[i] = 0; }
 	
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
+	// for(unsigned int vid=0; vid<2; vid++){
 		#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
 		if(vid % 100000 == 0){ cout<<endl<<">>> compactgraph::compact: vid: "<<vid<<endl; }
 		#endif 
@@ -99,9 +103,9 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 		lastmail = newx;
 		
 		for(unsigned int k=0; k<edges_size; k++){
-			#ifdef _DEBUGMODE_STATS
+			// #ifdef _COMPACTGRAPH_STATS
 			totalnumedgesprocessed += 1;
-			#endif
+			// #endif
 			edge2_type edge = edgedatabuffer[vptr_begin + k];
 			counts1[vid].value += 1;
 			
@@ -123,7 +127,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 				if(currbitoffset + SRAMSZ_POW >= COMPACTPARAM_ENDOFFSET_DATA){ cout<<"long word full. "; commitreasontype3 += 1; }
 				cout<<""<<endl;
 				#endif
-				#ifdef _DEBUGMODE_STATS
+				#ifdef _COMPACTGRAPH_STATS
 				if(llpartition != currpartition){ commitreasontype2 += 1; }
 				if(currbitoffset + SRAMSZ_POW >= COMPACTPARAM_ENDOFFSET_DATA){ commitreasontype3 += 1; }
 				#endif 
@@ -150,7 +154,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 				currbitoffset = 0;
 				committededgescount += 1;
 				counts2[vid].value += 1;
-				#ifdef _DEBUGMODE_STATS
+				#ifdef _COMPACTGRAPH_STATS
 				totalnumcommits += 1;
 				#ifdef _DEBUGMODE_CHECKS2
 				utilityobj->checkoutofbounds("compactgraph 212", numitems, 16, NAp, NAp, NAp);
@@ -192,7 +196,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 			if(currbitoffset + SRAMSZ_POW >= COMPACTPARAM_ENDOFFSET_DATA){ cout<<"long word full. "; commitreasontype3 += 1; }
 			cout<<""<<endl;
 			#endif
-			#ifdef _DEBUGMODE_STATS
+			#ifdef _COMPACTGRAPH_STATS
 			if(llpartition != currpartition){ commitreasontype2 += 1; }
 			if(currbitoffset + SRAMSZ_POW >= COMPACTPARAM_ENDOFFSET_DATA){ commitreasontype3 += 1; }
 			#endif 
@@ -218,7 +222,7 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 			currbitoffset = 0;
 			committededgescount += 1;
 			counts2[vid].value += 1;
-			#ifdef _DEBUGMODE_STATS
+			#ifdef _COMPACTGRAPH_STATS
 			totalnumcommits += 1;
 			#ifdef _DEBUGMODE_CHECKS2
 			utilityobj->checkoutofbounds("compactgraph 214", numitems, 16, NAp, NAp, NAp);
@@ -235,13 +239,14 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	utilityobj->calculateunallignedoffsets(counts2, KVDATA_RANGE);
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ packedvertexptrbuffer[i] = counts2[i].key; }
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"STATS: totalnumedgesprocessed: "<<totalnumedgesprocessed<<", totalnumcommits: "<<totalnumcommits<<", reduction factor: "<<(float)((float)totalnumedgesprocessed / (float)totalnumcommits)<<endl;
 	cout<<"STATS: numcommits from: new shrinked bitsize: "<<commitreasontype1<<endl;
 	cout<<"STATS: numcommits from: change in last level partition: "<<commitreasontype2<<endl;
 	cout<<"STATS: numcommits from: long word full: "<<commitreasontype3<<endl;
-	for(unsigned int i=0; i<16; i++){ cout<<"STATS: commits with "<<i<<" items: (numitemscount["<<i<<"]): "<<numitemscount[i]<<endl; }
-	 
+	for(unsigned int i=0; i<5; i++){ cout<<"STATS: commits with "<<i<<" items: (numitemscount["<<i<<"]): "<<numitemscount[i]<<endl; }
+	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printvalues("compactgraph::compact:: vertexptrbuffer", vertexptrbuffer, 16);
 	
 	utilityobj->printkeyvalues("compactgraph::compact:: counts1", counts1, 16);
@@ -253,11 +258,12 @@ void compactgraph::compact(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer
 	utilityobj->printpackededges("compactgraph::compact:: packededgedatabuffer", packededgedatabuffer, 16);
 	utilityobj->printvalues("compactgraph::compact:: packedvertexptrbuffer", packedvertexptrbuffer, 16);
 	
-	// graphobj->printdataset();
+	graphobj->printdataset();
 	for(unsigned int i=0; i<16; i++){ cout<<"STATS: numitemspacked["<<i<<"]: "<<numitemspacked[i]<<endl; }
-	
-	verify(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer, numitemspacked);
 	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	verify(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer, numitemspacked);
+	#endif 
 	delete counts1;
 	delete counts2;
 	delete numitemspacked;
@@ -267,7 +273,7 @@ void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer,
 	unsigned int edges_nc_count = 0;
 	unsigned int edgesdstv_nc_sum = 0;
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
-	// for(unsigned int vid=0; vid<3; vid++){ 
+	// for(unsigned int vid=0; vid<2; vid++){ 
 		edge_t vptr_begin = vertexptrbuffer[vid];
 		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
@@ -287,7 +293,7 @@ void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer,
 	unsigned int edges_c_count = 0;
 	unsigned int edgesdstv_c_sum = 0;
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
-	// for(unsigned int vid=0; vid<3; vid++){
+	// for(unsigned int vid=0; vid<2; vid++){
 		#if defined(_DEBUGMODE_HOSTPRINTS) || defined(_DEBUGMODE_COMPACTGRAPH)
 		cout<<endl<<">>> compactgraph::verify: vid: "<<vid<<endl;
 		#endif 
@@ -330,7 +336,10 @@ void compactgraph::verify(edge_t * vertexptrbuffer, edge2_type * edgedatabuffer,
 	cout<<"--- compactgraph::verify: edges_c_count (compact): "<<edges_c_count<<endl;
 	cout<<"--- compactgraph::verify: edgesdstv_c_sum (compact): "<<edgesdstv_c_sum<<endl;
 	if(edgesdstv_c_sum != edgesdstv_nc_sum){ cout<<"compactgraph::verify: ERROR: edgesdstv_c_sum != edgesdstv_nc_sum. exiting..."<<endl; exit(EXIT_FAILURE); }
+	
+	cout<<"--- compactgraph::verify: shrink ratio: "<<float(float(edges_nc_count) / float(edges_c_count))<<endl;
 	cout<<"compactgraph::verify: verify successful."<<endl;
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

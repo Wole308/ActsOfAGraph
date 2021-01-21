@@ -16,6 +16,7 @@
 using namespace std;
 
 // #define _DEBUGMODE_COMPACTGRAPH
+#define _COMPACTGRAPH_STATS
 
 class compactgraph {
 public:

@@ -28,6 +28,7 @@
 #include "../../src/heuristics/heuristics.h"
 #include "../../include/common.h"
 #include "../../include/host_common.h"
+#include "mysort.h"
 #include "creategraphs.h"
 using namespace std;
 #define YES
@@ -37,6 +38,7 @@ creategraphs::creategraphs(unsigned int datasetid){
 	heuristics * heuristicsobj = new heuristics();
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, false, false);
+	mysortobj = new mysort(graphobj);
 	
 	cout<<"creategraphs:: constructor called: creating structures... "<<endl;
 	cout<<"creategraphs:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;
@@ -161,19 +163,38 @@ void creategraphs::start(){
 				
 				edge2_type edge;
 				edge2_type edge2;
+				#ifdef GRAPHISUNDIRECTED
+				edge2_type edge_dup;
+				edge2_type edge2_dup;
+				#endif 
 				
 				edge.srcvid = local_srcv;
 				edge.dstvid = local_dstv;
+				#ifdef GRAPHISUNDIRECTED
+				edge_dup.srcvid = local_dstv;
+				edge_dup.dstvid = local_srcv;
+				#endif 
 				
 				edge2.dstvid = local_dstv;
+				#ifdef GRAPHISUNDIRECTED
+				edge2_dup.dstvid = local_srcv;
+				#endif 
 				
 				if(firstedge[col].srcvid == INVALIDDATA){ firstedge[col] = edge; }
 				
 				edgesbuffer[col].push_back(edge); 
 				// edges2buffer[col].push_back(edge2); 
+				#ifdef GRAPHISUNDIRECTED
+				edgesbuffer[col].push_back(edge_dup); 
+				// edges2buffer[col].push_back(edge2_dup); 
+				#endif 
 				
 				lvertexoutdegrees[col][local_srcv] += 1;
 				lvertexindegrees[col][local_dstv] += 1;
+				#ifdef GRAPHISUNDIRECTED
+				lvertexoutdegrees[col][local_dstv] += 1;
+				lvertexindegrees[col][local_srcv] += 1;
+				#endif 
 				
 				numedges[col] += 1;
 
@@ -192,6 +213,7 @@ void creategraphs::start(){
 				}
 			}
 			alllinecount += 1;
+										// if(linecount > 1000000){ break; } // CRITICAL REMOVEME..................................................
 		}
 		cout<<"creategraphs:: finished processing edges: [valid edges processed: "<<linecount<<"][invalid edges processed: "<<(alllinecount - linecount)<<"][total edges processed: "<<alllinecount<<"][groupid: "<<groupid<<"][YDIMENSIONTHRESHOLD: "<<YDIMENSIONTHRESHOLD<<"]"<<endl;
 	}
@@ -204,12 +226,23 @@ void creategraphs::start(){
 	clearedges(edgesbuffer); 
 
 	writevertexptrstofile();
+	
+	#ifdef GRAPHISUNDIRECTED
+	cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
+	mysortobj->start();
+	#endif 
 
 	cout<<"creategraphs:: start finished. closing files... "<<endl;
 	file_graph.close(); 
 	graphobj->closefilesforwriting();
 	graphobj->closefilesforreading();
 	cout<<"creategraphs:: finished creating 2D graph from "<<graphobj->getdataset().graph_path<<endl;
+	
+	// #ifdef GRAPHISUNDIRECTED
+	// cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
+	// mysortobj->start();
+	// #endif 
+	
 	summary();
 	return;
 }
@@ -364,6 +397,7 @@ void creategraphs::writevertexptrstofile(){
 		cout <<"creategraphs:: last+1 offset: vertexptrs["<<i<<"]["<<graphobj->get_num_vertices()<<"]: "<<vertexptrs[i][graphobj->get_num_vertices()] <<endl;
 		cout << TIMINGRESULTSCOLOR <<"creategraphs:: end offset: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<< RESET <<endl;
 		cout << TIMINGRESULTSCOLOR <<"creategraphs:: firstedge["<<i<<"].srcvid: "<<firstedge[i].srcvid<< RESET <<endl;
+		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"creategraphs:: printing vertex out degrees... "<<endl;
 		for(unsigned int k=0; k<8; k++){ cout <<k<<": "<< lvertexoutdegrees[i][k]<<endl; }
@@ -371,8 +405,12 @@ void creategraphs::writevertexptrstofile(){
 		for(unsigned int k=0; k<8; k++){ cout <<k<<": "<< vertexptrs[i][k]<<endl; }
 		#endif 
 		cout<<"creategraphs:: checking col "<<i<<"... "<<endl;
-		// if((vertexptrs[i][KVDATA_RANGE-1] - firstedge[i].srcvid) != numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }
+
+		#ifdef GRAPHISUNDIRECTED
+		if(vertexptrs[i][KVDATA_RANGE-1] != 2*numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
+		#else 
 		if(vertexptrs[i][KVDATA_RANGE-1] != numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
+		#endif 
 	}
 	cout<<">>> creategraphs::writevertexptrstofile:: total number of vertices out-degree information written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumvertices<<endl;
 	return;

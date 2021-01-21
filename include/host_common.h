@@ -26,6 +26,7 @@
 using namespace std;
 
 typedef struct {
+	string graphtopname;
 	string graphname;
 	string graph_path; // const char *
 	string vertices_path;

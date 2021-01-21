@@ -47,6 +47,8 @@ acts::~acts(){}
 actsutility * actsutilityobj = new actsutility();
 #endif
 
+// NOTE: ACTS NOT automated for all datasets. see CRITICAL AUTOMATEME. (dataset dependent).
+
 // kernel utilities
 unsigned int
 	#ifdef SW 
@@ -219,36 +221,6 @@ WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt val
 	WRITETO_ULONG(data, index, size, value);
 	return;
 	#endif 
-}
-unsigned int 
-	#ifdef SW 
-	acts::
-	#endif 
-GETKEYS(keyvalue_t keyvalue, keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA]){
-	#ifdef SW
-		ulong_dt * longword = (ulong_dt *)&keyvalue;
-		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-		keys[0] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		keys[1] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 1*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		keys[2] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 2*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-	#else
-		ulong_dt longword = CONVERTTOLONG_KV(keyvalue); // CRITICAL CHECKME.
-		unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-		unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-		keys[0] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		keys[1] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 1*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		keys[2] = (streetaddr * (1 << SRAMSZ_POW)) + READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 2*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-	#endif
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"streetaddr: "<<streetaddr<<endl;
-	cout<<"numitems: "<<numitems<<endl;
-	cout<<"keys[0]: "<<keys[0]<<endl;
-	cout<<"keys[1]: "<<keys[1]<<endl;
-	cout<<"keys[2]: "<<keys[2]<<endl;
-	#endif 
-	return numitems;
 }
 batch_type
 	#ifdef SW 
@@ -879,9 +851,10 @@ travstate_t
 	#ifdef SW 
 	acts::
 	#endif 
-gettravstate(uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t travstates[LOADFACTORFORREDUCE]){
+gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t travstates[LOADFACTORFORREDUCE]){
 	#pragma HLS function_instantiate variable=kvdram
 	travstate_t travstate;
+	if(enable == OFF){ return travstate; } // NEWCHANGE.
 	keyvalue_t keyvalue;
 	keyvalue_t nextkeyvalue;
 	
@@ -1545,13 +1518,85 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		buffer[7][i].value = kvdram[offset_kvs + i].range(511, 480);
 		#else 
 		buffer[0][i] = kvdram[offset_kvs + i].data[0]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[0].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[0].key: "<<kvdram[offset_kvs + i].data[0].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[0].value: "<<kvdram[offset_kvs + i].data[0].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[1][i] = kvdram[offset_kvs + i].data[1]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[1].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[1].key: "<<kvdram[offset_kvs + i].data[1].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[1].value: "<<kvdram[offset_kvs + i].data[1].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[2][i] = kvdram[offset_kvs + i].data[2]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[2].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[2].key: "<<kvdram[offset_kvs + i].data[2].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[2].value: "<<kvdram[offset_kvs + i].data[2].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[3][i] = kvdram[offset_kvs + i].data[3]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[3].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[3].key: "<<kvdram[offset_kvs + i].data[3].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[3].value: "<<kvdram[offset_kvs + i].data[3].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[4][i] = kvdram[offset_kvs + i].data[4]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[4].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[4].key: "<<kvdram[offset_kvs + i].data[4].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[4].value: "<<kvdram[offset_kvs + i].data[4].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[5][i] = kvdram[offset_kvs + i].data[5]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[5].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[5].key: "<<kvdram[offset_kvs + i].data[5].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[5].value: "<<kvdram[offset_kvs + i].data[5].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[6][i] = kvdram[offset_kvs + i].data[6]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[6].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[6].key: "<<kvdram[offset_kvs + i].data[6].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[6].value: "<<kvdram[offset_kvs + i].data[6].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		buffer[7][i] = kvdram[offset_kvs + i].data[7]; 
+		
+		/* ///// REMOVEME.
+		if(kvdram[offset_kvs + i].data[7].value == 1729101824){
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[7].key: "<<kvdram[offset_kvs + i].data[7].key<<endl;
+			cout<<"acts::readkeyvalues:: kvdram[offset_kvs + i].data[7].value: "<<kvdram[offset_kvs + i].data[7].value<<endl;
+			exit(EXIT_SUCCESS);
+		}
+		///// REMOVEME. */
+		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -2639,7 +2684,10 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDED
 	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	for(unsigned int i=0; i<NUM_PARTITIONS-1; i++){ actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 33", globalcapsule[i].key + globalcapsule[i].value, globalcapsule[i+1].key, NAp, NAp, NAp); }
+	for(unsigned int i=0; i<NUM_PARTITIONS-1; i++){ 
+		if(globalcapsule[i].key + globalcapsule[i].value >= globalcapsule[i+1].key){ cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. printing and exiting..."<<endl; actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 33", globalcapsule, NUM_PARTITIONS); exit(EXIT_FAILURE); }
+		actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 33", globalcapsule[i].key + globalcapsule[i].value, globalcapsule[i+1].key, i, NAp, NAp); 
+	}
 	actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 34", globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value, KVDRAMSZ, NAp, NAp, NAp);
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -2757,7 +2805,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-savekeyvalues_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs){
+savekeyvalues_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
 	
@@ -2974,38 +3022,6 @@ savekeyvalues_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,u
 		kvdram11[offset_kvs + i].range(447, 416) = V6; 
 		kvdram11[offset_kvs + i].range(479, 448) = K7; 
 		kvdram11[offset_kvs + i].range(511, 480) = V7; 
-		kvdram12[offset_kvs + i].range(31, 0) = K0; 
-		kvdram12[offset_kvs + i].range(63, 32) = V0; 
-		kvdram12[offset_kvs + i].range(95, 64) = K1; 
-		kvdram12[offset_kvs + i].range(127, 96) = V1; 
-		kvdram12[offset_kvs + i].range(159, 128) = K2; 
-		kvdram12[offset_kvs + i].range(191, 160) = V2; 
-		kvdram12[offset_kvs + i].range(223, 192) = K3; 
-		kvdram12[offset_kvs + i].range(255, 224) = V3; 
-		kvdram12[offset_kvs + i].range(287, 256) = K4; 
-		kvdram12[offset_kvs + i].range(319, 288) = V4; 
-		kvdram12[offset_kvs + i].range(351, 320) = K5; 
-		kvdram12[offset_kvs + i].range(383, 352) = V5; 
-		kvdram12[offset_kvs + i].range(415, 384) = K6; 
-		kvdram12[offset_kvs + i].range(447, 416) = V6; 
-		kvdram12[offset_kvs + i].range(479, 448) = K7; 
-		kvdram12[offset_kvs + i].range(511, 480) = V7; 
-		kvdram13[offset_kvs + i].range(31, 0) = K0; 
-		kvdram13[offset_kvs + i].range(63, 32) = V0; 
-		kvdram13[offset_kvs + i].range(95, 64) = K1; 
-		kvdram13[offset_kvs + i].range(127, 96) = V1; 
-		kvdram13[offset_kvs + i].range(159, 128) = K2; 
-		kvdram13[offset_kvs + i].range(191, 160) = V2; 
-		kvdram13[offset_kvs + i].range(223, 192) = K3; 
-		kvdram13[offset_kvs + i].range(255, 224) = V3; 
-		kvdram13[offset_kvs + i].range(287, 256) = K4; 
-		kvdram13[offset_kvs + i].range(319, 288) = V4; 
-		kvdram13[offset_kvs + i].range(351, 320) = K5; 
-		kvdram13[offset_kvs + i].range(383, 352) = V5; 
-		kvdram13[offset_kvs + i].range(415, 384) = K6; 
-		kvdram13[offset_kvs + i].range(447, 416) = V6; 
-		kvdram13[offset_kvs + i].range(479, 448) = K7; 
-		kvdram13[offset_kvs + i].range(511, 480) = V7; 
 		#else 
 		kvdram0[offset_kvs + i].data[0] = buffer[0][i];
 		kvdram0[offset_kvs + i].data[1] = buffer[1][i];
@@ -3103,22 +3119,6 @@ savekeyvalues_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,u
 		kvdram11[offset_kvs + i].data[5] = buffer[5][i];
 		kvdram11[offset_kvs + i].data[6] = buffer[6][i];
 		kvdram11[offset_kvs + i].data[7] = buffer[7][i];
-		kvdram12[offset_kvs + i].data[0] = buffer[0][i];
-		kvdram12[offset_kvs + i].data[1] = buffer[1][i];
-		kvdram12[offset_kvs + i].data[2] = buffer[2][i];
-		kvdram12[offset_kvs + i].data[3] = buffer[3][i];
-		kvdram12[offset_kvs + i].data[4] = buffer[4][i];
-		kvdram12[offset_kvs + i].data[5] = buffer[5][i];
-		kvdram12[offset_kvs + i].data[6] = buffer[6][i];
-		kvdram12[offset_kvs + i].data[7] = buffer[7][i];
-		kvdram13[offset_kvs + i].data[0] = buffer[0][i];
-		kvdram13[offset_kvs + i].data[1] = buffer[1][i];
-		kvdram13[offset_kvs + i].data[2] = buffer[2][i];
-		kvdram13[offset_kvs + i].data[3] = buffer[3][i];
-		kvdram13[offset_kvs + i].data[4] = buffer[4][i];
-		kvdram13[offset_kvs + i].data[5] = buffer[5][i];
-		kvdram13[offset_kvs + i].data[6] = buffer[6][i];
-		kvdram13[offset_kvs + i].data[7] = buffer[7][i];
 		#endif 
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
@@ -3134,1476 +3134,11 @@ savekeyvalues_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,u
 	return;
 }
 
-#ifdef XXXXX
 void 
 	#ifdef SW 
 	acts::
 	#endif 
-savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	// CRITICAL FIXME. static?
-	static keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	
-	offsetsandsizes[0].key = offset_kvs;
-	offsetsandsizes[0].value = size_kvs;
-	
-	// cout<<"savekeyvalues_pipeline_sync:: offset_kvs: "<<offset_kvs<<", size_kvs: "<<size_kvs<<endl;
-	// actsutilityobj->printkeyvalues("savekeyvalues_pipeline_sync:: offsetsandsizes[before]", offsetsandsizes, NUMCOMPUTEUNITS); // REMOVEME.
-	
-	// SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-
-		//////
-			// read from 0
-			keyvalue_t keyvalue00 = buffer0[0][i]; 
-			keyvalue_t keyvalue01 = buffer0[1][i]; 
-			keyvalue_t keyvalue02 = buffer0[2][i]; 
-			keyvalue_t keyvalue03 = buffer0[3][i]; 
-			keyvalue_t keyvalue04 = buffer0[4][i]; 
-			keyvalue_t keyvalue05 = buffer0[5][i]; 
-			keyvalue_t keyvalue06 = buffer0[6][i]; 
-			keyvalue_t keyvalue07 = buffer0[7][i]; 
-		
-			#ifdef _WIDEWORD
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
-			#else 
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
-			#endif 
-		//////
-			// read from 1
-			keyvalue_t keyvalue10 = buffer1[0][i]; 
-			keyvalue_t keyvalue11 = buffer1[1][i]; 
-			keyvalue_t keyvalue12 = buffer1[2][i]; 
-			keyvalue_t keyvalue13 = buffer1[3][i]; 
-			keyvalue_t keyvalue14 = buffer1[4][i]; 
-			keyvalue_t keyvalue15 = buffer1[5][i]; 
-			keyvalue_t keyvalue16 = buffer1[6][i]; 
-			keyvalue_t keyvalue17 = buffer1[7][i]; 
-		
-			// write to 2 buffer
-			buffer1[0][i] = keyvalue00; 
-			buffer1[1][i] = keyvalue01; 
-			buffer1[2][i] = keyvalue02; 
-			buffer1[3][i] = keyvalue03; 
-			buffer1[4][i] = keyvalue04; 
-			buffer1[5][i] = keyvalue05; 
-			buffer1[6][i] = keyvalue06; 
-			buffer1[7][i] = keyvalue07; 
-			
-			// write to 2 dram
-			#ifdef _WIDEWORD
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(31, 0) = keyvalue00.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(63, 32) = keyvalue00.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(95, 64) = keyvalue01.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(127, 96) = keyvalue01.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(159, 128) = keyvalue02.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(191, 160) = keyvalue02.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(223, 192) = keyvalue03.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(255, 224) = keyvalue03.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(287, 256) = keyvalue04.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(319, 288) = keyvalue04.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(351, 320) = keyvalue05.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(383, 352) = keyvalue05.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(415, 384) = keyvalue06.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(447, 416) = keyvalue06.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(479, 448) = keyvalue07.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(511, 480) = keyvalue07.value;
-			#else 
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[0] = keyvalue00;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[1] = keyvalue01;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[2] = keyvalue02;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[3] = keyvalue03;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[4] = keyvalue04;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[5] = keyvalue05;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[6] = keyvalue06;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[7] = keyvalue07;
-			#endif 
-		//////
-			// read from 2
-			keyvalue_t keyvalue20 = buffer2[0][i]; 
-			keyvalue_t keyvalue21 = buffer2[1][i]; 
-			keyvalue_t keyvalue22 = buffer2[2][i]; 
-			keyvalue_t keyvalue23 = buffer2[3][i]; 
-			keyvalue_t keyvalue24 = buffer2[4][i]; 
-			keyvalue_t keyvalue25 = buffer2[5][i]; 
-			keyvalue_t keyvalue26 = buffer2[6][i]; 
-			keyvalue_t keyvalue27 = buffer2[7][i]; 
-		
-			// write to 3 buffer
-			buffer2[0][i] = keyvalue10; 
-			buffer2[1][i] = keyvalue11; 
-			buffer2[2][i] = keyvalue12; 
-			buffer2[3][i] = keyvalue13; 
-			buffer2[4][i] = keyvalue14; 
-			buffer2[5][i] = keyvalue15; 
-			buffer2[6][i] = keyvalue16; 
-			buffer2[7][i] = keyvalue17; 
-			
-			// write to 3 dram
-			#ifdef _WIDEWORD
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(31, 0) = keyvalue10.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(63, 32) = keyvalue10.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(95, 64) = keyvalue11.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(127, 96) = keyvalue11.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(159, 128) = keyvalue12.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(191, 160) = keyvalue12.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(223, 192) = keyvalue13.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(255, 224) = keyvalue13.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(287, 256) = keyvalue14.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(319, 288) = keyvalue14.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(351, 320) = keyvalue15.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(383, 352) = keyvalue15.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(415, 384) = keyvalue16.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(447, 416) = keyvalue16.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(479, 448) = keyvalue17.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(511, 480) = keyvalue17.value;
-			#else 
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[0] = keyvalue10;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[1] = keyvalue11;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[2] = keyvalue12;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[3] = keyvalue13;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[4] = keyvalue14;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[5] = keyvalue15;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[6] = keyvalue16;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[7] = keyvalue17;
-			#endif 
-		//////
-			// read from 3
-			keyvalue_t keyvalue30 = buffer3[0][i]; 
-			keyvalue_t keyvalue31 = buffer3[1][i]; 
-			keyvalue_t keyvalue32 = buffer3[2][i]; 
-			keyvalue_t keyvalue33 = buffer3[3][i]; 
-			keyvalue_t keyvalue34 = buffer3[4][i]; 
-			keyvalue_t keyvalue35 = buffer3[5][i]; 
-			keyvalue_t keyvalue36 = buffer3[6][i]; 
-			keyvalue_t keyvalue37 = buffer3[7][i]; 
-		
-			// write to 4 buffer
-			buffer3[0][i] = keyvalue20; 
-			buffer3[1][i] = keyvalue21; 
-			buffer3[2][i] = keyvalue22; 
-			buffer3[3][i] = keyvalue23; 
-			buffer3[4][i] = keyvalue24; 
-			buffer3[5][i] = keyvalue25; 
-			buffer3[6][i] = keyvalue26; 
-			buffer3[7][i] = keyvalue27; 
-			
-			// write to 4 dram
-			#ifdef _WIDEWORD
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(31, 0) = keyvalue20.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(63, 32) = keyvalue20.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(95, 64) = keyvalue21.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(127, 96) = keyvalue21.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(159, 128) = keyvalue22.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(191, 160) = keyvalue22.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(223, 192) = keyvalue23.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(255, 224) = keyvalue23.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(287, 256) = keyvalue24.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(319, 288) = keyvalue24.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(351, 320) = keyvalue25.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(383, 352) = keyvalue25.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(415, 384) = keyvalue26.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(447, 416) = keyvalue26.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(479, 448) = keyvalue27.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(511, 480) = keyvalue27.value;
-			#else 
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[0] = keyvalue20;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[1] = keyvalue21;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[2] = keyvalue22;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[3] = keyvalue23;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[4] = keyvalue24;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[5] = keyvalue25;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[6] = keyvalue26;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[7] = keyvalue27;
-			#endif 
-		//////
-			// read from 4
-			keyvalue_t keyvalue40 = buffer4[0][i]; 
-			keyvalue_t keyvalue41 = buffer4[1][i]; 
-			keyvalue_t keyvalue42 = buffer4[2][i]; 
-			keyvalue_t keyvalue43 = buffer4[3][i]; 
-			keyvalue_t keyvalue44 = buffer4[4][i]; 
-			keyvalue_t keyvalue45 = buffer4[5][i]; 
-			keyvalue_t keyvalue46 = buffer4[6][i]; 
-			keyvalue_t keyvalue47 = buffer4[7][i]; 
-		
-			// write to 5 buffer
-			buffer4[0][i] = keyvalue30; 
-			buffer4[1][i] = keyvalue31; 
-			buffer4[2][i] = keyvalue32; 
-			buffer4[3][i] = keyvalue33; 
-			buffer4[4][i] = keyvalue34; 
-			buffer4[5][i] = keyvalue35; 
-			buffer4[6][i] = keyvalue36; 
-			buffer4[7][i] = keyvalue37; 
-			
-			// write to 5 dram
-			#ifdef _WIDEWORD
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(31, 0) = keyvalue30.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(63, 32) = keyvalue30.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(95, 64) = keyvalue31.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(127, 96) = keyvalue31.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(159, 128) = keyvalue32.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(191, 160) = keyvalue32.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(223, 192) = keyvalue33.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(255, 224) = keyvalue33.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(287, 256) = keyvalue34.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(319, 288) = keyvalue34.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(351, 320) = keyvalue35.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(383, 352) = keyvalue35.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(415, 384) = keyvalue36.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(447, 416) = keyvalue36.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(479, 448) = keyvalue37.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(511, 480) = keyvalue37.value;
-			#else 
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[0] = keyvalue30;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[1] = keyvalue31;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[2] = keyvalue32;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[3] = keyvalue33;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[4] = keyvalue34;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[5] = keyvalue35;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[6] = keyvalue36;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[7] = keyvalue37;
-			#endif 
-		//////
-			// read from 5
-			keyvalue_t keyvalue50 = buffer5[0][i]; 
-			keyvalue_t keyvalue51 = buffer5[1][i]; 
-			keyvalue_t keyvalue52 = buffer5[2][i]; 
-			keyvalue_t keyvalue53 = buffer5[3][i]; 
-			keyvalue_t keyvalue54 = buffer5[4][i]; 
-			keyvalue_t keyvalue55 = buffer5[5][i]; 
-			keyvalue_t keyvalue56 = buffer5[6][i]; 
-			keyvalue_t keyvalue57 = buffer5[7][i]; 
-		
-			// write to 6 buffer
-			buffer5[0][i] = keyvalue40; 
-			buffer5[1][i] = keyvalue41; 
-			buffer5[2][i] = keyvalue42; 
-			buffer5[3][i] = keyvalue43; 
-			buffer5[4][i] = keyvalue44; 
-			buffer5[5][i] = keyvalue45; 
-			buffer5[6][i] = keyvalue46; 
-			buffer5[7][i] = keyvalue47; 
-			
-			// write to 6 dram
-			#ifdef _WIDEWORD
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(31, 0) = keyvalue40.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(63, 32) = keyvalue40.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(95, 64) = keyvalue41.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(127, 96) = keyvalue41.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(159, 128) = keyvalue42.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(191, 160) = keyvalue42.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(223, 192) = keyvalue43.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(255, 224) = keyvalue43.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(287, 256) = keyvalue44.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(319, 288) = keyvalue44.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(351, 320) = keyvalue45.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(383, 352) = keyvalue45.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(415, 384) = keyvalue46.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(447, 416) = keyvalue46.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(479, 448) = keyvalue47.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(511, 480) = keyvalue47.value;
-			#else 
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[0] = keyvalue40;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[1] = keyvalue41;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[2] = keyvalue42;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[3] = keyvalue43;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[4] = keyvalue44;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[5] = keyvalue45;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[6] = keyvalue46;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[7] = keyvalue47;
-			#endif 
-		//////
-			// read from 6
-			keyvalue_t keyvalue60 = buffer6[0][i]; 
-			keyvalue_t keyvalue61 = buffer6[1][i]; 
-			keyvalue_t keyvalue62 = buffer6[2][i]; 
-			keyvalue_t keyvalue63 = buffer6[3][i]; 
-			keyvalue_t keyvalue64 = buffer6[4][i]; 
-			keyvalue_t keyvalue65 = buffer6[5][i]; 
-			keyvalue_t keyvalue66 = buffer6[6][i]; 
-			keyvalue_t keyvalue67 = buffer6[7][i]; 
-		
-			// write to 7 buffer
-			buffer6[0][i] = keyvalue50; 
-			buffer6[1][i] = keyvalue51; 
-			buffer6[2][i] = keyvalue52; 
-			buffer6[3][i] = keyvalue53; 
-			buffer6[4][i] = keyvalue54; 
-			buffer6[5][i] = keyvalue55; 
-			buffer6[6][i] = keyvalue56; 
-			buffer6[7][i] = keyvalue57; 
-			
-			// write to 7 dram
-			#ifdef _WIDEWORD
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(31, 0) = keyvalue50.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(63, 32) = keyvalue50.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(95, 64) = keyvalue51.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(127, 96) = keyvalue51.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(159, 128) = keyvalue52.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(191, 160) = keyvalue52.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(223, 192) = keyvalue53.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(255, 224) = keyvalue53.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(287, 256) = keyvalue54.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(319, 288) = keyvalue54.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(351, 320) = keyvalue55.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(383, 352) = keyvalue55.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(415, 384) = keyvalue56.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(447, 416) = keyvalue56.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(479, 448) = keyvalue57.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(511, 480) = keyvalue57.value;
-			#else 
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[0] = keyvalue50;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[1] = keyvalue51;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[2] = keyvalue52;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[3] = keyvalue53;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[4] = keyvalue54;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[5] = keyvalue55;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[6] = keyvalue56;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[7] = keyvalue57;
-			#endif 
-		//////
-			// read from 7
-			keyvalue_t keyvalue70 = buffer7[0][i]; 
-			keyvalue_t keyvalue71 = buffer7[1][i]; 
-			keyvalue_t keyvalue72 = buffer7[2][i]; 
-			keyvalue_t keyvalue73 = buffer7[3][i]; 
-			keyvalue_t keyvalue74 = buffer7[4][i]; 
-			keyvalue_t keyvalue75 = buffer7[5][i]; 
-			keyvalue_t keyvalue76 = buffer7[6][i]; 
-			keyvalue_t keyvalue77 = buffer7[7][i]; 
-		
-			// write to 8 buffer
-			buffer7[0][i] = keyvalue60; 
-			buffer7[1][i] = keyvalue61; 
-			buffer7[2][i] = keyvalue62; 
-			buffer7[3][i] = keyvalue63; 
-			buffer7[4][i] = keyvalue64; 
-			buffer7[5][i] = keyvalue65; 
-			buffer7[6][i] = keyvalue66; 
-			buffer7[7][i] = keyvalue67; 
-			
-			// write to 8 dram
-			#ifdef _WIDEWORD
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(31, 0) = keyvalue60.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(63, 32) = keyvalue60.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(95, 64) = keyvalue61.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(127, 96) = keyvalue61.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(159, 128) = keyvalue62.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(191, 160) = keyvalue62.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(223, 192) = keyvalue63.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(255, 224) = keyvalue63.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(287, 256) = keyvalue64.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(319, 288) = keyvalue64.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(351, 320) = keyvalue65.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(383, 352) = keyvalue65.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(415, 384) = keyvalue66.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(447, 416) = keyvalue66.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(479, 448) = keyvalue67.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(511, 480) = keyvalue67.value;
-			#else 
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[0] = keyvalue60;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[1] = keyvalue61;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[2] = keyvalue62;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[3] = keyvalue63;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[4] = keyvalue64;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[5] = keyvalue65;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[6] = keyvalue66;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[7] = keyvalue67;
-			#endif 
-		//////
-			// read from 8
-			keyvalue_t keyvalue80 = buffer8[0][i]; 
-			keyvalue_t keyvalue81 = buffer8[1][i]; 
-			keyvalue_t keyvalue82 = buffer8[2][i]; 
-			keyvalue_t keyvalue83 = buffer8[3][i]; 
-			keyvalue_t keyvalue84 = buffer8[4][i]; 
-			keyvalue_t keyvalue85 = buffer8[5][i]; 
-			keyvalue_t keyvalue86 = buffer8[6][i]; 
-			keyvalue_t keyvalue87 = buffer8[7][i]; 
-		
-			// write to 9 buffer
-			buffer8[0][i] = keyvalue70; 
-			buffer8[1][i] = keyvalue71; 
-			buffer8[2][i] = keyvalue72; 
-			buffer8[3][i] = keyvalue73; 
-			buffer8[4][i] = keyvalue74; 
-			buffer8[5][i] = keyvalue75; 
-			buffer8[6][i] = keyvalue76; 
-			buffer8[7][i] = keyvalue77; 
-			
-			// write to 9 dram
-			#ifdef _WIDEWORD
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(31, 0) = keyvalue70.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(63, 32) = keyvalue70.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(95, 64) = keyvalue71.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(127, 96) = keyvalue71.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(159, 128) = keyvalue72.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(191, 160) = keyvalue72.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(223, 192) = keyvalue73.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(255, 224) = keyvalue73.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(287, 256) = keyvalue74.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(319, 288) = keyvalue74.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(351, 320) = keyvalue75.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(383, 352) = keyvalue75.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(415, 384) = keyvalue76.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(447, 416) = keyvalue76.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(479, 448) = keyvalue77.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(511, 480) = keyvalue77.value;
-			#else 
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[0] = keyvalue70;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[1] = keyvalue71;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[2] = keyvalue72;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[3] = keyvalue73;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[4] = keyvalue74;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[5] = keyvalue75;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[6] = keyvalue76;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[7] = keyvalue77;
-			#endif 
-		//////
-			// read from 9
-			keyvalue_t keyvalue90 = buffer9[0][i]; 
-			keyvalue_t keyvalue91 = buffer9[1][i]; 
-			keyvalue_t keyvalue92 = buffer9[2][i]; 
-			keyvalue_t keyvalue93 = buffer9[3][i]; 
-			keyvalue_t keyvalue94 = buffer9[4][i]; 
-			keyvalue_t keyvalue95 = buffer9[5][i]; 
-			keyvalue_t keyvalue96 = buffer9[6][i]; 
-			keyvalue_t keyvalue97 = buffer9[7][i]; 
-		
-			// write to 10 buffer
-			buffer9[0][i] = keyvalue80; 
-			buffer9[1][i] = keyvalue81; 
-			buffer9[2][i] = keyvalue82; 
-			buffer9[3][i] = keyvalue83; 
-			buffer9[4][i] = keyvalue84; 
-			buffer9[5][i] = keyvalue85; 
-			buffer9[6][i] = keyvalue86; 
-			buffer9[7][i] = keyvalue87; 
-			
-			// write to 10 dram
-			#ifdef _WIDEWORD
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(31, 0) = keyvalue80.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(63, 32) = keyvalue80.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(95, 64) = keyvalue81.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(127, 96) = keyvalue81.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(159, 128) = keyvalue82.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(191, 160) = keyvalue82.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(223, 192) = keyvalue83.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(255, 224) = keyvalue83.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(287, 256) = keyvalue84.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(319, 288) = keyvalue84.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(351, 320) = keyvalue85.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(383, 352) = keyvalue85.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(415, 384) = keyvalue86.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(447, 416) = keyvalue86.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(479, 448) = keyvalue87.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(511, 480) = keyvalue87.value;
-			#else 
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[0] = keyvalue80;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[1] = keyvalue81;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[2] = keyvalue82;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[3] = keyvalue83;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[4] = keyvalue84;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[5] = keyvalue85;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[6] = keyvalue86;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[7] = keyvalue87;
-			#endif 
-		//////
-			// read from 10
-			keyvalue_t keyvalue100 = buffer10[0][i]; 
-			keyvalue_t keyvalue101 = buffer10[1][i]; 
-			keyvalue_t keyvalue102 = buffer10[2][i]; 
-			keyvalue_t keyvalue103 = buffer10[3][i]; 
-			keyvalue_t keyvalue104 = buffer10[4][i]; 
-			keyvalue_t keyvalue105 = buffer10[5][i]; 
-			keyvalue_t keyvalue106 = buffer10[6][i]; 
-			keyvalue_t keyvalue107 = buffer10[7][i]; 
-		
-			// write to 11 buffer
-			buffer10[0][i] = keyvalue90; 
-			buffer10[1][i] = keyvalue91; 
-			buffer10[2][i] = keyvalue92; 
-			buffer10[3][i] = keyvalue93; 
-			buffer10[4][i] = keyvalue94; 
-			buffer10[5][i] = keyvalue95; 
-			buffer10[6][i] = keyvalue96; 
-			buffer10[7][i] = keyvalue97; 
-			
-			// write to 11 dram
-			#ifdef _WIDEWORD
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(31, 0) = keyvalue90.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(63, 32) = keyvalue90.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(95, 64) = keyvalue91.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(127, 96) = keyvalue91.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(159, 128) = keyvalue92.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(191, 160) = keyvalue92.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(223, 192) = keyvalue93.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(255, 224) = keyvalue93.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(287, 256) = keyvalue94.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(319, 288) = keyvalue94.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(351, 320) = keyvalue95.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(383, 352) = keyvalue95.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(415, 384) = keyvalue96.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(447, 416) = keyvalue96.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(479, 448) = keyvalue97.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(511, 480) = keyvalue97.value;
-			#else 
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[0] = keyvalue90;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[1] = keyvalue91;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[2] = keyvalue92;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[3] = keyvalue93;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[4] = keyvalue94;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[5] = keyvalue95;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[6] = keyvalue96;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[7] = keyvalue97;
-			#endif 
-		//////
-			// read from 11
-			keyvalue_t keyvalue110 = buffer11[0][i]; 
-			keyvalue_t keyvalue111 = buffer11[1][i]; 
-			keyvalue_t keyvalue112 = buffer11[2][i]; 
-			keyvalue_t keyvalue113 = buffer11[3][i]; 
-			keyvalue_t keyvalue114 = buffer11[4][i]; 
-			keyvalue_t keyvalue115 = buffer11[5][i]; 
-			keyvalue_t keyvalue116 = buffer11[6][i]; 
-			keyvalue_t keyvalue117 = buffer11[7][i]; 
-		
-			// write to 12 buffer
-			buffer11[0][i] = keyvalue100; 
-			buffer11[1][i] = keyvalue101; 
-			buffer11[2][i] = keyvalue102; 
-			buffer11[3][i] = keyvalue103; 
-			buffer11[4][i] = keyvalue104; 
-			buffer11[5][i] = keyvalue105; 
-			buffer11[6][i] = keyvalue106; 
-			buffer11[7][i] = keyvalue107; 
-			
-			// write to 12 dram
-			#ifdef _WIDEWORD
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(31, 0) = keyvalue100.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(63, 32) = keyvalue100.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(95, 64) = keyvalue101.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(127, 96) = keyvalue101.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(159, 128) = keyvalue102.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(191, 160) = keyvalue102.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(223, 192) = keyvalue103.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(255, 224) = keyvalue103.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(287, 256) = keyvalue104.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(319, 288) = keyvalue104.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(351, 320) = keyvalue105.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(383, 352) = keyvalue105.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(415, 384) = keyvalue106.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(447, 416) = keyvalue106.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(479, 448) = keyvalue107.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(511, 480) = keyvalue107.value;
-			#else 
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[0] = keyvalue100;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[1] = keyvalue101;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[2] = keyvalue102;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[3] = keyvalue103;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[4] = keyvalue104;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[5] = keyvalue105;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[6] = keyvalue106;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[7] = keyvalue107;
-			#endif 
-		//////
-			// read from 12
-			keyvalue_t keyvalue120 = buffer12[0][i]; 
-			keyvalue_t keyvalue121 = buffer12[1][i]; 
-			keyvalue_t keyvalue122 = buffer12[2][i]; 
-			keyvalue_t keyvalue123 = buffer12[3][i]; 
-			keyvalue_t keyvalue124 = buffer12[4][i]; 
-			keyvalue_t keyvalue125 = buffer12[5][i]; 
-			keyvalue_t keyvalue126 = buffer12[6][i]; 
-			keyvalue_t keyvalue127 = buffer12[7][i]; 
-		
-			// write to 13 buffer
-			buffer12[0][i] = keyvalue110; 
-			buffer12[1][i] = keyvalue111; 
-			buffer12[2][i] = keyvalue112; 
-			buffer12[3][i] = keyvalue113; 
-			buffer12[4][i] = keyvalue114; 
-			buffer12[5][i] = keyvalue115; 
-			buffer12[6][i] = keyvalue116; 
-			buffer12[7][i] = keyvalue117; 
-			
-			// write to 13 dram
-			#ifdef _WIDEWORD
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(31, 0) = keyvalue110.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(63, 32) = keyvalue110.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(95, 64) = keyvalue111.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(127, 96) = keyvalue111.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(159, 128) = keyvalue112.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(191, 160) = keyvalue112.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(223, 192) = keyvalue113.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(255, 224) = keyvalue113.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(287, 256) = keyvalue114.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(319, 288) = keyvalue114.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(351, 320) = keyvalue115.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(383, 352) = keyvalue115.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(415, 384) = keyvalue116.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(447, 416) = keyvalue116.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(479, 448) = keyvalue117.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(511, 480) = keyvalue117.value;
-			#else 
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[0] = keyvalue110;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[1] = keyvalue111;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[2] = keyvalue112;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[3] = keyvalue113;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[4] = keyvalue114;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[5] = keyvalue115;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[6] = keyvalue116;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[7] = keyvalue117;
-			#endif 
-		//////
-			// read from 13
-			keyvalue_t keyvalue130 = buffer13[0][i]; 
-			keyvalue_t keyvalue131 = buffer13[1][i]; 
-			keyvalue_t keyvalue132 = buffer13[2][i]; 
-			keyvalue_t keyvalue133 = buffer13[3][i]; 
-			keyvalue_t keyvalue134 = buffer13[4][i]; 
-			keyvalue_t keyvalue135 = buffer13[5][i]; 
-			keyvalue_t keyvalue136 = buffer13[6][i]; 
-			keyvalue_t keyvalue137 = buffer13[7][i]; 
-		
-			// write to 14 buffer
-			buffer13[0][i] = keyvalue120; 
-			buffer13[1][i] = keyvalue121; 
-			buffer13[2][i] = keyvalue122; 
-			buffer13[3][i] = keyvalue123; 
-			buffer13[4][i] = keyvalue124; 
-			buffer13[5][i] = keyvalue125; 
-			buffer13[6][i] = keyvalue126; 
-			buffer13[7][i] = keyvalue127; 
-			
-			// write to 14 dram
-			#ifdef _WIDEWORD
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(31, 0) = keyvalue120.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(63, 32) = keyvalue120.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(95, 64) = keyvalue121.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(127, 96) = keyvalue121.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(159, 128) = keyvalue122.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(191, 160) = keyvalue122.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(223, 192) = keyvalue123.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(255, 224) = keyvalue123.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(287, 256) = keyvalue124.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(319, 288) = keyvalue124.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(351, 320) = keyvalue125.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(383, 352) = keyvalue125.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(415, 384) = keyvalue126.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(447, 416) = keyvalue126.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(479, 448) = keyvalue127.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].range(511, 480) = keyvalue127.value;
-			#else 
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[0] = keyvalue120;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[1] = keyvalue121;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[2] = keyvalue122;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[3] = keyvalue123;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[4] = keyvalue124;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[5] = keyvalue125;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[6] = keyvalue126;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[13].key + i].data[7] = keyvalue127;
-			#endif 
-	}
-	
-	// for(unsigned int i=1; i<NUMCOMPUTEUNITS; i++){ 
-	// #pragma HLS PIPELINE II=1
-		// cout<<"~~~: offsetsandsizes["<<i-1<<"].key: "<<offsetsandsizes[i-1].key<<", offsetsandsizes["<<i-1<<"].value: "<<offsetsandsizes[i-1].value<<endl;
-		// offsetsandsizes[i] = offsetsandsizes[i-1]; 
-	// }
-	
-	for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
-	#pragma HLS PIPELINE II=1
-		// cout<<"~~~: offsetsandsizes["<<i-1<<"].key: "<<offsetsandsizes[i-1].key<<", offsetsandsizes["<<i-1<<"].value: "<<offsetsandsizes[i-1].value<<endl;
-		offsetsandsizes[i] = offsetsandsizes[i-1]; 
-	}
-	
-	// actsutilityobj->printkeyvalues("savekeyvalues_pipeline_sync:: offsetsandsizes[after]", offsetsandsizes, NUMCOMPUTEUNITS); // REMOVEME.
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
-	#endif
-	return;
-}
-#endif 
-
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	// CRITICAL FIXME. static?
-	static keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	static keyvalue_t buffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	
-	offsetsandsizes[0].key = offset_kvs;
-	offsetsandsizes[0].value = size_kvs;
-	
-	// cout<<"savekeyvalues_pipeline_sync:: offset_kvs: "<<offset_kvs<<", size_kvs: "<<size_kvs<<endl;
-	// actsutilityobj->printkeyvalues("savekeyvalues_pipeline_sync:: offsetsandsizes[before]", offsetsandsizes, NUMCOMPUTEUNITS); // REMOVEME.
-	
-	// SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-
-		//////
-			// read from 0
-			keyvalue_t keyvalue00 = buffer0[0][i]; 
-			keyvalue_t keyvalue01 = buffer0[1][i]; 
-			keyvalue_t keyvalue02 = buffer0[2][i]; 
-			keyvalue_t keyvalue03 = buffer0[3][i]; 
-			keyvalue_t keyvalue04 = buffer0[4][i]; 
-			keyvalue_t keyvalue05 = buffer0[5][i]; 
-			keyvalue_t keyvalue06 = buffer0[6][i]; 
-			keyvalue_t keyvalue07 = buffer0[7][i]; 
-		
-			#ifdef _WIDEWORD
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
-			#else 
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
-			#endif 
-		//////
-			// read from 1
-			keyvalue_t keyvalue10 = buffer1[0][i]; 
-			keyvalue_t keyvalue11 = buffer1[1][i]; 
-			keyvalue_t keyvalue12 = buffer1[2][i]; 
-			keyvalue_t keyvalue13 = buffer1[3][i]; 
-			keyvalue_t keyvalue14 = buffer1[4][i]; 
-			keyvalue_t keyvalue15 = buffer1[5][i]; 
-			keyvalue_t keyvalue16 = buffer1[6][i]; 
-			keyvalue_t keyvalue17 = buffer1[7][i]; 
-		
-			// write to 2 buffer
-			buffer1[0][i] = keyvalue00; 
-			buffer1[1][i] = keyvalue01; 
-			buffer1[2][i] = keyvalue02; 
-			buffer1[3][i] = keyvalue03; 
-			buffer1[4][i] = keyvalue04; 
-			buffer1[5][i] = keyvalue05; 
-			buffer1[6][i] = keyvalue06; 
-			buffer1[7][i] = keyvalue07; 
-			
-			// write to 2 dram
-			#ifdef _WIDEWORD
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
-			#else 
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
-			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
-			#endif 
-		//////
-			// read from 2
-			keyvalue_t keyvalue20 = buffer2[0][i]; 
-			keyvalue_t keyvalue21 = buffer2[1][i]; 
-			keyvalue_t keyvalue22 = buffer2[2][i]; 
-			keyvalue_t keyvalue23 = buffer2[3][i]; 
-			keyvalue_t keyvalue24 = buffer2[4][i]; 
-			keyvalue_t keyvalue25 = buffer2[5][i]; 
-			keyvalue_t keyvalue26 = buffer2[6][i]; 
-			keyvalue_t keyvalue27 = buffer2[7][i]; 
-		
-			// write to 3 buffer
-			buffer2[0][i] = keyvalue10; 
-			buffer2[1][i] = keyvalue11; 
-			buffer2[2][i] = keyvalue12; 
-			buffer2[3][i] = keyvalue13; 
-			buffer2[4][i] = keyvalue14; 
-			buffer2[5][i] = keyvalue15; 
-			buffer2[6][i] = keyvalue16; 
-			buffer2[7][i] = keyvalue17; 
-			
-			// write to 3 dram
-			#ifdef _WIDEWORD
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(31, 0) = keyvalue10.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(63, 32) = keyvalue10.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(95, 64) = keyvalue11.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(127, 96) = keyvalue11.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(159, 128) = keyvalue12.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(191, 160) = keyvalue12.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(223, 192) = keyvalue13.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(255, 224) = keyvalue13.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(287, 256) = keyvalue14.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(319, 288) = keyvalue14.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(351, 320) = keyvalue15.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(383, 352) = keyvalue15.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(415, 384) = keyvalue16.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(447, 416) = keyvalue16.value;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(479, 448) = keyvalue17.key;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(511, 480) = keyvalue17.value;
-			#else 
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[0] = keyvalue10;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[1] = keyvalue11;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[2] = keyvalue12;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[3] = keyvalue13;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[4] = keyvalue14;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[5] = keyvalue15;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[6] = keyvalue16;
-			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[7] = keyvalue17;
-			#endif 
-		//////
-			// read from 3
-			keyvalue_t keyvalue30 = buffer3[0][i]; 
-			keyvalue_t keyvalue31 = buffer3[1][i]; 
-			keyvalue_t keyvalue32 = buffer3[2][i]; 
-			keyvalue_t keyvalue33 = buffer3[3][i]; 
-			keyvalue_t keyvalue34 = buffer3[4][i]; 
-			keyvalue_t keyvalue35 = buffer3[5][i]; 
-			keyvalue_t keyvalue36 = buffer3[6][i]; 
-			keyvalue_t keyvalue37 = buffer3[7][i]; 
-		
-			// write to 4 buffer
-			buffer3[0][i] = keyvalue20; 
-			buffer3[1][i] = keyvalue21; 
-			buffer3[2][i] = keyvalue22; 
-			buffer3[3][i] = keyvalue23; 
-			buffer3[4][i] = keyvalue24; 
-			buffer3[5][i] = keyvalue25; 
-			buffer3[6][i] = keyvalue26; 
-			buffer3[7][i] = keyvalue27; 
-			
-			// write to 4 dram
-			#ifdef _WIDEWORD
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(31, 0) = keyvalue20.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(63, 32) = keyvalue20.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(95, 64) = keyvalue21.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(127, 96) = keyvalue21.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(159, 128) = keyvalue22.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(191, 160) = keyvalue22.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(223, 192) = keyvalue23.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(255, 224) = keyvalue23.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(287, 256) = keyvalue24.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(319, 288) = keyvalue24.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(351, 320) = keyvalue25.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(383, 352) = keyvalue25.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(415, 384) = keyvalue26.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(447, 416) = keyvalue26.value;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(479, 448) = keyvalue27.key;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(511, 480) = keyvalue27.value;
-			#else 
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[0] = keyvalue20;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[1] = keyvalue21;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[2] = keyvalue22;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[3] = keyvalue23;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[4] = keyvalue24;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[5] = keyvalue25;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[6] = keyvalue26;
-			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[7] = keyvalue27;
-			#endif 
-		//////
-			// read from 4
-			keyvalue_t keyvalue40 = buffer4[0][i]; 
-			keyvalue_t keyvalue41 = buffer4[1][i]; 
-			keyvalue_t keyvalue42 = buffer4[2][i]; 
-			keyvalue_t keyvalue43 = buffer4[3][i]; 
-			keyvalue_t keyvalue44 = buffer4[4][i]; 
-			keyvalue_t keyvalue45 = buffer4[5][i]; 
-			keyvalue_t keyvalue46 = buffer4[6][i]; 
-			keyvalue_t keyvalue47 = buffer4[7][i]; 
-		
-			// write to 5 buffer
-			buffer4[0][i] = keyvalue30; 
-			buffer4[1][i] = keyvalue31; 
-			buffer4[2][i] = keyvalue32; 
-			buffer4[3][i] = keyvalue33; 
-			buffer4[4][i] = keyvalue34; 
-			buffer4[5][i] = keyvalue35; 
-			buffer4[6][i] = keyvalue36; 
-			buffer4[7][i] = keyvalue37; 
-			
-			// write to 5 dram
-			#ifdef _WIDEWORD
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(31, 0) = keyvalue30.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(63, 32) = keyvalue30.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(95, 64) = keyvalue31.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(127, 96) = keyvalue31.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(159, 128) = keyvalue32.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(191, 160) = keyvalue32.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(223, 192) = keyvalue33.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(255, 224) = keyvalue33.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(287, 256) = keyvalue34.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(319, 288) = keyvalue34.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(351, 320) = keyvalue35.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(383, 352) = keyvalue35.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(415, 384) = keyvalue36.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(447, 416) = keyvalue36.value;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(479, 448) = keyvalue37.key;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(511, 480) = keyvalue37.value;
-			#else 
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[0] = keyvalue30;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[1] = keyvalue31;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[2] = keyvalue32;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[3] = keyvalue33;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[4] = keyvalue34;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[5] = keyvalue35;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[6] = keyvalue36;
-			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[7] = keyvalue37;
-			#endif 
-		//////
-			// read from 5
-			keyvalue_t keyvalue50 = buffer5[0][i]; 
-			keyvalue_t keyvalue51 = buffer5[1][i]; 
-			keyvalue_t keyvalue52 = buffer5[2][i]; 
-			keyvalue_t keyvalue53 = buffer5[3][i]; 
-			keyvalue_t keyvalue54 = buffer5[4][i]; 
-			keyvalue_t keyvalue55 = buffer5[5][i]; 
-			keyvalue_t keyvalue56 = buffer5[6][i]; 
-			keyvalue_t keyvalue57 = buffer5[7][i]; 
-		
-			// write to 6 buffer
-			buffer5[0][i] = keyvalue40; 
-			buffer5[1][i] = keyvalue41; 
-			buffer5[2][i] = keyvalue42; 
-			buffer5[3][i] = keyvalue43; 
-			buffer5[4][i] = keyvalue44; 
-			buffer5[5][i] = keyvalue45; 
-			buffer5[6][i] = keyvalue46; 
-			buffer5[7][i] = keyvalue47; 
-			
-			// write to 6 dram
-			#ifdef _WIDEWORD
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(31, 0) = keyvalue40.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(63, 32) = keyvalue40.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(95, 64) = keyvalue41.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(127, 96) = keyvalue41.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(159, 128) = keyvalue42.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(191, 160) = keyvalue42.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(223, 192) = keyvalue43.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(255, 224) = keyvalue43.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(287, 256) = keyvalue44.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(319, 288) = keyvalue44.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(351, 320) = keyvalue45.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(383, 352) = keyvalue45.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(415, 384) = keyvalue46.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(447, 416) = keyvalue46.value;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(479, 448) = keyvalue47.key;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(511, 480) = keyvalue47.value;
-			#else 
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[0] = keyvalue40;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[1] = keyvalue41;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[2] = keyvalue42;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[3] = keyvalue43;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[4] = keyvalue44;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[5] = keyvalue45;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[6] = keyvalue46;
-			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[7] = keyvalue47;
-			#endif 
-		//////
-			// read from 6
-			keyvalue_t keyvalue60 = buffer6[0][i]; 
-			keyvalue_t keyvalue61 = buffer6[1][i]; 
-			keyvalue_t keyvalue62 = buffer6[2][i]; 
-			keyvalue_t keyvalue63 = buffer6[3][i]; 
-			keyvalue_t keyvalue64 = buffer6[4][i]; 
-			keyvalue_t keyvalue65 = buffer6[5][i]; 
-			keyvalue_t keyvalue66 = buffer6[6][i]; 
-			keyvalue_t keyvalue67 = buffer6[7][i]; 
-		
-			// write to 7 buffer
-			buffer6[0][i] = keyvalue50; 
-			buffer6[1][i] = keyvalue51; 
-			buffer6[2][i] = keyvalue52; 
-			buffer6[3][i] = keyvalue53; 
-			buffer6[4][i] = keyvalue54; 
-			buffer6[5][i] = keyvalue55; 
-			buffer6[6][i] = keyvalue56; 
-			buffer6[7][i] = keyvalue57; 
-			
-			// write to 7 dram
-			#ifdef _WIDEWORD
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(31, 0) = keyvalue50.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(63, 32) = keyvalue50.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(95, 64) = keyvalue51.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(127, 96) = keyvalue51.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(159, 128) = keyvalue52.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(191, 160) = keyvalue52.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(223, 192) = keyvalue53.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(255, 224) = keyvalue53.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(287, 256) = keyvalue54.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(319, 288) = keyvalue54.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(351, 320) = keyvalue55.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(383, 352) = keyvalue55.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(415, 384) = keyvalue56.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(447, 416) = keyvalue56.value;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(479, 448) = keyvalue57.key;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(511, 480) = keyvalue57.value;
-			#else 
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[0] = keyvalue50;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[1] = keyvalue51;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[2] = keyvalue52;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[3] = keyvalue53;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[4] = keyvalue54;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[5] = keyvalue55;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[6] = keyvalue56;
-			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[7] = keyvalue57;
-			#endif 
-		//////
-			// read from 7
-			keyvalue_t keyvalue70 = buffer7[0][i]; 
-			keyvalue_t keyvalue71 = buffer7[1][i]; 
-			keyvalue_t keyvalue72 = buffer7[2][i]; 
-			keyvalue_t keyvalue73 = buffer7[3][i]; 
-			keyvalue_t keyvalue74 = buffer7[4][i]; 
-			keyvalue_t keyvalue75 = buffer7[5][i]; 
-			keyvalue_t keyvalue76 = buffer7[6][i]; 
-			keyvalue_t keyvalue77 = buffer7[7][i]; 
-		
-			// write to 8 buffer
-			buffer7[0][i] = keyvalue60; 
-			buffer7[1][i] = keyvalue61; 
-			buffer7[2][i] = keyvalue62; 
-			buffer7[3][i] = keyvalue63; 
-			buffer7[4][i] = keyvalue64; 
-			buffer7[5][i] = keyvalue65; 
-			buffer7[6][i] = keyvalue66; 
-			buffer7[7][i] = keyvalue67; 
-			
-			// write to 8 dram
-			#ifdef _WIDEWORD
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(31, 0) = keyvalue60.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(63, 32) = keyvalue60.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(95, 64) = keyvalue61.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(127, 96) = keyvalue61.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(159, 128) = keyvalue62.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(191, 160) = keyvalue62.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(223, 192) = keyvalue63.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(255, 224) = keyvalue63.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(287, 256) = keyvalue64.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(319, 288) = keyvalue64.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(351, 320) = keyvalue65.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(383, 352) = keyvalue65.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(415, 384) = keyvalue66.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(447, 416) = keyvalue66.value;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(479, 448) = keyvalue67.key;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(511, 480) = keyvalue67.value;
-			#else 
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[0] = keyvalue60;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[1] = keyvalue61;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[2] = keyvalue62;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[3] = keyvalue63;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[4] = keyvalue64;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[5] = keyvalue65;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[6] = keyvalue66;
-			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[7] = keyvalue67;
-			#endif 
-		//////
-			// read from 8
-			keyvalue_t keyvalue80 = buffer8[0][i]; 
-			keyvalue_t keyvalue81 = buffer8[1][i]; 
-			keyvalue_t keyvalue82 = buffer8[2][i]; 
-			keyvalue_t keyvalue83 = buffer8[3][i]; 
-			keyvalue_t keyvalue84 = buffer8[4][i]; 
-			keyvalue_t keyvalue85 = buffer8[5][i]; 
-			keyvalue_t keyvalue86 = buffer8[6][i]; 
-			keyvalue_t keyvalue87 = buffer8[7][i]; 
-		
-			// write to 9 buffer
-			buffer8[0][i] = keyvalue70; 
-			buffer8[1][i] = keyvalue71; 
-			buffer8[2][i] = keyvalue72; 
-			buffer8[3][i] = keyvalue73; 
-			buffer8[4][i] = keyvalue74; 
-			buffer8[5][i] = keyvalue75; 
-			buffer8[6][i] = keyvalue76; 
-			buffer8[7][i] = keyvalue77; 
-			
-			// write to 9 dram
-			#ifdef _WIDEWORD
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(31, 0) = keyvalue70.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(63, 32) = keyvalue70.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(95, 64) = keyvalue71.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(127, 96) = keyvalue71.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(159, 128) = keyvalue72.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(191, 160) = keyvalue72.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(223, 192) = keyvalue73.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(255, 224) = keyvalue73.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(287, 256) = keyvalue74.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(319, 288) = keyvalue74.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(351, 320) = keyvalue75.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(383, 352) = keyvalue75.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(415, 384) = keyvalue76.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(447, 416) = keyvalue76.value;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(479, 448) = keyvalue77.key;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(511, 480) = keyvalue77.value;
-			#else 
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[0] = keyvalue70;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[1] = keyvalue71;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[2] = keyvalue72;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[3] = keyvalue73;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[4] = keyvalue74;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[5] = keyvalue75;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[6] = keyvalue76;
-			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[7] = keyvalue77;
-			#endif 
-		//////
-			// read from 9
-			keyvalue_t keyvalue90 = buffer9[0][i]; 
-			keyvalue_t keyvalue91 = buffer9[1][i]; 
-			keyvalue_t keyvalue92 = buffer9[2][i]; 
-			keyvalue_t keyvalue93 = buffer9[3][i]; 
-			keyvalue_t keyvalue94 = buffer9[4][i]; 
-			keyvalue_t keyvalue95 = buffer9[5][i]; 
-			keyvalue_t keyvalue96 = buffer9[6][i]; 
-			keyvalue_t keyvalue97 = buffer9[7][i]; 
-		
-			// write to 10 buffer
-			buffer9[0][i] = keyvalue80; 
-			buffer9[1][i] = keyvalue81; 
-			buffer9[2][i] = keyvalue82; 
-			buffer9[3][i] = keyvalue83; 
-			buffer9[4][i] = keyvalue84; 
-			buffer9[5][i] = keyvalue85; 
-			buffer9[6][i] = keyvalue86; 
-			buffer9[7][i] = keyvalue87; 
-			
-			// write to 10 dram
-			#ifdef _WIDEWORD
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(31, 0) = keyvalue80.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(63, 32) = keyvalue80.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(95, 64) = keyvalue81.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(127, 96) = keyvalue81.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(159, 128) = keyvalue82.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(191, 160) = keyvalue82.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(223, 192) = keyvalue83.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(255, 224) = keyvalue83.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(287, 256) = keyvalue84.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(319, 288) = keyvalue84.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(351, 320) = keyvalue85.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(383, 352) = keyvalue85.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(415, 384) = keyvalue86.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(447, 416) = keyvalue86.value;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(479, 448) = keyvalue87.key;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(511, 480) = keyvalue87.value;
-			#else 
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[0] = keyvalue80;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[1] = keyvalue81;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[2] = keyvalue82;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[3] = keyvalue83;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[4] = keyvalue84;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[5] = keyvalue85;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[6] = keyvalue86;
-			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[7] = keyvalue87;
-			#endif 
-		//////
-			// read from 10
-			keyvalue_t keyvalue100 = buffer10[0][i]; 
-			keyvalue_t keyvalue101 = buffer10[1][i]; 
-			keyvalue_t keyvalue102 = buffer10[2][i]; 
-			keyvalue_t keyvalue103 = buffer10[3][i]; 
-			keyvalue_t keyvalue104 = buffer10[4][i]; 
-			keyvalue_t keyvalue105 = buffer10[5][i]; 
-			keyvalue_t keyvalue106 = buffer10[6][i]; 
-			keyvalue_t keyvalue107 = buffer10[7][i]; 
-		
-			// write to 11 buffer
-			buffer10[0][i] = keyvalue90; 
-			buffer10[1][i] = keyvalue91; 
-			buffer10[2][i] = keyvalue92; 
-			buffer10[3][i] = keyvalue93; 
-			buffer10[4][i] = keyvalue94; 
-			buffer10[5][i] = keyvalue95; 
-			buffer10[6][i] = keyvalue96; 
-			buffer10[7][i] = keyvalue97; 
-			
-			// write to 11 dram
-			#ifdef _WIDEWORD
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(31, 0) = keyvalue90.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(63, 32) = keyvalue90.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(95, 64) = keyvalue91.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(127, 96) = keyvalue91.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(159, 128) = keyvalue92.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(191, 160) = keyvalue92.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(223, 192) = keyvalue93.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(255, 224) = keyvalue93.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(287, 256) = keyvalue94.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(319, 288) = keyvalue94.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(351, 320) = keyvalue95.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(383, 352) = keyvalue95.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(415, 384) = keyvalue96.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(447, 416) = keyvalue96.value;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(479, 448) = keyvalue97.key;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(511, 480) = keyvalue97.value;
-			#else 
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[0] = keyvalue90;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[1] = keyvalue91;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[2] = keyvalue92;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[3] = keyvalue93;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[4] = keyvalue94;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[5] = keyvalue95;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[6] = keyvalue96;
-			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[7] = keyvalue97;
-			#endif 
-		//////
-			// read from 11
-			keyvalue_t keyvalue110 = buffer11[0][i]; 
-			keyvalue_t keyvalue111 = buffer11[1][i]; 
-			keyvalue_t keyvalue112 = buffer11[2][i]; 
-			keyvalue_t keyvalue113 = buffer11[3][i]; 
-			keyvalue_t keyvalue114 = buffer11[4][i]; 
-			keyvalue_t keyvalue115 = buffer11[5][i]; 
-			keyvalue_t keyvalue116 = buffer11[6][i]; 
-			keyvalue_t keyvalue117 = buffer11[7][i]; 
-		
-			// write to 12 buffer
-			buffer11[0][i] = keyvalue100; 
-			buffer11[1][i] = keyvalue101; 
-			buffer11[2][i] = keyvalue102; 
-			buffer11[3][i] = keyvalue103; 
-			buffer11[4][i] = keyvalue104; 
-			buffer11[5][i] = keyvalue105; 
-			buffer11[6][i] = keyvalue106; 
-			buffer11[7][i] = keyvalue107; 
-			
-			// write to 12 dram
-			#ifdef _WIDEWORD
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(31, 0) = keyvalue100.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(63, 32) = keyvalue100.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(95, 64) = keyvalue101.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(127, 96) = keyvalue101.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(159, 128) = keyvalue102.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(191, 160) = keyvalue102.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(223, 192) = keyvalue103.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(255, 224) = keyvalue103.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(287, 256) = keyvalue104.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(319, 288) = keyvalue104.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(351, 320) = keyvalue105.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(383, 352) = keyvalue105.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(415, 384) = keyvalue106.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(447, 416) = keyvalue106.value;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(479, 448) = keyvalue107.key;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(511, 480) = keyvalue107.value;
-			#else 
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[0] = keyvalue100;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[1] = keyvalue101;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[2] = keyvalue102;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[3] = keyvalue103;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[4] = keyvalue104;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[5] = keyvalue105;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[6] = keyvalue106;
-			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[7] = keyvalue107;
-			#endif 
-		//////
-			// read from 12
-			keyvalue_t keyvalue120 = buffer12[0][i]; 
-			keyvalue_t keyvalue121 = buffer12[1][i]; 
-			keyvalue_t keyvalue122 = buffer12[2][i]; 
-			keyvalue_t keyvalue123 = buffer12[3][i]; 
-			keyvalue_t keyvalue124 = buffer12[4][i]; 
-			keyvalue_t keyvalue125 = buffer12[5][i]; 
-			keyvalue_t keyvalue126 = buffer12[6][i]; 
-			keyvalue_t keyvalue127 = buffer12[7][i]; 
-		
-			// write to 13 buffer
-			buffer12[0][i] = keyvalue110; 
-			buffer12[1][i] = keyvalue111; 
-			buffer12[2][i] = keyvalue112; 
-			buffer12[3][i] = keyvalue113; 
-			buffer12[4][i] = keyvalue114; 
-			buffer12[5][i] = keyvalue115; 
-			buffer12[6][i] = keyvalue116; 
-			buffer12[7][i] = keyvalue117; 
-			
-			// write to 13 dram
-			#ifdef _WIDEWORD
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(31, 0) = keyvalue110.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(63, 32) = keyvalue110.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(95, 64) = keyvalue111.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(127, 96) = keyvalue111.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(159, 128) = keyvalue112.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(191, 160) = keyvalue112.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(223, 192) = keyvalue113.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(255, 224) = keyvalue113.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(287, 256) = keyvalue114.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(319, 288) = keyvalue114.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(351, 320) = keyvalue115.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(383, 352) = keyvalue115.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(415, 384) = keyvalue116.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(447, 416) = keyvalue116.value;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(479, 448) = keyvalue117.key;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].range(511, 480) = keyvalue117.value;
-			#else 
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[0] = keyvalue110;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[1] = keyvalue111;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[2] = keyvalue112;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[3] = keyvalue113;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[4] = keyvalue114;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[5] = keyvalue115;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[6] = keyvalue116;
-			kvdram12[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[11].key + i].data[7] = keyvalue117;
-			#endif 
-		//////
-			// read from 13
-			keyvalue_t keyvalue130 = buffer13[0][i]; 
-			keyvalue_t keyvalue131 = buffer13[1][i]; 
-			keyvalue_t keyvalue132 = buffer13[2][i]; 
-			keyvalue_t keyvalue133 = buffer13[3][i]; 
-			keyvalue_t keyvalue134 = buffer13[4][i]; 
-			keyvalue_t keyvalue135 = buffer13[5][i]; 
-			keyvalue_t keyvalue136 = buffer13[6][i]; 
-			keyvalue_t keyvalue137 = buffer13[7][i]; 
-		
-			// write to 14 buffer
-			buffer13[0][i] = keyvalue120; 
-			buffer13[1][i] = keyvalue121; 
-			buffer13[2][i] = keyvalue122; 
-			buffer13[3][i] = keyvalue123; 
-			buffer13[4][i] = keyvalue124; 
-			buffer13[5][i] = keyvalue125; 
-			buffer13[6][i] = keyvalue126; 
-			buffer13[7][i] = keyvalue127; 
-			
-			// write to 14 dram
-			#ifdef _WIDEWORD
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(31, 0) = keyvalue120.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(63, 32) = keyvalue120.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(95, 64) = keyvalue121.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(127, 96) = keyvalue121.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(159, 128) = keyvalue122.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(191, 160) = keyvalue122.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(223, 192) = keyvalue123.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(255, 224) = keyvalue123.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(287, 256) = keyvalue124.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(319, 288) = keyvalue124.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(351, 320) = keyvalue125.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(383, 352) = keyvalue125.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(415, 384) = keyvalue126.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(447, 416) = keyvalue126.value;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(479, 448) = keyvalue127.key;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].range(511, 480) = keyvalue127.value;
-			#else 
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[0] = keyvalue120;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[1] = keyvalue121;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[2] = keyvalue122;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[3] = keyvalue123;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[4] = keyvalue124;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[5] = keyvalue125;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[6] = keyvalue126;
-			kvdram13[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[12].key + i].data[7] = keyvalue127;
-			#endif 
-	}
-	
-	/* for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
-	#pragma HLS PIPELINE II=1
-		// cout<<"~~~: offsetsandsizes["<<i-1<<"].key: "<<offsetsandsizes[i-1].key<<", offsetsandsizes["<<i-1<<"].value: "<<offsetsandsizes[i-1].value<<endl;
-		offsetsandsizes[i].key = offsetsandsizes[i-1].key + offsetsandsizes[i-1].value; 
-	} */
-	
-	// shift offsets and sizes
-	for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
-	#pragma HLS PIPELINE II=1
-		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
-		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
-	}
-	
-	// actsutilityobj->printkeyvalues("savekeyvalues_pipeline_sync:: offsetsandsizes[after]", offsetsandsizes, NUMCOMPUTEUNITS); // REMOVEME.
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs){
+savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
 	
@@ -4631,10 +3166,6 @@ savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * 
 	#pragma HLS array_partition variable = buffer10
 	keyvalue_t buffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer11
-	keyvalue_t buffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer12
-	keyvalue_t buffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer13
 	
 	for(unsigned int i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=1
@@ -4743,22 +3274,6 @@ savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * 
 		buffer11[5][i] = keyvalue5;
 		buffer11[6][i] = keyvalue6;
 		buffer11[7][i] = keyvalue7;
-		buffer12[0][i] = keyvalue0;
-		buffer12[1][i] = keyvalue1;
-		buffer12[2][i] = keyvalue2;
-		buffer12[3][i] = keyvalue3;
-		buffer12[4][i] = keyvalue4;
-		buffer12[5][i] = keyvalue5;
-		buffer12[6][i] = keyvalue6;
-		buffer12[7][i] = keyvalue7;
-		buffer13[0][i] = keyvalue0;
-		buffer13[1][i] = keyvalue1;
-		buffer13[2][i] = keyvalue2;
-		buffer13[3][i] = keyvalue3;
-		buffer13[4][i] = keyvalue4;
-		buffer13[5][i] = keyvalue5;
-		buffer13[6][i] = keyvalue6;
-		buffer13[7][i] = keyvalue7;
 	}
 	
 	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
@@ -4957,38 +3472,6 @@ savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * 
 		kvdram11[offset_kvs + i].range(447, 416) = buffer11[6][i].value; 
 		kvdram11[offset_kvs + i].range(479, 448) = buffer11[7][i].key; 
 		kvdram11[offset_kvs + i].range(511, 480) = buffer11[7][i].value; 
-		kvdram12[offset_kvs + i].range(31, 0) = buffer12[0][i].key; 
-		kvdram12[offset_kvs + i].range(63, 32) = buffer12[0][i].value; 
-		kvdram12[offset_kvs + i].range(95, 64) = buffer12[1][i].key; 
-		kvdram12[offset_kvs + i].range(127, 96) = buffer12[1][i].value; 
-		kvdram12[offset_kvs + i].range(159, 128) = buffer12[2][i].key; 
-		kvdram12[offset_kvs + i].range(191, 160) = buffer12[2][i].value; 
-		kvdram12[offset_kvs + i].range(223, 192) = buffer12[3][i].key; 
-		kvdram12[offset_kvs + i].range(255, 224) = buffer12[3][i].value; 
-		kvdram12[offset_kvs + i].range(287, 256) = buffer12[4][i].key; 
-		kvdram12[offset_kvs + i].range(319, 288) = buffer12[4][i].value; 
-		kvdram12[offset_kvs + i].range(351, 320) = buffer12[5][i].key; 
-		kvdram12[offset_kvs + i].range(383, 352) = buffer12[5][i].value; 
-		kvdram12[offset_kvs + i].range(415, 384) = buffer12[6][i].key; 
-		kvdram12[offset_kvs + i].range(447, 416) = buffer12[6][i].value; 
-		kvdram12[offset_kvs + i].range(479, 448) = buffer12[7][i].key; 
-		kvdram12[offset_kvs + i].range(511, 480) = buffer12[7][i].value; 
-		kvdram13[offset_kvs + i].range(31, 0) = buffer13[0][i].key; 
-		kvdram13[offset_kvs + i].range(63, 32) = buffer13[0][i].value; 
-		kvdram13[offset_kvs + i].range(95, 64) = buffer13[1][i].key; 
-		kvdram13[offset_kvs + i].range(127, 96) = buffer13[1][i].value; 
-		kvdram13[offset_kvs + i].range(159, 128) = buffer13[2][i].key; 
-		kvdram13[offset_kvs + i].range(191, 160) = buffer13[2][i].value; 
-		kvdram13[offset_kvs + i].range(223, 192) = buffer13[3][i].key; 
-		kvdram13[offset_kvs + i].range(255, 224) = buffer13[3][i].value; 
-		kvdram13[offset_kvs + i].range(287, 256) = buffer13[4][i].key; 
-		kvdram13[offset_kvs + i].range(319, 288) = buffer13[4][i].value; 
-		kvdram13[offset_kvs + i].range(351, 320) = buffer13[5][i].key; 
-		kvdram13[offset_kvs + i].range(383, 352) = buffer13[5][i].value; 
-		kvdram13[offset_kvs + i].range(415, 384) = buffer13[6][i].key; 
-		kvdram13[offset_kvs + i].range(447, 416) = buffer13[6][i].value; 
-		kvdram13[offset_kvs + i].range(479, 448) = buffer13[7][i].key; 
-		kvdram13[offset_kvs + i].range(511, 480) = buffer13[7][i].value; 
 		#else 
 		kvdram0[offset_kvs + i].data[0] = buffer0[0][i];
 		kvdram0[offset_kvs + i].data[1] = buffer0[1][i];
@@ -5086,22 +3569,6 @@ savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * 
 		kvdram11[offset_kvs + i].data[5] = buffer11[5][i];
 		kvdram11[offset_kvs + i].data[6] = buffer11[6][i];
 		kvdram11[offset_kvs + i].data[7] = buffer11[7][i];
-		kvdram12[offset_kvs + i].data[0] = buffer12[0][i];
-		kvdram12[offset_kvs + i].data[1] = buffer12[1][i];
-		kvdram12[offset_kvs + i].data[2] = buffer12[2][i];
-		kvdram12[offset_kvs + i].data[3] = buffer12[3][i];
-		kvdram12[offset_kvs + i].data[4] = buffer12[4][i];
-		kvdram12[offset_kvs + i].data[5] = buffer12[5][i];
-		kvdram12[offset_kvs + i].data[6] = buffer12[6][i];
-		kvdram12[offset_kvs + i].data[7] = buffer12[7][i];
-		kvdram13[offset_kvs + i].data[0] = buffer13[0][i];
-		kvdram13[offset_kvs + i].data[1] = buffer13[1][i];
-		kvdram13[offset_kvs + i].data[2] = buffer13[2][i];
-		kvdram13[offset_kvs + i].data[3] = buffer13[3][i];
-		kvdram13[offset_kvs + i].data[4] = buffer13[4][i];
-		kvdram13[offset_kvs + i].data[5] = buffer13[5][i];
-		kvdram13[offset_kvs + i].data[6] = buffer13[6][i];
-		kvdram13[offset_kvs + i].data[7] = buffer13[7][i];
 		#endif 
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
@@ -5113,6 +3580,1361 @@ savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#endif
+	return;
+}
+
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+savekeyvalues_pipeline_sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
+	
+	// CRITICAL FIXME. static?
+	static keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	
+	offsetsandsizes[0].key = offset_kvs;
+	offsetsandsizes[0].value = size_kvs;
+	
+	// SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+
+			// read from 0
+			keyvalue_t keyvalue00 = buffer0[0][i]; 
+			keyvalue_t keyvalue01 = buffer0[1][i]; 
+			keyvalue_t keyvalue02 = buffer0[2][i]; 
+			keyvalue_t keyvalue03 = buffer0[3][i]; 
+			keyvalue_t keyvalue04 = buffer0[4][i]; 
+			keyvalue_t keyvalue05 = buffer0[5][i]; 
+			keyvalue_t keyvalue06 = buffer0[6][i]; 
+			keyvalue_t keyvalue07 = buffer0[7][i]; 
+		
+			#ifdef _WIDEWORD
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
+			#else 
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
+			#endif 
+			// read from 1
+			keyvalue_t keyvalue10 = buffer1[0][i]; 
+			keyvalue_t keyvalue11 = buffer1[1][i]; 
+			keyvalue_t keyvalue12 = buffer1[2][i]; 
+			keyvalue_t keyvalue13 = buffer1[3][i]; 
+			keyvalue_t keyvalue14 = buffer1[4][i]; 
+			keyvalue_t keyvalue15 = buffer1[5][i]; 
+			keyvalue_t keyvalue16 = buffer1[6][i]; 
+			keyvalue_t keyvalue17 = buffer1[7][i]; 
+		
+			// write to 2 buffer
+			buffer1[0][i] = keyvalue00; 
+			buffer1[1][i] = keyvalue01; 
+			buffer1[2][i] = keyvalue02; 
+			buffer1[3][i] = keyvalue03; 
+			buffer1[4][i] = keyvalue04; 
+			buffer1[5][i] = keyvalue05; 
+			buffer1[6][i] = keyvalue06; 
+			buffer1[7][i] = keyvalue07; 
+			
+			// write to 2 dram
+			#ifdef _WIDEWORD
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
+			#else 
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
+			#endif 
+			// read from 2
+			keyvalue_t keyvalue20 = buffer2[0][i]; 
+			keyvalue_t keyvalue21 = buffer2[1][i]; 
+			keyvalue_t keyvalue22 = buffer2[2][i]; 
+			keyvalue_t keyvalue23 = buffer2[3][i]; 
+			keyvalue_t keyvalue24 = buffer2[4][i]; 
+			keyvalue_t keyvalue25 = buffer2[5][i]; 
+			keyvalue_t keyvalue26 = buffer2[6][i]; 
+			keyvalue_t keyvalue27 = buffer2[7][i]; 
+		
+			// write to 3 buffer
+			buffer2[0][i] = keyvalue10; 
+			buffer2[1][i] = keyvalue11; 
+			buffer2[2][i] = keyvalue12; 
+			buffer2[3][i] = keyvalue13; 
+			buffer2[4][i] = keyvalue14; 
+			buffer2[5][i] = keyvalue15; 
+			buffer2[6][i] = keyvalue16; 
+			buffer2[7][i] = keyvalue17; 
+			
+			// write to 3 dram
+			#ifdef _WIDEWORD
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(31, 0) = keyvalue10.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(63, 32) = keyvalue10.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(95, 64) = keyvalue11.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(127, 96) = keyvalue11.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(159, 128) = keyvalue12.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(191, 160) = keyvalue12.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(223, 192) = keyvalue13.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(255, 224) = keyvalue13.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(287, 256) = keyvalue14.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(319, 288) = keyvalue14.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(351, 320) = keyvalue15.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(383, 352) = keyvalue15.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(415, 384) = keyvalue16.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(447, 416) = keyvalue16.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(479, 448) = keyvalue17.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(511, 480) = keyvalue17.value;
+			#else 
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[0] = keyvalue10;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[1] = keyvalue11;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[2] = keyvalue12;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[3] = keyvalue13;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[4] = keyvalue14;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[5] = keyvalue15;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[6] = keyvalue16;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[7] = keyvalue17;
+			#endif 
+			// read from 3
+			keyvalue_t keyvalue30 = buffer3[0][i]; 
+			keyvalue_t keyvalue31 = buffer3[1][i]; 
+			keyvalue_t keyvalue32 = buffer3[2][i]; 
+			keyvalue_t keyvalue33 = buffer3[3][i]; 
+			keyvalue_t keyvalue34 = buffer3[4][i]; 
+			keyvalue_t keyvalue35 = buffer3[5][i]; 
+			keyvalue_t keyvalue36 = buffer3[6][i]; 
+			keyvalue_t keyvalue37 = buffer3[7][i]; 
+		
+			// write to 4 buffer
+			buffer3[0][i] = keyvalue20; 
+			buffer3[1][i] = keyvalue21; 
+			buffer3[2][i] = keyvalue22; 
+			buffer3[3][i] = keyvalue23; 
+			buffer3[4][i] = keyvalue24; 
+			buffer3[5][i] = keyvalue25; 
+			buffer3[6][i] = keyvalue26; 
+			buffer3[7][i] = keyvalue27; 
+			
+			// write to 4 dram
+			#ifdef _WIDEWORD
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(31, 0) = keyvalue20.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(63, 32) = keyvalue20.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(95, 64) = keyvalue21.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(127, 96) = keyvalue21.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(159, 128) = keyvalue22.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(191, 160) = keyvalue22.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(223, 192) = keyvalue23.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(255, 224) = keyvalue23.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(287, 256) = keyvalue24.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(319, 288) = keyvalue24.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(351, 320) = keyvalue25.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(383, 352) = keyvalue25.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(415, 384) = keyvalue26.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(447, 416) = keyvalue26.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(479, 448) = keyvalue27.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(511, 480) = keyvalue27.value;
+			#else 
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[0] = keyvalue20;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[1] = keyvalue21;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[2] = keyvalue22;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[3] = keyvalue23;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[4] = keyvalue24;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[5] = keyvalue25;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[6] = keyvalue26;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[7] = keyvalue27;
+			#endif 
+			// read from 4
+			keyvalue_t keyvalue40 = buffer4[0][i]; 
+			keyvalue_t keyvalue41 = buffer4[1][i]; 
+			keyvalue_t keyvalue42 = buffer4[2][i]; 
+			keyvalue_t keyvalue43 = buffer4[3][i]; 
+			keyvalue_t keyvalue44 = buffer4[4][i]; 
+			keyvalue_t keyvalue45 = buffer4[5][i]; 
+			keyvalue_t keyvalue46 = buffer4[6][i]; 
+			keyvalue_t keyvalue47 = buffer4[7][i]; 
+		
+			// write to 5 buffer
+			buffer4[0][i] = keyvalue30; 
+			buffer4[1][i] = keyvalue31; 
+			buffer4[2][i] = keyvalue32; 
+			buffer4[3][i] = keyvalue33; 
+			buffer4[4][i] = keyvalue34; 
+			buffer4[5][i] = keyvalue35; 
+			buffer4[6][i] = keyvalue36; 
+			buffer4[7][i] = keyvalue37; 
+			
+			// write to 5 dram
+			#ifdef _WIDEWORD
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(31, 0) = keyvalue30.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(63, 32) = keyvalue30.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(95, 64) = keyvalue31.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(127, 96) = keyvalue31.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(159, 128) = keyvalue32.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(191, 160) = keyvalue32.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(223, 192) = keyvalue33.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(255, 224) = keyvalue33.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(287, 256) = keyvalue34.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(319, 288) = keyvalue34.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(351, 320) = keyvalue35.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(383, 352) = keyvalue35.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(415, 384) = keyvalue36.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(447, 416) = keyvalue36.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(479, 448) = keyvalue37.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(511, 480) = keyvalue37.value;
+			#else 
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[0] = keyvalue30;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[1] = keyvalue31;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[2] = keyvalue32;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[3] = keyvalue33;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[4] = keyvalue34;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[5] = keyvalue35;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[6] = keyvalue36;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[7] = keyvalue37;
+			#endif 
+			// read from 5
+			keyvalue_t keyvalue50 = buffer5[0][i]; 
+			keyvalue_t keyvalue51 = buffer5[1][i]; 
+			keyvalue_t keyvalue52 = buffer5[2][i]; 
+			keyvalue_t keyvalue53 = buffer5[3][i]; 
+			keyvalue_t keyvalue54 = buffer5[4][i]; 
+			keyvalue_t keyvalue55 = buffer5[5][i]; 
+			keyvalue_t keyvalue56 = buffer5[6][i]; 
+			keyvalue_t keyvalue57 = buffer5[7][i]; 
+		
+			// write to 6 buffer
+			buffer5[0][i] = keyvalue40; 
+			buffer5[1][i] = keyvalue41; 
+			buffer5[2][i] = keyvalue42; 
+			buffer5[3][i] = keyvalue43; 
+			buffer5[4][i] = keyvalue44; 
+			buffer5[5][i] = keyvalue45; 
+			buffer5[6][i] = keyvalue46; 
+			buffer5[7][i] = keyvalue47; 
+			
+			// write to 6 dram
+			#ifdef _WIDEWORD
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(31, 0) = keyvalue40.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(63, 32) = keyvalue40.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(95, 64) = keyvalue41.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(127, 96) = keyvalue41.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(159, 128) = keyvalue42.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(191, 160) = keyvalue42.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(223, 192) = keyvalue43.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(255, 224) = keyvalue43.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(287, 256) = keyvalue44.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(319, 288) = keyvalue44.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(351, 320) = keyvalue45.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(383, 352) = keyvalue45.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(415, 384) = keyvalue46.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(447, 416) = keyvalue46.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(479, 448) = keyvalue47.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(511, 480) = keyvalue47.value;
+			#else 
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[0] = keyvalue40;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[1] = keyvalue41;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[2] = keyvalue42;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[3] = keyvalue43;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[4] = keyvalue44;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[5] = keyvalue45;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[6] = keyvalue46;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[7] = keyvalue47;
+			#endif 
+			// read from 6
+			keyvalue_t keyvalue60 = buffer6[0][i]; 
+			keyvalue_t keyvalue61 = buffer6[1][i]; 
+			keyvalue_t keyvalue62 = buffer6[2][i]; 
+			keyvalue_t keyvalue63 = buffer6[3][i]; 
+			keyvalue_t keyvalue64 = buffer6[4][i]; 
+			keyvalue_t keyvalue65 = buffer6[5][i]; 
+			keyvalue_t keyvalue66 = buffer6[6][i]; 
+			keyvalue_t keyvalue67 = buffer6[7][i]; 
+		
+			// write to 7 buffer
+			buffer6[0][i] = keyvalue50; 
+			buffer6[1][i] = keyvalue51; 
+			buffer6[2][i] = keyvalue52; 
+			buffer6[3][i] = keyvalue53; 
+			buffer6[4][i] = keyvalue54; 
+			buffer6[5][i] = keyvalue55; 
+			buffer6[6][i] = keyvalue56; 
+			buffer6[7][i] = keyvalue57; 
+			
+			// write to 7 dram
+			#ifdef _WIDEWORD
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(31, 0) = keyvalue50.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(63, 32) = keyvalue50.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(95, 64) = keyvalue51.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(127, 96) = keyvalue51.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(159, 128) = keyvalue52.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(191, 160) = keyvalue52.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(223, 192) = keyvalue53.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(255, 224) = keyvalue53.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(287, 256) = keyvalue54.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(319, 288) = keyvalue54.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(351, 320) = keyvalue55.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(383, 352) = keyvalue55.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(415, 384) = keyvalue56.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(447, 416) = keyvalue56.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(479, 448) = keyvalue57.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(511, 480) = keyvalue57.value;
+			#else 
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[0] = keyvalue50;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[1] = keyvalue51;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[2] = keyvalue52;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[3] = keyvalue53;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[4] = keyvalue54;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[5] = keyvalue55;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[6] = keyvalue56;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[7] = keyvalue57;
+			#endif 
+			// read from 7
+			keyvalue_t keyvalue70 = buffer7[0][i]; 
+			keyvalue_t keyvalue71 = buffer7[1][i]; 
+			keyvalue_t keyvalue72 = buffer7[2][i]; 
+			keyvalue_t keyvalue73 = buffer7[3][i]; 
+			keyvalue_t keyvalue74 = buffer7[4][i]; 
+			keyvalue_t keyvalue75 = buffer7[5][i]; 
+			keyvalue_t keyvalue76 = buffer7[6][i]; 
+			keyvalue_t keyvalue77 = buffer7[7][i]; 
+		
+			// write to 8 buffer
+			buffer7[0][i] = keyvalue60; 
+			buffer7[1][i] = keyvalue61; 
+			buffer7[2][i] = keyvalue62; 
+			buffer7[3][i] = keyvalue63; 
+			buffer7[4][i] = keyvalue64; 
+			buffer7[5][i] = keyvalue65; 
+			buffer7[6][i] = keyvalue66; 
+			buffer7[7][i] = keyvalue67; 
+			
+			// write to 8 dram
+			#ifdef _WIDEWORD
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(31, 0) = keyvalue60.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(63, 32) = keyvalue60.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(95, 64) = keyvalue61.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(127, 96) = keyvalue61.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(159, 128) = keyvalue62.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(191, 160) = keyvalue62.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(223, 192) = keyvalue63.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(255, 224) = keyvalue63.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(287, 256) = keyvalue64.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(319, 288) = keyvalue64.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(351, 320) = keyvalue65.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(383, 352) = keyvalue65.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(415, 384) = keyvalue66.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(447, 416) = keyvalue66.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(479, 448) = keyvalue67.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(511, 480) = keyvalue67.value;
+			#else 
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[0] = keyvalue60;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[1] = keyvalue61;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[2] = keyvalue62;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[3] = keyvalue63;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[4] = keyvalue64;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[5] = keyvalue65;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[6] = keyvalue66;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[7] = keyvalue67;
+			#endif 
+			// read from 8
+			keyvalue_t keyvalue80 = buffer8[0][i]; 
+			keyvalue_t keyvalue81 = buffer8[1][i]; 
+			keyvalue_t keyvalue82 = buffer8[2][i]; 
+			keyvalue_t keyvalue83 = buffer8[3][i]; 
+			keyvalue_t keyvalue84 = buffer8[4][i]; 
+			keyvalue_t keyvalue85 = buffer8[5][i]; 
+			keyvalue_t keyvalue86 = buffer8[6][i]; 
+			keyvalue_t keyvalue87 = buffer8[7][i]; 
+		
+			// write to 9 buffer
+			buffer8[0][i] = keyvalue70; 
+			buffer8[1][i] = keyvalue71; 
+			buffer8[2][i] = keyvalue72; 
+			buffer8[3][i] = keyvalue73; 
+			buffer8[4][i] = keyvalue74; 
+			buffer8[5][i] = keyvalue75; 
+			buffer8[6][i] = keyvalue76; 
+			buffer8[7][i] = keyvalue77; 
+			
+			// write to 9 dram
+			#ifdef _WIDEWORD
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(31, 0) = keyvalue70.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(63, 32) = keyvalue70.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(95, 64) = keyvalue71.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(127, 96) = keyvalue71.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(159, 128) = keyvalue72.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(191, 160) = keyvalue72.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(223, 192) = keyvalue73.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(255, 224) = keyvalue73.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(287, 256) = keyvalue74.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(319, 288) = keyvalue74.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(351, 320) = keyvalue75.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(383, 352) = keyvalue75.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(415, 384) = keyvalue76.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(447, 416) = keyvalue76.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(479, 448) = keyvalue77.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(511, 480) = keyvalue77.value;
+			#else 
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[0] = keyvalue70;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[1] = keyvalue71;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[2] = keyvalue72;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[3] = keyvalue73;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[4] = keyvalue74;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[5] = keyvalue75;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[6] = keyvalue76;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[7] = keyvalue77;
+			#endif 
+			// read from 9
+			keyvalue_t keyvalue90 = buffer9[0][i]; 
+			keyvalue_t keyvalue91 = buffer9[1][i]; 
+			keyvalue_t keyvalue92 = buffer9[2][i]; 
+			keyvalue_t keyvalue93 = buffer9[3][i]; 
+			keyvalue_t keyvalue94 = buffer9[4][i]; 
+			keyvalue_t keyvalue95 = buffer9[5][i]; 
+			keyvalue_t keyvalue96 = buffer9[6][i]; 
+			keyvalue_t keyvalue97 = buffer9[7][i]; 
+		
+			// write to 10 buffer
+			buffer9[0][i] = keyvalue80; 
+			buffer9[1][i] = keyvalue81; 
+			buffer9[2][i] = keyvalue82; 
+			buffer9[3][i] = keyvalue83; 
+			buffer9[4][i] = keyvalue84; 
+			buffer9[5][i] = keyvalue85; 
+			buffer9[6][i] = keyvalue86; 
+			buffer9[7][i] = keyvalue87; 
+			
+			// write to 10 dram
+			#ifdef _WIDEWORD
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(31, 0) = keyvalue80.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(63, 32) = keyvalue80.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(95, 64) = keyvalue81.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(127, 96) = keyvalue81.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(159, 128) = keyvalue82.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(191, 160) = keyvalue82.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(223, 192) = keyvalue83.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(255, 224) = keyvalue83.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(287, 256) = keyvalue84.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(319, 288) = keyvalue84.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(351, 320) = keyvalue85.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(383, 352) = keyvalue85.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(415, 384) = keyvalue86.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(447, 416) = keyvalue86.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(479, 448) = keyvalue87.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(511, 480) = keyvalue87.value;
+			#else 
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[0] = keyvalue80;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[1] = keyvalue81;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[2] = keyvalue82;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[3] = keyvalue83;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[4] = keyvalue84;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[5] = keyvalue85;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[6] = keyvalue86;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[7] = keyvalue87;
+			#endif 
+			// read from 10
+			keyvalue_t keyvalue100 = buffer10[0][i]; 
+			keyvalue_t keyvalue101 = buffer10[1][i]; 
+			keyvalue_t keyvalue102 = buffer10[2][i]; 
+			keyvalue_t keyvalue103 = buffer10[3][i]; 
+			keyvalue_t keyvalue104 = buffer10[4][i]; 
+			keyvalue_t keyvalue105 = buffer10[5][i]; 
+			keyvalue_t keyvalue106 = buffer10[6][i]; 
+			keyvalue_t keyvalue107 = buffer10[7][i]; 
+		
+			// write to 11 buffer
+			buffer10[0][i] = keyvalue90; 
+			buffer10[1][i] = keyvalue91; 
+			buffer10[2][i] = keyvalue92; 
+			buffer10[3][i] = keyvalue93; 
+			buffer10[4][i] = keyvalue94; 
+			buffer10[5][i] = keyvalue95; 
+			buffer10[6][i] = keyvalue96; 
+			buffer10[7][i] = keyvalue97; 
+			
+			// write to 11 dram
+			#ifdef _WIDEWORD
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(31, 0) = keyvalue90.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(63, 32) = keyvalue90.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(95, 64) = keyvalue91.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(127, 96) = keyvalue91.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(159, 128) = keyvalue92.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(191, 160) = keyvalue92.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(223, 192) = keyvalue93.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(255, 224) = keyvalue93.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(287, 256) = keyvalue94.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(319, 288) = keyvalue94.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(351, 320) = keyvalue95.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(383, 352) = keyvalue95.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(415, 384) = keyvalue96.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(447, 416) = keyvalue96.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(479, 448) = keyvalue97.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(511, 480) = keyvalue97.value;
+			#else 
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[0] = keyvalue90;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[1] = keyvalue91;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[2] = keyvalue92;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[3] = keyvalue93;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[4] = keyvalue94;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[5] = keyvalue95;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[6] = keyvalue96;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[7] = keyvalue97;
+			#endif 
+			// read from 11
+			keyvalue_t keyvalue110 = buffer11[0][i]; 
+			keyvalue_t keyvalue111 = buffer11[1][i]; 
+			keyvalue_t keyvalue112 = buffer11[2][i]; 
+			keyvalue_t keyvalue113 = buffer11[3][i]; 
+			keyvalue_t keyvalue114 = buffer11[4][i]; 
+			keyvalue_t keyvalue115 = buffer11[5][i]; 
+			keyvalue_t keyvalue116 = buffer11[6][i]; 
+			keyvalue_t keyvalue117 = buffer11[7][i]; 
+		
+			// write to 12 buffer
+			buffer11[0][i] = keyvalue100; 
+			buffer11[1][i] = keyvalue101; 
+			buffer11[2][i] = keyvalue102; 
+			buffer11[3][i] = keyvalue103; 
+			buffer11[4][i] = keyvalue104; 
+			buffer11[5][i] = keyvalue105; 
+			buffer11[6][i] = keyvalue106; 
+			buffer11[7][i] = keyvalue107; 
+			
+			// write to 12 dram
+			#ifdef _WIDEWORD
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(31, 0) = keyvalue100.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(63, 32) = keyvalue100.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(95, 64) = keyvalue101.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(127, 96) = keyvalue101.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(159, 128) = keyvalue102.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(191, 160) = keyvalue102.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(223, 192) = keyvalue103.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(255, 224) = keyvalue103.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(287, 256) = keyvalue104.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(319, 288) = keyvalue104.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(351, 320) = keyvalue105.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(383, 352) = keyvalue105.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(415, 384) = keyvalue106.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(447, 416) = keyvalue106.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(479, 448) = keyvalue107.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(511, 480) = keyvalue107.value;
+			#else 
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[0] = keyvalue100;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[1] = keyvalue101;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[2] = keyvalue102;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[3] = keyvalue103;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[4] = keyvalue104;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[5] = keyvalue105;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[6] = keyvalue106;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[7] = keyvalue107;
+			#endif 
+	}
+	
+	// shift offsets and sizes
+	for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
+	#pragma HLS PIPELINE II=1
+		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
+		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
+	#endif
+	return;
+}
+
+void 
+	#ifdef SW
+	acts::
+	#endif 
+savekeyvalues_pipeline_2sync(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
+	
+	static keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	
+	offsetsandsizes[0].key = offset_kvs;
+	offsetsandsizes[0].value = size_kvs;
+	
+	// SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
+
+			// read from 0
+			keyvalue_t keyvalue00 = buffer0[0][i]; 
+			keyvalue_t keyvalue01 = buffer0[1][i]; 
+			keyvalue_t keyvalue02 = buffer0[2][i]; 
+			keyvalue_t keyvalue03 = buffer0[3][i]; 
+			keyvalue_t keyvalue04 = buffer0[4][i]; 
+			keyvalue_t keyvalue05 = buffer0[5][i]; 
+			keyvalue_t keyvalue06 = buffer0[6][i]; 
+			keyvalue_t keyvalue07 = buffer0[7][i]; 
+		
+			#ifdef _WIDEWORD
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
+			#else 
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
+			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
+			#endif 
+			// read from 1
+			keyvalue_t keyvalue10 = buffer1[0][i]; 
+			keyvalue_t keyvalue11 = buffer1[1][i]; 
+			keyvalue_t keyvalue12 = buffer1[2][i]; 
+			keyvalue_t keyvalue13 = buffer1[3][i]; 
+			keyvalue_t keyvalue14 = buffer1[4][i]; 
+			keyvalue_t keyvalue15 = buffer1[5][i]; 
+			keyvalue_t keyvalue16 = buffer1[6][i]; 
+			keyvalue_t keyvalue17 = buffer1[7][i]; 
+		
+			
+			// write to 1 dram
+			#ifdef _WIDEWORD
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(31, 0) = keyvalue00.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(63, 32) = keyvalue00.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(95, 64) = keyvalue01.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(127, 96) = keyvalue01.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(159, 128) = keyvalue02.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(191, 160) = keyvalue02.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(223, 192) = keyvalue03.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(255, 224) = keyvalue03.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(287, 256) = keyvalue04.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(319, 288) = keyvalue04.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(351, 320) = keyvalue05.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(383, 352) = keyvalue05.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(415, 384) = keyvalue06.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(447, 416) = keyvalue06.value;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(479, 448) = keyvalue07.key;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range(511, 480) = keyvalue07.value;
+			#else 
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[0] = keyvalue00;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[1] = keyvalue01;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[2] = keyvalue02;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[3] = keyvalue03;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[4] = keyvalue04;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[5] = keyvalue05;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[6] = keyvalue06;
+			kvdram1[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[7] = keyvalue07;
+			#endif 
+			// read from 2
+			keyvalue_t keyvalue20 = buffer2[0][i]; 
+			keyvalue_t keyvalue21 = buffer2[1][i]; 
+			keyvalue_t keyvalue22 = buffer2[2][i]; 
+			keyvalue_t keyvalue23 = buffer2[3][i]; 
+			keyvalue_t keyvalue24 = buffer2[4][i]; 
+			keyvalue_t keyvalue25 = buffer2[5][i]; 
+			keyvalue_t keyvalue26 = buffer2[6][i]; 
+			keyvalue_t keyvalue27 = buffer2[7][i]; 
+		
+			
+			// write to 2 dram
+			#ifdef _WIDEWORD
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(31, 0) = keyvalue10.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(63, 32) = keyvalue10.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(95, 64) = keyvalue11.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(127, 96) = keyvalue11.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(159, 128) = keyvalue12.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(191, 160) = keyvalue12.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(223, 192) = keyvalue13.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(255, 224) = keyvalue13.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(287, 256) = keyvalue14.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(319, 288) = keyvalue14.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(351, 320) = keyvalue15.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(383, 352) = keyvalue15.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(415, 384) = keyvalue16.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(447, 416) = keyvalue16.value;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(479, 448) = keyvalue17.key;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].range(511, 480) = keyvalue17.value;
+			#else 
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[0] = keyvalue10;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[1] = keyvalue11;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[2] = keyvalue12;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[3] = keyvalue13;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[4] = keyvalue14;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[5] = keyvalue15;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[6] = keyvalue16;
+			kvdram2[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[1].key + i].data[7] = keyvalue17;
+			#endif 
+			// read from 3
+			keyvalue_t keyvalue30 = buffer3[0][i]; 
+			keyvalue_t keyvalue31 = buffer3[1][i]; 
+			keyvalue_t keyvalue32 = buffer3[2][i]; 
+			keyvalue_t keyvalue33 = buffer3[3][i]; 
+			keyvalue_t keyvalue34 = buffer3[4][i]; 
+			keyvalue_t keyvalue35 = buffer3[5][i]; 
+			keyvalue_t keyvalue36 = buffer3[6][i]; 
+			keyvalue_t keyvalue37 = buffer3[7][i]; 
+		
+			
+			// write to 3 dram
+			#ifdef _WIDEWORD
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(31, 0) = keyvalue20.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(63, 32) = keyvalue20.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(95, 64) = keyvalue21.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(127, 96) = keyvalue21.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(159, 128) = keyvalue22.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(191, 160) = keyvalue22.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(223, 192) = keyvalue23.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(255, 224) = keyvalue23.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(287, 256) = keyvalue24.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(319, 288) = keyvalue24.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(351, 320) = keyvalue25.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(383, 352) = keyvalue25.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(415, 384) = keyvalue26.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(447, 416) = keyvalue26.value;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(479, 448) = keyvalue27.key;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].range(511, 480) = keyvalue27.value;
+			#else 
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[0] = keyvalue20;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[1] = keyvalue21;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[2] = keyvalue22;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[3] = keyvalue23;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[4] = keyvalue24;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[5] = keyvalue25;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[6] = keyvalue26;
+			kvdram3[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[2].key + i].data[7] = keyvalue27;
+			#endif 
+			// read from 4
+			keyvalue_t keyvalue40 = buffer4[0][i]; 
+			keyvalue_t keyvalue41 = buffer4[1][i]; 
+			keyvalue_t keyvalue42 = buffer4[2][i]; 
+			keyvalue_t keyvalue43 = buffer4[3][i]; 
+			keyvalue_t keyvalue44 = buffer4[4][i]; 
+			keyvalue_t keyvalue45 = buffer4[5][i]; 
+			keyvalue_t keyvalue46 = buffer4[6][i]; 
+			keyvalue_t keyvalue47 = buffer4[7][i]; 
+		
+			
+			// write to 4 dram
+			#ifdef _WIDEWORD
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(31, 0) = keyvalue30.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(63, 32) = keyvalue30.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(95, 64) = keyvalue31.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(127, 96) = keyvalue31.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(159, 128) = keyvalue32.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(191, 160) = keyvalue32.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(223, 192) = keyvalue33.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(255, 224) = keyvalue33.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(287, 256) = keyvalue34.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(319, 288) = keyvalue34.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(351, 320) = keyvalue35.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(383, 352) = keyvalue35.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(415, 384) = keyvalue36.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(447, 416) = keyvalue36.value;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(479, 448) = keyvalue37.key;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].range(511, 480) = keyvalue37.value;
+			#else 
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[0] = keyvalue30;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[1] = keyvalue31;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[2] = keyvalue32;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[3] = keyvalue33;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[4] = keyvalue34;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[5] = keyvalue35;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[6] = keyvalue36;
+			kvdram4[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[3].key + i].data[7] = keyvalue37;
+			#endif 
+			// read from 5
+			keyvalue_t keyvalue50 = buffer5[0][i]; 
+			keyvalue_t keyvalue51 = buffer5[1][i]; 
+			keyvalue_t keyvalue52 = buffer5[2][i]; 
+			keyvalue_t keyvalue53 = buffer5[3][i]; 
+			keyvalue_t keyvalue54 = buffer5[4][i]; 
+			keyvalue_t keyvalue55 = buffer5[5][i]; 
+			keyvalue_t keyvalue56 = buffer5[6][i]; 
+			keyvalue_t keyvalue57 = buffer5[7][i]; 
+		
+			
+			// write to 5 dram
+			#ifdef _WIDEWORD
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(31, 0) = keyvalue40.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(63, 32) = keyvalue40.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(95, 64) = keyvalue41.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(127, 96) = keyvalue41.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(159, 128) = keyvalue42.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(191, 160) = keyvalue42.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(223, 192) = keyvalue43.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(255, 224) = keyvalue43.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(287, 256) = keyvalue44.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(319, 288) = keyvalue44.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(351, 320) = keyvalue45.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(383, 352) = keyvalue45.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(415, 384) = keyvalue46.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(447, 416) = keyvalue46.value;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(479, 448) = keyvalue47.key;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].range(511, 480) = keyvalue47.value;
+			#else 
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[0] = keyvalue40;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[1] = keyvalue41;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[2] = keyvalue42;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[3] = keyvalue43;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[4] = keyvalue44;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[5] = keyvalue45;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[6] = keyvalue46;
+			kvdram5[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[4].key + i].data[7] = keyvalue47;
+			#endif 
+			// read from 6
+			keyvalue_t keyvalue60 = buffer6[0][i]; 
+			keyvalue_t keyvalue61 = buffer6[1][i]; 
+			keyvalue_t keyvalue62 = buffer6[2][i]; 
+			keyvalue_t keyvalue63 = buffer6[3][i]; 
+			keyvalue_t keyvalue64 = buffer6[4][i]; 
+			keyvalue_t keyvalue65 = buffer6[5][i]; 
+			keyvalue_t keyvalue66 = buffer6[6][i]; 
+			keyvalue_t keyvalue67 = buffer6[7][i]; 
+		
+			
+			// write to 6 dram
+			#ifdef _WIDEWORD
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(31, 0) = keyvalue50.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(63, 32) = keyvalue50.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(95, 64) = keyvalue51.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(127, 96) = keyvalue51.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(159, 128) = keyvalue52.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(191, 160) = keyvalue52.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(223, 192) = keyvalue53.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(255, 224) = keyvalue53.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(287, 256) = keyvalue54.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(319, 288) = keyvalue54.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(351, 320) = keyvalue55.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(383, 352) = keyvalue55.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(415, 384) = keyvalue56.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(447, 416) = keyvalue56.value;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(479, 448) = keyvalue57.key;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].range(511, 480) = keyvalue57.value;
+			#else 
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[0] = keyvalue50;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[1] = keyvalue51;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[2] = keyvalue52;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[3] = keyvalue53;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[4] = keyvalue54;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[5] = keyvalue55;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[6] = keyvalue56;
+			kvdram6[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[5].key + i].data[7] = keyvalue57;
+			#endif 
+			// read from 7
+			keyvalue_t keyvalue70 = buffer7[0][i]; 
+			keyvalue_t keyvalue71 = buffer7[1][i]; 
+			keyvalue_t keyvalue72 = buffer7[2][i]; 
+			keyvalue_t keyvalue73 = buffer7[3][i]; 
+			keyvalue_t keyvalue74 = buffer7[4][i]; 
+			keyvalue_t keyvalue75 = buffer7[5][i]; 
+			keyvalue_t keyvalue76 = buffer7[6][i]; 
+			keyvalue_t keyvalue77 = buffer7[7][i]; 
+		
+			
+			// write to 7 dram
+			#ifdef _WIDEWORD
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(31, 0) = keyvalue60.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(63, 32) = keyvalue60.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(95, 64) = keyvalue61.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(127, 96) = keyvalue61.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(159, 128) = keyvalue62.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(191, 160) = keyvalue62.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(223, 192) = keyvalue63.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(255, 224) = keyvalue63.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(287, 256) = keyvalue64.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(319, 288) = keyvalue64.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(351, 320) = keyvalue65.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(383, 352) = keyvalue65.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(415, 384) = keyvalue66.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(447, 416) = keyvalue66.value;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(479, 448) = keyvalue67.key;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].range(511, 480) = keyvalue67.value;
+			#else 
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[0] = keyvalue60;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[1] = keyvalue61;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[2] = keyvalue62;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[3] = keyvalue63;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[4] = keyvalue64;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[5] = keyvalue65;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[6] = keyvalue66;
+			kvdram7[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[6].key + i].data[7] = keyvalue67;
+			#endif 
+			// read from 8
+			keyvalue_t keyvalue80 = buffer8[0][i]; 
+			keyvalue_t keyvalue81 = buffer8[1][i]; 
+			keyvalue_t keyvalue82 = buffer8[2][i]; 
+			keyvalue_t keyvalue83 = buffer8[3][i]; 
+			keyvalue_t keyvalue84 = buffer8[4][i]; 
+			keyvalue_t keyvalue85 = buffer8[5][i]; 
+			keyvalue_t keyvalue86 = buffer8[6][i]; 
+			keyvalue_t keyvalue87 = buffer8[7][i]; 
+		
+			
+			// write to 8 dram
+			#ifdef _WIDEWORD
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(31, 0) = keyvalue70.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(63, 32) = keyvalue70.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(95, 64) = keyvalue71.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(127, 96) = keyvalue71.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(159, 128) = keyvalue72.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(191, 160) = keyvalue72.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(223, 192) = keyvalue73.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(255, 224) = keyvalue73.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(287, 256) = keyvalue74.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(319, 288) = keyvalue74.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(351, 320) = keyvalue75.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(383, 352) = keyvalue75.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(415, 384) = keyvalue76.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(447, 416) = keyvalue76.value;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(479, 448) = keyvalue77.key;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].range(511, 480) = keyvalue77.value;
+			#else 
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[0] = keyvalue70;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[1] = keyvalue71;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[2] = keyvalue72;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[3] = keyvalue73;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[4] = keyvalue74;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[5] = keyvalue75;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[6] = keyvalue76;
+			kvdram8[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[7].key + i].data[7] = keyvalue77;
+			#endif 
+			// read from 9
+			keyvalue_t keyvalue90 = buffer9[0][i]; 
+			keyvalue_t keyvalue91 = buffer9[1][i]; 
+			keyvalue_t keyvalue92 = buffer9[2][i]; 
+			keyvalue_t keyvalue93 = buffer9[3][i]; 
+			keyvalue_t keyvalue94 = buffer9[4][i]; 
+			keyvalue_t keyvalue95 = buffer9[5][i]; 
+			keyvalue_t keyvalue96 = buffer9[6][i]; 
+			keyvalue_t keyvalue97 = buffer9[7][i]; 
+		
+			
+			// write to 9 dram
+			#ifdef _WIDEWORD
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(31, 0) = keyvalue80.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(63, 32) = keyvalue80.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(95, 64) = keyvalue81.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(127, 96) = keyvalue81.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(159, 128) = keyvalue82.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(191, 160) = keyvalue82.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(223, 192) = keyvalue83.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(255, 224) = keyvalue83.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(287, 256) = keyvalue84.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(319, 288) = keyvalue84.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(351, 320) = keyvalue85.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(383, 352) = keyvalue85.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(415, 384) = keyvalue86.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(447, 416) = keyvalue86.value;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(479, 448) = keyvalue87.key;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].range(511, 480) = keyvalue87.value;
+			#else 
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[0] = keyvalue80;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[1] = keyvalue81;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[2] = keyvalue82;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[3] = keyvalue83;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[4] = keyvalue84;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[5] = keyvalue85;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[6] = keyvalue86;
+			kvdram9[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[8].key + i].data[7] = keyvalue87;
+			#endif 
+			// read from 10
+			keyvalue_t keyvalue100 = buffer10[0][i]; 
+			keyvalue_t keyvalue101 = buffer10[1][i]; 
+			keyvalue_t keyvalue102 = buffer10[2][i]; 
+			keyvalue_t keyvalue103 = buffer10[3][i]; 
+			keyvalue_t keyvalue104 = buffer10[4][i]; 
+			keyvalue_t keyvalue105 = buffer10[5][i]; 
+			keyvalue_t keyvalue106 = buffer10[6][i]; 
+			keyvalue_t keyvalue107 = buffer10[7][i]; 
+		
+			
+			// write to 10 dram
+			#ifdef _WIDEWORD
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(31, 0) = keyvalue90.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(63, 32) = keyvalue90.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(95, 64) = keyvalue91.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(127, 96) = keyvalue91.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(159, 128) = keyvalue92.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(191, 160) = keyvalue92.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(223, 192) = keyvalue93.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(255, 224) = keyvalue93.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(287, 256) = keyvalue94.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(319, 288) = keyvalue94.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(351, 320) = keyvalue95.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(383, 352) = keyvalue95.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(415, 384) = keyvalue96.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(447, 416) = keyvalue96.value;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(479, 448) = keyvalue97.key;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].range(511, 480) = keyvalue97.value;
+			#else 
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[0] = keyvalue90;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[1] = keyvalue91;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[2] = keyvalue92;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[3] = keyvalue93;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[4] = keyvalue94;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[5] = keyvalue95;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[6] = keyvalue96;
+			kvdram10[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[9].key + i].data[7] = keyvalue97;
+			#endif 
+			// read from 11
+			keyvalue_t keyvalue110 = buffer11[0][i]; 
+			keyvalue_t keyvalue111 = buffer11[1][i]; 
+			keyvalue_t keyvalue112 = buffer11[2][i]; 
+			keyvalue_t keyvalue113 = buffer11[3][i]; 
+			keyvalue_t keyvalue114 = buffer11[4][i]; 
+			keyvalue_t keyvalue115 = buffer11[5][i]; 
+			keyvalue_t keyvalue116 = buffer11[6][i]; 
+			keyvalue_t keyvalue117 = buffer11[7][i]; 
+		
+			
+			// write to 11 dram
+			#ifdef _WIDEWORD
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(31, 0) = keyvalue100.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(63, 32) = keyvalue100.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(95, 64) = keyvalue101.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(127, 96) = keyvalue101.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(159, 128) = keyvalue102.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(191, 160) = keyvalue102.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(223, 192) = keyvalue103.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(255, 224) = keyvalue103.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(287, 256) = keyvalue104.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(319, 288) = keyvalue104.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(351, 320) = keyvalue105.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(383, 352) = keyvalue105.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(415, 384) = keyvalue106.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(447, 416) = keyvalue106.value;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(479, 448) = keyvalue107.key;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].range(511, 480) = keyvalue107.value;
+			#else 
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[0] = keyvalue100;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[1] = keyvalue101;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[2] = keyvalue102;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[3] = keyvalue103;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[4] = keyvalue104;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[5] = keyvalue105;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[6] = keyvalue106;
+			kvdram11[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[10].key + i].data[7] = keyvalue107;
+			#endif 
+	}
+	
+	SAVEKEYVALUESSYNC_LOOP2: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
+
+			// read from 0
+			keyvalue_t keyvalue00 = buffer0[0][i]; 
+			keyvalue_t keyvalue01 = buffer0[1][i]; 
+			keyvalue_t keyvalue02 = buffer0[2][i]; 
+			keyvalue_t keyvalue03 = buffer0[3][i]; 
+			keyvalue_t keyvalue04 = buffer0[4][i]; 
+			keyvalue_t keyvalue05 = buffer0[5][i]; 
+			keyvalue_t keyvalue06 = buffer0[6][i]; 
+			keyvalue_t keyvalue07 = buffer0[7][i]; 
+		
+
+			// read from 1
+			keyvalue_t keyvalue10 = buffer1[0][i]; 
+			keyvalue_t keyvalue11 = buffer1[1][i]; 
+			keyvalue_t keyvalue12 = buffer1[2][i]; 
+			keyvalue_t keyvalue13 = buffer1[3][i]; 
+			keyvalue_t keyvalue14 = buffer1[4][i]; 
+			keyvalue_t keyvalue15 = buffer1[5][i]; 
+			keyvalue_t keyvalue16 = buffer1[6][i]; 
+			keyvalue_t keyvalue17 = buffer1[7][i]; 
+		
+			// write to 2 buffer
+			buffer1[0][i] = keyvalue00; 
+			buffer1[1][i] = keyvalue01; 
+			buffer1[2][i] = keyvalue02; 
+			buffer1[3][i] = keyvalue03; 
+			buffer1[4][i] = keyvalue04; 
+			buffer1[5][i] = keyvalue05; 
+			buffer1[6][i] = keyvalue06; 
+			buffer1[7][i] = keyvalue07; 
+			
+			// read from 2
+			keyvalue_t keyvalue20 = buffer2[0][i]; 
+			keyvalue_t keyvalue21 = buffer2[1][i]; 
+			keyvalue_t keyvalue22 = buffer2[2][i]; 
+			keyvalue_t keyvalue23 = buffer2[3][i]; 
+			keyvalue_t keyvalue24 = buffer2[4][i]; 
+			keyvalue_t keyvalue25 = buffer2[5][i]; 
+			keyvalue_t keyvalue26 = buffer2[6][i]; 
+			keyvalue_t keyvalue27 = buffer2[7][i]; 
+		
+			// write to 3 buffer
+			buffer2[0][i] = keyvalue10; 
+			buffer2[1][i] = keyvalue11; 
+			buffer2[2][i] = keyvalue12; 
+			buffer2[3][i] = keyvalue13; 
+			buffer2[4][i] = keyvalue14; 
+			buffer2[5][i] = keyvalue15; 
+			buffer2[6][i] = keyvalue16; 
+			buffer2[7][i] = keyvalue17; 
+			
+			// read from 3
+			keyvalue_t keyvalue30 = buffer3[0][i]; 
+			keyvalue_t keyvalue31 = buffer3[1][i]; 
+			keyvalue_t keyvalue32 = buffer3[2][i]; 
+			keyvalue_t keyvalue33 = buffer3[3][i]; 
+			keyvalue_t keyvalue34 = buffer3[4][i]; 
+			keyvalue_t keyvalue35 = buffer3[5][i]; 
+			keyvalue_t keyvalue36 = buffer3[6][i]; 
+			keyvalue_t keyvalue37 = buffer3[7][i]; 
+		
+			// write to 4 buffer
+			buffer3[0][i] = keyvalue20; 
+			buffer3[1][i] = keyvalue21; 
+			buffer3[2][i] = keyvalue22; 
+			buffer3[3][i] = keyvalue23; 
+			buffer3[4][i] = keyvalue24; 
+			buffer3[5][i] = keyvalue25; 
+			buffer3[6][i] = keyvalue26; 
+			buffer3[7][i] = keyvalue27; 
+			
+			// read from 4
+			keyvalue_t keyvalue40 = buffer4[0][i]; 
+			keyvalue_t keyvalue41 = buffer4[1][i]; 
+			keyvalue_t keyvalue42 = buffer4[2][i]; 
+			keyvalue_t keyvalue43 = buffer4[3][i]; 
+			keyvalue_t keyvalue44 = buffer4[4][i]; 
+			keyvalue_t keyvalue45 = buffer4[5][i]; 
+			keyvalue_t keyvalue46 = buffer4[6][i]; 
+			keyvalue_t keyvalue47 = buffer4[7][i]; 
+		
+			// write to 5 buffer
+			buffer4[0][i] = keyvalue30; 
+			buffer4[1][i] = keyvalue31; 
+			buffer4[2][i] = keyvalue32; 
+			buffer4[3][i] = keyvalue33; 
+			buffer4[4][i] = keyvalue34; 
+			buffer4[5][i] = keyvalue35; 
+			buffer4[6][i] = keyvalue36; 
+			buffer4[7][i] = keyvalue37; 
+			
+			// read from 5
+			keyvalue_t keyvalue50 = buffer5[0][i]; 
+			keyvalue_t keyvalue51 = buffer5[1][i]; 
+			keyvalue_t keyvalue52 = buffer5[2][i]; 
+			keyvalue_t keyvalue53 = buffer5[3][i]; 
+			keyvalue_t keyvalue54 = buffer5[4][i]; 
+			keyvalue_t keyvalue55 = buffer5[5][i]; 
+			keyvalue_t keyvalue56 = buffer5[6][i]; 
+			keyvalue_t keyvalue57 = buffer5[7][i]; 
+		
+			// write to 6 buffer
+			buffer5[0][i] = keyvalue40; 
+			buffer5[1][i] = keyvalue41; 
+			buffer5[2][i] = keyvalue42; 
+			buffer5[3][i] = keyvalue43; 
+			buffer5[4][i] = keyvalue44; 
+			buffer5[5][i] = keyvalue45; 
+			buffer5[6][i] = keyvalue46; 
+			buffer5[7][i] = keyvalue47; 
+			
+			// read from 6
+			keyvalue_t keyvalue60 = buffer6[0][i]; 
+			keyvalue_t keyvalue61 = buffer6[1][i]; 
+			keyvalue_t keyvalue62 = buffer6[2][i]; 
+			keyvalue_t keyvalue63 = buffer6[3][i]; 
+			keyvalue_t keyvalue64 = buffer6[4][i]; 
+			keyvalue_t keyvalue65 = buffer6[5][i]; 
+			keyvalue_t keyvalue66 = buffer6[6][i]; 
+			keyvalue_t keyvalue67 = buffer6[7][i]; 
+		
+			// write to 7 buffer
+			buffer6[0][i] = keyvalue50; 
+			buffer6[1][i] = keyvalue51; 
+			buffer6[2][i] = keyvalue52; 
+			buffer6[3][i] = keyvalue53; 
+			buffer6[4][i] = keyvalue54; 
+			buffer6[5][i] = keyvalue55; 
+			buffer6[6][i] = keyvalue56; 
+			buffer6[7][i] = keyvalue57; 
+			
+			// read from 7
+			keyvalue_t keyvalue70 = buffer7[0][i]; 
+			keyvalue_t keyvalue71 = buffer7[1][i]; 
+			keyvalue_t keyvalue72 = buffer7[2][i]; 
+			keyvalue_t keyvalue73 = buffer7[3][i]; 
+			keyvalue_t keyvalue74 = buffer7[4][i]; 
+			keyvalue_t keyvalue75 = buffer7[5][i]; 
+			keyvalue_t keyvalue76 = buffer7[6][i]; 
+			keyvalue_t keyvalue77 = buffer7[7][i]; 
+		
+			// write to 8 buffer
+			buffer7[0][i] = keyvalue60; 
+			buffer7[1][i] = keyvalue61; 
+			buffer7[2][i] = keyvalue62; 
+			buffer7[3][i] = keyvalue63; 
+			buffer7[4][i] = keyvalue64; 
+			buffer7[5][i] = keyvalue65; 
+			buffer7[6][i] = keyvalue66; 
+			buffer7[7][i] = keyvalue67; 
+			
+			// read from 8
+			keyvalue_t keyvalue80 = buffer8[0][i]; 
+			keyvalue_t keyvalue81 = buffer8[1][i]; 
+			keyvalue_t keyvalue82 = buffer8[2][i]; 
+			keyvalue_t keyvalue83 = buffer8[3][i]; 
+			keyvalue_t keyvalue84 = buffer8[4][i]; 
+			keyvalue_t keyvalue85 = buffer8[5][i]; 
+			keyvalue_t keyvalue86 = buffer8[6][i]; 
+			keyvalue_t keyvalue87 = buffer8[7][i]; 
+		
+			// write to 9 buffer
+			buffer8[0][i] = keyvalue70; 
+			buffer8[1][i] = keyvalue71; 
+			buffer8[2][i] = keyvalue72; 
+			buffer8[3][i] = keyvalue73; 
+			buffer8[4][i] = keyvalue74; 
+			buffer8[5][i] = keyvalue75; 
+			buffer8[6][i] = keyvalue76; 
+			buffer8[7][i] = keyvalue77; 
+			
+			// read from 9
+			keyvalue_t keyvalue90 = buffer9[0][i]; 
+			keyvalue_t keyvalue91 = buffer9[1][i]; 
+			keyvalue_t keyvalue92 = buffer9[2][i]; 
+			keyvalue_t keyvalue93 = buffer9[3][i]; 
+			keyvalue_t keyvalue94 = buffer9[4][i]; 
+			keyvalue_t keyvalue95 = buffer9[5][i]; 
+			keyvalue_t keyvalue96 = buffer9[6][i]; 
+			keyvalue_t keyvalue97 = buffer9[7][i]; 
+		
+			// write to 10 buffer
+			buffer9[0][i] = keyvalue80; 
+			buffer9[1][i] = keyvalue81; 
+			buffer9[2][i] = keyvalue82; 
+			buffer9[3][i] = keyvalue83; 
+			buffer9[4][i] = keyvalue84; 
+			buffer9[5][i] = keyvalue85; 
+			buffer9[6][i] = keyvalue86; 
+			buffer9[7][i] = keyvalue87; 
+			
+			// read from 10
+			keyvalue_t keyvalue100 = buffer10[0][i]; 
+			keyvalue_t keyvalue101 = buffer10[1][i]; 
+			keyvalue_t keyvalue102 = buffer10[2][i]; 
+			keyvalue_t keyvalue103 = buffer10[3][i]; 
+			keyvalue_t keyvalue104 = buffer10[4][i]; 
+			keyvalue_t keyvalue105 = buffer10[5][i]; 
+			keyvalue_t keyvalue106 = buffer10[6][i]; 
+			keyvalue_t keyvalue107 = buffer10[7][i]; 
+		
+			// write to 11 buffer
+			buffer10[0][i] = keyvalue90; 
+			buffer10[1][i] = keyvalue91; 
+			buffer10[2][i] = keyvalue92; 
+			buffer10[3][i] = keyvalue93; 
+			buffer10[4][i] = keyvalue94; 
+			buffer10[5][i] = keyvalue95; 
+			buffer10[6][i] = keyvalue96; 
+			buffer10[7][i] = keyvalue97; 
+			
+			// read from 11
+			keyvalue_t keyvalue110 = buffer11[0][i]; 
+			keyvalue_t keyvalue111 = buffer11[1][i]; 
+			keyvalue_t keyvalue112 = buffer11[2][i]; 
+			keyvalue_t keyvalue113 = buffer11[3][i]; 
+			keyvalue_t keyvalue114 = buffer11[4][i]; 
+			keyvalue_t keyvalue115 = buffer11[5][i]; 
+			keyvalue_t keyvalue116 = buffer11[6][i]; 
+			keyvalue_t keyvalue117 = buffer11[7][i]; 
+		
+			// write to 12 buffer
+			buffer11[0][i] = keyvalue100; 
+			buffer11[1][i] = keyvalue101; 
+			buffer11[2][i] = keyvalue102; 
+			buffer11[3][i] = keyvalue103; 
+			buffer11[4][i] = keyvalue104; 
+			buffer11[5][i] = keyvalue105; 
+			buffer11[6][i] = keyvalue106; 
+			buffer11[7][i] = keyvalue107; 
+			
+	}
+	
+	// shift offsets and sizes
+	for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
+	#pragma HLS PIPELINE II=1
+		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
+		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
 	#endif
 	return;
 }
@@ -5151,7 +4973,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size){
+replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type sourceoffset, buffer_type size){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = PADDEDDESTBUFFER_SIZE;
 
@@ -5184,8 +5006,6 @@ replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 			destbuffer9[v][i] = keyvalue; 
 			destbuffer10[v][i] = keyvalue; 
 			destbuffer11[v][i] = keyvalue; 
-			destbuffer12[v][i] = keyvalue; 
-			destbuffer13[v][i] = keyvalue; 
 		}
 	}
 	return;
@@ -5221,8 +5041,13 @@ reducefunc_bfs(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int 
 	else if(vtemp == VISITED_IN_PAST_ITERATION){ temp = VISITED_IN_PAST_ITERATION; } 
 	else {
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"reducefunc: ERROR. should never get here. exiting..."<<endl;
+		#ifdef ENABLE_VOICEOUTKERNELERRORS
+		cout<<"reducefunc_bfs: ERROR. should never get here. exiting..."<<endl;
+		cout<<"reducefunc_bfs: vtemp: "<<vtemp<<", UNVISITED: "<<UNVISITED<<", VISITED_IN_CURRENT_ITERATION: "<<VISITED_IN_CURRENT_ITERATION<<", VISITED_IN_PAST_ITERATION: "<<VISITED_IN_PAST_ITERATION<<endl;
+		#endif 
+		#ifdef ENABLE_PERFECTACCURACY
 		exit(EXIT_FAILURE);
+		#endif 
 		#endif 
 	}
 	return temp;
@@ -5610,28 +5435,28 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 		#ifdef _WIDEWORD
 		ulong_dt longdata0 = CONVERTTOLONG_KV(keyvalue0);
 		unsigned int streetaddr0 = longdata0.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys0 = longdata0.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys0 = longdata0.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata1 = CONVERTTOLONG_KV(keyvalue1);
 		unsigned int streetaddr1 = longdata1.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys1 = longdata1.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys1 = longdata1.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata2 = CONVERTTOLONG_KV(keyvalue2);
 		unsigned int streetaddr2 = longdata2.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys2 = longdata2.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys2 = longdata2.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata3 = CONVERTTOLONG_KV(keyvalue3);
 		unsigned int streetaddr3 = longdata3.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys3 = longdata3.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys3 = longdata3.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata4 = CONVERTTOLONG_KV(keyvalue4);
 		unsigned int streetaddr4 = longdata4.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys4 = longdata4.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys4 = longdata4.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata5 = CONVERTTOLONG_KV(keyvalue5);
 		unsigned int streetaddr5 = longdata5.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys5 = longdata5.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys5 = longdata5.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata6 = CONVERTTOLONG_KV(keyvalue6);
 		unsigned int streetaddr6 = longdata6.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys6 = longdata6.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys6 = longdata6.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		ulong_dt longdata7 = CONVERTTOLONG_KV(keyvalue7);
 		unsigned int streetaddr7 = longdata7.range(COMPACTPARAM_STARTOFFSET_STREETADDR + COMPACTPARAM_BITSIZE_STREETADDR - 1, COMPACTPARAM_STARTOFFSET_STREETADDR);
-		unsigned int numvalidkeys7 = longdata7.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS); // AUTOMATEME.
+		unsigned int numvalidkeys7 = longdata7.range(COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS - 1, COMPACTPARAM_STARTOFFSET_NUMITEMS);
 		#else
 		ulong_dt * longdata0 = (ulong_dt *)&keyvalue0;
 		unsigned int streetaddr0 = READFROM_ULONG(*longdata0, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
@@ -5659,14 +5484,14 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 		unsigned int numvalidkeys7 = READFROM_ULONG(*longdata7, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 		
 		#endif
-		unsigned int partitionupperlimit0 = streetaddr0 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit1 = streetaddr1 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit2 = streetaddr2 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit3 = streetaddr3 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit4 = streetaddr4 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit5 = streetaddr5 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit6 = streetaddr6 * (1 << SRAMSZ_POW);
-		unsigned int partitionupperlimit7 = streetaddr7 * (1 << SRAMSZ_POW);
+		unsigned int partitionupperlimit0 = streetaddr0 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit1 = streetaddr1 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit2 = streetaddr2 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit3 = streetaddr3 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit4 = streetaddr4 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit5 = streetaddr5 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit6 = streetaddr6 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
+		unsigned int partitionupperlimit7 = streetaddr7 * (1 << APPLYVERTEXBUFFERSZ_POW); // CRITICAL AUTOMATEME. (dataset dependent).
 		
 		REDUCE_LOOP2: for(buffer_type t=0; t<COMPACTPARAM_ITEMSIZE_TOTALDATA; t++){
 		#pragma HLS PIPELINE II=3
@@ -5690,32 +5515,32 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				keyy_t keys6;
 				keyy_t keys7;
 				if(t==0){
-					keys0 = partitionupperlimit0 + longdata0.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys1 = partitionupperlimit1 + longdata1.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys2 = partitionupperlimit2 + longdata2.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys3 = partitionupperlimit3 + longdata3.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys4 = partitionupperlimit4 + longdata4.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys5 = partitionupperlimit5 + longdata5.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys6 = partitionupperlimit6 + longdata6.range(13, 0); // data1 // CRITICAL AUTOMATEME.
-					keys7 = partitionupperlimit7 + longdata7.range(13, 0); // data1 // CRITICAL AUTOMATEME.
+					keys0 = partitionupperlimit0 + longdata0.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys1 = partitionupperlimit1 + longdata1.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys2 = partitionupperlimit2 + longdata2.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys3 = partitionupperlimit3 + longdata3.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys4 = partitionupperlimit4 + longdata4.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys5 = partitionupperlimit5 + longdata5.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys6 = partitionupperlimit6 + longdata6.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
+					keys7 = partitionupperlimit7 + longdata7.range(COMPACTPARAM_BITSIZE_EACHDATA-1, 0);
 				} else if(t==1){
-					keys0 = partitionupperlimit0 + longdata0.range(27, 14); // data2
-					keys1 = partitionupperlimit1 + longdata1.range(27, 14); // data2
-					keys2 = partitionupperlimit2 + longdata2.range(27, 14); // data2
-					keys3 = partitionupperlimit3 + longdata3.range(27, 14); // data2
-					keys4 = partitionupperlimit4 + longdata4.range(27, 14); // data2
-					keys5 = partitionupperlimit5 + longdata5.range(27, 14); // data2
-					keys6 = partitionupperlimit6 + longdata6.range(27, 14); // data2
-					keys7 = partitionupperlimit7 + longdata7.range(27, 14); // data2
+					keys0 = partitionupperlimit0 + longdata0.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys1 = partitionupperlimit1 + longdata1.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys2 = partitionupperlimit2 + longdata2.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys3 = partitionupperlimit3 + longdata3.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys4 = partitionupperlimit4 + longdata4.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys5 = partitionupperlimit5 + longdata5.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys6 = partitionupperlimit6 + longdata6.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
+					keys7 = partitionupperlimit7 + longdata7.range(2*COMPACTPARAM_BITSIZE_EACHDATA-1, COMPACTPARAM_BITSIZE_EACHDATA);
 				} else if(t==2){
-					keys0 = partitionupperlimit0 + longdata0.range(41, 28); // data3
-					keys1 = partitionupperlimit1 + longdata1.range(41, 28); // data3
-					keys2 = partitionupperlimit2 + longdata2.range(41, 28); // data3
-					keys3 = partitionupperlimit3 + longdata3.range(41, 28); // data3
-					keys4 = partitionupperlimit4 + longdata4.range(41, 28); // data3
-					keys5 = partitionupperlimit5 + longdata5.range(41, 28); // data3
-					keys6 = partitionupperlimit6 + longdata6.range(41, 28); // data3
-					keys7 = partitionupperlimit7 + longdata7.range(41, 28); // data3
+					keys0 = partitionupperlimit0 + longdata0.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys1 = partitionupperlimit1 + longdata1.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys2 = partitionupperlimit2 + longdata2.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys3 = partitionupperlimit3 + longdata3.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys4 = partitionupperlimit4 + longdata4.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys5 = partitionupperlimit5 + longdata5.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys6 = partitionupperlimit6 + longdata6.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
+					keys7 = partitionupperlimit7 + longdata7.range(3*COMPACTPARAM_BITSIZE_EACHDATA-1, 2*COMPACTPARAM_BITSIZE_EACHDATA);
 				} else {
 					keys0 = 0;
 					keys1 = 0;
@@ -5812,9 +5637,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs0 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs0", rowindexs0, 512, keyvalue0.key, keyvalue0.value, locs0);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs0)", colindexs0, 64, colindexs0, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs0 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys0);
@@ -5827,9 +5656,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs1 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs1", rowindexs1, 512, keyvalue1.key, keyvalue1.value, locs1);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs1)", colindexs1, 64, colindexs1, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs1 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys1);
@@ -5842,9 +5675,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs2 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs2", rowindexs2, 512, keyvalue2.key, keyvalue2.value, locs2);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs2)", colindexs2, 64, colindexs2, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs2 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys2);
@@ -5857,9 +5694,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs3 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs3", rowindexs3, 512, keyvalue3.key, keyvalue3.value, locs3);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs3)", colindexs3, 64, colindexs3, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs3 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys3);
@@ -5872,9 +5713,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs4 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs4", rowindexs4, 512, keyvalue4.key, keyvalue4.value, locs4);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs4)", colindexs4, 64, colindexs4, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs4 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys4);
@@ -5887,9 +5732,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs5 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs5", rowindexs5, 512, keyvalue5.key, keyvalue5.value, locs5);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs5)", colindexs5, 64, colindexs5, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs5 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys5);
@@ -5902,9 +5751,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs6 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs6", rowindexs6, 512, keyvalue6.key, keyvalue6.value, locs6);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs6)", colindexs6, 64, colindexs6, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs6 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys6);
@@ -5917,9 +5770,13 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				#endif 
 				#ifdef ENABLE_PERFECTACCURACY
 				if(locs7 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
-				#endif
+				// #endif
 				actsutilityobj->checkoutofbounds("reduce_bfs.rowindexs7", rowindexs7, 512, keyvalue7.key, keyvalue7.value, locs7);
 				actsutilityobj->checkoutofbounds("reduce_bfs.(64 - colindexs7)", colindexs7, 64, colindexs7, NAp, NAp);
+				#endif
+				#ifdef _DEBUGMODE_CHECKS2
+				if(locs7 >= globalparams.applyvertexbuffersz){ if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce_bfs tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } }
+				#endif 
 				#ifdef _DEBUGMODE_STATS
 				actsutilityobj->globalstats_reduce_countvalidkvsreduced(1);
 				actsutilityobj->globalstats_reduce_countvar1(keys7);
@@ -6071,8 +5928,6 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 			#endif
 		}
 	}
-	// cout<<"acts:reduce_bfs:: reduce executed successfully."<<endl;
-	// exit(EXIT_SUCCESS);// REMOVEME.
 	return;
 }
 
@@ -6228,7 +6083,7 @@ travstate_t
 	#ifdef SW 
 	acts::
 	#endif
-unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 				travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 					sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return actvvstravstate; }
@@ -6273,10 +6128,6 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 				data.value = data.value | sourcebuffer10[v][i].value;
 				data.key = data.key | sourcebuffer11[v][i].key;
 				data.value = data.value | sourcebuffer11[v][i].value;
-				data.key = data.key | sourcebuffer12[v][i].key;
-				data.value = data.value | sourcebuffer12[v][i].value;
-				data.key = data.key | sourcebuffer13[v][i].key;
-				data.value = data.value | sourcebuffer13[v][i].value;
 			}
 		#else 
 			data.key = 
@@ -6376,22 +6227,6 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 | sourcebuffer11[5][i].key 
 | sourcebuffer11[6][i].key 
 | sourcebuffer11[7][i].key 
-| sourcebuffer12[0][i].key 
-| sourcebuffer12[1][i].key 
-| sourcebuffer12[2][i].key 
-| sourcebuffer12[3][i].key 
-| sourcebuffer12[4][i].key 
-| sourcebuffer12[5][i].key 
-| sourcebuffer12[6][i].key 
-| sourcebuffer12[7][i].key 
-| sourcebuffer13[0][i].key 
-| sourcebuffer13[1][i].key 
-| sourcebuffer13[2][i].key 
-| sourcebuffer13[3][i].key 
-| sourcebuffer13[4][i].key 
-| sourcebuffer13[5][i].key 
-| sourcebuffer13[6][i].key 
-| sourcebuffer13[7][i].key 
 			;
 			
 			data.value = 
@@ -6491,22 +6326,6 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 | sourcebuffer11[5][i].value 
 | sourcebuffer11[6][i].value 
 | sourcebuffer11[7][i].value 
-| sourcebuffer12[0][i].value 
-| sourcebuffer12[1][i].value 
-| sourcebuffer12[2][i].value 
-| sourcebuffer12[3][i].value 
-| sourcebuffer12[4][i].value 
-| sourcebuffer12[5][i].value 
-| sourcebuffer12[6][i].value 
-| sourcebuffer12[7][i].value 
-| sourcebuffer13[0][i].value 
-| sourcebuffer13[1][i].value 
-| sourcebuffer13[2][i].value 
-| sourcebuffer13[3][i].value 
-| sourcebuffer13[4][i].value 
-| sourcebuffer13[5][i].value 
-| sourcebuffer13[6][i].value 
-| sourcebuffer13[7][i].value 
 			;
 		#endif 
 		
@@ -6538,7 +6357,7 @@ unifydata_bfs_syn(bool_type enable, uint512_dt * kvdram0,uint512_dt * kvdram1,ui
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"unifydata_bfs: saving and clearning actvvs... i: "<<actvvstravstate.i<<", i_kvs: "<<actvvstravstate.i_kvs<<", (v: "<<actvvstravstate.v<<", k: "<<actvvstravstate.k<<")"<<endl;
 			#endif
-			savekeyvalues_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, actvvs, globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvstravstate.k);
+			savekeyvalues_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, actvvs, globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvstravstate.k);
 
 			actvvstravstate.i += actvvstravstate.k * VECTOR_SIZE;
 			actvvstravstate.i_kvs += actvvstravstate.k;
@@ -6560,7 +6379,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif
-unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule0[8], buffer_type cutoffs0[VECTOR_SIZE],
 					keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule1[8], buffer_type cutoffs1[VECTOR_SIZE],
 					keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule2[8], buffer_type cutoffs2[VECTOR_SIZE],
@@ -6598,8 +6417,6 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 		keyvalue_t data9; data9.key = 0; data9.value = 0;
 		keyvalue_t data10; data10.key = 0; data10.value = 0;
 		keyvalue_t data11; data11.key = 0; data11.value = 0;
-		keyvalue_t data12; data12.key = 0; data12.value = 0;
-		keyvalue_t data13; data13.key = 0; data13.value = 0;
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("unifydata_bfs.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
@@ -6617,8 +6434,6 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 		data9.key =  sourcebuffer9[0][i].key | sourcebuffer9[1][i].key | sourcebuffer9[2][i].key | sourcebuffer9[3][i].key | sourcebuffer9[4][i].key | sourcebuffer9[5][i].key | sourcebuffer9[6][i].key | sourcebuffer9[7][i].key  ;
 		data10.key =  sourcebuffer10[0][i].key | sourcebuffer10[1][i].key | sourcebuffer10[2][i].key | sourcebuffer10[3][i].key | sourcebuffer10[4][i].key | sourcebuffer10[5][i].key | sourcebuffer10[6][i].key | sourcebuffer10[7][i].key  ;
 		data11.key =  sourcebuffer11[0][i].key | sourcebuffer11[1][i].key | sourcebuffer11[2][i].key | sourcebuffer11[3][i].key | sourcebuffer11[4][i].key | sourcebuffer11[5][i].key | sourcebuffer11[6][i].key | sourcebuffer11[7][i].key  ;
-		data12.key =  sourcebuffer12[0][i].key | sourcebuffer12[1][i].key | sourcebuffer12[2][i].key | sourcebuffer12[3][i].key | sourcebuffer12[4][i].key | sourcebuffer12[5][i].key | sourcebuffer12[6][i].key | sourcebuffer12[7][i].key  ;
-		data13.key =  sourcebuffer13[0][i].key | sourcebuffer13[1][i].key | sourcebuffer13[2][i].key | sourcebuffer13[3][i].key | sourcebuffer13[4][i].key | sourcebuffer13[5][i].key | sourcebuffer13[6][i].key | sourcebuffer13[7][i].key  ;
 		
 		data0.value =  sourcebuffer0[0][i].value | sourcebuffer0[1][i].value | sourcebuffer0[2][i].value | sourcebuffer0[3][i].value | sourcebuffer0[4][i].value | sourcebuffer0[5][i].value | sourcebuffer0[6][i].value | sourcebuffer0[7][i].value  ;
 		data1.value =  sourcebuffer1[0][i].value | sourcebuffer1[1][i].value | sourcebuffer1[2][i].value | sourcebuffer1[3][i].value | sourcebuffer1[4][i].value | sourcebuffer1[5][i].value | sourcebuffer1[6][i].value | sourcebuffer1[7][i].value  ;
@@ -6632,11 +6447,9 @@ unifydata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDED
 		data9.value =  sourcebuffer9[0][i].value | sourcebuffer9[1][i].value | sourcebuffer9[2][i].value | sourcebuffer9[3][i].value | sourcebuffer9[4][i].value | sourcebuffer9[5][i].value | sourcebuffer9[6][i].value | sourcebuffer9[7][i].value  ;
 		data10.value =  sourcebuffer10[0][i].value | sourcebuffer10[1][i].value | sourcebuffer10[2][i].value | sourcebuffer10[3][i].value | sourcebuffer10[4][i].value | sourcebuffer10[5][i].value | sourcebuffer10[6][i].value | sourcebuffer10[7][i].value  ;
 		data11.value =  sourcebuffer11[0][i].value | sourcebuffer11[1][i].value | sourcebuffer11[2][i].value | sourcebuffer11[3][i].value | sourcebuffer11[4][i].value | sourcebuffer11[5][i].value | sourcebuffer11[6][i].value | sourcebuffer11[7][i].value  ;
-		data12.value =  sourcebuffer12[0][i].value | sourcebuffer12[1][i].value | sourcebuffer12[2][i].value | sourcebuffer12[3][i].value | sourcebuffer12[4][i].value | sourcebuffer12[5][i].value | sourcebuffer12[6][i].value | sourcebuffer12[7][i].value  ;
-		data13.value =  sourcebuffer13[0][i].value | sourcebuffer13[1][i].value | sourcebuffer13[2][i].value | sourcebuffer13[3][i].value | sourcebuffer13[4][i].value | sourcebuffer13[5][i].value | sourcebuffer13[6][i].value | sourcebuffer13[7][i].value  ;
 		
-		data.key =  data0.key | data1.key | data2.key | data3.key | data4.key | data5.key | data6.key | data7.key | data8.key | data9.key | data10.key | data11.key | data12.key | data13.key  ;
-		data.value =  data0.value | data1.value | data2.value | data3.value | data4.value | data5.value | data6.value | data7.value | data8.value | data9.value | data10.value | data11.value | data12.value | data13.value  ;
+		data.key =  data0.key | data1.key | data2.key | data3.key | data4.key | data5.key | data6.key | data7.key | data8.key | data9.key | data10.key | data11.key  ;
+		data.value =  data0.value | data1.value | data2.value | data3.value | data4.value | data5.value | data6.value | data7.value | data8.value | data9.value | data10.value | data11.value  ;
 		
 		#ifdef _WIDEWORD
 		ulong_dt longdata = CONVERTTOLONG_KV(data);
@@ -10169,7 +9982,7 @@ dispatch(uint512_dt * kvdram){
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
-			travstate_t travstate = gettravstate(kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
+			travstate_t travstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
 			travstate_t ctravstate = travstate;
 			travstate_t ptravstate = travstate;
 			travstate_t rtravstate = travstate;
@@ -10483,7 +10296,7 @@ dispatch_partitiononly(uint512_dt * kvdram,
 			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
-			travstate_t travstate = gettravstate(kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
+			travstate_t travstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
 			travstate_t ctravstate = travstate;
 			travstate_t ptravstate = travstate;
 			travstate_t avtravstate;
@@ -10681,7 +10494,6 @@ dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams){
 	keyvalue_t moretravstates[LOADFACTORFORREDUCE];
 	
 	config_t config;
-	// globalparams_t globalparams = getglobalparams(kvdram);
 	sweepparams_t sweepparams;
 	travstate_t actvvstravstate; actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
 	#ifdef _DEBUGMODE_CHECKS2
@@ -10702,7 +10514,7 @@ dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams){
 		#endif 
 		
 		sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
-		travstate_t travstate = gettravstate(kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
+		travstate_t travstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates);
 		travstate_t rtravstate = travstate;
 		if((source_partition % LOADFACTORFORREDUCE) == 0){
 			batch_type ntravszs = 0;
@@ -10746,14 +10558,9 @@ dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams){
 	actsutilityobj->countvalueslessthan("dispatch", (value_t *)&kvdram[BASEOFFSET_VERTICESDATA_KVS], BATCH_RANGE, INFINITI);
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	// kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key = actsutilityobj->globalstats_getcountvalidkvsreduced(); 
-	// kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key = actsutilityobj->globalstats_getreducevar1();
-	// kvdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key = actvvstravstate.i;
-	
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"dispatch_reduceonly:: actvvstravstate.i: "<<actvvstravstate.i<<endl;
@@ -10768,7 +10575,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]){
+dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]){
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -10813,10 +10620,6 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 	#pragma HLS array_partition variable = tempverticesbuffer10
 	keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = tempverticesbuffer11
-	keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer12
-	keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = tempverticesbuffer13
 	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; //
 	
 	config_t config[NUMSUBCPUTHREADS];
@@ -10836,20 +10639,18 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 			
 	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		sweepparams = getsweepparams(globalparams[0], currentLOP, source_partition);
-		rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
-		rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
-		rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
-		rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
-		rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
-		rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
-		rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
-		rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
-		rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
-		rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
-		rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
-		rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
-		rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker, source_partition, moretravstates[12]);
-		rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker, source_partition, moretravstates[13]);
+		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
+		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
+		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
+		rtravstate[3] = gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
+		rtravstate[4] = gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
+		rtravstate[5] = gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
+		rtravstate[6] = gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
+		rtravstate[7] = gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
+		rtravstate[8] = gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
+		rtravstate[9] = gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
+		rtravstate[10] = gettravstate(ON, kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
+		rtravstate[11] = gettravstate(ON, kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 			if((source_partition % LOADFACTORFORREDUCE) == 0){
 				batch_type ntravszs = 0;
@@ -10868,7 +10669,7 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 		if(_config.enablereduce == ON){ 
 
 			if((sweepparams.source_partition % LOADFACTORFORREDUCE) == 0){ readkeyvalues(_config.enablereduce, kvdram0, verticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
-			replicatedata_syn(_config.enablereduce, verticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+			replicatedata_syn(_config.enablereduce, verticesbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
 			
 			batch_type maxsz_kvs = 0;
 			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
@@ -10904,8 +10705,6 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 				readkeyvalues(en[9], kvdram9, keyvaluesbuffer[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
 				readkeyvalues(en[10], kvdram10, keyvaluesbuffer[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
 				readkeyvalues(en[11], kvdram11, keyvaluesbuffer[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-				readkeyvalues(en[12], kvdram12, keyvaluesbuffer[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-				readkeyvalues(en[13], kvdram13, keyvaluesbuffer[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
 				
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 				reduce_bfs(ON, en[0], keyvaluesbuffer[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
@@ -10967,22 +10766,12 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 				#else 
 				reduce(ON, en[11], keyvaluesbuffer[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
 				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(ON, en[12], keyvaluesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#else 
-				reduce(ON, en[12], keyvaluesbuffer[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-				#endif
-				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-				reduce_bfs(ON, en[13], keyvaluesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#else 
-				reduce(ON, en[13], keyvaluesbuffer[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-				#endif
 			}
 			
 			#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-			_actvvstravstate = unifydata_bfs_syn(_config.enablereduce, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13, verticesbuffer, actvvs, _actvvstravstate, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
+			_actvvstravstate = unifydata_bfs_syn(_config.enablereduce, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11, verticesbuffer, actvvs, _actvvstravstate, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
 			#else 
-			unifydata_syn(_config.enablereduce, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), _globalparams.GraphAlgo);
+			unifydata_syn(_config.enablereduce, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), _globalparams.GraphAlgo);
 			#endif
 			if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(_config.enablereduce, kvdram0, verticesbuffer, (_globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 			actvvstravstate[0] = _actvvstravstate;
@@ -11045,14 +10834,6 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[11].i<<", i_kvs: "<<actvvstravstate[11].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
 	#endif
 	savekeyvalues(ON, kvdram11, actvvs, globalparams[11].baseoffset_activevertices_kvs + actvvstravstate[11].i_kvs, actvvstravstate[0].k + 1);
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[12].i<<", i_kvs: "<<actvvstravstate[12].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
-	#endif
-	savekeyvalues(ON, kvdram12, actvvs, globalparams[12].baseoffset_activevertices_kvs + actvvstravstate[12].i_kvs, actvvstravstate[0].k + 1);
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"unifydata_bfs[ec]: saving and clearning actvvs... i: "<<actvvstravstate[13].i<<", i_kvs: "<<actvvstravstate[13].i_kvs<<", (v: "<<actvvstravstate[0].v<<", k: "<<actvvstravstate[0].k<<")"<<endl;
-	#endif
-	savekeyvalues(ON, kvdram13, actvvs, globalparams[13].baseoffset_activevertices_kvs + actvvstravstate[13].i_kvs, actvvstravstate[0].k + 1);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
 	#pragma HLS UNROLL
 		actvvstravstate[i].i += (actvvstravstate[0].k * VECTOR_SIZE) + actvvstravstate[0].v;
@@ -11103,12 +10884,6 @@ dispatch_reduceonly_serialsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512
 		setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
 		setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
 		setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
-		setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
-		setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
-		setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
-		setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, 0);
-		setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, 0);
-		setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, 0);
 	cout<<"dispatch_reduceonly: number of active vertices for next iteration: "<<actvvstravstate[0].i<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -11126,10 +10901,10 @@ travstate_t
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13, 
-keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-keyvalue_t vubufferpp00[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp01[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp02[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp03[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp04[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp05[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp06[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp07[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp08[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp09[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp010[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp011[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp012[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp013[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp16[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp17[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp18[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp19[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp110[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp111[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp112[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp113[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]){
+dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, 
+keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+keyvalue_t vubufferpp00[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp01[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp02[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp03[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp04[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp05[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp06[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp07[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp08[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp09[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp010[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp011[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp16[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp17[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp18[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp19[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp110[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp111[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]){
 	analysis_type analysis_sourceploop = (1 << (NUM_PARTITIONS_POW * TREE_DEPTH));
 	analysis_type analysis_reduceloop = (MAXKVDATA_BATCHSIZE / (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))) / SRCBUFFER_SIZE;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -11171,10 +10946,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	// #pragma HLS array_partition variable = tempverticesbuffer10
 	// 	// keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	// #pragma HLS array_partition variable = tempverticesbuffer11
-	// 	// keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	// #pragma HLS array_partition variable = tempverticesbuffer12
-	// 	// keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	// #pragma HLS array_partition variable = tempverticesbuffer13
 	// 	
 	#ifdef HW 
 	
@@ -11226,14 +10997,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	// #pragma HLS array_partition variable = vubufferpp011
 	// keyvalue_t vubufferpp111[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	// #pragma HLS array_partition variable = vubufferpp111
-	// 	// keyvalue_t vubufferpp012[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]; // share?
-	// #pragma HLS array_partition variable = vubufferpp012
-	// keyvalue_t vubufferpp112[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	// #pragma HLS array_partition variable = vubufferpp112
-	// 	// keyvalue_t vubufferpp013[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]; // share?
-	// #pragma HLS array_partition variable = vubufferpp013
-	// keyvalue_t vubufferpp113[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	// #pragma HLS array_partition variable = vubufferpp113
 	// 	
 	#else 
 	keyvalue_t vubufferpp0[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -11323,16 +11086,28 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	#pragma HLS ARRAY_PARTITION variable=rtravstatepp0 complete
 	travstate_t rtravstatepp1[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstatepp1 complete
-	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; 
+	keyvalue_t moretravstates[NUMSUBCPUTHREADS][LOADFACTORFORREDUCE]; // CRITICAL AUTOMATEME (dataset dependent).
 	#pragma HLS array_partition variable = moretravstates
+	
+	unsigned int en[NUMSUBCPUTHREADS];
+	#pragma HLS ARRAY_PARTITION variable=en complete
+	unsigned int enpp0[NUMSUBCPUTHREADS];
+	#pragma HLS ARRAY_PARTITION variable=enpp0 complete
+	unsigned int enpp1[NUMSUBCPUTHREADS];
+	#pragma HLS ARRAY_PARTITION variable=enpp1 complete
+	sweepparams_t sweepparams;
+	keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS];
+	#pragma HLS ARRAY_PARTITION variable=offsetsandsizes complete
+	
 	unsigned int itercount = 0;
 	unsigned int itercount_actvvs = 0; //
 	bool_type pp0writeen = ON;
 	bool_type writeen_actvvs = ON; //
 	bool_type nonzeroactvvsreturned = ON;
-	sweepparams_t sweepparams;
-	keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS];
-	#pragma HLS ARRAY_PARTITION variable=offsetsandsizes complete
+	
+	batch_type offset1_kvs;
+	batch_type offset2_kvs;
+	batch_type offset_kvs;
 	
 	actvvstravstate.i=0; actvvstravstate.i_kvs=0; actvvstravstate.v=0; actvvstravstate.k=0; 
 	step_type currentLOP = globalparams[0].beginLOP + globalparams[0].numLOPs - 1;
@@ -11346,43 +11121,59 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	globalparams_t _globalparams = globalparams[0];
 	for(unsigned int i=1; i<NUMCOMPUTEUNITS; i++){ offsetsandsizes[i].key = 0; offsetsandsizes[i].value = 0; }
 	
-	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=LOADFACTORFORREDUCE){
+	// MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=LOADFACTORFORREDUCE){
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions + 1; source_partition+=LOADFACTORFORREDUCE){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_sourceploop avg=analysis_sourceploop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->print2("### dispatch::reduce:: source_partition", "currentLOP", source_partition, currentLOP); 							
 		#endif
 		
-		rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
-		rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
-		rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
-		rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
-		rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
-		rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
-		rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
-		rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
-		rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
-		rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
-		rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
-		rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
-		rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker, source_partition, moretravstates[12]);
-		rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker, source_partition, moretravstates[13]);
-		ntravszs = 0;
 		bool_type enablereduce = ON;
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[i][k].value; }}
-		if(ntravszs == 0){ enablereduce = OFF; } else { enablereduce = ON; }
+		bool_type enableflush = OFF;
 		
-		if(enablereduce == ON){
-			readkeyvalues(ON, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
-			replicatedata_syn(ON, sourcevbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13, 0, ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
+		if(source_partition >= num_source_partitions){ enableflush = ON; } else { enableflush = OFF; }
+		
+		if(enableflush == OFF){
+ 
+		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker, source_partition, moretravstates[0]);
+ 
+		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker, source_partition, moretravstates[1]);
+ 
+		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker, source_partition, moretravstates[2]);
+ 
+		rtravstate[3] = gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker, source_partition, moretravstates[3]);
+ 
+		rtravstate[4] = gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker, source_partition, moretravstates[4]);
+ 
+		rtravstate[5] = gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker, source_partition, moretravstates[5]);
+ 
+		rtravstate[6] = gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker, source_partition, moretravstates[6]);
+ 
+		rtravstate[7] = gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker, source_partition, moretravstates[7]);
+ 
+		rtravstate[8] = gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker, source_partition, moretravstates[8]);
+ 
+		rtravstate[9] = gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker, source_partition, moretravstates[9]);
+ 
+		rtravstate[10] = gettravstate(ON, kvdram10, globalparams[10], currentLOP, sourcestatsmarker, source_partition, moretravstates[10]);
+ 
+		rtravstate[11] = gettravstate(ON, kvdram11, globalparams[11], currentLOP, sourcestatsmarker, source_partition, moretravstates[11]);
+ }
+		ntravszs = 0;
+		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ for(batch_type k=0; k<LOADFACTORFORREDUCE; k++){ ntravszs += moretravstates[i][k].value; }}
+		if((ntravszs == 0) || (source_partition >= num_source_partitions)){ enablereduce = OFF; } else { enablereduce = ON; }
+		
+		if(enablereduce == ON || enableflush == ON){
+			readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
+			replicatedata_syn(enablereduce, sourcevbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11, 0, ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
 			
 			MAIN_LOOP2: for(batch_type index=0; index<LOADFACTORFORREDUCE; index+=1){
 				unsigned int spartition = source_partition + index;
 				sweepparams = getsweepparams(_globalparams, currentLOP, spartition);
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS2
-				for(unsigned int i = 0; i < 1; i++){
-					actsutilityobj->print7("--- dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", source_partition + index, sweepparams.upperlimit, rtravstate[i].begin_kvs * VECTOR_SIZE, rtravstate[i].end_kvs * VECTOR_SIZE, rtravstate[i].size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 					
-				}
+				if(enablereduce == ON){ for(unsigned int i = 0; i < 1; i++){ actsutilityobj->print7("dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", source_partition + index, sweepparams.upperlimit, rtravstate[i].begin_kvs * VECTOR_SIZE, rtravstate[i].end_kvs * VECTOR_SIZE, rtravstate[i].size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }}
+				else { actsutilityobj->print7("dispatch::flush:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", source_partition + index, sweepparams.upperlimit, NAp, NAp, NAp, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }
 				#endif
 					
 				if(itercount >= 2){ pp0writeen = ON; } else { pp0writeen = OFF; }
@@ -11405,25 +11196,22 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 				
 				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
 				#pragma HLS UNROLL
-					rtravstatepp0[i] = rtravstate[i]; rtravstatepp1[i] = rtravstate[i]; 
+					rtravstatepp0[i] = rtravstate[i]; 
+					rtravstatepp1[i] = rtravstate[i]; 
 				}
 				
 				batch_type maxsz_kvs = 0;
 				for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ if(rtravstate[i].size_kvs > maxsz_kvs){ maxsz_kvs = rtravstate[i].size_kvs; }}
-				unsigned int en[NUMSUBCPUTHREADS];
-				#pragma HLS ARRAY_PARTITION variable=en complete
-				unsigned int enpp0[NUMSUBCPUTHREADS];
-				#pragma HLS ARRAY_PARTITION variable=enpp0 complete
-				unsigned int enpp1[NUMSUBCPUTHREADS];
-				#pragma HLS ARRAY_PARTITION variable=enpp1 complete
 				unsigned int enpp1f = ON;
-
-				batch_type offset1_kvs;
-				batch_type offset2_kvs;
-				batch_type offset_kvs;
-				
 				#ifdef PP1
-				MAIN_LOOP1E_REDUCE: for(offset_kvs=0; offset_kvs<maxsz_kvs + rtravstate[0].skip_kvs; offset_kvs+=2*rtravstate[0].skip_kvs){
+				unsigned int totsz_kvs = maxsz_kvs + rtravstate[0].skip_kvs;
+				#else 
+				unsigned int totsz_kvs = maxsz_kvs;
+				#endif
+				if(enablereduce == OFF){ totsz_kvs = 0; }
+
+				#ifdef PP1
+				MAIN_LOOP1E_REDUCE: for(offset_kvs=0; offset_kvs<totsz_kvs; offset_kvs+=2*rtravstate[0].skip_kvs){
 				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
 					#ifdef _DEBUGMODE_KERNELPRINTS
 					for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print5("### dispatch::reduce:: offset1_kvs", "offset2_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset1_kvs, rtravstate[i].begin_kvs + offset2_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
@@ -11453,8 +11241,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					readkeyvalues(enpp0[9], kvdram9, vubufferpp0[9], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[9].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[9]);
 					readkeyvalues(enpp0[10], kvdram10, vubufferpp0[10], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[10].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[10]);
 					readkeyvalues(enpp0[11], kvdram11, vubufferpp0[11], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[11].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[11]);
-					readkeyvalues(enpp0[12], kvdram12, vubufferpp0[12], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[12].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[12]);
-					readkeyvalues(enpp0[13], kvdram13, vubufferpp0[13], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[13].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[13]);
 					// reduce 1
 					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 					reduce_bfs(enpp1f, enpp1[0], vubufferpp1[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams); 
@@ -11469,8 +11255,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce_bfs(enpp1f, enpp1[9], vubufferpp1[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[9], _globalparams); 
 					reduce_bfs(enpp1f, enpp1[10], vubufferpp1[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[10], _globalparams); 
 					reduce_bfs(enpp1f, enpp1[11], vubufferpp1[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[11], _globalparams); 
-					reduce_bfs(enpp1f, enpp1[12], vubufferpp1[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[12], _globalparams); 
-					reduce_bfs(enpp1f, enpp1[13], vubufferpp1[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams); 
 					#else 
 					reduce(enpp1f, enpp1[0], vubufferpp1[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams); 
 					reduce(enpp1f, enpp1[1], vubufferpp1[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[1], _globalparams); 
@@ -11484,8 +11268,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce(enpp1f, enpp1[9], vubufferpp1[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[9], _globalparams); 
 					reduce(enpp1f, enpp1[10], vubufferpp1[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[10], _globalparams); 
 					reduce(enpp1f, enpp1[11], vubufferpp1[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[11], _globalparams); 
-					reduce(enpp1f, enpp1[12], vubufferpp1[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[12], _globalparams); 
-					reduce(enpp1f, enpp1[13], vubufferpp1[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams); 
 					#endif
 					
 					// reduce 0
@@ -11502,8 +11284,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce_bfs(ON, enpp0[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[9], _globalparams);
 					reduce_bfs(ON, enpp0[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[10], _globalparams);
 					reduce_bfs(ON, enpp0[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[11], _globalparams);
-					reduce_bfs(ON, enpp0[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[12], _globalparams);
-					reduce_bfs(ON, enpp0[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
 					#else 
 					reduce(ON, enpp0[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[0], _globalparams);
 					reduce(ON, enpp0[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[1], _globalparams);
@@ -11517,8 +11297,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce(ON, enpp0[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[9], _globalparams);
 					reduce(ON, enpp0[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[10], _globalparams);
 					reduce(ON, enpp0[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[11], _globalparams);
-					reduce(ON, enpp0[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[12], _globalparams);
-					reduce(ON, enpp0[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
 					#endif
 					// read 1
 					offset2_kvs = offset_kvs + rtravstate[0].skip_kvs;
@@ -11542,11 +11320,9 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					readkeyvalues(enpp1[9], kvdram9, vubufferpp1[9], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[9].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[9]);
 					readkeyvalues(enpp1[10], kvdram10, vubufferpp1[10], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[10].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[10]);
 					readkeyvalues(enpp1[11], kvdram11, vubufferpp1[11], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[11].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[11]);
-					readkeyvalues(enpp1[12], kvdram12, vubufferpp1[12], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[12].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[12]);
-					readkeyvalues(enpp1[13], kvdram13, vubufferpp1[13], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1[13].begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1[13]);
 				}
 				#else 
-				MAIN_LOOP1E_REDUCE: for(offset_kvs=0; offset_kvs<maxsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
+				MAIN_LOOP1E_REDUCE: for(offset_kvs=0; offset_kvs<totsz_kvs; offset_kvs+=rtravstate[0].skip_kvs){
 				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
 					#ifdef _DEBUGMODE_KERNELPRINTS
 					for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate[i].begin_kvs + offset_kvs, rtravstate[i].begin_kvs, rtravstate[i].end_kvs, SRCBUFFER_SIZE); }
@@ -11574,8 +11350,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					readkeyvalues(en[9], kvdram9, vubufferpp0[9], (sweepparams.worksourcebaseaddress_kvs + rtravstate[9].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[9]);
 					readkeyvalues(en[10], kvdram10, vubufferpp0[10], (sweepparams.worksourcebaseaddress_kvs + rtravstate[10].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[10]);
 					readkeyvalues(en[11], kvdram11, vubufferpp0[11], (sweepparams.worksourcebaseaddress_kvs + rtravstate[11].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[11]);
-					readkeyvalues(en[12], kvdram12, vubufferpp0[12], (sweepparams.worksourcebaseaddress_kvs + rtravstate[12].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[12]);
-					readkeyvalues(en[13], kvdram13, vubufferpp0[13], (sweepparams.worksourcebaseaddress_kvs + rtravstate[13].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[13]);
 		
 					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 					reduce_bfs(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
@@ -11590,8 +11364,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce_bfs(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
 					reduce_bfs(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
 					reduce_bfs(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-					reduce_bfs(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-					reduce_bfs(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
 					#else 
 					reduce(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
 					reduce(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
@@ -11605,70 +11377,73 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
 					reduce(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
 					reduce(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-					reduce(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-					reduce(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
 					#endif
 				}	
 				#endif
 				
-				bool_type nonzeroactvvsreturned = unifydata_bfs_syn(ON, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13, destvbuffer, 
+				bool_type nonzeroactvvsreturned = unifydata_bfs_syn(enablereduce, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11, destvbuffer, 
 actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsule2_so1, cutoffs2, actvvs3, capsule3_so1, cutoffs3, 						index * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, _globalparams);
 				
 				// overlap functions for next iteration
 				if(index < LOADFACTORFORREDUCE-1){ 
-					replicatedata_syn(ON, sourcevbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13, (index + 1) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)); // pp1
-					rtravstate[0] = gettravstate(kvdram0, globalparams[0], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[0]);
-					rtravstate[1] = gettravstate(kvdram1, globalparams[1], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[1]);
-					rtravstate[2] = gettravstate(kvdram2, globalparams[2], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[2]);
-					rtravstate[3] = gettravstate(kvdram3, globalparams[3], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[3]);
-					rtravstate[4] = gettravstate(kvdram4, globalparams[4], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[4]);
-					rtravstate[5] = gettravstate(kvdram5, globalparams[5], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[5]);
-					rtravstate[6] = gettravstate(kvdram6, globalparams[6], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[6]);
-					rtravstate[7] = gettravstate(kvdram7, globalparams[7], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[7]);
-					rtravstate[8] = gettravstate(kvdram8, globalparams[8], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[8]);
-					rtravstate[9] = gettravstate(kvdram9, globalparams[9], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[9]);
-					rtravstate[10] = gettravstate(kvdram10, globalparams[10], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[10]);
-					rtravstate[11] = gettravstate(kvdram11, globalparams[11], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[11]);
-					rtravstate[12] = gettravstate(kvdram12, globalparams[12], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[12]);
-					rtravstate[13] = gettravstate(kvdram13, globalparams[13], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[13]);
- 
+					replicatedata_syn(enablereduce, sourcevbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11, (index + 1) * ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2)); // pp1
+					rtravstate[0] = gettravstate(enablereduce, kvdram0, globalparams[0], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[0]);
+					rtravstate[1] = gettravstate(enablereduce, kvdram1, globalparams[1], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[1]);
+					rtravstate[2] = gettravstate(enablereduce, kvdram2, globalparams[2], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[2]);
+					rtravstate[3] = gettravstate(enablereduce, kvdram3, globalparams[3], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[3]);
+					rtravstate[4] = gettravstate(enablereduce, kvdram4, globalparams[4], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[4]);
+					rtravstate[5] = gettravstate(enablereduce, kvdram5, globalparams[5], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[5]);
+					rtravstate[6] = gettravstate(enablereduce, kvdram6, globalparams[6], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[6]);
+					rtravstate[7] = gettravstate(enablereduce, kvdram7, globalparams[7], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[7]);
+					rtravstate[8] = gettravstate(enablereduce, kvdram8, globalparams[8], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[8]);
+					rtravstate[9] = gettravstate(enablereduce, kvdram9, globalparams[9], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[9]);
+					rtravstate[10] = gettravstate(enablereduce, kvdram10, globalparams[10], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[10]);
+					rtravstate[11] = gettravstate(enablereduce, kvdram11, globalparams[11], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[11]);
 				}
 				
-				if(nonzeroactvvsreturned == ON){
+				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 4)){
 					#ifdef PIPELINED_SYNCACTVVS
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
+					// savekeyvalues_pipeline_sync
+					// savekeyvalues_pipeline_2sync
+					savekeyvalues_pipeline_2sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
+					// savekeyvalues_pipeline_sync
+					// savekeyvalues_pipeline_2sync
+					savekeyvalues_pipeline_2sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
+					// savekeyvalues_pipeline_sync
+					// savekeyvalues_pipeline_2sync
+					savekeyvalues_pipeline_2sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
+					// savekeyvalues_pipeline_sync
+					// savekeyvalues_pipeline_2sync
+					savekeyvalues_pipeline_2sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					itercount_actvvs += 1;
 					#else 
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; } // k_seq, 1_seq
 					capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
+					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
+					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer2_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
+					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, buffer2_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule2_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule2_so8.value; }
 					capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount_actvvs, _globalparams);
-					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer3_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
+					savekeyvalues_pipeline_sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, buffer3_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule3_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule3_so8.value; }
 					itercount_actvvs += 1;
 					#endif 
@@ -11677,7 +11452,7 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 				itercount += 1;
 			}
 	
-			savekeyvalues(ON, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
+			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * ((_globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); 
 		}
 		
 		sourcestatsmarker += LOADFACTORFORREDUCE;
@@ -11688,86 +11463,15 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 		#endif
 	}
 	
-	// flush 
-	for(unsigned int v=0; v<8; v++){ 
-	#pragma HLS UNROLL
- 
-		capsule0_so1[v].key = 0; 
-		capsule0_so1[v].value = 0; 
- 
-		capsule1_so1[v].key = 0; 
-		capsule1_so1[v].value = 0; 
- 
-		capsule2_so1[v].key = 0; 
-		capsule2_so1[v].value = 0; 
- 
-		capsule3_so1[v].key = 0; 
-		capsule3_so1[v].value = 0; 
- 
-	}
-	for(unsigned int i=0; i<ACTVVSFLUSHSZ; i++){
-		#ifdef PIPELINED_SYNCACTVVS
-		capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
-		actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule0_so8.value: "<<capsule0_so8.value<<endl;
-		#endif 
-		capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
-		actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule1_so8.value: "<<capsule1_so8.value<<endl;
-		#endif 
-		capsule0_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
-		actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule0_so8.value: "<<capsule0_so8.value<<endl;
-		#endif 
-		capsule1_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
-		actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule1_so8.value: "<<capsule1_so8.value<<endl;
-		#endif 
-		#else
-		capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
-		actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule0_so8.value: "<<capsule0_so8.value<<endl;
-		#endif 
-		capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer1_setof2, capsule1_so2, buffer1_setof4, capsule1_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
-		actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule1_so8.value: "<<capsule1_so8.value<<endl;
-		#endif 
-		capsule2_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer2_setof2, capsule2_so2, buffer2_setof4, capsule2_so4, buffer2_setof8, capsule2_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer2_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule2_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
-		actvvstravstate.i_kvs += capsule2_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule2_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule0_so8.value: "<<capsule0_so8.value<<endl;
-		#endif 
-		capsule3_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer3_setof2, capsule3_so2, buffer3_setof4, capsule3_so4, buffer3_setof8, capsule3_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount_actvvs, _globalparams);
-		savekeyvalues_pipeline_sync(ON, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, buffer3_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule3_so8.value / VECTOR_SIZE);// / VECTOR_SIZE); 
-		actvvstravstate.i_kvs += capsule3_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule3_so8.value;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"dispatch_reduceonly_parallelsync::flush:: capsule1_so8.value: "<<capsule1_so8.value<<endl;
-		#endif 
-		#endif 
-	}
-	
-	#ifdef LOGKERNELSTATS
-	for(unsigned int i=0; i<RUNSTATSSZ; i++){
-		#ifdef _WIDEWORD
-		kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + _globalparams.GraphIter].range(31, 0) = actvvstravstate.i;
-		#else 
-		kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + _globalparams.GraphIter].data[0].key = actvvstravstate.i;	
-		#endif 
-	}
-	#endif 
+	// #ifdef LOGKERNELSTATS
+	// for(unsigned int i=0; i<RUNSTATSSZ; i++){
+		// #ifdef _WIDEWORD
+		// kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + _globalparams.GraphIter].range(31, 0) = actvvstravstate.i;
+		// #else 
+		// kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + _globalparams.GraphIter].data[0].key = actvvstravstate.i;	
+		// #endif 
+	// }
+	// #endif 
 			
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
@@ -11809,12 +11513,6 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
 	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
 	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
 	cout<<"dispatch_reduceonly_parallelsync: number of active vertices for iteration "<<_globalparams.GraphIter + 1<<": (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -11863,7 +11561,7 @@ topkernel(uint512_dt * kvdram){
 #endif
  
 #if defined(MULTIACTSINSTANCES)
-topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13){
+topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11){
 	
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
@@ -11877,8 +11575,6 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11
-#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12
-#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13
 		
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -11892,8 +11588,6 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 #pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
-#pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
-#pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
@@ -11909,8 +11603,6 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 #pragma HLS DATA_PACK variable = kvdram9
 #pragma HLS DATA_PACK variable = kvdram10
 #pragma HLS DATA_PACK variable = kvdram11
-#pragma HLS DATA_PACK variable = kvdram12
-#pragma HLS DATA_PACK variable = kvdram13
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -11942,10 +11634,6 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
  
 	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
 	#else
  
 	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
@@ -11971,12 +11659,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
  
 	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
 	#endif
 	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"acts::topkernel:: LOADFACTORFORREDUCE: "<<LOADFACTORFORREDUCE<<endl;
+	cout<<"acts::topkernel:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
+	cout<<"acts::topkernel:: VDATAPACKINGFACTOR: "<<VDATAPACKINGFACTOR<<endl;
+	// exit(EXIT_SUCCESS);
+	#endif 
 	
  
 	keyvalue_t buffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -12062,20 +11752,6 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer211
 	keyvalue_t buffer311[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer311
- 
-	keyvalue_t buffer112[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer112
-	keyvalue_t buffer212[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer212
-	keyvalue_t buffer312[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer312
- 
-	keyvalue_t buffer113[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer113
-	keyvalue_t buffer213[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer213
-	keyvalue_t buffer313[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer313
 	globalparams_t globalparams[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=globalparams complete
 	travstate_t actvvstravstate[NUMSUBCPUTHREADS];
@@ -12146,26 +11822,26 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			#endif
 			dispatch_partitiononly(kvdram11, buffer111, buffer211, buffer311, globalparams[11]);
 			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"12 ";
-			#endif
-			dispatch_partitiononly(kvdram12, buffer112, buffer212, buffer312, globalparams[12]);
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"13 ";
-			#endif
-			dispatch_partitiononly(kvdram13, buffer113, buffer213, buffer313, globalparams[13]);
-			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<endl;
 			#endif 
 		}
 		
 		#ifdef REDUCEUPDATES
 		if(globalparams[0].reducecommand == ON){
-			actvvstravstate[0] = dispatch_reduceonly_parallelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13, 
-buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111,buffer112,buffer113, 
-buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213, 
-buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311,buffer312,buffer313, 
+			actvvstravstate[0] = dispatch_reduceonly_parallelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, 
+buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111, 
+buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211, 
+buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311, 
 										actvvstravstate[0], globalparams);
 		}
+		#endif 
+		
+		#ifdef LOGKERNELSTATS
+		#ifdef _WIDEWORD
+		kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].range(31, 0) = actvvstravstate[0].i;
+		#else 
+		kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].data[0].key = actvvstravstate[0].i;	
+		#endif 
 		#endif 
 		
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){

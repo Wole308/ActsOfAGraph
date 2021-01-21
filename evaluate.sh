@@ -88,12 +88,16 @@ THREADCOUNT_EQ8=8
 THREADCOUNT_EQ12=12
 THREADCOUNT_EQ16=16
 
-THREADPOW_EQ0=0
-THREADPOW_EQ1=1
-THREADPOW_EQ2=2
-THREADPOW_EQ3=3
-THREADPOW_EQ4=4
-THREADPOW_EQ5=5
+NUMTHREADS_EQ0=0
+NUMTHREADS_EQ1=1
+NUMTHREADS_EQ2=2
+NUMTHREADS_EQ4=4
+NUMTHREADS_EQ6=6
+NUMTHREADS_EQ8=8
+NUMTHREADS_EQ10=10
+NUMTHREADS_EQ12=12
+NUMTHREADS_EQ14=14
+NUMTHREADS_EQ16=16
 
 _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
@@ -441,10 +445,10 @@ do
 		# for numcputhreads in $THREADCOUNT_EQ16
 		do
 		
-		# for numsubcputhreads_pow in $THREADPOW_EQ0 $THREADPOW_EQ1 $THREADPOW_EQ2 $THREADPOW_EQ3 $THREADPOW_EQ4
-		# for numsubcputhreads_pow in $THREADPOW_EQ4
-		for numsubcputhreads_pow in $THREADPOW_EQ0
-		# for numsubcputhreads_pow in $THREADPOW_EQ1
+		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
+		# for numsubcputhreads in $NUMTHREADS_EQ0
+		for numsubcputhreads in $NUMTHREADS_EQ12
+		# for numsubcputhreads in $NUMTHREADS_EQ16
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -479,16 +483,16 @@ do
 					for evaluation_param0 in 0
 					do
 						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						KERNELBACKUP_NAME="realgoldenkernel${ALGORITHMABBRV}${numsubcputhreads_pow}" # CRITICAL REMOVEME.
+						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads}" # CRITICAL REMOVEME.
 						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
 						BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 						
 						# RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Results"
 						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph/results/acts"
-						# RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
-						RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}by${numsubcputhreads_pow}threads_${evaluation_type}_evp${evaluation_param0}"
-						# PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads_pow}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
-						PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numcputhreads}by${numsubcputhreads_pow}threads_${evaluation_type}_evp${evaluation_param0}"
+						# RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						RESULT_NAME="result_${SETUP_NAME}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
+						# PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 						
 						if [ $dataset == $ORKUT_3M_106M ]  
 						then	
@@ -669,7 +673,7 @@ do
 							KERNEL_NAME=""
 						fi
 						
-						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS_POW=$numsubcputhreads_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
+						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
 
 						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
 						then

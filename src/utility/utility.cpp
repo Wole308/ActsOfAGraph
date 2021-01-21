@@ -689,23 +689,24 @@ void utility::PARSE(string message, unsigned long longword){
 	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
 	for(unsigned int i=0; i<numitems; i++){
 		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << SRAMSZ_POW)) + item)<<endl;
+		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item)<<endl;
 	}
 	return;
 }
 unsigned int utility::PARSE(unsigned long longword, unsigned int * _items){ 
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
+	
 	if(numitems > 3){
 		cout<<"utility::PARSE. numitems > 3. exiting..."<<endl;
 		ULONGTOBINARY(longword);
-		PARSE("compactgraph::verify actual committing...", longword);
+		PARSE("utility::PARSE: actual committing...", longword);
 		exit(EXIT_FAILURE);
 	}
 	unsigned int item = 0;
 	for(unsigned int i=0; i<numitems; i++){
 		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		_items[i] = ((streetaddr * (1 << SRAMSZ_POW)) + item);
+		_items[i] = ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 	}
 	return numitems;
 }
@@ -717,7 +718,7 @@ unsigned int utility::GETKEY(unsigned long longword){
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-	return ((streetaddr * (1 << SRAMSZ_POW)) + item);
+	return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 }
 keyy_t utility::GETKEY(keyvalue_t keyvalue){ 
 	#ifdef COMPACTEDGES
@@ -728,8 +729,7 @@ keyy_t utility::GETKEY(keyvalue_t keyvalue){
 		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 		unsigned int item = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		// cout<<"--- utility::GETKEY:: streetaddr: "<<streetaddr<<", item: "<<item<<endl;
-		return ((streetaddr * (1 << SRAMSZ_POW)) + item);
+		return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 	}
 	#else 
 	return keyvalue.key;
@@ -809,6 +809,10 @@ void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuff
 	return;
 }
 unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"utility::runbfs_sw:: running traditional bfs... "<<endl;
+	#endif 
+	
 	unsigned int * labels = new unsigned int[KVDATA_RANGE];
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ labels[i] = UNVISITED; }
 	vector<value_t> rootactvvs;

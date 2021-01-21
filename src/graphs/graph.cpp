@@ -400,48 +400,48 @@ void graph::closeactiveverticesfilesforwriting(){
 }
 
 string graph::getdatasetdir(){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname  + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks);// + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".vertexptrs";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname  + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks);// + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".vertexptrs";		
 }
 string graph::getpath_vertexdata(){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vdata";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vdata";		
 }
 string graph::getpath_tempvertexdata(){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".tempvdata";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".tempvdata";		
 }
 string graph::getpath_vertexproperties(){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vproperties";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vproperties";		
 }
 string graph::getpath_edges(unsigned int groupid, unsigned int j){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".edges";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".edges";		
 }
 string graph::getpath_vertexptrs(unsigned int groupid, unsigned int j){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".vertexptrs";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + "_" + std::to_string(groupid) + "_" + std::to_string(j) + ".vertexptrs";		
 }
 string graph::getpath_activevertices(unsigned int graph_iterationidx){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices"; // CORRECTONE.		
-	// return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices"; // CORRECTONE.		
+	// return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";
 }
 string graph::getpath_activeverticesW(unsigned int graph_iterationidx){
 	#ifdef FORCEDFINISH_DONTCAREABOUTACTIVEVERTICESGENERATED
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";	
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";	
 	#else 
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";	
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + "activevertices" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".actvvertices";	
 	#endif 
 }
 string graph::getpath_vertexisactive(unsigned int graph_iterationidx){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".vertexisactive";	
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + "activeverticesW" + "/" + "iteration" + std::to_string(graph_iterationidx) + ".vertexisactive";	
 }
 string graph::getpath_vertexupdates(){
-	return datasetRootDir + "dataset" + "/" + thisdataset.graphname + "/" + thisdataset.graphname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vupdates";		
+	return datasetRootDir + "dataset" + "/" + thisdataset.graphtopname + "/" + thisdataset.graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(numedgebanks) + "/" + thisdataset.graphname + ".vupdates";		
 }
 string graph::gettmp_dir(){
 	return datasetRootDir + "tmpdata_grafboost";		
 }
 string graph::getidx_path(){
-	return datasetRootDir + "dataset/" + thisdataset.graphname + "/ridx.dat";
+	return datasetRootDir + "dataset/" + thisdataset.graphtopname + "/ridx.dat";
 }
 string graph::getmat_path(){
-	return datasetRootDir + "dataset/" + thisdataset.graphname + "/matrix.dat";	
+	return datasetRootDir + "dataset/" + thisdataset.graphtopname + "/matrix.dat";	
 }
 
 int graph::getnvmeFd_verticesdata_r2(){ return nvmeFd_verticesdata_r2; } 
@@ -477,16 +477,6 @@ value_t * graph::generateverticesdata(){
 	cout<<"generating vertices data... "<<endl;
 	for(unsigned int k=0; k<KVDATA_RANGE; k++){
 		vertexdatabuffer[k] = algorithmobj->vertex_initdata(); 
-		
-		/* #ifdef COMPACTEDGES
-		// utilityobj->
-		vertexdatabuffer[k] = 0;
-		
-		
-		// vertexdatabuffer[k] = algorithmobj->vertex_initdata(); // FIXME.
-		#else 
-		vertexdatabuffer[k] = algorithmobj->vertex_initdata(); 
-		#endif  */
 	} 
 	return vertexdatabuffer;
 }
@@ -496,7 +486,7 @@ value_t * graph::generatetempverticesdata(){
 	return tempvertexdatabuffer;
 }
 void graph::loadedgesfromfile(int col, size_t fdoffset, edge2_type * buffer, vertex_t bufferoffset, vertex_t size){
-	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
+	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}					
 	return;
 }
 edge_t graph::getedgessize(int col){ 
@@ -538,6 +528,7 @@ void graph::loadalldatasets(){
 	#endif
 	
 	// small dataset
+	_datasets[30].graphtopname = "soc-orkut";
 	_datasets[30].graphname = "soc-orkut";
 	_datasets[30].graph_path = rootDir + "dataset/soc-orkut/soc-orkut.mtx";
 	_datasets[30].vertices_path = rootDir + "dataset/soc-orkut/soc-orkut.vertices";
@@ -552,6 +543,7 @@ void graph::loadalldatasets(){
 	_datasets[30].graphorder = DST_SRC;
 	_datasets[30].skewratio = SKEWRATIO;
 	
+	_datasets[31].graphtopname = "hollywood-2009";
 	_datasets[31].graphname = "hollywood-2009";
 	_datasets[31].graph_path = rootDir + "dataset/hollywood-2009/hollywood-2009.mtx";
 	_datasets[31].vertices_path = rootDir + "dataset/hollywood-2009/hollywood-2009.vertices";
@@ -566,6 +558,7 @@ void graph::loadalldatasets(){
 	_datasets[31].graphorder = DST_SRC;
 	_datasets[31].skewratio = SKEWRATIO;
 	
+	_datasets[32].graphtopname = "indochina-04";
 	_datasets[32].graphname = "indochina-04";
 	_datasets[32].graph_path = rootDir + "dataset/indochina-04/indochina-2004.mtx";
 	_datasets[32].vertices_path = rootDir + "dataset/indochina-04/indochina-2004.vertices";
@@ -580,6 +573,7 @@ void graph::loadalldatasets(){
 	_datasets[32].graphorder = DST_SRC;
 	_datasets[32].skewratio = SKEWRATIO;
 	
+	_datasets[33].graphtopname = "kron-g500-logn21";
 	_datasets[33].graphname = "kron-g500-logn21";
 	_datasets[33].graph_path = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21.mtx";
 	_datasets[33].vertices_path = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21.vertices";
@@ -594,6 +588,7 @@ void graph::loadalldatasets(){
 	_datasets[33].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[33].skewratio = SKEWRATIO;
 	
+	_datasets[34].graphtopname = "rgg_n_2_24_s0";
 	_datasets[34].graphname = "rgg_n_2_24_s0";
 	_datasets[34].graph_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx";
 	_datasets[34].vertices_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.vertices";
@@ -608,6 +603,7 @@ void graph::loadalldatasets(){
 	_datasets[34].graphorder = DST_SRC;
 	_datasets[34].skewratio = SKEWRATIO;
 	
+	_datasets[35].graphtopname = "roadNet-CA";
 	_datasets[35].graphname = "roadNet-CA";
 	_datasets[35].graph_path = rootDir + "dataset/roadNet-CA/roadNet-CA.mtx";
 	_datasets[35].vertices_path = rootDir + "dataset/roadNet-CA/roadNet-CA.vertices";
@@ -622,6 +618,7 @@ void graph::loadalldatasets(){
 	_datasets[35].graphorder = DST_SRC;
 	_datasets[35].skewratio = SKEWRATIO;
 	
+	_datasets[36].graphtopname = "flickr";
 	_datasets[36].graphname = "flickr";
 	_datasets[36].graph_path = rootDir + "dataset/flickr/flickr.mtx";
 	_datasets[36].vertices_path = rootDir + "dataset/flickr/flickr.vertices";
@@ -637,6 +634,7 @@ void graph::loadalldatasets(){
 	_datasets[36].skewratio = SKEWRATIO;
 	
 	// large dataset
+	_datasets[2].graphtopname = "twitter";
 	_datasets[2].graphname = "twitter";
 	_datasets[2].graph_path = rootDir + "dataset/twitter/twitter.mtx";
 	_datasets[2].vertices_path = rootDir + "dataset/twitter/twitter.vertices";
@@ -651,6 +649,7 @@ void graph::loadalldatasets(){
 	_datasets[2].graphorder = DST_SRC;
 	_datasets[2].skewratio = SKEWRATIO;
 	
+	_datasets[3].graphtopname = "MOLIERE_2016";
 	_datasets[3].graphname = "MOLIERE_2016";
 	_datasets[3].graph_path = rootDir + "dataset/MOLIERE_2016/MOLIERE_2016.mtx";
 	_datasets[3].vertices_path = rootDir + "dataset/MOLIERE_2016/MOLIERE_2016.vertices";
@@ -665,6 +664,7 @@ void graph::loadalldatasets(){
 	_datasets[3].graphorder = DST_SRC_EDGEW;
 	_datasets[3].skewratio = SKEWRATIO;
 	
+	_datasets[4].graphtopname = "kronecker26";
 	_datasets[4].graphname = "kronecker26";
 	_datasets[4].graph_path = rootDir + "dataset/kronecker26/kronecker26.mtx";
 	_datasets[4].vertices_path = rootDir + "dataset/kronecker26/kronecker26.vertices";
@@ -679,6 +679,7 @@ void graph::loadalldatasets(){
 	_datasets[4].graphorder = SRC_DST;
 	_datasets[4].skewratio = SKEWRATIO;
 	
+	_datasets[5].graphtopname = "kronecker28";
 	_datasets[5].graphname = "kronecker28";
 	_datasets[5].graph_path = rootDir + "dataset/kronecker28/kronecker28.mtx";
 	_datasets[5].vertices_path = rootDir + "dataset/kronecker28/kronecker28.vertices";
@@ -693,6 +694,7 @@ void graph::loadalldatasets(){
 	_datasets[5].graphorder = SRC_DST;
 	_datasets[5].skewratio = SKEWRATIO;
 	
+	_datasets[6].graphtopname = "kronecker30";
 	_datasets[6].graphname = "kronecker30";
 	_datasets[6].graph_path = rootDir + "dataset/kronecker30/kronecker30.mtx";
 	_datasets[6].vertices_path = rootDir + "dataset/kronecker30/kronecker30.vertices";
@@ -707,6 +709,7 @@ void graph::loadalldatasets(){
 	_datasets[6].graphorder = SRC_DST;
 	_datasets[6].skewratio = SKEWRATIO;
 	
+	_datasets[7].graphtopname = "kronecker32";
 	_datasets[7].graphname = "kronecker32";
 	_datasets[7].graph_path = rootDir + "dataset/kronecker32/kronecker32.mtx";
 	_datasets[7].vertices_path = rootDir + "dataset/kronecker32/kronecker32.vertices";
@@ -721,6 +724,7 @@ void graph::loadalldatasets(){
 	_datasets[7].graphorder = SRC_DST;
 	_datasets[7].skewratio = SKEWRATIO;
 	
+	_datasets[10].graphtopname = "wdc";
 	_datasets[10].graphname = "wdc";
 	_datasets[10].graph_path = rootDir + "dataset/wdc/wdc.mtx";
 	_datasets[10].vertices_path = rootDir + "dataset/wdc/wdc.vertices";
@@ -734,7 +738,7 @@ void graph::loadalldatasets(){
 	_datasets[10].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[10].graphorder = SRC_DST;
 	_datasets[10].skewratio = SKEWRATIO;
-	
+
 	for(unsigned int i=0; i<32; i++){
 		_datasets[i].groupvoffset[0] = 0;
 		_datasets[i].groupvoffset[1] = _datasets[i].num_vertices;
@@ -758,6 +762,12 @@ void graph::setdataset(unsigned int id){
 	if(id != 7){ cout<<"WARNING:DATASETS GRAPH "<<id<<"'S SIZE DOES NOT MATCH SPECIFIED CONFIGURATION. PLEASE SET CORRECT CONFIGURATION OR USE CORRECT GRAPH SIZE"<<endl; exit(EXIT_FAILURE); }
 	#endif
 	thisdataset = _datasets[id];
+	
+	#ifdef GRAPHISUNDIRECTED
+	thisdataset.graphname = thisdataset.graphname + "_dup";
+	thisdataset.num_edges = 2 * thisdataset.num_edges;
+	#endif
+	
 	printdataset();
 	return;
 }
@@ -766,6 +776,7 @@ dataset_t graph::getdataset(){
 }
 void graph::printdataset(){
 	cout<<"graph::printdataset: printing dataset parameters..."<<endl;
+	cout<<">>> graphtopname: "<<thisdataset.graphtopname<<endl;
 	cout<<">>> graphname: "<<thisdataset.graphname<<endl;
 	cout<<">>> graph_path: "<<thisdataset.graph_path<<endl;
 	cout<<">>> vertices_path: "<<thisdataset.vertices_path<<endl;
