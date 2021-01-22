@@ -10552,7 +10552,7 @@ generateoffsets(
 	return numactvvs;		
 }
 
-// #ifdef KOOOKOOOO
+#ifdef KOOOKOOOO
 batch_type
 	#ifdef SW 
 	acts::
@@ -10812,7 +10812,7 @@ processactivevertices_compactedges(
 	#endif
 	return saveoffset_kvs;
 }
-// #endif 
+#endif 
 
 #ifdef KOOOKOOOO // ORIGINAL processactivevertices_noncompactedges
 // process edges phase for non compacted graph (bfs,sssp,etc.)		
@@ -12178,13 +12178,12 @@ dispatch_partitiononly(uint512_dt * kvdram,
 				#endif 
 			#else
 			globalparams.runsize_kvs = 
-				#ifdef COMPACTEDGES
-				processactivevertices_compactedges
-				#else 
-				processactivevertices_noncompactedges
-				#endif 
-			// processactivevertices
-			(
+				// #ifdef COMPACTEDGES
+				// processactivevertices_compactedges
+				// #else 
+				// processactivevertices_noncompactedges
+				// #endif 
+			processactivevertices(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,
@@ -12989,7 +12988,8 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 					rtravstate[15] = gettravstate(enablereduce, kvdram15, globalparams[15], currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates[15]);
 				}
 				
-				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 4)){
+				// if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 4)){
+				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 8)){ // CRITICAL FIXME. NOTME: 8 works for 16 compute units
 					#ifdef PIPELINED_SYNCACTVVS
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);

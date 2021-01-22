@@ -4999,7 +4999,7 @@ generateoffsets(
 	return numactvvs;		
 }
 
-// #ifdef KOOOKOOOO
+#ifdef KOOOKOOOO
 batch_type
 	#ifdef SW 
 	acts::
@@ -5173,7 +5173,7 @@ processactivevertices_compactedges(
 	#endif
 	return saveoffset_kvs;
 }
-// #endif 
+#endif 
 
 #ifdef KOOOKOOOO // ORIGINAL processactivevertices_noncompactedges
 // process edges phase for non compacted graph (bfs,sssp,etc.)		
@@ -6149,13 +6149,12 @@ dispatch_partitiononly(uint512_dt * kvdram,
 				#endif 
 			#else
 			globalparams.runsize_kvs = 
-				#ifdef COMPACTEDGES
-				processactivevertices_compactedges
-				#else 
-				processactivevertices_noncompactedges
-				#endif 
-			// processactivevertices
-			(
+				// #ifdef COMPACTEDGES
+				// processactivevertices_compactedges
+				// #else 
+				// processactivevertices_noncompactedges
+				// #endif 
+			processactivevertices(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,
@@ -6650,7 +6649,8 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 					{%endfor%}
 				}
 				
-				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 4)){
+				// if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 4)){
+				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 8)){ // CRITICAL FIXME. NOTME: 8 works for 16 compute units
 					#ifdef PIPELINED_SYNCACTVVS
 					{%for i in context['k_seq']%}
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
