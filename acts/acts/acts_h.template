@@ -176,11 +176,11 @@ public:
 								travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 									sweepparams_t sweepparams, globalparams_t globalparams);
 	
-	travstate_t unifydata_bfs_syn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+	travstate_t unifydata_bfs_serialsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
 						sweepparams_t sweepparams, globalparams_t globalparams);
 						
-	bool_type unifydata_bfs_syn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+	bool_type unifydata_bfs_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					{%for i in context['k_seq']%}
 					keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule{{i}}[8], buffer_type cutoffs{{i}}[VECTOR_SIZE],
 					{%endfor%}
@@ -371,8 +371,6 @@ public:
 			globalparams_t globalparams);
 	
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
-	
-	void dispatch_reduceonly_serialsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} travstate_t actvvstravstate[NUMSUBCPUTHREADS], globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
 	travstate_t dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 

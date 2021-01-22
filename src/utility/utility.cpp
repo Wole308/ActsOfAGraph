@@ -135,7 +135,7 @@ void utility::printallparameters(){
 	
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -570,7 +570,7 @@ void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned 
 	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
 	return;
 }
-void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
+/* void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 	unsigned int * skipspacing = new unsigned int[size];
 	for(unsigned int p=0; p<size; p++){ 
 		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
@@ -580,6 +580,29 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		skipspacing[p] = (B * C) + 128; 
 		
 		// skipspacing[p] = 0;
+		// skipspacing[p] = skipspacing[p] * 2; // REMOVEME.
+	}			
+	calculateoffsets(stats, size, 0, skipspacing);
+	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
+} */
+void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
+	unsigned int * skipspacing = new unsigned int[size];
+	for(unsigned int p=0; p<size; p++){ 
+		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
+		
+		
+		
+		
+		unsigned int B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
+		if(B < 80){ B = B * 2; } 
+		// if(B < 80){ B = B * 4; } 
+		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
+		skipspacing[p] = (B * C) + 128; 
+		
+		if(size == 16){ if(p < 16){ cout<<"--- stats["<<p<<"].value: "<<stats[p].value<<", skipspacing["<<p<<"]: "<<skipspacing[p]<<", A: "<<A<<", B: "<<B<<", C: "<<C<<endl; }}
+		
+		// skipspacing[p] = 0;
+		// skipspacing[p] = skipspacing[p] * 2; // REMOVEME.
 	}			
 	calculateoffsets(stats, size, 0, skipspacing);
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					

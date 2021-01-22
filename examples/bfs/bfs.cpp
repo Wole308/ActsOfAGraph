@@ -104,7 +104,7 @@ runsummary_t bfs::run(){
 	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
 	
 	// load dram
-	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE_PERSSDPARTITION);
+	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE);
 	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer); 
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, PAGERANK); 			
@@ -114,7 +114,6 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	#endif
 	loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyy_t **)kvbuffer, &container);
-	
 	loadgraphobj->loadmessages(kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	

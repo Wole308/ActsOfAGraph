@@ -70,85 +70,29 @@ runsummary_t pagerank::run(){
 	graphobj->openfilesforreading(0);
 	
 	container_t container;
-	vector<value_t> activevertices;
-	
+
+	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE);
+	loadgraphobj->loadedges_columnwise(0, vertexptrbuffer, edgedatabuffer, vertexdatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
+	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, &container); // depreciated.
+	#ifndef COMPACTEDGES // FIXME. NOTNEAT.
+	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); // FIXME.
+	#endif 
+	loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer, &container, 1, PAGERANK);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
+
+	// run pagerank
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	for(unsigned int GraphIter=0; GraphIter<1; GraphIter++){
-		cout<< TIMINGRESULTSCOLOR <<">>> pagerank::run: graph iteration "<<GraphIter<<" of pagerank started"<< RESET <<endl;
-		
-		#ifdef GRAFBOOST_SETUP
-		setupkernelobj->startSRteration();
-		#endif
-		
-		for(unsigned int col=0; col<graphobj->getnumedgebanks(); col += 1){ //2 graphobj->getnumedgebanks()
-			cout<<endl<< TIMINGRESULTSCOLOR << ">>> pagerank::start2: super iteration: [col: "<<col<<"][size: "<<graphobj->getnumedgebanks()<<"][step: 1]"<< RESET <<endl;
-			WorkerThread(0, col, activevertices, &container, GraphIter);
-			cout<<">>> pagerank::start2 Finished: all threads joined..."<<endl;
-			break; // REMOVEME.
-		}
-		
-		activevertices.clear();
-		#ifdef ACTGRAPH_SETUP
-		postprocessobj->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, PAGERANK);
-		#endif 
-		#ifdef GRAFBOOST_SETUP
-		setupkernelobj->finishSRteration(GraphIter, activevertices); // NEWCHANGE.
-		#endif
-	}
-	finish();
-	utilityobj->stopTIME("pagerank::run: finished run. Time Elapsed: ", begintime, NAp);
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> pagerank::run: pagerank started."<< RESET <<endl;
+
+	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
+
+	utilityobj->stopTIME(">>> pagerank::finished:. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
 	graphobj->closefilesforreading();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
-}
-
-void pagerank::WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter){
-	vertex_t srcvoffset = 0;
-	unsigned int iteration_size = utilityobj->hceildiv(graphobj->getedgessize(col), EDGES_BATCHSIZE);
-	cout<<">>> WorkerThread:: total number of edges in file["<<col<<"]: "<<graphobj->getedgessize(col)<<endl;
-	if(graphobj->getedgessize(col) == 0){ cout<<">>> WorkerThread:: no edges. skipping..."<<endl; return; }
-	
-	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t **)kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-	#ifdef FPGA_IMPL
-	setupkernelobj->writetokernel(0, (uint512_vec_dt **)kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-	#endif
-	
-	for(unsigned int iteration_idx=0; iteration_idx<iteration_size; iteration_idx++){
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<endl<<"PP&A:: [col:"<<col<<"][size:"<<graphobj->getnumedgebanks()<<"][step:1], [iteration_idx:"<<iteration_idx<<"][size:"<<iteration_size<<"][step:1]"<<endl;		
-		#endif
-		
-		#ifdef INMEMORYGP
-		srcvoffset = loadgraphobj->loadedges_columnwise(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)kvbuffer, BASEOFFSET_EDGESDATA, container, PAGERANK);
-		loadgraphobj->loadvertexptrs(col, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, container);
-		#else 
-		srcvoffset = loadgraphobj->loadedges_columnwise(col, srcvoffset, vertexptrbuffer, edgedatabuffer, (edge_type **)edges, 0, container, PAGERANK);
-		#endif
-		#if defined(PR_ALGORITHM) && defined(COLLECTSTATSOFFLINE)
-		// loadgraphobj->loadkvstats((keyvalue_t **)kvbuffer, container);
-		loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, container); // FIXME.
-		#endif 
-		loadgraphobj->loadmessages((uint512_vec_dt **)kvbuffer, container, GraphIter, PAGERANK);
-		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(col, container->edgessize[i]); }
-		
-		#ifdef INMEMORYGP
-		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-		#else 
-		setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, graphobj->loadvertexptrsfromfile(col), vertexdatabuffer, (edge_type **)edges, 0);
-		#endif 
-	
-		// break; // REMOVEME.
-		// exit(EXIT_SUCCESS); // REMOVEME.
-	}
-	
-	#ifdef FPGA_IMPL
-	setupkernelobj->readfromkernel(0, (uint512_vec_dt **)kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-	#endif
-	postprocessobj->cummulateandcommitverticesdata((value_t **)kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
-	return;
 }
 
 

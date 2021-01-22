@@ -19,6 +19,8 @@ public:
 	void finish();
 	
 	runsummary_t run();
+	
+	void WorkerThread(unsigned int superthreadidx, unsigned int col, vector<vertex_t> &nextactivevertices, container_t * container, unsigned int GraphIter);
 					
 private:
 	graph * graphobj;

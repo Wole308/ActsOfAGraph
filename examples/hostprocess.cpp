@@ -53,6 +53,11 @@ int main(int argc, char** argv){
 	exit(EXIT_SUCCESS);
 	#endif
 	
+	#if defined(PR_ALGORITHM) && not defined(MERGEPROCESSEDGESANDPARTITIONSTAGE)
+	cout<<"hostprocess::main:: undefining MERGEPROCESSEDGESANDPARTITIONSTAGE not yet supported exiting..."<<endl; 
+	exit(EXIT_FAILURE);
+	#endif 
+	
 	#if (defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);	
 	pagerankobj->run();
