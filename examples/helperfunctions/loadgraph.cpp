@@ -184,7 +184,11 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	#ifdef COMPACTEDGES
 	unsigned int packingfactor = 1;
 	#else 
-	unsigned int packingfactor = 2;
+		#ifdef SINELEVALUEEDGETYPE
+		unsigned int packingfactor = 2;
+		#else 
+		unsigned int packingfactor = 1;
+		#endif
 	#endif
 	
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
@@ -207,7 +211,11 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 			#ifdef COMPACTEDGES
 			unsigned int subthread = (index / VECTOR_SIZE) % NUMSUBCPUTHREADS;
 			#else 
-			unsigned int subthread = (index / VECTOR2_SIZE) % NUMSUBCPUTHREADS;
+				#ifdef SINELEVALUEEDGETYPE
+				unsigned int subthread = (index / VECTOR2_SIZE) % NUMSUBCPUTHREADS;
+				#else 
+				unsigned int subthread = (index / VECTOR_SIZE) % NUMSUBCPUTHREADS; // FIXME. INCORRECT?
+				#endif 
 			#endif
 			
 			#ifdef _DEBUGMODE_CHECKS2
@@ -217,7 +225,12 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 			#ifdef COMPACTEDGES
 			edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]] = edgedatabuffer[index];
 			#else 
-			edges[subthread][packingfactor*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index].dstvid;
+				// edges[subthread][packingfactor*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index].dstvid;
+				#ifdef SINELEVALUEEDGETYPE // NEWCHANGE.
+				edges[subthread][2*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index].dstvid;
+				#else 
+				edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]] = edgedatabuffer[index]; // FIXME. INCORRECT?
+				#endif
 			#endif 
 			#ifdef _DEBUGMODE_HOSTPRINTS
 			cout<<"k: "<<k<<", subthread: "<<subthread<<", counts["<<subthread<<"]: "<<counts[subthread]<<", index: "<<index<<", edgedatabuffer["<<index<<"].dstvid: "<<edgedatabuffer[index].dstvid<<endl;
@@ -298,7 +311,11 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		#ifdef COMPACTEDGES 
 		uuint64_dt * edgesptr = (uuint64_dt *)&edges[i][baseoffset_edgedata];
 		#else 
-		edge_type * edgesptr = (edge_type *)&edges[i][baseoffset_edgedata];	
+			#ifdef SINELEVALUEEDGETYPE
+			edge_type * edgesptr = (edge_type *)&edges[i][baseoffset_edgedata];	
+			#else 
+			edge_type * edgesptr = (edge_type *)&edges[i][baseoffset_edgedata];	
+			#endif 
 		#endif
 		keyvalue_t * statsptr = (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM];
 		for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){ tempstats[k].key = 0; tempstats[k].value = 0; }
@@ -359,12 +376,11 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	}
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	// utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[0][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&edges[0][baseoffset_edgedata], 16);
-	// utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[0][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&edges[0][baseoffset_edgedata+container->runsize[0]-32], 16);
-	utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[2][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
-	// utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[2][BASEOFFSET_STATSDRAM], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
+	utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[0][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&edges[0][baseoffset_edgedata], 16);
+	utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[0][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&edges[0][baseoffset_edgedata+container->runsize[0]-32], 16);
+	utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[0][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
+	// utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[0][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[0][BASEOFFSET_STATSDRAM], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 	#endif
-	// exit(EXIT_SUCCESS);
 	return;
 }
 void loadgraph::loadactvvertices(vector<vertex_t> &srcvids, vptr_type * vptrs[NUMSUBCPUTHREADS], keyy_t * kvbuffer[NUMSUBCPUTHREADS], container_t * container){
@@ -673,8 +689,7 @@ void loadgraph::loadmessages(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], contai
 	cout<<"["; for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ totalsize += container->runsize[i]; cout<<container->runsize[i]; if(i<NUMSUBCPUTHREADS-1){ cout<<", "; }} cout<<"]";
 	cout<<"]"<<endl;
 	cout<<"loadmessages:: total sizes: "<<totalsize<<endl; 
-	#endif 
-	// exit(EXIT_SUCCESS);
+	#endif
 	return;
 }
 void loadgraph::createmessages(
@@ -733,9 +748,8 @@ void loadgraph::createmessages(
 		// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+partition...'
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (TREE_DEPTH);
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#endif 
 		
 		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
@@ -746,35 +760,12 @@ void loadgraph::createmessages(
 		#endif 
 		
 		#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-		NOT IMPLEMENTED.
-		#endif 
-		
-		
-		/* #if defined(INMEMORYGP) && not defined(MERGEPROCESSEDGESANDPARTITIONSTAGE)
-		// 'NB: first 1 is standard, second one is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
+		// 'NB: first param 1 is standard, second param is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1 + treedepth; // treedepth + 2;
+		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (1 + TREE_DEPTH);
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 2; // 1 + 3; // 'NB: first 1 is standard, second one is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1 + treedepth; // 1 + 3; // 'NB: first 1 is standard, second one is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		
-		#else 
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = treedepth + 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		
-		// exit(EXIT_SUCCESS);
-		
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 3; // 1 + 1 + treedepth; // 3;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		#endif */
+		#endif
 	}
 	
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BATCHRANGE].data[0].key = BATCH_RANGE; 

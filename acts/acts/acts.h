@@ -359,15 +359,26 @@ public:
 		travstate_t actvvtravstate,
 		globalparams_t globalparams);
 		
-	batch_type processactivevertices_noncompactedges(
+	// batch_type processactivevertices_noncompactedges(
+		// bool_type enable,
+		// uint512_dt * kvdram,
+		// keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		// keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		// keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		// travstate_t actvvtravstate,
+		// globalparams_t globalparams
+		// );
+	batch_type processactivevertices(
 		bool_type enable,
 		uint512_dt * kvdram,
 		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		#ifndef COMPACTEDGES
 		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		#endif 
 		travstate_t actvvtravstate,
-		globalparams_t globalparams
-		);
+		globalparams_t globalparams);
 
 	void dispatch(uint512_dt * kvdram);
 	

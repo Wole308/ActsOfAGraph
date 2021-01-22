@@ -20,13 +20,14 @@ public:
 	
 	runsummary_t run();
 	
+	void WorkerThread(vector<vertex_t> &currentactivevertices, container_t * container, unsigned int GraphIter);
+	
 private:
 	graph * graphobj;
 	parameters * parametersobj;
 	utility * utilityobj;
 	postprocess * postprocessobj;
 	loadgraph * loadgraphobj;
-	// compactgraph * compactgraphobj;
 	setupkernel * setupkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
@@ -35,11 +36,11 @@ private:
 	edge_t * vertexptrbuffer;
 	value_t * vertexdatabuffer;
 	value_t * tempvertexdatabuffer;
-	edge2_type * edgedatabuffer;
+	edge_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
-	
-	// edge_t * packedvertexptrbuffer;
-	// uuint64_dt * packededgedatabuffer;
+	edge_t * vertexptrs[NUMSUBCPUTHREADS];
+	value_t * verticesdata[NUMSUBCPUTHREADS];
+	edge_type * edges[NUMSUBCPUTHREADS];
 };
 #endif
 

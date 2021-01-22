@@ -2292,9 +2292,9 @@ reduce(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE
 			#ifdef ENABLE_PERFECTACCURACY
 			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 			#endif 
-			// #ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 1000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			// #endif 
+			#ifdef _DEBUGMODE_CHECKS2
+			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
+			#endif 
 			#endif
 			loc{{v}} = 0;
 		} // REMOVEME.
@@ -4999,6 +4999,7 @@ generateoffsets(
 	return numactvvs;		
 }
 
+// #ifdef KOOOKOOOO
 batch_type
 	#ifdef SW 
 	acts::
@@ -5172,7 +5173,9 @@ processactivevertices_compactedges(
 	#endif
 	return saveoffset_kvs;
 }
+// #endif 
 
+#ifdef KOOOKOOOO // ORIGINAL processactivevertices_noncompactedges
 // process edges phase for non compacted graph (bfs,sssp,etc.)		
 batch_type
 	#ifdef SW 
@@ -5250,7 +5253,7 @@ processactivevertices_noncompactedges(
 			
 			batch_type edges_size = edges_endoffset - edges_beginoffset;
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 			cout<<"processactivevertices_noncompactedges: sourcedata: "<<sourcedata<<endl;
 			cout<<"processactivevertices_noncompactedges: edges_beginoffset: "<<edges_beginoffset<<endl;	
 			cout<<"processactivevertices_noncompactedges: edges_endoffset: "<<edges_endoffset<<endl;	
@@ -5264,7 +5267,7 @@ processactivevertices_noncompactedges(
 			batch_type edgesend_kvs = edgesbegin_kvs + edgesize_kvs;
 			batch_type edgeid_kvs = edgesbegin_kvs;
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 			if((offset_kvs * VECTOR_SIZE) + actvv_id >= globalparams.actvvsize){ cout<<"INVALID active vertex entry. skipping..."<<endl; edgesize_kvs = 0; } //
 			cout<<"processactivevertices_noncompactedges: edgesbegin_kvs: "<<edgesbegin_kvs<<endl;
 			cout<<"processactivevertices_noncompactedges: edgesize_kvs: "<<edgesize_kvs<<endl;
@@ -5277,7 +5280,7 @@ processactivevertices_noncompactedges(
 			#ifdef _DEBUGMODE_CHECKS2
 			if(edges_endoffset < 1 && edgesize_kvs != 0){ cout<<"processactivevertices_noncompactedges: ERROR: edges_endoffset < 1. edges_endoffset: "<<edges_endoffset<<endl; exit(EXIT_FAILURE); }
 			#endif
-			#ifdef _DEBUGMODE_KERNELPRINTS
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 			cout<<"processactivevertices_noncompactedges: colstart: "<<colstart<<", colend: "<<colend<<endl;
 			#endif
 			
@@ -5304,12 +5307,12 @@ processactivevertices_noncompactedges(
 				
 				for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
 				#pragma HLS PIPELINE II=1
-					#ifdef _DEBUGMODE_KERNELPRINTS
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					cout<<"processactivevertices_noncompactedges.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
 					#endif
 					
 					E = getkeyvalues(kvdram, globalparams.baseoffset_edgesdata_kvs + edgeid_kvs);
-					#ifdef _DEBUGMODE_KERNELPRINTS
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 					{%for v in context['VECTOR_SIZE_seq']%}
 					cout<<"processactivevertices_noncompactedges: E.data[{{v}}].key: "<<E.data[{{v}}].key<<", E.data[{{v}}].value: "<<E.data[{{v}}].value<<endl;
 					{%endfor%}
@@ -5341,7 +5344,7 @@ processactivevertices_noncompactedges(
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if(en{{v}} == ON){ 
-						#ifdef _DEBUGMODE_KERNELPRINTS
+						#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 						cout<<"processactivevertices_noncompactedges: vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
 						#endif
 						buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
@@ -5350,7 +5353,7 @@ processactivevertices_noncompactedges(
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if(e2n{{v}} == ON){ 
-						#ifdef _DEBUGMODE_KERNELPRINTS
+						#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
 						cout<<"processactivevertices_noncompactedges: vertex2update{{v}}.key: "<<vertex2update{{v}}.key<<", vertex2update{{v}}.value: "<<vertex2update{{v}}.value<<endl;
 						#endif
 						buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
@@ -5372,6 +5375,7 @@ processactivevertices_noncompactedges(
 					
 					buffersize_kvs += 1;
 				}
+				
 				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_id == globalparams.actvvsize-1)){
 					#ifdef _DEBUGMODE_KERNELPRINTS2
 					cout<<"processactivevertices_noncompactedges: saving keyvalues @ actvv_id("<<actvv_id<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
@@ -5385,18 +5389,323 @@ processactivevertices_noncompactedges(
 				edgesread_kvs += workedgesize_kvs;
 				workedgesbegin_kvs += workedgesize_kvs;
 				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
-				
-				#ifdef _DEBUGMODE_CHECKS2
-				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
-				#endif
+				// #ifdef _DEBUGMODE_CHECKS2
+				// if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				// #endif
 				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
 				if(workedgesize_kvs == 0){ break; }
+				
 				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
 				if(errcount++ > 64){ cout<<"processactivevertices_noncompactedges:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
 				#endif
 			}
 		}
 	}
+	#ifdef _DEBUGMODE_STATS
+	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 0, edges_count);
+	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 1, edgesdstv_sum);
+	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 2, saveoffset_kvs);
+	#endif
+	return saveoffset_kvs;
+}
+#endif 
+
+batch_type
+	#ifdef SW 
+	acts::
+	#endif
+processactivevertices(
+		bool_type enable,
+		uint512_dt * kvdram,
+		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		#ifndef COMPACTEDGES
+		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		#endif 
+		travstate_t actvvtravstate,
+		globalparams_t globalparams){
+	if(enable == OFF){ return 0; }
+	unsigned int analysis_loop1 = 1;
+	unsigned int analysis_loop1b = 1;
+	unsigned int analysis_loop1c = 1;
+	unsigned int analysis_loop1d = 1;
+	
+	uint512_vec_dt E;
+	#pragma HLS ARRAY_PARTITION variable=E complete
+	
+	value_t buffersize_kvs = 0;
+	batch_type saveoffset_kvs = 0;
+	#ifdef _DEBUGMODE_STATS
+	unsigned int edges_count = 0;
+	unsigned int edgesdstv_sum = 0;
+	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	#endif
+
+	{%for v in context['VECTOR_SIZE_seq']%}
+	keyvalue_t vertexupdate{{v}};
+	keyvalue_t vertex2update{{v}};
+	bool_type en{{v}};
+	bool_type e2n{{v}};
+	{%endfor%}
+	keyvalue_t dummyvertexupdate; dummyvertexupdate.key = INVALIDDATA; dummyvertexupdate.value = INVALIDDATA;
+	value_t updateval = 1;
+	
+	// read active vertices
+	PROCACTVVS_LOOP1: for(batch_type offset_kvs=actvvtravstate.begin_kvs; offset_kvs<actvvtravstate.begin_kvs + actvvtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE / 2){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"### processactivevertices_noncompactedges: offset_kvs: "<<offset_kvs<<", actvvtravstate.begin_kvs: "<<actvvtravstate.begin_kvs<<", actvvtravstate.size_kvs: "<<actvvtravstate.size_kvs<<endl;
+		#endif
+		actvvtravstate.i_kvs = offset_kvs;
+		
+		// get offsets
+		#ifndef KOOOKOOOO
+		readkeyvalues(ON, kvdram, actvvs, globalparams.baseoffset_activevertices_kvs + offset_kvs, PADDEDDESTBUFFER_SIZE / 2, actvvtravstate);
+		buffer_type actvvscount = generateoffsets(kvdram, actvvs, offsets, actvvtravstate, globalparams);
+		#else
+		readkeyvalues(ON, kvdram, offsets, globalparams.baseoffset_activevertices_kvs + offset_kvs, PADDEDDESTBUFFER_SIZE / 2, actvvtravstate);
+		#endif
+		
+		PROCACTVVS_LOOP1B: for(batch_type actvv_index=0; actvv_index<actvvscount; actvv_index++){	
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1b avg=analysis_loop1b
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			cout<<"processactivevertices_noncompactedges:generate vertex updates: actvv_index: "<<actvv_index<<", num actvvs: "<<actvvscount<<endl;
+			#endif
+			
+			edge_t edges_beginoffset = offsets[actvv_index % VECTOR_SIZE][actvv_index / VECTOR_SIZE].key;
+			batch_type edges_size = offsets[actvv_index % VECTOR_SIZE][actvv_index / VECTOR_SIZE].value;
+			edge_t edges_endoffset = edges_beginoffset + edges_size;
+			
+			#ifdef COMPACTEDGES
+			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR_SIZE;
+			batch_type edgesize_kvs = (allignhigher_KV(edges_endoffset) - allignlower_KV(edges_beginoffset)) / VECTOR_SIZE;
+			#else 
+			batch_type edgesbegin_kvs = edges_beginoffset / VECTOR2_SIZE;
+			batch_type edgesize_kvs = (allignhigherto16_KV(edges_endoffset) - allignlowerto16_KV(edges_beginoffset)) / VECTOR2_SIZE;
+			#endif 
+			// batch_type edgesize_kvs = (allignhigher_KV(edges_endoffset) - allignlower_KV(edges_beginoffset)) / VECTOR_SIZE;
+			if((offset_kvs * VECTOR_SIZE) + actvv_index >= globalparams.actvvsize){ edgesize_kvs = 0; }
+			batch_type edgesend_kvs = edgesbegin_kvs + edgesize_kvs;
+			batch_type edgeid_kvs = edgesbegin_kvs;
+				
+			#ifdef COMPACTEDGES
+			vector_type colstart = edges_beginoffset % VECTOR_SIZE;
+			vector_type colend = (edges_endoffset-1) % VECTOR_SIZE;
+			#else 
+			vector_type colstart = edges_beginoffset % VECTOR2_SIZE;
+			vector_type colend = (edges_endoffset-1) % VECTOR2_SIZE;
+			#endif 
+			
+			edge_t edgesread_kvs = 0;
+			batch_type workedgesize_kvs = edgesize_kvs;
+			batch_type workedgesbegin_kvs = edgesbegin_kvs;
+			if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
+			#ifdef _DEBUGMODE_CHECKS2
+			unsigned int errcount = 0;
+			#endif
+			
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+			cout<<"generateoffsets:processactivevertices_noncompactedges: edges_beginoffset: "<<edges_beginoffset<<", actvv_index: "<<actvv_index<<endl;
+			#endif
+				
+			#ifdef COMPACTEDGES
+			PROCACTVVS_LOOP1C: while(true){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1c avg=analysis_loop1c
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("workedgesize_kvs 45", workedgesize_kvs, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+				#endif 
+				
+				PROCACTVVS_LOOP1D: for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
+				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1d avg=analysis_loop1d
+				#pragma HLS PIPELINE II=1
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					cout<<"processactivevertices_compactedges: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					#endif
+					
+					E = getkeyvalues(kvdram, globalparams.baseoffset_edgesdata_kvs + edgeid_kvs);
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					vertexupdate{{v}} = E.data[{{v}}];
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend))){ en{{v}} = OFF; }
+					else { en{{v}} = ON; }
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(en{{v}} == ON){ buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
+					else { buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					{%endfor%}
+					
+					buffersize_kvs += 1;
+					
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					{%for v in context['VECTOR_SIZE_seq']%}
+					actsutilityobj->PARSE("E.data[{{v}}]", E.data[{{v}}]);
+					if(en{{v}} == ON){ actsutilityobj->PARSE("vertexupdate{{v}}", vertexupdate{{v}}); }
+					{%endfor%}
+					#endif 
+					#ifdef _DEBUGMODE_CHECKS2
+					actsutilityobj->checkoutofbounds("buffersize_kvs 45", buffersize_kvs, PADDEDDESTBUFFER_SIZE + 1, workedgesbegin_kvs, edgeid_kvs, workedgesize_kvs);
+					#endif
+					#ifdef _DEBUGMODE_STATS
+					actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(en{{v}} == ON){ unsigned int numitems{{v}} = actsutilityobj->PARSE(vertexupdate{{v}}, keys);
+						actsutilityobj->globalstats_processedges_countvalidkvsprocessed(numitems{{v}}); edges_count += numitems{{v}}; 
+						for(unsigned int t=0; t<numitems{{v}}; t++){ edgesdstv_sum += keys[t]; }}
+					{%endfor%}
+					#endif
+				}
+				
+				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_index == globalparams.actvvsize-1)){
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					cout<<"processactivevertices_compactedges: saving keyvalues @ actvv_index("<<actvv_index<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					#endif 
+					savekeyvalues(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					saveoffset_kvs += buffersize_kvs;
+					buffersize_kvs = 0;
+				}
+				
+				edgesread_kvs += workedgesize_kvs;
+				workedgesbegin_kvs += workedgesize_kvs;
+				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
+				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
+				if(workedgesize_kvs == 0){ break; }
+				
+				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_compactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(errcount++ > 64){ cout<<"processactivevertices_compactedges:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif
+			}
+			#endif 
+			
+			#ifndef COMPACTEDGES
+			PROCACTVVS_LOOP1C: while(true){
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("buffer2 45", workedgesize_kvs, PADDEDDESTBUFFER_SIZE+1, NAp, NAp, NAp);
+				#endif 
+				
+				for(edgeid_kvs=workedgesbegin_kvs; edgeid_kvs<workedgesbegin_kvs + workedgesize_kvs; edgeid_kvs++){
+				#pragma HLS PIPELINE II=1
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					cout<<"processactivevertices_noncompactedges.for: edgeid_kvs: "<<edgeid_kvs<<", workedgesbegin_kvs: "<<workedgesbegin_kvs<<", workedgesize_kvs: "<<workedgesize_kvs<<endl;
+					#endif
+					
+					E = getkeyvalues(kvdram, globalparams.baseoffset_edgesdata_kvs + edgeid_kvs);
+					#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+					{%for v in context['VECTOR_SIZE_seq']%}
+					cout<<"processactivevertices_noncompactedges: E.data[{{v}}].key: "<<E.data[{{v}}].key<<", E.data[{{v}}].value: "<<E.data[{{v}}].value<<endl;
+					{%endfor%}
+					#endif
+					
+					{%for v in context['4_seq']%}
+					vertexupdate{{2*v}}.key = E.data[{{v}}].key;
+					vertexupdate{{2*v}}.value = updateval; 
+					vertexupdate{{2*v+1}}.key = E.data[{{v}}].value;
+					vertexupdate{{2*v+1}}.value = updateval; 
+					{%endfor%}
+					
+					{%for v in context['4_seq']%}
+					vertex2update{{2*v}}.key = E.data[{{4+v}}].key;
+					vertex2update{{2*v}}.value = updateval; 
+					vertex2update{{2*v+1}}.key = E.data[{{4+v}}].value;
+					vertex2update{{2*v+1}}.value = updateval;
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{v}} > colend))){ en{{v}} = OFF; }
+					else { en{{v}} = ON; }
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(((edgeid_kvs == edgesbegin_kvs) && ({{8+v}} < colstart)) || ((edgeid_kvs == edgesend_kvs-1) && ({{8+v}} > colend))){ e2n{{v}} = OFF; }
+					else { e2n{{v}} = ON; }
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(en{{v}} == ON){ 
+						#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+						cout<<"processactivevertices_noncompactedges: vertexupdate{{v}}.key: "<<vertexupdate{{v}}.key<<", vertexupdate{{v}}.value: "<<vertexupdate{{v}}.value<<endl;
+						#endif
+						buffer1[{{v}}][buffersize_kvs] = vertexupdate{{v}}; }
+					else { buffer1[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					{%endfor%}
+					
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(e2n{{v}} == ON){ 
+						#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+						cout<<"processactivevertices_noncompactedges: vertex2update{{v}}.key: "<<vertex2update{{v}}.key<<", vertex2update{{v}}.value: "<<vertex2update{{v}}.value<<endl;
+						#endif
+						buffer2[{{v}}][buffersize_kvs] = vertex2update{{v}}; }
+					else { buffer2[{{v}}][buffersize_kvs] = dummyvertexupdate; }
+					{%endfor%}
+					
+					#ifdef _DEBUGMODE_CHECKS2
+					actsutilityobj->checkoutofbounds("buffer2 45", buffersize_kvs, PADDEDDESTBUFFER_SIZE, workedgesbegin_kvs, edgeid_kvs, workedgesize_kvs);
+					#endif
+					#ifdef _DEBUGMODE_STATS
+					#ifdef COMPACTEDGES
+					actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
+					#else 
+					actsutilityobj->globalstats_countkvsprocessed(VECTOR2_SIZE);
+					#endif 
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(en{{v}} == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertexupdate{{v}}.key; }
+					{%endfor%}
+					{%for v in context['VECTOR_SIZE_seq']%}
+					if(e2n{{v}} == ON){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); edges_count += 1; edgesdstv_sum += vertex2update{{v}}.key; }
+					{%endfor%}
+					#endif
+					
+					buffersize_kvs += 1;
+				}
+				
+				if((buffersize_kvs >= PADDEDDESTBUFFER_SIZE) || ((offset_kvs * VECTOR_SIZE) + actvv_index == globalparams.actvvsize-1)){
+					#ifdef _DEBUGMODE_KERNELPRINTS2
+					cout<<"processactivevertices_noncompactedges: saving keyvalues @ actvv_index("<<actvv_index<<")... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+					#endif 
+					savekeyvalues(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+					savekeyvalues(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
+					saveoffset_kvs += 2 * buffersize_kvs;
+					buffersize_kvs = 0;
+				}
+				
+				edgesread_kvs += workedgesize_kvs;
+				workedgesbegin_kvs += workedgesize_kvs;
+				workedgesize_kvs = edgesize_kvs - edgesread_kvs;
+				if(buffersize_kvs + workedgesize_kvs > PADDEDDESTBUFFER_SIZE){ workedgesize_kvs = PADDEDDESTBUFFER_SIZE - buffersize_kvs; }
+				if(workedgesize_kvs == 0){ break; }
+				
+				#ifdef _DEBUGMODE_CHECKS2 // FIXME.
+				if(edgesize_kvs < workedgesize_kvs){ cout<<"processactivevertices_noncompactedges: ERROR: edgesize_kvs < workedgesize_kvs. exiting..."<<endl; exit(EXIT_FAILURE); }
+				if(errcount++ > 64){ cout<<"processactivevertices_noncompactedges:ERROR: errcount("<<errcount<<") > 312. exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif
+			}
+			#endif 
+		}
+	}
+	
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_PROCACTVVSPRINTS)
+	cout<<"processactivevertices_noncompactedges: saving keyvalues @ actvv_index(NAp)... saveoffset_kvs: "<<saveoffset_kvs<<", buffersize_kvs: "<<buffersize_kvs<<endl;
+	#endif 
+	#ifdef COMPACTEDGES
+	savekeyvalues(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs);
+	saveoffset_kvs += buffersize_kvs;
+	buffersize_kvs = 0;
+	#else 
+	savekeyvalues(ON, kvdram, buffer1, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs, buffersize_kvs); // THE DIFFERENCE.
+	savekeyvalues(ON, kvdram, buffer2, globalparams.baseoffset_kvdram_kvs + saveoffset_kvs + buffersize_kvs, buffersize_kvs);
+	saveoffset_kvs += 2 * buffersize_kvs;
+	buffersize_kvs = 0;
+	#endif 
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("processactivevertices_noncompactedges 44", saveoffset_kvs, KVDRAMSZ_KVS, NAp, NAp, NAp);
+	#endif
 	#ifdef _DEBUGMODE_STATS
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 0, edges_count);
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 1, edgesdstv_sum);
@@ -5511,17 +5820,7 @@ dispatch(uint512_dt * kvdram){
 			if(inprocessedgesstage(currentLOP) == true){ config.enableprocessedges = ON; config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = OFF; }  // FIXME. REMOVEME. use srcvoffset instead?
 			else { avtravstate.begin_kvs = 0; avtravstate.end_kvs = 0; config.enableprocessedges = OFF; }
 			#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-			if(inprocessedgesstage(currentLOP) == true){ 
-			
-			// readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
-			// for(partition_type p=0; p<NUM_PARTITIONS; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; } //'128' is safety padd // FIXME. REMOVEME.
-			// calculateoffsets(globalstatsbuffer, NUM_PARTITIONS, destoffset, skipsizes);
-			// saveglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
-			// resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0); 
-			
-			readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
-			
-			}
+			if(inprocessedgesstage(currentLOP) == true){ readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
 			#endif
 			#ifdef PR_ALGORITHM
 			processallvertices(
@@ -5543,19 +5842,25 @@ dispatch(uint512_dt * kvdram){
 				globalparams,
 				sweepparams,
 				avtravstate);
+				#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
+				if(inprocessedgesstage(currentLOP) == true){ saveglobalstats(config.enableprocessedges, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
+				#endif 
 			#else
 			globalparams.runsize_kvs = 
-				#ifdef COMPACTEDGES
-				processactivevertices_compactedges
-				#else 
-				processactivevertices_noncompactedges	
-				#endif 
-				(
+				// #ifdef COMPACTEDGES
+				// processactivevertices_compactedges
+				// #else 
+				// processactivevertices_noncompactedges	
+				// #endif 
+				processactivevertices(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,
 				buffer2,
 				buffer3,
+				#ifndef COMPACTEDGES
+				buffer4,
+				#endif 
 				avtravstate,
 				globalparams
 				);
@@ -5847,25 +6152,26 @@ dispatch_partitiononly(uint512_dt * kvdram,
 				#ifdef COMPACTEDGES
 				processactivevertices_compactedges
 				#else 
-				processactivevertices_noncompactedges	
+				processactivevertices_noncompactedges
 				#endif 
-				(
+			// processactivevertices
+			(
 				config.enableprocessedges,
 				kvdram,
 				buffer1,
 				buffer2,
 				buffer3,
+				#ifndef COMPACTEDGES
+				buffer4,
+				#endif
 				avtravstate,
 				globalparams
 				);
 			globalparams.runsize = globalparams.runsize_kvs * VECTOR_SIZE;
 			#endif 
-			#ifdef EMBEDDEDCOLLECTSTATS
+			#ifdef EMBEDDEDCOLLECTSTATS // FIXME. EMBEDDEDCOLLECTSTATS is DEPRECIATED.
 			prepareglobalstats2(config.enableprocessedges, buffer4, globalstatsbuffer, NUM_PARTITIONS, globalparams);
 			#endif
-			// #if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY) && defined(PR_ALGORITHM)
-			// if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); }
-			// #endif
 			#endif
 			
 			// collect stats
@@ -6502,20 +6808,15 @@ topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_d
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ globalparams[i].GraphIter = GraphIter; }
 		
-		dispatch_partitiononly(kvdram0, buffer10, buffer20, buffer30, globalparams[0]);
-		dispatch_partitiononly(kvdram1, buffer11, buffer21, buffer31, globalparams[1]);
-		dispatch_partitiononly(kvdram2, buffer12, buffer22, buffer32, globalparams[2]);
+		// dispatch_partitiononly(kvdram0, buffer10, buffer20, buffer30, globalparams[0]);
+		// dispatch_partitiononly(kvdram1, buffer11, buffer21, buffer31, globalparams[1]);
+		// dispatch_partitiononly(kvdram2, buffer12, buffer22, buffer32, globalparams[2]);
 		
-		dispatch_reduceonly(kvdram0, globalparams[0]);
-		dispatch_reduceonly(kvdram1, globalparams[1]);
-		dispatch_reduceonly(kvdram2, globalparams[2]);
-		exit(EXIT_SUCCESS);
+		// dispatch_reduceonly(kvdram0, globalparams[0]);
+		// dispatch_reduceonly(kvdram1, globalparams[1]);
+		// dispatch_reduceonly(kvdram2, globalparams[2]);
+		// exit(EXIT_SUCCESS);
 			
-			
-			
-			
-		
-	
 		if(globalparams[0].partitioncommand == ON){
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<">>> Light weight ACTS: Partitioning Instance: ";
@@ -6525,6 +6826,9 @@ topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_d
 			cout<<"{{i}} ";
 			#endif
 			dispatch_partitiononly(kvdram{{i}}, buffer1{{i}}, buffer2{{i}}, buffer3{{i}}, globalparams[{{i}}]);
+			
+			// exit(EXIT_SUCCESS);
+			
 			{%endfor%}
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<endl;
@@ -6546,7 +6850,11 @@ topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_d
 										actvvstravstate[0], globalparams); // globalparams[{{i}}]
 			#endif 
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-			NOT IMPLEMENTED.
+			actvvstravstate[0] = dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} 
+										{%for i in context['COMPUTEUNITS_seq']%}buffer1{{i}},{%endfor%} 
+										{%for i in context['COMPUTEUNITS_seq']%}buffer2{{i}},{%endfor%} 
+										{%for i in context['COMPUTEUNITS_seq']%}buffer3{{i}},{%endfor%} 
+										actvvstravstate[0], globalparams); // globalparams[{{i}}] // FIXME.
 			#endif 
 		}
 		#endif 

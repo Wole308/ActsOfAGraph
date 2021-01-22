@@ -588,18 +588,20 @@ void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned 
 void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 	unsigned int * skipspacing = new unsigned int[size];
 	for(unsigned int p=0; p<size; p++){ 
+		
 		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
-		
-		
-		
-		
 		unsigned int B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
 		if(B < 80){ B = B * 2; } 
-		// if(B < 80){ B = B * 4; } 
+		// if(B < 20){ B = B * 4; }
 		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
-		if(size == 16){ if(p < 16){ cout<<"--- stats["<<p<<"].value: "<<stats[p].value<<", skipspacing["<<p<<"]: "<<skipspacing[p]<<", A: "<<A<<", B: "<<B<<", C: "<<C<<endl; }}
+		// unsigned int B = (stats[p].value + ((SRCBUFFER_SIZE * VECTOR_SIZE) - 1)) / (SRCBUFFER_SIZE * VECTOR_SIZE);
+		// unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
+		// if(B < 20){ B = B * 4; } 
+		// skipspacing[p] = (B * C) + 128;
+		
+		// if(size == 16){ if(p < 16){ cout<<"--- stats["<<p<<"].value: "<<stats[p].value<<", skipspacing["<<p<<"]: "<<skipspacing[p]<<", B: "<<B<<", C: "<<C<<endl; }}
 		
 		// skipspacing[p] = 0;
 		// skipspacing[p] = skipspacing[p] * 2; // REMOVEME.

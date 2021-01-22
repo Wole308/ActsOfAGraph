@@ -40,25 +40,27 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 	utilityobj = new utility(); 
 	postprocessobj = new postprocess(graphobj, statsobj); 
 	loadgraphobj = new loadgraph(graphobj, statsobj); 
+	// compactgraphobj = new compactgraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }					
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }				
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 	#endif
-	#ifndef INMEMORYGP
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ vertexptrs[i] = new edge_t[KVDATA_RANGE]; } // FIXME. REMOVEME. size too large
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ verticesdata[i] = new value_t[KVDATA_RANGE]; } // FIXME. REMOVEME. size too large
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges[i] = new edge_type[MAXKVDATA_BATCHSIZE]; }
-	#endif 
+
+	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
+		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
+		// packededgedatabuffer = new uuint64_dt[2 * graphobj->get_num_edges()];
+	} else {
+		edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
+		// packededgedatabuffer = new uuint64_dt[graphobj->get_num_edges()];
+	}
+	// packedvertexptrbuffer = new edge_t[KVDATA_RANGE];
 	
 	#ifdef FPGA_IMPL
 	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
 	#endif
-	#ifdef GRAFBOOST_SETUP 
-	setupkernelobj->loadSRstructures();
-	#endif 
 }
 sssp::~sssp(){
 	cout<<"sssp::~sssp:: finish destroying memory structures... "<<endl;
@@ -77,106 +79,65 @@ runsummary_t sssp::run(){
 	vertexdatabuffer = graphobj->generateverticesdata();
 	tempvertexdatabuffer = graphobj->generatetempverticesdata();
 	graphobj->openfilesforreading(0);
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
-	container_t mycontainer;
+	// set root vid
+	unsigned int NumGraphIters = 1; // 6
+	container_t container;
 	vector<value_t> activevertices;
-	vertex_t rootvid = 1; // 2
-	activevertices.push_back(rootvid);
-	vertexdatabuffer[rootvid] = 0;
+
+	activevertices.push_back(1);
+	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
+	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
+	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
+	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
+	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
+	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
+	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
+	vector<value_t> activevertices2;
+	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
 	
+	// load workload
+	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE);
+	#ifndef COMPACTEDGES // FIXME. NOTNEAT.
+	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
+	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyy_t **)kvbuffer, &container);
+	#endif
+	loadgraphobj->loadmessages(kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
+	
+	// run sssp
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	unsigned int GraphIter = 0;
-	unsigned int active_cnt = activevertices.size();
-	while(true){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: graph iteration "<<GraphIter<<" of sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-		#ifdef _DEBUGMODE_HOSTPRINTS2
-		utilityobj->printvalues(">>> run: printing active vertices for current iteration", activevertices, utilityobj->hmin(activevertices.size(), 16));
-		#endif
-		
-		#ifdef GRAFBOOST_SETUP
-		setupkernelobj->startSRteration(); // NEWCHANGE.
-		#endif
-		
-		WorkerThread(activevertices, &mycontainer, GraphIter); 
-		
-		activevertices.clear();
-		#ifdef ACTGRAPH_SETUP
-		postprocessobj->applyvertices2(tempvertexdatabuffer, vertexdatabuffer, activevertices, SSSP);
-		#endif
-		#ifdef GRAFBOOST_SETUP
-		active_cnt = setupkernelobj->finishSRteration(GraphIter, activevertices);
-		#endif
-		active_cnt = activevertices.size();
-		
-		if(activevertices.size() == 0 || GraphIter >= 30){ break; }
-		GraphIter += 1;
-	}
-	cout<<endl;
-	finish();
-	utilityobj->stopTIME("sssp::start2: finished start2. Time Elapsed: ", begintime, NAp);
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+
+	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
+
+	utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
+	// verify 
+	// verify(activevertices);
+	// utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	// verifyvertexdata((keyvalue_t **)kvbuffer);
+	// verifyactvvsdata((keyvalue_t **)kvbuffer);
+	// verifykernelreturnvalues(kvbuffer);
+	// apply((keyvalue_t **)kvbuffer, activevertices);
+	
+	finish();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
-void sssp::WorkerThread(vector<vertex_t> &activevertices, container_t * container, unsigned int GraphIter){
-	for(unsigned int col=0; col<NUMSSDPARTITIONS; col++){
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<endl<< TIMINGRESULTSCOLOR << ">>> sssp::WorkerThread: [col: "<<col<<"][size: "<<NUMSSDPARTITIONS<<"][step: 1]"<< RESET <<endl;
-		#endif 
-		
-		vertex_t srcvidsoffset1 = 0;
-		vertex_t srcvidsoffset2 = 0;
-		vertex_t errcount = 0;
-		
-		loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, col * KVDATA_RANGE_PERSSDPARTITION, KVDATA_RANGE_PERSSDPARTITION);
-		#ifdef FPGA_IMPL
-		setupkernelobj->writetokernel(0, (uint512_vec_dt **)kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-		#endif
-		
-		while(true){
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<endl<< TIMINGRESULTSCOLOR << ">>> sssp::WorkerThread: [iteration: "<<errcount<<"][size: UNKNOWN][step: 1]"<< RESET <<endl;
-			#endif 
-		
-			edge_t totalnumedges = loadgraphobj->countedges(col, graphobj, activevertices, &srcvidsoffset1, EDGES_BATCHSIZE, container);
-			unsigned int lbedgesizes[NUMSUBCPUTHREADS];
-			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ lbedgesizes[i] = totalnumedges / NUMSUBCPUTHREADS; }
-			
-			#ifdef INMEMORYGP
-			loadgraphobj->loadactivesubgraph(col, graphobj, activevertices, (keyvalue_t **)kvbuffer, vertexdatabuffer, lbedgesizes, container);
-			#else 
-			loadgraphobj->loadactivesubgraph(col, graphobj, activevertices, srcvidsoffset2, vertexdatabuffer, vertexptrs, verticesdata, (edge2_type **)edges, lbedgesizes, container);
-			#endif
-			loadgraphobj->loadmessages(kvbuffer, container, GraphIter, SSSP);
-			for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(col, container->edgessize[i]); }
-			
-			#ifdef INMEMORYGP
-			setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
-			#else 
-			setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, vertexptrs, verticesdata, edges, 0);
-			#endif 
-			
-			if(srcvidsoffset1 >= activevertices.size()){ break; }
-			if(errcount >= 10){ cout<<"sssp::WorkerThread::ERROR. looping too long, error count ("<<errcount<<") limit reached. EXITING..."<<endl; exit(EXIT_FAILURE); }
-			errcount += 1;
-		}
-		
-		#ifdef FPGA_IMPL
-		setupkernelobj->readfromkernel(0, (uint512_vec_dt **)kvbuffer, BASEOFFSET_VERTICESDATA, BASEOFFSET_VERTICESDATA, (BATCH_RANGE / 2));
-		#endif
-		#ifdef ACTGRAPH_SETUP
-		postprocessobj->cummulateandcommitverticesdata((value_t **)kvbuffer, tempvertexdatabuffer, col * KVDATA_RANGE_PERSSDPARTITION);
-		#endif 
-		
-		// break; // REMOVEME.
-		// exit(EXIT_SUCCESS); // REMOVEME.
-	}
-	return;
-}
+
+
+
 
 
 

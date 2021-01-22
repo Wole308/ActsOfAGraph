@@ -71,6 +71,7 @@ runsummary_t pagerank::run(){
 	
 	container_t container;
 
+	// load workload
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE);
 	loadgraphobj->loadedges_columnwise(0, vertexptrbuffer, edgedatabuffer, vertexdatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, &container); // depreciated.
