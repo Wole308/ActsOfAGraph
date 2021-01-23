@@ -103,7 +103,6 @@ value_t algorithm::cummulate(value_t data1, value_t data2){
 value_t algorithm::vertex_initdata(){ 
 	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 	return UNVISITED;
-	// return INFINITI; 
 	#else 
 	return INFINITI; 
 	#endif 
@@ -134,7 +133,13 @@ value_t algorithm::cummulate(value_t data1, value_t data2){
 	if(data1 < data2){ return data1; }
 	else { return data2; }
 }
-value_t algorithm::vertex_initdata(){ return INFINITI; }
+value_t algorithm::vertex_initdata(){ 
+	#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
+	return 0x3FFFFFFF;
+	#else 
+	return INFINITI; 
+	#endif
+}
 value_t algorithm::vertex_inittempdata(){ return INFINITI; }
 uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
 	return vtempdata;

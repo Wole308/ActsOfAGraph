@@ -66,6 +66,7 @@ public:
 	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
 	ulong_dt GETMASK_ULONG(ulong_dt index, ulong_dt size);
 	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
+	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	unsigned int READFROM_ULONG(ulong_dt data, ulong_dt index, ulong_dt size);
 	unsigned int READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size);
 	void WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value);
@@ -166,6 +167,8 @@ public:
 	
 	void reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
+	void reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
+
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
 	keyvalue_t mergefunc_bfs(keyvalue_t data1, keyvalue_t data2, unsigned int GraphAlgo);
@@ -184,6 +187,10 @@ public:
 					{%for i in context['k_seq']%}
 					keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule{{i}}[8], buffer_type cutoffs{{i}}[VECTOR_SIZE],
 					{%endfor%}
+					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
+					
+	bool_type unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+					keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type * actvvtracker,
 					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 	// apply functions 
@@ -342,25 +349,26 @@ public:
 			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			travstate_t actvvtravstate, 
 			globalparams_t globalparams);
+			
+	void processoffsets(
+		uint512_dt * kvdram,
+		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		#ifndef COMPACTEDGES
+		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		#endif
+		globalparams_t globalparams,
+		batch_type offset_kvs,
+		buffer_type actvvscount,
+		travstate_t actvvtravstate,
+		value_t * _buffersize_kvs,
+		batch_type * _saveoffset_kvs,
+		#ifdef _DEBUGMODE_STATS
+		unsigned int * _edges_count,
+		unsigned int * _edgesdstv_sum
+		#endif
+		);
 	
-	// batch_type processactivevertices_compactedges(
-		// bool_type enable,
-		// uint512_dt * kvdram,
-		// keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		// keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		// keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		// travstate_t actvvtravstate,
-		// globalparams_t globalparams);
-		
-	// batch_type processactivevertices_noncompactedges(
-		// bool_type enable,
-		// uint512_dt * kvdram,
-		// keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		// keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		// keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		// travstate_t actvvtravstate,
-		// globalparams_t globalparams
-		// );
 	batch_type processactivevertices(
 		bool_type enable,
 		uint512_dt * kvdram,
@@ -372,14 +380,29 @@ public:
 		#endif 
 		travstate_t actvvtravstate,
 		globalparams_t globalparams);
-
+		
 	void dispatch(uint512_dt * kvdram);
 	
-	void dispatch_partitiononly(uint512_dt * kvdram, 
+	void dispatch_processandpartitiononly(uint512_dt * kvdram, 
 			keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			globalparams_t globalparams);
+			
+	void dispatch_processonly(
+		{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}  
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer4{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
+		globalparams_t globalparams[NUMCOMPUTEUNITS], batch_type * _sourcestatsmarker, batch_type * _deststatsmarker, batch_type * _destoffset);
+
+	void dispatch_partitiononly(uint512_dt * kvdram, 
+			keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+			keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+			keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+			globalparams_t * _globalparams,
+			batch_type * _sourcestatsmarker,
+			batch_type * _deststatsmarker,
+			batch_type * _destoffset);
 	
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	

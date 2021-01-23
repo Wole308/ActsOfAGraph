@@ -377,6 +377,7 @@ struct _bitData {
 #endif
 
 #define INFINITI ((1 << 30) - 1)
+// #define INFINITI (0xFFFFFFFF) // FIXME. is this better?
 
 #define NAp 666
 #define INVALIDDATA 123456789
@@ -404,6 +405,9 @@ struct _bitData {
 #define UNVISITED 0
 #define VISITED_IN_CURRENT_ITERATION 1
 #define VISITED_IN_PAST_ITERATION 3//3//2 // CRITICAL FIXME?
+
+#define INACTIVEINNEXTITERATION 0
+#define ACTIVEINNEXTITERATION 1
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

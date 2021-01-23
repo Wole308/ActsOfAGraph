@@ -309,22 +309,6 @@ void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * 
 						if(numerrorkeys < 8){
 							cout<<"bfs::verifykvLOP::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
 							utilityobj->PARSE(keyvalue, keys);
-							
-							/* /////////////////////////////////
-							unsigned long * llongword = (unsigned long *)&keyvalue;
-							
-							unsigned int streetaddr = utilityobj->READFROM_ULONG(*llongword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-							unsigned int numitems = utilityobj->READFROM_ULONG(*llongword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-							cout<<"streetaddr: "<<streetaddr<<endl;
-							cout<<"numitems: "<<numitems<<endl;
-							
-							unsigned int item = 0;
-							for(unsigned int i=0; i<numitems; i++){
-								item = utilityobj->READFROM_ULONG(*llongword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-								cout<<"item: "<<item<<endl;
-							}
-							////////////////////////////////////// */
-							
 							exit(EXIT_FAILURE);
 						}
 						cout<<"bfs::verifykvLOP::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
