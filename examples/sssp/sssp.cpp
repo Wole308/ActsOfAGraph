@@ -52,12 +52,9 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 
 	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
 		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
-		// packededgedatabuffer = new uuint64_dt[2 * graphobj->get_num_edges()];
 	} else {
 		edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
-		// packededgedatabuffer = new uuint64_dt[graphobj->get_num_edges()];
 	}
-	// packedvertexptrbuffer = new edge_t[KVDATA_RANGE];
 	
 	#ifdef FPGA_IMPL
 	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
@@ -88,14 +85,14 @@ runsummary_t sssp::run(){
 	container_t container;
 	vector<value_t> activevertices;
 
-	activevertices.push_back(1);
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -196,16 +193,18 @@ void sssp::verify(vector<vertex_t> &activevertices){
 	// 6th check 
 	unsigned int actvvsdstv1_sum = 0;
 	unsigned int cctv = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
 		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
+		// cout<<"~~~~~~~~~~~~~~~~~~~~~~~ sz: "<<sz<<endl;
 		if(i==0){ actvvs_verbosecount = sz; }
 		keyy_t * KK = (keyy_t *)&kvbuffer[i][BASEOFFSET_ACTIVEVERTICES_KVS];
 		unsigned int localactvvs_count = 0;
 		unsigned int localactvvsdstv1_sum = 0;
 		for(unsigned int k=0; k<sz; k++){
+			// cout<<"*************** sssp:verify: actvvid: "<<KK[k]<<endl;
 			if(KK[k] != INVALIDDATA){
 				if(i==0){
-					#ifdef _DEBUGMODE_HOSTPRINTS
+					#ifdef _DEBUGMODE_HOSTPRINTS3
 					if(cctv < 16){ cout<<"sssp:verify: actvvid: "<<KK[k]<<endl; }
 					#endif 
 					actvvs_count += 1;
@@ -242,7 +241,7 @@ void sssp::verify(vector<vertex_t> &activevertices){
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
 	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
-	/* if(CLOP == 1){
+	if(CLOP == 1){
 		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
 		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
 	} else if(CLOP == TREE_DEPTH){
@@ -251,7 +250,7 @@ void sssp::verify(vector<vertex_t> &activevertices){
 	} else {
 		if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
 		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} */
+	}
 	cout<<"sssp::verify: verify successful."<<endl;
 	#endif 
 	#endif
@@ -259,7 +258,7 @@ void sssp::verify(vector<vertex_t> &activevertices){
 }
 void sssp::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"sssp::verify. verifying kvbuffer..."<<endl;
+	cout<<"sssp::verifykvLOP. verifying kvbuffer..."<<endl;
 	#endif 
 	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	

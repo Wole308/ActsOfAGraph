@@ -927,7 +927,23 @@ setkey(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyy_t ke
 	setkeyvalues(keyvalues, offset_kvs, D);
 	return;
 }
-
+unsigned int 
+	#ifdef SW 
+	acts::
+	#endif
+fillintheblancks(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int index){
+	unsigned int rowindex = index / VECTOR2_SIZE;
+	unsigned int colindex = index % VECTOR2_SIZE;
+	if(index % VECTOR2_SIZE > 0){
+		for(unsigned int i=colindex; i<VECTOR2_SIZE; i++){
+			if(index % 2 == 0){ buffer[i / 2][rowindex / 2].key = INVALIDDATA; }
+			else { buffer[i / 2][rowindex / 2].value = INVALIDDATA; }
+			index += 1;
+		}
+	}
+	return index;
+}
+				
 // partition function
 partition_type
 	#ifdef SW 
@@ -2523,7 +2539,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		vertex_t loc{{v}} = keyvalue{{v}}.key - upperlimit;
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		{%endfor%}
@@ -2568,7 +2584,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		{%for v in context['VECTOR_SIZE_seq']%}
 		value_t temp{{v}}_code = READFROM_UINT(temp{{v}}, 30, 2);
 		value_t temp{{v}}_val = READFROM_UINT(temp{{v}}, 0, 30);
-		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
+		/* if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp{{v}}: "<<temp{{v}};
 			cout<<", temp{{v}}_code: "<<temp{{v}}_code;
 			cout<<", temp{{v}}_val: "<<temp{{v}}_val;
@@ -2576,7 +2592,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex{{v}}: "<<rowindex{{v}};
 			cout<<", colindex{{v}}: "<<colindex{{v}};
 			cout<<endl;
-		}
+		} */
 		
 		{%endfor%}
 		// exit(EXIT_SUCCESS);
@@ -2999,7 +3015,7 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
 	unsigned int nonzeroactvvsreturned = OFF;
 	unsigned int tempactvvtracker = *actvvtracker;
-
+	
 	UNIFYDATA_LOOP1: for(buffer_type i=0; i<size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=2
@@ -3030,14 +3046,14 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 				{%for i in context['COMPUTEUNITS_seq']%}
 				{%for v in context['VECTOR_SIZE_seq']%}
 				temp{{i}}{{v}}_code = READFROM_UINT(vdata{{i}}{{v}}.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp{{i}}{{v}}_val = READFROM_UINT(vdata{{i}}{{v}}.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp{{i}}{{v}}_val = READFROM_UINT(vdata{{i}}{{v}}.key, 0, 30); 
 				{%endfor%}
 				{%endfor%}
 			} else {
 				{%for i in context['COMPUTEUNITS_seq']%}
 				{%for v in context['VECTOR_SIZE_seq']%}
 				temp{{i}}{{v}}_code = READFROM_UINT(vdata{{i}}{{v}}.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp{{i}}{{v}}_val = READFROM_UINT(vdata{{i}}{{v}}.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp{{i}}{{v}}_val = READFROM_UINT(vdata{{i}}{{v}}.value, 0, 30); 
 				{%endfor%}
 				{%endfor%}
 			}
@@ -3095,25 +3111,27 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
 				unsigned int vid = voffset + i*2 + k;
 				
-				cout<<"------------- vid: "<<vid<<endl;
-				// exit(EXIT_SUCCESS);
+				// cout<<"unifydata_sssp_parallelsyn: vid: "<<vid<<endl;
 				
 				unsigned int rowindex = tempactvvtracker / VECTOR2_SIZE;
 				unsigned int colindex = tempactvvtracker % VECTOR2_SIZE;
 				
-				if(tempactvvtracker % 2 == 0){ actvvs[colindex / 2][rowindex / 2].key; }
-				else { actvvs[colindex / 2][rowindex / 2].value; }
+				if(tempactvvtracker % 2 == 0){ actvvs[colindex / 2][rowindex / 2].key = vid; }
+				else { actvvs[colindex / 2][rowindex / 2].value = vid; }
 				tempactvvtracker += 1;
 			}
 			
+			WRITETO_UINT(&z, 30, 2, INACTIVEINNEXTITERATION); // FIXME. use range for _WIDEWORD
+			
 			if(k==0){ 
 				destbuffer[dest_v][destoffset_kvs + dest_i].key = z;
-				dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; } // ****** CRITICAL FIXME. do for .value 
 			} else {
 				destbuffer[dest_v][destoffset_kvs + dest_i].value = z;
-				dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
 			}
 		}
+		
+		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; } //???
+		
 	}
 	
 	*actvvtracker = tempactvvtracker;
@@ -7147,10 +7165,10 @@ dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512
 			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
 			
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM) // save actvvs. FIXME. flush this one.
+			// if(actvvtracker > 0 || enableflush == ON)
 			if(actvvtracker > 0 || enableflush == ON){
-				cout<<"------------------- dispatch_reduceonly_parallelsync:: actvvtracker: "<<actvvtracker<<endl;
-				// savekeyvalues_pipeline_3sync(writeen_actvvs, {%for j in context['COMPUTEUNITS_seq']%}kvdram{{j}},{%endfor%} offsetsandsizes, actvvs0, actvvstravstate.i_kvs, (actvvtracker / 2) / VECTOR_SIZE, _globalparams); 
-				savekeyvalues(writeen_actvvs, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, (actvvtracker / 2) / VECTOR_SIZE); 
+				actvvtracker = fillintheblancks(actvvs0, actvvtracker);
+				savekeyvalues(writeen_actvvs, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, ((actvvtracker / 2) + (VECTOR_SIZE-1)) / VECTOR_SIZE   ); 
 				if(writeen_actvvs == ON){ actvvstravstate.i_kvs += (actvvtracker / 2) / VECTOR_SIZE; actvvstravstate.i += actvvtracker; }
 			}
 			#endif 

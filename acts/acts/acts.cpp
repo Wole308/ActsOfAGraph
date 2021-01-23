@@ -1165,7 +1165,23 @@ setkey(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyy_t ke
 	setkeyvalues(keyvalues, offset_kvs, D);
 	return;
 }
-
+unsigned int 
+	#ifdef SW 
+	acts::
+	#endif
+fillintheblancks(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int index){
+	unsigned int rowindex = index / VECTOR2_SIZE;
+	unsigned int colindex = index % VECTOR2_SIZE;
+	if(index % VECTOR2_SIZE > 0){
+		for(unsigned int i=colindex; i<VECTOR2_SIZE; i++){
+			if(index % 2 == 0){ buffer[i / 2][rowindex / 2].key = INVALIDDATA; }
+			else { buffer[i / 2][rowindex / 2].value = INVALIDDATA; }
+			index += 1;
+		}
+	}
+	return index;
+}
+				
 // partition function
 partition_type
 	#ifdef SW 
@@ -7367,7 +7383,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		vertex_t loc6 = keyvalue6.key - upperlimit;
 		vertex_t loc7 = keyvalue7.key - upperlimit;
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", keyvalue0.value: "<<keyvalue0.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", keyvalue1.value: "<<keyvalue1.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", keyvalue2.value: "<<keyvalue2.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
@@ -7576,7 +7592,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		
 		value_t temp0_code = READFROM_UINT(temp0, 30, 2);
 		value_t temp0_val = READFROM_UINT(temp0, 0, 30);
-		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
+		/* if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp0: "<<temp0;
 			cout<<", temp0_code: "<<temp0_code;
 			cout<<", temp0_val: "<<temp0_val;
@@ -7584,11 +7600,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex0: "<<rowindex0;
 			cout<<", colindex0: "<<colindex0;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp1_code = READFROM_UINT(temp1, 30, 2);
 		value_t temp1_val = READFROM_UINT(temp1, 0, 30);
-		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
+		/* if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp1: "<<temp1;
 			cout<<", temp1_code: "<<temp1_code;
 			cout<<", temp1_val: "<<temp1_val;
@@ -7596,11 +7612,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex1: "<<rowindex1;
 			cout<<", colindex1: "<<colindex1;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp2_code = READFROM_UINT(temp2, 30, 2);
 		value_t temp2_val = READFROM_UINT(temp2, 0, 30);
-		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
+		/* if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp2: "<<temp2;
 			cout<<", temp2_code: "<<temp2_code;
 			cout<<", temp2_val: "<<temp2_val;
@@ -7608,11 +7624,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex2: "<<rowindex2;
 			cout<<", colindex2: "<<colindex2;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp3_code = READFROM_UINT(temp3, 30, 2);
 		value_t temp3_val = READFROM_UINT(temp3, 0, 30);
-		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
+		/* if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp3: "<<temp3;
 			cout<<", temp3_code: "<<temp3_code;
 			cout<<", temp3_val: "<<temp3_val;
@@ -7620,11 +7636,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex3: "<<rowindex3;
 			cout<<", colindex3: "<<colindex3;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp4_code = READFROM_UINT(temp4, 30, 2);
 		value_t temp4_val = READFROM_UINT(temp4, 0, 30);
-		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
+		/* if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp4: "<<temp4;
 			cout<<", temp4_code: "<<temp4_code;
 			cout<<", temp4_val: "<<temp4_val;
@@ -7632,11 +7648,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex4: "<<rowindex4;
 			cout<<", colindex4: "<<colindex4;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp5_code = READFROM_UINT(temp5, 30, 2);
 		value_t temp5_val = READFROM_UINT(temp5, 0, 30);
-		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
+		/* if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp5: "<<temp5;
 			cout<<", temp5_code: "<<temp5_code;
 			cout<<", temp5_val: "<<temp5_val;
@@ -7644,11 +7660,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex5: "<<rowindex5;
 			cout<<", colindex5: "<<colindex5;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp6_code = READFROM_UINT(temp6, 30, 2);
 		value_t temp6_val = READFROM_UINT(temp6, 0, 30);
-		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
+		/* if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp6: "<<temp6;
 			cout<<", temp6_code: "<<temp6_code;
 			cout<<", temp6_val: "<<temp6_val;
@@ -7656,11 +7672,11 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex6: "<<rowindex6;
 			cout<<", colindex6: "<<colindex6;
 			cout<<endl;
-		}
+		} */
 		
 		value_t temp7_code = READFROM_UINT(temp7, 30, 2);
 		value_t temp7_val = READFROM_UINT(temp7, 0, 30);
-		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
+		/* if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
 			cout<<"reduce_sssp:: temp7: "<<temp7;
 			cout<<", temp7_code: "<<temp7_code;
 			cout<<", temp7_val: "<<temp7_val;
@@ -7668,7 +7684,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			cout<<", rowindex7: "<<rowindex7;
 			cout<<", colindex7: "<<colindex7;
 			cout<<endl;
-		}
+		} */
 		
 		// exit(EXIT_SUCCESS);
 		
@@ -8330,7 +8346,7 @@ unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZ
 	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
 	unsigned int nonzeroactvvsreturned = OFF;
 	unsigned int tempactvvtracker = *actvvtracker;
-
+	
 	UNIFYDATA_LOOP1: for(buffer_type i=0; i<size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=2
@@ -8745,518 +8761,518 @@ unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZ
 			
 			if(k==0){
 				temp00_code = READFROM_UINT(vdata00.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp00_val = READFROM_UINT(vdata00.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp00_val = READFROM_UINT(vdata00.key, 0, 30); 
 				temp01_code = READFROM_UINT(vdata01.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp01_val = READFROM_UINT(vdata01.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp01_val = READFROM_UINT(vdata01.key, 0, 30); 
 				temp02_code = READFROM_UINT(vdata02.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp02_val = READFROM_UINT(vdata02.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp02_val = READFROM_UINT(vdata02.key, 0, 30); 
 				temp03_code = READFROM_UINT(vdata03.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp03_val = READFROM_UINT(vdata03.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp03_val = READFROM_UINT(vdata03.key, 0, 30); 
 				temp04_code = READFROM_UINT(vdata04.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp04_val = READFROM_UINT(vdata04.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp04_val = READFROM_UINT(vdata04.key, 0, 30); 
 				temp05_code = READFROM_UINT(vdata05.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp05_val = READFROM_UINT(vdata05.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp05_val = READFROM_UINT(vdata05.key, 0, 30); 
 				temp06_code = READFROM_UINT(vdata06.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp06_val = READFROM_UINT(vdata06.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp06_val = READFROM_UINT(vdata06.key, 0, 30); 
 				temp07_code = READFROM_UINT(vdata07.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp07_val = READFROM_UINT(vdata07.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp07_val = READFROM_UINT(vdata07.key, 0, 30); 
 				temp10_code = READFROM_UINT(vdata10.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp10_val = READFROM_UINT(vdata10.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp10_val = READFROM_UINT(vdata10.key, 0, 30); 
 				temp11_code = READFROM_UINT(vdata11.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp11_val = READFROM_UINT(vdata11.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp11_val = READFROM_UINT(vdata11.key, 0, 30); 
 				temp12_code = READFROM_UINT(vdata12.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp12_val = READFROM_UINT(vdata12.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp12_val = READFROM_UINT(vdata12.key, 0, 30); 
 				temp13_code = READFROM_UINT(vdata13.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp13_val = READFROM_UINT(vdata13.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp13_val = READFROM_UINT(vdata13.key, 0, 30); 
 				temp14_code = READFROM_UINT(vdata14.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp14_val = READFROM_UINT(vdata14.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp14_val = READFROM_UINT(vdata14.key, 0, 30); 
 				temp15_code = READFROM_UINT(vdata15.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp15_val = READFROM_UINT(vdata15.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp15_val = READFROM_UINT(vdata15.key, 0, 30); 
 				temp16_code = READFROM_UINT(vdata16.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp16_val = READFROM_UINT(vdata16.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp16_val = READFROM_UINT(vdata16.key, 0, 30); 
 				temp17_code = READFROM_UINT(vdata17.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp17_val = READFROM_UINT(vdata17.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp17_val = READFROM_UINT(vdata17.key, 0, 30); 
 				temp20_code = READFROM_UINT(vdata20.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp20_val = READFROM_UINT(vdata20.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp20_val = READFROM_UINT(vdata20.key, 0, 30); 
 				temp21_code = READFROM_UINT(vdata21.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp21_val = READFROM_UINT(vdata21.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp21_val = READFROM_UINT(vdata21.key, 0, 30); 
 				temp22_code = READFROM_UINT(vdata22.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp22_val = READFROM_UINT(vdata22.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp22_val = READFROM_UINT(vdata22.key, 0, 30); 
 				temp23_code = READFROM_UINT(vdata23.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp23_val = READFROM_UINT(vdata23.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp23_val = READFROM_UINT(vdata23.key, 0, 30); 
 				temp24_code = READFROM_UINT(vdata24.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp24_val = READFROM_UINT(vdata24.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp24_val = READFROM_UINT(vdata24.key, 0, 30); 
 				temp25_code = READFROM_UINT(vdata25.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp25_val = READFROM_UINT(vdata25.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp25_val = READFROM_UINT(vdata25.key, 0, 30); 
 				temp26_code = READFROM_UINT(vdata26.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp26_val = READFROM_UINT(vdata26.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp26_val = READFROM_UINT(vdata26.key, 0, 30); 
 				temp27_code = READFROM_UINT(vdata27.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp27_val = READFROM_UINT(vdata27.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp27_val = READFROM_UINT(vdata27.key, 0, 30); 
 				temp30_code = READFROM_UINT(vdata30.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp30_val = READFROM_UINT(vdata30.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp30_val = READFROM_UINT(vdata30.key, 0, 30); 
 				temp31_code = READFROM_UINT(vdata31.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp31_val = READFROM_UINT(vdata31.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp31_val = READFROM_UINT(vdata31.key, 0, 30); 
 				temp32_code = READFROM_UINT(vdata32.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp32_val = READFROM_UINT(vdata32.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp32_val = READFROM_UINT(vdata32.key, 0, 30); 
 				temp33_code = READFROM_UINT(vdata33.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp33_val = READFROM_UINT(vdata33.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp33_val = READFROM_UINT(vdata33.key, 0, 30); 
 				temp34_code = READFROM_UINT(vdata34.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp34_val = READFROM_UINT(vdata34.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp34_val = READFROM_UINT(vdata34.key, 0, 30); 
 				temp35_code = READFROM_UINT(vdata35.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp35_val = READFROM_UINT(vdata35.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp35_val = READFROM_UINT(vdata35.key, 0, 30); 
 				temp36_code = READFROM_UINT(vdata36.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp36_val = READFROM_UINT(vdata36.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp36_val = READFROM_UINT(vdata36.key, 0, 30); 
 				temp37_code = READFROM_UINT(vdata37.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp37_val = READFROM_UINT(vdata37.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp37_val = READFROM_UINT(vdata37.key, 0, 30); 
 				temp40_code = READFROM_UINT(vdata40.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp40_val = READFROM_UINT(vdata40.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp40_val = READFROM_UINT(vdata40.key, 0, 30); 
 				temp41_code = READFROM_UINT(vdata41.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp41_val = READFROM_UINT(vdata41.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp41_val = READFROM_UINT(vdata41.key, 0, 30); 
 				temp42_code = READFROM_UINT(vdata42.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp42_val = READFROM_UINT(vdata42.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp42_val = READFROM_UINT(vdata42.key, 0, 30); 
 				temp43_code = READFROM_UINT(vdata43.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp43_val = READFROM_UINT(vdata43.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp43_val = READFROM_UINT(vdata43.key, 0, 30); 
 				temp44_code = READFROM_UINT(vdata44.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp44_val = READFROM_UINT(vdata44.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp44_val = READFROM_UINT(vdata44.key, 0, 30); 
 				temp45_code = READFROM_UINT(vdata45.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp45_val = READFROM_UINT(vdata45.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp45_val = READFROM_UINT(vdata45.key, 0, 30); 
 				temp46_code = READFROM_UINT(vdata46.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp46_val = READFROM_UINT(vdata46.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp46_val = READFROM_UINT(vdata46.key, 0, 30); 
 				temp47_code = READFROM_UINT(vdata47.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp47_val = READFROM_UINT(vdata47.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp47_val = READFROM_UINT(vdata47.key, 0, 30); 
 				temp50_code = READFROM_UINT(vdata50.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp50_val = READFROM_UINT(vdata50.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp50_val = READFROM_UINT(vdata50.key, 0, 30); 
 				temp51_code = READFROM_UINT(vdata51.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp51_val = READFROM_UINT(vdata51.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp51_val = READFROM_UINT(vdata51.key, 0, 30); 
 				temp52_code = READFROM_UINT(vdata52.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp52_val = READFROM_UINT(vdata52.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp52_val = READFROM_UINT(vdata52.key, 0, 30); 
 				temp53_code = READFROM_UINT(vdata53.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp53_val = READFROM_UINT(vdata53.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp53_val = READFROM_UINT(vdata53.key, 0, 30); 
 				temp54_code = READFROM_UINT(vdata54.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp54_val = READFROM_UINT(vdata54.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp54_val = READFROM_UINT(vdata54.key, 0, 30); 
 				temp55_code = READFROM_UINT(vdata55.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp55_val = READFROM_UINT(vdata55.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp55_val = READFROM_UINT(vdata55.key, 0, 30); 
 				temp56_code = READFROM_UINT(vdata56.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp56_val = READFROM_UINT(vdata56.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp56_val = READFROM_UINT(vdata56.key, 0, 30); 
 				temp57_code = READFROM_UINT(vdata57.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp57_val = READFROM_UINT(vdata57.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp57_val = READFROM_UINT(vdata57.key, 0, 30); 
 				temp60_code = READFROM_UINT(vdata60.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp60_val = READFROM_UINT(vdata60.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp60_val = READFROM_UINT(vdata60.key, 0, 30); 
 				temp61_code = READFROM_UINT(vdata61.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp61_val = READFROM_UINT(vdata61.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp61_val = READFROM_UINT(vdata61.key, 0, 30); 
 				temp62_code = READFROM_UINT(vdata62.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp62_val = READFROM_UINT(vdata62.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp62_val = READFROM_UINT(vdata62.key, 0, 30); 
 				temp63_code = READFROM_UINT(vdata63.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp63_val = READFROM_UINT(vdata63.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp63_val = READFROM_UINT(vdata63.key, 0, 30); 
 				temp64_code = READFROM_UINT(vdata64.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp64_val = READFROM_UINT(vdata64.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp64_val = READFROM_UINT(vdata64.key, 0, 30); 
 				temp65_code = READFROM_UINT(vdata65.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp65_val = READFROM_UINT(vdata65.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp65_val = READFROM_UINT(vdata65.key, 0, 30); 
 				temp66_code = READFROM_UINT(vdata66.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp66_val = READFROM_UINT(vdata66.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp66_val = READFROM_UINT(vdata66.key, 0, 30); 
 				temp67_code = READFROM_UINT(vdata67.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp67_val = READFROM_UINT(vdata67.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp67_val = READFROM_UINT(vdata67.key, 0, 30); 
 				temp70_code = READFROM_UINT(vdata70.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp70_val = READFROM_UINT(vdata70.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp70_val = READFROM_UINT(vdata70.key, 0, 30); 
 				temp71_code = READFROM_UINT(vdata71.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp71_val = READFROM_UINT(vdata71.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp71_val = READFROM_UINT(vdata71.key, 0, 30); 
 				temp72_code = READFROM_UINT(vdata72.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp72_val = READFROM_UINT(vdata72.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp72_val = READFROM_UINT(vdata72.key, 0, 30); 
 				temp73_code = READFROM_UINT(vdata73.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp73_val = READFROM_UINT(vdata73.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp73_val = READFROM_UINT(vdata73.key, 0, 30); 
 				temp74_code = READFROM_UINT(vdata74.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp74_val = READFROM_UINT(vdata74.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp74_val = READFROM_UINT(vdata74.key, 0, 30); 
 				temp75_code = READFROM_UINT(vdata75.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp75_val = READFROM_UINT(vdata75.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp75_val = READFROM_UINT(vdata75.key, 0, 30); 
 				temp76_code = READFROM_UINT(vdata76.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp76_val = READFROM_UINT(vdata76.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp76_val = READFROM_UINT(vdata76.key, 0, 30); 
 				temp77_code = READFROM_UINT(vdata77.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp77_val = READFROM_UINT(vdata77.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp77_val = READFROM_UINT(vdata77.key, 0, 30); 
 				temp80_code = READFROM_UINT(vdata80.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp80_val = READFROM_UINT(vdata80.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp80_val = READFROM_UINT(vdata80.key, 0, 30); 
 				temp81_code = READFROM_UINT(vdata81.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp81_val = READFROM_UINT(vdata81.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp81_val = READFROM_UINT(vdata81.key, 0, 30); 
 				temp82_code = READFROM_UINT(vdata82.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp82_val = READFROM_UINT(vdata82.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp82_val = READFROM_UINT(vdata82.key, 0, 30); 
 				temp83_code = READFROM_UINT(vdata83.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp83_val = READFROM_UINT(vdata83.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp83_val = READFROM_UINT(vdata83.key, 0, 30); 
 				temp84_code = READFROM_UINT(vdata84.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp84_val = READFROM_UINT(vdata84.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp84_val = READFROM_UINT(vdata84.key, 0, 30); 
 				temp85_code = READFROM_UINT(vdata85.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp85_val = READFROM_UINT(vdata85.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp85_val = READFROM_UINT(vdata85.key, 0, 30); 
 				temp86_code = READFROM_UINT(vdata86.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp86_val = READFROM_UINT(vdata86.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp86_val = READFROM_UINT(vdata86.key, 0, 30); 
 				temp87_code = READFROM_UINT(vdata87.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp87_val = READFROM_UINT(vdata87.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp87_val = READFROM_UINT(vdata87.key, 0, 30); 
 				temp90_code = READFROM_UINT(vdata90.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp90_val = READFROM_UINT(vdata90.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp90_val = READFROM_UINT(vdata90.key, 0, 30); 
 				temp91_code = READFROM_UINT(vdata91.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp91_val = READFROM_UINT(vdata91.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp91_val = READFROM_UINT(vdata91.key, 0, 30); 
 				temp92_code = READFROM_UINT(vdata92.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp92_val = READFROM_UINT(vdata92.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp92_val = READFROM_UINT(vdata92.key, 0, 30); 
 				temp93_code = READFROM_UINT(vdata93.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp93_val = READFROM_UINT(vdata93.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp93_val = READFROM_UINT(vdata93.key, 0, 30); 
 				temp94_code = READFROM_UINT(vdata94.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp94_val = READFROM_UINT(vdata94.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp94_val = READFROM_UINT(vdata94.key, 0, 30); 
 				temp95_code = READFROM_UINT(vdata95.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp95_val = READFROM_UINT(vdata95.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp95_val = READFROM_UINT(vdata95.key, 0, 30); 
 				temp96_code = READFROM_UINT(vdata96.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp96_val = READFROM_UINT(vdata96.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp96_val = READFROM_UINT(vdata96.key, 0, 30); 
 				temp97_code = READFROM_UINT(vdata97.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp97_val = READFROM_UINT(vdata97.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp97_val = READFROM_UINT(vdata97.key, 0, 30); 
 				temp100_code = READFROM_UINT(vdata100.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp100_val = READFROM_UINT(vdata100.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp100_val = READFROM_UINT(vdata100.key, 0, 30); 
 				temp101_code = READFROM_UINT(vdata101.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp101_val = READFROM_UINT(vdata101.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp101_val = READFROM_UINT(vdata101.key, 0, 30); 
 				temp102_code = READFROM_UINT(vdata102.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp102_val = READFROM_UINT(vdata102.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp102_val = READFROM_UINT(vdata102.key, 0, 30); 
 				temp103_code = READFROM_UINT(vdata103.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp103_val = READFROM_UINT(vdata103.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp103_val = READFROM_UINT(vdata103.key, 0, 30); 
 				temp104_code = READFROM_UINT(vdata104.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp104_val = READFROM_UINT(vdata104.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp104_val = READFROM_UINT(vdata104.key, 0, 30); 
 				temp105_code = READFROM_UINT(vdata105.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp105_val = READFROM_UINT(vdata105.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp105_val = READFROM_UINT(vdata105.key, 0, 30); 
 				temp106_code = READFROM_UINT(vdata106.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp106_val = READFROM_UINT(vdata106.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp106_val = READFROM_UINT(vdata106.key, 0, 30); 
 				temp107_code = READFROM_UINT(vdata107.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp107_val = READFROM_UINT(vdata107.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp107_val = READFROM_UINT(vdata107.key, 0, 30); 
 				temp110_code = READFROM_UINT(vdata110.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp110_val = READFROM_UINT(vdata110.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp110_val = READFROM_UINT(vdata110.key, 0, 30); 
 				temp111_code = READFROM_UINT(vdata111.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp111_val = READFROM_UINT(vdata111.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp111_val = READFROM_UINT(vdata111.key, 0, 30); 
 				temp112_code = READFROM_UINT(vdata112.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp112_val = READFROM_UINT(vdata112.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp112_val = READFROM_UINT(vdata112.key, 0, 30); 
 				temp113_code = READFROM_UINT(vdata113.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp113_val = READFROM_UINT(vdata113.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp113_val = READFROM_UINT(vdata113.key, 0, 30); 
 				temp114_code = READFROM_UINT(vdata114.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp114_val = READFROM_UINT(vdata114.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp114_val = READFROM_UINT(vdata114.key, 0, 30); 
 				temp115_code = READFROM_UINT(vdata115.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp115_val = READFROM_UINT(vdata115.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp115_val = READFROM_UINT(vdata115.key, 0, 30); 
 				temp116_code = READFROM_UINT(vdata116.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp116_val = READFROM_UINT(vdata116.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp116_val = READFROM_UINT(vdata116.key, 0, 30); 
 				temp117_code = READFROM_UINT(vdata117.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp117_val = READFROM_UINT(vdata117.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp117_val = READFROM_UINT(vdata117.key, 0, 30); 
 				temp120_code = READFROM_UINT(vdata120.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp120_val = READFROM_UINT(vdata120.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp120_val = READFROM_UINT(vdata120.key, 0, 30); 
 				temp121_code = READFROM_UINT(vdata121.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp121_val = READFROM_UINT(vdata121.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp121_val = READFROM_UINT(vdata121.key, 0, 30); 
 				temp122_code = READFROM_UINT(vdata122.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp122_val = READFROM_UINT(vdata122.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp122_val = READFROM_UINT(vdata122.key, 0, 30); 
 				temp123_code = READFROM_UINT(vdata123.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp123_val = READFROM_UINT(vdata123.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp123_val = READFROM_UINT(vdata123.key, 0, 30); 
 				temp124_code = READFROM_UINT(vdata124.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp124_val = READFROM_UINT(vdata124.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp124_val = READFROM_UINT(vdata124.key, 0, 30); 
 				temp125_code = READFROM_UINT(vdata125.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp125_val = READFROM_UINT(vdata125.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp125_val = READFROM_UINT(vdata125.key, 0, 30); 
 				temp126_code = READFROM_UINT(vdata126.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp126_val = READFROM_UINT(vdata126.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp126_val = READFROM_UINT(vdata126.key, 0, 30); 
 				temp127_code = READFROM_UINT(vdata127.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp127_val = READFROM_UINT(vdata127.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp127_val = READFROM_UINT(vdata127.key, 0, 30); 
 				temp130_code = READFROM_UINT(vdata130.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp130_val = READFROM_UINT(vdata130.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp130_val = READFROM_UINT(vdata130.key, 0, 30); 
 				temp131_code = READFROM_UINT(vdata131.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp131_val = READFROM_UINT(vdata131.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp131_val = READFROM_UINT(vdata131.key, 0, 30); 
 				temp132_code = READFROM_UINT(vdata132.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp132_val = READFROM_UINT(vdata132.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp132_val = READFROM_UINT(vdata132.key, 0, 30); 
 				temp133_code = READFROM_UINT(vdata133.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp133_val = READFROM_UINT(vdata133.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp133_val = READFROM_UINT(vdata133.key, 0, 30); 
 				temp134_code = READFROM_UINT(vdata134.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp134_val = READFROM_UINT(vdata134.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp134_val = READFROM_UINT(vdata134.key, 0, 30); 
 				temp135_code = READFROM_UINT(vdata135.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp135_val = READFROM_UINT(vdata135.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp135_val = READFROM_UINT(vdata135.key, 0, 30); 
 				temp136_code = READFROM_UINT(vdata136.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp136_val = READFROM_UINT(vdata136.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp136_val = READFROM_UINT(vdata136.key, 0, 30); 
 				temp137_code = READFROM_UINT(vdata137.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp137_val = READFROM_UINT(vdata137.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp137_val = READFROM_UINT(vdata137.key, 0, 30); 
 				temp140_code = READFROM_UINT(vdata140.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp140_val = READFROM_UINT(vdata140.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp140_val = READFROM_UINT(vdata140.key, 0, 30); 
 				temp141_code = READFROM_UINT(vdata141.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp141_val = READFROM_UINT(vdata141.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp141_val = READFROM_UINT(vdata141.key, 0, 30); 
 				temp142_code = READFROM_UINT(vdata142.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp142_val = READFROM_UINT(vdata142.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp142_val = READFROM_UINT(vdata142.key, 0, 30); 
 				temp143_code = READFROM_UINT(vdata143.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp143_val = READFROM_UINT(vdata143.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp143_val = READFROM_UINT(vdata143.key, 0, 30); 
 				temp144_code = READFROM_UINT(vdata144.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp144_val = READFROM_UINT(vdata144.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp144_val = READFROM_UINT(vdata144.key, 0, 30); 
 				temp145_code = READFROM_UINT(vdata145.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp145_val = READFROM_UINT(vdata145.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp145_val = READFROM_UINT(vdata145.key, 0, 30); 
 				temp146_code = READFROM_UINT(vdata146.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp146_val = READFROM_UINT(vdata146.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp146_val = READFROM_UINT(vdata146.key, 0, 30); 
 				temp147_code = READFROM_UINT(vdata147.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp147_val = READFROM_UINT(vdata147.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp147_val = READFROM_UINT(vdata147.key, 0, 30); 
 				temp150_code = READFROM_UINT(vdata150.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp150_val = READFROM_UINT(vdata150.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp150_val = READFROM_UINT(vdata150.key, 0, 30); 
 				temp151_code = READFROM_UINT(vdata151.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp151_val = READFROM_UINT(vdata151.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp151_val = READFROM_UINT(vdata151.key, 0, 30); 
 				temp152_code = READFROM_UINT(vdata152.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp152_val = READFROM_UINT(vdata152.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp152_val = READFROM_UINT(vdata152.key, 0, 30); 
 				temp153_code = READFROM_UINT(vdata153.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp153_val = READFROM_UINT(vdata153.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp153_val = READFROM_UINT(vdata153.key, 0, 30); 
 				temp154_code = READFROM_UINT(vdata154.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp154_val = READFROM_UINT(vdata154.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp154_val = READFROM_UINT(vdata154.key, 0, 30); 
 				temp155_code = READFROM_UINT(vdata155.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp155_val = READFROM_UINT(vdata155.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp155_val = READFROM_UINT(vdata155.key, 0, 30); 
 				temp156_code = READFROM_UINT(vdata156.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp156_val = READFROM_UINT(vdata156.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp156_val = READFROM_UINT(vdata156.key, 0, 30); 
 				temp157_code = READFROM_UINT(vdata157.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp157_val = READFROM_UINT(vdata157.key, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp157_val = READFROM_UINT(vdata157.key, 0, 30); 
 			} else {
 				temp00_code = READFROM_UINT(vdata00.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp00_val = READFROM_UINT(vdata00.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp00_val = READFROM_UINT(vdata00.value, 0, 30); 
 				temp01_code = READFROM_UINT(vdata01.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp01_val = READFROM_UINT(vdata01.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp01_val = READFROM_UINT(vdata01.value, 0, 30); 
 				temp02_code = READFROM_UINT(vdata02.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp02_val = READFROM_UINT(vdata02.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp02_val = READFROM_UINT(vdata02.value, 0, 30); 
 				temp03_code = READFROM_UINT(vdata03.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp03_val = READFROM_UINT(vdata03.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp03_val = READFROM_UINT(vdata03.value, 0, 30); 
 				temp04_code = READFROM_UINT(vdata04.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp04_val = READFROM_UINT(vdata04.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp04_val = READFROM_UINT(vdata04.value, 0, 30); 
 				temp05_code = READFROM_UINT(vdata05.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp05_val = READFROM_UINT(vdata05.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp05_val = READFROM_UINT(vdata05.value, 0, 30); 
 				temp06_code = READFROM_UINT(vdata06.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp06_val = READFROM_UINT(vdata06.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp06_val = READFROM_UINT(vdata06.value, 0, 30); 
 				temp07_code = READFROM_UINT(vdata07.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp07_val = READFROM_UINT(vdata07.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp07_val = READFROM_UINT(vdata07.value, 0, 30); 
 				temp10_code = READFROM_UINT(vdata10.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp10_val = READFROM_UINT(vdata10.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp10_val = READFROM_UINT(vdata10.value, 0, 30); 
 				temp11_code = READFROM_UINT(vdata11.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp11_val = READFROM_UINT(vdata11.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp11_val = READFROM_UINT(vdata11.value, 0, 30); 
 				temp12_code = READFROM_UINT(vdata12.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp12_val = READFROM_UINT(vdata12.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp12_val = READFROM_UINT(vdata12.value, 0, 30); 
 				temp13_code = READFROM_UINT(vdata13.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp13_val = READFROM_UINT(vdata13.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp13_val = READFROM_UINT(vdata13.value, 0, 30); 
 				temp14_code = READFROM_UINT(vdata14.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp14_val = READFROM_UINT(vdata14.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp14_val = READFROM_UINT(vdata14.value, 0, 30); 
 				temp15_code = READFROM_UINT(vdata15.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp15_val = READFROM_UINT(vdata15.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp15_val = READFROM_UINT(vdata15.value, 0, 30); 
 				temp16_code = READFROM_UINT(vdata16.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp16_val = READFROM_UINT(vdata16.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp16_val = READFROM_UINT(vdata16.value, 0, 30); 
 				temp17_code = READFROM_UINT(vdata17.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp17_val = READFROM_UINT(vdata17.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp17_val = READFROM_UINT(vdata17.value, 0, 30); 
 				temp20_code = READFROM_UINT(vdata20.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp20_val = READFROM_UINT(vdata20.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp20_val = READFROM_UINT(vdata20.value, 0, 30); 
 				temp21_code = READFROM_UINT(vdata21.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp21_val = READFROM_UINT(vdata21.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp21_val = READFROM_UINT(vdata21.value, 0, 30); 
 				temp22_code = READFROM_UINT(vdata22.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp22_val = READFROM_UINT(vdata22.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp22_val = READFROM_UINT(vdata22.value, 0, 30); 
 				temp23_code = READFROM_UINT(vdata23.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp23_val = READFROM_UINT(vdata23.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp23_val = READFROM_UINT(vdata23.value, 0, 30); 
 				temp24_code = READFROM_UINT(vdata24.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp24_val = READFROM_UINT(vdata24.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp24_val = READFROM_UINT(vdata24.value, 0, 30); 
 				temp25_code = READFROM_UINT(vdata25.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp25_val = READFROM_UINT(vdata25.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp25_val = READFROM_UINT(vdata25.value, 0, 30); 
 				temp26_code = READFROM_UINT(vdata26.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp26_val = READFROM_UINT(vdata26.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp26_val = READFROM_UINT(vdata26.value, 0, 30); 
 				temp27_code = READFROM_UINT(vdata27.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp27_val = READFROM_UINT(vdata27.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp27_val = READFROM_UINT(vdata27.value, 0, 30); 
 				temp30_code = READFROM_UINT(vdata30.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp30_val = READFROM_UINT(vdata30.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp30_val = READFROM_UINT(vdata30.value, 0, 30); 
 				temp31_code = READFROM_UINT(vdata31.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp31_val = READFROM_UINT(vdata31.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp31_val = READFROM_UINT(vdata31.value, 0, 30); 
 				temp32_code = READFROM_UINT(vdata32.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp32_val = READFROM_UINT(vdata32.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp32_val = READFROM_UINT(vdata32.value, 0, 30); 
 				temp33_code = READFROM_UINT(vdata33.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp33_val = READFROM_UINT(vdata33.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp33_val = READFROM_UINT(vdata33.value, 0, 30); 
 				temp34_code = READFROM_UINT(vdata34.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp34_val = READFROM_UINT(vdata34.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp34_val = READFROM_UINT(vdata34.value, 0, 30); 
 				temp35_code = READFROM_UINT(vdata35.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp35_val = READFROM_UINT(vdata35.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp35_val = READFROM_UINT(vdata35.value, 0, 30); 
 				temp36_code = READFROM_UINT(vdata36.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp36_val = READFROM_UINT(vdata36.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp36_val = READFROM_UINT(vdata36.value, 0, 30); 
 				temp37_code = READFROM_UINT(vdata37.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp37_val = READFROM_UINT(vdata37.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp37_val = READFROM_UINT(vdata37.value, 0, 30); 
 				temp40_code = READFROM_UINT(vdata40.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp40_val = READFROM_UINT(vdata40.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp40_val = READFROM_UINT(vdata40.value, 0, 30); 
 				temp41_code = READFROM_UINT(vdata41.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp41_val = READFROM_UINT(vdata41.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp41_val = READFROM_UINT(vdata41.value, 0, 30); 
 				temp42_code = READFROM_UINT(vdata42.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp42_val = READFROM_UINT(vdata42.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp42_val = READFROM_UINT(vdata42.value, 0, 30); 
 				temp43_code = READFROM_UINT(vdata43.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp43_val = READFROM_UINT(vdata43.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp43_val = READFROM_UINT(vdata43.value, 0, 30); 
 				temp44_code = READFROM_UINT(vdata44.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp44_val = READFROM_UINT(vdata44.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp44_val = READFROM_UINT(vdata44.value, 0, 30); 
 				temp45_code = READFROM_UINT(vdata45.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp45_val = READFROM_UINT(vdata45.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp45_val = READFROM_UINT(vdata45.value, 0, 30); 
 				temp46_code = READFROM_UINT(vdata46.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp46_val = READFROM_UINT(vdata46.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp46_val = READFROM_UINT(vdata46.value, 0, 30); 
 				temp47_code = READFROM_UINT(vdata47.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp47_val = READFROM_UINT(vdata47.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp47_val = READFROM_UINT(vdata47.value, 0, 30); 
 				temp50_code = READFROM_UINT(vdata50.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp50_val = READFROM_UINT(vdata50.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp50_val = READFROM_UINT(vdata50.value, 0, 30); 
 				temp51_code = READFROM_UINT(vdata51.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp51_val = READFROM_UINT(vdata51.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp51_val = READFROM_UINT(vdata51.value, 0, 30); 
 				temp52_code = READFROM_UINT(vdata52.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp52_val = READFROM_UINT(vdata52.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp52_val = READFROM_UINT(vdata52.value, 0, 30); 
 				temp53_code = READFROM_UINT(vdata53.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp53_val = READFROM_UINT(vdata53.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp53_val = READFROM_UINT(vdata53.value, 0, 30); 
 				temp54_code = READFROM_UINT(vdata54.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp54_val = READFROM_UINT(vdata54.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp54_val = READFROM_UINT(vdata54.value, 0, 30); 
 				temp55_code = READFROM_UINT(vdata55.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp55_val = READFROM_UINT(vdata55.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp55_val = READFROM_UINT(vdata55.value, 0, 30); 
 				temp56_code = READFROM_UINT(vdata56.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp56_val = READFROM_UINT(vdata56.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp56_val = READFROM_UINT(vdata56.value, 0, 30); 
 				temp57_code = READFROM_UINT(vdata57.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp57_val = READFROM_UINT(vdata57.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp57_val = READFROM_UINT(vdata57.value, 0, 30); 
 				temp60_code = READFROM_UINT(vdata60.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp60_val = READFROM_UINT(vdata60.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp60_val = READFROM_UINT(vdata60.value, 0, 30); 
 				temp61_code = READFROM_UINT(vdata61.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp61_val = READFROM_UINT(vdata61.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp61_val = READFROM_UINT(vdata61.value, 0, 30); 
 				temp62_code = READFROM_UINT(vdata62.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp62_val = READFROM_UINT(vdata62.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp62_val = READFROM_UINT(vdata62.value, 0, 30); 
 				temp63_code = READFROM_UINT(vdata63.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp63_val = READFROM_UINT(vdata63.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp63_val = READFROM_UINT(vdata63.value, 0, 30); 
 				temp64_code = READFROM_UINT(vdata64.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp64_val = READFROM_UINT(vdata64.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp64_val = READFROM_UINT(vdata64.value, 0, 30); 
 				temp65_code = READFROM_UINT(vdata65.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp65_val = READFROM_UINT(vdata65.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp65_val = READFROM_UINT(vdata65.value, 0, 30); 
 				temp66_code = READFROM_UINT(vdata66.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp66_val = READFROM_UINT(vdata66.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp66_val = READFROM_UINT(vdata66.value, 0, 30); 
 				temp67_code = READFROM_UINT(vdata67.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp67_val = READFROM_UINT(vdata67.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp67_val = READFROM_UINT(vdata67.value, 0, 30); 
 				temp70_code = READFROM_UINT(vdata70.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp70_val = READFROM_UINT(vdata70.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp70_val = READFROM_UINT(vdata70.value, 0, 30); 
 				temp71_code = READFROM_UINT(vdata71.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp71_val = READFROM_UINT(vdata71.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp71_val = READFROM_UINT(vdata71.value, 0, 30); 
 				temp72_code = READFROM_UINT(vdata72.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp72_val = READFROM_UINT(vdata72.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp72_val = READFROM_UINT(vdata72.value, 0, 30); 
 				temp73_code = READFROM_UINT(vdata73.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp73_val = READFROM_UINT(vdata73.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp73_val = READFROM_UINT(vdata73.value, 0, 30); 
 				temp74_code = READFROM_UINT(vdata74.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp74_val = READFROM_UINT(vdata74.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp74_val = READFROM_UINT(vdata74.value, 0, 30); 
 				temp75_code = READFROM_UINT(vdata75.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp75_val = READFROM_UINT(vdata75.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp75_val = READFROM_UINT(vdata75.value, 0, 30); 
 				temp76_code = READFROM_UINT(vdata76.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp76_val = READFROM_UINT(vdata76.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp76_val = READFROM_UINT(vdata76.value, 0, 30); 
 				temp77_code = READFROM_UINT(vdata77.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp77_val = READFROM_UINT(vdata77.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp77_val = READFROM_UINT(vdata77.value, 0, 30); 
 				temp80_code = READFROM_UINT(vdata80.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp80_val = READFROM_UINT(vdata80.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp80_val = READFROM_UINT(vdata80.value, 0, 30); 
 				temp81_code = READFROM_UINT(vdata81.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp81_val = READFROM_UINT(vdata81.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp81_val = READFROM_UINT(vdata81.value, 0, 30); 
 				temp82_code = READFROM_UINT(vdata82.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp82_val = READFROM_UINT(vdata82.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp82_val = READFROM_UINT(vdata82.value, 0, 30); 
 				temp83_code = READFROM_UINT(vdata83.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp83_val = READFROM_UINT(vdata83.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp83_val = READFROM_UINT(vdata83.value, 0, 30); 
 				temp84_code = READFROM_UINT(vdata84.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp84_val = READFROM_UINT(vdata84.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp84_val = READFROM_UINT(vdata84.value, 0, 30); 
 				temp85_code = READFROM_UINT(vdata85.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp85_val = READFROM_UINT(vdata85.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp85_val = READFROM_UINT(vdata85.value, 0, 30); 
 				temp86_code = READFROM_UINT(vdata86.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp86_val = READFROM_UINT(vdata86.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp86_val = READFROM_UINT(vdata86.value, 0, 30); 
 				temp87_code = READFROM_UINT(vdata87.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp87_val = READFROM_UINT(vdata87.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp87_val = READFROM_UINT(vdata87.value, 0, 30); 
 				temp90_code = READFROM_UINT(vdata90.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp90_val = READFROM_UINT(vdata90.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp90_val = READFROM_UINT(vdata90.value, 0, 30); 
 				temp91_code = READFROM_UINT(vdata91.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp91_val = READFROM_UINT(vdata91.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp91_val = READFROM_UINT(vdata91.value, 0, 30); 
 				temp92_code = READFROM_UINT(vdata92.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp92_val = READFROM_UINT(vdata92.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp92_val = READFROM_UINT(vdata92.value, 0, 30); 
 				temp93_code = READFROM_UINT(vdata93.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp93_val = READFROM_UINT(vdata93.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp93_val = READFROM_UINT(vdata93.value, 0, 30); 
 				temp94_code = READFROM_UINT(vdata94.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp94_val = READFROM_UINT(vdata94.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp94_val = READFROM_UINT(vdata94.value, 0, 30); 
 				temp95_code = READFROM_UINT(vdata95.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp95_val = READFROM_UINT(vdata95.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp95_val = READFROM_UINT(vdata95.value, 0, 30); 
 				temp96_code = READFROM_UINT(vdata96.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp96_val = READFROM_UINT(vdata96.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp96_val = READFROM_UINT(vdata96.value, 0, 30); 
 				temp97_code = READFROM_UINT(vdata97.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp97_val = READFROM_UINT(vdata97.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp97_val = READFROM_UINT(vdata97.value, 0, 30); 
 				temp100_code = READFROM_UINT(vdata100.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp100_val = READFROM_UINT(vdata100.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp100_val = READFROM_UINT(vdata100.value, 0, 30); 
 				temp101_code = READFROM_UINT(vdata101.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp101_val = READFROM_UINT(vdata101.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp101_val = READFROM_UINT(vdata101.value, 0, 30); 
 				temp102_code = READFROM_UINT(vdata102.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp102_val = READFROM_UINT(vdata102.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp102_val = READFROM_UINT(vdata102.value, 0, 30); 
 				temp103_code = READFROM_UINT(vdata103.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp103_val = READFROM_UINT(vdata103.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp103_val = READFROM_UINT(vdata103.value, 0, 30); 
 				temp104_code = READFROM_UINT(vdata104.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp104_val = READFROM_UINT(vdata104.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp104_val = READFROM_UINT(vdata104.value, 0, 30); 
 				temp105_code = READFROM_UINT(vdata105.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp105_val = READFROM_UINT(vdata105.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp105_val = READFROM_UINT(vdata105.value, 0, 30); 
 				temp106_code = READFROM_UINT(vdata106.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp106_val = READFROM_UINT(vdata106.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp106_val = READFROM_UINT(vdata106.value, 0, 30); 
 				temp107_code = READFROM_UINT(vdata107.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp107_val = READFROM_UINT(vdata107.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp107_val = READFROM_UINT(vdata107.value, 0, 30); 
 				temp110_code = READFROM_UINT(vdata110.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp110_val = READFROM_UINT(vdata110.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp110_val = READFROM_UINT(vdata110.value, 0, 30); 
 				temp111_code = READFROM_UINT(vdata111.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp111_val = READFROM_UINT(vdata111.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp111_val = READFROM_UINT(vdata111.value, 0, 30); 
 				temp112_code = READFROM_UINT(vdata112.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp112_val = READFROM_UINT(vdata112.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp112_val = READFROM_UINT(vdata112.value, 0, 30); 
 				temp113_code = READFROM_UINT(vdata113.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp113_val = READFROM_UINT(vdata113.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp113_val = READFROM_UINT(vdata113.value, 0, 30); 
 				temp114_code = READFROM_UINT(vdata114.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp114_val = READFROM_UINT(vdata114.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp114_val = READFROM_UINT(vdata114.value, 0, 30); 
 				temp115_code = READFROM_UINT(vdata115.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp115_val = READFROM_UINT(vdata115.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp115_val = READFROM_UINT(vdata115.value, 0, 30); 
 				temp116_code = READFROM_UINT(vdata116.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp116_val = READFROM_UINT(vdata116.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp116_val = READFROM_UINT(vdata116.value, 0, 30); 
 				temp117_code = READFROM_UINT(vdata117.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp117_val = READFROM_UINT(vdata117.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp117_val = READFROM_UINT(vdata117.value, 0, 30); 
 				temp120_code = READFROM_UINT(vdata120.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp120_val = READFROM_UINT(vdata120.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp120_val = READFROM_UINT(vdata120.value, 0, 30); 
 				temp121_code = READFROM_UINT(vdata121.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp121_val = READFROM_UINT(vdata121.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp121_val = READFROM_UINT(vdata121.value, 0, 30); 
 				temp122_code = READFROM_UINT(vdata122.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp122_val = READFROM_UINT(vdata122.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp122_val = READFROM_UINT(vdata122.value, 0, 30); 
 				temp123_code = READFROM_UINT(vdata123.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp123_val = READFROM_UINT(vdata123.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp123_val = READFROM_UINT(vdata123.value, 0, 30); 
 				temp124_code = READFROM_UINT(vdata124.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp124_val = READFROM_UINT(vdata124.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp124_val = READFROM_UINT(vdata124.value, 0, 30); 
 				temp125_code = READFROM_UINT(vdata125.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp125_val = READFROM_UINT(vdata125.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp125_val = READFROM_UINT(vdata125.value, 0, 30); 
 				temp126_code = READFROM_UINT(vdata126.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp126_val = READFROM_UINT(vdata126.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp126_val = READFROM_UINT(vdata126.value, 0, 30); 
 				temp127_code = READFROM_UINT(vdata127.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp127_val = READFROM_UINT(vdata127.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp127_val = READFROM_UINT(vdata127.value, 0, 30); 
 				temp130_code = READFROM_UINT(vdata130.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp130_val = READFROM_UINT(vdata130.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp130_val = READFROM_UINT(vdata130.value, 0, 30); 
 				temp131_code = READFROM_UINT(vdata131.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp131_val = READFROM_UINT(vdata131.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp131_val = READFROM_UINT(vdata131.value, 0, 30); 
 				temp132_code = READFROM_UINT(vdata132.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp132_val = READFROM_UINT(vdata132.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp132_val = READFROM_UINT(vdata132.value, 0, 30); 
 				temp133_code = READFROM_UINT(vdata133.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp133_val = READFROM_UINT(vdata133.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp133_val = READFROM_UINT(vdata133.value, 0, 30); 
 				temp134_code = READFROM_UINT(vdata134.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp134_val = READFROM_UINT(vdata134.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp134_val = READFROM_UINT(vdata134.value, 0, 30); 
 				temp135_code = READFROM_UINT(vdata135.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp135_val = READFROM_UINT(vdata135.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp135_val = READFROM_UINT(vdata135.value, 0, 30); 
 				temp136_code = READFROM_UINT(vdata136.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp136_val = READFROM_UINT(vdata136.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp136_val = READFROM_UINT(vdata136.value, 0, 30); 
 				temp137_code = READFROM_UINT(vdata137.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp137_val = READFROM_UINT(vdata137.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp137_val = READFROM_UINT(vdata137.value, 0, 30); 
 				temp140_code = READFROM_UINT(vdata140.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp140_val = READFROM_UINT(vdata140.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp140_val = READFROM_UINT(vdata140.value, 0, 30); 
 				temp141_code = READFROM_UINT(vdata141.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp141_val = READFROM_UINT(vdata141.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp141_val = READFROM_UINT(vdata141.value, 0, 30); 
 				temp142_code = READFROM_UINT(vdata142.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp142_val = READFROM_UINT(vdata142.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp142_val = READFROM_UINT(vdata142.value, 0, 30); 
 				temp143_code = READFROM_UINT(vdata143.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp143_val = READFROM_UINT(vdata143.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp143_val = READFROM_UINT(vdata143.value, 0, 30); 
 				temp144_code = READFROM_UINT(vdata144.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp144_val = READFROM_UINT(vdata144.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp144_val = READFROM_UINT(vdata144.value, 0, 30); 
 				temp145_code = READFROM_UINT(vdata145.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp145_val = READFROM_UINT(vdata145.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp145_val = READFROM_UINT(vdata145.value, 0, 30); 
 				temp146_code = READFROM_UINT(vdata146.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp146_val = READFROM_UINT(vdata146.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp146_val = READFROM_UINT(vdata146.value, 0, 30); 
 				temp147_code = READFROM_UINT(vdata147.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp147_val = READFROM_UINT(vdata147.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp147_val = READFROM_UINT(vdata147.value, 0, 30); 
 				temp150_code = READFROM_UINT(vdata150.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp150_val = READFROM_UINT(vdata150.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp150_val = READFROM_UINT(vdata150.value, 0, 30); 
 				temp151_code = READFROM_UINT(vdata151.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp151_val = READFROM_UINT(vdata151.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp151_val = READFROM_UINT(vdata151.value, 0, 30); 
 				temp152_code = READFROM_UINT(vdata152.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp152_val = READFROM_UINT(vdata152.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp152_val = READFROM_UINT(vdata152.value, 0, 30); 
 				temp153_code = READFROM_UINT(vdata153.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp153_val = READFROM_UINT(vdata153.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp153_val = READFROM_UINT(vdata153.value, 0, 30); 
 				temp154_code = READFROM_UINT(vdata154.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp154_val = READFROM_UINT(vdata154.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp154_val = READFROM_UINT(vdata154.value, 0, 30); 
 				temp155_code = READFROM_UINT(vdata155.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp155_val = READFROM_UINT(vdata155.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp155_val = READFROM_UINT(vdata155.value, 0, 30); 
 				temp156_code = READFROM_UINT(vdata156.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp156_val = READFROM_UINT(vdata156.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp156_val = READFROM_UINT(vdata156.value, 0, 30); 
 				temp157_code = READFROM_UINT(vdata157.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp157_val = READFROM_UINT(vdata157.value, 0, 30); // ****** CRITICAL FIXME. do for .value 
+				temp157_val = READFROM_UINT(vdata157.value, 0, 30); 
 			}
 			
 			/* 			if(temp00_val < 100000){ cout<<"unifydata_sssp_parallelsyn:: temp00_val: "<<temp00_val<<", i: "<<i<<endl; }
@@ -9675,25 +9691,27 @@ unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZ
 				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
 				unsigned int vid = voffset + i*2 + k;
 				
-				cout<<"------------- vid: "<<vid<<endl;
-				// exit(EXIT_SUCCESS);
+				// cout<<"unifydata_sssp_parallelsyn: vid: "<<vid<<endl;
 				
 				unsigned int rowindex = tempactvvtracker / VECTOR2_SIZE;
 				unsigned int colindex = tempactvvtracker % VECTOR2_SIZE;
 				
-				if(tempactvvtracker % 2 == 0){ actvvs[colindex / 2][rowindex / 2].key; }
-				else { actvvs[colindex / 2][rowindex / 2].value; }
+				if(tempactvvtracker % 2 == 0){ actvvs[colindex / 2][rowindex / 2].key = vid; }
+				else { actvvs[colindex / 2][rowindex / 2].value = vid; }
 				tempactvvtracker += 1;
 			}
 			
+			WRITETO_UINT(&z, 30, 2, INACTIVEINNEXTITERATION); // FIXME. use range for _WIDEWORD
+			
 			if(k==0){ 
 				destbuffer[dest_v][destoffset_kvs + dest_i].key = z;
-				dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; } // ****** CRITICAL FIXME. do for .value 
 			} else {
 				destbuffer[dest_v][destoffset_kvs + dest_i].value = z;
-				dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
 			}
 		}
+		
+		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; } //???
+		
 	}
 	
 	*actvvtracker = tempactvvtracker;
@@ -15167,7 +15185,6 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	unsigned int reducesubchunksz = (_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2; // NOT USED.
 	unsigned int reducechunksz_kvs = (reducesubchunksz * LOADFACTORFORREDUCE) / VECTOR_SIZE;
 
-	// MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions + 1; source_partition+=_globalparams.loadfactorforreduce){
 	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions + 1; source_partition+=_globalparams.loadfactorforreduce){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_sourceploop avg=analysis_sourceploop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -15549,34 +15566,22 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 8)){
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);
-					
 					savekeyvalues(writeen_actvvs, kvdram0, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE); 
-				
-					// savekeyvalues_pipeline_3sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount_actvvs, _globalparams);
-					
 					savekeyvalues(writeen_actvvs, kvdram0, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE); 
-				
-					// savekeyvalues_pipeline_3sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount_actvvs, _globalparams);
-					
 					savekeyvalues(writeen_actvvs, kvdram0, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE); 
-				
-					// savekeyvalues_pipeline_3sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, offsetsandsizes, buffer0_setof8, actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount_actvvs, _globalparams);
-					
 					savekeyvalues(writeen_actvvs, kvdram0, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE); 
-				
-					// savekeyvalues_pipeline_3sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, offsetsandsizes, buffer1_setof8, actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE, _globalparams); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					itercount_actvvs += 1;
 				}
@@ -15588,9 +15593,10 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
 			
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM) // save actvvs. FIXME. flush this one.
+			// if(actvvtracker > 0 || enableflush == ON)
 			if(actvvtracker > 0 || enableflush == ON){
-				cout<<"------------------- dispatch_reduceonly_parallelsync:: actvvtracker: "<<actvvtracker<<endl;
-				// savekeyvalues_pipeline_3sync(writeen_actvvs, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, offsetsandsizes, actvvs0, actvvstravstate.i_kvs, (actvvtracker / 2) / VECTOR_SIZE, _globalparams); 
+				actvvtracker = fillintheblancks(actvvs0, actvvtracker);
+				savekeyvalues(writeen_actvvs, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, ((actvvtracker / 2) + (VECTOR_SIZE-1)) / VECTOR_SIZE   ); 
 				if(writeen_actvvs == ON){ actvvstravstate.i_kvs += (actvvtracker / 2) / VECTOR_SIZE; actvvstravstate.i += actvvtracker; }
 			}
 			#endif 
