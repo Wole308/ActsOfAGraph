@@ -33,6 +33,7 @@ public:
 	void checkfordivisibleby(unsigned int enable, string message, unsigned int data, unsigned int n);
 	void print1(string messagea, unsigned int dataa);
 	void print2(string messagea, string messageb, unsigned int dataa, unsigned int datab);
+	void print3(string messagea, string messageb, string messagec, unsigned int dataa, unsigned int datab, unsigned int datac);
 	void print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad);
 	void print5(string messagea, string messageb, string messagec, string messaged, string messagee, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae);
 	void print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef);

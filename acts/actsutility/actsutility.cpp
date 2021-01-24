@@ -142,6 +142,9 @@ void actsutility::print1(string messagea, unsigned int dataa){
 void actsutility::print2(string messagea, string messageb, unsigned int dataa, unsigned int datab){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<endl;
 }
+void actsutility::print3(string messagea, string messageb, string messagec, unsigned int dataa, unsigned int datab, unsigned int datac){
+	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<endl;
+}
 void actsutility::print4(string messagea, string messageb, string messagec, string messaged, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<endl;
 }

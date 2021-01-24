@@ -2703,12 +2703,12 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs - BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(offset_kvs >= BASEOFFSET_VERTEXPTR_KVS && offset_kvs < BASEOFFSET_VERTEXPTR_KVS + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs - BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(offset_kvs >= BASEOFFSET_VERTICESDATA_KVS && offset_kvs < BASEOFFSET_VERTICESDATA_KVS + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(offset_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs - BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
 	#endif
 	return;
 }
@@ -2755,12 +2755,12 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
 		#endif
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"savekeyvalues:: vertices saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(offset_kvs >= BASEOFFSET_VERTEXPTR_KVS && offset_kvs < BASEOFFSET_VERTEXPTR_KVS + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(offset_kvs >= BASEOFFSET_VERTICESDATA_KVS && offset_kvs < BASEOFFSET_VERTICESDATA_KVS + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
 	#endif
 	return;
 }
@@ -8374,133 +8374,645 @@ unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZ
 			value_t code15 = 0;
 			
 			keyvalue_t vdata00 = sourcebuffer0[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata00.key == INVALIDDATA || vdata00.value == INVALIDDATA){ cout<<"vdata00.key == INVALIDDATA || vdata00.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata01 = sourcebuffer0[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata01.key == INVALIDDATA || vdata01.value == INVALIDDATA){ cout<<"vdata01.key == INVALIDDATA || vdata01.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata02 = sourcebuffer0[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata02.key == INVALIDDATA || vdata02.value == INVALIDDATA){ cout<<"vdata02.key == INVALIDDATA || vdata02.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata03 = sourcebuffer0[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata03.key == INVALIDDATA || vdata03.value == INVALIDDATA){ cout<<"vdata03.key == INVALIDDATA || vdata03.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata04 = sourcebuffer0[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata04.key == INVALIDDATA || vdata04.value == INVALIDDATA){ cout<<"vdata04.key == INVALIDDATA || vdata04.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata05 = sourcebuffer0[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata05.key == INVALIDDATA || vdata05.value == INVALIDDATA){ cout<<"vdata05.key == INVALIDDATA || vdata05.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata06 = sourcebuffer0[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata06.key == INVALIDDATA || vdata06.value == INVALIDDATA){ cout<<"vdata06.key == INVALIDDATA || vdata06.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata07 = sourcebuffer0[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata07.key == INVALIDDATA || vdata07.value == INVALIDDATA){ cout<<"vdata07.key == INVALIDDATA || vdata07.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata10 = sourcebuffer1[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata10.key == INVALIDDATA || vdata10.value == INVALIDDATA){ cout<<"vdata10.key == INVALIDDATA || vdata10.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata11 = sourcebuffer1[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata11.key == INVALIDDATA || vdata11.value == INVALIDDATA){ cout<<"vdata11.key == INVALIDDATA || vdata11.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata12 = sourcebuffer1[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata12.key == INVALIDDATA || vdata12.value == INVALIDDATA){ cout<<"vdata12.key == INVALIDDATA || vdata12.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata13 = sourcebuffer1[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata13.key == INVALIDDATA || vdata13.value == INVALIDDATA){ cout<<"vdata13.key == INVALIDDATA || vdata13.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata14 = sourcebuffer1[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata14.key == INVALIDDATA || vdata14.value == INVALIDDATA){ cout<<"vdata14.key == INVALIDDATA || vdata14.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata15 = sourcebuffer1[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata15.key == INVALIDDATA || vdata15.value == INVALIDDATA){ cout<<"vdata15.key == INVALIDDATA || vdata15.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata16 = sourcebuffer1[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata16.key == INVALIDDATA || vdata16.value == INVALIDDATA){ cout<<"vdata16.key == INVALIDDATA || vdata16.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata17 = sourcebuffer1[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata17.key == INVALIDDATA || vdata17.value == INVALIDDATA){ cout<<"vdata17.key == INVALIDDATA || vdata17.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata20 = sourcebuffer2[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata20.key == INVALIDDATA || vdata20.value == INVALIDDATA){ cout<<"vdata20.key == INVALIDDATA || vdata20.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata21 = sourcebuffer2[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata21.key == INVALIDDATA || vdata21.value == INVALIDDATA){ cout<<"vdata21.key == INVALIDDATA || vdata21.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata22 = sourcebuffer2[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata22.key == INVALIDDATA || vdata22.value == INVALIDDATA){ cout<<"vdata22.key == INVALIDDATA || vdata22.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata23 = sourcebuffer2[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata23.key == INVALIDDATA || vdata23.value == INVALIDDATA){ cout<<"vdata23.key == INVALIDDATA || vdata23.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata24 = sourcebuffer2[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata24.key == INVALIDDATA || vdata24.value == INVALIDDATA){ cout<<"vdata24.key == INVALIDDATA || vdata24.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata25 = sourcebuffer2[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata25.key == INVALIDDATA || vdata25.value == INVALIDDATA){ cout<<"vdata25.key == INVALIDDATA || vdata25.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata26 = sourcebuffer2[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata26.key == INVALIDDATA || vdata26.value == INVALIDDATA){ cout<<"vdata26.key == INVALIDDATA || vdata26.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata27 = sourcebuffer2[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata27.key == INVALIDDATA || vdata27.value == INVALIDDATA){ cout<<"vdata27.key == INVALIDDATA || vdata27.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata30 = sourcebuffer3[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata30.key == INVALIDDATA || vdata30.value == INVALIDDATA){ cout<<"vdata30.key == INVALIDDATA || vdata30.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata31 = sourcebuffer3[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata31.key == INVALIDDATA || vdata31.value == INVALIDDATA){ cout<<"vdata31.key == INVALIDDATA || vdata31.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata32 = sourcebuffer3[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata32.key == INVALIDDATA || vdata32.value == INVALIDDATA){ cout<<"vdata32.key == INVALIDDATA || vdata32.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata33 = sourcebuffer3[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata33.key == INVALIDDATA || vdata33.value == INVALIDDATA){ cout<<"vdata33.key == INVALIDDATA || vdata33.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata34 = sourcebuffer3[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata34.key == INVALIDDATA || vdata34.value == INVALIDDATA){ cout<<"vdata34.key == INVALIDDATA || vdata34.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata35 = sourcebuffer3[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata35.key == INVALIDDATA || vdata35.value == INVALIDDATA){ cout<<"vdata35.key == INVALIDDATA || vdata35.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata36 = sourcebuffer3[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata36.key == INVALIDDATA || vdata36.value == INVALIDDATA){ cout<<"vdata36.key == INVALIDDATA || vdata36.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata37 = sourcebuffer3[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata37.key == INVALIDDATA || vdata37.value == INVALIDDATA){ cout<<"vdata37.key == INVALIDDATA || vdata37.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata40 = sourcebuffer4[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata40.key == INVALIDDATA || vdata40.value == INVALIDDATA){ cout<<"vdata40.key == INVALIDDATA || vdata40.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata41 = sourcebuffer4[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata41.key == INVALIDDATA || vdata41.value == INVALIDDATA){ cout<<"vdata41.key == INVALIDDATA || vdata41.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata42 = sourcebuffer4[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata42.key == INVALIDDATA || vdata42.value == INVALIDDATA){ cout<<"vdata42.key == INVALIDDATA || vdata42.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata43 = sourcebuffer4[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata43.key == INVALIDDATA || vdata43.value == INVALIDDATA){ cout<<"vdata43.key == INVALIDDATA || vdata43.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata44 = sourcebuffer4[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata44.key == INVALIDDATA || vdata44.value == INVALIDDATA){ cout<<"vdata44.key == INVALIDDATA || vdata44.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata45 = sourcebuffer4[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata45.key == INVALIDDATA || vdata45.value == INVALIDDATA){ cout<<"vdata45.key == INVALIDDATA || vdata45.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata46 = sourcebuffer4[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata46.key == INVALIDDATA || vdata46.value == INVALIDDATA){ cout<<"vdata46.key == INVALIDDATA || vdata46.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata47 = sourcebuffer4[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata47.key == INVALIDDATA || vdata47.value == INVALIDDATA){ cout<<"vdata47.key == INVALIDDATA || vdata47.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata50 = sourcebuffer5[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata50.key == INVALIDDATA || vdata50.value == INVALIDDATA){ cout<<"vdata50.key == INVALIDDATA || vdata50.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata51 = sourcebuffer5[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata51.key == INVALIDDATA || vdata51.value == INVALIDDATA){ cout<<"vdata51.key == INVALIDDATA || vdata51.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata52 = sourcebuffer5[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata52.key == INVALIDDATA || vdata52.value == INVALIDDATA){ cout<<"vdata52.key == INVALIDDATA || vdata52.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata53 = sourcebuffer5[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata53.key == INVALIDDATA || vdata53.value == INVALIDDATA){ cout<<"vdata53.key == INVALIDDATA || vdata53.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata54 = sourcebuffer5[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata54.key == INVALIDDATA || vdata54.value == INVALIDDATA){ cout<<"vdata54.key == INVALIDDATA || vdata54.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata55 = sourcebuffer5[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata55.key == INVALIDDATA || vdata55.value == INVALIDDATA){ cout<<"vdata55.key == INVALIDDATA || vdata55.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata56 = sourcebuffer5[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata56.key == INVALIDDATA || vdata56.value == INVALIDDATA){ cout<<"vdata56.key == INVALIDDATA || vdata56.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata57 = sourcebuffer5[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata57.key == INVALIDDATA || vdata57.value == INVALIDDATA){ cout<<"vdata57.key == INVALIDDATA || vdata57.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata60 = sourcebuffer6[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata60.key == INVALIDDATA || vdata60.value == INVALIDDATA){ cout<<"vdata60.key == INVALIDDATA || vdata60.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata61 = sourcebuffer6[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata61.key == INVALIDDATA || vdata61.value == INVALIDDATA){ cout<<"vdata61.key == INVALIDDATA || vdata61.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata62 = sourcebuffer6[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata62.key == INVALIDDATA || vdata62.value == INVALIDDATA){ cout<<"vdata62.key == INVALIDDATA || vdata62.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata63 = sourcebuffer6[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata63.key == INVALIDDATA || vdata63.value == INVALIDDATA){ cout<<"vdata63.key == INVALIDDATA || vdata63.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata64 = sourcebuffer6[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata64.key == INVALIDDATA || vdata64.value == INVALIDDATA){ cout<<"vdata64.key == INVALIDDATA || vdata64.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata65 = sourcebuffer6[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata65.key == INVALIDDATA || vdata65.value == INVALIDDATA){ cout<<"vdata65.key == INVALIDDATA || vdata65.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata66 = sourcebuffer6[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata66.key == INVALIDDATA || vdata66.value == INVALIDDATA){ cout<<"vdata66.key == INVALIDDATA || vdata66.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata67 = sourcebuffer6[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata67.key == INVALIDDATA || vdata67.value == INVALIDDATA){ cout<<"vdata67.key == INVALIDDATA || vdata67.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata70 = sourcebuffer7[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata70.key == INVALIDDATA || vdata70.value == INVALIDDATA){ cout<<"vdata70.key == INVALIDDATA || vdata70.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata71 = sourcebuffer7[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata71.key == INVALIDDATA || vdata71.value == INVALIDDATA){ cout<<"vdata71.key == INVALIDDATA || vdata71.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata72 = sourcebuffer7[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata72.key == INVALIDDATA || vdata72.value == INVALIDDATA){ cout<<"vdata72.key == INVALIDDATA || vdata72.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata73 = sourcebuffer7[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata73.key == INVALIDDATA || vdata73.value == INVALIDDATA){ cout<<"vdata73.key == INVALIDDATA || vdata73.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata74 = sourcebuffer7[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata74.key == INVALIDDATA || vdata74.value == INVALIDDATA){ cout<<"vdata74.key == INVALIDDATA || vdata74.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata75 = sourcebuffer7[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata75.key == INVALIDDATA || vdata75.value == INVALIDDATA){ cout<<"vdata75.key == INVALIDDATA || vdata75.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata76 = sourcebuffer7[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata76.key == INVALIDDATA || vdata76.value == INVALIDDATA){ cout<<"vdata76.key == INVALIDDATA || vdata76.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata77 = sourcebuffer7[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata77.key == INVALIDDATA || vdata77.value == INVALIDDATA){ cout<<"vdata77.key == INVALIDDATA || vdata77.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata80 = sourcebuffer8[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata80.key == INVALIDDATA || vdata80.value == INVALIDDATA){ cout<<"vdata80.key == INVALIDDATA || vdata80.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata81 = sourcebuffer8[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata81.key == INVALIDDATA || vdata81.value == INVALIDDATA){ cout<<"vdata81.key == INVALIDDATA || vdata81.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata82 = sourcebuffer8[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata82.key == INVALIDDATA || vdata82.value == INVALIDDATA){ cout<<"vdata82.key == INVALIDDATA || vdata82.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata83 = sourcebuffer8[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata83.key == INVALIDDATA || vdata83.value == INVALIDDATA){ cout<<"vdata83.key == INVALIDDATA || vdata83.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata84 = sourcebuffer8[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata84.key == INVALIDDATA || vdata84.value == INVALIDDATA){ cout<<"vdata84.key == INVALIDDATA || vdata84.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata85 = sourcebuffer8[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata85.key == INVALIDDATA || vdata85.value == INVALIDDATA){ cout<<"vdata85.key == INVALIDDATA || vdata85.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata86 = sourcebuffer8[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata86.key == INVALIDDATA || vdata86.value == INVALIDDATA){ cout<<"vdata86.key == INVALIDDATA || vdata86.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata87 = sourcebuffer8[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata87.key == INVALIDDATA || vdata87.value == INVALIDDATA){ cout<<"vdata87.key == INVALIDDATA || vdata87.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata90 = sourcebuffer9[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata90.key == INVALIDDATA || vdata90.value == INVALIDDATA){ cout<<"vdata90.key == INVALIDDATA || vdata90.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata91 = sourcebuffer9[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata91.key == INVALIDDATA || vdata91.value == INVALIDDATA){ cout<<"vdata91.key == INVALIDDATA || vdata91.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata92 = sourcebuffer9[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata92.key == INVALIDDATA || vdata92.value == INVALIDDATA){ cout<<"vdata92.key == INVALIDDATA || vdata92.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata93 = sourcebuffer9[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata93.key == INVALIDDATA || vdata93.value == INVALIDDATA){ cout<<"vdata93.key == INVALIDDATA || vdata93.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata94 = sourcebuffer9[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata94.key == INVALIDDATA || vdata94.value == INVALIDDATA){ cout<<"vdata94.key == INVALIDDATA || vdata94.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata95 = sourcebuffer9[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata95.key == INVALIDDATA || vdata95.value == INVALIDDATA){ cout<<"vdata95.key == INVALIDDATA || vdata95.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata96 = sourcebuffer9[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata96.key == INVALIDDATA || vdata96.value == INVALIDDATA){ cout<<"vdata96.key == INVALIDDATA || vdata96.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata97 = sourcebuffer9[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata97.key == INVALIDDATA || vdata97.value == INVALIDDATA){ cout<<"vdata97.key == INVALIDDATA || vdata97.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata100 = sourcebuffer10[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata100.key == INVALIDDATA || vdata100.value == INVALIDDATA){ cout<<"vdata100.key == INVALIDDATA || vdata100.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata101 = sourcebuffer10[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata101.key == INVALIDDATA || vdata101.value == INVALIDDATA){ cout<<"vdata101.key == INVALIDDATA || vdata101.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata102 = sourcebuffer10[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata102.key == INVALIDDATA || vdata102.value == INVALIDDATA){ cout<<"vdata102.key == INVALIDDATA || vdata102.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata103 = sourcebuffer10[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata103.key == INVALIDDATA || vdata103.value == INVALIDDATA){ cout<<"vdata103.key == INVALIDDATA || vdata103.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata104 = sourcebuffer10[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata104.key == INVALIDDATA || vdata104.value == INVALIDDATA){ cout<<"vdata104.key == INVALIDDATA || vdata104.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata105 = sourcebuffer10[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata105.key == INVALIDDATA || vdata105.value == INVALIDDATA){ cout<<"vdata105.key == INVALIDDATA || vdata105.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata106 = sourcebuffer10[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata106.key == INVALIDDATA || vdata106.value == INVALIDDATA){ cout<<"vdata106.key == INVALIDDATA || vdata106.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata107 = sourcebuffer10[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata107.key == INVALIDDATA || vdata107.value == INVALIDDATA){ cout<<"vdata107.key == INVALIDDATA || vdata107.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata110 = sourcebuffer11[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata110.key == INVALIDDATA || vdata110.value == INVALIDDATA){ cout<<"vdata110.key == INVALIDDATA || vdata110.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata111 = sourcebuffer11[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata111.key == INVALIDDATA || vdata111.value == INVALIDDATA){ cout<<"vdata111.key == INVALIDDATA || vdata111.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata112 = sourcebuffer11[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata112.key == INVALIDDATA || vdata112.value == INVALIDDATA){ cout<<"vdata112.key == INVALIDDATA || vdata112.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata113 = sourcebuffer11[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata113.key == INVALIDDATA || vdata113.value == INVALIDDATA){ cout<<"vdata113.key == INVALIDDATA || vdata113.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata114 = sourcebuffer11[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata114.key == INVALIDDATA || vdata114.value == INVALIDDATA){ cout<<"vdata114.key == INVALIDDATA || vdata114.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata115 = sourcebuffer11[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata115.key == INVALIDDATA || vdata115.value == INVALIDDATA){ cout<<"vdata115.key == INVALIDDATA || vdata115.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata116 = sourcebuffer11[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata116.key == INVALIDDATA || vdata116.value == INVALIDDATA){ cout<<"vdata116.key == INVALIDDATA || vdata116.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata117 = sourcebuffer11[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata117.key == INVALIDDATA || vdata117.value == INVALIDDATA){ cout<<"vdata117.key == INVALIDDATA || vdata117.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata120 = sourcebuffer12[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata120.key == INVALIDDATA || vdata120.value == INVALIDDATA){ cout<<"vdata120.key == INVALIDDATA || vdata120.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata121 = sourcebuffer12[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata121.key == INVALIDDATA || vdata121.value == INVALIDDATA){ cout<<"vdata121.key == INVALIDDATA || vdata121.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata122 = sourcebuffer12[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata122.key == INVALIDDATA || vdata122.value == INVALIDDATA){ cout<<"vdata122.key == INVALIDDATA || vdata122.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata123 = sourcebuffer12[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata123.key == INVALIDDATA || vdata123.value == INVALIDDATA){ cout<<"vdata123.key == INVALIDDATA || vdata123.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata124 = sourcebuffer12[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata124.key == INVALIDDATA || vdata124.value == INVALIDDATA){ cout<<"vdata124.key == INVALIDDATA || vdata124.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata125 = sourcebuffer12[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata125.key == INVALIDDATA || vdata125.value == INVALIDDATA){ cout<<"vdata125.key == INVALIDDATA || vdata125.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata126 = sourcebuffer12[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata126.key == INVALIDDATA || vdata126.value == INVALIDDATA){ cout<<"vdata126.key == INVALIDDATA || vdata126.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata127 = sourcebuffer12[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata127.key == INVALIDDATA || vdata127.value == INVALIDDATA){ cout<<"vdata127.key == INVALIDDATA || vdata127.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata130 = sourcebuffer13[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata130.key == INVALIDDATA || vdata130.value == INVALIDDATA){ cout<<"vdata130.key == INVALIDDATA || vdata130.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata131 = sourcebuffer13[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata131.key == INVALIDDATA || vdata131.value == INVALIDDATA){ cout<<"vdata131.key == INVALIDDATA || vdata131.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata132 = sourcebuffer13[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata132.key == INVALIDDATA || vdata132.value == INVALIDDATA){ cout<<"vdata132.key == INVALIDDATA || vdata132.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata133 = sourcebuffer13[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata133.key == INVALIDDATA || vdata133.value == INVALIDDATA){ cout<<"vdata133.key == INVALIDDATA || vdata133.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata134 = sourcebuffer13[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata134.key == INVALIDDATA || vdata134.value == INVALIDDATA){ cout<<"vdata134.key == INVALIDDATA || vdata134.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata135 = sourcebuffer13[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata135.key == INVALIDDATA || vdata135.value == INVALIDDATA){ cout<<"vdata135.key == INVALIDDATA || vdata135.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata136 = sourcebuffer13[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata136.key == INVALIDDATA || vdata136.value == INVALIDDATA){ cout<<"vdata136.key == INVALIDDATA || vdata136.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata137 = sourcebuffer13[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata137.key == INVALIDDATA || vdata137.value == INVALIDDATA){ cout<<"vdata137.key == INVALIDDATA || vdata137.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata140 = sourcebuffer14[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata140.key == INVALIDDATA || vdata140.value == INVALIDDATA){ cout<<"vdata140.key == INVALIDDATA || vdata140.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata141 = sourcebuffer14[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata141.key == INVALIDDATA || vdata141.value == INVALIDDATA){ cout<<"vdata141.key == INVALIDDATA || vdata141.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata142 = sourcebuffer14[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata142.key == INVALIDDATA || vdata142.value == INVALIDDATA){ cout<<"vdata142.key == INVALIDDATA || vdata142.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata143 = sourcebuffer14[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata143.key == INVALIDDATA || vdata143.value == INVALIDDATA){ cout<<"vdata143.key == INVALIDDATA || vdata143.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata144 = sourcebuffer14[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata144.key == INVALIDDATA || vdata144.value == INVALIDDATA){ cout<<"vdata144.key == INVALIDDATA || vdata144.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata145 = sourcebuffer14[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata145.key == INVALIDDATA || vdata145.value == INVALIDDATA){ cout<<"vdata145.key == INVALIDDATA || vdata145.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata146 = sourcebuffer14[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata146.key == INVALIDDATA || vdata146.value == INVALIDDATA){ cout<<"vdata146.key == INVALIDDATA || vdata146.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata147 = sourcebuffer14[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata147.key == INVALIDDATA || vdata147.value == INVALIDDATA){ cout<<"vdata147.key == INVALIDDATA || vdata147.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata150 = sourcebuffer15[0][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata150.key == INVALIDDATA || vdata150.value == INVALIDDATA){ cout<<"vdata150.key == INVALIDDATA || vdata150.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata151 = sourcebuffer15[1][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata151.key == INVALIDDATA || vdata151.value == INVALIDDATA){ cout<<"vdata151.key == INVALIDDATA || vdata151.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata152 = sourcebuffer15[2][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata152.key == INVALIDDATA || vdata152.value == INVALIDDATA){ cout<<"vdata152.key == INVALIDDATA || vdata152.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata153 = sourcebuffer15[3][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata153.key == INVALIDDATA || vdata153.value == INVALIDDATA){ cout<<"vdata153.key == INVALIDDATA || vdata153.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata154 = sourcebuffer15[4][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata154.key == INVALIDDATA || vdata154.value == INVALIDDATA){ cout<<"vdata154.key == INVALIDDATA || vdata154.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata155 = sourcebuffer15[5][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata155.key == INVALIDDATA || vdata155.value == INVALIDDATA){ cout<<"vdata155.key == INVALIDDATA || vdata155.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata156 = sourcebuffer15[6][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata156.key == INVALIDDATA || vdata156.value == INVALIDDATA){ cout<<"vdata156.key == INVALIDDATA || vdata156.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			keyvalue_t vdata157 = sourcebuffer15[7][i];
+			
+			/////////////////////////////////////////////////////////
+			if(vdata157.key == INVALIDDATA || vdata157.value == INVALIDDATA){ cout<<"vdata157.key == INVALIDDATA || vdata157.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
+				
 			
 			value_t temp00_code;
 			value_t temp00_val;
@@ -9686,16 +10198,29 @@ unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZ
 			
 			value_t z = amin(y0, y1);
 			
+			// if(code > 1){  }
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 5", code, 2, NAp, NAp, NAp);
+			#endif
+			
 			if(code != 0){
 				nonzeroactvvsreturned = ON;
 				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
 				unsigned int vid = voffset + i*2 + k;
+				
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 5", vid, KVDATA_RANGE, NAp, NAp, NAp);
+				#endif
 				
 				// cout<<"unifydata_sssp_parallelsyn: vid: "<<vid<<endl;
 				
 				unsigned int rowindex = tempactvvtracker / VECTOR2_SIZE;
 				unsigned int colindex = tempactvvtracker % VECTOR2_SIZE;
 				
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 6", colindex / 2, VECTOR_SIZE, NAp, NAp, NAp);
+				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 7", rowindex / 2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+				#endif
 				if(tempactvvtracker % 2 == 0){ actvvs[colindex / 2][rowindex / 2].key = vid; }
 				else { actvvs[colindex / 2][rowindex / 2].value = vid; }
 				tempactvvtracker += 1;
@@ -9703,15 +10228,18 @@ unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZ
 			
 			WRITETO_UINT(&z, 30, 2, INACTIVEINNEXTITERATION); // FIXME. use range for _WIDEWORD
 			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 8", dest_v, VECTOR_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 9", destoffset_kvs + dest_i, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
+			#endif
 			if(k==0){ 
-				destbuffer[dest_v][destoffset_kvs + dest_i].key = z;
+				destbuffer[dest_v][destoffset_kvs + dest_i].key = z; 
 			} else {
 				destbuffer[dest_v][destoffset_kvs + dest_i].value = z;
 			}
 		}
 		
-		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; } //???
-		
+		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
 	}
 	
 	*actvvtracker = tempactvvtracker;
@@ -14940,6 +15468,7 @@ travstate_t
 	acts::
 	#endif 
 dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
+keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 keyvalue_t vubufferpp00[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp01[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp02[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp03[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp04[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp05[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp06[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp07[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp08[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp09[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp010[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp011[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp012[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp013[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp014[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp015[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp16[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp17[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp18[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp19[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp110[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp111[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp112[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp113[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp114[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp115[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]){
@@ -15063,8 +15592,8 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	keyvalue_t vubufferpp1[NUMSUBCPUTHREADS][VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#endif
 
-	keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs0 
+	keyvalue_t unused_actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = unused_actvvs0 
 
 	keyvalue_t buffer0_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer0_setof2
@@ -15082,8 +15611,8 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	skeyvalue_t capsule0_so8;
 	
 	buffer_type cutoffs0[VECTOR_SIZE];
-	keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs1 
+	keyvalue_t unused_actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = unused_actvvs1 
 
 	keyvalue_t buffer1_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer1_setof2
@@ -15101,8 +15630,8 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	skeyvalue_t capsule1_so8;
 	
 	buffer_type cutoffs1[VECTOR_SIZE];
-	keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs2 
+	keyvalue_t unused_actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = unused_actvvs2 
 
 	keyvalue_t buffer2_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer2_setof2
@@ -15120,8 +15649,8 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	skeyvalue_t capsule2_so8;
 	
 	buffer_type cutoffs2[VECTOR_SIZE];
-	keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = actvvs3 
+	keyvalue_t unused_actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = unused_actvvs3 
 
 	keyvalue_t buffer3_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer3_setof2
@@ -15161,9 +15690,9 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	#pragma HLS ARRAY_PARTITION variable=offsetsandsizes complete
 	
 	unsigned int itercount = 0;
-	unsigned int itercount_actvvs = 0; //
+	unsigned int itercount_actvvs = 0;
 	bool_type pp0writeen = ON;
-	bool_type writeen_actvvs = ON; //
+	bool_type writeen_actvvs = ON;
 	bool_type nonzeroactvvsreturned = ON;
 	actvvtracker = 0;
 	
@@ -15184,11 +15713,12 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 	for(unsigned int i=1; i<NUMCOMPUTEUNITS; i++){ offsetsandsizes[i].key = 0; offsetsandsizes[i].value = 0; }
 	unsigned int reducesubchunksz = (_globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2; // NOT USED.
 	unsigned int reducechunksz_kvs = (reducesubchunksz * LOADFACTORFORREDUCE) / VECTOR_SIZE;
+	unsigned int sourcepartitionblock = 0;
 
 	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions + 1; source_partition+=_globalparams.loadfactorforreduce){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_sourceploop avg=analysis_sourceploop
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print2("### dispatch::reduce:: source_partition", "currentLOP", source_partition, currentLOP); 							
+		actsutilityobj->print3("### dispatch::reduce:: source_partition", "sourcepartitionblock", "currentLOP", source_partition, sourcepartitionblock, currentLOP); 							
 		#endif
 		
 		bool_type enablereduce = ON;
@@ -15236,7 +15766,7 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 		
 		if(enablereduce == ON || enableflush == ON){
 			actvvtracker = 0;
-			readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
+			readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
 			replicatedata_syn(enablereduce, sourcevbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, 0, reducesubchunksz);
 			
 			MAIN_LOOP2: for(batch_type index=0; index<_globalparams.loadfactorforreduce; index+=1){
@@ -15589,27 +16119,33 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 				
 				itercount += 1;
 			}
-	
-			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs?
+			// CRITICAL REMOVEME.
+			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
 			
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM) // save actvvs. FIXME. flush this one.
-			// if(actvvtracker > 0 || enableflush == ON)
 			if(actvvtracker > 0 || enableflush == ON){
 				actvvtracker = fillintheblancks(actvvs0, actvvtracker);
-				savekeyvalues(writeen_actvvs, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, ((actvvtracker / 2) + (VECTOR_SIZE-1)) / VECTOR_SIZE   ); 
-				if(writeen_actvvs == ON){ actvvstravstate.i_kvs += (actvvtracker / 2) / VECTOR_SIZE; actvvstravstate.i += actvvtracker; }
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync 5", actvvstravstate.i, KVDATA_RANGE, NAp, NAp, NAp);
+				actsutilityobj->checkoutofbounds("dispatch_reduceonly_parallelsync 5", actvvstravstate.i_kvs, KVDATA_RANGE / VECTOR_SIZE, NAp, NAp, NAp);
+				#endif
+
+				batch_type actvvsize_kvs = ((actvvtracker / 2) + (VECTOR_SIZE-1)) / VECTOR_SIZE;
+				savekeyvalues(writeen_actvvs, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvsize_kvs); // CRITICAL REMOVEME.
+				if(writeen_actvvs == ON){ actvvstravstate.i_kvs += actvvsize_kvs; actvvstravstate.i += actvvtracker; }
 			}
 			#endif 
 		}
 		
 		sourcestatsmarker += _globalparams.loadfactorforreduce;
+		sourcepartitionblock += 1;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->printglobalvars();
 		actsutilityobj->clearglobalvars();
 		#endif
 	}
-			
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif
@@ -15842,7 +16378,7 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	cout<<"acts::topkernel:: LOADFACTORFORREDUCE: "<<LOADFACTORFORREDUCE<<endl;
 	cout<<"acts::topkernel:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
 	cout<<"acts::topkernel:: VDATAPACKINGFACTOR: "<<VDATAPACKINGFACTOR<<endl;
-	#endif 
+	#endif
 	
 	keyvalue_t buffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer10
@@ -15850,8 +16386,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer20
 	keyvalue_t buffer30[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer30
-	keyvalue_t unused_buffer40[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer40
+	keyvalue_t buffer40[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer40
 	keyvalue_t unused_buffer50[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer50
 	keyvalue_t unused_buffer60[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15864,8 +16400,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer21
 	keyvalue_t buffer31[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer31
-	keyvalue_t unused_buffer41[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer41
+	keyvalue_t buffer41[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer41
 	keyvalue_t unused_buffer51[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer51
 	keyvalue_t unused_buffer61[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15878,8 +16414,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer22
 	keyvalue_t buffer32[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer32
-	keyvalue_t unused_buffer42[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer42
+	keyvalue_t buffer42[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer42
 	keyvalue_t unused_buffer52[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer52
 	keyvalue_t unused_buffer62[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15892,8 +16428,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer23
 	keyvalue_t buffer33[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer33
-	keyvalue_t unused_buffer43[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer43
+	keyvalue_t buffer43[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer43
 	keyvalue_t unused_buffer53[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer53
 	keyvalue_t unused_buffer63[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15906,8 +16442,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer24
 	keyvalue_t buffer34[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer34
-	keyvalue_t unused_buffer44[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer44
+	keyvalue_t buffer44[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer44
 	keyvalue_t unused_buffer54[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer54
 	keyvalue_t unused_buffer64[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15920,8 +16456,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer25
 	keyvalue_t buffer35[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer35
-	keyvalue_t unused_buffer45[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer45
+	keyvalue_t buffer45[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer45
 	keyvalue_t unused_buffer55[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer55
 	keyvalue_t unused_buffer65[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15934,8 +16470,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer26
 	keyvalue_t buffer36[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer36
-	keyvalue_t unused_buffer46[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer46
+	keyvalue_t buffer46[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer46
 	keyvalue_t unused_buffer56[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer56
 	keyvalue_t unused_buffer66[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15948,8 +16484,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer27
 	keyvalue_t buffer37[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer37
-	keyvalue_t unused_buffer47[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer47
+	keyvalue_t buffer47[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer47
 	keyvalue_t unused_buffer57[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer57
 	keyvalue_t unused_buffer67[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15962,8 +16498,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer28
 	keyvalue_t buffer38[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer38
-	keyvalue_t unused_buffer48[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer48
+	keyvalue_t buffer48[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer48
 	keyvalue_t unused_buffer58[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer58
 	keyvalue_t unused_buffer68[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15976,8 +16512,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer29
 	keyvalue_t buffer39[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer39
-	keyvalue_t unused_buffer49[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer49
+	keyvalue_t buffer49[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer49
 	keyvalue_t unused_buffer59[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer59
 	keyvalue_t unused_buffer69[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -15990,8 +16526,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer210
 	keyvalue_t buffer310[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer310
-	keyvalue_t unused_buffer410[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer410
+	keyvalue_t buffer410[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer410
 	keyvalue_t unused_buffer510[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer510
 	keyvalue_t unused_buffer610[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -16004,8 +16540,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer211
 	keyvalue_t buffer311[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer311
-	keyvalue_t unused_buffer411[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer411
+	keyvalue_t buffer411[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer411
 	keyvalue_t unused_buffer511[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer511
 	keyvalue_t unused_buffer611[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -16018,8 +16554,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer212
 	keyvalue_t buffer312[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer312
-	keyvalue_t unused_buffer412[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer412
+	keyvalue_t buffer412[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer412
 	keyvalue_t unused_buffer512[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer512
 	keyvalue_t unused_buffer612[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -16032,8 +16568,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer213
 	keyvalue_t buffer313[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer313
-	keyvalue_t unused_buffer413[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer413
+	keyvalue_t buffer413[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer413
 	keyvalue_t unused_buffer513[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer513
 	keyvalue_t unused_buffer613[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -16046,8 +16582,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer214
 	keyvalue_t buffer314[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer314
-	keyvalue_t unused_buffer414[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer414
+	keyvalue_t buffer414[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer414
 	keyvalue_t unused_buffer514[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer514
 	keyvalue_t unused_buffer614[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -16060,8 +16596,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = buffer215
 	keyvalue_t buffer315[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer315
-	keyvalue_t unused_buffer415[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer415
+	keyvalue_t buffer415[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = buffer415
 	keyvalue_t unused_buffer515[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer515
 	keyvalue_t unused_buffer615[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -16279,14 +16815,16 @@ buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28
 buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111,buffer112,buffer113,buffer114,buffer115, 
 buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213,buffer214,buffer215, 
 buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311,buffer312,buffer313,buffer314,buffer315, 
-										actvvstravstate[0], globalparams); // globalparams[]
+buffer40,buffer41,buffer42,buffer43,buffer44,buffer45,buffer46,buffer47,buffer48,buffer49,buffer410,buffer411,buffer412,buffer413,buffer414,buffer415, 
+										actvvstravstate[0], globalparams);
 			#endif 
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
 			actvvstravstate[0] = dispatch_reduceonly_parallelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
 buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111,buffer112,buffer113,buffer114,buffer115, 
 buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213,buffer214,buffer215, 
 buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311,buffer312,buffer313,buffer314,buffer315, 
-										actvvstravstate[0], globalparams); // globalparams[] // FIXME.
+buffer40,buffer41,buffer42,buffer43,buffer44,buffer45,buffer46,buffer47,buffer48,buffer49,buffer410,buffer411,buffer412,buffer413,buffer414,buffer415, 
+										actvvstravstate[0], globalparams);
 			#endif 
 		}
 		#endif 

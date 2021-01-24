@@ -894,6 +894,101 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 	delete labels;
 	return actvvsdstv1_sum;
 }
+unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"utility::runsssp_sw:: running traditional bfs... "<<endl;
+	#endif 
+	
+	unsigned int * labels = new unsigned int[KVDATA_RANGE];
+	unsigned int * visitedlabels = new unsigned int[KVDATA_RANGE];
+	for(unsigned int i=0; i<KVDATA_RANGE; i++){ labels[i] = 0xFFFFFFFF; }
+	for(unsigned int i=0; i<KVDATA_RANGE; i++){ visitedlabels[i] = UNVISITED; }
+	vector<value_t> rootactvvs;
+	vector<value_t> activevertices;
+	for(unsigned int i=0; i<srcvids.size(); i++){ rootactvvs.push_back(srcvids[i]); }
+	unsigned int edges1_count = 0;
+	unsigned int actvvsdstv1_sum = 0;
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"utility::runsssp_sw: number of active vertices for iteration 0: "<<activevertices.size()<<endl;
+	#endif
+	// labels[rootactvvs[0]] = 0;
+	for(unsigned int i=0; i<rootactvvs.size(); i++){ labels[rootactvvs[i]] = 0; }
+	unsigned int ew = 1;
+	
+	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
+		edges1_count = 0;
+		actvvsdstv1_sum = 0;
+	
+		for(unsigned int i=0; i<rootactvvs.size(); i++){
+			unsigned int vid = rootactvvs[i];
+			edge_t vptr_begin = vertexptrbuffer[vid];
+			edge_t vptr_end = vertexptrbuffer[vid+1];
+			edge_t edges_size = vptr_end - vptr_begin;
+			
+			for(unsigned int k=0; k<edges_size; k++){
+				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
+				
+				unsigned int res = labels[vid] + ew;
+				if(res < labels[dstvid]){
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
+					#endif
+					
+					labels[dstvid] = res;
+					// activevertices.push_back(dstvid); 
+					// actvvsdstv1_sum += dstvid; 
+					
+					if(visitedlabels[dstvid] == UNVISITED){ 
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
+						#endif
+						
+						visitedlabels[dstvid] = VISITED_IN_CURRENT_ITERATION; 
+						activevertices.push_back(dstvid); 
+						actvvsdstv1_sum += dstvid; 
+					}
+				}
+				
+				
+				/* if(labels[dstvid] == UNVISITED){ 
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
+					#endif
+					
+					labels[dstvid] = VISITED_IN_CURRENT_ITERATION; 
+					activevertices.push_back(dstvid); 
+					actvvsdstv1_sum += dstvid; 
+				}
+				else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } 
+				else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } 
+				else{ cout<<"utility::runsssp_sw: should never get here. exiting..."<<endl; exit(EXIT_FAILURE); } */
+			}
+		}
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<activevertices.size()<<" (actvvsdstv1_sum: "<<actvvsdstv1_sum<<")"<<endl;
+		for(unsigned int i=0; i<hmin(activevertices.size(), 0); i++){ cout<<"utility::runsssp_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
+		#endif
+		
+		if(activevertices.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
+		
+		rootactvvs.clear();
+		for(unsigned int i=0; i<activevertices.size(); i++){ rootactvvs.push_back(activevertices[i]); }
+		activevertices.clear();
+		
+		for(unsigned int i=0; i<KVDATA_RANGE; i++){ 
+			if(visitedlabels[i] == VISITED_IN_CURRENT_ITERATION){ visitedlabels[i] = UNVISITED;  }
+		}
+	}
+	delete labels;
+	return actvvsdstv1_sum;
+}
+
+
+
+
+
+
 
 
 

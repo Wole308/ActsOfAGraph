@@ -408,6 +408,7 @@ public:
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	travstate_t dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
+			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp0{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
