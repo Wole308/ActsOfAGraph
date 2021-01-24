@@ -24,7 +24,7 @@ public:
 	#define NUMACTIVEKERNELS TOTALNUMKERNELS 
 
 	#ifdef FPGA_IMPL 
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
 	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
 	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS],  unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]);

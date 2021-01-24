@@ -14,7 +14,7 @@ public:
 	~swkernel();
 	
 	#ifdef SW 
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
 	void finishOCL();
 	#endif 

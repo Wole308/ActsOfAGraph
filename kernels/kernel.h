@@ -13,7 +13,7 @@ public:
 	kernel(stats * _statsobj);
 	~kernel();
 	
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
 	#ifdef FPGA_IMPL 
 	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);

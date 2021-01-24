@@ -118,10 +118,15 @@ void utility::printallparameters(){
 	std::cout<<"host:: BASEOFFSET_VERTEXPTR_KVS: "<<BASEOFFSET_VERTEXPTR_KVS<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
 	std::cout<<"host:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
+	
 	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
+	
+	std::cout<<"host:: VDRAMSZ: "<<VDRAMSZ<<std::endl;	
+	std::cout<<"host:: PADDEDVDRAMSZ: "<<PADDEDVDRAMSZ<<std::endl;	
+	std::cout<<"host:: PADDEDVDRAMSZ_KVS: "<<PADDEDVDRAMSZ_KVS<<std::endl;
 	
 	std::cout<<">> host:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVDRAMBUFFERSZ (bytes): "<<KVDRAMBUFFERSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
@@ -133,9 +138,11 @@ void utility::printallparameters(){
 	std::cout<<">> host:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
+	std::cout<<">> host:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	

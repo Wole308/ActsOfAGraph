@@ -25,7 +25,7 @@ swkernel::swkernel(stats * _statsobj){
 swkernel::~swkernel(){} 
 
 #ifdef SW
-void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
+void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
@@ -33,6 +33,9 @@ void swkernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], uns
 	#ifdef MULTIACTSINSTANCES
 	// kernelobjs[0]->topkernel((uint512_dt **)kvsourcedram);
 	kernelobjs[0]->topkernel(
+	
+		(uint512_dt *)vdram,
+	
 		#if NUMCOMPUTEUNITS==1
 		(uint512_dt *)kvsourcedram[0]
 		#endif 

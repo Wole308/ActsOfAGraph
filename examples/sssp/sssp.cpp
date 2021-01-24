@@ -49,6 +49,7 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 	#endif
+	vdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 
 	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
 		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
@@ -100,20 +101,20 @@ runsummary_t sssp::run(){
 	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
 	
 	// load workload
-	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t **)kvbuffer, 0, KVDATA_RANGE);
+	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)kvbuffer[0], 0, KVDATA_RANGE);
 	#ifndef COMPACTEDGES // FIXME. NOTNEAT.
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	loadgraphobj->loadactvvertices(activevertices, (vptr_type **)kvbuffer, (keyy_t **)kvbuffer, &container);
+	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)kvbuffer[0], &container);
 	#endif
-	loadgraphobj->loadmessages(kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
+	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
 	// run sssp
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 
-	setupkernelobj->launchkernel((uint512_vec_dt **)kvbuffer, 0);
+	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
 
 	utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
 	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();

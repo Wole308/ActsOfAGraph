@@ -363,6 +363,10 @@ context['COMPUTEUNITS_seq'] = []
 for i in range (0,(context['NUMCOMPUTEUNITS'])):
 		context['COMPUTEUNITS_seq'].append(i)
         
+context['COMPUTEUNITS_1seq'] = []
+for i in range (1,(context['NUMCOMPUTEUNITS'])):
+		context['COMPUTEUNITS_1seq'].append(i)
+        
 context['NUMSUBCPUTHREADS_seq'] = []
 for i in range (0,(context['NUMSUBCPUTHREADS'])):
 		context['NUMSUBCPUTHREADS_seq'].append(i)

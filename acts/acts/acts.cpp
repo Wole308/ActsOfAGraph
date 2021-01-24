@@ -14523,6 +14523,7 @@ void
 	acts::
 	#endif 
 dispatch_processonly(
+			uint512_dt * vdram,
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
 keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],  
 keyvalue_t buffer40[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer41[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer42[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer43[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer44[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer45[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer46[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer47[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer48[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer49[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer410[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer411[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer412[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer413[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer414[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer415[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],			globalparams_t globalparams[NUMCOMPUTEUNITS], batch_type * _sourcestatsmarker, batch_type * _deststatsmarker, batch_type * _destoffset){
@@ -14803,7 +14804,7 @@ keyvalue_t buffer40[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t buffer41[VECT
 		#endif
 		avtravstate.i_kvs = offset_kvs;
 	
-		readkeyvalues(ON, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + offset_kvs, PADDEDDESTBUFFER_SIZE / 2, avtravstate);
+		readkeyvalues(ON, vdram, actvvs0, _globalparams.baseoffset_activevertices_kvs + offset_kvs, PADDEDDESTBUFFER_SIZE / 2, avtravstate);
 		for(unsigned int i=0; i<PADDEDDESTBUFFER_SIZE; i++){
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			#pragma HLS UNROLL
@@ -15467,7 +15468,9 @@ travstate_t
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduceonly_parallelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
+dispatch_reduceonly_parallelsync(
+			uint512_dt * vdram, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
 keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t actvvs15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 keyvalue_t vubufferpp00[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp01[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp02[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp03[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp04[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp05[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp06[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp07[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp08[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp09[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp010[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp011[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp012[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp013[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp014[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferpp015[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
@@ -15766,7 +15769,7 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 		
 		if(enablereduce == ON || enableflush == ON){
 			actvvtracker = 0;
-			readkeyvalues(enablereduce, kvdram0, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
+			readkeyvalues(enablereduce, vdram, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
 			replicatedata_syn(enablereduce, sourcevbuffer, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, 0, reducesubchunksz);
 			
 			MAIN_LOOP2: for(batch_type index=0; index<_globalparams.loadfactorforreduce; index+=1){
@@ -16020,24 +16023,7 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					readkeyvalues(en[14], kvdram14, vubufferpp0[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
 					readkeyvalues(en[15], kvdram15, vubufferpp0[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
 		
-					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM) // CRITICAL FIXME. SSSP
-					reduce_bfs(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-					reduce_bfs(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-					reduce_bfs(ON, en[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-					reduce_bfs(ON, en[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-					reduce_bfs(ON, en[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-					reduce_bfs(ON, en[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-					reduce_bfs(ON, en[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-					reduce_bfs(ON, en[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-					reduce_bfs(ON, en[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-					reduce_bfs(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-					reduce_bfs(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-					reduce_bfs(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-					reduce_bfs(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-					reduce_bfs(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-					reduce_bfs(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-					reduce_bfs(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-					#else 
+					#if defined(INMEMORYGP) && defined(PR_ALGORITHM) 
 					reduce(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
 					reduce(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
 					reduce(ON, en[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
@@ -16054,6 +16040,42 @@ keyvalue_t vubufferpp10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t vubufferp
 					reduce(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
 					reduce(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
 					reduce(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+					#endif
+					#if defined(INMEMORYGP) && defined(BFS_ALGORITHM) 
+					reduce_bfs(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+					reduce_bfs(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+					reduce_bfs(ON, en[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+					reduce_bfs(ON, en[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+					reduce_bfs(ON, en[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+					reduce_bfs(ON, en[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+					reduce_bfs(ON, en[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+					reduce_bfs(ON, en[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+					reduce_bfs(ON, en[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+					reduce_bfs(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+					reduce_bfs(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+					reduce_bfs(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+					reduce_bfs(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+					reduce_bfs(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+					reduce_bfs(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+					reduce_bfs(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
+					#endif 
+					#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM) 
+					reduce_sssp(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
+					reduce_sssp(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
+					reduce_sssp(ON, en[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
+					reduce_sssp(ON, en[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
+					reduce_sssp(ON, en[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
+					reduce_sssp(ON, en[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
+					reduce_sssp(ON, en[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
+					reduce_sssp(ON, en[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
+					reduce_sssp(ON, en[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
+					reduce_sssp(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
+					reduce_sssp(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
+					reduce_sssp(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
+					reduce_sssp(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
+					reduce_sssp(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
+					reduce_sssp(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
+					reduce_sssp(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
 					#endif
 				}	
 				#endif
@@ -16096,22 +16118,22 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 				if(nonzeroactvvsreturned == ON || (enableflush == ON && index < 8)){
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs0, capsule0_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs0, itercount_actvvs, _globalparams);
-					savekeyvalues(writeen_actvvs, kvdram0, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE); 
+					savekeyvalues(writeen_actvvs, vdram, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs1, capsule1_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs1, itercount_actvvs, _globalparams);
-					savekeyvalues(writeen_actvvs, kvdram0, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE); 
+					savekeyvalues(writeen_actvvs, vdram, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule0_so8 = runpipeline_1partition(ON, actvvs2, capsule2_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer0_setof8, capsule0_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs2, itercount_actvvs, _globalparams);
-					savekeyvalues(writeen_actvvs, kvdram0, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE); 
+					savekeyvalues(writeen_actvvs, vdram, buffer0_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule0_so8.value / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule0_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule0_so8.value; }
 					itercount_actvvs += 1;
 					if(itercount_actvvs >= 2){ writeen_actvvs = ON; } else { writeen_actvvs = OFF; }
 					capsule1_so8 = runpipeline_1partition(ON, actvvs3, capsule3_so1, buffer0_setof2, capsule0_so2, buffer0_setof4, capsule0_so4, buffer1_setof8, capsule1_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, cutoffs3, itercount_actvvs, _globalparams);
-					savekeyvalues(writeen_actvvs, kvdram0, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE); 
+					savekeyvalues(writeen_actvvs, vdram, buffer1_setof8, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, capsule1_so8.value / VECTOR_SIZE); 
 					if(writeen_actvvs == ON){ actvvstravstate.i_kvs += capsule1_so8.value / VECTOR_SIZE; actvvstravstate.i += 2 * capsule1_so8.value; }
 					itercount_actvvs += 1;
 				}
@@ -16119,8 +16141,8 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 				
 				itercount += 1;
 			}
-			// CRITICAL REMOVEME.
-			savekeyvalues(enablereduce, kvdram0, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
+			
+			savekeyvalues(enablereduce, vdram, destvbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
 			
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM) // save actvvs. FIXME. flush this one.
 			if(actvvtracker > 0 || enableflush == ON){
@@ -16131,7 +16153,7 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 				#endif
 
 				batch_type actvvsize_kvs = ((actvvtracker / 2) + (VECTOR_SIZE-1)) / VECTOR_SIZE;
-				savekeyvalues(writeen_actvvs, kvdram0, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvsize_kvs); // CRITICAL REMOVEME.
+				savekeyvalues(writeen_actvvs, vdram, actvvs0, _globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvsize_kvs); // CRITICAL REMOVEME.
 				if(writeen_actvvs == ON){ actvvstravstate.i_kvs += actvvsize_kvs; actvvstravstate.i += actvvtracker; }
 			}
 			#endif 
@@ -16150,54 +16172,9 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 	actsutilityobj->printglobalvars();
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram0, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram1, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram2, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram3, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram4, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram5, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram6, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram7, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram8, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram9, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram10, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram11, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram12, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram13, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram14, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
-	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(kvdram15, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
 	cout<<"dispatch_reduceonly_parallelsync: number of active vertices for iteration "<<_globalparams.GraphIter + 1<<": (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -16246,59 +16223,110 @@ topkernel(uint512_dt * kvdram){
 #endif
  
 #if defined(MULTIACTSINSTANCES)
-topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){
+topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){ 
 	
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem0
+ 
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
+ 
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
+ 
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
+ 
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
+ 
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
+ 
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
+ 
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
+ 
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
+ 
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
+ 
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
+ 
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
+ 
 #pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11
+ 
 #pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12
+ 
 #pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13
+ 
 #pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14
+ 
 #pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15
 		
+#pragma HLS INTERFACE s_axilite port = vdram bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
+ 
 #pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
+#pragma HLS DATA_PACK variable = vdram
+ 
 #pragma HLS DATA_PACK variable = kvdram0
+ 
 #pragma HLS DATA_PACK variable = kvdram1
+ 
 #pragma HLS DATA_PACK variable = kvdram2
+ 
 #pragma HLS DATA_PACK variable = kvdram3
+ 
 #pragma HLS DATA_PACK variable = kvdram4
+ 
 #pragma HLS DATA_PACK variable = kvdram5
+ 
 #pragma HLS DATA_PACK variable = kvdram6
+ 
 #pragma HLS DATA_PACK variable = kvdram7
+ 
 #pragma HLS DATA_PACK variable = kvdram8
+ 
 #pragma HLS DATA_PACK variable = kvdram9
+ 
 #pragma HLS DATA_PACK variable = kvdram10
+ 
 #pragma HLS DATA_PACK variable = kvdram11
+ 
 #pragma HLS DATA_PACK variable = kvdram12
+ 
 #pragma HLS DATA_PACK variable = kvdram13
+ 
 #pragma HLS DATA_PACK variable = kvdram14
+ 
 #pragma HLS DATA_PACK variable = kvdram15
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -16307,71 +16335,71 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef _WIDEWORD
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram1[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram2[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram3[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram4[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram5[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram6[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram7[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram8[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram9[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram14[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<(unsigned int)(kvdram15[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 0 (_L2) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 1 (_L2) Launched... size: "<<(unsigned int)(kvdram1[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 2 (_L2) Launched... size: "<<(unsigned int)(kvdram2[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 3 (_L2) Launched... size: "<<(unsigned int)(kvdram3[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 4 (_L2) Launched... size: "<<(unsigned int)(kvdram4[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 5 (_L2) Launched... size: "<<(unsigned int)(kvdram5[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 6 (_L2) Launched... size: "<<(unsigned int)(kvdram6[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 7 (_L2) Launched... size: "<<(unsigned int)(kvdram7[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 8 (_L2) Launched... size: "<<(unsigned int)(kvdram8[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 9 (_L2) Launched... size: "<<(unsigned int)(kvdram9[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 10 (_L2) Launched... size: "<<(unsigned int)(kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 11 (_L2) Launched... size: "<<(unsigned int)(kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 12 (_L2) Launched... size: "<<(unsigned int)(kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 13 (_L2) Launched... size: "<<(unsigned int)(kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 14 (_L2) Launched... size: "<<(unsigned int)(kvdram14[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 15 (_L2) Launched... size: "<<(unsigned int)(kvdram15[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
 	#else
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram1[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram2[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram3[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram4[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram5[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram6[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram7[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram8[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram9[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram14[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
- 
-	cout<<">>> Light weight ACTS (_L2) Launched... size: "<<kvdram15[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 0 (_L2) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 1 (_L2) Launched... size: "<<kvdram1[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 2 (_L2) Launched... size: "<<kvdram2[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 3 (_L2) Launched... size: "<<kvdram3[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 4 (_L2) Launched... size: "<<kvdram4[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 5 (_L2) Launched... size: "<<kvdram5[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 6 (_L2) Launched... size: "<<kvdram6[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 7 (_L2) Launched... size: "<<kvdram7[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 8 (_L2) Launched... size: "<<kvdram8[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 9 (_L2) Launched... size: "<<kvdram9[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 10 (_L2) Launched... size: "<<kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 11 (_L2) Launched... size: "<<kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 12 (_L2) Launched... size: "<<kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 13 (_L2) Launched... size: "<<kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 14 (_L2) Launched... size: "<<kvdram14[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 15 (_L2) Launched... size: "<<kvdram15[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
 	#endif
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -16610,21 +16638,38 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	travstate_t actvvstravstate[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=actvvstravstate complete
 	
+	// globalparams[0] = getglobalparams(vdram);
+ 
 	globalparams[0] = getglobalparams(kvdram0);
+ 
 	globalparams[1] = getglobalparams(kvdram1);
+ 
 	globalparams[2] = getglobalparams(kvdram2);
+ 
 	globalparams[3] = getglobalparams(kvdram3);
+ 
 	globalparams[4] = getglobalparams(kvdram4);
+ 
 	globalparams[5] = getglobalparams(kvdram5);
+ 
 	globalparams[6] = getglobalparams(kvdram6);
+ 
 	globalparams[7] = getglobalparams(kvdram7);
+ 
 	globalparams[8] = getglobalparams(kvdram8);
+ 
 	globalparams[9] = getglobalparams(kvdram9);
+ 
 	globalparams[10] = getglobalparams(kvdram10);
+ 
 	globalparams[11] = getglobalparams(kvdram11);
+ 
 	globalparams[12] = getglobalparams(kvdram12);
+ 
 	globalparams[13] = getglobalparams(kvdram13);
+ 
 	globalparams[14] = getglobalparams(kvdram14);
+ 
 	globalparams[15] = getglobalparams(kvdram15);
 	
 	unsigned int numGraphIters = globalparams[0].GraphIter;
@@ -16689,7 +16734,8 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			cout<<">>> Light weight ACTS: Processing Instances 0-15 "<<endl;
 			#endif
 			dispatch_processonly(
-kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
+				vdram,
+kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,  
 buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111,buffer112,buffer113,buffer114,buffer115,  
 buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213,buffer214,buffer215,  
 				globalparams, &sourcestatsmarker0, &deststatsmarker0, &destoffset0);
@@ -16717,66 +16763,86 @@ buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<">>> Light weight ACTS: Partitioning Instance: ";
 			#endif
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			cout<<"0 ";
+			#endif
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"0 ";
 			#endif
 			dispatch_partitiononly(kvdram0, buffer10, buffer20, buffer30, &globalparams[0], &sourcestatsmarker0, &deststatsmarker0, &destoffset0);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"1 ";
 			#endif
 			dispatch_partitiononly(kvdram1, buffer11, buffer21, buffer31, &globalparams[1], &sourcestatsmarker1, &deststatsmarker1, &destoffset1);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"2 ";
 			#endif
 			dispatch_partitiononly(kvdram2, buffer12, buffer22, buffer32, &globalparams[2], &sourcestatsmarker2, &deststatsmarker2, &destoffset2);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"3 ";
 			#endif
 			dispatch_partitiononly(kvdram3, buffer13, buffer23, buffer33, &globalparams[3], &sourcestatsmarker3, &deststatsmarker3, &destoffset3);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"4 ";
 			#endif
 			dispatch_partitiononly(kvdram4, buffer14, buffer24, buffer34, &globalparams[4], &sourcestatsmarker4, &deststatsmarker4, &destoffset4);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"5 ";
 			#endif
 			dispatch_partitiononly(kvdram5, buffer15, buffer25, buffer35, &globalparams[5], &sourcestatsmarker5, &deststatsmarker5, &destoffset5);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"6 ";
 			#endif
 			dispatch_partitiononly(kvdram6, buffer16, buffer26, buffer36, &globalparams[6], &sourcestatsmarker6, &deststatsmarker6, &destoffset6);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"7 ";
 			#endif
 			dispatch_partitiononly(kvdram7, buffer17, buffer27, buffer37, &globalparams[7], &sourcestatsmarker7, &deststatsmarker7, &destoffset7);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"8 ";
 			#endif
 			dispatch_partitiononly(kvdram8, buffer18, buffer28, buffer38, &globalparams[8], &sourcestatsmarker8, &deststatsmarker8, &destoffset8);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"9 ";
 			#endif
 			dispatch_partitiononly(kvdram9, buffer19, buffer29, buffer39, &globalparams[9], &sourcestatsmarker9, &deststatsmarker9, &destoffset9);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"10 ";
 			#endif
 			dispatch_partitiononly(kvdram10, buffer110, buffer210, buffer310, &globalparams[10], &sourcestatsmarker10, &deststatsmarker10, &destoffset10);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"11 ";
 			#endif
 			dispatch_partitiononly(kvdram11, buffer111, buffer211, buffer311, &globalparams[11], &sourcestatsmarker11, &deststatsmarker11, &destoffset11);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"12 ";
 			#endif
 			dispatch_partitiononly(kvdram12, buffer112, buffer212, buffer312, &globalparams[12], &sourcestatsmarker12, &deststatsmarker12, &destoffset12);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"13 ";
 			#endif
 			dispatch_partitiononly(kvdram13, buffer113, buffer213, buffer313, &globalparams[13], &sourcestatsmarker13, &deststatsmarker13, &destoffset13);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"14 ";
 			#endif
 			dispatch_partitiononly(kvdram14, buffer114, buffer214, buffer314, &globalparams[14], &sourcestatsmarker14, &deststatsmarker14, &destoffset14);
+ 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<"15 ";
 			#endif
@@ -16792,26 +16858,45 @@ buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28
 			cout<<">>> Light weight ACTS: Reducing Instances 0-15 "<<endl;
 			#endif
 			#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
+			// dispatch_reduceonly(vdram, globalparams[0]);
+ 
 			dispatch_reduceonly(kvdram0, globalparams[0]);
+ 
 			dispatch_reduceonly(kvdram1, globalparams[1]);
+ 
 			dispatch_reduceonly(kvdram2, globalparams[2]);
+ 
 			dispatch_reduceonly(kvdram3, globalparams[3]);
+ 
 			dispatch_reduceonly(kvdram4, globalparams[4]);
+ 
 			dispatch_reduceonly(kvdram5, globalparams[5]);
+ 
 			dispatch_reduceonly(kvdram6, globalparams[6]);
+ 
 			dispatch_reduceonly(kvdram7, globalparams[7]);
+ 
 			dispatch_reduceonly(kvdram8, globalparams[8]);
+ 
 			dispatch_reduceonly(kvdram9, globalparams[9]);
+ 
 			dispatch_reduceonly(kvdram10, globalparams[10]);
+ 
 			dispatch_reduceonly(kvdram11, globalparams[11]);
+ 
 			dispatch_reduceonly(kvdram12, globalparams[12]);
+ 
 			dispatch_reduceonly(kvdram13, globalparams[13]);
+ 
 			dispatch_reduceonly(kvdram14, globalparams[14]);
+ 
 			dispatch_reduceonly(kvdram15, globalparams[15]);
 					
 			#endif 
 			#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-			actvvstravstate[0] = dispatch_reduceonly_parallelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
+			actvvstravstate[0] = dispatch_reduceonly_parallelsync(
+										vdram,
+kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
 buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111,buffer112,buffer113,buffer114,buffer115, 
 buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213,buffer214,buffer215, 
 buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311,buffer312,buffer313,buffer314,buffer315, 
@@ -16819,7 +16904,9 @@ buffer40,buffer41,buffer42,buffer43,buffer44,buffer45,buffer46,buffer47,buffer48
 										actvvstravstate[0], globalparams);
 			#endif 
 			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-			actvvstravstate[0] = dispatch_reduceonly_parallelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
+			actvvstravstate[0] = dispatch_reduceonly_parallelsync(
+										vdram,
+kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,  
 buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18,buffer19,buffer110,buffer111,buffer112,buffer113,buffer114,buffer115, 
 buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213,buffer214,buffer215, 
 buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311,buffer312,buffer313,buffer314,buffer315, 
@@ -16831,9 +16918,9 @@ buffer40,buffer41,buffer42,buffer43,buffer44,buffer45,buffer46,buffer47,buffer48
 		
 		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM) && defined(LOGKERNELSTATS)
 		#ifdef _WIDEWORD
-		kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].range(31, 0) = actvvstravstate[0].i;
+		vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].range(31, 0) = actvvstravstate[0].i;
 		#else 
-		kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].data[0].key = actvvstravstate[0].i;	
+		vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].data[0].key = actvvstravstate[0].i;	
 		#endif 
 		#endif
 		

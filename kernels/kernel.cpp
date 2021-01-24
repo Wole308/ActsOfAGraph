@@ -28,7 +28,7 @@ kernel::kernel(stats * _statsobj){
 }
 kernel::~kernel(){} 
 
-void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){			
+void kernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){			
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt **)kvsourcedram, NUMSUBCPUTHREADS);
 	#endif
@@ -40,7 +40,7 @@ void kernel::launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsig
 	#ifdef FPGA_IMPL
 	writetokernel(flag, kvsourcedram);
 	#endif
-	kernelobj->launchkernel(kvsourcedram, flag);
+	kernelobj->launchkernel(vdram, kvsourcedram, flag);
 	#ifdef FPGA_IMPL
 	readfromkernel(flag, kvsourcedram);
 	#endif

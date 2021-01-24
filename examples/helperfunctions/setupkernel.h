@@ -20,10 +20,10 @@ public:
 	setupkernel(stats * _statsobj);
 	~setupkernel();
 
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag);					
-	void launchkernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag);			
-	void launchmykernel(uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
+	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag);					
+	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag);			
+	void launchmykernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
 	unsigned int getflag(unsigned int globaliteration_idx);
 	#ifdef FPGA_IMPL 

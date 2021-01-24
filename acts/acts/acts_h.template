@@ -391,6 +391,7 @@ public:
 			globalparams_t globalparams);
 			
 	void dispatch_processonly(
+		uint512_dt * vdram,
 		{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
 		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}  
 		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer4{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
@@ -407,7 +408,9 @@ public:
 	
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
-	travstate_t dispatch_reduceonly_parallelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
+	travstate_t dispatch_reduceonly_parallelsync(
+			uint512_dt * vdram,
+			{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp0{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
@@ -419,7 +422,7 @@ public:
 	#endif 
 	
 	#if defined(MULTIACTSINSTANCES)
-	void topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
+	void topkernel(uint512_dt * vdram {%for i in context['COMPUTEUNITS_seq']%},uint512_dt * kvdram{{i}}{%endfor%});
 	#endif 
 private:
 	#ifndef FPGA_IMPL

@@ -43,6 +43,7 @@ private:
 	value_t * tempvertexdatabuffer;
 	edge2_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
+	uint512_vec_dt * vdram;
 	
 	// edge_t * packedvertexptrbuffer;
 	// uuint64_dt * packededgedatabuffer;
