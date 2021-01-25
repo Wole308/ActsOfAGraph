@@ -76,6 +76,8 @@ void bfs::finish(){
 }
 
 runsummary_t bfs::run(){
+	long double totaltime_ms = 0;
+	#ifdef BFS_ALGORITHM
 	cout<<"bfs::run:: bfs algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
@@ -86,18 +88,18 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 1; // 6
+	unsigned int NumGraphIters = 6; // 6
 	container_t container;
 	vector<value_t> activevertices;
 
-	// activevertices.push_back(1);
+	activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -106,14 +108,9 @@ runsummary_t bfs::run(){
 	
 	// load workload
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
-	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer); 
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, BREADTHFIRSTSEARCH); 			
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	#else
-	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BREADTHFIRSTSEARCH);
-	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	#endif
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container); 
 	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
@@ -121,11 +118,9 @@ runsummary_t bfs::run(){
 	// run bfs
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-
 	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
-
 	utilityobj->stopTIME(">>> bfs::finished:. Time Elapsed: ", begintime, NAp);
-	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
 	// verify 
 	verify(activevertices);
@@ -138,6 +133,7 @@ runsummary_t bfs::run(){
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
+	#endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
@@ -193,7 +189,8 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	
 	// 4th check (checking edges in acts.LLOP...)
 	verifykvLOP((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
-
+	
+	// 5th check 
 	edges5_count = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
 	edgesdstv5_sum = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
 
@@ -369,7 +366,7 @@ void bfs::verifyactvvsdata(keyvalue_t * vdram){
 	unsigned int actvvs_count = 0;
 	unsigned int actvvsdstv1_sum = 0;
 	unsigned int cctv = 0;
-	unsigned int sz = 16; // just-for-test
+	unsigned int sz = 8; // just-for-test
 	keyy_t * KK = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES];
 	unsigned int localactvvs_count = 0;
 	unsigned int localactvvsdstv1_sum = 0;
@@ -377,7 +374,7 @@ void bfs::verifyactvvsdata(keyvalue_t * vdram){
 	for(unsigned int k=0; k<sz; k++){
 		if(KK[k] != INVALIDDATA){
 			#ifdef _DEBUGMODE_HOSTPRINTS3
-			if(cctv < 16){ cout<<"bfs:verifyactvvsdata: actvvid: "<<KK[k]<<endl; }
+			if(cctv < 8){ cout<<"bfs:verifyactvvsdata: actvvid: "<<KK[k]<<endl; }
 			#endif 
 			actvvs_count += 1;
 			actvvsdstv1_sum += KK[k];

@@ -72,6 +72,8 @@ void sssp::finish(){
 }
 
 runsummary_t sssp::run(){
+	long double totaltime_ms = 0;
+	#ifdef SSSP_ALGORITHM
 	cout<<"sssp::run:: sssp algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
@@ -82,7 +84,7 @@ runsummary_t sssp::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 6; // 4,6
+	unsigned int NumGraphIters = 4; // 4,6
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -101,36 +103,32 @@ runsummary_t sssp::run(){
 	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
 	
 	// load workload
-	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)kvbuffer[0], 0, KVDATA_RANGE);
-	#ifndef COMPACTEDGES // FIXME. NOTNEAT.
+	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
 	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
-	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)kvbuffer[0], &container);
-	#endif
+	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container);
 	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
 	// run sssp
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-
 	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
-
 	utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
-	long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	
 	// verify 
 	verify(activevertices);
-	// utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	utilityobj->runsssp_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	verifyvertexdata((keyvalue_t **)kvbuffer);
-	verifyactvvsdata((keyvalue_t **)kvbuffer);
+	verifyvertexdata((keyvalue_t *)vdram);
+	verifyactvvsdata((keyvalue_t *)vdram);
 	verifykernelreturnvalues(kvbuffer);
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
+	#endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
@@ -186,50 +184,41 @@ void sssp::verify(vector<vertex_t> &activevertices){
 	// 4th check (checking edges in acts.LLOP...)
 	verifykvLOP((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
 	
-	// 5th check (stats collected during acts.reduce phase)
-	for(unsigned int i=0; i<1; i++){ 
-		edges5_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
-		edgesdstv5_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
-	}
+	// 5th check 
+	edges5_count = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
+	edgesdstv5_sum = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
 
 	// 6th check 
 	unsigned int actvvsdstv1_sum = 0;
 	unsigned int cctv = 0;
-	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
-		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
-		// cout<<"~~~~~~~~~~~~~~~~~~~~~~~ sz: "<<sz<<endl;
-		if(i==0){ actvvs_verbosecount = sz; }
-		keyy_t * KK = (keyy_t *)&kvbuffer[i][BASEOFFSET_ACTIVEVERTICES_KVS];
-		unsigned int localactvvs_count = 0;
-		unsigned int localactvvsdstv1_sum = 0;
-		for(unsigned int k=0; k<sz; k++){
-			// cout<<"*************** sssp:verify: actvvid: "<<KK[k]<<endl;
-			if(KK[k] != INVALIDDATA){
-				if(i==0){
-					#ifdef _DEBUGMODE_HOSTPRINTS3
-					if(cctv < 16){ cout<<"sssp:verify: actvvid: "<<KK[k]<<endl; }
-					#endif 
-					actvvs_count += 1;
-					actvvsdstv1_sum += KK[k];
-				}
-				localactvvs_count += 1;
-				localactvvsdstv1_sum += KK[k]; 
-				cctv += 1;
-			}
+	unsigned int sz = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
+	actvvs_verbosecount = sz; 
+	keyy_t * KK = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES_KVS];
+	unsigned int localactvvs_count = 0;
+	unsigned int localactvvsdstv1_sum = 0;
+	for(unsigned int k=0; k<sz; k++){
+		if(KK[k] != INVALIDDATA){
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			if(cctv < 16){ cout<<"sssp:verify: actvvid: "<<KK[k]<<endl; }
+			#endif 
+			actvvs_count += 1;
+			actvvsdstv1_sum += KK[k];
+		
+			localactvvs_count += 1;
+			localactvvsdstv1_sum += KK[k]; 
+			cctv += 1;
 		}
-		cout<<"sssp::verifyactvvs: num actvvs found in kvbuffer["<<i<<"]: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	}
+	cout<<"sssp::verifyactvvs: num actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	
 	// 7th view
-	for(unsigned int i=0; i<0; i++){ // NUMSUBCPUTHREADS
-		cout<<endl<<"[7th view]: subthread: "<<i<<endl;
-		keyy_t * KK = (keyy_t *)&kvbuffer[0][BASEOFFSET_ACTIVEVERTICES_KVS];
-		for(unsigned int k=0; k<4; k++){
-			if(KK[k] != INVALIDDATA){
-				#ifdef _DEBUGMODE_HOSTPRINTS3
-				cout<<"sssp:verify: actvvid: "<<KK[k]<<endl;
-				#endif
-			}
+	cout<<endl<<"[7th view]: active vertices in vdram: "<<endl;
+	keyy_t * TT = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES_KVS];
+	for(unsigned int k=0; k<4; k++){
+		if(TT[k] != INVALIDDATA){
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			cout<<"sssp:verify: actvvid: "<<TT[k]<<endl;
+			#endif
 		}
 	}
 	
@@ -325,7 +314,7 @@ void sssp::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt *
 	}
 	return;
 }
-void sssp::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
+void sssp::verifyvertexdata(keyvalue_t * vdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"sssp::verifyvertexdata: verifying vertex data... "<<endl;
 	#endif
@@ -337,7 +326,7 @@ void sssp::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 	for(unsigned int i=0; i<1; i++){
 		totalnumactvvs = 0;
 		for(unsigned int vid=0; vid<KVDATA_RANGE/2; vid++){
-			keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_VERTICESDATA + vid];
+			keyvalue_t keyvalue = vdram[BASEOFFSET_VERTICESDATA + vid];
 			if(vid % 1000000 == 0){ cout<<"sssp::verifyvertexdata: vid: "<<vid<<endl; }
 		}
 		#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -346,7 +335,7 @@ void sssp::verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 	}
 	return;
 }
-void sssp::verifyactvvsdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
+void sssp::verifyactvvsdata(keyvalue_t * vdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"sssp::verifyactvvsdata: verifying actvvs data... "<<endl;
 	#endif
@@ -354,27 +343,26 @@ void sssp::verifyactvvsdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]){
 	unsigned int actvvs_count = 0;
 	unsigned int actvvsdstv1_sum = 0;
 	unsigned int cctv = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		unsigned int sz = 16; // just-for-test
-		keyy_t * KK = (keyy_t *)&kvbuffer[i][BASEOFFSET_ACTIVEVERTICES];
-		unsigned int localactvvs_count = 0;
-		unsigned int localactvvsdstv1_sum = 0;
-		for(unsigned int k=0; k<sz; k++){
-			if(KK[k] != INVALIDDATA){
-				if(i==0){
-					#ifdef _DEBUGMODE_HOSTPRINTS3
-					if(cctv < 16){ cout<<"sssp:verifyactvvsdata: actvvid: "<<KK[k]<<endl; }
-					#endif 
-					actvvs_count += 1;
-					actvvsdstv1_sum += KK[k];
-				}
-				localactvvs_count += 1;
-				localactvvsdstv1_sum += KK[k]; 
-				cctv += 1;
-			}
+	unsigned int sz = 8; // just-for-test
+	keyy_t * KK = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES];
+	unsigned int localactvvs_count = 0;
+	unsigned int localactvvsdstv1_sum = 0;
+	
+	for(unsigned int k=0; k<sz; k++){
+		if(KK[k] != INVALIDDATA){
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			if(cctv < 8){ cout<<"sssp:verifyactvvsdata: actvvid: "<<KK[k]<<endl; }
+			#endif 
+			actvvs_count += 1;
+			actvvsdstv1_sum += KK[k];
+			
+			localactvvs_count += 1;
+			localactvvsdstv1_sum += KK[k]; 
+			cctv += 1;
 		}
-		cout<<"sssp::verifyactvvsdata: some actvvs found in kvbuffer["<<i<<"]: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	}
+	
+	cout<<"sssp::verifyactvvsdata: some actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	return;
 }
 void sssp::verifykernelreturnvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){

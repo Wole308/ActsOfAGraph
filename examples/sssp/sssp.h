@@ -22,8 +22,8 @@ public:
 	
 	void verify(vector<vertex_t> &activevertices);
 	void verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum);					
-	void verifyvertexdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
-	void verifyactvvsdata(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS]);
+	void verifyvertexdata(keyvalue_t * vdram);
+	void verifyactvvsdata(keyvalue_t * vdram);
 	void verifykernelreturnvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
 	
 private:
@@ -32,7 +32,6 @@ private:
 	utility * utilityobj;
 	postprocess * postprocessobj;
 	loadgraph * loadgraphobj;
-	// compactgraph * compactgraphobj;
 	setupkernel * setupkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
@@ -44,9 +43,6 @@ private:
 	edge2_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 	uint512_vec_dt * vdram;
-	
-	// edge_t * packedvertexptrbuffer;
-	// uuint64_dt * packededgedatabuffer;
 };
 #endif
 

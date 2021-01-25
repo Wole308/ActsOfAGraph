@@ -142,7 +142,7 @@ void utility::printallparameters(){
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
 	if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
-	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -577,21 +577,6 @@ void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned 
 	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
 	return;
 }
-/* void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
-	unsigned int * skipspacing = new unsigned int[size];
-	for(unsigned int p=0; p<size; p++){ 
-		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
-		unsigned int B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
-		if(B < 80){ B = B * 2; } 
-		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
-		skipspacing[p] = (B * C) + 128; 
-		
-		// skipspacing[p] = 0;
-		// skipspacing[p] = skipspacing[p] * 2; // REMOVEME.
-	}			
-	calculateoffsets(stats, size, 0, skipspacing);
-	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
-} */
 void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 	unsigned int * skipspacing = new unsigned int[size];
 	for(unsigned int p=0; p<size; p++){ 
@@ -603,15 +588,7 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
-		// unsigned int B = (stats[p].value + ((SRCBUFFER_SIZE * VECTOR_SIZE) - 1)) / (SRCBUFFER_SIZE * VECTOR_SIZE);
-		// unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
-		// if(B < 20){ B = B * 4; } 
-		// skipspacing[p] = (B * C) + 128;
-		
-		// if(size == 16){ if(p < 16){ cout<<"--- stats["<<p<<"].value: "<<stats[p].value<<", skipspacing["<<p<<"]: "<<skipspacing[p]<<", B: "<<B<<", C: "<<C<<endl; }}
-		
-		// skipspacing[p] = 0;
-		// skipspacing[p] = skipspacing[p] * 2; // REMOVEME.
+		// skipspacing[p] = skipspacing[p] * 2; // CRITICAL REMOVEME.
 	}			
 	calculateoffsets(stats, size, 0, skipspacing);
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
@@ -942,9 +919,6 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 					#endif
 					
 					labels[dstvid] = res;
-					// activevertices.push_back(dstvid); 
-					// actvvsdstv1_sum += dstvid; 
-					
 					if(visitedlabels[dstvid] == UNVISITED){ 
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
@@ -955,20 +929,6 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 						actvvsdstv1_sum += dstvid; 
 					}
 				}
-				
-				
-				/* if(labels[dstvid] == UNVISITED){ 
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
-					#endif
-					
-					labels[dstvid] = VISITED_IN_CURRENT_ITERATION; 
-					activevertices.push_back(dstvid); 
-					actvvsdstv1_sum += dstvid; 
-				}
-				else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } 
-				else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } 
-				else{ cout<<"utility::runsssp_sw: should never get here. exiting..."<<endl; exit(EXIT_FAILURE); } */
 			}
 		}
 		

@@ -58,6 +58,13 @@ amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
+unsigned int
+	#ifdef SW 
+	acts::
+	#endif 
+aplus(unsigned int val1, unsigned int val2){
+	return val1 + val2;
+}
 batch_type
 	#ifdef SW 
 	acts::
@@ -684,7 +691,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.baseoffset_vertexptr_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_VERTEXPTR_KVS].data[0].key;
 	globalparams.baseoffset_verticesdata_kvs = kvdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_VERTICESDATA_KVS].data[0].key;
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("acts::getglobalparams:: printing global parameters", globalparams);
 	#endif
 	return globalparams;
@@ -1714,10 +1721,19 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDED
 	
 	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)
 	for(unsigned int i=0; i<NUM_PARTITIONS-1; i++){ 
-		if(globalcapsule[i].key + globalcapsule[i].value >= globalcapsule[i+1].key){ cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. (globalcapsule["<<i<<"].key + globalcapsule["<<i<<"].value >= globalcapsule["<<i+1<<"].key) printing and exiting..."<<endl; actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 33", globalcapsule, NUM_PARTITIONS); exit(EXIT_FAILURE); }
+		if(globalcapsule[i].key + globalcapsule[i].value >= globalcapsule[i+1].key){ 
+			cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. (globalcapsule["<<i<<"].key("<<globalcapsule[i].key<<") + globalcapsule["<<i<<"].value("<<globalcapsule[i].value<<") >= globalcapsule["<<i+1<<"].key("<<globalcapsule[i+1].key<<")) printing and exiting..."<<endl; 
+			actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 33", globalcapsule, NUM_PARTITIONS); 
+			exit(EXIT_FAILURE); 
+		}			
 		actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 33", globalcapsule[i].key + globalcapsule[i].value, globalcapsule[i+1].key, i, NAp, NAp); 
 	}
-	actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 34", globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value, KVDRAMSZ, NAp, NAp, NAp);
+	// actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 34", globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value, KVDRAMSZ, NAp, NAp, NAp);
+	if(globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value >= KVDRAMSZ){ 
+		cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. (globalcapsule["<<NUM_PARTITIONS-1<<"].key("<<globalcapsule[NUM_PARTITIONS-1].key<<") + globalcapsule["<<NUM_PARTITIONS-1<<"].value("<<globalcapsule[NUM_PARTITIONS-1].value<<") >= KVDRAMSZ("<<KVDRAMSZ<<")) printing and exiting..."<<endl; 
+		actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 33", globalcapsule, NUM_PARTITIONS); 
+		exit(EXIT_FAILURE); 
+	}
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"savekeyvalues:: keyvalues saved: offset_kvs from: "<<globalbaseaddress_kvs + ((globalcapsule[0].key + globalcapsule[0].value) / VECTOR_SIZE)<<endl;
@@ -1792,362 +1808,6 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SI
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	if(offset_kvs >= BASEOFFSET_VERTEXPTR_KVS && offset_kvs < BASEOFFSET_VERTEXPTR_KVS + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
 	if(offset_kvs >= BASEOFFSET_VERTICESDATA_KVS && offset_kvs < BASEOFFSET_VERTICESDATA_KVS + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-savekeyvalues_sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		#ifdef _WIDEWORD
-		{%for v in context['VECTOR_SIZE_seq']%}
-		keyy_t K{{v}} = buffer[{{v}}][i].key; 
-		value_t V{{v}} = buffer[{{v}}][i].value; 
-		{%endfor%}
-		
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram{{i}}[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = K{{v}}; 
-		kvdram{{i}}[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = V{{v}}; 
-		{%endfor%}
-		{%endfor%}
-		#else 
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram{{i}}[offset_kvs + i].data[{{v}}] = buffer[{{v}}][i];
-		{%endfor%}
-		{%endfor%}
-		#endif 
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-savekeyvalues_pipeline_sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	{%for i in context['COMPUTEUNITS_seq']%}
-	keyvalue_t buffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer{{i}}
-	{%endfor%}
-	
-	for(unsigned int i=0; i<size_kvs; i++){
-	#pragma HLS PIPELINE II=1
-		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t keyvalue{{v}} = buffer[{{v}}][i];
-		{%endfor%}
-	
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer{{i}}[{{v}}][i] = keyvalue{{v}};
-		{%endfor%}
-		{%endfor%}
-	}
-	
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		#ifdef _WIDEWORD
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram{{i}}[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = buffer{{i}}[{{v}}][i].key; 
-		kvdram{{i}}[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = buffer{{i}}[{{v}}][i].value; 
-		{%endfor%}
-		{%endfor%}
-		#else 
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram{{i}}[offset_kvs + i].data[{{v}}] = buffer{{i}}[{{v}}][i];
-		{%endfor%}
-		{%endfor%}
-		#endif 
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<offset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((offset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_sync:: keyvalues saved: offset: "<<(offset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((offset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-savekeyvalues_pipeline_sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	// CRITICAL FIXME. static?
-	{%for i in context['COMPUTEUNITS_seq']%}
-	{%if(i>0)%}
-	static keyvalue_t buffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	{%endif%}
-	{%endfor%}
-	
-	offsetsandsizes[0].key = offset_kvs;
-	offsetsandsizes[0].value = size_kvs;
-	
-	// SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-
-		{%for i in context['COMPUTEUNITS_seq']%}
-			// read from {{i}}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			keyvalue_t keyvalue{{i}}{{v}} = buffer{{i}}[{{v}}][i]; 
-			{%endfor%}
-		
-		{%if(i==0)%}
-			#ifdef _WIDEWORD
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue0{{v}}.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue0{{v}}.value;
-			{%endfor%}
-			#else 
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[{{v}}] = keyvalue0{{v}};
-			{%endfor%}
-			#endif 
-		{%else%}
-			// write to {{i+1}} buffer
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer{{i}}[{{v}}][i] = keyvalue{{i-1}}{{v}}; 
-			{%endfor%}
-			
-			// write to {{i+1}} dram
-			#ifdef _WIDEWORD
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i-1}}].key + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue{{i-1}}{{v}}.key;
-			kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i-1}}].key + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue{{i-1}}{{v}}.value;
-			{%endfor%}
-			#else 
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i-1}}].key + i].data[{{v}}] = keyvalue{{i-1}}{{v}};
-			{%endfor%}
-			#endif 
-		{%endif%}
-		{%endfor%}
-	}
-	
-	// shift offsets and sizes
-	for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
-	#pragma HLS PIPELINE II=1
-		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
-		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW
-	acts::
-	#endif 
-savekeyvalues_pipeline_2sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	{%for i in context['COMPUTEUNITS_seq']%}
-	{%if(i>0)%}
-	static keyvalue_t buffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	{%endif%}
-	{%endfor%}
-	
-	offsetsandsizes[0].key = offset_kvs;
-	offsetsandsizes[0].value = size_kvs;
-	
-	// SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
-
-		{%for i in context['COMPUTEUNITS_seq']%}
-			// read from {{i}}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			keyvalue_t keyvalue{{i}}{{v}} = buffer{{i}}[{{v}}][i]; 
-			{%endfor%}
-		
-		{%if(i==0)%}
-			#ifdef _WIDEWORD
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue0{{v}}.key;
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue0{{v}}.value;
-			{%endfor%}
-			#else 
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram0[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[0].key + i].data[{{v}}] = keyvalue0{{v}};
-			{%endfor%}
-			#endif 
-		{%else%}
-			
-			// write to {{i}} dram
-			#ifdef _WIDEWORD
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i-1}}].key + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue{{i-1}}{{v}}.key;
-			kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i-1}}].key + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue{{i-1}}{{v}}.value;
-			{%endfor%}
-			#else 
-			{%for v in context['VECTOR_SIZE_seq']%}
-			kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i-1}}].key + i].data[{{v}}] = keyvalue{{i-1}}{{v}};
-			{%endfor%}
-			#endif 
-		{%endif%}
-		{%endfor%}
-	}
-	
-	SAVEKEYVALUESSYNC_LOOP2: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
-
-		{%for i in context['COMPUTEUNITS_seq']%}
-			// read from {{i}}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			keyvalue_t keyvalue{{i}}{{v}} = buffer{{i}}[{{v}}][i]; 
-			{%endfor%}
-		
-		{%if(i==0)%}
-
-		{%else%}
-			// write to {{i+1}} buffer
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer{{i}}[{{v}}][i] = keyvalue{{i-1}}{{v}}; 
-			{%endfor%}
-			
-		{%endif%}
-		{%endfor%}
-	}
-	
-	// shift offsets and sizes
-	for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
-	#pragma HLS PIPELINE II=1
-		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
-		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW
-	acts::
-	#endif 
-savekeyvalues_pipeline_3sync(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} keyvalue_t offsetsandsizes[NUMCOMPUTEUNITS], keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"savekeyvalues_pipeline_3sync: started. offset_kvs: "<<offset_kvs<<", size_kvs: "<<size_kvs<<endl;
-	#endif 
-	
-	{%for i in context['COMPUTEUNITS_seq']%}
-	{%if(i>0)%}
-	static keyvalue_t buffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	{%endif%}
-	{%endfor%}
-	
-	{%for i in context['COMPUTEUNITS_seq']%}
-	{%if(i>0)%}
-	static keyvalue_t bufferC{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	{%endif%}
-	{%endfor%}
-	
-	offsetsandsizes[0].key = offset_kvs;
-	offsetsandsizes[0].value = size_kvs;
-	
-	// commit
-	SAVEKEYVALUESSYNC_LOOP: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		
-		#ifdef _WIDEWORD
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i}}].key + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = buffer{{i}}[{{v}}][i].key; 
-		kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i}}].key + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = buffer{{i}}[{{v}}][i].value;
-		{%endfor%}	
-		{%endfor%}
-		#else 
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram{{i}}[globalparams.baseoffset_activevertices_kvs + offsetsandsizes[{{i}}].key + i].data[{{v}}] = buffer{{i}}[{{v}}][i]; 
-		{%endfor%}	
-		{%endfor%}
-		#endif
-	}
-	
-	// move
-	SAVEKEYVALUESSYNC_LOOP2: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
-	
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%if(i<context['NUMCOMPUTEUNITS']-1)%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		bufferC{{i+1}}[{{v}}][i] = buffer{{i}}[{{v}}][i]; 
-		{%endfor%}
-		
-		{%endif%}
-		{%endfor%}
-	}
-	
-	// sync
-	SAVEKEYVALUESSYNC_LOOP3: for (buffer_type i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1 // CRITICAL FIXME.
-	
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%if(i>0)%}
-		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer{{i}}[{{v}}][i] = bufferC{{i}}[{{v}}][i]; 
-		{%endfor%}
-	
-		{%endif%}
-		{%endfor%}
-	}
-	
-	// shift offsets and sizes
-	SAVEKEYVALUESSYNC_LOOP4: for(unsigned int i=NUMCOMPUTEUNITS-1; i>0; i--){ 
-	#pragma HLS PIPELINE II=1
-		offsetsandsizes[i].key = offsetsandsizes[i-1].key; 
-		offsetsandsizes[i].value = offsetsandsizes[i-1].value; 
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<< TIMINGRESULTSCOLOR<<"savekeyvalues_pipeline_sync:: keyvalues saved: offset: "<<offset_kvs * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", num keyvalues written: "<<size_kvs * VECTOR_SIZE<< RESET<<endl;
 	#endif
 	return;
 }
@@ -2282,7 +1942,7 @@ reduce(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE
 		vertex_t loc{{v}} = keyvalue{{v}}.key - upperlimit;
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		{%endfor%}
@@ -2541,7 +2201,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+		if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc{{v}}: "<<loc{{v}}<<", keyvalue{{v}}.key: "<<keyvalue{{v}}.key<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 		{%endfor%}
 		#endif 
 		
@@ -2722,157 +2382,103 @@ unifydata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFE
 	return;
 }
 
-travstate_t 
+void 
 	#ifdef SW 
 	acts::
 	#endif
-unifydata_bfs(bool_type enable, uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-				travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
-					sweepparams_t sweepparams, globalparams_t globalparams){
-	if(enable == OFF){ return actvvstravstate; }
-	analysis_type analysis_loopcount = (APPLYVERTEXBUFFERSZ / 2);
-	
-	buffer_type dest_v = 0;
-	buffer_type dest_i = 0;
-	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
-	
-	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("unifydata_bfs_syn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
-		#endif
-		keyvalue_t data; data.key = 0; data.value = 0;
-		data.key = {%for v in context['VECTOR_SIZE_seq']%}{%if(v>0)%}|{%endif%} sourcebuffer[{{v}}][i].key {%endfor%} ;
-		data.value = {%for v in context['VECTOR_SIZE_seq']%}{%if(v>0)%}|{%endif%} sourcebuffer[{{v}}][i].value {%endfor%} ;
-
-		if(data.key != 0 || data.value != 0){
-			for(unsigned int t = 0; t < 64; t+=2){
-				unsigned int vid = (sweepparams.source_partition * globalparams.applyvertexbuffersz) + i*32 + t/2; // CRITICAL FIXME. use less logic.
-				unsigned int index = 64 - t - 2;
-				unsigned int bitsize = 2;
-				unsigned int vdata = READFROM_ULONG(data, index, bitsize);
-				
-				if(vdata == VISITED_IN_CURRENT_ITERATION){
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"unifydata_bfs: ACTIVE VERTICES seen for next iteration. vid: "<<vid<<endl;
-					#endif
-					#ifdef _DEBUGMODE_CHECKS2
-					actsutilityobj->checkoutofbounds("unifydata_bfs.actvv loc", (actvvstravstate.k * 2*VECTOR_SIZE) + actvvstravstate.v, 2*PADDEDDESTBUFFER_SIZE*VECTOR_SIZE, actvvstravstate.v, actvvstravstate.k, NAp);
-					actsutilityobj->checkoutofbounds("unifydata_bfs.actvvstravstate.v", actvvstravstate.v, 2*VECTOR_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("unifydata_bfs.actvvstravstate.k", actvvstravstate.k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
-					#endif
-					if(actvvstravstate.v % 2 == 0){ actvvs[actvvstravstate.v / 2][actvvstravstate.k].key = vid; }
-					else { actvvs[actvvstravstate.v / 2][actvvstravstate.k].value = vid; }
-					actvvstravstate.v+=1; if(actvvstravstate.v == 2*VECTOR_SIZE){ actvvstravstate.v=0; actvvstravstate.k+=1; }
-				}
-			}
-		}
-		
-		if(actvvstravstate.k >= PADDEDDESTBUFFER_SIZE-32){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"unifydata_bfs: saving and clearning actvvs... i: "<<actvvstravstate.i<<", i_kvs: "<<actvvstravstate.i_kvs<<", (v: "<<actvvstravstate.v<<", k: "<<actvvstravstate.k<<")"<<endl;
-			#endif
-			savekeyvalues(ON, kvdram, actvvs, globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvstravstate.k);
-
-			actvvstravstate.i += actvvstravstate.k * (VECTOR_SIZE * 2);
-			actvvstravstate.i_kvs += actvvstravstate.k;
-			for(vector_type v=0; v<VECTOR_SIZE; v++){
-			#pragma HLS UNROLL
-				actvvs[v][0] = actvvs[v][actvvstravstate.k];
-			}
-			actvvstravstate.v = actvvstravstate.v;
-			actvvstravstate.k = 0;
-		}
-		
-		destbuffer[dest_v][destoffset_kvs + dest_i] = data;
-		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
-	}
-	return actvvstravstate;
-}
-
-travstate_t 
-	#ifdef SW 
-	acts::
-	#endif
-unifydata_bfs_serialsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-				travstate_t actvvstravstate, buffer_type destoffset, buffer_type size, 
-					sweepparams_t sweepparams, globalparams_t globalparams){
-	if(enable == OFF){ return actvvstravstate; }
+unifydata_pr_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams){
+	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
 	
 	buffer_type dest_v = 0;
 	buffer_type dest_i = 0;
 	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
 	
-	UNIFYDATA_LOOP: for(buffer_type i=0; i<size; i++){
+	UNIFYDATA_LOOP1: for(buffer_type i=0; i<size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE
-	
+	#pragma HLS PIPELINE II=2
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("unifydata_bfs_serialsyn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
+		actsutilityobj->checkoutofbounds("unifydata_pr_parallelsyn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
 		#endif
-
-		keyvalue_t data; data.key = 0; data.value = 0;
-		{%for i in context['COMPUTEUNITS_seq']%}
-		keyvalue_t data{{i}}; data{{i}}.key = 0; data{{i}}.value = 0;
-		{%endfor%}
 		
-		{%for i in context['COMPUTEUNITS_seq']%}
-		data{{i}}.key = {%for v in context['VECTOR_SIZE_seq']%}{%if(v>0)%}|{%endif%} sourcebuffer{{i}}[{{v}}][i].key {%endfor%} ;
-		{%endfor%}
-		
-		{%for i in context['COMPUTEUNITS_seq']%}
-		data{{i}}.value = {%for v in context['VECTOR_SIZE_seq']%}{%if(v>0)%}|{%endif%} sourcebuffer{{i}}[{{v}}][i].value {%endfor%} ;
-		{%endfor%}
-		
-		data.key = {%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%}|{%endif%} data{{i}}.key {%endfor%} ;
-		data.value = {%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%}|{%endif%} data{{i}}.value {%endfor%} ;
-		
-		if(data.key != 0 || data.value != 0){
-			for(unsigned int t = 0; t < 64; t+=2){
-				unsigned int vid = (sweepparams.source_partition * globalparams.applyvertexbuffersz) + i*32 + t/2; // CRITICAL FIXME. use less logic.
-				unsigned int index = 64 - t - 2;
-				unsigned int bitsize = 2;
-				unsigned int vdata = READFROM_ULONG(data, index, bitsize);
-				
-				if(vdata == VISITED_IN_CURRENT_ITERATION){
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"unifydata_bfs_serialsyn: ACTIVE VERTICES seen for next iteration. vid: "<<vid<<endl;
-					#endif
-					#ifdef _DEBUGMODE_CHECKS2
-					actsutilityobj->checkoutofbounds("unifydata_bfs_serialsyn.actvv loc", (actvvstravstate.k * VECTOR_SIZE) + actvvstravstate.v, PADDEDDESTBUFFER_SIZE*VECTOR_SIZE, actvvstravstate.v, actvvstravstate.k, NAp);
-					actsutilityobj->checkoutofbounds("unifydata_bfs_serialsyn.actvvstravstate.v", actvvstravstate.v, VECTOR_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("unifydata_bfs_serialsyn.actvvstravstate.k", actvvstravstate.k, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
-					#endif
-					actvvs[actvvstravstate.v][actvvstravstate.k].key = vid;
-					actvvs[actvvstravstate.v][actvvstravstate.k].value = NAp;
-					actvvstravstate.v+=1; if(actvvstravstate.v == VECTOR_SIZE){ actvvstravstate.v=0; actvvstravstate.k+=1; }
-					WRITETO_ULONG(&data, index, bitsize, VISITED_IN_PAST_ITERATION);
-				}
+		for(unsigned int k=0; k<2; k++){
+			{%for i in context['COMPUTEUNITS_seq']%}
+			{%for v in context['VECTOR_SIZE_seq']%}
+			keyvalue_t vdata{{i}}{{v}} = sourcebuffer{{i}}[{{v}}][i];
+			{%endfor%}
+			{%endfor%}
+			
+			{%for i in context['COMPUTEUNITS_seq']%}
+			{%for v in context['VECTOR_SIZE_seq']%}
+			value_t temp{{i}}{{v}}_code;
+			value_t temp{{i}}{{v}}_val;
+			{%endfor%}
+			{%endfor%}
+			
+			if(k==0){
+				{%for i in context['COMPUTEUNITS_seq']%}
+				{%for v in context['VECTOR_SIZE_seq']%}
+				temp{{i}}{{v}}_val = vdata{{i}}{{v}}.key;
+				{%endfor%}
+				{%endfor%}
+			} else {
+				{%for i in context['COMPUTEUNITS_seq']%}
+				{%for v in context['VECTOR_SIZE_seq']%}
+				temp{{i}}{{v}}_val = vdata{{i}}{{v}}.value;
+				{%endfor%}
+				{%endfor%}
 			}
-		}
-		
-		if(actvvstravstate.k >= PADDEDDESTBUFFER_SIZE-32){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"unifydata_bfs_serialsyn: saving and clearning actvvs... i: "<<actvvstravstate.i<<", i_kvs: "<<actvvstravstate.i_kvs<<", (v: "<<actvvstravstate.v<<", k: "<<actvvstravstate.k<<")"<<endl;
+			
+			{%for i in context['COMPUTEUNITS_seq']%}
+			value_t a{{i}} = aplus(temp{{i}}0_val, temp{{i}}1_val);
+			value_t b{{i}} = aplus(temp{{i}}2_val, temp{{i}}3_val);
+			value_t c{{i}} = aplus(temp{{i}}4_val, temp{{i}}5_val);
+			value_t d{{i}} = aplus(temp{{i}}6_val, temp{{i}}7_val);
+			{%endfor%}
+			
+			{%for i in context['COMPUTEUNITS_seq']%}
+			value_t m{{i}} = aplus(a{{i}}, b{{i}});
+			value_t n{{i}} = aplus(c{{i}}, d{{i}});
+			{%endfor%}
+			
+			{%for i in context['COMPUTEUNITS_seq']%}
+			value_t v{{i}} = aplus(m{{i}}, n{{i}});
+			{%endfor%}
+			
+			value_t w0 = aplus(v0, v1);
+			value_t w1 = aplus(v2, v3);
+			value_t w2 = aplus(v4, v5);
+			value_t w3 = aplus(v6, v7);
+			value_t w4 = aplus(v8, v9);
+			value_t w5 = aplus(v10, v11);
+			value_t w6 = aplus(v12, v13);
+			value_t w7 = aplus(v14, v15);
+			
+			value_t x0 = aplus(w0, w1);
+			value_t x1 = aplus(w2, w3);
+			value_t x2 = aplus(w4, w5);
+			value_t x3 = aplus(w6, w7);
+			
+			value_t y0 = aplus(x0, x1);
+			value_t y1 = aplus(x2, x3);
+			
+			value_t z = aplus(y0, y1);
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("unifydata_pr_parallelsyn 8", dest_v, VECTOR_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("unifydata_pr_parallelsyn 9", destoffset_kvs + dest_i, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
 			#endif
-			savekeyvalues_sync(ON, {%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} actvvs, globalparams.baseoffset_activevertices_kvs + actvvstravstate.i_kvs, actvvstravstate.k);
-
-			actvvstravstate.i += actvvstravstate.k * VECTOR_SIZE;
-			actvvstravstate.i_kvs += actvvstravstate.k;
-			for(vector_type v=0; v<VECTOR_SIZE; v++){
-			#pragma HLS UNROLL
-				actvvs[v][0] = actvvs[v][actvvstravstate.k];
+			if(k==0){ 
+				destbuffer[dest_v][destoffset_kvs + dest_i].key = z; 
+			} else {
+				destbuffer[dest_v][destoffset_kvs + dest_i].value = z;
 			}
-			actvvstravstate.v = actvvstravstate.v;
-			actvvstravstate.k = 0;
 		}
 		
-		destbuffer[dest_v][destoffset_kvs + dest_i] = data;
 		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
 	}
-	return actvvstravstate;
+	return;
 }
 
 bool_type 
@@ -3020,7 +2626,7 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=2
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("unifydata_bfs_parallelsyn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
+		actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
 		#endif
 		
 		for(unsigned int k=0; k<2; k++){
@@ -3032,10 +2638,6 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 			{%for i in context['COMPUTEUNITS_seq']%}
 			{%for v in context['VECTOR_SIZE_seq']%}
 			keyvalue_t vdata{{i}}{{v}} = sourcebuffer{{i}}[{{v}}][i];
-			
-			/////////////////////////////////////////////////////////
-			if(vdata{{i}}{{v}}.key == INVALIDDATA || vdata{{i}}{{v}}.value == INVALIDDATA){ cout<<"vdata{{i}}{{v}}.key == INVALIDDATA || vdata{{i}}{{v}}.value == INVALIDDATA. something wrong."<<endl; exit(EXIT_FAILURE); } // CRITICAL REMOVEME.
-				
 			{%endfor%}
 			{%endfor%}
 			
@@ -3061,13 +2663,6 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 				{%endfor%}
 				{%endfor%}
 			}
-			
-			/* {%for i in context['COMPUTEUNITS_seq']%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			if(temp{{i}}{{v}}_val < 100000){ cout<<"unifydata_sssp_parallelsyn:: temp{{i}}{{v}}_val: "<<temp{{i}}{{v}}_val<<", i: "<<i<<endl; }
-			// if(valvtemp{{i}}{{v}}_val < 100000){ cout<<"unifydata_sssp_parallelsyn:: valvtemp{{i}}{{v}}_val: "<<valvtemp{{i}}{{v}}_val<<", i: "<<i<<endl; }
-			{%endfor%}
-			{%endfor%} */
 				
 			{%for i in context['COMPUTEUNITS_seq']%}
 			code{{i}} = {%for v in context['VECTOR_SIZE_seq']%}{%if(v>0)%}|{%endif%} temp{{i}}{{v}}_code {%endfor%} ;
@@ -3110,7 +2705,6 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 			
 			value_t z = amin(y0, y1);
 			
-			// if(code > 1){  }
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 5", code, 2, NAp, NAp, NAp);
 			#endif
@@ -3123,7 +2717,6 @@ unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_se
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 5", vid, KVDATA_RANGE, NAp, NAp, NAp);
 				#endif
-				
 				// cout<<"unifydata_sssp_parallelsyn: vid: "<<vid<<endl;
 				
 				unsigned int rowindex = tempactvvtracker / VECTOR2_SIZE;
@@ -5047,8 +4640,12 @@ reduceupdates(
 	#pragma HLS INLINE
 	analysis_type analysis_reduceloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
 	if(enable == OFF){ return actvvstravstate; }
+	
+	unsigned int reducesubchunksz = (globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2; // NOT USED.
+	unsigned int reducechunksz_kvs = (reducesubchunksz * LOADFACTORFORREDUCE) / VECTOR_SIZE;
 
 	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == 0){ readkeyvalues(config.enablereduce, kvdram, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+	// if(sourcepartitionblock == 0){ readkeyvalues(config.enablereduce, kvdram, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + (sweepparams.source_partition * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 	replicatedata(config.enablereduce, verticesbuffer, tempverticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2));
 	MAIN_LOOP1E_REDUCE: for(batch_type offset_kvs=rtravstate.begin_kvs; offset_kvs<rtravstate.end_kvs; offset_kvs+=rtravstate.skip_kvs){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
@@ -5066,12 +4663,9 @@ reduceupdates(
 		reduce(ON, ON, keyvaluesbuffer, tempverticesbuffer, sweepparams, globalparams.GraphIter, globalparams.GraphAlgo, rtravstate, globalparams);
 		#endif
 	}
-	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-	actvvstravstate = unifydata_bfs(config.enablereduce, kvdram, tempverticesbuffer, verticesbuffer, actvvs, actvvstravstate, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), sweepparams, globalparams);
-	#else 
 	unifydata(config.enablereduce, tempverticesbuffer, verticesbuffer, (sweepparams.source_partition % LOADFACTORFORREDUCE) * ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), ((globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2), globalparams.GraphAlgo);
-	#endif
 	if((sweepparams.source_partition % LOADFACTORFORREDUCE) == LOADFACTORFORREDUCE-1){ savekeyvalues(config.enablereduce, kvdram, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
+	// if(sourcepartitionblock == globalparams.loadfactorforreduce-1){ savekeyvalues(config.enablereduce, kvdram, verticesbuffer, (globalparams.baseoffset_verticesdata_kvs + ((sweepparams.source_partition - (LOADFACTORFORREDUCE-1)) * ((globalparams.applyvertexbuffersz_kvs / VDATAPACKINGFACTOR) / 2))), PADDEDDESTBUFFER_SIZE); }
 	return actvvstravstate;
 }
 
@@ -5140,6 +4734,7 @@ processallvertices(
 			keyy_t numedges = localendvptr - localbeginvptr + 2*VECTOR_SIZE;
 			if(localbeginvptr == localendvptr){ numedges = 0; }
 			
+			// cout<<"--===[localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<"]"<<endl;
 			#ifdef _DEBUGMODE_CHECKS2
 			if(localendvptr < localbeginvptr){ cout<<"dispatch::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
 			if(localendvptr < globalparams.edgessize){ actsutilityobj->checkptr("processallvertices(2)", myfirstsrcvid, mylastsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[BASEOFFSET_EDGESDATA_KVS]); }
@@ -5953,6 +5548,8 @@ dispatch(uint512_dt * kvdram){
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		destoffset = 0;
 		bool_type enreduce = ON;
+		unsigned int local_source_partition = 0;
+		unsigned int sourcepartitionblock = 0;
 		
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions
@@ -5990,7 +5587,9 @@ dispatch(uint512_dt * kvdram){
 			if(inprocessedgesstage(currentLOP) == true){ config.enableprocessedges = ON; config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = OFF; }  // FIXME. REMOVEME. use srcvoffset instead?
 			else { avtravstate.begin_kvs = 0; avtravstate.end_kvs = 0; config.enableprocessedges = OFF; }
 			#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-			if(inprocessedgesstage(currentLOP) == true){ readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
+			if(inprocessedgesstage(currentLOP) == true){ 
+			readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); 
+			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0); }
 			#endif
 			#ifdef PR_ALGORITHM
 			processallvertices(
@@ -6033,9 +5632,6 @@ dispatch(uint512_dt * kvdram){
 			#endif 
 			#ifdef EMBEDDEDCOLLECTSTATS
 			prepareglobalstats2(config.enableprocessedges, buffer4, globalstatsbuffer, NUM_PARTITIONS, globalparams);
-			#endif
-			#if defined(_DEBUGMODE_CHECKS2) & defined(ENABLE_PERFECTACCURACY) && defined(PR_ALGORITHM)
-			if(config.enableprocessedges == ON){ actsutilityobj->checkforlessthanthan("dispatch::finished process_edges function.", actsutilityobj->globalstats_getcountnumvalidprocessedges(), globalparams.runsize, 100000); }
 			#endif
 			#endif
 			
@@ -6137,6 +5733,8 @@ dispatch(uint512_dt * kvdram){
 				sourcestatsmarker += 1;
 				deststatsmarker += NUM_PARTITIONS;
 				destoffset = globalstatsbuffer[NUM_PARTITIONS-1].key + globalstatsbuffer[NUM_PARTITIONS-1].value + 64; }
+			local_source_partition += 1;
+			if(local_source_partition >= globalparams.loadfactorforreduce){ local_source_partition = 0; sourcepartitionblock += 1; }
 			
 			#ifdef _DEBUGMODE_CHECKS
 			if(config.enablereduce == ON){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
@@ -6173,11 +5771,11 @@ dispatch(uint512_dt * kvdram){
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, edgesdstv_sum);
 	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"========== dispatch:: actvvstravstate.i: "<<actvvstravstate.i<<endl;
-	cout<<"========== dispatch:: actvvstravstate.i_kvs: "<<actvvstravstate.i_kvs<<endl;
-	cout<<"========== dispatch:: actvvstravstate.v: "<<actvvstravstate.v<<endl;
-	cout<<"========== dispatch:: actvvstravstate.k: "<<actvvstravstate.k<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"dispatch:: actvvstravstate.i: "<<actvvstravstate.i<<endl;
+	cout<<"dispatch:: actvvstravstate.i_kvs: "<<actvvstravstate.i_kvs<<endl;
+	cout<<"dispatch:: actvvstravstate.v: "<<actvvstravstate.v<<endl;
+	cout<<"dispatch:: actvvstravstate.k: "<<actvvstravstate.k<<endl;
 	#endif 
 	return;
 }
@@ -6286,7 +5884,9 @@ dispatch_processandpartitiononly(uint512_dt * kvdram,
 			if(inprocessedgesstage(currentLOP) == true){ config.enableprocessedges = ON; config.enablecollectglobalstats = OFF; config.enablepartition = OFF; config.enablereduce = OFF; }  // FIXME. REMOVEME. use srcvoffset instead?
 			else { avtravstate.begin_kvs = 0; avtravstate.end_kvs = 0; config.enableprocessedges = OFF; }
 			#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-			if(inprocessedgesstage(currentLOP) == true){ readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
+			if(inprocessedgesstage(currentLOP) == true){ 
+			readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); 
+			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0); }
 			#endif
 			#ifdef PR_ALGORITHM
 			processallvertices(
@@ -6877,6 +6477,186 @@ dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams){
 	return;
 }
 
+void
+	#ifdef SW 
+	acts::
+	#endif 
+dispatch_reduceonly(
+			uint512_dt * kvdram,
+			keyvalue_t tempverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			keyvalue_t vubufferpp0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			keyvalue_t vubufferpp1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+			globalparams_t globalparams){
+	analysis_type analysis_sourceploop = (1 << (NUM_PARTITIONS_POW * TREE_DEPTH));
+	analysis_type analysis_reduceloop = (MAXKVDATA_BATCHSIZE / (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))) / SRCBUFFER_SIZE;
+	analysis_type analysis_treedepth = TREE_DEPTH;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	
+	keyvalue_t sourcevbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = sourcevbuffer
+	keyvalue_t destvbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = destvbuffer	
+	keyvalue_t unused_tempverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = unused_tempverticesbuffer	
+	keyvalue_t unused_vubufferpp0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]; // share?
+	#pragma HLS array_partition variable = unused_vubufferpp0
+	keyvalue_t unused_vubufferpp1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	#pragma HLS array_partition variable = unused_vubufferpp1
+	
+	travstate_t rtravstate;
+	travstate_t rtravstatepp0;
+	travstate_t rtravstatepp1;
+	keyvalue_t moretravstates[MAXLOADFACTORFORREDUCE];
+	#pragma HLS array_partition variable = moretravstates
+	
+	unsigned int en;
+	#pragma HLS ARRAY_PARTITION variable=en complete
+	unsigned int enpp0;
+	#pragma HLS ARRAY_PARTITION variable=enpp0 complete
+	unsigned int enpp1;
+	#pragma HLS ARRAY_PARTITION variable=enpp1 complete
+	sweepparams_t sweepparams;
+	
+	bool_type pp0writeen = ON;
+	bool_type writeen_actvvs = ON;
+	bool_type nonzeroactvvsreturned = ON;
+	
+	batch_type offset1_kvs;
+	batch_type offset2_kvs;
+	batch_type offset_kvs;
+	
+	step_type currentLOP = globalparams.beginLOP + globalparams.numLOPs - 1;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	unsigned int sourcestatsmarker = 0;
+	for(unsigned int k=0; k<globalparams.treedepth; k++){ 
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
+		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
+	}
+	batch_type ntravszs = 0;
+	unsigned int reducesubchunksz = (globalparams.applyvertexbuffersz / VDATAPACKINGFACTOR) / 2; // NOT USED.
+	unsigned int reducechunksz_kvs = (reducesubchunksz * LOADFACTORFORREDUCE) / VECTOR_SIZE;
+	unsigned int sourcepartitionblock = 0;
+
+	MAIN_LOOP: for(batch_type source_partition=0; source_partition<num_source_partitions + 1; source_partition+=globalparams.loadfactorforreduce){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_sourceploop avg=analysis_sourceploop
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		actsutilityobj->print3("### dispatch::reduce:: source_partition", "sourcepartitionblock", "currentLOP", source_partition, sourcepartitionblock, currentLOP); 							
+		#endif
+		
+		bool_type enablereduce = ON;
+		bool_type enableflush = OFF;
+		
+		if(source_partition >= num_source_partitions){ enableflush = ON; } else { enableflush = OFF; }
+		
+		if(enableflush == OFF){
+		rtravstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker, source_partition, moretravstates); }
+		ntravszs = 0;
+		for(batch_type k=0; k<globalparams.loadfactorforreduce; k++){ ntravszs += moretravstates[k].value; }
+		if((ntravszs == 0) || (source_partition >= num_source_partitions)){ enablereduce = OFF; } else { enablereduce = ON; }
+		
+		if(enablereduce == ON || enableflush == ON){
+			readkeyvalues(enablereduce, kvdram, sourcevbuffer, (globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
+			replicatedata(enablereduce, sourcevbuffer, tempverticesbuffer, 0, reducesubchunksz);
+	
+			MAIN_LOOP2: for(batch_type index=0; index<globalparams.loadfactorforreduce; index+=1){
+				unsigned int spartition = source_partition + index;
+				sweepparams = getsweepparams(globalparams, currentLOP, spartition);
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				if(enablereduce == ON){ for(unsigned int i = 0; i < 1; i++){ actsutilityobj->print7("dispatch::reduce:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", source_partition + index, sweepparams.upperlimit, rtravstate[i].begin_kvs * VECTOR_SIZE, rtravstate[i].end_kvs * VECTOR_SIZE, rtravstate[i].size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }}
+				else { actsutilityobj->print7("dispatch::flush:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", source_partition + index, sweepparams.upperlimit, NAp, NAp, NAp, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }
+				#endif
+					
+				rtravstatepp0 = rtravstate; 
+				rtravstatepp1 = rtravstate; 
+				
+				unsigned int enpp1f = ON;
+				#ifdef PP1
+				unsigned int totsz_kvs = rtravstate.size_kvs + rtravstate.skip_kvs;
+				#else 
+				unsigned int totsz_kvs = rtravstate.size_kvs;
+				#endif
+				if(enablereduce == OFF){ totsz_kvs = 0; }
+
+				#ifdef PP1
+				MAIN_LOOP1E_REDUCE: for(offset_kvs=0; offset_kvs<totsz_kvs; offset_kvs+=2*rtravstate.skip_kvs){
+				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					actsutilityobj->print5("### dispatch::reduce:: offset1_kvs", "offset2_kvs", "begin_kvs", "end_kvs", "skip", rtravstate.begin_kvs + offset1_kvs, rtravstate.begin_kvs + offset2_kvs, rtravstate.begin_kvs, rtravstate.end_kvs, SRCBUFFER_SIZE); 
+					#endif
+					
+					if(offset_kvs > 0){ enpp1f = ON; } else { enpp1f = OFF; }
+					
+					// read 0
+					offset1_kvs = offset_kvs;
+					if(offset1_kvs < rtravstate.size_kvs){ enpp0 = ON; } else { enpp0 = OFF; }
+					if(enpp0 == ON){ rtravstatepp0.i_kvs = rtravstatepp0.begin_kvs + offset1_kvs; }
+					readkeyvalues(enpp0, kvdram, vubufferpp0, (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0.begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0);
+					// reduce 1
+					reduce(enpp1f, enpp1, vubufferpp1, tempverticesbuffer, sweepparams, globalparams.GraphIter, globalparams.GraphAlgo, rtravstatepp1, globalparams); 
+					
+					// reduce 0
+					reduce(ON, enpp0, vubufferpp0, tempverticesbuffer, sweepparams, globalparams.GraphIter, globalparams.GraphAlgo, rtravstatepp0, globalparams);
+					// read 1
+					offset2_kvs = offset_kvs + rtravstate.skip_kvs;
+					if(offset2_kvs < rtravstate.size_kvs){ enpp1 = ON; } else { enpp1 = OFF; }
+					if(enpp1 == ON){ rtravstatepp1.i_kvs = rtravstatepp1.begin_kvs + offset2_kvs; }
+					readkeyvalues(enpp1, kvdram, vubufferpp1, (sweepparams.worksourcebaseaddress_kvs + rtravstatepp1.begin_kvs + offset2_kvs), SRCBUFFER_SIZE, rtravstatepp1);
+				}
+				#else 
+				MAIN_LOOP1E_REDUCE: for(offset_kvs=0; offset_kvs<totsz_kvs; offset_kvs+=rtravstate.skip_kvs){
+				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_reduceloop avg=analysis_reduceloop
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					actsutilityobj->print4("### dispatch::reduce:: offset_kvs", "begin_kvs", "end_kvs", "skip", rtravstate.begin_kvs + offset_kvs, rtravstate.begin_kvs, rtravstate.end_kvs, SRCBUFFER_SIZE); 
+					#endif
+				
+					if(offset_kvs < rtravstate.size_kvs){ en = ON; } else { en = OFF; }
+					if(en == ON){ rtravstate.i_kvs = rtravstate.begin_kvs + offset_kvs; }
+
+					readkeyvalues(en, kvdram, vubufferpp0, (sweepparams.worksourcebaseaddress_kvs + rtravstate.begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate);
+		
+					reduce(ON, en, vubufferpp0, tempverticesbuffer, sweepparams, globalparams.GraphIter, globalparams.GraphAlgo, rtravstate[{{i}}], globalparams);
+				}	
+				#endif
+				
+				unifydata(enablereduce, tempverticesbuffer, destvbuffer, index * reducesubchunksz, reducesubchunksz, globalparams.GraphAlgo);
+	
+				// overlap functions for next iteration
+				if(index < globalparams.loadfactorforreduce-1){ 
+					replicatedata(enablereduce, sourcevbuffer, tempverticesbuffer, (index + 1) * reducesubchunksz, reducesubchunksz);
+					rtravstate = gettravstate(enablereduce, kvdram, globalparams, currentLOP, sourcestatsmarker + index + 1, spartition + 1, moretravstates);
+				}
+			}
+			
+			savekeyvalues(enablereduce, kvdram, destvbuffer, (globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
+		}
+		
+		sourcestatsmarker += globalparams.loadfactorforreduce;
+		sourcepartitionblock += 1;
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		actsutilityobj->printglobalvars();
+		actsutilityobj->clearglobalvars();
+		#endif
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(kvdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, NAp);
+	#endif
+	return;
+}
+
 travstate_t
 	#ifdef SW 
 	acts::
@@ -6902,7 +6682,6 @@ dispatch_reduceonly_parallelsync(
 	
 	keyvalue_t sourcevbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = sourcevbuffer
-
 	keyvalue_t destvbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = destvbuffer	
 	{%for i in context['COMPUTEUNITS_seq']%}
@@ -7157,7 +6936,8 @@ dispatch_reduceonly_parallelsync(
 				#endif
 				
 				#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
-				// NOT IMPLEMENTED.
+				unifydata_pr_parallelsyn(enablereduce, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} destvbuffer, 
+						index * reducesubchunksz, reducesubchunksz, sweepparams, _globalparams);
 				#endif
 				#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 				bool_type nonzeroactvvsreturned = unifydata_bfs_parallelsyn(enablereduce, {%for i in context['COMPUTEUNITS_seq']%}tempverticesbuffer{{i}},{%endfor%} destvbuffer, 
@@ -7336,7 +7116,6 @@ topkernel(uint512_dt * vdram {%for i in context['COMPUTEUNITS_seq']%},uint512_dt
 	travstate_t actvvstravstate[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=actvvstravstate complete
 	
-	// globalparams[0] = getglobalparams(vdram);
 	{%for i in context['COMPUTEUNITS_seq']%} 
 	globalparams[{{i}}] = getglobalparams(kvdram{{i}});
 	{%endfor%}
@@ -7350,6 +7129,26 @@ topkernel(uint512_dt * vdram {%for i in context['COMPUTEUNITS_seq']%},uint512_dt
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ globalparams[i].GraphIter = GraphIter; }
 		
+		#ifdef ALLVERTEXISACTIVE_ALGORITHM
+		if(globalparams[0].processcommand == ON){
+			{%for i in context['COMPUTEUNITS_seq']%}
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			cout<<">>> Light weight ACTS: Processing & partitioning instance {{i}} "<<endl;
+			#endif
+			dispatch_processandpartitiononly(kvdram{{i}}, buffer1{{i}}, buffer2{{i}}, buffer3{{i}}, globalparams[{{i}}]);
+			{%endfor%}
+		}
+		if(globalparams[0].reducecommand == ON){
+			{%for i in context['COMPUTEUNITS_seq']%}			
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			cout<<">>> Light weight ACTS: Reducing instance {{i}} "<<endl;
+			#endif
+			dispatch_reduceonly(kvdram{{i}}, buffer1{{i}}, buffer2{{i}}, buffer3{{i}}, globalparams[{{i}}]);
+			{%endfor%}
+		}
+		#endif
+
+		#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
 		{%for i in context['COMPUTEUNITS_seq']%}
 		batch_type sourcestatsmarker{{i}} = 0;
 		batch_type deststatsmarker{{i}} = 1;
@@ -7368,16 +7167,11 @@ topkernel(uint512_dt * vdram {%for i in context['COMPUTEUNITS_seq']%},uint512_dt
 		
 			{%for i in context['COMPUTEUNITS_seq']%}
 			sourcestatsmarker{{i}} = sourcestatsmarker0; deststatsmarker{{i}} = deststatsmarker0; destoffset{{i}} = destoffset0;
-			{%endfor%} 
+			{%endfor%}
 		}
-		
 		if(globalparams[0].partitioncommand == ON){
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<">>> Light weight ACTS: Partitioning Instance: ";
-			#endif
-			
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"0 ";
 			#endif
 			{%for i in context['COMPUTEUNITS_seq']%} 
 			#ifdef _DEBUGMODE_KERNELPRINTS3
@@ -7389,42 +7183,23 @@ topkernel(uint512_dt * vdram {%for i in context['COMPUTEUNITS_seq']%},uint512_dt
 			cout<<endl;
 			#endif 
 		}
-		
-		#ifdef REDUCEUPDATES
 		if(globalparams[0].reducecommand == ON){
 			#ifdef _DEBUGMODE_KERNELPRINTS3
 			cout<<">>> Light weight ACTS: Reducing Instances 0-{{context['NUMCOMPUTEUNITS']-1}} "<<endl;
 			#endif
-			#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
-			// dispatch_reduceonly(vdram, globalparams[0]);
-			{%for i in context['COMPUTEUNITS_seq']%} 
-			dispatch_reduceonly(kvdram{{i}}, globalparams[{{i}}]);
-			{%endfor%}					
-			#endif 
-			#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-			actvvstravstate[0] = dispatch_reduceonly_parallelsync(
-										vdram,
-										{%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer1{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer2{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer3{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer4{{i}},{%endfor%} 
-										actvvstravstate[0], globalparams);
-			#endif 
-			#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-			actvvstravstate[0] = dispatch_reduceonly_parallelsync(
-										vdram,
-										{%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%}  
-										{%for i in context['COMPUTEUNITS_seq']%}buffer1{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer2{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer3{{i}},{%endfor%} 
-										{%for i in context['COMPUTEUNITS_seq']%}buffer4{{i}},{%endfor%} 
-										actvvstravstate[0], globalparams);
-			#endif 
+			actvvstravstate[0] = 
+				dispatch_reduceonly_parallelsync(
+					vdram,
+					{%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} 
+					{%for i in context['COMPUTEUNITS_seq']%}buffer1{{i}},{%endfor%} 
+					{%for i in context['COMPUTEUNITS_seq']%}buffer2{{i}},{%endfor%} 
+					{%for i in context['COMPUTEUNITS_seq']%}buffer3{{i}},{%endfor%} 
+					{%for i in context['COMPUTEUNITS_seq']%}buffer4{{i}},{%endfor%} 
+					actvvstravstate[0], globalparams);
 		}
 		#endif 
 		
-		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM) && defined(LOGKERNELSTATS)
+		#if defined(RANDOMVERTEXISACTIVE_ALGORITHM) && defined(LOGKERNELSTATS)
 		#ifdef _WIDEWORD
 		vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].range(31, 0) = actvvstravstate[0].i;
 		#else 
