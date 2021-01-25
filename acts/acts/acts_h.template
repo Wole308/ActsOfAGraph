@@ -307,7 +307,8 @@ public:
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
 		travstate_t rtravstate,
-		travstate_t actvvstravstate);
+		travstate_t actvvstravstate,
+		unsigned int local_source_partition);
 		
 	// process vertices
 	void processallvertices(
@@ -340,19 +341,19 @@ public:
 	void processoffsets(
 		uint512_dt * kvdram,
 		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t kvbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		#ifndef COMPACTEDGES
-		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t kvbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		#endif
 		globalparams_t globalparams,
 		batch_type offset_kvs,
 		buffer_type actvvscount,
 		travstate_t actvvtravstate,
 		value_t * _buffersize_kvs,
-		batch_type * _saveoffset_kvs,
+		batch_type * _saveoffset_kvs
 		#ifdef _DEBUGMODE_STATS
-		unsigned int * _edges_count,
-		unsigned int * _edgesdstv_sum
+		,unsigned int * _edges_count
+		,unsigned int * _edgesdstv_sum
 		#endif
 		);
 	
@@ -371,26 +372,32 @@ public:
 	void dispatch(uint512_dt * kvdram);
 	
 	void dispatch_processandpartitiononly(uint512_dt * kvdram, 
-			keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			globalparams_t globalparams);
+		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		globalparams_t globalparams);
 			
 	void dispatch_processonly(
 		uint512_dt * vdram,
 		{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
-		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}  
-		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer4{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}  
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t offsets{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t kvbuffer1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t kvbuffer2{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
 		globalparams_t globalparams[NUMCOMPUTEUNITS], batch_type * _sourcestatsmarker, batch_type * _deststatsmarker, batch_type * _destoffset);
 
-	void dispatch_partitiononly(uint512_dt * kvdram, 
-			keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			globalparams_t * _globalparams,
-			batch_type * _sourcestatsmarker,
-			batch_type * _deststatsmarker,
-			batch_type * _destoffset);
+	void dispatch_partitiononly(
+		uint512_dt * kvdram, 
+		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		globalparams_t * _globalparams,
+		batch_type * _sourcestatsmarker,
+		batch_type * _deststatsmarker,
+		batch_type * _destoffset
+		);
 	
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
@@ -400,11 +407,10 @@ public:
 			keyvalue_t vubufferpp0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 			keyvalue_t vubufferpp1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 			globalparams_t globalparams);
-	
+
 	travstate_t dispatch_reduceonly_parallelsync(
-			uint512_dt * vdram,
-			{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
-			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t actvvs{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
+			uint512_dt * vdram, 
+			{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp0{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} 
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vubufferpp1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}

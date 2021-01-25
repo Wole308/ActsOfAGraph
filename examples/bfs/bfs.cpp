@@ -62,7 +62,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	packedvertexptrbuffer = new edge_t[KVDATA_RANGE];
 	
 	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, vdram, kvbuffer);
 	#endif
 }
 bfs::~bfs(){
@@ -88,7 +88,7 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 6; // 6
+	unsigned int NumGraphIters = 3; // 6
 	container_t container;
 	vector<value_t> activevertices;
 

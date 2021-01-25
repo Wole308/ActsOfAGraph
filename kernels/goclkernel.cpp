@@ -117,7 +117,13 @@ void goclkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourced
 	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
 		//Setting the k_vadd Arguments
 		#ifdef MULTIACTSINSTANCES
-		for(unsigned int j=0; j<TOTALNUMBUFFERS; j++){ OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); }
+		for(unsigned int j=0; j<TOTALNUMBUFFERS; j++){
+			if(j==0){
+				OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); 
+			} else {
+				OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); 
+			}
+		}
 		#else 
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
 		#endif 
@@ -142,80 +148,68 @@ void goclkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourced
 	return;
 }
 
-void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	cout<<"goclkernel::writetokernel(A)::1st of "<<TOTALNUMKERNELS<<":: hostbeginoffset: "<<hostbeginoffset<<", beginoffset "<<beginoffset<<" size: "<<size<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
-	#endif
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ kernel_events[i].wait(); } // REMOVEME.
-	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
-		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
-		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[subthreadid][(hostbeginoffset / VECTOR_SIZE)])));
-	}
-    q.finish();
-}
-void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS], unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]){
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ kernel_events[i].wait(); } // REMOVEME.
+void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS], unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]){
+	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ kernel_events[i].wait(); } 
 	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS2
 		cout<<"goclkernel::writetokernel(B):: hostbeginoffset: "<<hostbeginoffset[subthreadid]<<", beginoffset["<<subthreadid<<"] "<<beginoffset[subthreadid]<<" size["<<subthreadid<<"]: "<<size[subthreadid]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
 		#endif
-		if(size[subthreadid] == 0){ size[subthreadid] = 1024; } // REMOVEME?
-		#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
-		OCL_CHECK(err, err = q.enqueueWriteBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset[subthreadid] * sizeof(keyvalue_t), size[subthreadid] * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[subthreadid][(hostbeginoffset[subthreadid] / VECTOR_SIZE)]), NULL, &write_event[i])); 											
-		#else 
-		OCL_CHECK(err,
-				  err = q.enqueueMigrateMemObjects(
+		if(size[subthreadid] == 0){ size[subthreadid] = 1024; } 
+		if(i==0){
+			OCL_CHECK(err,
+				err = q.enqueueMigrateMemObjects(
 					  {buffer_kvsourcedram[i]},
 					  0,
 					  NULL,
 					  &write_event[i]));
-		#endif
+		} else {
+			OCL_CHECK(err,
+				err = q.enqueueMigrateMemObjects(
+					  {buffer_kvsourcedram[i]},
+					  0,
+					  NULL,
+					  &write_event[i]));
+		}
 		set_callback2(write_event[i], "ooo_queue");
 	}
     q.finish();
 }
 
-void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	cout<<"goclkernel::readfromkernel(A)::1st of "<<TOTALNUMKERNELS<<":: hostbeginoffset: "<<hostbeginoffset<<", beginoffset "<<beginoffset<<" size: "<<size<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;
-	#endif
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ kernel_events[i].wait(); } // REMOVEME.
-	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
-		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
-		OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset * sizeof(keyvalue_t), size * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[subthreadid][(hostbeginoffset / VECTOR_SIZE)])));
-	}
-    q.finish();
-}
-void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS], unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]){				
+void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS], unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]){				
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"goclkernel::readfromkernel(B)::1st of "<<TOTALNUMKERNELS<<":: hostbeginoffset: "<<hostbeginoffset[0]<<", beginoffset[0][0] "<<beginoffset[0]<<" size[0][0]: "<<size[0]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
 	#endif
-	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ OCL_CHECK(err, err = kernel_events[i].wait()); } // REMOVEME.
+	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ OCL_CHECK(err, err = kernel_events[i].wait()); } 
 	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS2
 		cout<<"goclkernel::readfromkernel:: hostbeginoffset: "<<hostbeginoffset[subthreadid]<<", beginoffset["<<subthreadid<<"] "<<beginoffset[subthreadid]<<" size["<<subthreadid<<"]: "<<size[subthreadid]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
-		#endif 
-		#ifdef ACCESSFPGABY_ENQUEUEWRITEBUFFER
-		OCL_CHECK(err, err = q.enqueueReadBuffer(buffer_kvsourcedram[i], CL_FALSE, beginoffset[subthreadid] * sizeof(keyvalue_t), size[subthreadid] * sizeof(keyvalue_t), (keyvalue_t *)(&kvsourcedram[subthreadid][(hostbeginoffset[subthreadid] / VECTOR_SIZE)]), &eventList, &read_events[i]));
-		#else 
-		OCL_CHECK(err,
+		#endif
+		if(i==0){
+			OCL_CHECK(err,
 				  err = q.enqueueMigrateMemObjects(
 					  {buffer_kvsourcedram[i]},
 					  CL_MIGRATE_MEM_OBJECT_HOST,
 					  NULL, // &eventList,
-                      &read_events[i]));	
-		#endif
+					  &read_events[i]));
+		} else {
+			OCL_CHECK(err,
+				  err = q.enqueueMigrateMemObjects(
+					  {buffer_kvsourcedram[i]},
+					  CL_MIGRATE_MEM_OBJECT_HOST,
+					  NULL, // &eventList,
+					  &read_events[i]));	
+		}
 		set_callback2(read_events[i], "ooo_queue");
 		OCL_CHECK(err, err = read_events[i].wait());
 	}
     q.finish();
 }
 
-void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
+void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
 	binaryFile = _binaryFile;
 
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
@@ -280,9 +274,15 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
 	unsigned int counter = 0;
 	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
-		inoutBufExt[i].obj = kvsourcedram[counter++];
-		inoutBufExt[i].param = 0;
-		inoutBufExt[i].flags = bank[i];
+		if(i==0){
+			inoutBufExt[i].obj = vdram;
+			inoutBufExt[i].param = 0;
+			inoutBufExt[i].flags = bank[i];
+		} else {
+			inoutBufExt[i].obj = kvsourcedram[counter++];
+			inoutBufExt[i].param = 0;
+			inoutBufExt[i].flags = bank[i];
+		}
 	}
 	
     // These commands will allocate memory on the FPGA. The cl::Buffer objects can
@@ -290,14 +290,25 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * kvs
     // Creating Buffers
 	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 		cout<<"creating buffer for ACTS: "<<i<<endl;
-		OCL_CHECK(err,
-				  buffer_kvsourcedram[i] =
-					  cl::Buffer(context,
-								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-								 inputdata_size_bytes,
-								 &inoutBufExt[i],
-								 &err));
+		if(i==0){
+			OCL_CHECK(err,
+			  buffer_kvsourcedram[i] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+								 CL_MEM_USE_HOST_PTR,
+							 inputdata_size_bytes,
+							 &inoutBufExt[i],
+							 &err));
+		} else {
+			OCL_CHECK(err,
+			  buffer_kvsourcedram[i] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+								 CL_MEM_USE_HOST_PTR,
+							 inputdata_size_bytes,
+							 &inoutBufExt[i],
+							 &err));
+		}
 	}
 	return;
 }

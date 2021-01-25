@@ -58,7 +58,7 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 	}
 	
 	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, kvbuffer);
+	setupkernelobj->loadOCLstructures(binaryFile, vdram, kvbuffer);
 	#endif
 }
 sssp::~sssp(){

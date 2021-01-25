@@ -94,14 +94,8 @@ unsigned int setupkernel::getflag(unsigned int globaliteration_idx){
 	return flag;
 }
 #ifdef FPGA_IMPL 
-void setupkernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
-	kernelobj->loadOCLstructures(binaryFile, kvsourcedram);
-}
-void setupkernel::writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
-	kernelobj->writetokernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
-}
-void setupkernel::readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size){
-	kernelobj->readfromkernel(flag, kvsourcedram, hostbeginoffset, beginoffset, size);
+void setupkernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
+	kernelobj->loadOCLstructures(binaryFile, vdram, kvsourcedram);
 }
 void setupkernel::finishOCL(){
 	kernelobj->finishOCL();

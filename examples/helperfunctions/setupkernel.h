@@ -27,9 +27,7 @@ public:
 	
 	unsigned int getflag(unsigned int globaliteration_idx);
 	#ifdef FPGA_IMPL 
-	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
-	void writetokernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);
-	void readfromkernel(unsigned int flag, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset, unsigned int beginoffset, unsigned int size);				
+	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	void finishOCL();
 	#endif
 	#ifdef GRAFBOOST_SETUP 

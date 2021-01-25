@@ -377,8 +377,8 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		#endif
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // NUMSUBCPUTHREADS
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	for(unsigned int i=1; i<2; i++){ // NUMSUBCPUTHREADS
 		// utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&edges[i][baseoffset_edgedata], 16);
 		// utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&edges[i][baseoffset_edgedata+container->runsize[i]-32], 16);
 		// utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);

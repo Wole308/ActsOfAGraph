@@ -90,6 +90,13 @@
 	#define COLLECTSTATSOFFLINE
 #endif
 
+#if defined(_HOLLYWOOD_1M_57M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
+#define GRAPHISUNDIRECTED
+#else 
+// #define GRAPHISUNDIRECTED
+#endif 
+
+
 ////////////////
 
 #define _DEBUGMODE_HEADER //
@@ -101,7 +108,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-// #define _DEBUGMODE_KERNELPRINTS2 //
+#define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //

@@ -62,7 +62,9 @@ CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=23
 CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=24
 AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=25
 
-HW__ACTGRAPH_SETUP__VHLS=26
+HW__ACTGRAPH_SETUP__PR_VHLS=26
+HW__ACTGRAPH_SETUP__BFS_VHLS=27
+HW__ACTGRAPH_SETUP__SSSP_VHLS=28
 
 ORKUT_3M_106M=30
 HOLLYWOOD_1M_57M=31
@@ -119,9 +121,9 @@ do
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
@@ -144,7 +146,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $HW__ACTGRAPH_SETUP__VHLS
+	# for setup in $HW__ACTGRAPH_SETUP__PR_VHLS
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
+	# for setup in $HW__ACTGRAPH_SETUP__SSSP_VHLS
 	
 	do 
 		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
@@ -416,18 +420,43 @@ do
 				SETUP_NAME="actgraph_pr_hw"
 			fi
 			
-		elif [ $setup == $HW__ACTGRAPH_SETUP__VHLS ] #nothing
+		elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] #nothing
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
-			# ALGORITHM="PR_ALGORITHM" 
-			ALGORITHM="BFS_ALGORITHM"
+			ALGORITHM="PR_ALGORITHM" 
 			ALGORITHMABBRV="pr"
 			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
 			then 
 				SETUP_NAME="actgraphlw_pr_hw"
 			else 
 				SETUP_NAME="actgraph_pr_hw"
+			fi
+			
+		elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] #nothing
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="BFS_ALGORITHM"
+			ALGORITHMABBRV="bfs"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_hw"
+			else 
+				SETUP_NAME="actgraph_bfs_hw"
+			fi
+			
+		elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ] #nothing
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP"
+			ALGORITHM="SSSP_ALGORITHM"
+			ALGORITHMABBRV="sssp"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_sssp_hw"
+			else 
+				SETUP_NAME="actgraph_sssp_hw"
 			fi
 			
 		else 
@@ -960,9 +989,18 @@ do
 							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
 							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
 							
-						elif [ $setup == $HW__ACTGRAPH_SETUP__VHLS ]
+						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ]
 						then
 							make cleanall
+							
+						elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ]
+						then
+							make cleanall
+							
+						elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
+						then
+							make cleanall
+							
 						else 
 							XWARE="" 
 							SETUP="" 
