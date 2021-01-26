@@ -49,6 +49,8 @@ using namespace std;
 #define LOGKERNELSTATS
 #define RUNSTATSSZ 64
 
+// #define HYBRIDACCESSMODE
+
 class acts {
 public:
 	acts();
@@ -110,7 +112,7 @@ public:
 	void setkeyvalues(uint512_dt * keyvalues, unsigned int offset_kvs, uint512_vec_dt D);
 	void setkey(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyy_t key);
 	unsigned int fillintheblancks(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int index);
-	
+	unsigned int gethybridthreshold(globalparams_t globalparams);
 	// partition function 
 	partition_type getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow);
 
@@ -338,13 +340,22 @@ public:
 		sweepparams_t sweepparams,
 		travstate_t avtravstate);
 		
-	buffer_type generateoffsets(
+	buffer_type generateoffsets_random(
 			uint512_dt * kvdram, 
 			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 			travstate_t actvvtravstate, 
-			globalparams_t globalparams);
+			globalparams_t globalparams,
+			batch_type actvvsoffset_kvs);
 			
+	buffer_type generateoffsets_stream(
+			uint512_dt * kvdram, 
+			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+			travstate_t actvvtravstate, 
+			globalparams_t globalparams,
+			batch_type actvvsoffset_kvs);
+		
 	void processoffsets(
 		uint512_dt * kvdram,
 		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
@@ -357,7 +368,8 @@ public:
 		buffer_type actvvscount,
 		travstate_t actvvtravstate,
 		value_t * _buffersize_kvs,
-		batch_type * _saveoffset_kvs
+		batch_type * _saveoffset_kvs,
+		batch_type * _cachebeginoffset_kvs
 		#ifdef _DEBUGMODE_STATS
 		,unsigned int * _edges_count
 		,unsigned int * _edgesdstv_sum
