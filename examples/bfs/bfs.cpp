@@ -88,13 +88,13 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 3; // 6
+	unsigned int NumGraphIters = 1; // 6
 	container_t container;
 	vector<value_t> activevertices;
 
-	activevertices.push_back(1);
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
@@ -191,13 +191,16 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	verifykvLOP((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
 	
 	// 5th check 
-	edges5_count = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
-	edgesdstv5_sum = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
+	// edges5_count = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
+	// edgesdstv5_sum = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
+	edges5_count = vdram[PADDEDVDRAMSZ_KVS-1].data[3].key; 
+	edgesdstv5_sum = vdram[PADDEDVDRAMSZ_KVS-1].data[4].key; 
 
 	// 6th check 
 	unsigned int actvvsdstv1_sum = 0;
 	unsigned int cctv = 0;
-	unsigned int sz = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
+	// unsigned int sz = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
+	unsigned int sz = vdram[PADDEDVDRAMSZ_KVS-1].data[5].key;
 	actvvs_verbosecount = sz;
 	keyy_t * KK = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES_KVS];
 	unsigned int localactvvs_count = 0;

@@ -1090,44 +1090,6 @@ setkeyvalue(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyv
 	
 	return;
 }
-/* void 
-	#ifdef SW 
-	acts::
-	#endif
-setkeyvalue(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyvalue_t keyvalue){
-	uint512_vec_dt D = getkeyvalues(keyvalues, offset_kvs);
-	D.data[v] = keyvalue;
-	
-	#ifdef _WIDEWORD
-	keyvalues[offset_kvs].range(31, 0) = D.data[0].key;
-	keyvalues[offset_kvs].range(63, 32) = D.data[0].value;
-	keyvalues[offset_kvs].range(95, 64) = D.data[1].key;
-	keyvalues[offset_kvs].range(127, 96) = D.data[1].value;
-	keyvalues[offset_kvs].range(159, 128) = D.data[2].key;
-	keyvalues[offset_kvs].range(191, 160) = D.data[2].value;
-	keyvalues[offset_kvs].range(223, 192) = D.data[3].key;
-	keyvalues[offset_kvs].range(255, 224) = D.data[3].value;
-	keyvalues[offset_kvs].range(287, 256) = D.data[4].key;
-	keyvalues[offset_kvs].range(319, 288) = D.data[4].value;
-	keyvalues[offset_kvs].range(351, 320) = D.data[5].key;
-	keyvalues[offset_kvs].range(383, 352) = D.data[5].value;
-	keyvalues[offset_kvs].range(415, 384) = D.data[6].key;
-	keyvalues[offset_kvs].range(447, 416) = D.data[6].value;
-	keyvalues[offset_kvs].range(479, 448) = D.data[7].key;
-	keyvalues[offset_kvs].range(511, 480) = D.data[7].value;
-	#else
-	keyvalues[offset_kvs].data[0] = D.data[0];
-	keyvalues[offset_kvs].data[1] = D.data[1];
-	keyvalues[offset_kvs].data[2] = D.data[2];
-	keyvalues[offset_kvs].data[3] = D.data[3];
-	keyvalues[offset_kvs].data[4] = D.data[4];
-	keyvalues[offset_kvs].data[5] = D.data[5];
-	keyvalues[offset_kvs].data[6] = D.data[6];
-	keyvalues[offset_kvs].data[7] = D.data[7];
-	#endif 
-	
-	return;
-} */
 void 
 	#ifdef SW 
 	acts::
@@ -3426,7 +3388,7 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				colindexs7 = (locs7 % (2 * VDATAPACKINGFACTOR)) * 2;  // max:62
 			}
 			
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS //  _DEBUGMODE_CHECKS2
 			if(en0 == ON && en20 == ON){
 				if(locs0 >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
 				#ifdef ENABLE_VOICEOUTREDUCEERRORS
@@ -3764,7 +3726,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		#endif 
 		
 		if(loc0 >= globalparams.applyvertexbuffersz && keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3781,7 +3743,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc0 = 0;
 		} // REMOVEME.
 		if(loc1 >= globalparams.applyvertexbuffersz && keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3798,7 +3760,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc1 = 0;
 		} // REMOVEME.
 		if(loc2 >= globalparams.applyvertexbuffersz && keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3815,7 +3777,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc2 = 0;
 		} // REMOVEME.
 		if(loc3 >= globalparams.applyvertexbuffersz && keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3832,7 +3794,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc3 = 0;
 		} // REMOVEME.
 		if(loc4 >= globalparams.applyvertexbuffersz && keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3849,7 +3811,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc4 = 0;
 		} // REMOVEME.
 		if(loc5 >= globalparams.applyvertexbuffersz && keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3866,7 +3828,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc5 = 0;
 		} // REMOVEME.
 		if(loc6 >= globalparams.applyvertexbuffersz && keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3883,7 +3845,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 			loc6 = 0;
 		} // REMOVEME.
 		if(loc7 >= globalparams.applyvertexbuffersz && keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -3961,227 +3923,38 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		
 		value_t temp0_code = READFROM_UINT(temp0, 30, 2);
 		value_t temp0_val = READFROM_UINT(temp0, 0, 30);
-		/* if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp0: "<<temp0;
-			cout<<", temp0_code: "<<temp0_code;
-			cout<<", temp0_val: "<<temp0_val;
-			cout<<", keyvalue0.value: "<<keyvalue0.value;
-			cout<<", rowindex0: "<<rowindex0;
-			cout<<", colindex0: "<<colindex0;
-			cout<<endl;
-		} */
-		
 		value_t temp1_code = READFROM_UINT(temp1, 30, 2);
 		value_t temp1_val = READFROM_UINT(temp1, 0, 30);
-		/* if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp1: "<<temp1;
-			cout<<", temp1_code: "<<temp1_code;
-			cout<<", temp1_val: "<<temp1_val;
-			cout<<", keyvalue1.value: "<<keyvalue1.value;
-			cout<<", rowindex1: "<<rowindex1;
-			cout<<", colindex1: "<<colindex1;
-			cout<<endl;
-		} */
-		
 		value_t temp2_code = READFROM_UINT(temp2, 30, 2);
 		value_t temp2_val = READFROM_UINT(temp2, 0, 30);
-		/* if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp2: "<<temp2;
-			cout<<", temp2_code: "<<temp2_code;
-			cout<<", temp2_val: "<<temp2_val;
-			cout<<", keyvalue2.value: "<<keyvalue2.value;
-			cout<<", rowindex2: "<<rowindex2;
-			cout<<", colindex2: "<<colindex2;
-			cout<<endl;
-		} */
-		
 		value_t temp3_code = READFROM_UINT(temp3, 30, 2);
 		value_t temp3_val = READFROM_UINT(temp3, 0, 30);
-		/* if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp3: "<<temp3;
-			cout<<", temp3_code: "<<temp3_code;
-			cout<<", temp3_val: "<<temp3_val;
-			cout<<", keyvalue3.value: "<<keyvalue3.value;
-			cout<<", rowindex3: "<<rowindex3;
-			cout<<", colindex3: "<<colindex3;
-			cout<<endl;
-		} */
-		
 		value_t temp4_code = READFROM_UINT(temp4, 30, 2);
 		value_t temp4_val = READFROM_UINT(temp4, 0, 30);
-		/* if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp4: "<<temp4;
-			cout<<", temp4_code: "<<temp4_code;
-			cout<<", temp4_val: "<<temp4_val;
-			cout<<", keyvalue4.value: "<<keyvalue4.value;
-			cout<<", rowindex4: "<<rowindex4;
-			cout<<", colindex4: "<<colindex4;
-			cout<<endl;
-		} */
-		
 		value_t temp5_code = READFROM_UINT(temp5, 30, 2);
 		value_t temp5_val = READFROM_UINT(temp5, 0, 30);
-		/* if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp5: "<<temp5;
-			cout<<", temp5_code: "<<temp5_code;
-			cout<<", temp5_val: "<<temp5_val;
-			cout<<", keyvalue5.value: "<<keyvalue5.value;
-			cout<<", rowindex5: "<<rowindex5;
-			cout<<", colindex5: "<<colindex5;
-			cout<<endl;
-		} */
-		
 		value_t temp6_code = READFROM_UINT(temp6, 30, 2);
 		value_t temp6_val = READFROM_UINT(temp6, 0, 30);
-		/* if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp6: "<<temp6;
-			cout<<", temp6_code: "<<temp6_code;
-			cout<<", temp6_val: "<<temp6_val;
-			cout<<", keyvalue6.value: "<<keyvalue6.value;
-			cout<<", rowindex6: "<<rowindex6;
-			cout<<", colindex6: "<<colindex6;
-			cout<<endl;
-		} */
-		
 		value_t temp7_code = READFROM_UINT(temp7, 30, 2);
 		value_t temp7_val = READFROM_UINT(temp7, 0, 30);
-		/* if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp7: "<<temp7;
-			cout<<", temp7_code: "<<temp7_code;
-			cout<<", temp7_val: "<<temp7_val;
-			cout<<", keyvalue7.value: "<<keyvalue7.value;
-			cout<<", rowindex7: "<<rowindex7;
-			cout<<", colindex7: "<<colindex7;
-			cout<<endl;
-		} */
-		
-		// exit(EXIT_SUCCESS);
 		
 		value_t rettemp0 = reducefunc(temp0_val, keyvalue0.value, GraphIter, GraphAlgo);
-		// if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp0 [after reducefunc]: "<<rettemp0<<endl;
-		// }
-		
 		value_t rettemp1 = reducefunc(temp1_val, keyvalue1.value, GraphIter, GraphAlgo);
-		// if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp1 [after reducefunc]: "<<rettemp1<<endl;
-		// }
-		
 		value_t rettemp2 = reducefunc(temp2_val, keyvalue2.value, GraphIter, GraphAlgo);
-		// if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp2 [after reducefunc]: "<<rettemp2<<endl;
-		// }
-		
 		value_t rettemp3 = reducefunc(temp3_val, keyvalue3.value, GraphIter, GraphAlgo);
-		// if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp3 [after reducefunc]: "<<rettemp3<<endl;
-		// }
-		
 		value_t rettemp4 = reducefunc(temp4_val, keyvalue4.value, GraphIter, GraphAlgo);
-		// if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp4 [after reducefunc]: "<<rettemp4<<endl;
-		// }
-		
 		value_t rettemp5 = reducefunc(temp5_val, keyvalue5.value, GraphIter, GraphAlgo);
-		// if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp5 [after reducefunc]: "<<rettemp5<<endl;
-		// }
-		
 		value_t rettemp6 = reducefunc(temp6_val, keyvalue6.value, GraphIter, GraphAlgo);
-		// if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp6 [after reducefunc]: "<<rettemp6<<endl;
-		// }
-		
 		value_t rettemp7 = reducefunc(temp7_val, keyvalue7.value, GraphIter, GraphAlgo);
-		// if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp7 [after reducefunc]: "<<rettemp7<<endl;
-		// }
-		
-		
-		// #elif defined(SSSP_ALGORITHM)
-		// temp = amin(vtemp, res);
-		
-		
-		// if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp0 [before WRITETO_UINT]: "<<rettemp0<<endl;
-		// }
+
 		if(keyvalue0.value < temp0_val){ WRITETO_UINT(&rettemp0, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp0, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp0 [after WRITETO_UINT]: "<<rettemp0<<endl;
-		// }
-		
-		
-		// if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp1 [before WRITETO_UINT]: "<<rettemp1<<endl;
-		// }
 		if(keyvalue1.value < temp1_val){ WRITETO_UINT(&rettemp1, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp1, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp1 [after WRITETO_UINT]: "<<rettemp1<<endl;
-		// }
-		
-		
-		// if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp2 [before WRITETO_UINT]: "<<rettemp2<<endl;
-		// }
 		if(keyvalue2.value < temp2_val){ WRITETO_UINT(&rettemp2, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp2, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp2 [after WRITETO_UINT]: "<<rettemp2<<endl;
-		// }
-		
-		
-		// if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp3 [before WRITETO_UINT]: "<<rettemp3<<endl;
-		// }
 		if(keyvalue3.value < temp3_val){ WRITETO_UINT(&rettemp3, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp3, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp3 [after WRITETO_UINT]: "<<rettemp3<<endl;
-		// }
-		
-		
-		// if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp4 [before WRITETO_UINT]: "<<rettemp4<<endl;
-		// }
 		if(keyvalue4.value < temp4_val){ WRITETO_UINT(&rettemp4, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp4, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp4 [after WRITETO_UINT]: "<<rettemp4<<endl;
-		// }
-		
-		
-		// if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp5 [before WRITETO_UINT]: "<<rettemp5<<endl;
-		// }
 		if(keyvalue5.value < temp5_val){ WRITETO_UINT(&rettemp5, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp5, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp5 [after WRITETO_UINT]: "<<rettemp5<<endl;
-		// }
-		
-		
-		// if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp6 [before WRITETO_UINT]: "<<rettemp6<<endl;
-		// }
 		if(keyvalue6.value < temp6_val){ WRITETO_UINT(&rettemp6, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp6, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp6 [after WRITETO_UINT]: "<<rettemp6<<endl;
-		// }
-		
-		
-		// if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp7 [before WRITETO_UINT]: "<<rettemp7<<endl;
-		// }
 		if(keyvalue7.value < temp7_val){ WRITETO_UINT(&rettemp7, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp7, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp7 [after WRITETO_UINT]: "<<rettemp7<<endl;
-		// }
-		
-		// exit(EXIT_SUCCESS);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp0: "<<rettemp0<<endl; }
@@ -11053,7 +10826,7 @@ keyvalue_t offsets0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t offsets1[VECT
 	// read active vertices
 	PROCACTVVS_LOOP1: for(batch_type offset_kvs=avtravstate.begin_kvs; offset_kvs<avtravstate.begin_kvs + avtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE / 2){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
-		#if defned(_DEBUGMODE_KERNELPRINTS) // || defined(SWEMU)
+		#ifdef _DEBUGMODE_KERNELPRINTS // || defined(SWEMU)
 		cout<<"### dispatch_processonly: offset_kvs: "<<offset_kvs<<", avtravstate.begin_kvs: "<<avtravstate.begin_kvs<<", avtravstate.size_kvs: "<<avtravstate.size_kvs<<endl;
 		#endif
 		avtravstate.i_kvs = offset_kvs;
@@ -12612,9 +12385,15 @@ actvvs0, capsule0_so1, cutoffs0, actvvs1, capsule1_so1, cutoffs1, actvvs2, capsu
 	actsutilityobj->printglobalvars();
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	// cout<<"----------------------------------------------- actsutilityobj->globalstats_getcountvalidkvsreduced(): "<<actsutilityobj->globalstats_getcountvalidkvsreduced()<<endl;
+	// cout<<"----------------------------------------------- actsutilityobj->globalstats_getreducevar1(): "<<actsutilityobj->globalstats_getreducevar1()<<endl;
+	// cout<<"----------------------------------------------- actvvstravstate.i: "<<actvvstravstate.i<<endl;
+	// setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	// setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	// setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	setkey(vdram, PADDEDVDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(vdram, PADDEDVDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(vdram, PADDEDVDRAMSZ_KVS-1, 5, actvvstravstate.i);
 	cout<<"dispatch_reduceonly_parallelsync: number of active vertices for iteration "<<_globalparams.GraphIter + 1<<": (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -13626,6 +13405,7 @@ buffer10,buffer11,buffer12,buffer13,buffer14,buffer15,buffer16,buffer17,buffer18
 buffer20,buffer21,buffer22,buffer23,buffer24,buffer25,buffer26,buffer27,buffer28,buffer29,buffer210,buffer211,buffer212,buffer213,buffer214,buffer215, 
 buffer30,buffer31,buffer32,buffer33,buffer34,buffer35,buffer36,buffer37,buffer38,buffer39,buffer310,buffer311,buffer312,buffer313,buffer314,buffer315,					actvvstravstate[0], globalparams);	
 		}
+		
 		#ifdef LOGKERNELSTATS
 		#ifdef _WIDEWORD
 		vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].range(31, 0) = actvvstravstate[0].i;

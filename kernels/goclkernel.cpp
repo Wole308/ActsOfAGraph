@@ -281,7 +281,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 		} else {
 			inoutBufExt[i].obj = kvsourcedram[counter++];
 			inoutBufExt[i].param = 0;
-			inoutBufExt[i].flags = bank[i];
+			inoutBufExt[i].flags = bank[i+1];
 		}
 	}
 	

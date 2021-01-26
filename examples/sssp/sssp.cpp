@@ -40,8 +40,7 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 	parametersobj = new parameters(); 
 	utilityobj = new utility(); 
 	postprocessobj = new postprocess(graphobj, statsobj); 
-	loadgraphobj = new loadgraph(graphobj, statsobj); 
-	// compactgraphobj = new compactgraph(graphobj, statsobj);
+	loadgraphobj = new loadgraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 
 	#ifdef FPGA_IMPL

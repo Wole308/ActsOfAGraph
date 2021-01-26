@@ -367,8 +367,8 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		uint512_vec_dt * statsptrVec = (uint512_vec_dt *)&stats[i][BASEOFFSET_STATSDRAM];
 		for(unsigned int k=0; k<KVSTATSSZ; k++){
 			statsptrVec[k].data[0].key = tempstats[k].key;
-			// statsptrVec[k].data[0].value = 0;
-			statsptrVec[k].data[0].value = tempstats[k].value; // CRITICAL REMOVEME.
+			statsptrVec[k].data[0].value = 0;
+			// statsptrVec[k].data[0].value = tempstats[k].value; // CRITICAL REMOVEME.
 		}
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
@@ -377,7 +377,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		#endif
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i=1; i<2; i++){ // NUMSUBCPUTHREADS
 		// utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&edges[i][baseoffset_edgedata], 16);
 		// utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&edges[i][baseoffset_edgedata+container->runsize[i]-32], 16);

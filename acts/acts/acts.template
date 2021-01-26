@@ -886,27 +886,6 @@ setkeyvalue(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyv
 	
 	return;
 }
-/* void 
-	#ifdef SW 
-	acts::
-	#endif
-setkeyvalue(uint512_dt * keyvalues, unsigned int offset_kvs, vector_type v, keyvalue_t keyvalue){
-	uint512_vec_dt D = getkeyvalues(keyvalues, offset_kvs);
-	D.data[v] = keyvalue;
-	
-	#ifdef _WIDEWORD
-	{%for v in context['VECTOR_SIZE_seq']%}
-	keyvalues[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = D.data[{{v}}].key;
-	keyvalues[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = D.data[{{v}}].value;
-	{%endfor%}
-	#else
-	{%for v in context['VECTOR_SIZE_seq']%}
-	keyvalues[offset_kvs].data[{{v}}] = D.data[{{v}}];
-	{%endfor%}
-	#endif 
-	
-	return;
-} */
 void 
 	#ifdef SW 
 	acts::
@@ -2113,7 +2092,7 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 			}
 			{%endfor%}
 			
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS //  _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR_SIZE_seq']%}
 			if(en{{v}} == ON && en2{{v}} == ON){
 				if(locs{{v}} >= globalparams.applyvertexbuffersz){ actsutilityobj->globalstats_counterrorsinreduce(1); }
@@ -2198,7 +2177,7 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(loc{{v}} >= globalparams.applyvertexbuffersz && keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_counterrorsinreduce(1);
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
@@ -2235,43 +2214,15 @@ reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR
 		{%for v in context['VECTOR_SIZE_seq']%}
 		value_t temp{{v}}_code = READFROM_UINT(temp{{v}}, 30, 2);
 		value_t temp{{v}}_val = READFROM_UINT(temp{{v}}, 0, 30);
-		/* if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
-			cout<<"reduce_sssp:: temp{{v}}: "<<temp{{v}};
-			cout<<", temp{{v}}_code: "<<temp{{v}}_code;
-			cout<<", temp{{v}}_val: "<<temp{{v}}_val;
-			cout<<", keyvalue{{v}}.value: "<<keyvalue{{v}}.value;
-			cout<<", rowindex{{v}}: "<<rowindex{{v}};
-			cout<<", colindex{{v}}: "<<colindex{{v}};
-			cout<<endl;
-		} */
-		
 		{%endfor%}
-		// exit(EXIT_SUCCESS);
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		value_t rettemp{{v}} = reducefunc(temp{{v}}_val, keyvalue{{v}}.value, GraphIter, GraphAlgo);
-		// if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp{{v}} [after reducefunc]: "<<rettemp{{v}}<<endl;
-		// }
-		
 		{%endfor%}
-		
-		// #elif defined(SSSP_ALGORITHM)
-		// temp = amin(vtemp, res);
-		
+
 		{%for v in context['VECTOR_SIZE_seq']%}
-		
-		// if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp{{v}} [before WRITETO_UINT]: "<<rettemp{{v}}<<endl;
-		// }
 		if(keyvalue{{v}}.value < temp{{v}}_val){ WRITETO_UINT(&rettemp{{v}}, 30, 2, ACTIVEINNEXTITERATION); }
-		// else { WRITETO_UINT(&rettemp{{v}}, 30, 2, INACTIVEINNEXTITERATION); }
-		// if(keyvalue{{v}}.key != INVALIDDATA && keyvalue{{v}}.value != INVALIDDATA){
-			// cout<<"reduce_sssp:: rettemp{{v}} [after WRITETO_UINT]: "<<rettemp{{v}}<<endl;
-		// }
-		
 		{%endfor%}
-		// exit(EXIT_SUCCESS);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -6123,7 +6074,7 @@ dispatch_processonly(
 	// read active vertices
 	PROCACTVVS_LOOP1: for(batch_type offset_kvs=avtravstate.begin_kvs; offset_kvs<avtravstate.begin_kvs + avtravstate.size_kvs; offset_kvs+=PADDEDDESTBUFFER_SIZE / 2){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
-		#if defned(_DEBUGMODE_KERNELPRINTS) // || defined(SWEMU)
+		#ifdef _DEBUGMODE_KERNELPRINTS // || defined(SWEMU)
 		cout<<"### dispatch_processonly: offset_kvs: "<<offset_kvs<<", avtravstate.begin_kvs: "<<avtravstate.begin_kvs<<", avtravstate.size_kvs: "<<avtravstate.size_kvs<<endl;
 		#endif
 		avtravstate.i_kvs = offset_kvs;
@@ -7028,9 +6979,15 @@ dispatch_reduceonly_parallelsync(
 	actsutilityobj->printglobalvars();
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
-	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
-	setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	// cout<<"----------------------------------------------- actsutilityobj->globalstats_getcountvalidkvsreduced(): "<<actsutilityobj->globalstats_getcountvalidkvsreduced()<<endl;
+	// cout<<"----------------------------------------------- actsutilityobj->globalstats_getreducevar1(): "<<actsutilityobj->globalstats_getreducevar1()<<endl;
+	// cout<<"----------------------------------------------- actvvstravstate.i: "<<actvvstravstate.i<<endl;
+	// setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	// setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	// setkey(vdram, PADDEDKVSOURCEDRAMSZ_KVS-1, 5, actvvstravstate.i);
+	setkey(vdram, PADDEDVDRAMSZ_KVS-1, 3, actsutilityobj->globalstats_getcountvalidkvsreduced());
+	setkey(vdram, PADDEDVDRAMSZ_KVS-1, 4, actsutilityobj->globalstats_getreducevar1());
+	setkey(vdram, PADDEDVDRAMSZ_KVS-1, 5, actvvstravstate.i);
 	cout<<"dispatch_reduceonly_parallelsync: number of active vertices for iteration "<<_globalparams.GraphIter + 1<<": (including INVALIDDATAs): "<<actvvstravstate.i<<endl;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -7241,6 +7198,7 @@ topkernel(uint512_dt * vdram {%for i in context['COMPUTEUNITS_seq']%},uint512_dt
 					{%for i in context['COMPUTEUNITS_seq']%}buffer3{{i}},{%endfor%}
 					actvvstravstate[0], globalparams);	
 		}
+		
 		#ifdef LOGKERNELSTATS
 		#ifdef _WIDEWORD
 		vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + GraphIter + 1].range(31, 0) = actvvstravstate[0].i;
