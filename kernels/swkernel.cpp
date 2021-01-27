@@ -40,6 +40,13 @@ void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedra
 		(uint512_dt *)kvsourcedram[0]
 		#endif 
 		
+		#if NUMCOMPUTEUNITS==4
+		(uint512_dt *)kvsourcedram[0],
+		(uint512_dt *)kvsourcedram[1],
+		(uint512_dt *)kvsourcedram[2],
+		(uint512_dt *)kvsourcedram[3]
+		#endif
+		
 		#if NUMCOMPUTEUNITS==12
 		(uint512_dt *)kvsourcedram[0],
 		(uint512_dt *)kvsourcedram[1],
