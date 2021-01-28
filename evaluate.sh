@@ -121,7 +121,7 @@ do
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -147,7 +147,7 @@ do
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
 	# for setup in $HW__ACTGRAPH_SETUP__PR_VHLS
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
+	for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_VHLS
 	
 	do 

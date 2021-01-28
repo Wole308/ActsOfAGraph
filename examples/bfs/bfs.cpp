@@ -88,18 +88,18 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 6; // 6
+	unsigned int NumGraphIters = 1; // 6
 	container_t container;
 	vector<value_t> activevertices;
 
-	activevertices.push_back(1);
+	// activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
@@ -127,7 +127,7 @@ runsummary_t bfs::run(){
 	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	verifyvertexdata((keyvalue_t *)vdram);
 	verifyactvvsdata((keyvalue_t *)vdram);
-	verifykernelreturnvalues(kvbuffer);
+	verifykernelreturnvalues(vdram);
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -388,13 +388,13 @@ void bfs::verifyactvvsdata(keyvalue_t * vdram){
 	cout<<"bfs::verifyactvvsdata: some actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	return;
 }
-void bfs::verifykernelreturnvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
+void bfs::verifykernelreturnvalues(uint512_vec_dt * vdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"bfs::verifykernelreturnvalues: results returned from kernel... "<<endl;
 	#endif
 	
 	for(unsigned int i=0; i<16; i++){
-		keyvalue_t keyvalue = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
+		keyvalue_t keyvalue = vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
 		cout<<"bfs::verifykernelreturnvalues:: active vertices from GraphIter "<<i<<": "<<keyvalue.key<<endl;
 	}
 	return;

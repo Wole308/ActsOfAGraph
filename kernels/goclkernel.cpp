@@ -212,7 +212,9 @@ void goclkernel::readfromkernel(unsigned int flag, uint512_vec_dt * vdram, uint5
 void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
 	binaryFile = _binaryFile;
 
+	inputvdata_size_bytes = PADDEDVDRAMSZ_KVS * sizeof(uint512_vec_dt);
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	cout<<"goclkernel::loadOCLstructures:: inputvdata_size_bytes: "<<inputvdata_size_bytes<<endl;
 	cout<<"goclkernel::loadOCLstructures:: inputdata_size_bytes: "<<inputdata_size_bytes<<endl;
 	
 	read_events.resize((2 * TOTALNUMBUFFERS));
@@ -273,6 +275,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 	unsigned int flag=0;
 	unsigned int counter = 0;
 	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
+	// for(unsigned int i=0; i<NUMCOMPUTEUNITS; i++){
 		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
 		if(i==0){
 			inoutBufExt[i].obj = vdram;
@@ -281,7 +284,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 		} else {
 			inoutBufExt[i].obj = kvsourcedram[counter++];
 			inoutBufExt[i].param = 0;
-			inoutBufExt[i].flags = bank[i+1];
+			inoutBufExt[i].flags = bank[i];
 		}
 	}
 	
@@ -296,7 +299,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 				  cl::Buffer(context,
 							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 								 CL_MEM_USE_HOST_PTR,
-							 inputdata_size_bytes,
+							 inputvdata_size_bytes,
 							 &inoutBufExt[i],
 							 &err));
 		} else {
@@ -310,6 +313,7 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 							 &err));
 		}
 	}
+	// exit(EXIT_SUCCESS); // 
 	return;
 }
 void goclkernel::finishOCL(){

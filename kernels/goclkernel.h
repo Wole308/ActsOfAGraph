@@ -37,6 +37,7 @@ private:
 	utility * utilityobj;
 	std::string binaryFile;
 	
+	size_t inputvdata_size_bytes;
 	size_t inputdata_size_bytes;
 	stats * statsobj;
 	
