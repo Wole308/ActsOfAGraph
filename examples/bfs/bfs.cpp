@@ -88,18 +88,18 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 1; // 6
+	unsigned int NumGraphIters = 6; // 6
 	container_t container;
 	vector<value_t> activevertices;
 
-	// activevertices.push_back(1);
+	activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
+	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }

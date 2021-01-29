@@ -11,20 +11,18 @@ set -e # Courtesy : Jinja 2.0
 ON=1
 OFF=0
 
-# ROOTDIR="/home/centos/src/project_data/oj2zf"
-ROOTDIR="/home/oj2zf/Documents"
+# ROOTDIR="/home/centos/src/project_data/oj2zf/ActsOfAGraph"
+ROOTDIR="/home/oj2zf/Documents/ActsOfAGraph"
+ROOTDIR="/net/bigtemp/oj2zf/gunrock_wole"
 
-# KERNELTYPE="ACTSMODEL"
 KERNELTYPE="ACTSMODEL_LW"
-
-# KERNELTYPE=0
-# KERNELTYPE=1
 
 XWARE="" 
 SETUP="" 
 ALGORITHM="" 
 ALGORITHMABBRV="" 
 DATASET=""
+datasetpath=""
 
 SETUP_NAME=""
 RESULTDIR_RESULT=""
@@ -35,44 +33,54 @@ SW__ACTGRAPH_SETUP__PR_ALGORITHM=1
 HW__ACTGRAPH_SETUP__PR_ALGORITHM=2
 SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM=3
 SW__GRAFBOOST_SETUP__PR_ALGORITHM=4
+SW__GUNROCK_SETUP__PR_ALGORITHM=5
 
-SW__ACTGRAPH_SETUP__BFS_ALGORITHM=5
-HW__ACTGRAPH_SETUP__BFS_ALGORITHM=6
-SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM=7
-SW__GRAFBOOST_SETUP__BFS_ALGORITHM=8
+SW__ACTGRAPH_SETUP__BFS_ALGORITHM=6
+HW__ACTGRAPH_SETUP__BFS_ALGORITHM=7
+SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM=8
+SW__GRAFBOOST_SETUP__BFS_ALGORITHM=9
+SW__GUNROCK_SETUP__BFS_ALGORITHM=10
 
-SW__ACTGRAPH_SETUP__SSSP_ALGORITHM=9
-HW__ACTGRAPH_SETUP__SSSP_ALGORITHM=10
-SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM=11
-SW__GRAFBOOST_SETUP__SSSP_ALGORITHM=12
+SW__ACTGRAPH_SETUP__SSSP_ALGORITHM=11
+HW__ACTGRAPH_SETUP__SSSP_ALGORITHM=12
+SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM=13
+SW__GRAFBOOST_SETUP__SSSP_ALGORITHM=14
+SW__GUNROCK_SETUP__SSSP_ALGORITHM=15
 
-SW__ACTGRAPH_SETUP__BC_ALGORITHM=13
-HW__ACTGRAPH_SETUP__BC_ALGORITHM=14
-SWEMU__ACTGRAPH_SETUP__BC_ALGORITHM=15
-SW__GRAFBOOST_SETUP__BC_ALGORITHM=16
+SW__ACTGRAPH_SETUP__BC_ALGORITHM=16
+HW__ACTGRAPH_SETUP__BC_ALGORITHM=17
+SWEMU__ACTGRAPH_SETUP__BC_ALGORITHM=18
+SW__GRAFBOOST_SETUP__BC_ALGORITHM=19
+SW__GUNROCK_SETUP__BC_ALGORITHM=20
 
-SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=17
-HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=18
-SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=19
-SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=20
+SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=21
+HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=22
+SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=23
+SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=24
+SW__GUNROCK_SETUP__ADVANCE_ALGORITHM=25
 
-CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=21
-CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=22
-CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=23
-CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=24
-AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=25
+CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=26
+CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=27
+CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=28
+CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=29
 
-HW__ACTGRAPH_SETUP__PR_VHLS=26
-HW__ACTGRAPH_SETUP__BFS_VHLS=27
-HW__ACTGRAPH_SETUP__SSSP_VHLS=28
+AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=30
+AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=31
+AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=32
+AWSHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=33
 
-ORKUT_3M_106M=30
-HOLLYWOOD_1M_57M=31
-INDOCHINA_7M_194M=32
-KRON21_2M_91M=33
-RGG_17M_132M=34
-ROADNET_2M_3M=35
-FLICKR_1M_10M=36
+HW__ACTGRAPH_SETUP__PR_VHLS=34
+HW__ACTGRAPH_SETUP__BFS_VHLS=35
+HW__ACTGRAPH_SETUP__SSSP_VHLS=36
+
+NODATASET=50
+ORKUT_3M_106M=51
+HOLLYWOOD_1M_57M=52
+INDOCHINA_7M_194M=53
+KRON21_2M_91M=54
+RGG_17M_132M=55
+ROADNET_2M_3M=56
+FLICKR_1M_10M=57
 
 LARGEDATASET_1M=1
 LARGEDATASET_4M=2
@@ -120,35 +128,46 @@ do
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
+	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
+	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
+	# for setup in $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BC_ALGORITHM
+	# for setup in $SW__GUNROCK_SETUP__BC_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM
-
+	# for setup in $SW__GUNROCK_SETUP__ADVANCE_ALGORITHM
+	
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
+	
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 	
 	# for setup in $HW__ACTGRAPH_SETUP__PR_VHLS
-	for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_VHLS
+	
+	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	
 	do 
 		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
@@ -194,6 +213,13 @@ do
 			ALGORITHM="PR_ALGORITHM" 
 			ALGORITHMABBRV="pr"
 			SETUP_NAME="grafboost_pr_sw"
+		elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GUNROCK_SETUP" 
+			ALGORITHM="PR_ALGORITHM" 
+			ALGORITHMABBRV="pr"
+			SETUP_NAME="gunrock_pr_sw"
 			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs
 		then
@@ -238,6 +264,13 @@ do
 			ALGORITHM="BFS_ALGORITHM" 
 			ALGORITHMABBRV="bfs"
 			SETUP_NAME="grafboost_bfs_sw"
+		elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GUNROCK_SETUP" 
+			ALGORITHM="BFS_ALGORITHM" 
+			ALGORITHMABBRV="bfs"
+			SETUP_NAME="gunrock_bfs_sw"
 			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp
 		then
@@ -282,6 +315,13 @@ do
 			ALGORITHM="SSSP_ALGORITHM" 
 			ALGORITHMABBRV="sssp"
 			SETUP_NAME="grafboost_sssp_sw"
+		elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GUNROCK_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM" 
+			ALGORITHMABBRV="sssp"
+			SETUP_NAME="gunrock_sssp_sw"
 			
 		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc
 		then
@@ -314,6 +354,13 @@ do
 			ALGORITHM="BC_ALGORITHM" 
 			ALGORITHMABBRV="bc"
 			SETUP_NAME="grafboost_bc_sw"
+		elif [ $setup == $SW__GUNROCK_SETUP__BC_ALGORITHM ]
+		then
+			XWARE="SW" 
+			SETUP="GUNROCK_SETUP" 
+			ALGORITHM="BC_ALGORITHM" 
+			ALGORITHMABBRV="bc"
+			SETUP_NAME="gunrock_bc_sw"
 		
 		elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance
 		then 
@@ -358,6 +405,13 @@ do
 			ALGORITHM="ADVANCE_ALGORITHM"
 			ALGORITHMABBRV="adv"
 			SETUP_NAME="sortreduce_adv_sw"
+		elif [ $setup == $SW__GUNROCK_SETUP__ADVANCE_ALGORITHM ] # advance
+		then 
+			XWARE="SW" 
+			SETUP="GUNROCK_SETUP" 
+			ALGORITHM="ADVANCE_ALGORITHM"
+			ALGORITHMABBRV="adv"
+			SETUP_NAME="gunrock_adv_sw"
 			
 		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
 		then
@@ -407,6 +461,7 @@ do
 			else 
 				SETUP_NAME="actgraph_adv_hw"
 			fi
+			
 		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 		then
 			XWARE="HW" 
@@ -418,6 +473,30 @@ do
 				SETUP_NAME="actgraphlw_pr_hw"
 			else 
 				SETUP_NAME="actgraph_pr_hw"
+			fi
+		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ]
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="BFS_ALGORITHM"
+			ALGORITHMABBRV="bfs"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_bfs_hw"
+			else 
+				SETUP_NAME="actgraph_bfs_hw"
+			fi
+		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="SSSP_ALGORITHM"
+			ALGORITHMABBRV="sssp"
+			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
+			then 
+				SETUP_NAME="actgraphlw_sssp_hw"
+			else 
+				SETUP_NAME="actgraph_sssp_hw"
 			fi
 			
 		elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] #nothing
@@ -489,6 +568,7 @@ do
 			do
 				### >>> LOOP3: datasets
 				
+				# for dataset in $NODATASET
 				for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $INDOCHINA_7M_194M
@@ -507,27 +587,37 @@ do
 				# for dataset in $LARGEDATASET_4B
 				# for dataset in $TWITTER_67M $MOLIERE2016_33M
 				
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $ROADNET_2M_3M $FLICKR_1M_10M $TWITTER_67M $MOLIERE2016_33M
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $INDOCHINA_7M_194M $KRON21_2M_91M $RGG_17M_132M $TWITTER_67M $MOLIERE2016_33M
+				# for dataset in $NODATASET $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON21_2M_91M
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						KERNELBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Kernels"
-						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads}" # CRITICAL REMOVEME.
-						# KERNELBACKUP_NAME="kernel_${SETUP_NAME}_${evaluation_type}_param${evaluation_param0}"
+						KERNELBACKUP_DIR="${ROOTDIR}/synkernels"
+						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads}"
 						BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 						
-						# RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph_Results"
-						RESULTSBACKUP_DIR="${ROOTDIR}/ActsOfAGraph/results/acts"
-						# RESULT_NAME="result_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
-						RESULT_NAME="result_${SETUP_NAME}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
-						# PROFILESUMMARY_NAME="profile_summary_${SETUP_NAME}_${numcputhreads}threads_${numsubcputhreads}subthreadspow_${locke}_${evaluation_type}_evaluation_param${evaluation_param0}"
+						RESULTSBACKUP_DIR="${ROOTDIR}/results"
+						# RESULT_NAME="result_${SETUP_NAME}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
+						RESULT_NAME="result_${SETUP_NAME}"
 						PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 						
-						if [ $dataset == $ORKUT_3M_106M ]  
+						if [ $dataset == $NODATASET ]  
+						then	
+							DATASET=""
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
+							KERNEL_NAME="${KERNELBACKUP_NAME}_bips98_606.xclbin"
+							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_bips98_606.awsxclbin"
+							
+							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_bips98_606.out"
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
+							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606"
+							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.xo"
+							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.awsxclbin"
+							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.out"
+						elif [ $dataset == $ORKUT_3M_106M ]  
 						then	
 							DATASET="_ORKUT_3M_106M"
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_orkut.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_orkut.awsxclbin"
 							
@@ -535,13 +625,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xclbin"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.out"
 						elif [ $dataset == $HOLLYWOOD_1M_57M ]  
 						then	
 							DATASET="_HOLLYWOOD_1M_57M"
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_hollywood.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_hollywood.awsxclbin"
 							
@@ -549,12 +638,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.out"
 						elif [ $dataset == $INDOCHINA_7M_194M ]  
 						then	
 							DATASET="_INDOCHINA_7M_194M"
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_indochina.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_indochina.awsxclbin"
 							
@@ -562,12 +651,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.out"
 						elif [ $dataset == $KRON21_2M_91M ]  
 						then
 							DATASET="_KRON21_2M_91M"
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron21.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron21.awsxclbin"
 							
@@ -575,12 +664,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.out"
 						elif [ $dataset == $RGG_17M_132M ]  
 						then	
 							DATASET="_RGG_17M_132M"
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_rgg.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_rgg.awsxclbin"
 							
@@ -588,12 +677,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.out"
 						elif [ $dataset == $ROADNET_2M_3M ]  
 						then	
 							DATASET="_ROADNET_2M_3M"
+							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/roadNet-CA/roadNet-CA.mtx"
 							KERNEL_NAME="${KERNELBACKUP_NAME}_roadnet.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_roadnet.awsxclbin"
 							
@@ -601,12 +690,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.out"
 						elif [ $dataset == $FLICKR_1M_10M ]  
 						then	
 							DATASET="_FLICKR_1M_10M"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_flickr.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_flickr.awsxclbin"
 							
@@ -614,13 +703,13 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.out"
 						
 						elif [ $dataset == $TWITTER_67M ]  
 						then	
 							DATASET="_TWITTER_67M"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_twitter26.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_twitter26.awsxclbin"
 							
@@ -628,13 +717,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xclbin"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.out"
 						elif [ $dataset == $MOLIERE2016_33M ]  
 						then	
 							DATASET="_MOLIERE2016_33M"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_moliere33.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_moliere33.awsxclbin"
 							
@@ -642,13 +730,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.xclbin"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.out"
 						elif [ $dataset == $LARGEDATASET_67M ]  
 						then	
 							DATASET="_LARGEDATASET_67M"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron26.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron26.awsxclbin"
 							
@@ -656,12 +743,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.out"			
 						elif [ $dataset == $LARGEDATASET_268M ]
 						then
 							DATASET="_LARGEDATASET_268M"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron28.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron28.awsxclbin"
 							
@@ -669,12 +756,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.out"
 						elif [ $dataset == $LARGEDATASET_1B ]
 						then
 							DATASET="_LARGEDATASET_1B"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron30.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron30.awsxclbin"
 							
@@ -682,12 +769,12 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.out"
 						elif [ $dataset == $LARGEDATASET_4B ]
 						then
 							DATASET="_LARGEDATASET_4B"
+							datasetpath=""
 							KERNEL_NAME="${KERNELBACKUP_NAME}_kron32.xclbin"
 							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron32.awsxclbin"
 							
@@ -695,11 +782,11 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.xo"
-							# BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.xclbin"
 							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.out"
 						else 
 							DATASET=""
+							datasetpath=""
 							RESULTDIR_RESULT=""
 							KERNEL_NAME=""
 						fi
@@ -750,6 +837,11 @@ do
 							# make build_grafboost_nthreads
 							# make demo_grafboost_nthreads
 							make demo_grafboost_nthreads > $RESULTDIR_RESULT
+						elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+						then
+							echo 'SW__GUNROCK_SETUP__PR_ALGORITHM called.'
+							/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
+							# make cleanall
 							
 						elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs 
 						then
@@ -787,6 +879,10 @@ do
 							# make demo_grafboost_nthreads_debug
 							# make demo_grafboost_nthreads
 							make demo_grafboost_nthreads > $RESULTDIR_RESULT
+						elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
+						then
+							echo 'SW__GUNROCK_SETUP__BFS_ALGORITHM called.'
+							/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
 							
 						elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp 
 						then
@@ -824,6 +920,11 @@ do
 							# make demo_grafboost_nthreads_debug
 							make demo_grafboost_nthreads
 							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
+						elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+						then
+							# make cleanall
+							echo 'SW__GUNROCK_SETUP__SSSP_ALGORITHM called.'
+							/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
 							
 						elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc 
 						then
@@ -850,6 +951,10 @@ do
 							# make build_grafboost_nthreads
 							# make demo_grafboost_nthreads
 							make demo_grafboost_nthreads > $RESULTDIR_RESULT
+						elif [ $setup == $SW__GUNROCK_SETUP__BC_ALGORITHM ]
+						then
+							# make cleanall
+							echo 'SW__GUNROCK_SETUP__BC_ALGORITHM called.'
 							
 						elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance 
 						then
@@ -892,6 +997,10 @@ do
 							make demo_grafboost_nthreads
 							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
 							# make demo_grafboost_nthreads_debug
+						elif [ $setup == $SW__GUNROCK_SETUP__ADVANCE_ALGORITHM ] 
+						then
+							# make cleanall
+							echo 'SW__GUNROCK_SETUP__ADVANCE_ALGORITHM called.'
 						
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
 						then
@@ -960,13 +1069,78 @@ do
 							fi
 							# echo "sleeping for 2 minuites before continuing ...."
 							# sleep 120
+							
 						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
 							source /opt/xilinx/xrt/setup.sh 
 							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+							
 							make cleanall
-							# make hw > nohupsyn.out
-							make hw_aws > nohupsyn.out
+							rm -rf xclbin
+							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
+							
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							if test -f "host"; then
+								# cp host $BACKUPDIR_HOST
+								# cp kernel.xo $BACKUPDIR_KERNELXO
+								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
+								cp nohupsyn.out $BACKUPDIR_NOHUP
+								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+							fi
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+							source /opt/xilinx/xrt/setup.sh 
+							cd /home/centos/src/project_data/aws-fpga
+							./createawsxclbin.sh
+							echo "sleeping for 60 minuites before continuing ...."
+							sleep 3600
+							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
+							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
+							
+						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ]
+						then
+							source /opt/xilinx/xrt/setup.sh 
+							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+							
+							make cleanall
+							rm -rf xclbin
+							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
+							
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							if test -f "host"; then
+								# cp host $BACKUPDIR_HOST
+								# cp kernel.xo $BACKUPDIR_KERNELXO
+								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
+								cp nohupsyn.out $BACKUPDIR_NOHUP
+								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+							fi
+							echo "sleeping for 2 minuites before continuing ...."
+							sleep 120
+							
+							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+							source /opt/xilinx/xrt/setup.sh 
+							cd /home/centos/src/project_data/aws-fpga
+							./createawsxclbin.sh
+							echo "sleeping for 60 minuites before continuing ...."
+							sleep 3600
+							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
+							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
+							
+						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+						then
+							source /opt/xilinx/xrt/setup.sh 
+							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+							
+							make cleanall
+							rm -rf xclbin
+							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
+							
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120
 							
