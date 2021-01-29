@@ -140,6 +140,8 @@ typedef struct {
 	unsigned int baseoffset_edgesdata_kvs;
 	unsigned int baseoffset_vertexptr_kvs;
 	unsigned int baseoffset_verticesdata_kvs;
+	unsigned int kvstatssz;
+	unsigned int baseoffset_returnvalues;
 } globalparams_t;
 
 typedef struct {

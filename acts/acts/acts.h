@@ -412,7 +412,8 @@ keyvalue_t kvbuffer20[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t kvbuffer21[
 		keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-		globalparams_t * _globalparams,
+		globalparams_t * _globalparams, // NEWCHANGECOMMING.
+		// globalparams_t _globalparams,
 		batch_type * _sourcestatsmarker,
 		batch_type * _deststatsmarker,
 		batch_type * _destoffset

@@ -1426,11 +1426,11 @@ void actsutility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int da
 	return;
 }
 void actsutility::PARSE(string message, ulong_dt longword){ 
-	cout<<"actsutility::PARSE::"<<message<<" message"<<endl;
+	// cout<<"actsutility::PARSE::"<<message<<" message"<<endl;
 	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
 	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
 	unsigned int item = 0;
-	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
+	// cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
 	for(unsigned int i=0; i<numitems; i++){
 		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
 		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item)<<endl;
