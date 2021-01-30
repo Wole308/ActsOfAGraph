@@ -390,6 +390,7 @@ struct _bitData {
 
 #define NAp 666
 #define INVALIDDATA 123456789
+#define UNUSEDDATA 777777777
 
 #define NUM_KAPI 3 // number of kernel args per instance
 

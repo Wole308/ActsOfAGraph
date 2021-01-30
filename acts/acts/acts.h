@@ -231,7 +231,7 @@ public:
 					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2],
 						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule,
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams);
-									
+							
 	// collectstats phase
 	void collectstats(
 		bool_type enable,
@@ -342,20 +342,20 @@ public:
 		travstate_t avtravstate);
 		
 	buffer_type generateoffsets_random(
-			uint512_dt * kvdram, 
-			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			travstate_t actvvtravstate, 
-			globalparams_t globalparams,
-			batch_type actvvsoffset_kvs);
+		uint512_dt * kvdram, 
+		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		travstate_t actvvtravstate, 
+		globalparams_t globalparams,
+		batch_type actvvsoffset_kvs);
 			
 	buffer_type generateoffsets_stream(
-			uint512_dt * kvdram, 
-			keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-			travstate_t actvvtravstate, 
-			globalparams_t globalparams,
-			batch_type actvvsoffset_kvs);
+		uint512_dt * kvdram, 
+		keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t offsets[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		travstate_t actvvtravstate, 
+		globalparams_t globalparams,
+		batch_type actvvsoffset_kvs);
 		
 	void processoffsets(
 		uint512_dt * kvdram,
@@ -412,8 +412,7 @@ keyvalue_t kvbuffer20[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t kvbuffer21[
 		keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-		globalparams_t * _globalparams, // NEWCHANGECOMMING.
-		// globalparams_t _globalparams,
+		globalparams_t globalparams,
 		batch_type * _sourcestatsmarker,
 		batch_type * _deststatsmarker,
 		batch_type * _destoffset
@@ -426,23 +425,25 @@ keyvalue_t kvbuffer20[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t kvbuffer21[
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,	
 keyvalue_t tempverticesbuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t tempverticesbuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],		unsigned int indexpp0, unsigned int reducesubchunksz,
 		travstate_t rtravstate[NUMSUBCPUTHREADS], sweepparams_t sweepparams, globalparams_t _globalparams);
-	
-	travstate_t collectactvvs(uint512_dt * vdram, bool_type enable, keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-					keyvalue_t actvvs0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t actvvscapsule[8], travstate_t actvvstravstate,
-					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
+		
+	bool_type collectactvvs_bfs(uint512_dt * vdram, bool_type enable, keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		bool_type itercount_actvvs0,
+		bool_type itercount_actvvs1,
+		bool_type enableflush, unsigned int index, travstate_t * actvvstravstate, 
+		buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 					
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	void dispatch_reduceonly(
-			uint512_dt * kvdram,
-			keyvalue_t tempverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			keyvalue_t vubufferpp0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			keyvalue_t vubufferpp1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-			globalparams_t globalparams);
+		uint512_dt * kvdram,
+		keyvalue_t tempverticesbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t vubufferpp0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t vubufferpp1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		globalparams_t globalparams);
 
 	travstate_t dispatch_reduceonly_parallelsync(
-			uint512_dt * vdram, 
-uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,			travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
+		uint512_dt * vdram, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,		travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
 
 	#ifndef MULTIACTSINSTANCES
 	void topkernel(uint512_dt * kvdram);

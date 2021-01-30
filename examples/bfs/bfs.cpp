@@ -88,7 +88,7 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 8; // 6
+	unsigned int NumGraphIters = 6; // 12
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -203,9 +203,12 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	unsigned int localactvvs_count = 0;
 	unsigned int localactvvsdstv1_sum = 0;
 	for(unsigned int k=0; k<sz; k++){
-		if(KK[k] != INVALIDDATA){
+		// if(KK[k] != INVALIDDATA){
+		if(KK[k] != INVALIDDATA && KK[k] != UNUSEDDATA){ // CRITICAL REMOVEME. NEWCHANGE
 			#ifdef _DEBUGMODE_HOSTPRINTS
-			if(cctv < 16){ cout<<"bfs:verify: actvvid: "<<KK[k]<<endl; }
+			if(cctv < 16){ 
+			cout<<"bfs:verify: actvvid: "<<KK[k]<<endl; 
+			}
 			#endif 
 			actvvs_count += 1;
 			actvvsdstv1_sum += KK[k];
