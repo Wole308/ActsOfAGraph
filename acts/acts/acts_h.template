@@ -101,7 +101,8 @@ public:
 	batch_type get_num_source_partitions(step_type currentLOP);
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
-	travstate_t gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, batch_type source_partition, keyvalue_t moretravstates[LOADFACTORFORREDUCE]);
+	travstate_t gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker, keyvalue_t moretravstates[LOADFACTORFORREDUCE]);
+	travstate_t gettravstate(bool_type enable, keyvalue_t travstatekv, step_type currentLOP, globalparams_t globalparams);
 	bool inprocessedgesstage(unsigned int currentLOP);
 	bool incollectstatsstage(unsigned int currentLOP, globalparams_t globalparams);
 	bool inpartitionstage(unsigned int currentLOP, globalparams_t globalparams);
@@ -422,13 +423,13 @@ public:
 		unsigned int indexpp0, unsigned int reducesubchunksz,
 		travstate_t rtravstate[NUMSUBCPUTHREADS], sweepparams_t sweepparams, globalparams_t _globalparams);
 		
-	bool_type collectactvvs_bfs(uint512_dt * vdram, bool_type enable, keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+	bool_type collectactvvs_bfs(uint512_dt * vdram, bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		{%for i in context['k_seq']%}
 		bool_type itercount_actvvs{{i}},
 		{%endfor%}
 		bool_type enableflush, unsigned int index, travstate_t * actvvstravstate, 
 		buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
-					
+		
 	void dispatch_reduceonly(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	void dispatch_reduceonly(

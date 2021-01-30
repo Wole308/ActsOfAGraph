@@ -31,6 +31,7 @@ typedef ap_uint<8> vector_type;
 typedef ap_uint<8> step_type;
 typedef ap_uint<8> bool_type;
 typedef unsigned int analysis_type;
+typedef ap_uint<2> visitstate_type; // NEWCHANGE.
 #else 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
@@ -39,6 +40,7 @@ typedef unsigned int vector_type;
 typedef unsigned int step_type;
 typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
+typedef unsigned int visitstate_type;
 #endif
 // typedef unsigned int batch_type; // CRITICAL FIXME?
 // typedef unsigned int buffer_type;
