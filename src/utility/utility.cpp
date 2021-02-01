@@ -141,8 +141,10 @@ void utility::printallparameters(){
 	std::cout<<">> host:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
-	// if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	if(NUMSUBCPUTHREADS >= 12){
+		if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+		if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
+	}
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -833,7 +835,8 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 	cout<<"utility::runbfs_sw: number of active vertices for iteration 0: "<<activevertices.size()<<endl;
 	#endif
 	
-	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
+	unsigned int GraphIter=0;
+	for(GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
 		edges1_count = 0;
 		actvvsdstv1_sum = 0;
 	
@@ -876,7 +879,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 		}
 	}
 	delete labels;
-	return actvvsdstv1_sum;
+	return GraphIter;
 }
 unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
 	#ifdef _DEBUGMODE_HOSTPRINTS3

@@ -9,6 +9,7 @@
 #include <mutex>
 #include <thread>
 #include "../../examples/helperfunctions/postprocess.h"
+#include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
@@ -28,6 +29,7 @@ loadgraph::loadgraph(graph * _graphobj, stats * _statsobj){
 	algorithmobj = new algorithm();
 	statsobj = _statsobj;
 	postprocessobj = new postprocess(graphobj, statsobj); 
+	evalparamsobj = new evalparams();
 }
 loadgraph::loadgraph(){
 	utilityobj = new utility();
@@ -759,7 +761,7 @@ void loadgraph::createmessages(
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PROCESSCOMMANDID].data[0].key = ON;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_COLLECTSTATSCOMMANDID].data[0].key = ON;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_PARTITIONCOMMANDID].data[0].key = ON;
-	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key = ON;//ON;
+	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_APPLYUPDATESCOMMANDID].data[0].key = ON;//ON;//OFF;
 	
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVOFFSET].data[0].key = srcvoffset;
 	kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_SRCVSIZE].data[0].key = srcvsize;
@@ -835,8 +837,13 @@ void loadgraph::createmessages(
 	return;
 }
 
-
-
+void loadgraph::setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int evalid){
+	evalparamsobj->loadevalparams(evalid, vdram);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
+		evalparamsobj->loadevalparams(evalid, kvbuffer[i]);
+	}
+	return;
+}
 
 
 

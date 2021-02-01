@@ -47,10 +47,11 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }				
+	vdram = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDVDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
-	#endif
 	vdram = new uint512_vec_dt[PADDEDVDRAMSZ_KVS];
+	#endif
 
 	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
 		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
@@ -88,7 +89,8 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 6; // 12
+	unsigned int NumGraphIters = 12; // 12
+	unsigned int evalid = 0; // 2;
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -113,22 +115,12 @@ runsummary_t bfs::run(){
 	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, BREADTHFIRSTSEARCH); 			
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container); 
-	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
-	// run bfs
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
-	utilityobj->stopTIME(">>> bfs::finished:. Time Elapsed: ", begintime, NAp);
-	totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	
-	// verify 
-	verify(activevertices);
-	utilityobj->runbfs_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	verifyvertexdata((keyvalue_t *)vdram);
-	verifyactvvsdata((keyvalue_t *)vdram);
-	verifykernelreturnvalues(vdram);
+	// experiements
+	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices); // full run
+	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs
+	// experiements(2, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs, isolating partition & reduce phases
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -137,8 +129,43 @@ runsummary_t bfs::run(){
 	#endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
+void bfs::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices){
+	unsigned int swnum_its = utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	for(unsigned int num_its=start; num_its<start+size; num_its++){
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
 
-void bfs::verify(vector<vertex_t> &activevertices){
+		cout<<"bfs::experiements: resetting kvdram & kvdram workspaces..."<<endl;
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAM_KVS], KVDRAMSZ);
+			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], KVDRAMWORKSPACESZ);
+		}
+
+		loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
+		loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, container); 
+		
+		loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, BREADTHFIRSTSEARCH);
+		loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, evalid);
+		
+		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+		setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
+		utilityobj->stopTIME(">>> bfs::finished:. Time Elapsed: ", begintime, NAp);
+		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+		
+		if(evalid == 0){ verify(activevertices, num_its); }
+		utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	
+		statsobj->timingandsummary(num_its, totaltime_ms);
+		if(num_its > swnum_its){ break; } 
+	}
+	
+	verifyvertexdata((keyvalue_t *)vdram);
+	verifyactvvsdata((keyvalue_t *)vdram);
+	verifykernelreturnvalues(vdram);
+	return;
+}
+
+void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"bfs::verify. verifying..."<<endl;
 	#endif 
@@ -242,15 +269,17 @@ void bfs::verify(vector<vertex_t> &activevertices){
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
 	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
-	if(CLOP == 1){
-		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else if(CLOP == TREE_DEPTH){
-		if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else {
-		if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+	if(NumGraphIters > 0){
+		if(CLOP == 1){
+			if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+		} else if(CLOP == TREE_DEPTH){
+			if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+		} else {
+			if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"bfs::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+		}
 	}
 	cout<<"bfs::verify: verify successful."<<endl;
 	#endif 

@@ -118,11 +118,7 @@ void goclkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourced
 		//Setting the k_vadd Arguments
 		#ifdef MULTIACTSINSTANCES
 		for(unsigned int j=0; j<TOTALNUMBUFFERS; j++){
-			if(j==0){
-				OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); 
-			} else {
-				OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); 
-			}
+			OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); 
 		}
 		#else 
 		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));

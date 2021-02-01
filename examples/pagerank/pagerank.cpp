@@ -18,6 +18,7 @@
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../examples/helperfunctions/postprocess.h"
+// #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -34,6 +35,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	postprocessobj = new postprocess(graphobj, statsobj); 
 	loadgraphobj = new loadgraph(graphobj, statsobj); 
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
+	// evalparamsobj = new evalparams();
 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }		
@@ -86,6 +88,7 @@ runsummary_t pagerank::run(){
 	#endif
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); // FIXME.
 	loadgraphobj->loadmessages(vdram, (uint512_vec_dt **)kvbuffer, &container, 1, PAGERANK);
+	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 
 	// run pagerank

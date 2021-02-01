@@ -3,6 +3,8 @@
 #include <mutex>
 #include <thread>
 #include "../../examples/helperfunctions/postprocess.h"
+#include "../../examples/helperfunctions/postprocess.h"
+#include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
@@ -62,7 +64,9 @@ public:
 			unsigned int batch_range,
 			unsigned int batch_range_pow,
 			unsigned int applyvertexbuffersz,
-			unsigned int numlastlevelpartitions);			
+			unsigned int numlastlevelpartitions);	
+
+	void setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int evalid);
 
 private:
 	parameters * parametersobj;
@@ -71,6 +75,7 @@ private:
 	algorithm * algorithmobj;
 	stats * statsobj;
 	postprocess * postprocessobj;
+	evalparams * evalparamsobj;
 };
 #endif
 

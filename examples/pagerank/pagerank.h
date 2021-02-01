@@ -7,6 +7,7 @@
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../examples/helperfunctions/postprocess.h"
+// #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -28,6 +29,7 @@ private:
 	loadgraph * loadgraphobj;
 	setupkernel * setupkernelobj;
 	stats * statsobj;
+	// evalparams * evalparamsobj;
 	hostglobalparams_t globalparams;
 
 	edge_t * vertexptrbuffer;
