@@ -21,6 +21,7 @@
 
 #define FPGABUGCOMPLANT
 #define ENABLE_APPROXIMATEPARTITIONWRITES // CRITICAL FIXME. FPGA hangs if this is disabled
+#define ENABLE_APPROXIMATEWRITES1 // CRITICAL FIXME. FPGA hangs if this is disabled ?????
 #define HBMBUGCOMPLANT
 
 // #define ACCESSFPGABY_ENQUEUEWRITEBUFFER // FIXME. causing extra latency // FIXME. would cause FPGA inaccuracies now if enabled

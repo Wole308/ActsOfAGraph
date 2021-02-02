@@ -25,10 +25,10 @@ help::
 	$(ECHO) ""
 
 # Points to Utility Directory (***choice between CREBTREE or AWS***)
-# COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
-# ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
-COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
-ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
+COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+# COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
+# ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 
 TARGETS := hw
 TARGET := $(TARGETS)
