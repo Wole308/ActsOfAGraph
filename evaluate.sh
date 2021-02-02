@@ -5,15 +5,37 @@
 #SBATCH --error="all_runs.err" 
 #SBATCH --output=all_runs.log 
 #SBATCH --nodelist=slurm1
+# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
 
 set -e # Courtesy : Jinja 2.0
 
 ON=1
 OFF=0
 
-# ROOTDIR="/home/centos/src/project_data/oj2zf/ActsOfAGraph"
-ROOTDIR="/home/oj2zf/Documents/ActsOfAGraph"
-# ROOTDIR="/net/bigtemp/oj2zf/gunrock_wole"
+CRABTREE=$ON
+AWS=$OFF
+GUNROCK=$OFF
+
+if [ $CRABTREE == $ON ]
+then
+	echo "crabtree env specified."
+	ROOTDIR="/home/oj2zf/Documents/ActsOfAGraph"
+	ENV="CRABTREE"
+elif [ $AWS == $ON ]
+then
+	echo "aws env specified."
+	ROOTDIR="/home/centos/src/project_data/oj2zf/ActsOfAGraph"
+	source /opt/xilinx/xrt/setup.sh 
+	source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+	ENV="AWS"
+elif [ $AWS == $ON ]
+then
+	echo "gunrock env specified."
+	ROOTDIR="/net/bigtemp/oj2zf/gunrock_wole"
+	ENV="GUNROCK"
+else
+	echo "no env specified. specify crabtree, aws or gunrock"
+fi
 
 KERNELTYPE="ACTSMODEL_LW"
 
@@ -134,8 +156,8 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
@@ -546,9 +568,7 @@ do
 		for numsupercputhreads in $THREADCOUNT_EQ1
 		do
 
-		# for numcputhreads in $THREADCOUNT_EQ1 $THREADCOUNT_EQ2 $THREADCOUNT_EQ4 $THREADCOUNT_EQ8 $THREADCOUNT_EQ12 $THREADCOUNT_EQ16
 		for numcputhreads in $THREADCOUNT_EQ1
-		# for numcputhreads in $THREADCOUNT_EQ16
 		do
 		
 		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
@@ -594,6 +614,7 @@ do
 						KERNELBACKUP_DIR="${ROOTDIR}/synkernels"
 						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads}"
 						BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
+						BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.awsxclbin"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/results"
 						# RESULT_NAME="result_${SETUP_NAME}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
@@ -611,7 +632,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.out"
 						elif [ $dataset == $ORKUT_3M_106M ]  
 						then	
@@ -624,7 +644,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.out"
 						elif [ $dataset == $HOLLYWOOD_1M_57M ]  
 						then	
@@ -637,7 +656,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.out"
 						elif [ $dataset == $INDOCHINA_7M_194M ]  
 						then	
@@ -650,7 +668,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.out"
 						elif [ $dataset == $KRON21_2M_91M ]  
 						then
@@ -663,7 +680,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.out"
 						elif [ $dataset == $RGG_17M_132M ]  
 						then	
@@ -676,7 +692,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.out"
 						elif [ $dataset == $ROADNET_2M_3M ]  
 						then	
@@ -689,7 +704,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.out"
 						elif [ $dataset == $FLICKR_1M_10M ]  
 						then	
@@ -702,7 +716,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.out"
 						
 						elif [ $dataset == $TWITTER_67M ]  
@@ -716,7 +729,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.out"
 						elif [ $dataset == $MOLIERE2016_33M ]  
 						then	
@@ -729,7 +741,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.out"
 						elif [ $dataset == $LARGEDATASET_67M ]  
 						then	
@@ -742,7 +753,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.out"			
 						elif [ $dataset == $LARGEDATASET_268M ]
 						then
@@ -755,7 +765,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.out"
 						elif [ $dataset == $LARGEDATASET_1B ]
 						then
@@ -768,7 +777,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.out"
 						elif [ $dataset == $LARGEDATASET_4B ]
 						then
@@ -781,7 +789,6 @@ do
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
 							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32"
 							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.xo"
-							BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.awsxclbin"
 							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.out"
 						else 
 							DATASET=""
@@ -802,16 +809,24 @@ do
 						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
 							make cleanall
-							# rm -rf host
-							
-							make host
-							./host $BACKUPDIR_KERNELXCLBIN
-							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							
-							# make build_host_aws
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
-							
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make host
+								./host $BACKUPDIR_KERNELXCLBIN
+								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								sudo su
+								make host
+								source /opt/xilinx/xrt/setup.sh 
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								./host $BACKUPDIR_KERNELAWSXCLBIN
+								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
@@ -819,17 +834,21 @@ do
 							fi
 						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
 						then
-							make cleanall
-							# rm -rf host
-							# make build_host
-							# make build_host_aws
-							# XCL_EMULATION_MODE=sw_emu ./host kernel.xclbin
-							# make swemu
-							# make swemu_ncomputeunits 
-							# make swemu_aws
-							# make swemu_aws > $RESULTDIR_RESULT
-							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
 						then
 							make cleanall
@@ -852,15 +871,24 @@ do
 						elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall
-							# rm -rf host
-							
-							make host
-							./host $BACKUPDIR_KERNELXCLBIN
-							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							
-							# make build_host_aws
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make host
+								./host $BACKUPDIR_KERNELXCLBIN
+								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								sudo su
+								make host
+								source /opt/xilinx/xrt/setup.sh 
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								./host $BACKUPDIR_KERNELAWSXCLBIN
+								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
@@ -868,9 +896,21 @@ do
 							fi	
 						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ]
 						then
-							make cleanall
-							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall
@@ -893,15 +933,24 @@ do
 						elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
-							# rm -rf host
-							
-							make host
-							./host $BACKUPDIR_KERNELXCLBIN
-							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							
-							# make build_host_aws
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make host
+								./host $BACKUPDIR_KERNELXCLBIN
+								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								sudo su
+								make host
+								source /opt/xilinx/xrt/setup.sh 
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								./host $BACKUPDIR_KERNELAWSXCLBIN
+								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
@@ -909,9 +958,21 @@ do
 							fi	
 						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
-							make cleanall
-							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 						elif [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
@@ -934,11 +995,24 @@ do
 						elif [ $setup == $HW__ACTGRAPH_SETUP__BC_ALGORITHM ]
 						then
 							make cleanall
-							# rm -rf host
-							# make build_host
-							make build_host_aws
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN
-							./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make host
+								./host $BACKUPDIR_KERNELXCLBIN
+								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								sudo su
+								make host
+								source /opt/xilinx/xrt/setup.sh 
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								./host $BACKUPDIR_KERNELAWSXCLBIN
+								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
@@ -965,20 +1039,24 @@ do
 						elif [ $setup == $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
 						then
 							make cleanall
-							# rm -rf host
-							
-							make host
-							./host $BACKUPDIR_KERNELXCLBIN
-							# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							
-							# make build_host_aws
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN
-							# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
-							
-							# make host
-							# nohup make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							# ./host xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin
-					
+							if [ $CRABTREE == $ON ]
+							then
+								echo "crabtree setup specified."
+								make host
+								./host $BACKUPDIR_KERNELXCLBIN
+								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+							elif [ $AWS == $ON ]
+							then
+								echo "aws setup specified."
+								sudo su
+								make host
+								source /opt/xilinx/xrt/setup.sh 
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								./host $BACKUPDIR_KERNELAWSXCLBIN
+								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+							else
+								echo "no setup specified. specify crabtree or aws"
+							fi
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
@@ -1115,8 +1193,13 @@ do
 							if test -f "host"; then
 								# cp host $BACKUPDIR_HOST
 								# cp kernel.xo $BACKUPDIR_KERNELXO
+								
+								# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
+								# cp nohupsyn.out $BACKUPDIR_NOHUP
+								
 								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
 								cp nohupsyn.out $BACKUPDIR_NOHUP
+								
 								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 							fi
 							echo "sleeping for 2 minuites before continuing ...."
@@ -1165,14 +1248,23 @@ do
 						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ]
 						then
 							make cleanall
+							# open X2go
+							# open terminal
+							# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
 							
 						elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ]
 						then
 							make cleanall
+							# open X2go
+							# open terminal
+							# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
 							
 						elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
 						then
 							make cleanall
+							# open X2go
+							# open terminal
+							# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
 							
 						else 
 							XWARE="" 

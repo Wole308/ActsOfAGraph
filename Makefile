@@ -24,9 +24,11 @@ help::
 	$(ECHO) "      Command to build AWS xclbin application on AWS Cloud."
 	$(ECHO) ""
 
-# Points to Utility Directory
-COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
-ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+# Points to Utility Directory (***choice between CREBTREE or AWS***)
+# COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+# ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
+ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 
 TARGETS := hw
 TARGET := $(TARGETS)
@@ -35,7 +37,9 @@ XCLBIN := ./xclbin
 
 include ./utils.mk
 
-DSA = xilinx_u280_xdma_201910_1
+# (***choice between CREBTREE or AWS***)
+# DSA = xilinx_u280_xdma_201910_1
+DSA = xilinx_aws_vu9p_f1
 BUILD_DIR := ./_x.$(TARGET).$(DSA)
 
 BUILD_DIR_topkernel = $(BUILD_DIR)/topkernel
@@ -57,8 +61,6 @@ KERNEL_TOP += acts/actsutility/actsutility.cpp
 
 HOST_TOP += examples/hostprocess.cpp
 
-# HOST_SRCS += acts/acts1/acts.cpp
-# HOST_SRCS += acts/actsutility/actsutility.cpp
 HOST_SRCS += src/algorithm/algorithm.cpp
 HOST_SRCS += examples/helperfunctions/postprocess.cpp
 HOST_SRCS += examples/helperfunctions/loadgraph.cpp
@@ -68,10 +70,8 @@ HOST_SRCS += examples/helperfunctions/procedges.cpp
 HOST_SRCS += examples/helperfunctions/evalparams.cpp
 HOST_SRCS += examples/pagerank/pagerank.cpp
 HOST_SRCS += examples/bfs/bfs.cpp
-# HOST_SRCS += examples/bfs/bfs_ext.cpp
 HOST_SRCS += examples/sssp/sssp.cpp
 HOST_SRCS += examples/test/test.cpp
-# HOST_SRCS += examples/advance_op/advance_op.cpp
 HOST_SRCS += src/graphs/graph.cpp
 HOST_SRCS += src/heuristics/heuristics.cpp
 HOST_SRCS += src/stats/stats.cpp
@@ -81,7 +81,6 @@ HOST_SRCS += src/dataset/dataset.cpp
 HOST_SRCS += kernels/kernel.cpp
 HOST_SRCS += kernels/swkernel.cpp
 HOST_SRCS += kernels/goclkernel.cpp
-# HOST_SRCS += acts/actsutility/actsutility.cpp
 HOST_SRCS += src/graphs/creategraphs.cpp
 HOST_SRCS += src/graphs/mysort.cpp
 HOST_SRCS += acts/sortreduce/sr.cpp
@@ -100,7 +99,7 @@ LDFLAGS += -lrt -lstdc++
 # Kernel compiler global settings
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
-# Kernel linker flags
+# Kernel linker flags (***choice between CREBTREE or AWS***)
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
@@ -120,32 +119,28 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 # LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
 # LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[0]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[0]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:bank0
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:bank1 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:bank2 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:bank3 
 
 EXECUTABLE = host
 CMD_ARGS = $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin
@@ -174,15 +169,11 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
 
-# Building Host
-# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
-	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
-# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS)
-	# $(CXX) -O3 $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt $(HOST_HDRS) -o '$@' $(LDFLAGS)
+# Building Host (***choice between CREBTREE or AWS***)
+# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
+	# /tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
-	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
-# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) $(KERNEL_TOP)
-	# /tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(KERNEL_TOP) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+	/opt/Xilinx/SDx/2019.1.op2552052/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:
@@ -205,7 +196,7 @@ ifeq ($(findstring xilinx_vcu1525_dynamic, $(DEVICE)), xilinx_vcu1525_dynamic)
 $(error Nothing to be done for make)
 endif
 ifeq ($(findstring xilinx_aws-vu9p-f1-04261818, $(DEVICE)), xilinx_aws-vu9p-f1-04261818)
-$(error Nothing to be done for make)
+# $(error Nothing to be done for make $(ENV) --- )
 endif
 ifeq ($(findstring xilinx:u200:xdma, $(DEVICE)), xilinx:u200:xdma)
 $(error Nothing to be done for make)
@@ -243,13 +234,9 @@ aws_build: check-aws_repo $(BINARY_CONTAINERS)
 ### CPU Multithreaded Implementation (-fstack-protector -fno-stack-protector)  -O3
 demo_acts_nthreads: clean build_acts_nthreads run_nthreads
 demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
-
-# build_acts_nthreads:
-	# g++ -O3 $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
+			
 build_acts_nthreads:
-	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
-# build_acts_nthreads:
-	# g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) -std=c++11 -pthread -march=native -lrt -o acts_nthreads				
+	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
 
 run_nthreads:
 	./acts_nthreads
@@ -274,7 +261,7 @@ run_grafboost_nthreads_debug:
 ### generate source files (python)
 generatesrcs:
 	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
-
+	
 # Cleaning stuff
 clean:
 	-$(RMDIR) $(EXECUTABLE) $(XCLBIN)/{*sw_emu*,*hw_emu*} 
