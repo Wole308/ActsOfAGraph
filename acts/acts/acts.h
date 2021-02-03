@@ -51,6 +51,10 @@ using namespace std;
 
 // #define HYBRIDACCESSMODE
 
+#define PROCESSMODE 0
+#define PARTITIONMODE 1
+#define REDUCEMODE 2
+
 class acts {
 public:
 	acts();
@@ -76,6 +80,7 @@ public:
 	void WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value);
 	void WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value);
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
+	batch_type getrangeforeachllop(globalparams_t globalparams);
 	void resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
@@ -264,7 +269,6 @@ public:
 		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
 		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
 		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
-		config_t config,
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
 		travstate_t ptravstate,
@@ -310,6 +314,10 @@ public:
 
 	void reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
+	void reducevector(uint512_vec_dt sourcedata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
+
+	void reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
+	
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
 	keyvalue_t mergefunc_bfs(keyvalue_t data1, keyvalue_t data2, unsigned int GraphAlgo);
@@ -326,6 +334,8 @@ public:
 					keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type * actvvtracker,
 					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 	
+	void reducebufferpartitions(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[NUM_PARTITIONS], keyvalue_t destbuffer0[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer1[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer2[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer3[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer4[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer5[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer6[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer7[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer8[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer9[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer10[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer11[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer12[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer13[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer14[PADDEDDESTBUFFER_SIZE],keyvalue_t destbuffer15[PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, globalparams_t globalparams);
+
 	travstate_t reduceupdates(
 		bool_type enable,
 		uint512_dt * kvdram,
@@ -339,6 +349,39 @@ public:
 		travstate_t rtravstate,
 		travstate_t actvvstravstate,
 		unsigned int local_source_partition);
+		
+	void partitionandreduceupdates(
+		bool_type enable,
+		uint512_dt * kvdram,
+		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
+		skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS],
+		skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS],
+		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
+		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
+		keyvalue_t destbuffer0[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer1[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer2[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer3[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer4[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer5[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer6[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer7[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer8[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer9[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer10[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer11[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer12[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer13[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer14[PADDEDDESTBUFFER_SIZE],
+		keyvalue_t destbuffer15[PADDEDDESTBUFFER_SIZE],
+		globalparams_t globalparams,
+		sweepparams_t sweepparams,
+		travstate_t ptravstate,
+		batch_type sourcebaseaddr_kvs);
 		
 	// modules (process and partition)
 	void processallvertices(
@@ -375,6 +418,8 @@ public:
 	
 	void dispatch_processandpartitiononly(uint512_dt * kvdram, 
 		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		globalparams_t globalparams);
@@ -426,6 +471,14 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 	travstate_t dispatch_reduceonly_parallelsync(
 		uint512_dt * vdram, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,		travstate_t actvvstravstate, globalparams_t globalparams[NUMSUBCPUTHREADS]);
+		
+	void dispatch_partitionandreduce_parallelsync(uint512_dt * kvdram, 
+		keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+		globalparams_t globalparams);
 
 	// modules (process, partition & reduce)
 	void dispatch(uint512_dt * kvdram);

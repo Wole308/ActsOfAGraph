@@ -1468,6 +1468,23 @@ unsigned int actsutility::GETKEY(ulong_dt longword){
 	return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 }
 
+void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams){ 
+	#ifdef _DEBUGMODE_CHECKS2
+	globalstats_counterrorsinreduce(1);
+	#endif
+	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef ENABLE_VOICEOUTREDUCEERRORS
+	cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+	#endif 
+	#ifdef ENABLE_PERFECTACCURACY
+	if(globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS2
+	if(globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
+	#endif 
+	#endif
+	return;
+}
 
 
 
