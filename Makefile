@@ -132,10 +132,10 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:bank0
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:bank1 

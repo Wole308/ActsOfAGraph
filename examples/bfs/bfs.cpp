@@ -89,7 +89,7 @@ runsummary_t bfs::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 12; // 12
+	unsigned int NumGraphIters = 6; // 12
 	unsigned int evalid = 0; // 2;
 	container_t container;
 	vector<value_t> activevertices;
