@@ -1476,9 +1476,15 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	#ifdef ENABLE_VOICEOUTREDUCEERRORS
 	cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
 	#endif 
+	
 	#ifdef ENABLE_PERFECTACCURACY
 	if(globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 	#endif 
+	
+	// #ifdef ENABLE_PERFECTACCURACY
+	// if(globalstats_getcounterrorsinreduce() > 128){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
+	// #endif 
+	
 	#ifdef _DEBUGMODE_CHECKS2
 	if(globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
 	#endif 

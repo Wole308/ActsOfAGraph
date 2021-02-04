@@ -38,11 +38,12 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	// evalparamsobj = new evalparams();
 
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }		
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }
+	vdram = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDVDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
+	vdram = new uint512_vec_dt[PADDEDVDRAMSZ_KVS];
 	#endif
-	vdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges[i] = new edge2_type[MAXKVDATA_BATCHSIZE]; }
 	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];

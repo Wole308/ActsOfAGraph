@@ -133,6 +133,10 @@ public:
 
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
 	
+	void readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer0[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer1[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer2[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer3[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer4[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer5[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer6[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer7[PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
+	
+	void savekeyvalues(bool_type enable, uint512_dt * kvdram,  keyvalue_t buffer0[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer1[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer2[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer3[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer4[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer5[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer6[PADDEDDESTBUFFER_SIZE],keyvalue_t buffer7[PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, buffer_type size_kvs);
+	
 	// functions (process)
 	void process_edges(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 	
@@ -314,8 +318,6 @@ public:
 
 	void reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
-	void reducevector(uint512_vec_dt sourcedata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
-
 	void reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
@@ -416,7 +418,7 @@ public:
 		travstate_t actvvtravstate,
 		globalparams_t globalparams);
 	
-	void dispatch_processandpartitiononly(uint512_dt * kvdram, 
+	void dispatch_processandpartition(uint512_dt * kvdram, 
 		keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 		keyvalue_t buffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
