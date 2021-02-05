@@ -248,7 +248,7 @@ public:
 					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 					
 	void unifydata_bfs_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-					buffer_type destoffset, buffer_type size, globalparams_t globalparams);
+					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 					
 	bool_type unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type * actvvtracker,
@@ -281,25 +281,10 @@ public:
 		bool_type enable,
 		uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%}
 		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], config_t config, globalparams_t globalparams, sweepparams_t sweepparams, travstate_t avtravstate);
-	
+		
 	void partitionit(uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%} globalparams_t globalparams);
 		
-	void processit(uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%} globalparams_t globalparams);
-	
 	void reduceit(uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%} globalparams_t globalparams);
-
-	void reduceit(uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%} batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams);
-
-	travstate_t reduceit(uint512_dt * vdram, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} {%for i in context['COMPUTEUNITS_seq']%}{%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{i}}_{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%}{%endfor%} globalparams_t globalparams[NUMSUBCPUTHREADS]);
-
-	void dispatch(uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%} globalparams_t globalparams);
-	
-	void dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, {%for p in context['NUM_PARTITIONS_seq']%}keyvalue_t vbuffer{{p}}[PADDEDDESTBUFFER_SIZE],{%endfor%} 
-				batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams);
-	
-	void start(uint512_dt * kvdram, globalparams_t globalparams);
-	
-	void start(uint512_dt * vdram, {%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} globalparams_t globalparams[NUMSUBCPUTHREADS]);
 	
 	// dispatches (type 2)
 	void processit_sync(
