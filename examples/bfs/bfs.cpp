@@ -110,7 +110,7 @@ runsummary_t bfs::run(){
 	// load workload
 	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer); 
-	loadgraphobj->loadedges_rowwise(0, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, BREADTHFIRSTSEARCH); 			
+	loadgraphobj->loadedges_rowwise(0, graphobj, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, BREADTHFIRSTSEARCH); 			
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container); 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }

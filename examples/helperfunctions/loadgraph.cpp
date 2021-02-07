@@ -163,9 +163,9 @@ void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer,
 	return;
 }
 #ifdef COMPACTEDGES
-void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
+void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
 #else 
-void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
+void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
 #endif
 {
 	#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -255,7 +255,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		container->srcvoffset[i] = 0;
-		container->srcvsize[i] = KVDATA_RANGE; 
+		container->srcvsize[i] = utilityobj->allignhigher_KV(graphobj->get_num_vertices()); //  KVDATA_RANGE; 
 		container->edgessize[i] = counts[i]; 
 		container->runsize[i] = counts[i]; // FIXME. 1
 		container->destvoffset[i] = 0;
@@ -273,7 +273,6 @@ void loadgraph::loadedges_rowwise(unsigned int col, edge_t * vertexptrbuffer, ed
 		#endif 
 	}
 	#endif
-	// exit(EXIT_SUCCESS); // REMOVEME.
 }
 #ifdef COMPACTEDGES
 void loadgraph::loadoffsetmarkers(uuint64_dt * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container)
@@ -380,7 +379,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 	}
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i=1; i<2; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&edges[i][baseoffset_edgedata], 16);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&edges[i][baseoffset_edgedata+container->runsize[i]-32], 16);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
