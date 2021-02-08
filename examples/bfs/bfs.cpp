@@ -185,21 +185,26 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	
 	// 1st check (scanning edges in file...)
+	cout<<"bfs::verify. 1st check (scanning edges in file)..."<<endl;
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	utilityobj->collectedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
 	
 	// 2nd check (stats collected during acts.procactvvs stage)
+	cout<<"bfs::verify. 2nd check (stats collected during acts.procactvvs stage)..."<<endl;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
 		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
 	}
 	
 	// 3rd check (stats collected after acts.procactvvs stage)
+	cout<<"bfs::verify. 3rd check (stats collected after acts.procactvvs stage)..."<<endl;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
 		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
+		// cout<<"3rd check: i: "<<i<<", sz: "<<sz<<endl;
 		for(unsigned int j=0; j<sz; j++){
+			// if(j%100000 == 0){ cout<<"j: "<<j<<endl; }
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
 				
@@ -214,13 +219,16 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
 	
 	// 4th check (checking edges in acts.LLOP...)
+	cout<<"bfs::verify. 4th check (checking edges in acts.LLOP...)..."<<endl;
 	verifykvLOP((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
 	
 	// 5th check
+	cout<<"bfs::verify. 5th check."<<endl;
 	edges5_count = vdram[PADDEDVDRAMSZ_KVS-1].data[3].key; 
 	edgesdstv5_sum = vdram[PADDEDVDRAMSZ_KVS-1].data[4].key; 
 
 	// 6th check 
+	cout<<"bfs::verify. 6th check."<<endl;
 	unsigned int actvvsdstv1_sum = 0;
 	unsigned int cctv = 0;
 	unsigned int sz = vdram[PADDEDVDRAMSZ_KVS-1].data[5].key;
@@ -247,6 +255,7 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	cout<<"bfs::verifyactvvs: num actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	
 	// 7th view
+	cout<<"bfs::verify. 7th view (viewing active vertices in vdram)..."<<endl;
 	cout<<endl<<"[7th view]: active vertices in vdram: "<<endl;
 	keyy_t * TT = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES_KVS];
 	for(unsigned int k=0; k<4; k++){
@@ -264,8 +273,10 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (inkvdram, after acts.reduce stage    ) edges5_count: "<<edges5_count<<", edgesdstv5_sum: "<<edgesdstv5_sum<<endl;
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<" (actvvs_verbosecount:"<<actvvs_verbosecount<<", actvvsdstv1_sum:"<<actvvsdstv1_sum<<")"<<endl;
 	
+	cout<<"bfs::verify. 8"<<endl;
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
+	cout<<"bfs::verify. 9"<<endl;
 	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
 	if(NumGraphIters > 0){
 		if(CLOP == 1){

@@ -728,7 +728,7 @@ unsigned int utility::PARSE(unsigned long longword, unsigned int * _items){
 		cout<<"utility::PARSE. numitems > 3. exiting..."<<endl;
 		ULONGTOBINARY(longword);
 		PARSE("utility::PARSE: actual committing...", longword);
-		exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE); // CRITICAL REMOVEME.
 	}
 	unsigned int item = 0;
 	for(unsigned int i=0; i<numitems; i++){

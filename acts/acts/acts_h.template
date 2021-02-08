@@ -220,7 +220,7 @@ public:
 
 	void replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE] {%for i in context['COMPUTEUNITS_seq']%},keyvalue_t destbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE]{%endfor%});
 	
-	void replicatedata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t destbuffer1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer2{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%endfor%} buffer_type sourceoffset, buffer_type size);
+	void replicatedata_bfs_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_at destbuffer1{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer2{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], {%endfor%} buffer_type sourceoffset, buffer_type size);
 	
 	value_t reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	
@@ -228,7 +228,7 @@ public:
 	
 	void reduce(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 	
-	void reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t tempdestbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
+	void reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_at destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
 	void reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
@@ -243,7 +243,7 @@ public:
 	void unifydata_pr_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams);
 					
-	void unifydata_bfs_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
+	void unifydata_bfs_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_at sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					buffer_type destoffset, buffer_type size, globalparams_t globalparams);
 					
 	bool_type unifydata_sssp_parallelsyn(bool_type enable, {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t sourcebuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%} keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
@@ -263,7 +263,7 @@ public:
 		bool_type enablereduce, 
 		keyvalue_t sourcevbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		{%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
-		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_at tempverticesbuffer{{i}}[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],{%endfor%}
 		unsigned int indexpp0, unsigned int reducesubchunksz,
 		travstate_t rtravstate[NUMSUBCPUTHREADS], sweepparams_t sweepparams, globalparams_t _globalparams);
 	
@@ -274,9 +274,6 @@ public:
 	
 	void commitkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_t kvdrambuffer[NUM_PARTITIONS][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalcapsule[GLOBALSTATSBUFFERSZ], skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalparams_t globalparams);
 	
-	void fetchkeyvalues_withcommit(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_t kvdrambuffer[NUM_PARTITIONS][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate,
-				bool_type enable2, keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams);
-				
 	void actit(bool_type enable, unsigned int mode, bool_type resetenv,
 		uint512_dt * kvdram, keyvalue_t kvdrambuffer[NUM_PARTITIONS][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs);

@@ -1,13 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -84,7 +81,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -106,7 +103,7 @@
 #define BETWEENNESSCENTRALITY 555
 
 ////////////////
-#define NUMSUBCPUTHREADS 1
+#define NUMSUBCPUTHREADS 16
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -116,7 +113,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 1
+#define NUMCOMPUTEUNITS 16
 
 #define NUMDRAMBANKS 4
 #define NUMINSTANCES 1
@@ -406,6 +403,13 @@ typedef struct {
 	unsigned int value;
 } keyvalue_t;
 
+#ifdef _WIDEWORD
+typedef ap_uint<64> keyvalue_at;
+#else
+typedef keyvalue_t keyvalue_at;
+#endif
+// typedef keyvalue_t keyvalue_at;
+
 typedef struct {
 	// vertex_t vid;
 	vertex_t outdegree;
@@ -446,6 +450,10 @@ typedef struct {
 } uint512_dt;
 #endif
 
+typedef struct {
+	keyvalue_t data[VECTOR_SIZE];
+} uint512_vec_dt;
+
 #ifdef _WIDEWORD
 typedef ap_uint<256> uint256_dt;
 #else
@@ -479,10 +487,6 @@ typedef ap_uint<64> ulong_dt;
 #else
 typedef unsigned long ulong_dt;
 #endif
-
-typedef struct {
-	keyvalue_t data[VECTOR_SIZE];
-} uint512_vec_dt;
 
 typedef struct {
 	unsigned int offset;

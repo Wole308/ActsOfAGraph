@@ -112,7 +112,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -434,6 +434,13 @@ typedef struct {
 	unsigned int value;
 } keyvalue_t;
 
+#ifdef _WIDEWORD
+typedef ap_uint<64> keyvalue_at;
+#else
+typedef keyvalue_t keyvalue_at;
+#endif
+// typedef keyvalue_t keyvalue_at;
+
 typedef struct {
 	// vertex_t vid;
 	vertex_t outdegree;
@@ -474,6 +481,10 @@ typedef struct {
 } uint512_dt;
 #endif
 
+typedef struct {
+	keyvalue_t data[VECTOR_SIZE];
+} uint512_vec_dt;
+
 #ifdef _WIDEWORD
 typedef ap_uint<256> uint256_dt;
 #else
@@ -507,10 +518,6 @@ typedef ap_uint<64> ulong_dt;
 #else
 typedef unsigned long ulong_dt;
 #endif
-
-typedef struct {
-	keyvalue_t data[VECTOR_SIZE];
-} uint512_vec_dt;
 
 typedef struct {
 	unsigned int offset;
