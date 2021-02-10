@@ -162,6 +162,8 @@ void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer,
 	#endif 
 	return;
 }
+
+
 #ifdef COMPACTEDGES
 void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
 #else 
@@ -208,7 +210,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * v
 				#ifdef SINELEVALUEEDGETYPE
 				unsigned int subthread = (index / VECTOR2_SIZE) % NUMSUBCPUTHREADS;
 				#else 
-				unsigned int subthread = (index / VECTOR_SIZE) % NUMSUBCPUTHREADS; // FIXME. INCORRECT?
+				unsigned int subthread = (index / VECTOR_SIZE) % NUMSUBCPUTHREADS;
 				#endif 
 			#endif
 			
@@ -240,17 +242,10 @@ void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * v
 				vptrs[i][2*BASEOFFSET_VERTEXPTR + vid + 1].key = counts[i]; 
 				#else 
 				vptrs[i][BASEOFFSET_VERTEXPTR + vid + 1].key = counts[i]; 
-				vptrs[i][BASEOFFSET_VERTEXPTR + vid + 1].value = NAp; // NEWCHANGE.
+				vptrs[i][BASEOFFSET_VERTEXPTR + vid + 1].value = NAp; 
 				#endif 
 			}
 		}
-		
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"loadgraph::loadedges_rowwise:: index: "<<index<<endl;
-		utilityobj->printvalues("loadedges_rowwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], counts[i]); }
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_VERTEXPTR)+"]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 5); } // vid+1
-		#endif 
 	}
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
@@ -258,7 +253,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * v
 		#ifdef SINELEVALUEVPTRTYPE 
 		container->srcvsize[i] = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices());
 		#else 
-		container->srcvsize[i] = utilityobj->allignhigher_KV(graphobj->get_num_vertices()); //  KVDATA_RANGE; 
+		container->srcvsize[i] = utilityobj->allignhigher_KV(graphobj->get_num_vertices()); 
 		#endif 
 		container->edgessize[i] = counts[i]; 
 		container->runsize[i] = counts[i]; // FIXME. 1
@@ -266,18 +261,178 @@ void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * v
 		container->actvvsize[i] = 0;
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadedges_rowwise:: index: "<<index<<endl;
 	utilityobj->printvalues("loadedges_rowwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_VERTEXPTR)+"]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		#ifdef COMPACTEDGES
-		utilityobj->printpackededges("loadgraph::loadedges_rowwise.compactedges["+std::to_string(i)+"]", (uuint64_dt *)&edges[i][BASEOFFSET_EDGESDATA], 8);
-		#else 
-		utilityobj->printvalues("loadgraph::loadedges_rowwise.edges["+std::to_string(i)+"]["+std::to_string(2*BASEOFFSET_EDGESDATA)+"]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8);
-		#endif 
-	}
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowwise.vptrs["+std::to_string(i)+"][~]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
 	#endif
+	exit(EXIT_SUCCESS);
 }
+
+
+#ifdef COMPACTEDGES
+void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
+#else 
+void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
+#endif
+{
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::loadedges_rowblockwise:: loading edges (rowwise)... "<<endl;
+	#endif 
+	unsigned int counts[NUMSUBCPUTHREADS];
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ counts[i] = 0; }
+	unsigned int index1 = 0;
+	unsigned int index2 = 0;
+	
+	#ifdef COMPACTEDGES
+	unsigned int packingfactor = 1;
+	#else 
+		#ifdef SINELEVALUEEDGETYPE
+		unsigned int packingfactor = 2;
+		#else 
+		unsigned int packingfactor = 1;
+		#endif
+	#endif
+	
+	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowblockwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
+		#endif 
+		
+		edge_t vptr_begin = vertexptrbuffer[vid];
+		edge_t vptr_end = vertexptrbuffer[vid+1];
+		edge_t edges_size = vptr_end - vptr_begin;
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS
+		cout<<"loadgraph::loadedges_rowblockwise:: vptr_begin: "<<vptr_begin<<endl;
+		utilityobj->printvalues("loadedges_rowblockwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
+		cout<<"loadgraph::loadedges_rowblockwise:: vptr_end: "<<vptr_end<<endl;
+		cout<<"loadgraph::loadedges_rowblockwise:: edges_size: "<<edges_size<<endl;
+		#endif
+		
+		unsigned int subthread = 0;
+		unsigned int k=0;
+		while(k<edges_size){
+			#ifdef COMPACTEDGES
+			subthread = (index1 / VECTOR_SIZE) % NUMSUBCPUTHREADS;
+			#else 
+				#ifdef SINELEVALUEEDGETYPE
+				subthread = (index1 / VECTOR2_SIZE) % NUMSUBCPUTHREADS;
+				#else 
+				subthread = (index1 / VECTOR_SIZE) % NUMSUBCPUTHREADS; // FIXME. INCORRECT?
+				#endif 
+			#endif
+			
+			// >>> setting header metadata
+			if(counts[subthread] % VECTOR2_SIZE == 0){
+				#ifdef COMPACTEDGES
+				edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]] = edgedatabuffer[index2];
+				#else 
+					#ifdef SINELEVALUEEDGETYPE 
+					edges[subthread][2*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index2].srcvid; // INVALIDDATA, 777, edgedatabuffer[index2].srcvid;
+					#else 
+					edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]].srcvid = edgedatabuffer[index2].dstvid;
+					edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index2].srcvid;
+					#endif
+				#endif
+				counts[subthread] += 1;
+				index1 += 1;
+				continue;
+			}
+			
+			#ifdef _DEBUGMODE_CHECKS2
+			utilityobj->checkoutofbounds("loadgraph::loadedges_rowblockwise 23. packingfactor*BASEOFFSET_EDGESDATA + counts[subthread]", packingfactor*BASEOFFSET_EDGESDATA + counts[subthread], PADDEDKVSOURCEDRAMSZ*packingfactor, packingfactor*BASEOFFSET_EDGESDATA, counts[subthread], PADDEDKVSOURCEDRAMSZ*packingfactor);				
+			#endif 
+		
+			#ifdef COMPACTEDGES
+			edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]] = edgedatabuffer[index2];
+			#else 
+				#ifdef SINELEVALUEEDGETYPE
+				edges[subthread][2*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index2].dstvid;
+				#else 
+				edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]].srcvid = edgedatabuffer[index2].dstvid;
+				edges[subthread][BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = edgedatabuffer[index2].srcvid;
+				#endif
+			#endif
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"k: "<<k<<", subthread: "<<subthread<<", counts["<<subthread<<"]: "<<counts[subthread]<<", index2: "<<index2<<", edgedatabuffer["<<index2<<"].dstvid: "<<edgedatabuffer[index2].dstvid<<endl;
+			#endif
+			
+			counts[subthread] += 1;
+			index1 += 1;
+			index2 += 1;
+			k += 1;
+		}
+		
+		// >>> fill in the blanks
+		if(counts[subthread] % VECTOR2_SIZE != 0 && edges_size > 0){
+			unsigned int sz = VECTOR2_SIZE - (counts[subthread] % VECTOR2_SIZE);
+			for(unsigned int v=0; v<sz; v++){
+				// cout<<"filling in the blanks: +++ counts["<<subthread<<"]: "<<counts[subthread]<<" index1: "<<index1<<endl;
+				edges[subthread][2*BASEOFFSET_EDGESDATA + counts[subthread]].dstvid = INVALIDDATA;
+				counts[subthread] += 1;
+				index1 += 1;
+			}
+		}
+		
+		// load vertex ptrs 
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+			if(vid < KVDATA_RANGE-1){ 
+				#ifdef SINELEVALUEVPTRTYPE
+				vptrs[i][2*BASEOFFSET_VERTEXPTR + vid + 1].key = counts[i]; 
+				#else 
+				vptrs[i][BASEOFFSET_VERTEXPTR + vid + 1].key = counts[i]; 
+				vptrs[i][BASEOFFSET_VERTEXPTR + vid + 1].value = NAp;
+				#endif 
+				
+				#ifdef _DEBUGMODE_CHECKS2
+				if(counts[i] % 16 != 0){ cout<<"loadedges_rowblockwise:: ERROR. counts["<<i<<"] % 16 != 0. counts["<<i<<"]: "<<counts[i]<<". exiting..."<<endl; exit(EXIT_FAILURE); }
+				#endif 
+			}
+		}
+	}
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		container->srcvoffset[i] = 0;
+		#ifdef SINELEVALUEVPTRTYPE 
+		container->srcvsize[i] = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices());
+		#else 
+		container->srcvsize[i] = utilityobj->allignhigher_KV(graphobj->get_num_vertices());
+		#endif 
+		container->edgessize[i] = counts[i]; 
+		container->runsize[i] = counts[i]; // FIXME. 1
+		container->destvoffset[i] = 0;
+		container->actvvsize[i] = 0;
+	}
+	
+	// >>> dummy overflows
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		for(unsigned int k=counts[i]; k<counts[i] + (512*2*8); k++){ 
+			edges[i][2*BASEOFFSET_EDGESDATA + k].dstvid = UNUSEDDATA;
+		}
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadgraph::loadedges_rowblockwise:: index1: "<<index1<<", index2: "<<index2<<endl;
+	utilityobj->printvalues("loadgraph::loadedges_rowblockwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadgraph::loadedges_rowblockwise.edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][2*BASEOFFSET_EDGESDATA], 8); }
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowblockwise.vptrs["+std::to_string(i)+"][~]", (value_t *)&vptrs[i][2*BASEOFFSET_VERTEXPTR], 8); }
+	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	unsigned int numvaliditems = 0;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		for(unsigned int k=0; k<counts[i]; k++){ 
+			unsigned int value = edges[i][2*BASEOFFSET_EDGESDATA + k].dstvid;
+			if(value == INVALIDDATA || value == 777){ }
+			else { numvaliditems += 1; }
+		}
+	}
+	cout<<"loadgraph::loadedges_rowblockwise:: number of valid items: "<<numvaliditems<<endl;
+	#endif 
+	cout<<"loadgraph::loadedges_rowblockwise:: finished: "<<endl;
+	// exit(EXIT_SUCCESS);
+}
+
 #ifdef COMPACTEDGES
 void loadgraph::loadoffsetmarkers(uuint64_dt * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container)
 #else 
@@ -346,6 +501,8 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 			keyvalue.value = 0;
 			#endif
 			
+			if(keyvalue.key == INVALIDDATA){ keyvalue.key = 0; } // >>> for loadedges_rowblockwise
+			
 			for(unsigned int CLOP=1; CLOP<=TREE_DEPTH; CLOP++){
 				
 				unsigned int offset = 0;
@@ -390,6 +547,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 	}
 	#endif
+	// cout<<"-------------- finished loadoffsetmarkers."<<endl;
 	// exit(EXIT_SUCCESS);
 	return;
 }

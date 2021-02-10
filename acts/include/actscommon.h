@@ -68,8 +68,8 @@ typedef struct {
 	unsigned int size_kvs;
 	unsigned int skip;
 	unsigned int skip_kvs;
-	// unsigned int v;
-	// unsigned int k;
+	unsigned int i2;
+	unsigned int i2_kvs;
 	unsigned int info;
 } travstate_t;
 
