@@ -81,7 +81,7 @@ runsummary_t pagerank::run(){
 
 	// load workload
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
-	#ifdef ROWWISEEDGELAYOUT// CRITICAL CHANGE
+	#ifdef ROWWISEEDGELAYOUT
 	// loadgraphobj->loadedges_rowwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	#else 
@@ -92,7 +92,6 @@ runsummary_t pagerank::run(){
 	loadgraphobj->loadmessages(vdram, (uint512_vec_dt **)kvbuffer, &container, 1, PAGERANK);
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
-	// exit(EXIT_SUCCESS);
 	
 	// run pagerank
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
