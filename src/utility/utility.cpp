@@ -473,6 +473,14 @@ unsigned int utility::allignlower_KV(unsigned int val){
 	unsigned int fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
+unsigned int utility::allignhigherto16_KV(unsigned int val){
+	unsigned int fac = (val + (16 - 1)) / 16;
+	return (fac * 16);
+}
+unsigned int utility::allignlowerto16_KV(unsigned int val){
+	unsigned int fac = val / 16;
+	return (fac * 16);
+}
 void utility::setarray(unsigned int array[NUMSUBCPUTHREADS], unsigned int size, unsigned int value){
 	for(unsigned int i = 0; i < size; i++){ array[i] = value; }
 }

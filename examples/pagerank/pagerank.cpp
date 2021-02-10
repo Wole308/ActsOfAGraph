@@ -81,7 +81,7 @@ runsummary_t pagerank::run(){
 
 	// load workload
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
-	#ifdef ROWWISEEDGELAYOUT
+	#ifdef ROWWISEEDGELAYOUT// CRITICAL CHANGE
 	loadgraphobj->loadedges_rowwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
 	#else 
 	loadgraphobj->loadedges_columnwise(0, vertexptrbuffer, edgedatabuffer, vertexdatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);					

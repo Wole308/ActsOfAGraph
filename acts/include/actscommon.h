@@ -31,7 +31,7 @@ typedef ap_uint<8> vector_type;
 typedef ap_uint<8> step_type;
 typedef ap_uint<8> bool_type;
 typedef unsigned int analysis_type;
-typedef ap_uint<2> visitstate_type; // NEWCHANGE.
+typedef ap_uint<2> visitstate_type;
 #else 
 typedef unsigned int batch_type;
 typedef unsigned int buffer_type;
@@ -42,13 +42,6 @@ typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
 typedef unsigned int visitstate_type;
 #endif
-// typedef unsigned int batch_type; // CRITICAL FIXME?
-// typedef unsigned int buffer_type;
-// typedef unsigned int partition_type;
-// typedef unsigned int vector_type;
-// typedef unsigned int step_type;
-// typedef unsigned int bool_type;
-// typedef unsigned int analysis_type;
 
 typedef struct {
 	unsigned int key;
@@ -75,8 +68,8 @@ typedef struct {
 	unsigned int size_kvs;
 	unsigned int skip;
 	unsigned int skip_kvs;
-	unsigned int v;
-	unsigned int k;
+	// unsigned int v;
+	// unsigned int k;
 	unsigned int info;
 } travstate_t;
 
@@ -186,6 +179,8 @@ typedef struct {
 // buffer parameters
 #define PADDEDDESTBUFFER_SIZE 512
 #define SRCBUFFER_SIZE (512 - (4 * 4))
+
+#define NUM_KVDRAMBUFFERS NUM_PARTITIONS
 
 // global parameters
 // dram sizes

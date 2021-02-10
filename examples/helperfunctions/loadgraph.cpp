@@ -255,7 +255,11 @@ void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * v
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		container->srcvoffset[i] = 0;
+		#ifdef SINELEVALUEVPTRTYPE 
+		container->srcvsize[i] = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices());
+		#else 
 		container->srcvsize[i] = utilityobj->allignhigher_KV(graphobj->get_num_vertices()); //  KVDATA_RANGE; 
+		#endif 
 		container->edgessize[i] = counts[i]; 
 		container->runsize[i] = counts[i]; // FIXME. 1
 		container->destvoffset[i] = 0;

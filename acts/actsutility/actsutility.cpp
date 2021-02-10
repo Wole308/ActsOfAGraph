@@ -486,7 +486,10 @@ void actsutility::checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsign
 	return;
 }
 void actsutility::checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges){
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef SINELEVALUEEDGETYPE
+	return; // no sourcevid to check
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"actsutility::checkptr(A):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<endl;
 	#endif 
 	for(unsigned int i=beginvptr; i<endvptr; i++){
