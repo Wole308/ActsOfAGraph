@@ -1425,6 +1425,7 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDED
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, PADDEDDESTBUFFER_SIZE + 1, p, NAp, NAp);
 		actsutilityobj->checkoutofbounds("savekeyvalues 25", ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE), KVDRAMSZ + 1, p, NAp, NAp);
 		#endif
+		if(realsize_kvs > 0){ // CRITICAL NEWCHANGE.
 		SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 		#pragma HLS PIPELINE II=1
@@ -1458,6 +1459,7 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDED
 			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
 			#endif
+		}
 		}
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvspartitionswritten(realsize_kvs * VECTOR_SIZE);
@@ -2835,25 +2837,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_t kvdrambuffer[NU
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
 	#pragma HLS PIPELINE II=2
-		
-		/* 		E[0][0] = tempbuffer[0][i].key;
-		E[1][0] = tempbuffer[0][i].value;
-		E[0][1] = tempbuffer[1][i].key;
-		E[1][1] = tempbuffer[1][i].value;
-		E[0][2] = tempbuffer[2][i].key;
-		E[1][2] = tempbuffer[2][i].value;
-		E[0][3] = tempbuffer[3][i].key;
-		E[1][3] = tempbuffer[3][i].value;
-		E[0][4] = tempbuffer[4][i].key;
-		E[1][4] = tempbuffer[4][i].value;
-		E[0][5] = tempbuffer[5][i].key;
-		E[1][5] = tempbuffer[5][i].value;
-		E[0][6] = tempbuffer[6][i].key;
-		E[1][6] = tempbuffer[6][i].value;
-		E[0][7] = tempbuffer[7][i].key;
-		E[1][7] = tempbuffer[7][i].value;
- */
-		
 		E[0][0] = tempbuffer[0][i].key;
 		E[0][1] = tempbuffer[0][i].value;
 		E[0][2] = tempbuffer[1][i].key;
@@ -5836,7 +5819,7 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], un
 	keyvalue_t keyvalue = kvdata;
 	vertex_t loc = keyvalue.key - upperlimit;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: v: 0, loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 	#endif 
 	
@@ -9343,24 +9326,24 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-	keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
-	keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-	keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof2
-	keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof4
-	keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-	skeyvalue_t capsule_so1[8][NUM_PARTITIONS];
+	static skeyvalue_t capsule_so1[8][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-	skeyvalue_t capsule_so2[4][NUM_PARTITIONS];
+	static skeyvalue_t capsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so2
-	skeyvalue_t capsule_so4[2][NUM_PARTITIONS];
+	static skeyvalue_t capsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so4
-	skeyvalue_t capsule_so8[NUM_PARTITIONS];
+	static skeyvalue_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -9373,14 +9356,13 @@ actit(bool_type enable, unsigned int mode,
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-	buffer_type pp0cutoffs[VECTOR_SIZE];
-	buffer_type pp1cutoffs[VECTOR_SIZE];
+	static buffer_type pp0cutoffs[VECTOR_SIZE];
+	static buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
-	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so2, capsule_so4, capsule_so8); }
-	// if(flush == ON){ flushsz = 3*SRCBUFFER_SIZE; } else { flushsz = 3*SRCBUFFER_SIZE; } 
-	if(flush == ON){ flushsz = 3*SRCBUFFER_SIZE; } else { flushsz = 0; itercount = 64; } // CRITICAL FIXME. '64' is just some number greater than 2
+	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so2, capsule_so4, capsule_so8); } else { itercount = 64; }
+	if(flush == ON){ flushsz = 3*SRCBUFFER_SIZE; } else { flushsz = 0; } // CRITICAL FIXME. '64' is just some number greater than 2
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(resetenv == ON){ cout<<"actit: reset is ON"<<endl; } else { cout<<"actit: reset is OFF"<<endl;  }
 	if(flush == ON){ cout<<"actit: flush is ON"<<endl; } else { cout<<"actit: flush is OFF"<<endl;  }
@@ -9427,6 +9409,7 @@ actit(bool_type enable, unsigned int mode,
 		
 		itercount += NUMPARTITIONUPDATESPIPELINES;
 	}
+	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
@@ -9529,6 +9512,8 @@ processit(uint512_dt * kvdram, keyvalue_t kvdrambuffer[NUM_KVDRAMBUFFERS][PADDED
 		bool_type flush = ON;
 		if(voffset_kvs == avtravstate.begin_kvs){ resetenv = ON; } else { resetenv = OFF; }
 		if((voffset_kvs + (REDUCEBUFFERSZ * PROCFETCHINDEX)) >= avtravstate.end_kvs){ flush = ON; } else { flush = OFF; }
+		// resetenv = ON; // CRITICAL REMOVEME.
+		// flush = ON; // the issue
 		
 		actit(
 			ON, PROCESSMODE,
@@ -9874,72 +9859,40 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 		#endif
 		
 		if(enablereduce == ON || enableflush == ON){
-			readkeyvalues(enablereduce, vdram, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2), PADDEDDESTBUFFER_SIZE);
-			readkeyvalues(enablereduce, vdram, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2) + PADDEDDESTBUFFER_SIZE, PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, vdram, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, vdram, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
 			resetmanykeyandvalues(destvbuffer, PADDEDDESTBUFFER_SIZE, 0); // c++ sw issues
 			
- 
-			// cout<<"start: ^^^reducing instance 0... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram0, kvdrambuffer0,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 1... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram1, kvdrambuffer1,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 2... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram2, kvdrambuffer2,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 3... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram3, kvdrambuffer3,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 4... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram4, kvdrambuffer4,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 5... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram5, kvdrambuffer5,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 6... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram6, kvdrambuffer6,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 7... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram7, kvdrambuffer7,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 8... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram8, kvdrambuffer8,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 9... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram9, kvdrambuffer9,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 10... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram10, kvdrambuffer10,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 11... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram11, kvdrambuffer11,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 12... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram12, kvdrambuffer12,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 13... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram13, kvdrambuffer13,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 14... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram14, kvdrambuffer14,
 				sourcestatsmarker, source_partition, _globalparams);
- 
-			// cout<<"start: ^^^reducing instance 15... "<<endl;
 			dispatch(OFF, OFF, ON, kvdram15, kvdrambuffer15,
 				sourcestatsmarker, source_partition, _globalparams);
 			
@@ -9956,8 +9909,8 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 			// if(nonzeroactvvsreturnedpp0 == ON || (enableflush == ON && indexpp0 < 8)){  itercount_actvvs0 += 1;  itercount_actvvs1 += 1;  }
 			// #endif
 			
-			savekeyvalues(enablereduce, vdram, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2), PADDEDDESTBUFFER_SIZE);
-			savekeyvalues(enablereduce, vdram, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2) + PADDEDDESTBUFFER_SIZE, PADDEDDESTBUFFER_SIZE);
+			savekeyvalues(enablereduce, vdram, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			savekeyvalues(enablereduce, vdram, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
 			sourcestatsmarker += 1;
 		}
 		
@@ -10323,15 +10276,15 @@ start(uint512_dt * kvdram, globalparams_t globalparams){
 			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablereduce = OFF; }
 			else { config.enablereduce = ON; }
 
-			readkeyvalues(config.enablereduce, kvdram, kvdrambuffer, 0, globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2), PADDEDDESTBUFFER_SIZE);
-			readkeyvalues(config.enablereduce, kvdram, kvdrambuffer, 8, globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2) + PADDEDDESTBUFFER_SIZE, PADDEDDESTBUFFER_SIZE);
-		
+			readkeyvalues(config.enablereduce, kvdram, kvdrambuffer, 0, globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(config.enablereduce, kvdram, kvdrambuffer, 8, globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+			
 			dispatch(OFF, OFF, ON, kvdram, kvdrambuffer,
 					sourcestatsmarker, source_partition, globalparams);
 			
-			savekeyvalues(config.enablereduce, kvdram, kvdrambuffer, 0, globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2), PADDEDDESTBUFFER_SIZE);
-			savekeyvalues(config.enablereduce, kvdram, kvdrambuffer, 8, globalparams.baseoffset_verticesdata_kvs + (source_partition * PADDEDDESTBUFFER_SIZE * 2) + PADDEDDESTBUFFER_SIZE, PADDEDDESTBUFFER_SIZE);
-		
+			savekeyvalues(config.enablereduce, kvdram, kvdrambuffer, 0, globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			savekeyvalues(config.enablereduce, kvdram, kvdrambuffer, 8, globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+			
 			sourcestatsmarker += 1;
 		}
 	}
@@ -10384,172 +10337,26 @@ start(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt *
 	#pragma HLS array_partition variable = kvdrambuffer15
 
 	// process & partition
-	if(globalparams[0].processcommand == ON){
+	if(globalparams[0].processcommand == ON){ // COMPUTEUNITS_seq
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<"start: processing instance 0... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram0, kvdrambuffer0,
 					NAp, NAp, globalparams[0]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 1... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram1, kvdrambuffer1,
-					NAp, NAp, globalparams[1]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 2... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram2, kvdrambuffer2,
-					NAp, NAp, globalparams[2]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 3... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram3, kvdrambuffer3,
-					NAp, NAp, globalparams[3]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 4... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram4, kvdrambuffer4,
-					NAp, NAp, globalparams[4]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 5... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram5, kvdrambuffer5,
-					NAp, NAp, globalparams[5]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 6... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram6, kvdrambuffer6,
-					NAp, NAp, globalparams[6]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 7... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram7, kvdrambuffer7,
-					NAp, NAp, globalparams[7]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 8... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram8, kvdrambuffer8,
-					NAp, NAp, globalparams[8]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 9... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram9, kvdrambuffer9,
-					NAp, NAp, globalparams[9]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 10... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram10, kvdrambuffer10,
-					NAp, NAp, globalparams[10]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 11... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram11, kvdrambuffer11,
-					NAp, NAp, globalparams[11]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 12... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram12, kvdrambuffer12,
-					NAp, NAp, globalparams[12]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 13... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram13, kvdrambuffer13,
-					NAp, NAp, globalparams[13]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 14... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram14, kvdrambuffer14,
-					NAp, NAp, globalparams[14]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: processing instance 15... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram15, kvdrambuffer15,
-					NAp, NAp, globalparams[15]);
 	}
+	// return;
+	// exit(EXIT_SUCCESS);
 	
 	// partition 
-	if(globalparams[0].partitioncommand == ON){
+	if(globalparams[0].partitioncommand == ON){ // COMPUTEUNITS_seq
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		cout<<"start: partitioning instance 0... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram0, kvdrambuffer0,
 					NAp, NAp, globalparams[0]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 1... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram1, kvdrambuffer1,
-					NAp, NAp, globalparams[1]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 2... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram2, kvdrambuffer2,
-					NAp, NAp, globalparams[2]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 3... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram3, kvdrambuffer3,
-					NAp, NAp, globalparams[3]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 4... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram4, kvdrambuffer4,
-					NAp, NAp, globalparams[4]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 5... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram5, kvdrambuffer5,
-					NAp, NAp, globalparams[5]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 6... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram6, kvdrambuffer6,
-					NAp, NAp, globalparams[6]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 7... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram7, kvdrambuffer7,
-					NAp, NAp, globalparams[7]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 8... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram8, kvdrambuffer8,
-					NAp, NAp, globalparams[8]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 9... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram9, kvdrambuffer9,
-					NAp, NAp, globalparams[9]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 10... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram10, kvdrambuffer10,
-					NAp, NAp, globalparams[10]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 11... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram11, kvdrambuffer11,
-					NAp, NAp, globalparams[11]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 12... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram12, kvdrambuffer12,
-					NAp, NAp, globalparams[12]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 13... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram13, kvdrambuffer13,
-					NAp, NAp, globalparams[13]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 14... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram14, kvdrambuffer14,
-					NAp, NAp, globalparams[14]);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"start: partitioning instance 15... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram15, kvdrambuffer15,
-					NAp, NAp, globalparams[15]);
 	}
+	// return;
+	// exit(EXIT_SUCCESS);
 	
 	// reduce & partition
 	if(globalparams[0].reducecommand == ON){
@@ -10558,6 +10365,9 @@ start(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt *
 		#endif
 		start_reduce(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdrambuffer0,kvdrambuffer1,kvdrambuffer2,kvdrambuffer3,kvdrambuffer4,kvdrambuffer5,kvdrambuffer6,kvdrambuffer7,kvdrambuffer8,kvdrambuffer9,kvdrambuffer10,kvdrambuffer11,kvdrambuffer12,kvdrambuffer13,kvdrambuffer14,kvdrambuffer15, globalparams);
 	}
+	// return;
+	exit(EXIT_SUCCESS);
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif 

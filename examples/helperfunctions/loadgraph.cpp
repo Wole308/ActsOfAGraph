@@ -617,28 +617,13 @@ void loadgraph::loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec
 		}
 	}
 	
-	// for(unsigned int offset=0; offset<BATCH_RANGE_KVS / 32; offset+=VMASKBUFFERSZ){
-	// for(unsigned int offset=0; offset<VERTICESDATAMASKSZ_KVS; offset+=VMASKBUFFERSZ){ // 
-	for(unsigned int offset=0; offset<2*VMASKBUFFERSZ; offset+=VMASKBUFFERSZ){
-		// for(unsigned int k=0; k<REDUCESZ * NUM_PARTITIONS; k++){ 
-		for(unsigned int k=0; k<VMASKBUFFERSZ*VECTOR_SIZE*64; k++){ //
-			// unsigned int vid = ((offset * VMASKBUFFERSZ) * 64) + k;//
-			unsigned int vid = (offset * VECTOR_SIZE * 64) + k;//
-			// unsigned int vid = (offset * REDUCESZ * NUM_PARTITIONS) + k;
-			// cout<<"loadvertexdatamask: vid: "<<vid<<", vidoffset: "<<(offset * VECTOR_SIZE * 64)<<endl;
-		
-			// setvertexdatamask(kvdrambuffer, k, 1);
-			
+	for(unsigned int offset=0; offset<VERTICESDATAMASKSZ_KVS; offset+=VMASKBUFFERSZ){ // VERTICESDATAMASKSZ_KVS, 2*VMASKBUFFERSZ
+		for(unsigned int k=0; k<VMASKBUFFERSZ*VECTOR_SIZE*64; k++){
+			unsigned int vid = (offset * VECTOR_SIZE * 64) + k;
 			if(vid == 1){ setvertexdatamask(kvdrambuffer, k, 1); }
 			else { setvertexdatamask(kvdrambuffer, k, 0); }
 			
-			// if(vid % 2 == 0){ setvertexdatamask(kvdrambuffer, k, 1); }
-			// else { setvertexdatamask(kvdrambuffer, k, 0); }
-			
-			// if(offset == 0 && k==0){ setvertexdatamask(kvdrambuffer, k, 1); }
-			// else { setvertexdatamask(kvdrambuffer, k, 0); }
-			
-			// if(k % 2 == 0){ setvertexdatamask(kvdrambuffer, k, 1); }
+			// if(vid >= 0 && vid < 400000){ setvertexdatamask(kvdrambuffer, k, 1); }
 			// else { setvertexdatamask(kvdrambuffer, k, 0); }
 		}
 		
@@ -653,6 +638,7 @@ void loadgraph::loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec
 	// utilityobj->printkeyvalues("kvdrambuffer", (keyvalue_t *)&kvdrambuffer[0], 16);
 	// utilityobj->printkeyvalues("kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_VERTICESDATAMASK_KVS], 16);
 	// exit(EXIT_SUCCESS);
+	cout<<"loadgraph::loadvertexdatamask:: end. "<<endl;
 	return;
 }
 
@@ -760,14 +746,6 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 0;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = 0;
 	} else {
-		/* #if defined(INMEMORYGP) && defined(PR_ALGORITHM)
-		// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+partition...'
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (TREE_DEPTH);
-		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
-		#endif  */
-		
 		#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
 		// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+(partition&reduce)...'
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
@@ -785,9 +763,9 @@ void loadgraph::createmessages(
 		#endif 
 		
 		#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-		// 'NB: first param 1 is standard, second param is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
-		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (1 + TREE_DEPTH);
+		// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+(partition&reduce)...'
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
+		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (TREE_DEPTH-1);
 		// kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#endif

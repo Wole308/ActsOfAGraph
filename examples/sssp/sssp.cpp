@@ -77,13 +77,12 @@ runsummary_t sssp::run(){
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
-	tempvertexdatabuffer = graphobj->generatetempverticesdata();
 	graphobj->openfilesforreading(0);
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 4; // 4,6
+	unsigned int NumGraphIters = 1; // 4,6
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -98,18 +97,24 @@ runsummary_t sssp::run(){
 	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
-	vector<value_t> activevertices2;
-	for(unsigned int i=0; i<activevertices.size(); i++){ activevertices2.push_back(activevertices[i]); }
 	
 	// load workload
-	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
-	loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
+	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
+	// loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
+	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container);
+	loadgraphobj->loadvertexdatamask(activevertices, kvbuffer);
 	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
+	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
-	// run sssp
+	// experiements
+	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices); // full run
+	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs
+	// experiements(2, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs, isolating partition & reduce phases
+	
+	/* // run sssp
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
@@ -118,10 +123,10 @@ runsummary_t sssp::run(){
 	
 	// verify 
 	verify(activevertices);
-	utilityobj->runsssp_sw(activevertices2, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	verifyvertexdata((keyvalue_t *)vdram);
 	verifyactvvsdata((keyvalue_t *)vdram);
-	verifykernelreturnvalues(kvbuffer);
+	verifykernelreturnvalues(kvbuffer); */
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -130,8 +135,44 @@ runsummary_t sssp::run(){
 	#endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
+void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices){
+	unsigned int swnum_its = utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	for(unsigned int num_its=start; num_its<start+size; num_its++){
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
 
-void sssp::verify(vector<vertex_t> &activevertices){
+		cout<<"sssp::experiements: resetting kvdram & kvdram workspaces..."<<endl;
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAM_KVS], KVDRAMSZ);
+			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], KVDRAMWORKSPACESZ);
+		}
+
+		loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
+		loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, container); 
+		
+		loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, BREADTHFIRSTSEARCH);
+		loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, evalid);
+		
+		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+		setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
+		utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
+		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+		exit(EXIT_SUCCESS); 
+		
+		if(evalid == 0){ verify(activevertices, num_its); }
+		utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	
+		statsobj->timingandsummary(num_its, totaltime_ms);
+		if(num_its > swnum_its){ break; } 
+	}
+	
+	verifyvertexdata((keyvalue_t *)vdram);
+	verifyactvvsdata((keyvalue_t *)vdram);
+	verifykernelreturnvalues(vdram);
+	return;
+}
+
+void sssp::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"sssp::verify. verifying..."<<endl;
 	#endif 
@@ -231,15 +272,17 @@ void sssp::verify(vector<vertex_t> &activevertices){
 	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
 	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
-	if(CLOP == 1){
-		if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else if(CLOP == TREE_DEPTH){
-		if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-	} else {
-		if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-		if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+	if(NumGraphIters > 0){
+		if(CLOP == 1){
+			if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+		} else if(CLOP == TREE_DEPTH){
+			if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+		} else {
+			if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
+			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
+		}
 	}
 	cout<<"sssp::verify: verify successful."<<endl;
 	#endif 
@@ -364,18 +407,17 @@ void sssp::verifyactvvsdata(keyvalue_t * vdram){
 	cout<<"sssp::verifyactvvsdata: some actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
 	return;
 }
-void sssp::verifykernelreturnvalues(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
+void sssp::verifykernelreturnvalues(uint512_vec_dt * vdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"sssp::verifykernelreturnvalues: results returned from kernel... "<<endl;
 	#endif
 	
 	for(unsigned int i=0; i<16; i++){
-		keyvalue_t keyvalue = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
+		keyvalue_t keyvalue = vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
 		cout<<"sssp::verifykernelreturnvalues:: active vertices from GraphIter "<<i<<": "<<keyvalue.key<<endl;
 	}
 	return;
 }
-
 
 
 
