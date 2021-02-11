@@ -128,7 +128,10 @@ public:
 	void dummywrite(keyvalue_t buffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int dummyx, unsigned int dummyy);
 	partition_type getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow);
 
-	// functions (dram access)
+	// functions (converters)
+	batch_type getvmaskoffset_kvs(unsigned int vdataoffset_kvs);
+
+	// functions (accessors)
 	void readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate);
 	
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams);
@@ -141,11 +144,11 @@ public:
 	
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], unsigned int startv, batch_type offset_kvs, buffer_type size_kvs);
 	
-	void readkeyvalues2(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], batch_type offset1_kvs, batch_type offset2_kvs, buffer_type size1_kvs, buffer_type size2_kvs);
-	
-	void savekeyvalues2(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], batch_type offset1_kvs, batch_type offset2_kvs, buffer_type size1_kvs, buffer_type size2_kvs);
-	
 	value_t readvertexdata(keyvalue_t kvdrambuffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], unsigned int loc);
+
+	value_t readvertexdatamask(keyvalue_t kvdrambuffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], unsigned int loc);
+	
+	void setvertexdatamask(keyvalue_t kvdrambuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int loc, unsigned int value);
 
 	// function (actit)
 	void runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[VECTOR_SIZE][NUM_PARTITIONS], 

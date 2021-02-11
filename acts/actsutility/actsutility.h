@@ -156,6 +156,7 @@ public:
 	void DECTOBINARY(int n);
 	void ULONGTOBINARY(ulong_dt n);
 	void ULONGTOBINARY(keyvalue_t keyvalue);
+	void UINTTOBINARY(unsigned int n);
 	ulong_dt CONVERTTOLONG_KV(keyvalue_t keyvalue);
 	keyvalue_t CONVERTTOKV_ULONG(ulong_dt data);
 	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);

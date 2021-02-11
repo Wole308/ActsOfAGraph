@@ -124,7 +124,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: PADDEDVDRAMSZ_KVS: "<<PADDEDVDRAMSZ_KVS<<std::endl;
 	
 	std::cout<<">> host:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: KVDRAMBUFFERSZ (bytes): "<<KVDRAMBUFFERSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVDRAMSZ (bytes): "<<KVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
@@ -136,10 +135,10 @@ void utility::printallparameters(){
 	std::cout<<">> host:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	if(NUMSUBCPUTHREADS >= 12){
+	/* if(NUMSUBCPUTHREADS >= 12){
 		if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 		if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
-	}
+	} */
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	

@@ -78,6 +78,7 @@ runsummary_t pagerank::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0); 
 
 	container_t container;
+	vector<value_t> activevertices;
 
 	// load workload
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
@@ -88,7 +89,9 @@ runsummary_t pagerank::run(){
 	loadgraphobj->loadedges_columnwise(0, vertexptrbuffer, edgedatabuffer, vertexdatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);					
 	loadgraphobj->loadvertexptrs(0, vertexptrbuffer, vertexdatabuffer, (vptr_type **)kvbuffer, &container); // depreciated?
 	#endif
-	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); // FIXME.
+	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	loadgraphobj->loadvertexdatamask(activevertices, kvbuffer); //
+	
 	loadgraphobj->loadmessages(vdram, (uint512_vec_dt **)kvbuffer, &container, 1, PAGERANK);
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }

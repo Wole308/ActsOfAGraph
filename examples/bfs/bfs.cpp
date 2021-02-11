@@ -83,7 +83,6 @@ runsummary_t bfs::run(){
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
-	tempvertexdatabuffer = graphobj->generatetempverticesdata();
 	graphobj->openfilesforreading(0);
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
@@ -108,9 +107,13 @@ runsummary_t bfs::run(){
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
 	// load workload
-	loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
+	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
+	#ifdef COMPACTEDGES
 	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer); 
 	loadgraphobj->loadedges_rowwise(0, graphobj, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, BREADTHFIRSTSEARCH); 			
+	#else 
+	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BREADTHFIRSTSEARCH);
+	#endif 
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container); 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
@@ -138,7 +141,7 @@ void bfs::experiements(unsigned int evalid, unsigned int start, unsigned int siz
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], KVDRAMWORKSPACESZ);
 		}
 
-		loadgraphobj->loadvertexdata(tempvertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
+		loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
 		loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, container); 
 		
 		loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, BREADTHFIRSTSEARCH);

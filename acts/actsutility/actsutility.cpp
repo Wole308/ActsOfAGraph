@@ -292,14 +292,14 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz: "<<globalparams.applyvertexbuffersz<<std::endl;
 	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz_kvs: "<<globalparams.applyvertexbuffersz_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_messagesdram_kvs: "<<globalparams.baseoffset_messagesdram_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_kvdrambuffer_kvs: "<<globalparams.baseoffset_kvdrambuffer_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_kvdram_kvs: "<<globalparams.baseoffset_kvdram_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_kvdramworkspace_kvs: "<<globalparams.baseoffset_kvdramworkspace_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_statsdram_kvs: "<<globalparams.baseoffset_statsdram_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_activevertices_kvs: "<<globalparams.baseoffset_activevertices_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_edgesdata_kvs: "<<globalparams.baseoffset_edgesdata_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_vertexptr_kvs: "<<globalparams.baseoffset_vertexptr_kvs<<std::endl;
 	std::cout<<"Kernel Started: globalparams.baseoffset_verticesdata_kvs: "<<globalparams.baseoffset_verticesdata_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_activevertices_kvs: "<<globalparams.baseoffset_activevertices_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.baseoffset_verticesdatamask_kvs: "<<globalparams.baseoffset_verticesdatamask_kvs<<std::endl;
 	std::cout<<std::endl;
 }
 void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
@@ -1323,6 +1323,28 @@ void actsutility::ULONGTOBINARY(ulong_dt n){
 void actsutility::ULONGTOBINARY(keyvalue_t keyvalue){ 
 	ulong_dt * longword = (ulong_dt *)&keyvalue;
 	ULONGTOBINARY(*longword);
+	return;
+} 
+void actsutility::UINTTOBINARY(unsigned int n){ 
+    // array to store binary number 
+    int binaryNum[32]; 
+  
+    // counter for binary array 
+    int i = 0; 
+    while (n > 0) { 
+  
+        // storing remainder in binary array 
+        binaryNum[i] = n % 2; 
+        n = n / 2; 
+        i++; 
+    } 
+  
+    // printing binary array in reverse order 
+	cout<<"actsutility::UINTTOBINARY: "<<(ulong_dt)n<<" in decimal is: ";
+    for (int j = i - 1; j >= 0; j--){
+        cout << binaryNum[j]; 
+	}
+	cout<<endl;
 	return;
 } 
 ulong_dt actsutility::CONVERTTOLONG_KV(keyvalue_t keyvalue){
