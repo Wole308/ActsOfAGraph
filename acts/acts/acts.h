@@ -248,11 +248,17 @@ public:
 
 	void reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams);
 
+	value_t applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
+
 	void reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
 	keyvalue_t mergefunc_bfs(keyvalue_t data1, keyvalue_t data2, unsigned int GraphAlgo);
+	
+	value_t mergefunc(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo);
+	
+	void unifyvdata(bool_type enable, keyvalue_t kvdrambuffer0[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer1[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer2[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer3[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer4[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer5[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer6[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer7[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer8[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer9[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer10[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer11[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer12[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer13[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer14[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer15[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], globalparams_t globalparams);
 	
 	void unifydata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type destoffset, buffer_type size, unsigned int GraphAlgo);
 

@@ -50,9 +50,10 @@ public:
 	
 	void loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbuffer, container_t * container);
 	
-	// void loadvertexdatamask(vector<vertex_t> &activevertices, keyy_t * kvbuffer);
 	void setvertexdatamask(keyvalue_t kvdrambuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int loc, unsigned int value);
 	void loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
+	
+	void setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices);
 
 	void loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, unsigned int GraphAlgo);
 	void createmessages(

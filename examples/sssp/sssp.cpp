@@ -100,12 +100,20 @@ runsummary_t sssp::run(){
 	
 	// load workload
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
+	#ifdef DISPATCHTYPE_SYNC
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE); }
+	#endif 
+	
 	// loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
+	
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices); }
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container);
 	loadgraphobj->loadvertexdatamask(activevertices, kvbuffer);
-	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BREADTHFIRSTSEARCH);
+	
+	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, SSSP);
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
@@ -113,20 +121,6 @@ runsummary_t sssp::run(){
 	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices); // full run
 	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs
 	// experiements(2, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs, isolating partition & reduce phases
-	
-	/* // run sssp
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
-	utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
-	totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	
-	// verify 
-	verify(activevertices);
-	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	verifyvertexdata((keyvalue_t *)vdram);
-	verifyactvvsdata((keyvalue_t *)vdram);
-	verifykernelreturnvalues(kvbuffer); */
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -157,7 +151,6 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
 		utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
 		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-		exit(EXIT_SUCCESS); 
 		
 		if(evalid == 0){ verify(activevertices, num_its); }
 		utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);

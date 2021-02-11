@@ -620,7 +620,7 @@ void loadgraph::loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec
 	for(unsigned int offset=0; offset<VERTICESDATAMASKSZ_KVS; offset+=VMASKBUFFERSZ){ // VERTICESDATAMASKSZ_KVS, 2*VMASKBUFFERSZ
 		for(unsigned int k=0; k<VMASKBUFFERSZ*VECTOR_SIZE*64; k++){
 			unsigned int vid = (offset * VECTOR_SIZE * 64) + k;
-			if(vid == 1){ setvertexdatamask(kvdrambuffer, k, 1); }
+			if(vid == activevertices[0]){ setvertexdatamask(kvdrambuffer, k, 1); }
 			else { setvertexdatamask(kvdrambuffer, k, 0); }
 			
 			// if(vid >= 0 && vid < 400000){ setvertexdatamask(kvdrambuffer, k, 1); }
@@ -639,6 +639,18 @@ void loadgraph::loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec
 	// utilityobj->printkeyvalues("kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_VERTICESDATAMASK_KVS], 16);
 	// exit(EXIT_SUCCESS);
 	cout<<"loadgraph::loadvertexdatamask:: end. "<<endl;
+	return;
+}
+
+void loadgraph::setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
+	#endif 
+	
+	for(unsigned int i = 0; i < activevertices.size(); i++){
+		unsigned int vid = activevertices[i];
+		kvbuffer[2*BASEOFFSET_VERTICESDATA + vid] = 0;
+	}
 	return;
 }
 

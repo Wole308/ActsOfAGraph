@@ -195,6 +195,13 @@ void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZ
 		cout<<".."<<endl;
 	}
 }
+void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], unsigned int startv, unsigned int size){
+	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<startv + v<<"]["<<i<<"].key: "<<keyvalues[startv + v][i].key<<", keyvalues["<<startv + v<<"]["<<i<<"].value: "<<keyvalues[startv + v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
+}
 void actsutility::printvaluecount(string message, keyvalue_t * keyvalues, unsigned int size){
 	unsigned int totalnumkeyvalues = 0;
 	for(unsigned int p=0; p<size; p++){ totalnumkeyvalues += keyvalues[p].value; }
