@@ -2874,9 +2874,11 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_t kvdrambuffer[NU
 		#endif
 		
 		if(en == ON && mask == 1){
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"----------------- readandprocess: i: "<<i<<", mask: "<<mask<<", vid: "<<vid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl;
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: E[1]["<<v<<"]: "<<E[1][v]<<endl; }
+			#endif 
 			
 			buffer[0][2*i].key = E[0][0]; 
 			buffer[0][2*i].value = res; 
@@ -5837,7 +5839,7 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], un
 	keyvalue_t keyvalue = kvdata;
 	vertex_t loc = keyvalue.key - upperlimit;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: v: 0, loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 	#endif 
 	
@@ -10634,7 +10636,7 @@ travstate_t
 	acts::
 	#endif 
 start_reduce(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, keyvalue_t kvdrambuffer0[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer1[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer2[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer3[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer4[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer5[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer6[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer7[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer8[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer9[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer10[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer11[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer12[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer13[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer14[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer15[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], globalparams_t globalparams[NUMSUBCPUTHREADS]){
-	#pragma HLS INLINE // NEWCHANGE
+	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	#ifdef _DEBUGMODE_KERNELPRINTS

@@ -2543,11 +2543,9 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_t kvdrambuffer[NU
 		#endif
 		
 		if(en == ON && mask == 1){
-			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"----------------- readandprocess: i: "<<i<<", mask: "<<mask<<", vid: "<<vid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl;
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: E[1]["<<v<<"]: "<<E[1][v]<<endl; }
-			#endif 
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
 			buffer[{{v}}][2*i].key = E[0][{{v}}]; 
@@ -3964,7 +3962,7 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], un
 	keyvalue_t keyvalue = kvdata;
 	vertex_t loc = keyvalue.key - upperlimit;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: v: 0, loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
 	#endif 
 	

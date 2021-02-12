@@ -620,11 +620,15 @@ void loadgraph::loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec
 	for(unsigned int offset=0; offset<VERTICESDATAMASKSZ_KVS; offset+=VMASKBUFFERSZ){ // VERTICESDATAMASKSZ_KVS, 2*VMASKBUFFERSZ
 		for(unsigned int k=0; k<VMASKBUFFERSZ*VECTOR_SIZE*64; k++){
 			unsigned int vid = (offset * VECTOR_SIZE * 64) + k;
+			#ifdef PR_ALGORITHM
+			setvertexdatamask(kvdrambuffer, k, 1);
+			#else 
 			if(vid == activevertices[0]){ setvertexdatamask(kvdrambuffer, k, 1); }
 			else { setvertexdatamask(kvdrambuffer, k, 0); }
 			
 			// if(vid >= 0 && vid < 400000){ setvertexdatamask(kvdrambuffer, k, 1); }
 			// else { setvertexdatamask(kvdrambuffer, k, 0); }
+			#endif 
 		}
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
