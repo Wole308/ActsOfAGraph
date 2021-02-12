@@ -170,12 +170,6 @@ typedef struct {
 	unsigned int localoffset;
 } offset_t;
 
-#ifdef EMBEDDEDCOLLECTSTATS
-#define GLOBALSTATSBUFFERSZ PADDEDDESTBUFFER_SIZE
-#else 
-#define GLOBALSTATSBUFFERSZ NUM_PARTITIONS	
-#endif 
-
 // buffer parameters
 #define PADDEDDESTBUFFER_SIZE 512
 #define SRCBUFFER_SIZE (512 - (4 * 4))
@@ -183,6 +177,12 @@ typedef struct {
 #define NUM_KVDRAMBUFFERS 24
 #define BUFFERBASE_VDATA 0
 #define BUFFERBASE_VMASK 16
+
+#ifdef EMBEDDEDCOLLECTSTATS
+#define GLOBALSTATSBUFFERSZ PADDEDDESTBUFFER_SIZE
+#else 
+#define GLOBALSTATSBUFFERSZ NUM_PARTITIONS	
+#endif 
 
 // global parameters
 // messages area

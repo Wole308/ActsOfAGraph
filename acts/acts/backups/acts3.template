@@ -5171,9 +5171,9 @@ actit(bool_type enable, unsigned int mode,
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-	static 
+	// static 
 	buffer_type pp0cutoffs[VECTOR_SIZE];
-	static 
+	// static 
 	buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;

@@ -5913,6 +5913,14 @@ value_t
 	#endif 
 mergefunc(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo){
 	value_t z = 0;
+	#if NUMCOMPUTEUNITS==1
+	z = v0;
+	#endif 
+	
+	#if NUMCOMPUTEUNITS==2
+	z = mergefunc(v0, v1, GraphAlgo);
+	#endif 
+	
 	#if NUMCOMPUTEUNITS==16
 	value_t w0 = mergefunc(v0, v1, GraphAlgo);
 	value_t w1 = mergefunc(v2, v3, GraphAlgo);
@@ -5932,8 +5940,6 @@ mergefunc(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,valu
 	value_t y1 = mergefunc(x2, x3, GraphAlgo);
 	
 	z = mergefunc(y0, y1, GraphAlgo);
-	#else 
-	cout<<"ERROR. NOT YET IMPLEMENTED. exiting... "<<endl; exit(EXIT_FAILURE);
 	#endif 
 	return z;
 }
@@ -5944,6 +5950,8 @@ void
 	#endif
 unifyvdata(bool_type enable, keyvalue_t kvdrambuffer0[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer1[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer2[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer3[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer4[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer5[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer6[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer7[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer8[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer9[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer10[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer11[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer12[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer13[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer14[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer15[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
+	
+	unsigned int maskbuffer[REDUCESZ]; // AUTOMATEME.
 	
 	keyvalue_t data0;
 	keyvalue_t data1;
@@ -6219,12 +6227,100 @@ unifyvdata(bool_type enable, keyvalue_t kvdrambuffer0[NUM_KVDRAMBUFFERS][PADDEDD
 	keyvalue_t data15_14;
 	keyvalue_t data15_15;
 	
-	actsutilityobj->printkeyvalues("unifyvdata.kvdrambuffer0[~0]", kvdrambuffer0, 0, 16);
-	actsutilityobj->printkeyvalues("unifyvdata.kvdrambuffer0[~8]", kvdrambuffer0, 8, 16);
+	keyvalue_t res0;
+	keyvalue_t res1;
+	keyvalue_t res2;
+	keyvalue_t res3;
+	keyvalue_t res4;
+	keyvalue_t res5;
+	keyvalue_t res6;
+	keyvalue_t res7;
+	keyvalue_t res8;
+	keyvalue_t res9;
+	keyvalue_t res10;
+	keyvalue_t res11;
+	keyvalue_t res12;
+	keyvalue_t res13;
+	keyvalue_t res14;
+	keyvalue_t res15;
+	
+	unsigned int maskbit10;
+	unsigned int maskbit20;
+	unsigned int maskbit11;
+	unsigned int maskbit21;
+	unsigned int maskbit12;
+	unsigned int maskbit22;
+	unsigned int maskbit13;
+	unsigned int maskbit23;
+	unsigned int maskbit14;
+	unsigned int maskbit24;
+	unsigned int maskbit15;
+	unsigned int maskbit25;
+	unsigned int maskbit16;
+	unsigned int maskbit26;
+	unsigned int maskbit17;
+	unsigned int maskbit27;
+	unsigned int maskbit18;
+	unsigned int maskbit28;
+	unsigned int maskbit19;
+	unsigned int maskbit29;
+	unsigned int maskbit110;
+	unsigned int maskbit210;
+	unsigned int maskbit111;
+	unsigned int maskbit211;
+	unsigned int maskbit112;
+	unsigned int maskbit212;
+	unsigned int maskbit113;
+	unsigned int maskbit213;
+	unsigned int maskbit114;
+	unsigned int maskbit214;
+	unsigned int maskbit115;
+	unsigned int maskbit215;
+	
+	unsigned int mask;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("unifyvdata.kvdrambuffer0[~0]", kvdrambuffer0, 0, 8);
+	actsutilityobj->printkeyvalues("unifyvdata.kvdrambuffer0[~8]", kvdrambuffer0, 8, 8);
 	// exit(EXIT_SUCCESS);
+	#endif 
 		
 	UNIFYVDATA_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
 	#pragma HLS PIPELINE II=4
+	
+		unsigned int vid10 = ((0*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid20 = ((0*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid11 = ((1*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid21 = ((1*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid12 = ((2*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid22 = ((2*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid13 = ((3*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid23 = ((3*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid14 = ((4*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid24 = ((4*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid15 = ((5*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid25 = ((5*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid16 = ((6*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid26 = ((6*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid17 = ((7*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid27 = ((7*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid18 = ((8*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid28 = ((8*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid19 = ((9*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid29 = ((9*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid110 = ((10*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid210 = ((10*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid111 = ((11*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid211 = ((11*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid112 = ((12*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid212 = ((12*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid113 = ((13*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid213 = ((13*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid114 = ((14*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid214 = ((14*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+		unsigned int vid115 = ((15*(REDUCEBUFFERSZ*2)) + i*2);
+		unsigned int vid215 = ((15*(REDUCEBUFFERSZ*2)) + i*2 + 1);
+	
 		data0_0 = kvdrambuffer0[BUFFERBASE_VDATA + 0][i];
 		data0_1 = kvdrambuffer1[BUFFERBASE_VDATA + 0][i];
 		data0_2 = kvdrambuffer2[BUFFERBASE_VDATA + 0][i];
@@ -6515,94 +6611,236 @@ unifyvdata(bool_type enable, keyvalue_t kvdrambuffer0[NUM_KVDRAMBUFFERS][PADDEDD
 		data14.value = mergefunc(data14_0.value,data14_1.value,data14_2.value,data14_3.value,data14_4.value,data14_5.value,data14_6.value,data14_7.value,data14_8.value,data14_9.value,data14_10.value,data14_11.value,data14_12.value,data14_13.value,data14_14.value,data14_15.value, globalparams.GraphAlgo);
 		data15.value = mergefunc(data15_0.value,data15_1.value,data15_2.value,data15_3.value,data15_4.value,data15_5.value,data15_6.value,data15_7.value,data15_8.value,data15_9.value,data15_10.value,data15_11.value,data15_12.value,data15_13.value,data15_14.value,data15_15.value, globalparams.GraphAlgo);
 		
-		keyvalue_t udata0 = destbuffer[0][i];
-		keyvalue_t udata1 = destbuffer[1][i];
-		keyvalue_t udata2 = destbuffer[2][i];
-		keyvalue_t udata3 = destbuffer[3][i];
-		keyvalue_t udata4 = destbuffer[4][i];
-		keyvalue_t udata5 = destbuffer[5][i];
-		keyvalue_t udata6 = destbuffer[6][i];
-		keyvalue_t udata7 = destbuffer[7][i];
-		keyvalue_t udata8 = destbuffer[8][i];
-		keyvalue_t udata9 = destbuffer[9][i];
-		keyvalue_t udata10 = destbuffer[10][i];
-		keyvalue_t udata11 = destbuffer[11][i];
-		keyvalue_t udata12 = destbuffer[12][i];
-		keyvalue_t udata13 = destbuffer[13][i];
-		keyvalue_t udata14 = destbuffer[14][i];
-		keyvalue_t udata15 = destbuffer[15][i];
+		keyvalue_t udata0 = destbuffer[BUFFERBASE_VDATA + 0][i];
+		keyvalue_t udata1 = destbuffer[BUFFERBASE_VDATA + 1][i];
+		keyvalue_t udata2 = destbuffer[BUFFERBASE_VDATA + 2][i];
+		keyvalue_t udata3 = destbuffer[BUFFERBASE_VDATA + 3][i];
+		keyvalue_t udata4 = destbuffer[BUFFERBASE_VDATA + 4][i];
+		keyvalue_t udata5 = destbuffer[BUFFERBASE_VDATA + 5][i];
+		keyvalue_t udata6 = destbuffer[BUFFERBASE_VDATA + 6][i];
+		keyvalue_t udata7 = destbuffer[BUFFERBASE_VDATA + 7][i];
+		keyvalue_t udata8 = destbuffer[BUFFERBASE_VDATA + 8][i];
+		keyvalue_t udata9 = destbuffer[BUFFERBASE_VDATA + 9][i];
+		keyvalue_t udata10 = destbuffer[BUFFERBASE_VDATA + 10][i];
+		keyvalue_t udata11 = destbuffer[BUFFERBASE_VDATA + 11][i];
+		keyvalue_t udata12 = destbuffer[BUFFERBASE_VDATA + 12][i];
+		keyvalue_t udata13 = destbuffer[BUFFERBASE_VDATA + 13][i];
+		keyvalue_t udata14 = destbuffer[BUFFERBASE_VDATA + 14][i];
+		keyvalue_t udata15 = destbuffer[BUFFERBASE_VDATA + 15][i];
 		
-		udata0.key = applyfunc(udata0.key, data0.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata1.key = applyfunc(udata1.key, data1.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata2.key = applyfunc(udata2.key, data2.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata3.key = applyfunc(udata3.key, data3.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata4.key = applyfunc(udata4.key, data4.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata5.key = applyfunc(udata5.key, data5.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata6.key = applyfunc(udata6.key, data6.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata7.key = applyfunc(udata7.key, data7.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata8.key = applyfunc(udata8.key, data8.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata9.key = applyfunc(udata9.key, data9.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata10.key = applyfunc(udata10.key, data10.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata11.key = applyfunc(udata11.key, data11.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata12.key = applyfunc(udata12.key, data12.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata13.key = applyfunc(udata13.key, data13.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata14.key = applyfunc(udata14.key, data14.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata15.key = applyfunc(udata15.key, data15.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata0.value = applyfunc(udata0.value, data0.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata1.value = applyfunc(udata1.value, data1.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata2.value = applyfunc(udata2.value, data2.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata3.value = applyfunc(udata3.value, data3.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata4.value = applyfunc(udata4.value, data4.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata5.value = applyfunc(udata5.value, data5.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata6.value = applyfunc(udata6.value, data6.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata7.value = applyfunc(udata7.value, data7.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata8.value = applyfunc(udata8.value, data8.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata9.value = applyfunc(udata9.value, data9.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata10.value = applyfunc(udata10.value, data10.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata11.value = applyfunc(udata11.value, data11.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata12.value = applyfunc(udata12.value, data12.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata13.value = applyfunc(udata13.value, data13.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata14.value = applyfunc(udata14.value, data14.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		udata15.value = applyfunc(udata15.value, data15.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res0.key = applyfunc(udata0.key, data0.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res1.key = applyfunc(udata1.key, data1.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res2.key = applyfunc(udata2.key, data2.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res3.key = applyfunc(udata3.key, data3.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res4.key = applyfunc(udata4.key, data4.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res5.key = applyfunc(udata5.key, data5.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res6.key = applyfunc(udata6.key, data6.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res7.key = applyfunc(udata7.key, data7.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res8.key = applyfunc(udata8.key, data8.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res9.key = applyfunc(udata9.key, data9.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res10.key = applyfunc(udata10.key, data10.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res11.key = applyfunc(udata11.key, data11.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res12.key = applyfunc(udata12.key, data12.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res13.key = applyfunc(udata13.key, data13.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res14.key = applyfunc(udata14.key, data14.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res15.key = applyfunc(udata15.key, data15.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res0.value = applyfunc(udata0.value, data0.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res1.value = applyfunc(udata1.value, data1.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res2.value = applyfunc(udata2.value, data2.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res3.value = applyfunc(udata3.value, data3.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res4.value = applyfunc(udata4.value, data4.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res5.value = applyfunc(udata5.value, data5.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res6.value = applyfunc(udata6.value, data6.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res7.value = applyfunc(udata7.value, data7.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res8.value = applyfunc(udata8.value, data8.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res9.value = applyfunc(udata9.value, data9.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res10.value = applyfunc(udata10.value, data10.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res11.value = applyfunc(udata11.value, data11.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res12.value = applyfunc(udata12.value, data12.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res13.value = applyfunc(udata13.value, data13.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res14.value = applyfunc(udata14.value, data14.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res15.value = applyfunc(udata15.value, data15.value, globalparams.GraphIter, globalparams.GraphAlgo);
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl;
-		cout<<"udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl;
-		cout<<"udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl;
-		cout<<"udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl;
-		cout<<"udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl;
-		cout<<"udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl;
-		cout<<"udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl;
-		cout<<"udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl;
-		cout<<"udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<", data8.key: "<<data8.key<<", data8.value: "<<data8.value<<endl;
-		cout<<"udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<", data9.key: "<<data9.key<<", data9.value: "<<data9.value<<endl;
-		cout<<"udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<", data10.key: "<<data10.key<<", data10.value: "<<data10.value<<endl;
-		cout<<"udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<", data11.key: "<<data11.key<<", data11.value: "<<data11.value<<endl;
-		cout<<"udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<", data12.key: "<<data12.key<<", data12.value: "<<data12.value<<endl;
-		cout<<"udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<", data13.key: "<<data13.key<<", data13.value: "<<data13.value<<endl;
-		cout<<"udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<", data14.key: "<<data14.key<<", data14.value: "<<data14.value<<endl;
-		cout<<"udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid10<<" & vid2: "<<vid20<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid11<<" & vid2: "<<vid21<<"): res1.key: "<<res1.key<<", res1.value: "<<res1.value<<": udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid12<<" & vid2: "<<vid22<<"): res2.key: "<<res2.key<<", res2.value: "<<res2.value<<": udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid13<<" & vid2: "<<vid23<<"): res3.key: "<<res3.key<<", res3.value: "<<res3.value<<": udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid14<<" & vid2: "<<vid24<<"): res4.key: "<<res4.key<<", res4.value: "<<res4.value<<": udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid15<<" & vid2: "<<vid25<<"): res5.key: "<<res5.key<<", res5.value: "<<res5.value<<": udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid16<<" & vid2: "<<vid26<<"): res6.key: "<<res6.key<<", res6.value: "<<res6.value<<": udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid17<<" & vid2: "<<vid27<<"): res7.key: "<<res7.key<<", res7.value: "<<res7.value<<": udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid18<<" & vid2: "<<vid28<<"): res8.key: "<<res8.key<<", res8.value: "<<res8.value<<": udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<", data8.key: "<<data8.key<<", data8.value: "<<data8.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid19<<" & vid2: "<<vid29<<"): res9.key: "<<res9.key<<", res9.value: "<<res9.value<<": udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<", data9.key: "<<data9.key<<", data9.value: "<<data9.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid110<<" & vid2: "<<vid210<<"): res10.key: "<<res10.key<<", res10.value: "<<res10.value<<": udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<", data10.key: "<<data10.key<<", data10.value: "<<data10.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid111<<" & vid2: "<<vid211<<"): res11.key: "<<res11.key<<", res11.value: "<<res11.value<<": udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<", data11.key: "<<data11.key<<", data11.value: "<<data11.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid112<<" & vid2: "<<vid212<<"): res12.key: "<<res12.key<<", res12.value: "<<res12.value<<": udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<", data12.key: "<<data12.key<<", data12.value: "<<data12.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid113<<" & vid2: "<<vid213<<"): res13.key: "<<res13.key<<", res13.value: "<<res13.value<<": udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<", data13.key: "<<data13.key<<", data13.value: "<<data13.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid114<<" & vid2: "<<vid214<<"): res14.key: "<<res14.key<<", res14.value: "<<res14.value<<": udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<", data14.key: "<<data14.key<<", data14.value: "<<data14.value<<endl;	
+		cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid115<<" & vid2: "<<vid215<<"): res15.key: "<<res15.key<<", res15.value: "<<res15.value<<": udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl;	
+		#endif
+		
+		destbuffer[BUFFERBASE_VDATA + 0][i] = res0;
+		destbuffer[BUFFERBASE_VDATA + 1][i] = res1;
+		destbuffer[BUFFERBASE_VDATA + 2][i] = res2;
+		destbuffer[BUFFERBASE_VDATA + 3][i] = res3;
+		destbuffer[BUFFERBASE_VDATA + 4][i] = res4;
+		destbuffer[BUFFERBASE_VDATA + 5][i] = res5;
+		destbuffer[BUFFERBASE_VDATA + 6][i] = res6;
+		destbuffer[BUFFERBASE_VDATA + 7][i] = res7;
+		destbuffer[BUFFERBASE_VDATA + 8][i] = res8;
+		destbuffer[BUFFERBASE_VDATA + 9][i] = res9;
+		destbuffer[BUFFERBASE_VDATA + 10][i] = res10;
+		destbuffer[BUFFERBASE_VDATA + 11][i] = res11;
+		destbuffer[BUFFERBASE_VDATA + 12][i] = res12;
+		destbuffer[BUFFERBASE_VDATA + 13][i] = res13;
+		destbuffer[BUFFERBASE_VDATA + 14][i] = res14;
+		destbuffer[BUFFERBASE_VDATA + 15][i] = res15;
+		
+		if(res0.key != udata0.key){ maskbit10 = 1; } else { maskbit10 = 0; }
+		if(res0.value != udata0.value){ maskbit20 = 1; } else { maskbit20 = 0; }
+		if(res1.key != udata1.key){ maskbit11 = 1; } else { maskbit11 = 0; }
+		if(res1.value != udata1.value){ maskbit21 = 1; } else { maskbit21 = 0; }
+		if(res2.key != udata2.key){ maskbit12 = 1; } else { maskbit12 = 0; }
+		if(res2.value != udata2.value){ maskbit22 = 1; } else { maskbit22 = 0; }
+		if(res3.key != udata3.key){ maskbit13 = 1; } else { maskbit13 = 0; }
+		if(res3.value != udata3.value){ maskbit23 = 1; } else { maskbit23 = 0; }
+		if(res4.key != udata4.key){ maskbit14 = 1; } else { maskbit14 = 0; }
+		if(res4.value != udata4.value){ maskbit24 = 1; } else { maskbit24 = 0; }
+		if(res5.key != udata5.key){ maskbit15 = 1; } else { maskbit15 = 0; }
+		if(res5.value != udata5.value){ maskbit25 = 1; } else { maskbit25 = 0; }
+		if(res6.key != udata6.key){ maskbit16 = 1; } else { maskbit16 = 0; }
+		if(res6.value != udata6.value){ maskbit26 = 1; } else { maskbit26 = 0; }
+		if(res7.key != udata7.key){ maskbit17 = 1; } else { maskbit17 = 0; }
+		if(res7.value != udata7.value){ maskbit27 = 1; } else { maskbit27 = 0; }
+		if(res8.key != udata8.key){ maskbit18 = 1; } else { maskbit18 = 0; }
+		if(res8.value != udata8.value){ maskbit28 = 1; } else { maskbit28 = 0; }
+		if(res9.key != udata9.key){ maskbit19 = 1; } else { maskbit19 = 0; }
+		if(res9.value != udata9.value){ maskbit29 = 1; } else { maskbit29 = 0; }
+		if(res10.key != udata10.key){ maskbit110 = 1; } else { maskbit110 = 0; }
+		if(res10.value != udata10.value){ maskbit210 = 1; } else { maskbit210 = 0; }
+		if(res11.key != udata11.key){ maskbit111 = 1; } else { maskbit111 = 0; }
+		if(res11.value != udata11.value){ maskbit211 = 1; } else { maskbit211 = 0; }
+		if(res12.key != udata12.key){ maskbit112 = 1; } else { maskbit112 = 0; }
+		if(res12.value != udata12.value){ maskbit212 = 1; } else { maskbit212 = 0; }
+		if(res13.key != udata13.key){ maskbit113 = 1; } else { maskbit113 = 0; }
+		if(res13.value != udata13.value){ maskbit213 = 1; } else { maskbit213 = 0; }
+		if(res14.key != udata14.key){ maskbit114 = 1; } else { maskbit114 = 0; }
+		if(res14.value != udata14.value){ maskbit214 = 1; } else { maskbit214 = 0; }
+		if(res15.key != udata15.key){ maskbit115 = 1; } else { maskbit115 = 0; }
+		if(res15.value != udata15.value){ maskbit215 = 1; } else { maskbit215 = 0; }
+		
+		#ifdef _WIDEWORD // CRITICAL FIXME. use range for _WIDEWORD
+		// cout<<"unifyvdata: not yet implemented 32. exiting..."<<endl; exit(EXIT_FAILURE);
+		WRITETO_UINT(&mask, 0, 1, maskbit10); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 1, 1, maskbit20);
+		WRITETO_UINT(&mask, 2, 1, maskbit11); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 3, 1, maskbit21);
+		WRITETO_UINT(&mask, 4, 1, maskbit12); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 5, 1, maskbit22);
+		WRITETO_UINT(&mask, 6, 1, maskbit13); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 7, 1, maskbit23);
+		WRITETO_UINT(&mask, 8, 1, maskbit14); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 9, 1, maskbit24);
+		WRITETO_UINT(&mask, 10, 1, maskbit15); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 11, 1, maskbit25);
+		WRITETO_UINT(&mask, 12, 1, maskbit16); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 13, 1, maskbit26);
+		WRITETO_UINT(&mask, 14, 1, maskbit17); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 15, 1, maskbit27);
+		WRITETO_UINT(&mask, 16, 1, maskbit18); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 17, 1, maskbit28);
+		WRITETO_UINT(&mask, 18, 1, maskbit19); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 19, 1, maskbit29);
+		WRITETO_UINT(&mask, 20, 1, maskbit110); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 21, 1, maskbit210);
+		WRITETO_UINT(&mask, 22, 1, maskbit111); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 23, 1, maskbit211);
+		WRITETO_UINT(&mask, 24, 1, maskbit112); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 25, 1, maskbit212);
+		WRITETO_UINT(&mask, 26, 1, maskbit113); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 27, 1, maskbit213);
+		WRITETO_UINT(&mask, 28, 1, maskbit114); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 29, 1, maskbit214);
+		WRITETO_UINT(&mask, 30, 1, maskbit115); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 31, 1, maskbit215);
+		#else 
+		WRITETO_UINT(&mask, 0, 1, maskbit10); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 1, 1, maskbit20);
+		WRITETO_UINT(&mask, 2, 1, maskbit11); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 3, 1, maskbit21);
+		WRITETO_UINT(&mask, 4, 1, maskbit12); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 5, 1, maskbit22);
+		WRITETO_UINT(&mask, 6, 1, maskbit13); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 7, 1, maskbit23);
+		WRITETO_UINT(&mask, 8, 1, maskbit14); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 9, 1, maskbit24);
+		WRITETO_UINT(&mask, 10, 1, maskbit15); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 11, 1, maskbit25);
+		WRITETO_UINT(&mask, 12, 1, maskbit16); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 13, 1, maskbit26);
+		WRITETO_UINT(&mask, 14, 1, maskbit17); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 15, 1, maskbit27);
+		WRITETO_UINT(&mask, 16, 1, maskbit18); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 17, 1, maskbit28);
+		WRITETO_UINT(&mask, 18, 1, maskbit19); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 19, 1, maskbit29);
+		WRITETO_UINT(&mask, 20, 1, maskbit110); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 21, 1, maskbit210);
+		WRITETO_UINT(&mask, 22, 1, maskbit111); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 23, 1, maskbit211);
+		WRITETO_UINT(&mask, 24, 1, maskbit112); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 25, 1, maskbit212);
+		WRITETO_UINT(&mask, 26, 1, maskbit113); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 27, 1, maskbit213);
+		WRITETO_UINT(&mask, 28, 1, maskbit114); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 29, 1, maskbit214);
+		WRITETO_UINT(&mask, 30, 1, maskbit115); // CRITICAL FIXME. use range for _WIDEWORD
+		WRITETO_UINT(&mask, 31, 1, maskbit215);
 		#endif 
 		
-		destbuffer[0][i] = udata0;
-		destbuffer[1][i] = udata1;
-		destbuffer[2][i] = udata2;
-		destbuffer[3][i] = udata3;
-		destbuffer[4][i] = udata4;
-		destbuffer[5][i] = udata5;
-		destbuffer[6][i] = udata6;
-		destbuffer[7][i] = udata7;
-		destbuffer[8][i] = udata8;
-		destbuffer[9][i] = udata9;
-		destbuffer[10][i] = udata10;
-		destbuffer[11][i] = udata11;
-		destbuffer[12][i] = udata12;
-		destbuffer[13][i] = udata13;
-		destbuffer[14][i] = udata14;
-		destbuffer[15][i] = udata15;
-		exit(EXIT_SUCCESS); //
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(res0.key != udata0.key){ cout<<"-vid: "<<vid10<<", maskbit: "<<maskbit10<<endl; }
+		if(res0.value != udata0.value){ cout<<"-vid: "<<vid20<<", maskbit: "<<maskbit20<<endl; }
+		if(res1.key != udata1.key){ cout<<"-vid: "<<vid11<<", maskbit: "<<maskbit11<<endl; }
+		if(res1.value != udata1.value){ cout<<"-vid: "<<vid21<<", maskbit: "<<maskbit21<<endl; }
+		if(res2.key != udata2.key){ cout<<"-vid: "<<vid12<<", maskbit: "<<maskbit12<<endl; }
+		if(res2.value != udata2.value){ cout<<"-vid: "<<vid22<<", maskbit: "<<maskbit22<<endl; }
+		if(res3.key != udata3.key){ cout<<"-vid: "<<vid13<<", maskbit: "<<maskbit13<<endl; }
+		if(res3.value != udata3.value){ cout<<"-vid: "<<vid23<<", maskbit: "<<maskbit23<<endl; }
+		if(res4.key != udata4.key){ cout<<"-vid: "<<vid14<<", maskbit: "<<maskbit14<<endl; }
+		if(res4.value != udata4.value){ cout<<"-vid: "<<vid24<<", maskbit: "<<maskbit24<<endl; }
+		if(res5.key != udata5.key){ cout<<"-vid: "<<vid15<<", maskbit: "<<maskbit15<<endl; }
+		if(res5.value != udata5.value){ cout<<"-vid: "<<vid25<<", maskbit: "<<maskbit25<<endl; }
+		if(res6.key != udata6.key){ cout<<"-vid: "<<vid16<<", maskbit: "<<maskbit16<<endl; }
+		if(res6.value != udata6.value){ cout<<"-vid: "<<vid26<<", maskbit: "<<maskbit26<<endl; }
+		if(res7.key != udata7.key){ cout<<"-vid: "<<vid17<<", maskbit: "<<maskbit17<<endl; }
+		if(res7.value != udata7.value){ cout<<"-vid: "<<vid27<<", maskbit: "<<maskbit27<<endl; }
+		if(res8.key != udata8.key){ cout<<"-vid: "<<vid18<<", maskbit: "<<maskbit18<<endl; }
+		if(res8.value != udata8.value){ cout<<"-vid: "<<vid28<<", maskbit: "<<maskbit28<<endl; }
+		if(res9.key != udata9.key){ cout<<"-vid: "<<vid19<<", maskbit: "<<maskbit19<<endl; }
+		if(res9.value != udata9.value){ cout<<"-vid: "<<vid29<<", maskbit: "<<maskbit29<<endl; }
+		if(res10.key != udata10.key){ cout<<"-vid: "<<vid110<<", maskbit: "<<maskbit110<<endl; }
+		if(res10.value != udata10.value){ cout<<"-vid: "<<vid210<<", maskbit: "<<maskbit210<<endl; }
+		if(res11.key != udata11.key){ cout<<"-vid: "<<vid111<<", maskbit: "<<maskbit111<<endl; }
+		if(res11.value != udata11.value){ cout<<"-vid: "<<vid211<<", maskbit: "<<maskbit211<<endl; }
+		if(res12.key != udata12.key){ cout<<"-vid: "<<vid112<<", maskbit: "<<maskbit112<<endl; }
+		if(res12.value != udata12.value){ cout<<"-vid: "<<vid212<<", maskbit: "<<maskbit212<<endl; }
+		if(res13.key != udata13.key){ cout<<"-vid: "<<vid113<<", maskbit: "<<maskbit113<<endl; }
+		if(res13.value != udata13.value){ cout<<"-vid: "<<vid213<<", maskbit: "<<maskbit213<<endl; }
+		if(res14.key != udata14.key){ cout<<"-vid: "<<vid114<<", maskbit: "<<maskbit114<<endl; }
+		if(res14.value != udata14.value){ cout<<"-vid: "<<vid214<<", maskbit: "<<maskbit214<<endl; }
+		if(res15.key != udata15.key){ cout<<"-vid: "<<vid115<<", maskbit: "<<maskbit115<<endl; }
+		if(res15.value != udata15.value){ cout<<"-vid: "<<vid215<<", maskbit: "<<maskbit215<<endl; }
+		if(mask > 0){ cout<<"unifyvdata: WRITETO_ULONG. UINTTOBINARY(mask)"<<endl; actsutilityobj->UINTTOBINARY(mask); }
+		#endif
+		
+		maskbuffer[i] = mask;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	actsutilityobj->printvalues("unifyvdata.maskbuffer", maskbuffer, 8);
 	exit(EXIT_SUCCESS); // 
+	#endif 
 	return;
 }
 
@@ -9733,24 +9971,6 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		readkeyvalues(enpp0[14], kvdram14, vubufferpp0[14], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[14].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[14]);
 		readkeyvalues(enpp0[15], kvdram15, vubufferpp0[15], (sweepparams.worksourcebaseaddress_kvs + rtravstatepp0[15].begin_kvs + offset1_kvs), SRCBUFFER_SIZE, rtravstatepp0[15]);
 		// reduce 1
-		#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
-		reduce(enpp1f, enpp1[0], vubufferpp1[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams); 
-		reduce(enpp1f, enpp1[1], vubufferpp1[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[1], _globalparams); 
-		reduce(enpp1f, enpp1[2], vubufferpp1[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[2], _globalparams); 
-		reduce(enpp1f, enpp1[3], vubufferpp1[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[3], _globalparams); 
-		reduce(enpp1f, enpp1[4], vubufferpp1[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[4], _globalparams); 
-		reduce(enpp1f, enpp1[5], vubufferpp1[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[5], _globalparams); 
-		reduce(enpp1f, enpp1[6], vubufferpp1[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[6], _globalparams); 
-		reduce(enpp1f, enpp1[7], vubufferpp1[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[7], _globalparams); 
-		reduce(enpp1f, enpp1[8], vubufferpp1[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[8], _globalparams); 
-		reduce(enpp1f, enpp1[9], vubufferpp1[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[9], _globalparams); 
-		reduce(enpp1f, enpp1[10], vubufferpp1[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[10], _globalparams); 
-		reduce(enpp1f, enpp1[11], vubufferpp1[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[11], _globalparams); 
-		reduce(enpp1f, enpp1[12], vubufferpp1[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[12], _globalparams); 
-		reduce(enpp1f, enpp1[13], vubufferpp1[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams); 
-		reduce(enpp1f, enpp1[14], vubufferpp1[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[14], _globalparams); 
-		reduce(enpp1f, enpp1[15], vubufferpp1[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[15], _globalparams); 
-		#endif
 		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 		reduce_bfs(enpp1f, enpp1[0], vubufferpp1[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams); 
 		reduce_bfs(enpp1f, enpp1[1], vubufferpp1[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[1], _globalparams); 
@@ -9768,45 +9988,9 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		reduce_bfs(enpp1f, enpp1[13], vubufferpp1[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams); 
 		reduce_bfs(enpp1f, enpp1[14], vubufferpp1[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[14], _globalparams); 
 		reduce_bfs(enpp1f, enpp1[15], vubufferpp1[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[15], _globalparams); 
-		#endif 
-		#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-		reduce_sssp(enpp1f, enpp1[0], vubufferpp1[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[0], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[1], vubufferpp1[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[1], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[2], vubufferpp1[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[2], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[3], vubufferpp1[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[3], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[4], vubufferpp1[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[4], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[5], vubufferpp1[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[5], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[6], vubufferpp1[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[6], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[7], vubufferpp1[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[7], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[8], vubufferpp1[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[8], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[9], vubufferpp1[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[9], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[10], vubufferpp1[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[10], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[11], vubufferpp1[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[11], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[12], vubufferpp1[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[12], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[13], vubufferpp1[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[13], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[14], vubufferpp1[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[14], _globalparams); 
-		reduce_sssp(enpp1f, enpp1[15], vubufferpp1[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp1[15], _globalparams); 
-		#endif 
+		#endif
 		
 		// reduce 0
-		#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
-		reduce(ON, enpp0[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[0], _globalparams);
-		reduce(ON, enpp0[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[1], _globalparams);
-		reduce(ON, enpp0[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[2], _globalparams);
-		reduce(ON, enpp0[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[3], _globalparams);
-		reduce(ON, enpp0[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[4], _globalparams);
-		reduce(ON, enpp0[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[5], _globalparams);
-		reduce(ON, enpp0[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[6], _globalparams);
-		reduce(ON, enpp0[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[7], _globalparams);
-		reduce(ON, enpp0[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[8], _globalparams);
-		reduce(ON, enpp0[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[9], _globalparams);
-		reduce(ON, enpp0[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[10], _globalparams);
-		reduce(ON, enpp0[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[11], _globalparams);
-		reduce(ON, enpp0[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[12], _globalparams);
-		reduce(ON, enpp0[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
-		reduce(ON, enpp0[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[14], _globalparams);
-		reduce(ON, enpp0[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[15], _globalparams);
-		#endif
 		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 		reduce_bfs(ON, enpp0[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[0], _globalparams);
 		reduce_bfs(ON, enpp0[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[1], _globalparams);
@@ -9824,25 +10008,7 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		reduce_bfs(ON, enpp0[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
 		reduce_bfs(ON, enpp0[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[14], _globalparams);
 		reduce_bfs(ON, enpp0[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[15], _globalparams);
-		#endif 
-		#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-		reduce_sssp(ON, enpp0[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[0], _globalparams);
-		reduce_sssp(ON, enpp0[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[1], _globalparams);
-		reduce_sssp(ON, enpp0[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[2], _globalparams);
-		reduce_sssp(ON, enpp0[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[3], _globalparams);
-		reduce_sssp(ON, enpp0[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[4], _globalparams);
-		reduce_sssp(ON, enpp0[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[5], _globalparams);
-		reduce_sssp(ON, enpp0[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[6], _globalparams);
-		reduce_sssp(ON, enpp0[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[7], _globalparams);
-		reduce_sssp(ON, enpp0[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[8], _globalparams);
-		reduce_sssp(ON, enpp0[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[9], _globalparams);
-		reduce_sssp(ON, enpp0[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[10], _globalparams);
-		reduce_sssp(ON, enpp0[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[11], _globalparams);
-		reduce_sssp(ON, enpp0[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[12], _globalparams);
-		reduce_sssp(ON, enpp0[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[13], _globalparams);
-		reduce_sssp(ON, enpp0[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[14], _globalparams);
-		reduce_sssp(ON, enpp0[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstatepp0[15], _globalparams);
-		#endif 
+		#endif
 		
 		// read 1
 		offset2_kvs = offset_kvs + rtravstate[0].skip_kvs;
@@ -9901,24 +10067,6 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		readkeyvalues(en[14], kvdram14, vubufferpp0[14], (sweepparams.worksourcebaseaddress_kvs + rtravstate[14].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[14]);
 		readkeyvalues(en[15], kvdram15, vubufferpp0[15], (sweepparams.worksourcebaseaddress_kvs + rtravstate[15].begin_kvs + offset_kvs), SRCBUFFER_SIZE, rtravstate[15]);
 
-		#if defined(INMEMORYGP) && defined(PR_ALGORITHM) 
-		reduce(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-		reduce(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-		reduce(ON, en[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-		reduce(ON, en[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-		reduce(ON, en[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-		reduce(ON, en[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-		reduce(ON, en[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-		reduce(ON, en[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-		reduce(ON, en[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-		reduce(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-		reduce(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-		reduce(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-		reduce(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-		reduce(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-		reduce(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-		reduce(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-		#endif
 		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM) 
 		reduce_bfs(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
 		reduce_bfs(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
@@ -9936,24 +10084,6 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		reduce_bfs(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
 		reduce_bfs(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
 		reduce_bfs(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
-		#endif 
-		#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM) 
-		reduce_sssp(ON, en[0], vubufferpp0[0], tempverticesbuffer0, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[0], _globalparams);
-		reduce_sssp(ON, en[1], vubufferpp0[1], tempverticesbuffer1, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[1], _globalparams);
-		reduce_sssp(ON, en[2], vubufferpp0[2], tempverticesbuffer2, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[2], _globalparams);
-		reduce_sssp(ON, en[3], vubufferpp0[3], tempverticesbuffer3, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[3], _globalparams);
-		reduce_sssp(ON, en[4], vubufferpp0[4], tempverticesbuffer4, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[4], _globalparams);
-		reduce_sssp(ON, en[5], vubufferpp0[5], tempverticesbuffer5, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[5], _globalparams);
-		reduce_sssp(ON, en[6], vubufferpp0[6], tempverticesbuffer6, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[6], _globalparams);
-		reduce_sssp(ON, en[7], vubufferpp0[7], tempverticesbuffer7, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[7], _globalparams);
-		reduce_sssp(ON, en[8], vubufferpp0[8], tempverticesbuffer8, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[8], _globalparams);
-		reduce_sssp(ON, en[9], vubufferpp0[9], tempverticesbuffer9, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[9], _globalparams);
-		reduce_sssp(ON, en[10], vubufferpp0[10], tempverticesbuffer10, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[10], _globalparams);
-		reduce_sssp(ON, en[11], vubufferpp0[11], tempverticesbuffer11, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[11], _globalparams);
-		reduce_sssp(ON, en[12], vubufferpp0[12], tempverticesbuffer12, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[12], _globalparams);
-		reduce_sssp(ON, en[13], vubufferpp0[13], tempverticesbuffer13, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[13], _globalparams);
-		reduce_sssp(ON, en[14], vubufferpp0[14], tempverticesbuffer14, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[14], _globalparams);
-		reduce_sssp(ON, en[15], vubufferpp0[15], tempverticesbuffer15, sweepparams, _globalparams.GraphIter, _globalparams.GraphAlgo, rtravstate[15], _globalparams);
 		#endif
 	}	
 	#endif
@@ -10043,24 +10173,33 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-	static keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static 
+	keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
-	static keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static 
+	keyvalue_t buffer_setof1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-	static keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static 
+	keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof2
-	static keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static 
+	keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof4
-	static keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	static 
+	keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-	static skeyvalue_t capsule_so1[8][NUM_PARTITIONS];
+	static 
+	skeyvalue_t capsule_so1[8][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-	static skeyvalue_t capsule_so2[4][NUM_PARTITIONS];
+	static 
+	skeyvalue_t capsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so2
-	static skeyvalue_t capsule_so4[2][NUM_PARTITIONS];
+	static 
+	skeyvalue_t capsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so4
-	static skeyvalue_t capsule_so8[NUM_PARTITIONS];
+	static 
+	skeyvalue_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -10073,8 +10212,10 @@ actit(bool_type enable, unsigned int mode,
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-	static buffer_type pp0cutoffs[VECTOR_SIZE];
-	static buffer_type pp1cutoffs[VECTOR_SIZE];
+	static 
+	buffer_type pp0cutoffs[VECTOR_SIZE];
+	static 
+	buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -10138,6 +10279,7 @@ void
 	#endif 
 processit(uint512_dt * kvdram, keyvalue_t kvdrambuffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
+	analysis_type analysis_loop1 = 1;
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
@@ -10172,7 +10314,7 @@ processit(uint512_dt * kvdram, keyvalue_t kvdrambuffer[NUM_KVDRAMBUFFERS][PADDED
 	actsutilityobj->print7("### dispatch::processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 	MAIN_LOOP1B: for(batch_type voffset_kvs=avtravstate.begin_kvs; voffset_kvs<avtravstate.end_kvs; voffset_kvs+=REDUCEBUFFERSZ * PROCFETCHINDEX){ // AUTOMATEME
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_processedges_overallloop avg=analysis_processedges_overallloop
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->print4("### dispatch::processit:: voffset", "vbegin", "vend", "vskip", voffset_kvs * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
@@ -10492,7 +10634,8 @@ travstate_t
 	acts::
 	#endif 
 start_reduce(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, keyvalue_t kvdrambuffer0[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer1[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer2[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer3[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer4[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer5[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer6[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer7[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer8[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer9[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer10[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer11[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer12[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer13[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer14[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE],keyvalue_t kvdrambuffer15[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], globalparams_t globalparams[NUMSUBCPUTHREADS]){
-	analysis_type analysis_loop1 = (1 << (NUM_PARTITIONS_POW * TREE_DEPTH));
+	#pragma HLS INLINE // NEWCHANGE
+	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -10504,15 +10647,13 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 	
 	static keyvalue_t destvbuffer[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = destvbuffer
-	// static keyvalue_t destvbuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	// #pragma HLS array_partition variable = destvbuffer2
 	travstate_t rtravstate[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	keyvalue_t moretravstates[NUMSUBCPUTHREADS][MAXLOADFACTORFORREDUCE];
 	#pragma HLS array_partition variable = moretravstates
 
 	travstate_t actvvstravstate;
-	actvvstravstate.i=0; actvvstravstate.i_kvs=0; // actvvstravstate.v=0; actvvstravstate.k=0; 
+	actvvstravstate.i=0; actvvstravstate.i_kvs=0;
 	globalparams_t _globalparams = globalparams[0];
 	unsigned int sourcestatsmarker = 0;
 	for(unsigned int k=0; k<_globalparams.treedepth-1; k++){ 
@@ -10579,39 +10720,63 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint5
 			readkeyvalues(enablereduce, kvdram0, destvbuffer, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE); // CRITICAL FIXME. too expensive here
 			readkeyvalues(enablereduce, kvdram0, destvbuffer, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
 			
-			// readkeyvalues(enablereduce, vdram, destvbuffer, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
-			// readkeyvalues(enablereduce, vdram, destvbuffer, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
-			
-			// readkeyvalues(enablereduce, vdram, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
-			// readkeyvalues(enablereduce, vdram, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
-			
  // COMPUTEUNITS_seq
 			readkeyvalues(enablereduce, kvdram0, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
 			readkeyvalues(enablereduce, kvdram0, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram1, kvdrambuffer1, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram1, kvdrambuffer1, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram2, kvdrambuffer2, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram2, kvdrambuffer2, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram3, kvdrambuffer3, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram3, kvdrambuffer3, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram4, kvdrambuffer4, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram4, kvdrambuffer4, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram5, kvdrambuffer5, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram5, kvdrambuffer5, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram6, kvdrambuffer6, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram6, kvdrambuffer6, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram7, kvdrambuffer7, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram7, kvdrambuffer7, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram8, kvdrambuffer8, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram8, kvdrambuffer8, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram9, kvdrambuffer9, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram9, kvdrambuffer9, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram10, kvdrambuffer10, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram10, kvdrambuffer10, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram11, kvdrambuffer11, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram11, kvdrambuffer11, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram12, kvdrambuffer12, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram12, kvdrambuffer12, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram13, kvdrambuffer13, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram13, kvdrambuffer13, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram14, kvdrambuffer14, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram14, kvdrambuffer14, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
+ // COMPUTEUNITS_seq
+			readkeyvalues(enablereduce, kvdram15, kvdrambuffer15, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
+			readkeyvalues(enablereduce, kvdram15, kvdrambuffer15, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
 			
  // COMPUTEUNITS_seq
 			dispatch(OFF, OFF, ON, kvdram0, kvdrambuffer0,
 				sourcestatsmarker, source_partition, _globalparams);
 			
-			// actsutilityobj->printkeyvalues("kvdrambuffer0[~0]", kvdrambuffer0, 0, 16);
-			// actsutilityobj->printkeyvalues("kvdrambuffer0[~8]", kvdrambuffer0, 8, 16);
-			// exit(EXIT_SUCCESS);
-			
 			unifyvdata(ON, kvdrambuffer0,kvdrambuffer1,kvdrambuffer2,kvdrambuffer3,kvdrambuffer4,kvdrambuffer5,kvdrambuffer6,kvdrambuffer7,kvdrambuffer8,kvdrambuffer9,kvdrambuffer10,kvdrambuffer11,kvdrambuffer12,kvdrambuffer13,kvdrambuffer14,kvdrambuffer15, destvbuffer, _globalparams);
+			#ifdef _DEBUGMODE_CHECKS3 // CRITICAL REMOVEME.
 			exit(EXIT_SUCCESS);
-			
-			// #if defined(INMEMORYGP) && defined(BFS_ALGORITHM) // FIXME. NOTYETIMPLEMENTED.
-			// unifydata_bfs_parallelsyn(enablereducepp0, tempverticesbuffer0,tempverticesbuffer1,tempverticesbuffer2,tempverticesbuffer3,tempverticesbuffer4,tempverticesbuffer5,tempverticesbuffer6,tempverticesbuffer7,tempverticesbuffer8,tempverticesbuffer9,tempverticesbuffer10,tempverticesbuffer11,tempverticesbuffer12,tempverticesbuffer13,tempverticesbuffer14,tempverticesbuffer15, destvbuffer, 
-					// indexpp0 * reducesubchunksz, reducesubchunksz, _globalparams);
-			// #endif
-			
-			// #if defined(INMEMORYGP) && defined(BFS_ALGORITHM) // FIXME. NOTYETIMPLEMENTED.
-			// nonzeroactvvsreturnedpp0 = collectactvvs_bfs(vdram, enablereducepp0, destvbuffer, destvbuffer2,
-				// itercount_actvvs0, itercount_actvvs1,  
-				// enableflush, indexpp0, sweepparams0, &actvvstravstate, 
-				// (indexpp0 * reducesubchunksz), reducesubchunksz, source_partition * _globalparams.applyvertexbuffersz, _globalparams);
-			// if(nonzeroactvvsreturnedpp0 == ON || (enableflush == ON && indexpp0 < 8)){  itercount_actvvs0 += 1;  itercount_actvvs1 += 1;  }
-			// #endif
+			#endif 
 			
 			savekeyvalues(enablereduce, kvdram0, kvdrambuffer0, 0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), PADDEDDESTBUFFER_SIZE);
 			savekeyvalues(enablereduce, kvdram0, kvdrambuffer0, 8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, PADDEDDESTBUFFER_SIZE);
@@ -11100,7 +11265,7 @@ start(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt *
 		start_reduce(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdrambuffer0,kvdrambuffer1,kvdrambuffer2,kvdrambuffer3,kvdrambuffer4,kvdrambuffer5,kvdrambuffer6,kvdrambuffer7,kvdrambuffer8,kvdrambuffer9,kvdrambuffer10,kvdrambuffer11,kvdrambuffer12,kvdrambuffer13,kvdrambuffer14,kvdrambuffer15, globalparams);
 	}
 	// return;
-	exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
