@@ -50,8 +50,8 @@ public:
 	
 	void loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbuffer, container_t * container);
 	
-	void setvertexdatamask(keyvalue_t kvdrambuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int loc, unsigned int value);
-	void loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
+	void savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs);
+	void generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
 	
 	void setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices);
 

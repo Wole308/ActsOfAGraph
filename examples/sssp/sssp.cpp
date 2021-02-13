@@ -104,14 +104,13 @@ runsummary_t sssp::run(){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE); }
 	#endif 
 	
-	// loadgraphobj->loadedges_rowwise(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	
 	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices); }
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container);
-	loadgraphobj->loadvertexdatamask(activevertices, kvbuffer);
+	loadgraphobj->generatevmaskdata(activevertices, kvbuffer);
 	
 	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, SSSP);
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
@@ -152,7 +151,8 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
 		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 		
-		if(evalid == 0){ verify(activevertices, num_its); }
+		// if(evalid == 0){ verify(activevertices, num_its); }
+		if(false){ verify(activevertices, num_its); }
 		utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	
 		statsobj->timingandsummary(num_its, totaltime_ms);

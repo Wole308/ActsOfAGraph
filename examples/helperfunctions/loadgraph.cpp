@@ -585,64 +585,96 @@ void loadgraph::loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbu
 	return;
 }
 
-void loadgraph::setvertexdatamask(keyvalue_t kvdrambuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], unsigned int loc, unsigned int value){
-	unsigned int X = loc / (REDUCESZ * (NUM_PARTITIONS / VECTOR_SIZE));
-	unsigned int Y = loc % (REDUCESZ * (NUM_PARTITIONS / VECTOR_SIZE)); // loc % 2048
-	Y = Y / 64;
-	unsigned int bitpos = loc % 32;
-	// cout<<"loc: "<<loc<<", X: "<<X<<", Y: "<<Y<<", bitpos: "<<bitpos<<", VMASKSZ: "<<VMASKSZ<<", VMASKBUFFERSZ: "<<VMASKBUFFERSZ<<endl;
+void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadgraph::savevmasks:: saving vmask... "<<endl;
+	#endif
+	uint32_type bitsbuffer[REDUCEBUFFERSZ];
+	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
 	
-	#ifdef _DEBUGMODE_CHECKS2
-	utilityobj->checkoutofbounds("setvertexdatamask.X", X, NUM_PARTITIONS, loc, NAp, NAp);
-	utilityobj->checkoutofbounds("setvertexdatamask.Y", Y, VMASKBUFFERSZ, loc, NAp, NAp);
+	for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+		for(unsigned int k=0; k<NUM_PARTITIONS; k++){
+			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
+			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
+		}
+	}
+	
+	unsigned int index = 0;
+	for (buffer_type i=0; i<VMASKBUFFERSZ_KVS; i++){
+		for (vector_type v=0; v<VECTOR_SIZE; v++){
+			#ifdef _DEBUGMODE_CHECKS2
+			utilityobj->checkoutofbounds("loadgraph::savevmasks_h 1", index, REDUCEBUFFERSZ, NAp, NAp, NAp);
+			utilityobj->checkoutofbounds("loadgraph::savevmasks_h 1", i, VMASKBUFFERSZ_KVS, NAp, NAp, NAp);
+			#endif
+			tempbuffer[v][i].key = bitsbuffer[index]; 
+			tempbuffer[v][i].value = bitsbuffer[index+1]; 
+			index += 2;
+		}
+	}
+	
+	for (buffer_type i=0; i<size_kvs; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvbuffer[offset_kvs + i].data[v] = tempbuffer[v][i];
+		}
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	utilityobj->printvalues("savevmasks.bitsbuffer", bitsbuffer, 4);
+	utilityobj->printkeyvalues("savevmasks.vmask", vmask, NUM_PARTITIONS, 4);
+	utilityobj->printkeyvalues("savevmasks.tempbuffer", tempbuffer, 8, 4);
+	utilityobj->printkeyvalues("savevmasks.kvbuffer[0]", (keyvalue_t *)&kvbuffer[offset_kvs], 4);
 	#endif 
-	
-	if((loc / 32) % 2 == 0){ utilityobj->WRITETO_UINT(&kvdrambuffer[X][Y].key, bitpos, 1, value); }
-	else { utilityobj->WRITETO_UINT(&kvdrambuffer[X][Y].value, bitpos, 1, value); }
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void loadgraph::loadvertexdatamask(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
+void loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"loadgraph::loadvertexdatamask:: loading vertices data mask... "<<endl;
+	cout<<"loadgraph::generatevmaskdata:: generating vmask... "<<endl;
 	#endif
 	
+	keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ];
 	keyvalue_t kvdrambuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		for(unsigned int k=0; k<((BATCH_RANGE / 32) / VECTOR_SIZE); k++){ 
+		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS; k++){ 
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				kvbuffer[i][k].data[v].key = 0;
-				kvbuffer[i][k].data[v].value = 0;
+				kvbuffer[i][BASEOFFSET_VERTICESDATAMASK_KVS + k].data[v].key = 0;
+				kvbuffer[i][BASEOFFSET_VERTICESDATAMASK_KVS + k].data[v].value = 0;
 			}
 		}
 	}
 	
-	for(unsigned int offset=0; offset<VERTICESDATAMASKSZ_KVS; offset+=VMASKBUFFERSZ){ // VERTICESDATAMASKSZ_KVS, 2*VMASKBUFFERSZ
-		for(unsigned int k=0; k<VMASKBUFFERSZ*VECTOR_SIZE*64; k++){
-			unsigned int vid = (offset * VECTOR_SIZE * 64) + k;
-			#ifdef PR_ALGORITHM
-			setvertexdatamask(kvdrambuffer, k, 1);
-			#else 
-			if(vid == activevertices[0]){ setvertexdatamask(kvdrambuffer, k, 1); }
-			else { setvertexdatamask(kvdrambuffer, k, 0); }
-			
-			// if(vid >= 0 && vid < 400000){ setvertexdatamask(kvdrambuffer, k, 1); }
-			// else { setvertexdatamask(kvdrambuffer, k, 0); }
-			#endif 
-		}
-		
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				for(unsigned int k=0; k<VMASKBUFFERSZ; k++){
-					kvbuffer[i][BASEOFFSET_VERTICESDATAMASK_KVS + offset + k].data[v] = kvdrambuffer[v][k];
-				}
+	unsigned int vmaskoffset_kvs = 0;
+	// for(unsigned int offset=0; offset<BATCH_RANGE; offset+=REDUCESZ * NUM_PARTITIONS){
+	for(unsigned int offset=0; offset<8*REDUCESZ * NUM_PARTITIONS; offset+=REDUCESZ * NUM_PARTITIONS){
+		cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++ offset: "<<offset<<endl;
+		for(unsigned int i=0; i<NUM_PARTITIONS; i++){
+			unsigned int * V = (unsigned int *)vmask[i]; 
+			for(unsigned int k=0; k<REDUCESZ; k++){
+				unsigned int vid = offset + (i*REDUCESZ) + k;
+				if(vid==1){ V[k] = 1; }
+				else{ V[k] = 0; }
 			}
 		}
+		
+		/* #ifdef _DEBUGMODE_HOSTPRINTS3
+		utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, NUM_PARTITIONS, 4);
+		cout<<"loadgraph::generatevmaskdata:: end. "<<endl;
+		#endif 
+		exit(EXIT_SUCCESS); */
+		// NUMSUBCPUTHREADS
+		for(unsigned int i=0; i<1; i++){ savevmasks(ON, kvbuffer[i], vmask, BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, VMASKBUFFERSZ_KVS); }
+		vmaskoffset_kvs += VMASKBUFFERSZ_KVS;
+		
+		// break;
 	}
-	// utilityobj->printkeyvalues("kvdrambuffer", (keyvalue_t *)&kvdrambuffer[0], 16);
-	// utilityobj->printkeyvalues("kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_VERTICESDATAMASK_KVS], 16);
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, NUM_PARTITIONS, 4);
+	utilityobj->printkeyvalues("generatevmaskdata.kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_VERTICESDATAMASK_KVS], 4);
+	cout<<"loadgraph::generatevmaskdata:: end. "<<endl;
+	#endif 
 	// exit(EXIT_SUCCESS);
-	cout<<"loadgraph::loadvertexdatamask:: end. "<<endl;
 	return;
 }
 

@@ -4,7 +4,7 @@
 
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define SSSP_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -43,7 +43,7 @@
 
 #ifdef INMEMORYGP
 #ifdef PR_ALGORITHM
-	#define DISPATCHTYPE_ASYNC // 1
+	#define DISPATCHTYPE_SYNC // 1
 	#define MERGEPROCESSEDGESANDPARTITIONSTAGE // DEPRECIATEME.
 	#define MERGEPARTITIONANDREDUCE
 	// #define MERGEEDGESANDKVDRAMWORKSPACE
@@ -154,17 +154,12 @@
 #define KVDATA_RANGE_PERSSDPARTITION (1 << KVDATA_RANGE_PERSSDPARTITION_POW)
 #define KVDATA_RANGE_PERSSDPARTITION_KVS (KVDATA_RANGE_PERSSDPARTITION / VECTOR_SIZE)
 
-#define KVDATA_RANGE_PERSSDPARTITION2_POW (KVDATA_RANGE_POW - NUMSSDPARTITIONS_POW - SKEWRATIO_POW)
-#define KVDATA_RANGE_PERSSDPARTITION2 (1 << KVDATA_RANGE_PERSSDPARTITION2_POW)
-#define KVDATA_RANGE_PERSSDPARTITION2_KVS (KVDATA_RANGE_PERSSDPARTITION2 / VECTOR_SIZE)
-
 #define BATCH_RANGE_POW KVDATA_RANGE_PERSSDPARTITION_POW
 #define BATCH_RANGE (1 << BATCH_RANGE_POW)
 #define BATCH_RANGE_KVS (BATCH_RANGE / VECTOR_SIZE)
 
-#define BATCH_RANGE2_POW KVDATA_RANGE_PERSSDPARTITION2_POW
-#define BATCH_RANGE2 (1 << BATCH_RANGE2_POW)
-#define BATCH_RANGE2_KVS (BATCH_RANGE2 / VECTOR_SIZE)
+#define BATCHRANGESZ (BATCH_RANGE / 2)
+#define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
 #ifdef PR_ALGORITHM
 #define SRAMSZ_POW 10
@@ -200,8 +195,9 @@
 #define REDUCESZ (1 << REDUCESZ_POW) // 1024
 #define REDUCEBUFFERSZ (REDUCESZ / 2) // 512
 
-#define VMASKSZ ((REDUCESZ * (NUM_PARTITIONS / VECTOR_SIZE)) / 32) // 2048/32 =64
-#define VMASKBUFFERSZ (VMASKSZ / 2) // =32
+// #define VMASKBUFFERSZ REDUCEBUFFERSZ // should be the same.
+// #define VMASKBUFFERSZ ((REDUCESZ * NUM_PARTITIONS) / 32) // 512 //>>> 16384=[WidthxHeight]=32*512
+#define VMASKBUFFERSZ_KVS ((REDUCESZ * NUM_PARTITIONS) / 512) // 32 //>>> 16384=[WidthxHeight]=512*32
 
 #define LOADFACTORFORREDUCE ((1024 * VECTOR_SIZE) / (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR)) // use REDUCESZ
 
@@ -414,9 +410,32 @@ typedef struct {
 } keyvalue_t;
 
 #ifdef _WIDEWORD
-typedef ap_uint<64> keyvalue_at;
+typedef struct {
+	ap_uint<1> key;
+	ap_uint<1> value;
+} keyvalue_bittype;
+#else 
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue_bittype;
+#endif  //uint512_vec_dt
+
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue_vec_bittype;
+
+#ifdef _WIDEWORD
+typedef ap_uint<64> uint64_type;
 #else
-typedef keyvalue_t keyvalue_at;
+typedef keyvalue_t uint64_type;
+#endif
+
+#ifdef _WIDEWORD
+typedef ap_uint<32> uint32_type;
+#else
+typedef unsigned int uint32_type;
 #endif
 
 typedef struct {

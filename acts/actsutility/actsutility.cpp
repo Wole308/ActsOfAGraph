@@ -195,10 +195,17 @@ void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZ
 		cout<<".."<<endl;
 	}
 }
-void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[NUM_KVDRAMBUFFERS][PADDEDDESTBUFFER_SIZE], unsigned int startv, unsigned int size){
+void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[NUM_VBUFFERS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
 	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
-	for(unsigned int v=0; v<VECTOR_SIZE; v++){
-		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<startv + v<<"]["<<i<<"].key: "<<keyvalues[startv + v][i].key<<", keyvalues["<<startv + v<<"]["<<i<<"].value: "<<keyvalues[startv + v][i].value<<endl; }
+	for(unsigned int v=0; v<numcols; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
+}
+void actsutility::printkeyvalues(string message, keyvalue_bittype keyvalues[NUM_VMASK][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
+	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<numcols; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
 		cout<<".."<<endl;
 	}
 }

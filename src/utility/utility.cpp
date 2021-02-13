@@ -51,8 +51,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: NUMWORKERS: "<<NUMWORKERS<<std::endl;
 	std::cout<<"host:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
 	std::cout<<"host:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
-	// std::cout<<"host:: NUMSUPERCPUTHREADS: "<<NUMSUPERCPUTHREADS<<std::endl;
-	// std::cout<<"host:: NUMCPUTHREADS: "<<NUMCPUTHREADS<<std::endl;
 	std::cout<<"host:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
 	std::cout<<"host:: NUMUTILITYTHREADS: "<<NUMUTILITYTHREADS<<std::endl;
 	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
@@ -72,8 +70,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION_POW: "<<KVDATA_RANGE_PERSSDPARTITION_POW<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION: "<<KVDATA_RANGE_PERSSDPARTITION<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION2_POW: "<<KVDATA_RANGE_PERSSDPARTITION2_POW<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION2: "<<KVDATA_RANGE_PERSSDPARTITION2<<std::endl;
 	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
 	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
 	std::cout<<"host:: NUMSSDPARTITIONS_POW: "<<NUMSSDPARTITIONS_POW<<std::endl;
@@ -147,7 +143,15 @@ void utility::printallparameters(){
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<std::endl;
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
- 
+	
+	std::cout<<"host:: REDUCESZ_POW: "<<REDUCESZ_POW<<std::endl;
+	std::cout<<"host:: REDUCESZ: "<<REDUCESZ<<std::endl;
+	std::cout<<"host:: REDUCEBUFFERSZ: "<<REDUCEBUFFERSZ<<std::endl;
+	
+	std::cout<<"host:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
+	
+	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+
 	#ifdef INMEMORYGP
 	std::cout<<"host:: INMEMORYGP enabled "<<std::endl;
 	#endif 
@@ -228,6 +232,20 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE]
 		cout<<".."<<endl;
 	}
 	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
+}
+void utility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
+	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<numcols; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
+}
+void utility::printkeyvalues(string message, keyvalue_vec_bittype keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
+	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<numcols; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
 }
 void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;
