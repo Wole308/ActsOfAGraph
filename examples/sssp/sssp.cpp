@@ -82,7 +82,7 @@ runsummary_t sssp::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 1; // 4,6
+	unsigned int NumGraphIters = 12; // 4,6
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -153,7 +153,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		
 		// if(evalid == 0){ verify(activevertices, num_its); }
 		if(false){ verify(activevertices, num_its); }
-		utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+		utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters); // runsssp_sw runbfs_sw
 	
 		statsobj->timingandsummary(num_its, totaltime_ms);
 		if(num_its > swnum_its){ break; } 

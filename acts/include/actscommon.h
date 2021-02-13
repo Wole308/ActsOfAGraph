@@ -44,11 +44,6 @@ typedef unsigned int visitstate_type;
 #endif
 
 typedef struct {
-	unsigned int key;
-	unsigned int value;
-} skeyvalue_t;
-
-typedef struct {
 	unsigned int currentLOP;
 	unsigned int upperlimit;
 	unsigned int upperpartition;

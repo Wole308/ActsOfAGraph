@@ -307,115 +307,6 @@ getrangeforeachllop(globalparams_t globalparams){
 	}
 	return range;
 }
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetkeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ buffer[i].key = resetval; buffer[i].value = resetval; }
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ buffer[i].value = resetval; }
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ buffer[i] = resetval; }
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetmanykeyandvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){
-		buffer[0][i].key = resetval; buffer[0][i].value = resetval; 
-		buffer[1][i].key = resetval; buffer[1][i].value = resetval; 
-		buffer[2][i].key = resetval; buffer[2][i].value = resetval; 
-		buffer[3][i].key = resetval; buffer[3][i].value = resetval; 
-		buffer[4][i].key = resetval; buffer[4][i].value = resetval; 
-		buffer[5][i].key = resetval; buffer[5][i].value = resetval; 
-		buffer[6][i].key = resetval; buffer[6][i].value = resetval; 
-		buffer[7][i].key = resetval; buffer[7][i].value = resetval; 
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetmanykeyandvalues(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){
-		buffer[0][i].key = resetval; buffer[0][i].value = resetval; 
-		buffer[1][i].key = resetval; buffer[1][i].value = resetval; 
-		buffer[2][i].key = resetval; buffer[2][i].value = resetval; 
-		buffer[3][i].key = resetval; buffer[3][i].value = resetval; 
-		buffer[4][i].key = resetval; buffer[4][i].value = resetval; 
-		buffer[5][i].key = resetval; buffer[5][i].value = resetval; 
-		buffer[6][i].key = resetval; buffer[6][i].value = resetval; 
-		buffer[7][i].key = resetval; buffer[7][i].value = resetval; 
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetmanykeyandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){
-		buffer[i].key = resetval; buffer[i].value = resetval; 
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetmanykeyandvalues(skeyvalue_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){
-		buffer[i].key = resetval; buffer[i].value = resetval; 
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetmanyvalues(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ 
-		buffer[0][i].value = resetval;
-		buffer[1][i].value = resetval;
-		buffer[2][i].value = resetval;
-		buffer[3][i].value = resetval;
-		buffer[4][i].value = resetval;
-		buffer[5][i].value = resetval;
-		buffer[6][i].value = resetval;
-		buffer[7][i].value = resetval;
-	}
-	return;
-}
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-resetmanyvalues(buffer_type buffer0[NUM_PARTITIONS],buffer_type buffer1[NUM_PARTITIONS],buffer_type buffer2[NUM_PARTITIONS],buffer_type buffer3[NUM_PARTITIONS],buffer_type buffer4[NUM_PARTITIONS],buffer_type buffer5[NUM_PARTITIONS],buffer_type buffer6[NUM_PARTITIONS],buffer_type buffer7[NUM_PARTITIONS], buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ 
-		buffer0[i] = resetval;
-		buffer1[i] = resetval;
-		buffer2[i] = resetval;
-		buffer3[i] = resetval;
-		buffer4[i] = resetval;
-		buffer5[i] = resetval;
-		buffer6[i] = resetval;
-		buffer7[i] = resetval;
-	}
-	return;
-}
 buffer_type 
 	#ifdef SW 
 	acts::
@@ -640,7 +531,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-calculateunallignedoffsets(skeyvalue_t buffer[NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+calculateunallignedoffsets(keyvalue_t buffer[NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[i].key = buffer[i-1].key + buffer[i-1].value + skipspacing; 
 	}
@@ -650,7 +541,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-calculatemanyoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+calculatemanyoffsets(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = allignhigher_KV(buffer[0][i-1].key + buffer[0][i-1].value + skipspacing); 
 		buffer[1][i].key = allignhigher_KV(buffer[1][i-1].key + buffer[1][i-1].value + skipspacing); 
@@ -667,7 +558,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-calculatemanyoffsets_allignby4(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+calculatemanyoffsets_allignby4(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = allignhigherto4_KV(buffer[0][i-1].key + buffer[0][i-1].value + skipspacing); 
 		buffer[1][i].key = allignhigherto4_KV(buffer[1][i-1].key + buffer[1][i-1].value + skipspacing); 
@@ -684,7 +575,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-calculatemanyoffsets_allignby4_lower(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type limitsz[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, buffer_type cutoff){
+calculatemanyoffsets_allignby4_lower(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type limitsz[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, buffer_type cutoff){
 	analysis_type analysis_loopcount = NUM_PARTITIONS;
 	
 	for(buffer_type i=0; i<size; i++){
@@ -761,7 +652,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-calculatemanyunallignedoffsets(skeyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+calculatemanyunallignedoffsets(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
@@ -1064,15 +955,6 @@ inreducestage(unsigned int currentLOP, globalparams_t globalparams){
 	if(currentLOP == (globalparams.treedepth + 1)){ return true; }
 	else { return false; }
 }
-void 
-	#ifdef SW 
-	acts::
-	#endif
-calculateglobaloffsets(keyvalue_t * globalstatsbuffer, batch_type * skipsizes,  batch_type offset, batch_type size){
-	for(partition_type p=0; p<size; p++){ batch_type A = (globalstatsbuffer[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; batch_type B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; if(B < 80){ B = B * 2; } batch_type C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; skipsizes[p] = (B * C) + 128; }
-	calculateoffsets(globalstatsbuffer, size, offset, skipsizes);
-	return;
-}
 keyvalue_t 
 	#ifdef SW 
 	acts::
@@ -1340,6 +1222,80 @@ getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex
 }
 #endif 
 
+// functions (resets)
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+	for(buffer_type i=0; i<size; i++){ buffer[i].value = resetval; }
+}
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
+	for(buffer_type i=0; i<size; i++){ buffer[i] = resetval; }
+}
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+resetkeysandvalues(keyvalue_t buffer[VECTOR_SIZE][NUM_PARTITIONS], buffer_type size, unsigned int resetval){
+	for(buffer_type i=0; i<size; i++){
+		buffer[0][i].key = resetval; buffer[0][i].value = resetval; 
+		buffer[1][i].key = resetval; buffer[1][i].value = resetval; 
+		buffer[2][i].key = resetval; buffer[2][i].value = resetval; 
+		buffer[3][i].key = resetval; buffer[3][i].value = resetval; 
+		buffer[4][i].key = resetval; buffer[4][i].value = resetval; 
+		buffer[5][i].key = resetval; buffer[5][i].value = resetval; 
+		buffer[6][i].key = resetval; buffer[6][i].value = resetval; 
+		buffer[7][i].key = resetval; buffer[7][i].value = resetval; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+resetkeysandvalues(keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type size, unsigned int resetval){
+	for(buffer_type i=0; i<size; i++){
+		buffer[0][i].key = resetval; buffer[0][i].value = resetval; 
+		buffer[1][i].key = resetval; buffer[1][i].value = resetval; 
+		buffer[2][i].key = resetval; buffer[2][i].value = resetval; 
+		buffer[3][i].key = resetval; buffer[3][i].value = resetval; 
+		buffer[4][i].key = resetval; buffer[4][i].value = resetval; 
+		buffer[5][i].key = resetval; buffer[5][i].value = resetval; 
+		buffer[6][i].key = resetval; buffer[6][i].value = resetval; 
+		buffer[7][i].key = resetval; buffer[7][i].value = resetval; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+	for(buffer_type i=0; i<size; i++){
+		buffer[i].key = resetval; buffer[i].value = resetval; 
+	}
+	return;
+}
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+resetvmask(keyvalue_bittype vmask[NUM_VMASK][BLOCKRAM_SIZE]){
+	for(buffer_type k=0; k<BLOCKRAM_SIZE; k++){ 
+		for(unsigned int i=0; i<NUM_VMASK; i++){
+		#pragma HLS UNROLL
+			vmask[i][k].key = 0;
+			vmask[i][k].value = 0;
+		}
+	}
+	return;
+}
+
 // functions (converters)
 batch_type 
 	#ifdef SW 
@@ -1405,7 +1361,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][PADDEDDESTBUFFER_SIZE], keyvalue_t * globalcapsule, keyvalue_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 
 	#ifdef _DEBUGMODE_CHECKS
@@ -2028,10 +1984,10 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[VECTOR_SIZE][NUM_PARTITIONS], 
-				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4][NUM_PARTITIONS], 
-					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
-						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule[NUM_PARTITIONS],
+runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer1capsule[VECTOR_SIZE][NUM_PARTITIONS], 
+				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferBcapsule[4][NUM_PARTITIONS], 
+					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferCcapsule[2][NUM_PARTITIONS],
+						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferDcapsule[NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
 	if(enable == OFF){ return; }
@@ -2444,14 +2400,14 @@ runpipeline(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_S
 	return;
 }
 
-skeyvalue_t 
+keyvalue_t 
 	#ifdef SW 
 	acts::
 	#endif
-runpipeline_1partition(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t buffer1capsule[VECTOR_SIZE], 
-				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferBcapsule[4], 
-					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferCcapsule[2],
-						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t bufferDcapsule,
+runpipeline_1partition(bool_type enable, keyvalue_t bufferA[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t buffer1capsule[VECTOR_SIZE], 
+				keyvalue_t bufferB[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferBcapsule[4], 
+					keyvalue_t bufferC[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferCcapsule[2],
+						keyvalue_t bufferD[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t bufferDcapsule,
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_srcbuffersz = PADDEDDESTBUFFER_SIZE;
 	if(enable == OFF){ return bufferDcapsule; }
@@ -2947,17 +2903,16 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_t vbuffer[NUM_VBU
 		
 		value_t udata = readfromvbuffer(vbuffer, lvid);
 		unsigned int mask = readfromvmask(vmask, lvid);
-		// if(vid == 1){ mask = 1; } // CRITICAL FIXME.
 		value_t res  = processfunc(udata, 1, globalparams.GraphAlgo); 
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 		#endif
 		
 		if(en == ON && mask == 1){
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", vid: "<<vid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl;
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: E[1]["<<v<<"]: "<<E[1][v]<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", vid: "<<vid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<endl; }
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<endl; }
 			#endif 
 			
 			buffer[0][2*i].key = E[0][0]; 
@@ -3899,41 +3854,11 @@ saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuf
 	return;
 }
 
-void 
-	#ifdef SW 
-	acts::
-	#endif
-collectstats(bool_type enable, uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], config_t config, globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ctravstate){
-	#pragma HLS INLINE
-	analysis_type analysis_collectstatsloop = KVDATA_BATCHSIZE_KVS / SRCBUFFER_SIZE;
-	if(enable == OFF){ return; }
-
-	unsigned int enable_generatestats = ON;
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	if(config.enablecollectglobalstats == ON){ cout<<"collectstats:: generating stats..."<<endl; }
-	#endif 
-	
-	MAIN_LOOP1C_COLLECTGLOBALSTATS: for(batch_type offset_kvs=ctravstate.begin_kvs; offset_kvs<ctravstate.end_kvs; offset_kvs+=ctravstate.skip_kvs){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_collectstatsloop avg=analysis_collectstatsloop
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		actsutilityobj->print4("### collectstats:: offset_kvs", "begin_kvs", "end_kvs", "skip", offset_kvs, ctravstate.begin_kvs, ctravstate.end_kvs, SRCBUFFER_SIZE);
-		#endif
-		
-		ctravstate.i_kvs = offset_kvs;
-		
-		readkeyvalues(ON, kvdram, sourcebuffer, (sweepparams.worksourcebaseaddress_kvs + offset_kvs), SRCBUFFER_SIZE, ctravstate);
-		
-		collectglobalstats(ON, sourcebuffer, destbuffer, sweepparams.currentLOP, sweepparams, ctravstate, globalparams);
-	}
-	prepareglobalstats(enable_generatestats, destbuffer, globalstatsbuffer, globalparams);
-	return;
-}
-
 buffer_type 
 	#ifdef SW 
 	acts::
 	#endif
-preparekeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, travstate_t travstate, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
+preparekeyvalues(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, travstate_t travstate, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	analysis_type analysis_srcbuffersz = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
@@ -4235,10 +4160,10 @@ partitionpipeline(
 		keyvalue_t buffer_setof2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
 		keyvalue_t buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],
-		skeyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS],
-		skeyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS],
-		skeyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
-		skeyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
+		keyvalue_t templocalcapsule_so1[8][NUM_PARTITIONS],
+		keyvalue_t templocalcapsule_so2[4][NUM_PARTITIONS],
+		keyvalue_t templocalcapsule_so4[2][NUM_PARTITIONS],
+		keyvalue_t templocalcapsule_so8[NUM_PARTITIONS],
 		keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ],
 		globalparams_t globalparams,
 		sweepparams_t sweepparams,
@@ -4254,7 +4179,7 @@ partitionpipeline(
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
 
-	resetmanykeyandvalues(templocalcapsule_so1, NUM_PARTITIONS, 0);
+	resetkeysandvalues(templocalcapsule_so1, NUM_PARTITIONS, 0);
 	
 	bool_type pp0readen = ON;
 	bool_type pp1readen = ON;
@@ -4344,7 +4269,6 @@ replicatedata_syn(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDD
 		
 		for(vector_type v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS UNROLL
-		
 			destbuffer0[v][i] = keyvalue; 
 			destbuffer1[v][i] = keyvalue; 
 			destbuffer2[v][i] = keyvalue; 
@@ -4524,30 +4448,6 @@ reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Grap
 	#elif defined(BC_ALGORITHM)
 	temp = amin(vtemp, res);
 	#endif
-	return temp;
-}
-
-value_t 
-	#ifdef SW 
-	acts::
-	#endif 
-reducefunc_bfs(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
-	value_t temp = 0;
-	
-	if(vtemp == UNVISITED){ temp = VISITED_IN_CURRENT_ITERATION; } 
-	else if(vtemp == VISITED_IN_CURRENT_ITERATION){ temp = VISITED_IN_CURRENT_ITERATION; } // FIXME. CAUSEOFERROR?
-	else if(vtemp == VISITED_IN_PAST_ITERATION){ temp = VISITED_IN_PAST_ITERATION; } 
-	else {
-		#ifdef _DEBUGMODE_CHECKS2
-		#ifdef ENABLE_VOICEOUTKERNELERRORS
-		cout<<"reducefunc_bfs: ERROR. should never get here. exiting..."<<endl;
-		cout<<"reducefunc_bfs: vtemp: "<<vtemp<<", UNVISITED: "<<UNVISITED<<", VISITED_IN_CURRENT_ITERATION: "<<VISITED_IN_CURRENT_ITERATION<<", VISITED_IN_PAST_ITERATION: "<<VISITED_IN_PAST_ITERATION<<endl;
-		#endif 
-		#ifdef ENABLE_PERFECTACCURACY
-		exit(EXIT_FAILURE);
-		#endif 
-		#endif 
-	}
 	return temp;
 }
 
@@ -4925,18 +4825,6 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 	bool_type en7 = ON;
 	bool_type en27 = ON;
 	
-	/* /////////////////////////////////////////////
-	uint64_type DESTdestbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = DESTdestbuffer
-	for(unsigned int v=0; v<VECTOR_SIZE; v++){
-		for(unsigned int i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-			// DESTdestbuffer[v][i] = destbuffer[v][i];
-			DESTdestbuffer[v][i].range(31, 0) = destbuffer[v][i].key;
-			DESTdestbuffer[v][i].range(63, 32) = destbuffer[v][i].value;
-		}
-	}
-	///////////////////////////////////////////// */
-	
 	unsigned int upperlimit = sweepparams.upperlimit;
 	unsigned int upperpartition = sweepparams.upperpartition;
 
@@ -5303,200 +5191,88 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs0, 64, colindexs0, 0, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[0][rowindexs0], colindexs0, 1, 1); //
-				
-				// temps0 = READFROM_ULONG(tempdestbuffer[0][rowindexs0], colindexs0, 2);
-				// if(temps0 == UNVISITED){ WRITETO_ULONG(&destbuffer[0][rowindexs0], colindexs0, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[0][rowindexs0].range(colindexs0 + 1, colindexs0) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[0][rowindexs0], colindexs0, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[0][rowindexs0]); 
-				// data.range(colindexs0 + 1, colindexs0) = 1;
-				// destbuffer[0][rowindexs0] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en1 == ON && en21 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs1, 64, colindexs1, 1, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[1][rowindexs1], colindexs1, 1, 1); //
-				
-				// temps1 = READFROM_ULONG(tempdestbuffer[1][rowindexs1], colindexs1, 2);
-				// if(temps1 == UNVISITED){ WRITETO_ULONG(&destbuffer[1][rowindexs1], colindexs1, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[1][rowindexs1].range(colindexs1 + 1, colindexs1) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[1][rowindexs1], colindexs1, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[1][rowindexs1]); 
-				// data.range(colindexs1 + 1, colindexs1) = 1;
-				// destbuffer[1][rowindexs1] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en2 == ON && en22 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs2, 64, colindexs2, 2, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[2][rowindexs2], colindexs2, 1, 1); //
-				
-				// temps2 = READFROM_ULONG(tempdestbuffer[2][rowindexs2], colindexs2, 2);
-				// if(temps2 == UNVISITED){ WRITETO_ULONG(&destbuffer[2][rowindexs2], colindexs2, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[2][rowindexs2].range(colindexs2 + 1, colindexs2) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[2][rowindexs2], colindexs2, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[2][rowindexs2]); 
-				// data.range(colindexs2 + 1, colindexs2) = 1;
-				// destbuffer[2][rowindexs2] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en3 == ON && en23 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs3, 64, colindexs3, 3, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[3][rowindexs3], colindexs3, 1, 1); //
-				
-				// temps3 = READFROM_ULONG(tempdestbuffer[3][rowindexs3], colindexs3, 2);
-				// if(temps3 == UNVISITED){ WRITETO_ULONG(&destbuffer[3][rowindexs3], colindexs3, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[3][rowindexs3].range(colindexs3 + 1, colindexs3) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[3][rowindexs3], colindexs3, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[3][rowindexs3]); 
-				// data.range(colindexs3 + 1, colindexs3) = 1;
-				// destbuffer[3][rowindexs3] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en4 == ON && en24 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs4, 64, colindexs4, 4, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[4][rowindexs4], colindexs4, 1, 1); //
-				
-				// temps4 = READFROM_ULONG(tempdestbuffer[4][rowindexs4], colindexs4, 2);
-				// if(temps4 == UNVISITED){ WRITETO_ULONG(&destbuffer[4][rowindexs4], colindexs4, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[4][rowindexs4].range(colindexs4 + 1, colindexs4) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[4][rowindexs4], colindexs4, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[4][rowindexs4]); 
-				// data.range(colindexs4 + 1, colindexs4) = 1;
-				// destbuffer[4][rowindexs4] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en5 == ON && en25 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs5, 64, colindexs5, 5, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[5][rowindexs5], colindexs5, 1, 1); //
-				
-				// temps5 = READFROM_ULONG(tempdestbuffer[5][rowindexs5], colindexs5, 2);
-				// if(temps5 == UNVISITED){ WRITETO_ULONG(&destbuffer[5][rowindexs5], colindexs5, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[5][rowindexs5].range(colindexs5 + 1, colindexs5) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[5][rowindexs5], colindexs5, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[5][rowindexs5]); 
-				// data.range(colindexs5 + 1, colindexs5) = 1;
-				// destbuffer[5][rowindexs5] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en6 == ON && en26 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs6, 64, colindexs6, 6, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[6][rowindexs6], colindexs6, 1, 1); //
-				
-				// temps6 = READFROM_ULONG(tempdestbuffer[6][rowindexs6], colindexs6, 2);
-				// if(temps6 == UNVISITED){ WRITETO_ULONG(&destbuffer[6][rowindexs6], colindexs6, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[6][rowindexs6].range(colindexs6 + 1, colindexs6) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[6][rowindexs6], colindexs6, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[6][rowindexs6]); 
-				// data.range(colindexs6 + 1, colindexs6) = 1;
-				// destbuffer[6][rowindexs6] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			if(en7 == ON && en27 == ON){
 				#ifdef _DEBUGMODE_CHECKS2
 				actsutilityobj->checkoutofbounds("reduce_bfs 444a", colindexs7, 64, colindexs7, 7, NAp);
 				#endif
 				
-				// WRITETO_ULONG(&destbuffer[7][rowindexs7], colindexs7, 1, 1); //
-				
-				// temps7 = READFROM_ULONG(tempdestbuffer[7][rowindexs7], colindexs7, 2);
-				// if(temps7 == UNVISITED){ WRITETO_ULONG(&destbuffer[7][rowindexs7], colindexs7, 2, VISITED_IN_CURRENT_ITERATION); }
-				
 				#ifdef _WIDEWORD // _WIDEWORD_XXX
 				destbuffer[7][rowindexs7].range(colindexs7 + 1, colindexs7) = 1;
 				#else 
 				WRITETO_ULONG((keyvalue_t *)&destbuffer[7][rowindexs7], colindexs7, 1, 1);
-				#endif 
-				
-				// ulong_dt data = CONVERTTOLONG_KV(destbuffer[7][rowindexs7]); 
-				// data.range(colindexs7 + 1, colindexs7) = 1;
-				// destbuffer[7][rowindexs7] = CONVERTTOKV_ULONG(data);
-				
-				// ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
-				// WRITETO_ULONG(&data, index, size, value);
-				// *keyvalue = CONVERTTOKV_ULONG(data);
-				
+				#endif
 			}
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS
@@ -5551,343 +5327,6 @@ reduce_bfs(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_
 			#endif
 		}
 	}
-	
-	
-	/* /////////////////////////////////////////////
-	for(unsigned int v=0; v<VECTOR_SIZE; v++){
-		for(unsigned int i=0; i<PADDEDDESTBUFFER_SIZE; i++){
-			destbuffer[v][i].key = DESTdestbuffer[v][i].range(31, 0);
-			destbuffer[v][i].value = DESTdestbuffer[v][i].range(63, 32);
-		}
-	}
-	///////////////////////////////////////////// */
-	
-	return;
-}
-
-void 
-	#ifdef SW 
-	acts::
-	#endif
-reduce_sssp(bool_type enable1, bool_type enable2, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], sweepparams_t sweepparams, unsigned int GraphIter, unsigned int GraphAlgo, travstate_t travstate, globalparams_t globalparams){
-	if(enable1 == OFF || enable2 == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
-	buffer_type chunk_size = getchunksize_kvs(SRCBUFFER_SIZE, travstate, 0);
-	unsigned int upperlimit = sweepparams.upperlimit;
-	unsigned int upperpartition = sweepparams.upperpartition;
-	
-	REDUCE_LOOP: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz
-	#pragma HLS PIPELINE II=3	
-		keyvalue_t keyvalue0 = sourcebuffer[0][i];
-		keyvalue_t keyvalue1 = sourcebuffer[1][i];
-		keyvalue_t keyvalue2 = sourcebuffer[2][i];
-		keyvalue_t keyvalue3 = sourcebuffer[3][i];
-		keyvalue_t keyvalue4 = sourcebuffer[4][i];
-		keyvalue_t keyvalue5 = sourcebuffer[5][i];
-		keyvalue_t keyvalue6 = sourcebuffer[6][i];
-		keyvalue_t keyvalue7 = sourcebuffer[7][i];
-		
-		vertex_t loc0 = keyvalue0.key - upperlimit;
-		vertex_t loc1 = keyvalue1.key - upperlimit;
-		vertex_t loc2 = keyvalue2.key - upperlimit;
-		vertex_t loc3 = keyvalue3.key - upperlimit;
-		vertex_t loc4 = keyvalue4.key - upperlimit;
-		vertex_t loc5 = keyvalue5.key - upperlimit;
-		vertex_t loc6 = keyvalue6.key - upperlimit;
-		vertex_t loc7 = keyvalue7.key - upperlimit;
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", keyvalue0.value: "<<keyvalue0.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", keyvalue1.value: "<<keyvalue1.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", keyvalue2.value: "<<keyvalue2.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc3: "<<loc3<<", keyvalue3.key: "<<keyvalue3.key<<", keyvalue3.value: "<<keyvalue3.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc4: "<<loc4<<", keyvalue4.key: "<<keyvalue4.key<<", keyvalue4.value: "<<keyvalue4.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", keyvalue5.value: "<<keyvalue5.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", keyvalue6.value: "<<keyvalue6.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ cout<<"REDUCE_SSSP SEEN @ reduce:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", keyvalue7.value: "<<keyvalue7.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
-		#endif 
-		
-		if(loc0 >= globalparams.applyvertexbuffersz && keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc0: "<<loc0<<", keyvalue0.key: "<<keyvalue0.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc0 = 0;
-		} // REMOVEME.
-		if(loc1 >= globalparams.applyvertexbuffersz && keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc1: "<<loc1<<", keyvalue1.key: "<<keyvalue1.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc1 = 0;
-		} // REMOVEME.
-		if(loc2 >= globalparams.applyvertexbuffersz && keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc2: "<<loc2<<", keyvalue2.key: "<<keyvalue2.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc2 = 0;
-		} // REMOVEME.
-		if(loc3 >= globalparams.applyvertexbuffersz && keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc3: "<<loc3<<", keyvalue3.key: "<<keyvalue3.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc3 = 0;
-		} // REMOVEME.
-		if(loc4 >= globalparams.applyvertexbuffersz && keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc4: "<<loc4<<", keyvalue4.key: "<<keyvalue4.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc4 = 0;
-		} // REMOVEME.
-		if(loc5 >= globalparams.applyvertexbuffersz && keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc5: "<<loc5<<", keyvalue5.key: "<<keyvalue5.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc5 = 0;
-		} // REMOVEME.
-		if(loc6 >= globalparams.applyvertexbuffersz && keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc6: "<<loc6<<", keyvalue6.key: "<<keyvalue6.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc6 = 0;
-		} // REMOVEME.
-		if(loc7 >= globalparams.applyvertexbuffersz && keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_counterrorsinreduce(1);
-			#endif
-			#ifdef _DEBUGMODE_CHECKS2
-			#ifdef ENABLE_VOICEOUTREDUCEERRORS
-			cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc7: "<<loc7<<", keyvalue7.key: "<<keyvalue7.key<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
-			#endif 
-			#ifdef ENABLE_PERFECTACCURACY
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-			#endif 
-			#ifdef _DEBUGMODE_CHECKS2
-			if(actsutilityobj->globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<actsutilityobj->globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
-			#endif 
-			#endif
-			loc7 = 0;
-		} // REMOVEME.
-		
-		vertex_t rowindex0 = loc0 / 2;
-		vertex_t colindex0 = loc0 % 2;
-		vertex_t rowindex1 = loc1 / 2;
-		vertex_t colindex1 = loc1 % 2;
-		vertex_t rowindex2 = loc2 / 2;
-		vertex_t colindex2 = loc2 % 2;
-		vertex_t rowindex3 = loc3 / 2;
-		vertex_t colindex3 = loc3 % 2;
-		vertex_t rowindex4 = loc4 / 2;
-		vertex_t colindex4 = loc4 % 2;
-		vertex_t rowindex5 = loc5 / 2;
-		vertex_t colindex5 = loc5 % 2;
-		vertex_t rowindex6 = loc6 / 2;
-		vertex_t colindex6 = loc6 % 2;
-		vertex_t rowindex7 = loc7 / 2;
-		vertex_t colindex7 = loc7 % 2;
-		
-		keyvalue_t vprop0;
-		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ vprop0 = destbuffer[0][rowindex0]; }
-		keyvalue_t vprop1;
-		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ vprop1 = destbuffer[1][rowindex1]; }
-		keyvalue_t vprop2;
-		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ vprop2 = destbuffer[2][rowindex2]; }
-		keyvalue_t vprop3;
-		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ vprop3 = destbuffer[3][rowindex3]; }
-		keyvalue_t vprop4;
-		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ vprop4 = destbuffer[4][rowindex4]; }
-		keyvalue_t vprop5;
-		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ vprop5 = destbuffer[5][rowindex5]; }
-		keyvalue_t vprop6;
-		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ vprop6 = destbuffer[6][rowindex6]; }
-		keyvalue_t vprop7;
-		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ vprop7 = destbuffer[7][rowindex7]; }
-		
-		value_t temp0;
-		if(colindex0 == 0){ temp0 = vprop0.key; }
-		else { temp0 = vprop0.value; }
-		value_t temp1;
-		if(colindex1 == 0){ temp1 = vprop1.key; }
-		else { temp1 = vprop1.value; }
-		value_t temp2;
-		if(colindex2 == 0){ temp2 = vprop2.key; }
-		else { temp2 = vprop2.value; }
-		value_t temp3;
-		if(colindex3 == 0){ temp3 = vprop3.key; }
-		else { temp3 = vprop3.value; }
-		value_t temp4;
-		if(colindex4 == 0){ temp4 = vprop4.key; }
-		else { temp4 = vprop4.value; }
-		value_t temp5;
-		if(colindex5 == 0){ temp5 = vprop5.key; }
-		else { temp5 = vprop5.value; }
-		value_t temp6;
-		if(colindex6 == 0){ temp6 = vprop6.key; }
-		else { temp6 = vprop6.value; }
-		value_t temp7;
-		if(colindex7 == 0){ temp7 = vprop7.key; }
-		else { temp7 = vprop7.value; }
-		
-		value_t temp0_code = READFROM_UINT(temp0, 30, 2);
-		value_t temp0_val = READFROM_UINT(temp0, 0, 30);
-		value_t temp1_code = READFROM_UINT(temp1, 30, 2);
-		value_t temp1_val = READFROM_UINT(temp1, 0, 30);
-		value_t temp2_code = READFROM_UINT(temp2, 30, 2);
-		value_t temp2_val = READFROM_UINT(temp2, 0, 30);
-		value_t temp3_code = READFROM_UINT(temp3, 30, 2);
-		value_t temp3_val = READFROM_UINT(temp3, 0, 30);
-		value_t temp4_code = READFROM_UINT(temp4, 30, 2);
-		value_t temp4_val = READFROM_UINT(temp4, 0, 30);
-		value_t temp5_code = READFROM_UINT(temp5, 30, 2);
-		value_t temp5_val = READFROM_UINT(temp5, 0, 30);
-		value_t temp6_code = READFROM_UINT(temp6, 30, 2);
-		value_t temp6_val = READFROM_UINT(temp6, 0, 30);
-		value_t temp7_code = READFROM_UINT(temp7, 30, 2);
-		value_t temp7_val = READFROM_UINT(temp7, 0, 30);
-		
-		value_t rettemp0 = reducefunc(temp0_val, keyvalue0.value, GraphIter, GraphAlgo);
-		value_t rettemp1 = reducefunc(temp1_val, keyvalue1.value, GraphIter, GraphAlgo);
-		value_t rettemp2 = reducefunc(temp2_val, keyvalue2.value, GraphIter, GraphAlgo);
-		value_t rettemp3 = reducefunc(temp3_val, keyvalue3.value, GraphIter, GraphAlgo);
-		value_t rettemp4 = reducefunc(temp4_val, keyvalue4.value, GraphIter, GraphAlgo);
-		value_t rettemp5 = reducefunc(temp5_val, keyvalue5.value, GraphIter, GraphAlgo);
-		value_t rettemp6 = reducefunc(temp6_val, keyvalue6.value, GraphIter, GraphAlgo);
-		value_t rettemp7 = reducefunc(temp7_val, keyvalue7.value, GraphIter, GraphAlgo);
-
-		if(keyvalue0.value < temp0_val){ WRITETO_UINT(&rettemp0, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue1.value < temp1_val){ WRITETO_UINT(&rettemp1, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue2.value < temp2_val){ WRITETO_UINT(&rettemp2, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue3.value < temp3_val){ WRITETO_UINT(&rettemp3, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue4.value < temp4_val){ WRITETO_UINT(&rettemp4, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue5.value < temp5_val){ WRITETO_UINT(&rettemp5, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue6.value < temp6_val){ WRITETO_UINT(&rettemp6, 30, 2, ACTIVEINNEXTITERATION); }
-		if(keyvalue7.value < temp7_val){ WRITETO_UINT(&rettemp7, 30, 2, ACTIVEINNEXTITERATION); }
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp0: "<<rettemp0<<endl; }
-		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp1: "<<rettemp1<<endl; }
-		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp2: "<<rettemp2<<endl; }
-		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp3: "<<rettemp3<<endl; }
-		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp4: "<<rettemp4<<endl; }
-		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp5: "<<rettemp5<<endl; }
-		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp6: "<<rettemp6<<endl; }
-		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reduce:: rettemp7: "<<rettemp7<<endl; }
-		#endif 
-		
-		if(colindex0 == 0){ vprop0.key = rettemp0; }
-		else { vprop0.value = rettemp0; }
-		if(colindex1 == 0){ vprop1.key = rettemp1; }
-		else { vprop1.value = rettemp1; }
-		if(colindex2 == 0){ vprop2.key = rettemp2; }
-		else { vprop2.value = rettemp2; }
-		if(colindex3 == 0){ vprop3.key = rettemp3; }
-		else { vprop3.value = rettemp3; }
-		if(colindex4 == 0){ vprop4.key = rettemp4; }
-		else { vprop4.value = rettemp4; }
-		if(colindex5 == 0){ vprop5.key = rettemp5; }
-		else { vprop5.value = rettemp5; }
-		if(colindex6 == 0){ vprop6.key = rettemp6; }
-		else { vprop6.value = rettemp6; }
-		if(colindex7 == 0){ vprop7.key = rettemp7; }
-		else { vprop7.value = rettemp7; }
-		
-		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ destbuffer[0][rowindex0] = vprop0; }
-		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ destbuffer[1][rowindex1] = vprop1; }
-		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ destbuffer[2][rowindex2] = vprop2; }
-		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ destbuffer[3][rowindex3] = vprop3; }
-		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ destbuffer[4][rowindex4] = vprop4; }
-		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ destbuffer[5][rowindex5] = vprop5; }
-		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ destbuffer[6][rowindex6] = vprop6; }
-		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ destbuffer[7][rowindex7] = vprop7; }
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsreduced(VECTOR_SIZE);
-		if(keyvalue0.key != INVALIDDATA && keyvalue0.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue1.key != INVALIDDATA && keyvalue1.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue2.key != INVALIDDATA && keyvalue2.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue3.key != INVALIDDATA && keyvalue3.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue4.key != INVALIDDATA && keyvalue4.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue5.key != INVALIDDATA && keyvalue5.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue6.key != INVALIDDATA && keyvalue6.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		if(keyvalue7.key != INVALIDDATA && keyvalue7.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-		#endif
-	}
 	return;
 }
 
@@ -5920,8 +5359,8 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[PADDEDDESTBUFFER_SIZE], un
 	keyvalue_t keyvalue = kvdata;
 	vertex_t loc = keyvalue.key - upperlimit;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: v: 0, loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; }
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reduce:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<upperlimit<<", REDUCESZ: "<<REDUCESZ<<endl; }
 	#endif 
 	
 	if(loc >= globalparams.applyvertexbuffersz && keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ 
@@ -5973,20 +5412,6 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	#elif defined(BC_ALGORITHM)
 	res = amin(value1, value2);
 	#endif
-	return res;
-}
-
-keyvalue_t 
-	#ifdef SW 
-	acts::
-	#endif 
-mergefunc_bfs(keyvalue_t data1, keyvalue_t data2, unsigned int GraphAlgo){
-	keyy_t key = data1.key | data2.key;
-	value_t value = data1.value | data2.value;
-	
-	keyvalue_t res;
-	res.key = key;
-	res.value = value;
 	return res;
 }
 
@@ -6067,885 +5492,6 @@ unifydata(bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFE
 		destbuffer[dest_v][destoffset_kvs + dest_i].value = data2; // set to single destination
 		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
 	}	
-	return;
-}
-
-void 
-	#ifdef SW 
-	acts::
-	#endif
-unifydata_pr_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	buffer_type dest_v = 0;
-	buffer_type dest_i = 0;
-	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
-	
-	UNIFYDATA_LOOP1: for(buffer_type i=0; i<size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=2
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("unifydata_pr_parallelsyn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
-		#endif
-		
-		for(unsigned int k=0; k<2; k++){
-			keyvalue_t vdata00 = sourcebuffer0[0][i];
-			keyvalue_t vdata01 = sourcebuffer0[1][i];
-			keyvalue_t vdata02 = sourcebuffer0[2][i];
-			keyvalue_t vdata03 = sourcebuffer0[3][i];
-			keyvalue_t vdata04 = sourcebuffer0[4][i];
-			keyvalue_t vdata05 = sourcebuffer0[5][i];
-			keyvalue_t vdata06 = sourcebuffer0[6][i];
-			keyvalue_t vdata07 = sourcebuffer0[7][i];
-			keyvalue_t vdata10 = sourcebuffer1[0][i];
-			keyvalue_t vdata11 = sourcebuffer1[1][i];
-			keyvalue_t vdata12 = sourcebuffer1[2][i];
-			keyvalue_t vdata13 = sourcebuffer1[3][i];
-			keyvalue_t vdata14 = sourcebuffer1[4][i];
-			keyvalue_t vdata15 = sourcebuffer1[5][i];
-			keyvalue_t vdata16 = sourcebuffer1[6][i];
-			keyvalue_t vdata17 = sourcebuffer1[7][i];
-			keyvalue_t vdata20 = sourcebuffer2[0][i];
-			keyvalue_t vdata21 = sourcebuffer2[1][i];
-			keyvalue_t vdata22 = sourcebuffer2[2][i];
-			keyvalue_t vdata23 = sourcebuffer2[3][i];
-			keyvalue_t vdata24 = sourcebuffer2[4][i];
-			keyvalue_t vdata25 = sourcebuffer2[5][i];
-			keyvalue_t vdata26 = sourcebuffer2[6][i];
-			keyvalue_t vdata27 = sourcebuffer2[7][i];
-			keyvalue_t vdata30 = sourcebuffer3[0][i];
-			keyvalue_t vdata31 = sourcebuffer3[1][i];
-			keyvalue_t vdata32 = sourcebuffer3[2][i];
-			keyvalue_t vdata33 = sourcebuffer3[3][i];
-			keyvalue_t vdata34 = sourcebuffer3[4][i];
-			keyvalue_t vdata35 = sourcebuffer3[5][i];
-			keyvalue_t vdata36 = sourcebuffer3[6][i];
-			keyvalue_t vdata37 = sourcebuffer3[7][i];
-			keyvalue_t vdata40 = sourcebuffer4[0][i];
-			keyvalue_t vdata41 = sourcebuffer4[1][i];
-			keyvalue_t vdata42 = sourcebuffer4[2][i];
-			keyvalue_t vdata43 = sourcebuffer4[3][i];
-			keyvalue_t vdata44 = sourcebuffer4[4][i];
-			keyvalue_t vdata45 = sourcebuffer4[5][i];
-			keyvalue_t vdata46 = sourcebuffer4[6][i];
-			keyvalue_t vdata47 = sourcebuffer4[7][i];
-			keyvalue_t vdata50 = sourcebuffer5[0][i];
-			keyvalue_t vdata51 = sourcebuffer5[1][i];
-			keyvalue_t vdata52 = sourcebuffer5[2][i];
-			keyvalue_t vdata53 = sourcebuffer5[3][i];
-			keyvalue_t vdata54 = sourcebuffer5[4][i];
-			keyvalue_t vdata55 = sourcebuffer5[5][i];
-			keyvalue_t vdata56 = sourcebuffer5[6][i];
-			keyvalue_t vdata57 = sourcebuffer5[7][i];
-			keyvalue_t vdata60 = sourcebuffer6[0][i];
-			keyvalue_t vdata61 = sourcebuffer6[1][i];
-			keyvalue_t vdata62 = sourcebuffer6[2][i];
-			keyvalue_t vdata63 = sourcebuffer6[3][i];
-			keyvalue_t vdata64 = sourcebuffer6[4][i];
-			keyvalue_t vdata65 = sourcebuffer6[5][i];
-			keyvalue_t vdata66 = sourcebuffer6[6][i];
-			keyvalue_t vdata67 = sourcebuffer6[7][i];
-			keyvalue_t vdata70 = sourcebuffer7[0][i];
-			keyvalue_t vdata71 = sourcebuffer7[1][i];
-			keyvalue_t vdata72 = sourcebuffer7[2][i];
-			keyvalue_t vdata73 = sourcebuffer7[3][i];
-			keyvalue_t vdata74 = sourcebuffer7[4][i];
-			keyvalue_t vdata75 = sourcebuffer7[5][i];
-			keyvalue_t vdata76 = sourcebuffer7[6][i];
-			keyvalue_t vdata77 = sourcebuffer7[7][i];
-			keyvalue_t vdata80 = sourcebuffer8[0][i];
-			keyvalue_t vdata81 = sourcebuffer8[1][i];
-			keyvalue_t vdata82 = sourcebuffer8[2][i];
-			keyvalue_t vdata83 = sourcebuffer8[3][i];
-			keyvalue_t vdata84 = sourcebuffer8[4][i];
-			keyvalue_t vdata85 = sourcebuffer8[5][i];
-			keyvalue_t vdata86 = sourcebuffer8[6][i];
-			keyvalue_t vdata87 = sourcebuffer8[7][i];
-			keyvalue_t vdata90 = sourcebuffer9[0][i];
-			keyvalue_t vdata91 = sourcebuffer9[1][i];
-			keyvalue_t vdata92 = sourcebuffer9[2][i];
-			keyvalue_t vdata93 = sourcebuffer9[3][i];
-			keyvalue_t vdata94 = sourcebuffer9[4][i];
-			keyvalue_t vdata95 = sourcebuffer9[5][i];
-			keyvalue_t vdata96 = sourcebuffer9[6][i];
-			keyvalue_t vdata97 = sourcebuffer9[7][i];
-			keyvalue_t vdata100 = sourcebuffer10[0][i];
-			keyvalue_t vdata101 = sourcebuffer10[1][i];
-			keyvalue_t vdata102 = sourcebuffer10[2][i];
-			keyvalue_t vdata103 = sourcebuffer10[3][i];
-			keyvalue_t vdata104 = sourcebuffer10[4][i];
-			keyvalue_t vdata105 = sourcebuffer10[5][i];
-			keyvalue_t vdata106 = sourcebuffer10[6][i];
-			keyvalue_t vdata107 = sourcebuffer10[7][i];
-			keyvalue_t vdata110 = sourcebuffer11[0][i];
-			keyvalue_t vdata111 = sourcebuffer11[1][i];
-			keyvalue_t vdata112 = sourcebuffer11[2][i];
-			keyvalue_t vdata113 = sourcebuffer11[3][i];
-			keyvalue_t vdata114 = sourcebuffer11[4][i];
-			keyvalue_t vdata115 = sourcebuffer11[5][i];
-			keyvalue_t vdata116 = sourcebuffer11[6][i];
-			keyvalue_t vdata117 = sourcebuffer11[7][i];
-			keyvalue_t vdata120 = sourcebuffer12[0][i];
-			keyvalue_t vdata121 = sourcebuffer12[1][i];
-			keyvalue_t vdata122 = sourcebuffer12[2][i];
-			keyvalue_t vdata123 = sourcebuffer12[3][i];
-			keyvalue_t vdata124 = sourcebuffer12[4][i];
-			keyvalue_t vdata125 = sourcebuffer12[5][i];
-			keyvalue_t vdata126 = sourcebuffer12[6][i];
-			keyvalue_t vdata127 = sourcebuffer12[7][i];
-			keyvalue_t vdata130 = sourcebuffer13[0][i];
-			keyvalue_t vdata131 = sourcebuffer13[1][i];
-			keyvalue_t vdata132 = sourcebuffer13[2][i];
-			keyvalue_t vdata133 = sourcebuffer13[3][i];
-			keyvalue_t vdata134 = sourcebuffer13[4][i];
-			keyvalue_t vdata135 = sourcebuffer13[5][i];
-			keyvalue_t vdata136 = sourcebuffer13[6][i];
-			keyvalue_t vdata137 = sourcebuffer13[7][i];
-			keyvalue_t vdata140 = sourcebuffer14[0][i];
-			keyvalue_t vdata141 = sourcebuffer14[1][i];
-			keyvalue_t vdata142 = sourcebuffer14[2][i];
-			keyvalue_t vdata143 = sourcebuffer14[3][i];
-			keyvalue_t vdata144 = sourcebuffer14[4][i];
-			keyvalue_t vdata145 = sourcebuffer14[5][i];
-			keyvalue_t vdata146 = sourcebuffer14[6][i];
-			keyvalue_t vdata147 = sourcebuffer14[7][i];
-			keyvalue_t vdata150 = sourcebuffer15[0][i];
-			keyvalue_t vdata151 = sourcebuffer15[1][i];
-			keyvalue_t vdata152 = sourcebuffer15[2][i];
-			keyvalue_t vdata153 = sourcebuffer15[3][i];
-			keyvalue_t vdata154 = sourcebuffer15[4][i];
-			keyvalue_t vdata155 = sourcebuffer15[5][i];
-			keyvalue_t vdata156 = sourcebuffer15[6][i];
-			keyvalue_t vdata157 = sourcebuffer15[7][i];
-			
-			value_t temp00_code;
-			value_t temp00_val;
-			value_t temp01_code;
-			value_t temp01_val;
-			value_t temp02_code;
-			value_t temp02_val;
-			value_t temp03_code;
-			value_t temp03_val;
-			value_t temp04_code;
-			value_t temp04_val;
-			value_t temp05_code;
-			value_t temp05_val;
-			value_t temp06_code;
-			value_t temp06_val;
-			value_t temp07_code;
-			value_t temp07_val;
-			value_t temp10_code;
-			value_t temp10_val;
-			value_t temp11_code;
-			value_t temp11_val;
-			value_t temp12_code;
-			value_t temp12_val;
-			value_t temp13_code;
-			value_t temp13_val;
-			value_t temp14_code;
-			value_t temp14_val;
-			value_t temp15_code;
-			value_t temp15_val;
-			value_t temp16_code;
-			value_t temp16_val;
-			value_t temp17_code;
-			value_t temp17_val;
-			value_t temp20_code;
-			value_t temp20_val;
-			value_t temp21_code;
-			value_t temp21_val;
-			value_t temp22_code;
-			value_t temp22_val;
-			value_t temp23_code;
-			value_t temp23_val;
-			value_t temp24_code;
-			value_t temp24_val;
-			value_t temp25_code;
-			value_t temp25_val;
-			value_t temp26_code;
-			value_t temp26_val;
-			value_t temp27_code;
-			value_t temp27_val;
-			value_t temp30_code;
-			value_t temp30_val;
-			value_t temp31_code;
-			value_t temp31_val;
-			value_t temp32_code;
-			value_t temp32_val;
-			value_t temp33_code;
-			value_t temp33_val;
-			value_t temp34_code;
-			value_t temp34_val;
-			value_t temp35_code;
-			value_t temp35_val;
-			value_t temp36_code;
-			value_t temp36_val;
-			value_t temp37_code;
-			value_t temp37_val;
-			value_t temp40_code;
-			value_t temp40_val;
-			value_t temp41_code;
-			value_t temp41_val;
-			value_t temp42_code;
-			value_t temp42_val;
-			value_t temp43_code;
-			value_t temp43_val;
-			value_t temp44_code;
-			value_t temp44_val;
-			value_t temp45_code;
-			value_t temp45_val;
-			value_t temp46_code;
-			value_t temp46_val;
-			value_t temp47_code;
-			value_t temp47_val;
-			value_t temp50_code;
-			value_t temp50_val;
-			value_t temp51_code;
-			value_t temp51_val;
-			value_t temp52_code;
-			value_t temp52_val;
-			value_t temp53_code;
-			value_t temp53_val;
-			value_t temp54_code;
-			value_t temp54_val;
-			value_t temp55_code;
-			value_t temp55_val;
-			value_t temp56_code;
-			value_t temp56_val;
-			value_t temp57_code;
-			value_t temp57_val;
-			value_t temp60_code;
-			value_t temp60_val;
-			value_t temp61_code;
-			value_t temp61_val;
-			value_t temp62_code;
-			value_t temp62_val;
-			value_t temp63_code;
-			value_t temp63_val;
-			value_t temp64_code;
-			value_t temp64_val;
-			value_t temp65_code;
-			value_t temp65_val;
-			value_t temp66_code;
-			value_t temp66_val;
-			value_t temp67_code;
-			value_t temp67_val;
-			value_t temp70_code;
-			value_t temp70_val;
-			value_t temp71_code;
-			value_t temp71_val;
-			value_t temp72_code;
-			value_t temp72_val;
-			value_t temp73_code;
-			value_t temp73_val;
-			value_t temp74_code;
-			value_t temp74_val;
-			value_t temp75_code;
-			value_t temp75_val;
-			value_t temp76_code;
-			value_t temp76_val;
-			value_t temp77_code;
-			value_t temp77_val;
-			value_t temp80_code;
-			value_t temp80_val;
-			value_t temp81_code;
-			value_t temp81_val;
-			value_t temp82_code;
-			value_t temp82_val;
-			value_t temp83_code;
-			value_t temp83_val;
-			value_t temp84_code;
-			value_t temp84_val;
-			value_t temp85_code;
-			value_t temp85_val;
-			value_t temp86_code;
-			value_t temp86_val;
-			value_t temp87_code;
-			value_t temp87_val;
-			value_t temp90_code;
-			value_t temp90_val;
-			value_t temp91_code;
-			value_t temp91_val;
-			value_t temp92_code;
-			value_t temp92_val;
-			value_t temp93_code;
-			value_t temp93_val;
-			value_t temp94_code;
-			value_t temp94_val;
-			value_t temp95_code;
-			value_t temp95_val;
-			value_t temp96_code;
-			value_t temp96_val;
-			value_t temp97_code;
-			value_t temp97_val;
-			value_t temp100_code;
-			value_t temp100_val;
-			value_t temp101_code;
-			value_t temp101_val;
-			value_t temp102_code;
-			value_t temp102_val;
-			value_t temp103_code;
-			value_t temp103_val;
-			value_t temp104_code;
-			value_t temp104_val;
-			value_t temp105_code;
-			value_t temp105_val;
-			value_t temp106_code;
-			value_t temp106_val;
-			value_t temp107_code;
-			value_t temp107_val;
-			value_t temp110_code;
-			value_t temp110_val;
-			value_t temp111_code;
-			value_t temp111_val;
-			value_t temp112_code;
-			value_t temp112_val;
-			value_t temp113_code;
-			value_t temp113_val;
-			value_t temp114_code;
-			value_t temp114_val;
-			value_t temp115_code;
-			value_t temp115_val;
-			value_t temp116_code;
-			value_t temp116_val;
-			value_t temp117_code;
-			value_t temp117_val;
-			value_t temp120_code;
-			value_t temp120_val;
-			value_t temp121_code;
-			value_t temp121_val;
-			value_t temp122_code;
-			value_t temp122_val;
-			value_t temp123_code;
-			value_t temp123_val;
-			value_t temp124_code;
-			value_t temp124_val;
-			value_t temp125_code;
-			value_t temp125_val;
-			value_t temp126_code;
-			value_t temp126_val;
-			value_t temp127_code;
-			value_t temp127_val;
-			value_t temp130_code;
-			value_t temp130_val;
-			value_t temp131_code;
-			value_t temp131_val;
-			value_t temp132_code;
-			value_t temp132_val;
-			value_t temp133_code;
-			value_t temp133_val;
-			value_t temp134_code;
-			value_t temp134_val;
-			value_t temp135_code;
-			value_t temp135_val;
-			value_t temp136_code;
-			value_t temp136_val;
-			value_t temp137_code;
-			value_t temp137_val;
-			value_t temp140_code;
-			value_t temp140_val;
-			value_t temp141_code;
-			value_t temp141_val;
-			value_t temp142_code;
-			value_t temp142_val;
-			value_t temp143_code;
-			value_t temp143_val;
-			value_t temp144_code;
-			value_t temp144_val;
-			value_t temp145_code;
-			value_t temp145_val;
-			value_t temp146_code;
-			value_t temp146_val;
-			value_t temp147_code;
-			value_t temp147_val;
-			value_t temp150_code;
-			value_t temp150_val;
-			value_t temp151_code;
-			value_t temp151_val;
-			value_t temp152_code;
-			value_t temp152_val;
-			value_t temp153_code;
-			value_t temp153_val;
-			value_t temp154_code;
-			value_t temp154_val;
-			value_t temp155_code;
-			value_t temp155_val;
-			value_t temp156_code;
-			value_t temp156_val;
-			value_t temp157_code;
-			value_t temp157_val;
-			
-			if(k==0){
-				temp00_val = vdata00.key;
-				temp01_val = vdata01.key;
-				temp02_val = vdata02.key;
-				temp03_val = vdata03.key;
-				temp04_val = vdata04.key;
-				temp05_val = vdata05.key;
-				temp06_val = vdata06.key;
-				temp07_val = vdata07.key;
-				temp10_val = vdata10.key;
-				temp11_val = vdata11.key;
-				temp12_val = vdata12.key;
-				temp13_val = vdata13.key;
-				temp14_val = vdata14.key;
-				temp15_val = vdata15.key;
-				temp16_val = vdata16.key;
-				temp17_val = vdata17.key;
-				temp20_val = vdata20.key;
-				temp21_val = vdata21.key;
-				temp22_val = vdata22.key;
-				temp23_val = vdata23.key;
-				temp24_val = vdata24.key;
-				temp25_val = vdata25.key;
-				temp26_val = vdata26.key;
-				temp27_val = vdata27.key;
-				temp30_val = vdata30.key;
-				temp31_val = vdata31.key;
-				temp32_val = vdata32.key;
-				temp33_val = vdata33.key;
-				temp34_val = vdata34.key;
-				temp35_val = vdata35.key;
-				temp36_val = vdata36.key;
-				temp37_val = vdata37.key;
-				temp40_val = vdata40.key;
-				temp41_val = vdata41.key;
-				temp42_val = vdata42.key;
-				temp43_val = vdata43.key;
-				temp44_val = vdata44.key;
-				temp45_val = vdata45.key;
-				temp46_val = vdata46.key;
-				temp47_val = vdata47.key;
-				temp50_val = vdata50.key;
-				temp51_val = vdata51.key;
-				temp52_val = vdata52.key;
-				temp53_val = vdata53.key;
-				temp54_val = vdata54.key;
-				temp55_val = vdata55.key;
-				temp56_val = vdata56.key;
-				temp57_val = vdata57.key;
-				temp60_val = vdata60.key;
-				temp61_val = vdata61.key;
-				temp62_val = vdata62.key;
-				temp63_val = vdata63.key;
-				temp64_val = vdata64.key;
-				temp65_val = vdata65.key;
-				temp66_val = vdata66.key;
-				temp67_val = vdata67.key;
-				temp70_val = vdata70.key;
-				temp71_val = vdata71.key;
-				temp72_val = vdata72.key;
-				temp73_val = vdata73.key;
-				temp74_val = vdata74.key;
-				temp75_val = vdata75.key;
-				temp76_val = vdata76.key;
-				temp77_val = vdata77.key;
-				temp80_val = vdata80.key;
-				temp81_val = vdata81.key;
-				temp82_val = vdata82.key;
-				temp83_val = vdata83.key;
-				temp84_val = vdata84.key;
-				temp85_val = vdata85.key;
-				temp86_val = vdata86.key;
-				temp87_val = vdata87.key;
-				temp90_val = vdata90.key;
-				temp91_val = vdata91.key;
-				temp92_val = vdata92.key;
-				temp93_val = vdata93.key;
-				temp94_val = vdata94.key;
-				temp95_val = vdata95.key;
-				temp96_val = vdata96.key;
-				temp97_val = vdata97.key;
-				temp100_val = vdata100.key;
-				temp101_val = vdata101.key;
-				temp102_val = vdata102.key;
-				temp103_val = vdata103.key;
-				temp104_val = vdata104.key;
-				temp105_val = vdata105.key;
-				temp106_val = vdata106.key;
-				temp107_val = vdata107.key;
-				temp110_val = vdata110.key;
-				temp111_val = vdata111.key;
-				temp112_val = vdata112.key;
-				temp113_val = vdata113.key;
-				temp114_val = vdata114.key;
-				temp115_val = vdata115.key;
-				temp116_val = vdata116.key;
-				temp117_val = vdata117.key;
-				temp120_val = vdata120.key;
-				temp121_val = vdata121.key;
-				temp122_val = vdata122.key;
-				temp123_val = vdata123.key;
-				temp124_val = vdata124.key;
-				temp125_val = vdata125.key;
-				temp126_val = vdata126.key;
-				temp127_val = vdata127.key;
-				temp130_val = vdata130.key;
-				temp131_val = vdata131.key;
-				temp132_val = vdata132.key;
-				temp133_val = vdata133.key;
-				temp134_val = vdata134.key;
-				temp135_val = vdata135.key;
-				temp136_val = vdata136.key;
-				temp137_val = vdata137.key;
-				temp140_val = vdata140.key;
-				temp141_val = vdata141.key;
-				temp142_val = vdata142.key;
-				temp143_val = vdata143.key;
-				temp144_val = vdata144.key;
-				temp145_val = vdata145.key;
-				temp146_val = vdata146.key;
-				temp147_val = vdata147.key;
-				temp150_val = vdata150.key;
-				temp151_val = vdata151.key;
-				temp152_val = vdata152.key;
-				temp153_val = vdata153.key;
-				temp154_val = vdata154.key;
-				temp155_val = vdata155.key;
-				temp156_val = vdata156.key;
-				temp157_val = vdata157.key;
-			} else {
-				temp00_val = vdata00.value;
-				temp01_val = vdata01.value;
-				temp02_val = vdata02.value;
-				temp03_val = vdata03.value;
-				temp04_val = vdata04.value;
-				temp05_val = vdata05.value;
-				temp06_val = vdata06.value;
-				temp07_val = vdata07.value;
-				temp10_val = vdata10.value;
-				temp11_val = vdata11.value;
-				temp12_val = vdata12.value;
-				temp13_val = vdata13.value;
-				temp14_val = vdata14.value;
-				temp15_val = vdata15.value;
-				temp16_val = vdata16.value;
-				temp17_val = vdata17.value;
-				temp20_val = vdata20.value;
-				temp21_val = vdata21.value;
-				temp22_val = vdata22.value;
-				temp23_val = vdata23.value;
-				temp24_val = vdata24.value;
-				temp25_val = vdata25.value;
-				temp26_val = vdata26.value;
-				temp27_val = vdata27.value;
-				temp30_val = vdata30.value;
-				temp31_val = vdata31.value;
-				temp32_val = vdata32.value;
-				temp33_val = vdata33.value;
-				temp34_val = vdata34.value;
-				temp35_val = vdata35.value;
-				temp36_val = vdata36.value;
-				temp37_val = vdata37.value;
-				temp40_val = vdata40.value;
-				temp41_val = vdata41.value;
-				temp42_val = vdata42.value;
-				temp43_val = vdata43.value;
-				temp44_val = vdata44.value;
-				temp45_val = vdata45.value;
-				temp46_val = vdata46.value;
-				temp47_val = vdata47.value;
-				temp50_val = vdata50.value;
-				temp51_val = vdata51.value;
-				temp52_val = vdata52.value;
-				temp53_val = vdata53.value;
-				temp54_val = vdata54.value;
-				temp55_val = vdata55.value;
-				temp56_val = vdata56.value;
-				temp57_val = vdata57.value;
-				temp60_val = vdata60.value;
-				temp61_val = vdata61.value;
-				temp62_val = vdata62.value;
-				temp63_val = vdata63.value;
-				temp64_val = vdata64.value;
-				temp65_val = vdata65.value;
-				temp66_val = vdata66.value;
-				temp67_val = vdata67.value;
-				temp70_val = vdata70.value;
-				temp71_val = vdata71.value;
-				temp72_val = vdata72.value;
-				temp73_val = vdata73.value;
-				temp74_val = vdata74.value;
-				temp75_val = vdata75.value;
-				temp76_val = vdata76.value;
-				temp77_val = vdata77.value;
-				temp80_val = vdata80.value;
-				temp81_val = vdata81.value;
-				temp82_val = vdata82.value;
-				temp83_val = vdata83.value;
-				temp84_val = vdata84.value;
-				temp85_val = vdata85.value;
-				temp86_val = vdata86.value;
-				temp87_val = vdata87.value;
-				temp90_val = vdata90.value;
-				temp91_val = vdata91.value;
-				temp92_val = vdata92.value;
-				temp93_val = vdata93.value;
-				temp94_val = vdata94.value;
-				temp95_val = vdata95.value;
-				temp96_val = vdata96.value;
-				temp97_val = vdata97.value;
-				temp100_val = vdata100.value;
-				temp101_val = vdata101.value;
-				temp102_val = vdata102.value;
-				temp103_val = vdata103.value;
-				temp104_val = vdata104.value;
-				temp105_val = vdata105.value;
-				temp106_val = vdata106.value;
-				temp107_val = vdata107.value;
-				temp110_val = vdata110.value;
-				temp111_val = vdata111.value;
-				temp112_val = vdata112.value;
-				temp113_val = vdata113.value;
-				temp114_val = vdata114.value;
-				temp115_val = vdata115.value;
-				temp116_val = vdata116.value;
-				temp117_val = vdata117.value;
-				temp120_val = vdata120.value;
-				temp121_val = vdata121.value;
-				temp122_val = vdata122.value;
-				temp123_val = vdata123.value;
-				temp124_val = vdata124.value;
-				temp125_val = vdata125.value;
-				temp126_val = vdata126.value;
-				temp127_val = vdata127.value;
-				temp130_val = vdata130.value;
-				temp131_val = vdata131.value;
-				temp132_val = vdata132.value;
-				temp133_val = vdata133.value;
-				temp134_val = vdata134.value;
-				temp135_val = vdata135.value;
-				temp136_val = vdata136.value;
-				temp137_val = vdata137.value;
-				temp140_val = vdata140.value;
-				temp141_val = vdata141.value;
-				temp142_val = vdata142.value;
-				temp143_val = vdata143.value;
-				temp144_val = vdata144.value;
-				temp145_val = vdata145.value;
-				temp146_val = vdata146.value;
-				temp147_val = vdata147.value;
-				temp150_val = vdata150.value;
-				temp151_val = vdata151.value;
-				temp152_val = vdata152.value;
-				temp153_val = vdata153.value;
-				temp154_val = vdata154.value;
-				temp155_val = vdata155.value;
-				temp156_val = vdata156.value;
-				temp157_val = vdata157.value;
-			}
-			
-			value_t a0 = aplus(temp00_val, temp01_val);
-			value_t b0 = aplus(temp02_val, temp03_val);
-			value_t c0 = aplus(temp04_val, temp05_val);
-			value_t d0 = aplus(temp06_val, temp07_val);
-			value_t a1 = aplus(temp10_val, temp11_val);
-			value_t b1 = aplus(temp12_val, temp13_val);
-			value_t c1 = aplus(temp14_val, temp15_val);
-			value_t d1 = aplus(temp16_val, temp17_val);
-			value_t a2 = aplus(temp20_val, temp21_val);
-			value_t b2 = aplus(temp22_val, temp23_val);
-			value_t c2 = aplus(temp24_val, temp25_val);
-			value_t d2 = aplus(temp26_val, temp27_val);
-			value_t a3 = aplus(temp30_val, temp31_val);
-			value_t b3 = aplus(temp32_val, temp33_val);
-			value_t c3 = aplus(temp34_val, temp35_val);
-			value_t d3 = aplus(temp36_val, temp37_val);
-			value_t a4 = aplus(temp40_val, temp41_val);
-			value_t b4 = aplus(temp42_val, temp43_val);
-			value_t c4 = aplus(temp44_val, temp45_val);
-			value_t d4 = aplus(temp46_val, temp47_val);
-			value_t a5 = aplus(temp50_val, temp51_val);
-			value_t b5 = aplus(temp52_val, temp53_val);
-			value_t c5 = aplus(temp54_val, temp55_val);
-			value_t d5 = aplus(temp56_val, temp57_val);
-			value_t a6 = aplus(temp60_val, temp61_val);
-			value_t b6 = aplus(temp62_val, temp63_val);
-			value_t c6 = aplus(temp64_val, temp65_val);
-			value_t d6 = aplus(temp66_val, temp67_val);
-			value_t a7 = aplus(temp70_val, temp71_val);
-			value_t b7 = aplus(temp72_val, temp73_val);
-			value_t c7 = aplus(temp74_val, temp75_val);
-			value_t d7 = aplus(temp76_val, temp77_val);
-			value_t a8 = aplus(temp80_val, temp81_val);
-			value_t b8 = aplus(temp82_val, temp83_val);
-			value_t c8 = aplus(temp84_val, temp85_val);
-			value_t d8 = aplus(temp86_val, temp87_val);
-			value_t a9 = aplus(temp90_val, temp91_val);
-			value_t b9 = aplus(temp92_val, temp93_val);
-			value_t c9 = aplus(temp94_val, temp95_val);
-			value_t d9 = aplus(temp96_val, temp97_val);
-			value_t a10 = aplus(temp100_val, temp101_val);
-			value_t b10 = aplus(temp102_val, temp103_val);
-			value_t c10 = aplus(temp104_val, temp105_val);
-			value_t d10 = aplus(temp106_val, temp107_val);
-			value_t a11 = aplus(temp110_val, temp111_val);
-			value_t b11 = aplus(temp112_val, temp113_val);
-			value_t c11 = aplus(temp114_val, temp115_val);
-			value_t d11 = aplus(temp116_val, temp117_val);
-			value_t a12 = aplus(temp120_val, temp121_val);
-			value_t b12 = aplus(temp122_val, temp123_val);
-			value_t c12 = aplus(temp124_val, temp125_val);
-			value_t d12 = aplus(temp126_val, temp127_val);
-			value_t a13 = aplus(temp130_val, temp131_val);
-			value_t b13 = aplus(temp132_val, temp133_val);
-			value_t c13 = aplus(temp134_val, temp135_val);
-			value_t d13 = aplus(temp136_val, temp137_val);
-			value_t a14 = aplus(temp140_val, temp141_val);
-			value_t b14 = aplus(temp142_val, temp143_val);
-			value_t c14 = aplus(temp144_val, temp145_val);
-			value_t d14 = aplus(temp146_val, temp147_val);
-			value_t a15 = aplus(temp150_val, temp151_val);
-			value_t b15 = aplus(temp152_val, temp153_val);
-			value_t c15 = aplus(temp154_val, temp155_val);
-			value_t d15 = aplus(temp156_val, temp157_val);
-			
-			value_t m0 = aplus(a0, b0);
-			value_t n0 = aplus(c0, d0);
-			value_t m1 = aplus(a1, b1);
-			value_t n1 = aplus(c1, d1);
-			value_t m2 = aplus(a2, b2);
-			value_t n2 = aplus(c2, d2);
-			value_t m3 = aplus(a3, b3);
-			value_t n3 = aplus(c3, d3);
-			value_t m4 = aplus(a4, b4);
-			value_t n4 = aplus(c4, d4);
-			value_t m5 = aplus(a5, b5);
-			value_t n5 = aplus(c5, d5);
-			value_t m6 = aplus(a6, b6);
-			value_t n6 = aplus(c6, d6);
-			value_t m7 = aplus(a7, b7);
-			value_t n7 = aplus(c7, d7);
-			value_t m8 = aplus(a8, b8);
-			value_t n8 = aplus(c8, d8);
-			value_t m9 = aplus(a9, b9);
-			value_t n9 = aplus(c9, d9);
-			value_t m10 = aplus(a10, b10);
-			value_t n10 = aplus(c10, d10);
-			value_t m11 = aplus(a11, b11);
-			value_t n11 = aplus(c11, d11);
-			value_t m12 = aplus(a12, b12);
-			value_t n12 = aplus(c12, d12);
-			value_t m13 = aplus(a13, b13);
-			value_t n13 = aplus(c13, d13);
-			value_t m14 = aplus(a14, b14);
-			value_t n14 = aplus(c14, d14);
-			value_t m15 = aplus(a15, b15);
-			value_t n15 = aplus(c15, d15);
-			
-			value_t v0 = aplus(m0, n0);
-			value_t v1 = aplus(m1, n1);
-			value_t v2 = aplus(m2, n2);
-			value_t v3 = aplus(m3, n3);
-			value_t v4 = aplus(m4, n4);
-			value_t v5 = aplus(m5, n5);
-			value_t v6 = aplus(m6, n6);
-			value_t v7 = aplus(m7, n7);
-			value_t v8 = aplus(m8, n8);
-			value_t v9 = aplus(m9, n9);
-			value_t v10 = aplus(m10, n10);
-			value_t v11 = aplus(m11, n11);
-			value_t v12 = aplus(m12, n12);
-			value_t v13 = aplus(m13, n13);
-			value_t v14 = aplus(m14, n14);
-			value_t v15 = aplus(m15, n15);
-			
-			#if NUMCOMPUTEUNITS==1 // AUTOMATEME.
-			value_t z = v0;
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==2
-			value_t z = aplus(v0, v1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==3
-			value_t w0 = aplus(v0, v1);
-			value_t w1 = aplus(v2, 0xFFFFFFFF);
-			
-			value_t z = aplus(w0, w1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==4
-			value_t w0 = aplus(v0, v1);
-			value_t w1 = aplus(v2, v3);
-			
-			value_t z = aplus(w0, w1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==12
-			value_t w0 = aplus(v0, v1);
-			value_t w1 = aplus(v2, v3);
-			value_t w2 = aplus(v4, v5);
-			value_t w3 = aplus(v6, v7);
-			value_t w4 = aplus(v8, v9);
-			value_t w5 = aplus(v10, v11);
-			
-			value_t x0 = aplus(w0, w1);
-			value_t x1 = aplus(w2, w3);
-			value_t x2 = aplus(w4, w5);
-			
-			value_t y0 = aplus(x0, x1);
-			value_t y1 = aplus(x2, 0xFFFFFFFF);
-			
-			value_t z = aplus(y0, y1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==14
-			value_t w0 = aplus(v0, v1);
-			value_t w1 = aplus(v2, v3);
-			value_t w2 = aplus(v4, v5);
-			value_t w3 = aplus(v6, v7);
-			value_t w4 = aplus(v8, v9);
-			value_t w5 = aplus(v10, v11);
-			value_t w6 = aplus(v12, v13);
-			
-			value_t x0 = aplus(w0, w1);
-			value_t x1 = aplus(w2, w3);
-			value_t x2 = aplus(w4, w5);
-			value_t x3 = aplus(w6, 0xFFFFFFFF);
-			
-			value_t y0 = aplus(x0, x1);
-			value_t y1 = aplus(x2, x3);
-			
-			value_t z = aplus(y0, y1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==16
-			value_t w0 = aplus(v0, v1);
-			value_t w1 = aplus(v2, v3);
-			value_t w2 = aplus(v4, v5);
-			value_t w3 = aplus(v6, v7);
-			value_t w4 = aplus(v8, v9);
-			value_t w5 = aplus(v10, v11);
-			value_t w6 = aplus(v12, v13);
-			value_t w7 = aplus(v14, v15);
-			
-			value_t x0 = aplus(w0, w1);
-			value_t x1 = aplus(w2, w3);
-			value_t x2 = aplus(w4, w5);
-			value_t x3 = aplus(w6, w7);
-			
-			value_t y0 = aplus(x0, x1);
-			value_t y1 = aplus(x2, x3);
-			
-			value_t z = aplus(y0, y1);
-			#endif 
-			
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("unifydata_pr_parallelsyn 8", dest_v, VECTOR_SIZE, NAp, NAp, NAp);
-			actsutilityobj->checkoutofbounds("unifydata_pr_parallelsyn 9", destoffset_kvs + dest_i, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
-			#endif
-			if(k==0){ 
-				destbuffer[dest_v][destoffset_kvs + dest_i].key = z; 
-			} else {
-				destbuffer[dest_v][destoffset_kvs + dest_i].value = z;
-			}
-		}
-		
-		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
-	}
 	return;
 }
 
@@ -7075,1211 +5621,6 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif
-unifydata_sssp_parallelsyn(bool_type enable, keyvalue_t sourcebuffer0[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE],keyvalue_t sourcebuffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-					keyvalue_t actvvs[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], buffer_type * actvvtracker,
-					buffer_type destoffset, buffer_type size, sweepparams_t sweepparams, globalparams_t globalparams){
-	if(enable == OFF){ return OFF; }
-	analysis_type analysis_loopcount = (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
-	
-	buffer_type dest_v = 0;
-	buffer_type dest_i = 0;
-	buffer_type destoffset_kvs = destoffset / VECTOR_SIZE;
-	unsigned int nonzeroactvvsreturned = OFF;
-	unsigned int tempactvvtracker = *actvvtracker;
-	
-	UNIFYDATA_LOOP1: for(buffer_type i=0; i<size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=2
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn.i", i, PADDEDDESTBUFFER_SIZE, destoffset, destoffset_kvs, size);
-		#endif
-		
-		for(unsigned int k=0; k<2; k++){
-			value_t code = 0;
-			value_t code0 = 0;
-			value_t code1 = 0;
-			value_t code2 = 0;
-			value_t code3 = 0;
-			value_t code4 = 0;
-			value_t code5 = 0;
-			value_t code6 = 0;
-			value_t code7 = 0;
-			value_t code8 = 0;
-			value_t code9 = 0;
-			value_t code10 = 0;
-			value_t code11 = 0;
-			value_t code12 = 0;
-			value_t code13 = 0;
-			value_t code14 = 0;
-			value_t code15 = 0;
-			
-			keyvalue_t vdata00 = sourcebuffer0[0][i];
-			keyvalue_t vdata01 = sourcebuffer0[1][i];
-			keyvalue_t vdata02 = sourcebuffer0[2][i];
-			keyvalue_t vdata03 = sourcebuffer0[3][i];
-			keyvalue_t vdata04 = sourcebuffer0[4][i];
-			keyvalue_t vdata05 = sourcebuffer0[5][i];
-			keyvalue_t vdata06 = sourcebuffer0[6][i];
-			keyvalue_t vdata07 = sourcebuffer0[7][i];
-			keyvalue_t vdata10 = sourcebuffer1[0][i];
-			keyvalue_t vdata11 = sourcebuffer1[1][i];
-			keyvalue_t vdata12 = sourcebuffer1[2][i];
-			keyvalue_t vdata13 = sourcebuffer1[3][i];
-			keyvalue_t vdata14 = sourcebuffer1[4][i];
-			keyvalue_t vdata15 = sourcebuffer1[5][i];
-			keyvalue_t vdata16 = sourcebuffer1[6][i];
-			keyvalue_t vdata17 = sourcebuffer1[7][i];
-			keyvalue_t vdata20 = sourcebuffer2[0][i];
-			keyvalue_t vdata21 = sourcebuffer2[1][i];
-			keyvalue_t vdata22 = sourcebuffer2[2][i];
-			keyvalue_t vdata23 = sourcebuffer2[3][i];
-			keyvalue_t vdata24 = sourcebuffer2[4][i];
-			keyvalue_t vdata25 = sourcebuffer2[5][i];
-			keyvalue_t vdata26 = sourcebuffer2[6][i];
-			keyvalue_t vdata27 = sourcebuffer2[7][i];
-			keyvalue_t vdata30 = sourcebuffer3[0][i];
-			keyvalue_t vdata31 = sourcebuffer3[1][i];
-			keyvalue_t vdata32 = sourcebuffer3[2][i];
-			keyvalue_t vdata33 = sourcebuffer3[3][i];
-			keyvalue_t vdata34 = sourcebuffer3[4][i];
-			keyvalue_t vdata35 = sourcebuffer3[5][i];
-			keyvalue_t vdata36 = sourcebuffer3[6][i];
-			keyvalue_t vdata37 = sourcebuffer3[7][i];
-			keyvalue_t vdata40 = sourcebuffer4[0][i];
-			keyvalue_t vdata41 = sourcebuffer4[1][i];
-			keyvalue_t vdata42 = sourcebuffer4[2][i];
-			keyvalue_t vdata43 = sourcebuffer4[3][i];
-			keyvalue_t vdata44 = sourcebuffer4[4][i];
-			keyvalue_t vdata45 = sourcebuffer4[5][i];
-			keyvalue_t vdata46 = sourcebuffer4[6][i];
-			keyvalue_t vdata47 = sourcebuffer4[7][i];
-			keyvalue_t vdata50 = sourcebuffer5[0][i];
-			keyvalue_t vdata51 = sourcebuffer5[1][i];
-			keyvalue_t vdata52 = sourcebuffer5[2][i];
-			keyvalue_t vdata53 = sourcebuffer5[3][i];
-			keyvalue_t vdata54 = sourcebuffer5[4][i];
-			keyvalue_t vdata55 = sourcebuffer5[5][i];
-			keyvalue_t vdata56 = sourcebuffer5[6][i];
-			keyvalue_t vdata57 = sourcebuffer5[7][i];
-			keyvalue_t vdata60 = sourcebuffer6[0][i];
-			keyvalue_t vdata61 = sourcebuffer6[1][i];
-			keyvalue_t vdata62 = sourcebuffer6[2][i];
-			keyvalue_t vdata63 = sourcebuffer6[3][i];
-			keyvalue_t vdata64 = sourcebuffer6[4][i];
-			keyvalue_t vdata65 = sourcebuffer6[5][i];
-			keyvalue_t vdata66 = sourcebuffer6[6][i];
-			keyvalue_t vdata67 = sourcebuffer6[7][i];
-			keyvalue_t vdata70 = sourcebuffer7[0][i];
-			keyvalue_t vdata71 = sourcebuffer7[1][i];
-			keyvalue_t vdata72 = sourcebuffer7[2][i];
-			keyvalue_t vdata73 = sourcebuffer7[3][i];
-			keyvalue_t vdata74 = sourcebuffer7[4][i];
-			keyvalue_t vdata75 = sourcebuffer7[5][i];
-			keyvalue_t vdata76 = sourcebuffer7[6][i];
-			keyvalue_t vdata77 = sourcebuffer7[7][i];
-			keyvalue_t vdata80 = sourcebuffer8[0][i];
-			keyvalue_t vdata81 = sourcebuffer8[1][i];
-			keyvalue_t vdata82 = sourcebuffer8[2][i];
-			keyvalue_t vdata83 = sourcebuffer8[3][i];
-			keyvalue_t vdata84 = sourcebuffer8[4][i];
-			keyvalue_t vdata85 = sourcebuffer8[5][i];
-			keyvalue_t vdata86 = sourcebuffer8[6][i];
-			keyvalue_t vdata87 = sourcebuffer8[7][i];
-			keyvalue_t vdata90 = sourcebuffer9[0][i];
-			keyvalue_t vdata91 = sourcebuffer9[1][i];
-			keyvalue_t vdata92 = sourcebuffer9[2][i];
-			keyvalue_t vdata93 = sourcebuffer9[3][i];
-			keyvalue_t vdata94 = sourcebuffer9[4][i];
-			keyvalue_t vdata95 = sourcebuffer9[5][i];
-			keyvalue_t vdata96 = sourcebuffer9[6][i];
-			keyvalue_t vdata97 = sourcebuffer9[7][i];
-			keyvalue_t vdata100 = sourcebuffer10[0][i];
-			keyvalue_t vdata101 = sourcebuffer10[1][i];
-			keyvalue_t vdata102 = sourcebuffer10[2][i];
-			keyvalue_t vdata103 = sourcebuffer10[3][i];
-			keyvalue_t vdata104 = sourcebuffer10[4][i];
-			keyvalue_t vdata105 = sourcebuffer10[5][i];
-			keyvalue_t vdata106 = sourcebuffer10[6][i];
-			keyvalue_t vdata107 = sourcebuffer10[7][i];
-			keyvalue_t vdata110 = sourcebuffer11[0][i];
-			keyvalue_t vdata111 = sourcebuffer11[1][i];
-			keyvalue_t vdata112 = sourcebuffer11[2][i];
-			keyvalue_t vdata113 = sourcebuffer11[3][i];
-			keyvalue_t vdata114 = sourcebuffer11[4][i];
-			keyvalue_t vdata115 = sourcebuffer11[5][i];
-			keyvalue_t vdata116 = sourcebuffer11[6][i];
-			keyvalue_t vdata117 = sourcebuffer11[7][i];
-			keyvalue_t vdata120 = sourcebuffer12[0][i];
-			keyvalue_t vdata121 = sourcebuffer12[1][i];
-			keyvalue_t vdata122 = sourcebuffer12[2][i];
-			keyvalue_t vdata123 = sourcebuffer12[3][i];
-			keyvalue_t vdata124 = sourcebuffer12[4][i];
-			keyvalue_t vdata125 = sourcebuffer12[5][i];
-			keyvalue_t vdata126 = sourcebuffer12[6][i];
-			keyvalue_t vdata127 = sourcebuffer12[7][i];
-			keyvalue_t vdata130 = sourcebuffer13[0][i];
-			keyvalue_t vdata131 = sourcebuffer13[1][i];
-			keyvalue_t vdata132 = sourcebuffer13[2][i];
-			keyvalue_t vdata133 = sourcebuffer13[3][i];
-			keyvalue_t vdata134 = sourcebuffer13[4][i];
-			keyvalue_t vdata135 = sourcebuffer13[5][i];
-			keyvalue_t vdata136 = sourcebuffer13[6][i];
-			keyvalue_t vdata137 = sourcebuffer13[7][i];
-			keyvalue_t vdata140 = sourcebuffer14[0][i];
-			keyvalue_t vdata141 = sourcebuffer14[1][i];
-			keyvalue_t vdata142 = sourcebuffer14[2][i];
-			keyvalue_t vdata143 = sourcebuffer14[3][i];
-			keyvalue_t vdata144 = sourcebuffer14[4][i];
-			keyvalue_t vdata145 = sourcebuffer14[5][i];
-			keyvalue_t vdata146 = sourcebuffer14[6][i];
-			keyvalue_t vdata147 = sourcebuffer14[7][i];
-			keyvalue_t vdata150 = sourcebuffer15[0][i];
-			keyvalue_t vdata151 = sourcebuffer15[1][i];
-			keyvalue_t vdata152 = sourcebuffer15[2][i];
-			keyvalue_t vdata153 = sourcebuffer15[3][i];
-			keyvalue_t vdata154 = sourcebuffer15[4][i];
-			keyvalue_t vdata155 = sourcebuffer15[5][i];
-			keyvalue_t vdata156 = sourcebuffer15[6][i];
-			keyvalue_t vdata157 = sourcebuffer15[7][i];
-			
-			value_t temp00_code;
-			value_t temp00_val;
-			value_t temp01_code;
-			value_t temp01_val;
-			value_t temp02_code;
-			value_t temp02_val;
-			value_t temp03_code;
-			value_t temp03_val;
-			value_t temp04_code;
-			value_t temp04_val;
-			value_t temp05_code;
-			value_t temp05_val;
-			value_t temp06_code;
-			value_t temp06_val;
-			value_t temp07_code;
-			value_t temp07_val;
-			value_t temp10_code;
-			value_t temp10_val;
-			value_t temp11_code;
-			value_t temp11_val;
-			value_t temp12_code;
-			value_t temp12_val;
-			value_t temp13_code;
-			value_t temp13_val;
-			value_t temp14_code;
-			value_t temp14_val;
-			value_t temp15_code;
-			value_t temp15_val;
-			value_t temp16_code;
-			value_t temp16_val;
-			value_t temp17_code;
-			value_t temp17_val;
-			value_t temp20_code;
-			value_t temp20_val;
-			value_t temp21_code;
-			value_t temp21_val;
-			value_t temp22_code;
-			value_t temp22_val;
-			value_t temp23_code;
-			value_t temp23_val;
-			value_t temp24_code;
-			value_t temp24_val;
-			value_t temp25_code;
-			value_t temp25_val;
-			value_t temp26_code;
-			value_t temp26_val;
-			value_t temp27_code;
-			value_t temp27_val;
-			value_t temp30_code;
-			value_t temp30_val;
-			value_t temp31_code;
-			value_t temp31_val;
-			value_t temp32_code;
-			value_t temp32_val;
-			value_t temp33_code;
-			value_t temp33_val;
-			value_t temp34_code;
-			value_t temp34_val;
-			value_t temp35_code;
-			value_t temp35_val;
-			value_t temp36_code;
-			value_t temp36_val;
-			value_t temp37_code;
-			value_t temp37_val;
-			value_t temp40_code;
-			value_t temp40_val;
-			value_t temp41_code;
-			value_t temp41_val;
-			value_t temp42_code;
-			value_t temp42_val;
-			value_t temp43_code;
-			value_t temp43_val;
-			value_t temp44_code;
-			value_t temp44_val;
-			value_t temp45_code;
-			value_t temp45_val;
-			value_t temp46_code;
-			value_t temp46_val;
-			value_t temp47_code;
-			value_t temp47_val;
-			value_t temp50_code;
-			value_t temp50_val;
-			value_t temp51_code;
-			value_t temp51_val;
-			value_t temp52_code;
-			value_t temp52_val;
-			value_t temp53_code;
-			value_t temp53_val;
-			value_t temp54_code;
-			value_t temp54_val;
-			value_t temp55_code;
-			value_t temp55_val;
-			value_t temp56_code;
-			value_t temp56_val;
-			value_t temp57_code;
-			value_t temp57_val;
-			value_t temp60_code;
-			value_t temp60_val;
-			value_t temp61_code;
-			value_t temp61_val;
-			value_t temp62_code;
-			value_t temp62_val;
-			value_t temp63_code;
-			value_t temp63_val;
-			value_t temp64_code;
-			value_t temp64_val;
-			value_t temp65_code;
-			value_t temp65_val;
-			value_t temp66_code;
-			value_t temp66_val;
-			value_t temp67_code;
-			value_t temp67_val;
-			value_t temp70_code;
-			value_t temp70_val;
-			value_t temp71_code;
-			value_t temp71_val;
-			value_t temp72_code;
-			value_t temp72_val;
-			value_t temp73_code;
-			value_t temp73_val;
-			value_t temp74_code;
-			value_t temp74_val;
-			value_t temp75_code;
-			value_t temp75_val;
-			value_t temp76_code;
-			value_t temp76_val;
-			value_t temp77_code;
-			value_t temp77_val;
-			value_t temp80_code;
-			value_t temp80_val;
-			value_t temp81_code;
-			value_t temp81_val;
-			value_t temp82_code;
-			value_t temp82_val;
-			value_t temp83_code;
-			value_t temp83_val;
-			value_t temp84_code;
-			value_t temp84_val;
-			value_t temp85_code;
-			value_t temp85_val;
-			value_t temp86_code;
-			value_t temp86_val;
-			value_t temp87_code;
-			value_t temp87_val;
-			value_t temp90_code;
-			value_t temp90_val;
-			value_t temp91_code;
-			value_t temp91_val;
-			value_t temp92_code;
-			value_t temp92_val;
-			value_t temp93_code;
-			value_t temp93_val;
-			value_t temp94_code;
-			value_t temp94_val;
-			value_t temp95_code;
-			value_t temp95_val;
-			value_t temp96_code;
-			value_t temp96_val;
-			value_t temp97_code;
-			value_t temp97_val;
-			value_t temp100_code;
-			value_t temp100_val;
-			value_t temp101_code;
-			value_t temp101_val;
-			value_t temp102_code;
-			value_t temp102_val;
-			value_t temp103_code;
-			value_t temp103_val;
-			value_t temp104_code;
-			value_t temp104_val;
-			value_t temp105_code;
-			value_t temp105_val;
-			value_t temp106_code;
-			value_t temp106_val;
-			value_t temp107_code;
-			value_t temp107_val;
-			value_t temp110_code;
-			value_t temp110_val;
-			value_t temp111_code;
-			value_t temp111_val;
-			value_t temp112_code;
-			value_t temp112_val;
-			value_t temp113_code;
-			value_t temp113_val;
-			value_t temp114_code;
-			value_t temp114_val;
-			value_t temp115_code;
-			value_t temp115_val;
-			value_t temp116_code;
-			value_t temp116_val;
-			value_t temp117_code;
-			value_t temp117_val;
-			value_t temp120_code;
-			value_t temp120_val;
-			value_t temp121_code;
-			value_t temp121_val;
-			value_t temp122_code;
-			value_t temp122_val;
-			value_t temp123_code;
-			value_t temp123_val;
-			value_t temp124_code;
-			value_t temp124_val;
-			value_t temp125_code;
-			value_t temp125_val;
-			value_t temp126_code;
-			value_t temp126_val;
-			value_t temp127_code;
-			value_t temp127_val;
-			value_t temp130_code;
-			value_t temp130_val;
-			value_t temp131_code;
-			value_t temp131_val;
-			value_t temp132_code;
-			value_t temp132_val;
-			value_t temp133_code;
-			value_t temp133_val;
-			value_t temp134_code;
-			value_t temp134_val;
-			value_t temp135_code;
-			value_t temp135_val;
-			value_t temp136_code;
-			value_t temp136_val;
-			value_t temp137_code;
-			value_t temp137_val;
-			value_t temp140_code;
-			value_t temp140_val;
-			value_t temp141_code;
-			value_t temp141_val;
-			value_t temp142_code;
-			value_t temp142_val;
-			value_t temp143_code;
-			value_t temp143_val;
-			value_t temp144_code;
-			value_t temp144_val;
-			value_t temp145_code;
-			value_t temp145_val;
-			value_t temp146_code;
-			value_t temp146_val;
-			value_t temp147_code;
-			value_t temp147_val;
-			value_t temp150_code;
-			value_t temp150_val;
-			value_t temp151_code;
-			value_t temp151_val;
-			value_t temp152_code;
-			value_t temp152_val;
-			value_t temp153_code;
-			value_t temp153_val;
-			value_t temp154_code;
-			value_t temp154_val;
-			value_t temp155_code;
-			value_t temp155_val;
-			value_t temp156_code;
-			value_t temp156_val;
-			value_t temp157_code;
-			value_t temp157_val;
-			
-			if(k==0){
-				temp00_code = READFROM_UINT(vdata00.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp00_val = READFROM_UINT(vdata00.key, 0, 30); 
-				temp01_code = READFROM_UINT(vdata01.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp01_val = READFROM_UINT(vdata01.key, 0, 30); 
-				temp02_code = READFROM_UINT(vdata02.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp02_val = READFROM_UINT(vdata02.key, 0, 30); 
-				temp03_code = READFROM_UINT(vdata03.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp03_val = READFROM_UINT(vdata03.key, 0, 30); 
-				temp04_code = READFROM_UINT(vdata04.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp04_val = READFROM_UINT(vdata04.key, 0, 30); 
-				temp05_code = READFROM_UINT(vdata05.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp05_val = READFROM_UINT(vdata05.key, 0, 30); 
-				temp06_code = READFROM_UINT(vdata06.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp06_val = READFROM_UINT(vdata06.key, 0, 30); 
-				temp07_code = READFROM_UINT(vdata07.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp07_val = READFROM_UINT(vdata07.key, 0, 30); 
-				temp10_code = READFROM_UINT(vdata10.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp10_val = READFROM_UINT(vdata10.key, 0, 30); 
-				temp11_code = READFROM_UINT(vdata11.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp11_val = READFROM_UINT(vdata11.key, 0, 30); 
-				temp12_code = READFROM_UINT(vdata12.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp12_val = READFROM_UINT(vdata12.key, 0, 30); 
-				temp13_code = READFROM_UINT(vdata13.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp13_val = READFROM_UINT(vdata13.key, 0, 30); 
-				temp14_code = READFROM_UINT(vdata14.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp14_val = READFROM_UINT(vdata14.key, 0, 30); 
-				temp15_code = READFROM_UINT(vdata15.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp15_val = READFROM_UINT(vdata15.key, 0, 30); 
-				temp16_code = READFROM_UINT(vdata16.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp16_val = READFROM_UINT(vdata16.key, 0, 30); 
-				temp17_code = READFROM_UINT(vdata17.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp17_val = READFROM_UINT(vdata17.key, 0, 30); 
-				temp20_code = READFROM_UINT(vdata20.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp20_val = READFROM_UINT(vdata20.key, 0, 30); 
-				temp21_code = READFROM_UINT(vdata21.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp21_val = READFROM_UINT(vdata21.key, 0, 30); 
-				temp22_code = READFROM_UINT(vdata22.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp22_val = READFROM_UINT(vdata22.key, 0, 30); 
-				temp23_code = READFROM_UINT(vdata23.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp23_val = READFROM_UINT(vdata23.key, 0, 30); 
-				temp24_code = READFROM_UINT(vdata24.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp24_val = READFROM_UINT(vdata24.key, 0, 30); 
-				temp25_code = READFROM_UINT(vdata25.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp25_val = READFROM_UINT(vdata25.key, 0, 30); 
-				temp26_code = READFROM_UINT(vdata26.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp26_val = READFROM_UINT(vdata26.key, 0, 30); 
-				temp27_code = READFROM_UINT(vdata27.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp27_val = READFROM_UINT(vdata27.key, 0, 30); 
-				temp30_code = READFROM_UINT(vdata30.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp30_val = READFROM_UINT(vdata30.key, 0, 30); 
-				temp31_code = READFROM_UINT(vdata31.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp31_val = READFROM_UINT(vdata31.key, 0, 30); 
-				temp32_code = READFROM_UINT(vdata32.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp32_val = READFROM_UINT(vdata32.key, 0, 30); 
-				temp33_code = READFROM_UINT(vdata33.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp33_val = READFROM_UINT(vdata33.key, 0, 30); 
-				temp34_code = READFROM_UINT(vdata34.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp34_val = READFROM_UINT(vdata34.key, 0, 30); 
-				temp35_code = READFROM_UINT(vdata35.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp35_val = READFROM_UINT(vdata35.key, 0, 30); 
-				temp36_code = READFROM_UINT(vdata36.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp36_val = READFROM_UINT(vdata36.key, 0, 30); 
-				temp37_code = READFROM_UINT(vdata37.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp37_val = READFROM_UINT(vdata37.key, 0, 30); 
-				temp40_code = READFROM_UINT(vdata40.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp40_val = READFROM_UINT(vdata40.key, 0, 30); 
-				temp41_code = READFROM_UINT(vdata41.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp41_val = READFROM_UINT(vdata41.key, 0, 30); 
-				temp42_code = READFROM_UINT(vdata42.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp42_val = READFROM_UINT(vdata42.key, 0, 30); 
-				temp43_code = READFROM_UINT(vdata43.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp43_val = READFROM_UINT(vdata43.key, 0, 30); 
-				temp44_code = READFROM_UINT(vdata44.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp44_val = READFROM_UINT(vdata44.key, 0, 30); 
-				temp45_code = READFROM_UINT(vdata45.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp45_val = READFROM_UINT(vdata45.key, 0, 30); 
-				temp46_code = READFROM_UINT(vdata46.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp46_val = READFROM_UINT(vdata46.key, 0, 30); 
-				temp47_code = READFROM_UINT(vdata47.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp47_val = READFROM_UINT(vdata47.key, 0, 30); 
-				temp50_code = READFROM_UINT(vdata50.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp50_val = READFROM_UINT(vdata50.key, 0, 30); 
-				temp51_code = READFROM_UINT(vdata51.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp51_val = READFROM_UINT(vdata51.key, 0, 30); 
-				temp52_code = READFROM_UINT(vdata52.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp52_val = READFROM_UINT(vdata52.key, 0, 30); 
-				temp53_code = READFROM_UINT(vdata53.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp53_val = READFROM_UINT(vdata53.key, 0, 30); 
-				temp54_code = READFROM_UINT(vdata54.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp54_val = READFROM_UINT(vdata54.key, 0, 30); 
-				temp55_code = READFROM_UINT(vdata55.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp55_val = READFROM_UINT(vdata55.key, 0, 30); 
-				temp56_code = READFROM_UINT(vdata56.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp56_val = READFROM_UINT(vdata56.key, 0, 30); 
-				temp57_code = READFROM_UINT(vdata57.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp57_val = READFROM_UINT(vdata57.key, 0, 30); 
-				temp60_code = READFROM_UINT(vdata60.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp60_val = READFROM_UINT(vdata60.key, 0, 30); 
-				temp61_code = READFROM_UINT(vdata61.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp61_val = READFROM_UINT(vdata61.key, 0, 30); 
-				temp62_code = READFROM_UINT(vdata62.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp62_val = READFROM_UINT(vdata62.key, 0, 30); 
-				temp63_code = READFROM_UINT(vdata63.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp63_val = READFROM_UINT(vdata63.key, 0, 30); 
-				temp64_code = READFROM_UINT(vdata64.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp64_val = READFROM_UINT(vdata64.key, 0, 30); 
-				temp65_code = READFROM_UINT(vdata65.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp65_val = READFROM_UINT(vdata65.key, 0, 30); 
-				temp66_code = READFROM_UINT(vdata66.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp66_val = READFROM_UINT(vdata66.key, 0, 30); 
-				temp67_code = READFROM_UINT(vdata67.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp67_val = READFROM_UINT(vdata67.key, 0, 30); 
-				temp70_code = READFROM_UINT(vdata70.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp70_val = READFROM_UINT(vdata70.key, 0, 30); 
-				temp71_code = READFROM_UINT(vdata71.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp71_val = READFROM_UINT(vdata71.key, 0, 30); 
-				temp72_code = READFROM_UINT(vdata72.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp72_val = READFROM_UINT(vdata72.key, 0, 30); 
-				temp73_code = READFROM_UINT(vdata73.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp73_val = READFROM_UINT(vdata73.key, 0, 30); 
-				temp74_code = READFROM_UINT(vdata74.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp74_val = READFROM_UINT(vdata74.key, 0, 30); 
-				temp75_code = READFROM_UINT(vdata75.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp75_val = READFROM_UINT(vdata75.key, 0, 30); 
-				temp76_code = READFROM_UINT(vdata76.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp76_val = READFROM_UINT(vdata76.key, 0, 30); 
-				temp77_code = READFROM_UINT(vdata77.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp77_val = READFROM_UINT(vdata77.key, 0, 30); 
-				temp80_code = READFROM_UINT(vdata80.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp80_val = READFROM_UINT(vdata80.key, 0, 30); 
-				temp81_code = READFROM_UINT(vdata81.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp81_val = READFROM_UINT(vdata81.key, 0, 30); 
-				temp82_code = READFROM_UINT(vdata82.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp82_val = READFROM_UINT(vdata82.key, 0, 30); 
-				temp83_code = READFROM_UINT(vdata83.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp83_val = READFROM_UINT(vdata83.key, 0, 30); 
-				temp84_code = READFROM_UINT(vdata84.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp84_val = READFROM_UINT(vdata84.key, 0, 30); 
-				temp85_code = READFROM_UINT(vdata85.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp85_val = READFROM_UINT(vdata85.key, 0, 30); 
-				temp86_code = READFROM_UINT(vdata86.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp86_val = READFROM_UINT(vdata86.key, 0, 30); 
-				temp87_code = READFROM_UINT(vdata87.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp87_val = READFROM_UINT(vdata87.key, 0, 30); 
-				temp90_code = READFROM_UINT(vdata90.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp90_val = READFROM_UINT(vdata90.key, 0, 30); 
-				temp91_code = READFROM_UINT(vdata91.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp91_val = READFROM_UINT(vdata91.key, 0, 30); 
-				temp92_code = READFROM_UINT(vdata92.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp92_val = READFROM_UINT(vdata92.key, 0, 30); 
-				temp93_code = READFROM_UINT(vdata93.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp93_val = READFROM_UINT(vdata93.key, 0, 30); 
-				temp94_code = READFROM_UINT(vdata94.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp94_val = READFROM_UINT(vdata94.key, 0, 30); 
-				temp95_code = READFROM_UINT(vdata95.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp95_val = READFROM_UINT(vdata95.key, 0, 30); 
-				temp96_code = READFROM_UINT(vdata96.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp96_val = READFROM_UINT(vdata96.key, 0, 30); 
-				temp97_code = READFROM_UINT(vdata97.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp97_val = READFROM_UINT(vdata97.key, 0, 30); 
-				temp100_code = READFROM_UINT(vdata100.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp100_val = READFROM_UINT(vdata100.key, 0, 30); 
-				temp101_code = READFROM_UINT(vdata101.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp101_val = READFROM_UINT(vdata101.key, 0, 30); 
-				temp102_code = READFROM_UINT(vdata102.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp102_val = READFROM_UINT(vdata102.key, 0, 30); 
-				temp103_code = READFROM_UINT(vdata103.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp103_val = READFROM_UINT(vdata103.key, 0, 30); 
-				temp104_code = READFROM_UINT(vdata104.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp104_val = READFROM_UINT(vdata104.key, 0, 30); 
-				temp105_code = READFROM_UINT(vdata105.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp105_val = READFROM_UINT(vdata105.key, 0, 30); 
-				temp106_code = READFROM_UINT(vdata106.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp106_val = READFROM_UINT(vdata106.key, 0, 30); 
-				temp107_code = READFROM_UINT(vdata107.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp107_val = READFROM_UINT(vdata107.key, 0, 30); 
-				temp110_code = READFROM_UINT(vdata110.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp110_val = READFROM_UINT(vdata110.key, 0, 30); 
-				temp111_code = READFROM_UINT(vdata111.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp111_val = READFROM_UINT(vdata111.key, 0, 30); 
-				temp112_code = READFROM_UINT(vdata112.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp112_val = READFROM_UINT(vdata112.key, 0, 30); 
-				temp113_code = READFROM_UINT(vdata113.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp113_val = READFROM_UINT(vdata113.key, 0, 30); 
-				temp114_code = READFROM_UINT(vdata114.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp114_val = READFROM_UINT(vdata114.key, 0, 30); 
-				temp115_code = READFROM_UINT(vdata115.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp115_val = READFROM_UINT(vdata115.key, 0, 30); 
-				temp116_code = READFROM_UINT(vdata116.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp116_val = READFROM_UINT(vdata116.key, 0, 30); 
-				temp117_code = READFROM_UINT(vdata117.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp117_val = READFROM_UINT(vdata117.key, 0, 30); 
-				temp120_code = READFROM_UINT(vdata120.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp120_val = READFROM_UINT(vdata120.key, 0, 30); 
-				temp121_code = READFROM_UINT(vdata121.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp121_val = READFROM_UINT(vdata121.key, 0, 30); 
-				temp122_code = READFROM_UINT(vdata122.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp122_val = READFROM_UINT(vdata122.key, 0, 30); 
-				temp123_code = READFROM_UINT(vdata123.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp123_val = READFROM_UINT(vdata123.key, 0, 30); 
-				temp124_code = READFROM_UINT(vdata124.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp124_val = READFROM_UINT(vdata124.key, 0, 30); 
-				temp125_code = READFROM_UINT(vdata125.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp125_val = READFROM_UINT(vdata125.key, 0, 30); 
-				temp126_code = READFROM_UINT(vdata126.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp126_val = READFROM_UINT(vdata126.key, 0, 30); 
-				temp127_code = READFROM_UINT(vdata127.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp127_val = READFROM_UINT(vdata127.key, 0, 30); 
-				temp130_code = READFROM_UINT(vdata130.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp130_val = READFROM_UINT(vdata130.key, 0, 30); 
-				temp131_code = READFROM_UINT(vdata131.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp131_val = READFROM_UINT(vdata131.key, 0, 30); 
-				temp132_code = READFROM_UINT(vdata132.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp132_val = READFROM_UINT(vdata132.key, 0, 30); 
-				temp133_code = READFROM_UINT(vdata133.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp133_val = READFROM_UINT(vdata133.key, 0, 30); 
-				temp134_code = READFROM_UINT(vdata134.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp134_val = READFROM_UINT(vdata134.key, 0, 30); 
-				temp135_code = READFROM_UINT(vdata135.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp135_val = READFROM_UINT(vdata135.key, 0, 30); 
-				temp136_code = READFROM_UINT(vdata136.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp136_val = READFROM_UINT(vdata136.key, 0, 30); 
-				temp137_code = READFROM_UINT(vdata137.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp137_val = READFROM_UINT(vdata137.key, 0, 30); 
-				temp140_code = READFROM_UINT(vdata140.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp140_val = READFROM_UINT(vdata140.key, 0, 30); 
-				temp141_code = READFROM_UINT(vdata141.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp141_val = READFROM_UINT(vdata141.key, 0, 30); 
-				temp142_code = READFROM_UINT(vdata142.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp142_val = READFROM_UINT(vdata142.key, 0, 30); 
-				temp143_code = READFROM_UINT(vdata143.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp143_val = READFROM_UINT(vdata143.key, 0, 30); 
-				temp144_code = READFROM_UINT(vdata144.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp144_val = READFROM_UINT(vdata144.key, 0, 30); 
-				temp145_code = READFROM_UINT(vdata145.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp145_val = READFROM_UINT(vdata145.key, 0, 30); 
-				temp146_code = READFROM_UINT(vdata146.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp146_val = READFROM_UINT(vdata146.key, 0, 30); 
-				temp147_code = READFROM_UINT(vdata147.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp147_val = READFROM_UINT(vdata147.key, 0, 30); 
-				temp150_code = READFROM_UINT(vdata150.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp150_val = READFROM_UINT(vdata150.key, 0, 30); 
-				temp151_code = READFROM_UINT(vdata151.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp151_val = READFROM_UINT(vdata151.key, 0, 30); 
-				temp152_code = READFROM_UINT(vdata152.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp152_val = READFROM_UINT(vdata152.key, 0, 30); 
-				temp153_code = READFROM_UINT(vdata153.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp153_val = READFROM_UINT(vdata153.key, 0, 30); 
-				temp154_code = READFROM_UINT(vdata154.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp154_val = READFROM_UINT(vdata154.key, 0, 30); 
-				temp155_code = READFROM_UINT(vdata155.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp155_val = READFROM_UINT(vdata155.key, 0, 30); 
-				temp156_code = READFROM_UINT(vdata156.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp156_val = READFROM_UINT(vdata156.key, 0, 30); 
-				temp157_code = READFROM_UINT(vdata157.key, 30, 2); // FIXME. use range for _WIDEWORD
-				temp157_val = READFROM_UINT(vdata157.key, 0, 30); 
-			} else {
-				temp00_code = READFROM_UINT(vdata00.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp00_val = READFROM_UINT(vdata00.value, 0, 30); 
-				temp01_code = READFROM_UINT(vdata01.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp01_val = READFROM_UINT(vdata01.value, 0, 30); 
-				temp02_code = READFROM_UINT(vdata02.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp02_val = READFROM_UINT(vdata02.value, 0, 30); 
-				temp03_code = READFROM_UINT(vdata03.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp03_val = READFROM_UINT(vdata03.value, 0, 30); 
-				temp04_code = READFROM_UINT(vdata04.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp04_val = READFROM_UINT(vdata04.value, 0, 30); 
-				temp05_code = READFROM_UINT(vdata05.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp05_val = READFROM_UINT(vdata05.value, 0, 30); 
-				temp06_code = READFROM_UINT(vdata06.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp06_val = READFROM_UINT(vdata06.value, 0, 30); 
-				temp07_code = READFROM_UINT(vdata07.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp07_val = READFROM_UINT(vdata07.value, 0, 30); 
-				temp10_code = READFROM_UINT(vdata10.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp10_val = READFROM_UINT(vdata10.value, 0, 30); 
-				temp11_code = READFROM_UINT(vdata11.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp11_val = READFROM_UINT(vdata11.value, 0, 30); 
-				temp12_code = READFROM_UINT(vdata12.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp12_val = READFROM_UINT(vdata12.value, 0, 30); 
-				temp13_code = READFROM_UINT(vdata13.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp13_val = READFROM_UINT(vdata13.value, 0, 30); 
-				temp14_code = READFROM_UINT(vdata14.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp14_val = READFROM_UINT(vdata14.value, 0, 30); 
-				temp15_code = READFROM_UINT(vdata15.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp15_val = READFROM_UINT(vdata15.value, 0, 30); 
-				temp16_code = READFROM_UINT(vdata16.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp16_val = READFROM_UINT(vdata16.value, 0, 30); 
-				temp17_code = READFROM_UINT(vdata17.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp17_val = READFROM_UINT(vdata17.value, 0, 30); 
-				temp20_code = READFROM_UINT(vdata20.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp20_val = READFROM_UINT(vdata20.value, 0, 30); 
-				temp21_code = READFROM_UINT(vdata21.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp21_val = READFROM_UINT(vdata21.value, 0, 30); 
-				temp22_code = READFROM_UINT(vdata22.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp22_val = READFROM_UINT(vdata22.value, 0, 30); 
-				temp23_code = READFROM_UINT(vdata23.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp23_val = READFROM_UINT(vdata23.value, 0, 30); 
-				temp24_code = READFROM_UINT(vdata24.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp24_val = READFROM_UINT(vdata24.value, 0, 30); 
-				temp25_code = READFROM_UINT(vdata25.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp25_val = READFROM_UINT(vdata25.value, 0, 30); 
-				temp26_code = READFROM_UINT(vdata26.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp26_val = READFROM_UINT(vdata26.value, 0, 30); 
-				temp27_code = READFROM_UINT(vdata27.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp27_val = READFROM_UINT(vdata27.value, 0, 30); 
-				temp30_code = READFROM_UINT(vdata30.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp30_val = READFROM_UINT(vdata30.value, 0, 30); 
-				temp31_code = READFROM_UINT(vdata31.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp31_val = READFROM_UINT(vdata31.value, 0, 30); 
-				temp32_code = READFROM_UINT(vdata32.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp32_val = READFROM_UINT(vdata32.value, 0, 30); 
-				temp33_code = READFROM_UINT(vdata33.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp33_val = READFROM_UINT(vdata33.value, 0, 30); 
-				temp34_code = READFROM_UINT(vdata34.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp34_val = READFROM_UINT(vdata34.value, 0, 30); 
-				temp35_code = READFROM_UINT(vdata35.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp35_val = READFROM_UINT(vdata35.value, 0, 30); 
-				temp36_code = READFROM_UINT(vdata36.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp36_val = READFROM_UINT(vdata36.value, 0, 30); 
-				temp37_code = READFROM_UINT(vdata37.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp37_val = READFROM_UINT(vdata37.value, 0, 30); 
-				temp40_code = READFROM_UINT(vdata40.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp40_val = READFROM_UINT(vdata40.value, 0, 30); 
-				temp41_code = READFROM_UINT(vdata41.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp41_val = READFROM_UINT(vdata41.value, 0, 30); 
-				temp42_code = READFROM_UINT(vdata42.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp42_val = READFROM_UINT(vdata42.value, 0, 30); 
-				temp43_code = READFROM_UINT(vdata43.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp43_val = READFROM_UINT(vdata43.value, 0, 30); 
-				temp44_code = READFROM_UINT(vdata44.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp44_val = READFROM_UINT(vdata44.value, 0, 30); 
-				temp45_code = READFROM_UINT(vdata45.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp45_val = READFROM_UINT(vdata45.value, 0, 30); 
-				temp46_code = READFROM_UINT(vdata46.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp46_val = READFROM_UINT(vdata46.value, 0, 30); 
-				temp47_code = READFROM_UINT(vdata47.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp47_val = READFROM_UINT(vdata47.value, 0, 30); 
-				temp50_code = READFROM_UINT(vdata50.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp50_val = READFROM_UINT(vdata50.value, 0, 30); 
-				temp51_code = READFROM_UINT(vdata51.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp51_val = READFROM_UINT(vdata51.value, 0, 30); 
-				temp52_code = READFROM_UINT(vdata52.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp52_val = READFROM_UINT(vdata52.value, 0, 30); 
-				temp53_code = READFROM_UINT(vdata53.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp53_val = READFROM_UINT(vdata53.value, 0, 30); 
-				temp54_code = READFROM_UINT(vdata54.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp54_val = READFROM_UINT(vdata54.value, 0, 30); 
-				temp55_code = READFROM_UINT(vdata55.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp55_val = READFROM_UINT(vdata55.value, 0, 30); 
-				temp56_code = READFROM_UINT(vdata56.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp56_val = READFROM_UINT(vdata56.value, 0, 30); 
-				temp57_code = READFROM_UINT(vdata57.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp57_val = READFROM_UINT(vdata57.value, 0, 30); 
-				temp60_code = READFROM_UINT(vdata60.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp60_val = READFROM_UINT(vdata60.value, 0, 30); 
-				temp61_code = READFROM_UINT(vdata61.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp61_val = READFROM_UINT(vdata61.value, 0, 30); 
-				temp62_code = READFROM_UINT(vdata62.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp62_val = READFROM_UINT(vdata62.value, 0, 30); 
-				temp63_code = READFROM_UINT(vdata63.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp63_val = READFROM_UINT(vdata63.value, 0, 30); 
-				temp64_code = READFROM_UINT(vdata64.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp64_val = READFROM_UINT(vdata64.value, 0, 30); 
-				temp65_code = READFROM_UINT(vdata65.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp65_val = READFROM_UINT(vdata65.value, 0, 30); 
-				temp66_code = READFROM_UINT(vdata66.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp66_val = READFROM_UINT(vdata66.value, 0, 30); 
-				temp67_code = READFROM_UINT(vdata67.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp67_val = READFROM_UINT(vdata67.value, 0, 30); 
-				temp70_code = READFROM_UINT(vdata70.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp70_val = READFROM_UINT(vdata70.value, 0, 30); 
-				temp71_code = READFROM_UINT(vdata71.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp71_val = READFROM_UINT(vdata71.value, 0, 30); 
-				temp72_code = READFROM_UINT(vdata72.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp72_val = READFROM_UINT(vdata72.value, 0, 30); 
-				temp73_code = READFROM_UINT(vdata73.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp73_val = READFROM_UINT(vdata73.value, 0, 30); 
-				temp74_code = READFROM_UINT(vdata74.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp74_val = READFROM_UINT(vdata74.value, 0, 30); 
-				temp75_code = READFROM_UINT(vdata75.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp75_val = READFROM_UINT(vdata75.value, 0, 30); 
-				temp76_code = READFROM_UINT(vdata76.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp76_val = READFROM_UINT(vdata76.value, 0, 30); 
-				temp77_code = READFROM_UINT(vdata77.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp77_val = READFROM_UINT(vdata77.value, 0, 30); 
-				temp80_code = READFROM_UINT(vdata80.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp80_val = READFROM_UINT(vdata80.value, 0, 30); 
-				temp81_code = READFROM_UINT(vdata81.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp81_val = READFROM_UINT(vdata81.value, 0, 30); 
-				temp82_code = READFROM_UINT(vdata82.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp82_val = READFROM_UINT(vdata82.value, 0, 30); 
-				temp83_code = READFROM_UINT(vdata83.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp83_val = READFROM_UINT(vdata83.value, 0, 30); 
-				temp84_code = READFROM_UINT(vdata84.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp84_val = READFROM_UINT(vdata84.value, 0, 30); 
-				temp85_code = READFROM_UINT(vdata85.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp85_val = READFROM_UINT(vdata85.value, 0, 30); 
-				temp86_code = READFROM_UINT(vdata86.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp86_val = READFROM_UINT(vdata86.value, 0, 30); 
-				temp87_code = READFROM_UINT(vdata87.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp87_val = READFROM_UINT(vdata87.value, 0, 30); 
-				temp90_code = READFROM_UINT(vdata90.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp90_val = READFROM_UINT(vdata90.value, 0, 30); 
-				temp91_code = READFROM_UINT(vdata91.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp91_val = READFROM_UINT(vdata91.value, 0, 30); 
-				temp92_code = READFROM_UINT(vdata92.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp92_val = READFROM_UINT(vdata92.value, 0, 30); 
-				temp93_code = READFROM_UINT(vdata93.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp93_val = READFROM_UINT(vdata93.value, 0, 30); 
-				temp94_code = READFROM_UINT(vdata94.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp94_val = READFROM_UINT(vdata94.value, 0, 30); 
-				temp95_code = READFROM_UINT(vdata95.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp95_val = READFROM_UINT(vdata95.value, 0, 30); 
-				temp96_code = READFROM_UINT(vdata96.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp96_val = READFROM_UINT(vdata96.value, 0, 30); 
-				temp97_code = READFROM_UINT(vdata97.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp97_val = READFROM_UINT(vdata97.value, 0, 30); 
-				temp100_code = READFROM_UINT(vdata100.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp100_val = READFROM_UINT(vdata100.value, 0, 30); 
-				temp101_code = READFROM_UINT(vdata101.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp101_val = READFROM_UINT(vdata101.value, 0, 30); 
-				temp102_code = READFROM_UINT(vdata102.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp102_val = READFROM_UINT(vdata102.value, 0, 30); 
-				temp103_code = READFROM_UINT(vdata103.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp103_val = READFROM_UINT(vdata103.value, 0, 30); 
-				temp104_code = READFROM_UINT(vdata104.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp104_val = READFROM_UINT(vdata104.value, 0, 30); 
-				temp105_code = READFROM_UINT(vdata105.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp105_val = READFROM_UINT(vdata105.value, 0, 30); 
-				temp106_code = READFROM_UINT(vdata106.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp106_val = READFROM_UINT(vdata106.value, 0, 30); 
-				temp107_code = READFROM_UINT(vdata107.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp107_val = READFROM_UINT(vdata107.value, 0, 30); 
-				temp110_code = READFROM_UINT(vdata110.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp110_val = READFROM_UINT(vdata110.value, 0, 30); 
-				temp111_code = READFROM_UINT(vdata111.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp111_val = READFROM_UINT(vdata111.value, 0, 30); 
-				temp112_code = READFROM_UINT(vdata112.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp112_val = READFROM_UINT(vdata112.value, 0, 30); 
-				temp113_code = READFROM_UINT(vdata113.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp113_val = READFROM_UINT(vdata113.value, 0, 30); 
-				temp114_code = READFROM_UINT(vdata114.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp114_val = READFROM_UINT(vdata114.value, 0, 30); 
-				temp115_code = READFROM_UINT(vdata115.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp115_val = READFROM_UINT(vdata115.value, 0, 30); 
-				temp116_code = READFROM_UINT(vdata116.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp116_val = READFROM_UINT(vdata116.value, 0, 30); 
-				temp117_code = READFROM_UINT(vdata117.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp117_val = READFROM_UINT(vdata117.value, 0, 30); 
-				temp120_code = READFROM_UINT(vdata120.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp120_val = READFROM_UINT(vdata120.value, 0, 30); 
-				temp121_code = READFROM_UINT(vdata121.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp121_val = READFROM_UINT(vdata121.value, 0, 30); 
-				temp122_code = READFROM_UINT(vdata122.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp122_val = READFROM_UINT(vdata122.value, 0, 30); 
-				temp123_code = READFROM_UINT(vdata123.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp123_val = READFROM_UINT(vdata123.value, 0, 30); 
-				temp124_code = READFROM_UINT(vdata124.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp124_val = READFROM_UINT(vdata124.value, 0, 30); 
-				temp125_code = READFROM_UINT(vdata125.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp125_val = READFROM_UINT(vdata125.value, 0, 30); 
-				temp126_code = READFROM_UINT(vdata126.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp126_val = READFROM_UINT(vdata126.value, 0, 30); 
-				temp127_code = READFROM_UINT(vdata127.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp127_val = READFROM_UINT(vdata127.value, 0, 30); 
-				temp130_code = READFROM_UINT(vdata130.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp130_val = READFROM_UINT(vdata130.value, 0, 30); 
-				temp131_code = READFROM_UINT(vdata131.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp131_val = READFROM_UINT(vdata131.value, 0, 30); 
-				temp132_code = READFROM_UINT(vdata132.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp132_val = READFROM_UINT(vdata132.value, 0, 30); 
-				temp133_code = READFROM_UINT(vdata133.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp133_val = READFROM_UINT(vdata133.value, 0, 30); 
-				temp134_code = READFROM_UINT(vdata134.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp134_val = READFROM_UINT(vdata134.value, 0, 30); 
-				temp135_code = READFROM_UINT(vdata135.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp135_val = READFROM_UINT(vdata135.value, 0, 30); 
-				temp136_code = READFROM_UINT(vdata136.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp136_val = READFROM_UINT(vdata136.value, 0, 30); 
-				temp137_code = READFROM_UINT(vdata137.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp137_val = READFROM_UINT(vdata137.value, 0, 30); 
-				temp140_code = READFROM_UINT(vdata140.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp140_val = READFROM_UINT(vdata140.value, 0, 30); 
-				temp141_code = READFROM_UINT(vdata141.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp141_val = READFROM_UINT(vdata141.value, 0, 30); 
-				temp142_code = READFROM_UINT(vdata142.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp142_val = READFROM_UINT(vdata142.value, 0, 30); 
-				temp143_code = READFROM_UINT(vdata143.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp143_val = READFROM_UINT(vdata143.value, 0, 30); 
-				temp144_code = READFROM_UINT(vdata144.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp144_val = READFROM_UINT(vdata144.value, 0, 30); 
-				temp145_code = READFROM_UINT(vdata145.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp145_val = READFROM_UINT(vdata145.value, 0, 30); 
-				temp146_code = READFROM_UINT(vdata146.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp146_val = READFROM_UINT(vdata146.value, 0, 30); 
-				temp147_code = READFROM_UINT(vdata147.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp147_val = READFROM_UINT(vdata147.value, 0, 30); 
-				temp150_code = READFROM_UINT(vdata150.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp150_val = READFROM_UINT(vdata150.value, 0, 30); 
-				temp151_code = READFROM_UINT(vdata151.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp151_val = READFROM_UINT(vdata151.value, 0, 30); 
-				temp152_code = READFROM_UINT(vdata152.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp152_val = READFROM_UINT(vdata152.value, 0, 30); 
-				temp153_code = READFROM_UINT(vdata153.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp153_val = READFROM_UINT(vdata153.value, 0, 30); 
-				temp154_code = READFROM_UINT(vdata154.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp154_val = READFROM_UINT(vdata154.value, 0, 30); 
-				temp155_code = READFROM_UINT(vdata155.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp155_val = READFROM_UINT(vdata155.value, 0, 30); 
-				temp156_code = READFROM_UINT(vdata156.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp156_val = READFROM_UINT(vdata156.value, 0, 30); 
-				temp157_code = READFROM_UINT(vdata157.value, 30, 2); // FIXME. use range for _WIDEWORD
-				temp157_val = READFROM_UINT(vdata157.value, 0, 30); 
-			}
-				
-			code0 =  temp00_code | temp01_code | temp02_code | temp03_code | temp04_code | temp05_code | temp06_code | temp07_code  ;
-			code1 =  temp10_code | temp11_code | temp12_code | temp13_code | temp14_code | temp15_code | temp16_code | temp17_code  ;
-			code2 =  temp20_code | temp21_code | temp22_code | temp23_code | temp24_code | temp25_code | temp26_code | temp27_code  ;
-			code3 =  temp30_code | temp31_code | temp32_code | temp33_code | temp34_code | temp35_code | temp36_code | temp37_code  ;
-			code4 =  temp40_code | temp41_code | temp42_code | temp43_code | temp44_code | temp45_code | temp46_code | temp47_code  ;
-			code5 =  temp50_code | temp51_code | temp52_code | temp53_code | temp54_code | temp55_code | temp56_code | temp57_code  ;
-			code6 =  temp60_code | temp61_code | temp62_code | temp63_code | temp64_code | temp65_code | temp66_code | temp67_code  ;
-			code7 =  temp70_code | temp71_code | temp72_code | temp73_code | temp74_code | temp75_code | temp76_code | temp77_code  ;
-			code8 =  temp80_code | temp81_code | temp82_code | temp83_code | temp84_code | temp85_code | temp86_code | temp87_code  ;
-			code9 =  temp90_code | temp91_code | temp92_code | temp93_code | temp94_code | temp95_code | temp96_code | temp97_code  ;
-			code10 =  temp100_code | temp101_code | temp102_code | temp103_code | temp104_code | temp105_code | temp106_code | temp107_code  ;
-			code11 =  temp110_code | temp111_code | temp112_code | temp113_code | temp114_code | temp115_code | temp116_code | temp117_code  ;
-			code12 =  temp120_code | temp121_code | temp122_code | temp123_code | temp124_code | temp125_code | temp126_code | temp127_code  ;
-			code13 =  temp130_code | temp131_code | temp132_code | temp133_code | temp134_code | temp135_code | temp136_code | temp137_code  ;
-			code14 =  temp140_code | temp141_code | temp142_code | temp143_code | temp144_code | temp145_code | temp146_code | temp147_code  ;
-			code15 =  temp150_code | temp151_code | temp152_code | temp153_code | temp154_code | temp155_code | temp156_code | temp157_code  ;
-			code =  code0 | code1 | code2 | code3 | code4 | code5 | code6 | code7 | code8 | code9 | code10 | code11 | code12 | code13 | code14 | code15  ;
-			
-			value_t a0 = amin(temp00_val, temp01_val);
-			value_t b0 = amin(temp02_val, temp03_val);
-			value_t c0 = amin(temp04_val, temp05_val);
-			value_t d0 = amin(temp06_val, temp07_val);
-			value_t a1 = amin(temp10_val, temp11_val);
-			value_t b1 = amin(temp12_val, temp13_val);
-			value_t c1 = amin(temp14_val, temp15_val);
-			value_t d1 = amin(temp16_val, temp17_val);
-			value_t a2 = amin(temp20_val, temp21_val);
-			value_t b2 = amin(temp22_val, temp23_val);
-			value_t c2 = amin(temp24_val, temp25_val);
-			value_t d2 = amin(temp26_val, temp27_val);
-			value_t a3 = amin(temp30_val, temp31_val);
-			value_t b3 = amin(temp32_val, temp33_val);
-			value_t c3 = amin(temp34_val, temp35_val);
-			value_t d3 = amin(temp36_val, temp37_val);
-			value_t a4 = amin(temp40_val, temp41_val);
-			value_t b4 = amin(temp42_val, temp43_val);
-			value_t c4 = amin(temp44_val, temp45_val);
-			value_t d4 = amin(temp46_val, temp47_val);
-			value_t a5 = amin(temp50_val, temp51_val);
-			value_t b5 = amin(temp52_val, temp53_val);
-			value_t c5 = amin(temp54_val, temp55_val);
-			value_t d5 = amin(temp56_val, temp57_val);
-			value_t a6 = amin(temp60_val, temp61_val);
-			value_t b6 = amin(temp62_val, temp63_val);
-			value_t c6 = amin(temp64_val, temp65_val);
-			value_t d6 = amin(temp66_val, temp67_val);
-			value_t a7 = amin(temp70_val, temp71_val);
-			value_t b7 = amin(temp72_val, temp73_val);
-			value_t c7 = amin(temp74_val, temp75_val);
-			value_t d7 = amin(temp76_val, temp77_val);
-			value_t a8 = amin(temp80_val, temp81_val);
-			value_t b8 = amin(temp82_val, temp83_val);
-			value_t c8 = amin(temp84_val, temp85_val);
-			value_t d8 = amin(temp86_val, temp87_val);
-			value_t a9 = amin(temp90_val, temp91_val);
-			value_t b9 = amin(temp92_val, temp93_val);
-			value_t c9 = amin(temp94_val, temp95_val);
-			value_t d9 = amin(temp96_val, temp97_val);
-			value_t a10 = amin(temp100_val, temp101_val);
-			value_t b10 = amin(temp102_val, temp103_val);
-			value_t c10 = amin(temp104_val, temp105_val);
-			value_t d10 = amin(temp106_val, temp107_val);
-			value_t a11 = amin(temp110_val, temp111_val);
-			value_t b11 = amin(temp112_val, temp113_val);
-			value_t c11 = amin(temp114_val, temp115_val);
-			value_t d11 = amin(temp116_val, temp117_val);
-			value_t a12 = amin(temp120_val, temp121_val);
-			value_t b12 = amin(temp122_val, temp123_val);
-			value_t c12 = amin(temp124_val, temp125_val);
-			value_t d12 = amin(temp126_val, temp127_val);
-			value_t a13 = amin(temp130_val, temp131_val);
-			value_t b13 = amin(temp132_val, temp133_val);
-			value_t c13 = amin(temp134_val, temp135_val);
-			value_t d13 = amin(temp136_val, temp137_val);
-			value_t a14 = amin(temp140_val, temp141_val);
-			value_t b14 = amin(temp142_val, temp143_val);
-			value_t c14 = amin(temp144_val, temp145_val);
-			value_t d14 = amin(temp146_val, temp147_val);
-			value_t a15 = amin(temp150_val, temp151_val);
-			value_t b15 = amin(temp152_val, temp153_val);
-			value_t c15 = amin(temp154_val, temp155_val);
-			value_t d15 = amin(temp156_val, temp157_val);
-			
-			value_t m0 = amin(a0, b0);
-			value_t n0 = amin(c0, d0);
-			value_t m1 = amin(a1, b1);
-			value_t n1 = amin(c1, d1);
-			value_t m2 = amin(a2, b2);
-			value_t n2 = amin(c2, d2);
-			value_t m3 = amin(a3, b3);
-			value_t n3 = amin(c3, d3);
-			value_t m4 = amin(a4, b4);
-			value_t n4 = amin(c4, d4);
-			value_t m5 = amin(a5, b5);
-			value_t n5 = amin(c5, d5);
-			value_t m6 = amin(a6, b6);
-			value_t n6 = amin(c6, d6);
-			value_t m7 = amin(a7, b7);
-			value_t n7 = amin(c7, d7);
-			value_t m8 = amin(a8, b8);
-			value_t n8 = amin(c8, d8);
-			value_t m9 = amin(a9, b9);
-			value_t n9 = amin(c9, d9);
-			value_t m10 = amin(a10, b10);
-			value_t n10 = amin(c10, d10);
-			value_t m11 = amin(a11, b11);
-			value_t n11 = amin(c11, d11);
-			value_t m12 = amin(a12, b12);
-			value_t n12 = amin(c12, d12);
-			value_t m13 = amin(a13, b13);
-			value_t n13 = amin(c13, d13);
-			value_t m14 = amin(a14, b14);
-			value_t n14 = amin(c14, d14);
-			value_t m15 = amin(a15, b15);
-			value_t n15 = amin(c15, d15);
-			
-			value_t v0 = amin(m0, n0);
-			value_t v1 = amin(m1, n1);
-			value_t v2 = amin(m2, n2);
-			value_t v3 = amin(m3, n3);
-			value_t v4 = amin(m4, n4);
-			value_t v5 = amin(m5, n5);
-			value_t v6 = amin(m6, n6);
-			value_t v7 = amin(m7, n7);
-			value_t v8 = amin(m8, n8);
-			value_t v9 = amin(m9, n9);
-			value_t v10 = amin(m10, n10);
-			value_t v11 = amin(m11, n11);
-			value_t v12 = amin(m12, n12);
-			value_t v13 = amin(m13, n13);
-			value_t v14 = amin(m14, n14);
-			value_t v15 = amin(m15, n15);
-			
-			// value 
-			#if NUMCOMPUTEUNITS==1 // AUTOMATEME.
-			value_t z = v0;
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==2
-			value_t z = amin(v0, v1);
-			#endif
-			
-			#if NUMCOMPUTEUNITS==3
-			value_t w0 = amin(v0, v1);
-			value_t w1 = amin(v2, 0xFFFFFFFF);
-			
-			value_t z = amin(w0, w1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==4
-			value_t w0 = amin(v0, v1);
-			value_t w1 = amin(v2, v3);
-			
-			value_t z = amin(w0, w1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==12
-			value_t w0 = amin(v0, v1);
-			value_t w1 = amin(v2, v3);
-			value_t w2 = amin(v4, v5);
-			value_t w3 = amin(v6, v7);
-			value_t w4 = amin(v8, v9);
-			value_t w5 = amin(v10, v11);
-			
-			value_t x0 = amin(w0, w1);
-			value_t x1 = amin(w2, w3);
-			value_t x2 = amin(w4, w5);
-			
-			value_t y0 = amin(x0, x1);
-			value_t y1 = amin(x2, 0xFFFFFFFF);
-			
-			value_t z = amin(y0, y1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==14
-			value_t w0 = amin(v0, v1);
-			value_t w1 = amin(v2, v3);
-			value_t w2 = amin(v4, v5);
-			value_t w3 = amin(v6, v7);
-			value_t w4 = amin(v8, v9);
-			value_t w5 = amin(v10, v11);
-			value_t w6 = amin(v12, v13);
-			
-			value_t x0 = amin(w0, w1);
-			value_t x1 = amin(w2, w3);
-			value_t x2 = amin(w4, w5);
-			value_t x3 = amin(w6, 0xFFFFFFFF);
-			
-			value_t y0 = amin(x0, x1);
-			value_t y1 = amin(x2, x3);
-			
-			value_t z = amin(y0, y1);
-			#endif 
-			
-			#if NUMCOMPUTEUNITS==16
-			value_t w0 = amin(v0, v1);
-			value_t w1 = amin(v2, v3);
-			value_t w2 = amin(v4, v5);
-			value_t w3 = amin(v6, v7);
-			value_t w4 = amin(v8, v9);
-			value_t w5 = amin(v10, v11);
-			value_t w6 = amin(v12, v13);
-			value_t w7 = amin(v14, v15);
-			
-			value_t x0 = amin(w0, w1);
-			value_t x1 = amin(w2, w3);
-			value_t x2 = amin(w4, w5);
-			value_t x3 = amin(w6, w7);
-			
-			value_t y0 = amin(x0, x1);
-			value_t y1 = amin(x2, x3);
-			
-			value_t z = amin(y0, y1);
-			#endif 
-			
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 5", code, 2, NAp, NAp, NAp);
-			#endif
-			
-			if(code != 0){
-				nonzeroactvvsreturned = ON;
-				unsigned int voffset = sweepparams.source_partition * globalparams.applyvertexbuffersz;
-				unsigned int vid = voffset + i*2 + k;
-				
-				#ifdef _DEBUGMODE_CHECKS2
-				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 5", vid, KVDATA_RANGE, NAp, NAp, NAp);
-				#endif
-				// cout<<"unifydata_sssp_parallelsyn: vid: "<<vid<<endl;
-				
-				unsigned int rowindex = tempactvvtracker / VECTOR2_SIZE;
-				unsigned int colindex = tempactvvtracker % VECTOR2_SIZE;
-				
-				#ifdef _DEBUGMODE_CHECKS2
-				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 6", colindex / 2, VECTOR_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 7", rowindex / 2, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
-				#endif
-				if(tempactvvtracker % 2 == 0){ actvvs[colindex / 2][rowindex / 2].key = vid; }
-				else { actvvs[colindex / 2][rowindex / 2].value = vid; }
-				tempactvvtracker += 1;
-			}
-			
-			WRITETO_UINT(&z, 30, 2, INACTIVEINNEXTITERATION); // FIXME. use range for _WIDEWORD
-			
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 8", dest_v, VECTOR_SIZE, NAp, NAp, NAp);
-			actsutilityobj->checkoutofbounds("unifydata_sssp_parallelsyn 9", destoffset_kvs + dest_i, PADDEDDESTBUFFER_SIZE, NAp, NAp, NAp);
-			#endif
-			if(k==0){ 
-				destbuffer[dest_v][destoffset_kvs + dest_i].key = z; 
-			} else {
-				destbuffer[dest_v][destoffset_kvs + dest_i].value = z;
-			}
-		}
-		
-		dest_v+=1; if(dest_v == VECTOR_SIZE){ dest_v=0; dest_i+=1; }
-	}
-	
-	*actvvtracker = tempactvvtracker;
-	return nonzeroactvvsreturned;
-}
-
-bool_type 
-	#ifdef SW 
-	acts::
-	#endif
 collectactvvs_bfs(uint512_dt * vdram, bool_type enable, keyvalue_t sourcebuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t destbuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
 					bool_type itercount_actvvs0,
 					bool_type itercount_actvvs1,
@@ -8297,13 +5638,13 @@ collectactvvs_bfs(uint512_dt * vdram, bool_type enable, keyvalue_t sourcebuffer[
 	static keyvalue_t buffer0_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer0_setof8
 
-	static skeyvalue_t capsule0_so1[8];
+	static keyvalue_t capsule0_so1[8];
 	#pragma HLS ARRAY_PARTITION variable=capsule0_so1 complete
-	static skeyvalue_t capsule0_so2[4];
+	static keyvalue_t capsule0_so2[4];
 	#pragma HLS ARRAY_PARTITION variable=capsule0_so2 complete
-	static skeyvalue_t capsule0_so4[2];
+	static keyvalue_t capsule0_so4[2];
 	#pragma HLS ARRAY_PARTITION variable=capsule0_so4 complete
-	skeyvalue_t capsule0_so8;
+	keyvalue_t capsule0_so8;
 	
 	static buffer_type cutoffs0[VECTOR_SIZE];
 	static keyvalue_t actvvs1[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
@@ -8316,13 +5657,13 @@ collectactvvs_bfs(uint512_dt * vdram, bool_type enable, keyvalue_t sourcebuffer[
 	static keyvalue_t buffer1_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = buffer1_setof8
 
-	static skeyvalue_t capsule1_so1[8];
+	static keyvalue_t capsule1_so1[8];
 	#pragma HLS ARRAY_PARTITION variable=capsule1_so1 complete
-	static skeyvalue_t capsule1_so2[4];
+	static keyvalue_t capsule1_so2[4];
 	#pragma HLS ARRAY_PARTITION variable=capsule1_so2 complete
-	static skeyvalue_t capsule1_so4[2];
+	static keyvalue_t capsule1_so4[2];
 	#pragma HLS ARRAY_PARTITION variable=capsule1_so4 complete
-	skeyvalue_t capsule1_so8;
+	keyvalue_t capsule1_so8;
 	
 	static buffer_type cutoffs1[VECTOR_SIZE];
 	
@@ -8851,7 +6192,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-reduceandbuffer(bool_type enable, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], skeyvalue_t localcapsule[NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+reduceandbuffer(bool_type enable, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = PADDEDDESTBUFFER_SIZE / (NUM_PARTITIONS / 2); 
 	
@@ -10006,7 +7347,7 @@ keyvalue_t vbuffer0[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_bittype vmask0[NUM_VM
 		if(res15.key != udata15.key){ _vmask[15][i].key = 1; } else { _vmask[15][i].key = 0; }
 		if(res15.value != udata15.value){ _vmask[15][i].value = 1; } else { _vmask[15][i].value = 0; }
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(false){ cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid[0][0]<<" & vid2: "<<vid[0][1]<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl; }
 		if(res0.key != udata0.key){ cout<<"synchronize: vid: "<<vid[0][0]<<", _vmask[0]["<<i<<"].key: "<<_vmask[0][i].key<<endl; }
 		if(res0.value != udata0.value){ cout<<"synchronize: vid: "<<vid[0][1]<<", _vmask[0]["<<i<<"].value: "<<_vmask[0][i].value<<endl; }
@@ -10055,6 +7396,40 @@ keyvalue_t vbuffer0[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_bittype vmask0[NUM_VM
 		if(false){ cout<<"UNIFYVDATA FUNC SEEN @ (vid1: "<<vid[15][0]<<" & vid2: "<<vid[15][1]<<"): res15.key: "<<res15.key<<", res15.value: "<<res15.value<<": udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl; }
 		if(res15.key != udata15.key){ cout<<"synchronize: vid: "<<vid[15][0]<<", _vmask[15]["<<i<<"].key: "<<_vmask[15][i].key<<endl; }
 		if(res15.value != udata15.value){ cout<<"synchronize: vid: "<<vid[15][1]<<", _vmask[15]["<<i<<"].value: "<<_vmask[15][i].value<<endl; }
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res0.value != udata0.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.key != udata1.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.value != udata1.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.key != udata2.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.value != udata2.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.key != udata3.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.value != udata3.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.key != udata4.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.value != udata4.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.key != udata5.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.value != udata5.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.key != udata6.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.value != udata6.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.key != udata7.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.value != udata7.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res8.key != udata8.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res8.value != udata8.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res9.key != udata9.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res9.value != udata9.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res10.key != udata10.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res10.value != udata10.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res11.key != udata11.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res11.value != udata11.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res12.key != udata12.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res12.value != udata12.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res13.key != udata13.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res13.value != udata13.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res14.key != udata14.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res14.value != udata14.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res15.key != udata15.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res15.value != udata15.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		#endif
 	}
 	
@@ -10578,7 +7953,7 @@ keyvalue_t vbuffer0[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_bittype vmask0[NUM_VM
 		vmask15[15][k] = _vmask[15][k];
 	}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("synchronize.vbuffer", _vvbuffer, NUM_VBUFFERS, 4);
 	actsutilityobj->printkeyvalues("synchronize.vmask", _vmask, NUM_VMASK, 4);
 	exit(EXIT_SUCCESS); // 
@@ -10591,7 +7966,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-resetenvbuffers(skeyvalue_t capsule_so1[8][NUM_PARTITIONS], skeyvalue_t capsule_so2[4][NUM_PARTITIONS], skeyvalue_t capsule_so4[2][NUM_PARTITIONS], skeyvalue_t capsule_so8[NUM_PARTITIONS]){
+resetenvbuffers(keyvalue_t capsule_so1[8][NUM_PARTITIONS], keyvalue_t capsule_so2[4][NUM_PARTITIONS], keyvalue_t capsule_so4[2][NUM_PARTITIONS], keyvalue_t capsule_so8[NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so1[0][p].key = 0;
@@ -10648,7 +8023,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-commitkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalcapsule[GLOBALSTATSBUFFERSZ], skeyvalue_t localcapsule[NUM_PARTITIONS], batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalparams_t globalparams){				
+commitkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t globalcapsule[GLOBALSTATSBUFFERSZ], keyvalue_t localcapsule[NUM_PARTITIONS], batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(mode == PROCESSMODE){
 		savekeyvalues(enable, kvdram, buffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
 	} else if(mode == PARTITIONMODE){
@@ -10687,16 +8062,16 @@ actit(bool_type enable, unsigned int mode,
 	#pragma HLS array_partition variable = buffer_setof8
 	
 	static 
-	skeyvalue_t capsule_so1[8][NUM_PARTITIONS];
+	keyvalue_t capsule_so1[8][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
 	static 
-	skeyvalue_t capsule_so2[4][NUM_PARTITIONS];
+	keyvalue_t capsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so2
 	static 
-	skeyvalue_t capsule_so4[2][NUM_PARTITIONS];
+	keyvalue_t capsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so4
 	static 
-	skeyvalue_t capsule_so8[NUM_PARTITIONS];
+	keyvalue_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -10787,7 +8162,7 @@ processit(uint512_dt * kvdram, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], 
 	
 	step_type currentLOP=globalparams.beginLOP;
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
-	resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
+	resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	sweepparams = getsweepparams(globalparams, currentLOP, 0);
 	travstate_t avtravstate;
 	batch_type vmaskoffset_kvs = 0;
@@ -10929,7 +8304,7 @@ partitionit(uint512_dt * kvdram, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions
 
-			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
+			resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
 			travstate_t travstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker, moretravstates);
@@ -10942,7 +8317,7 @@ partitionit(uint512_dt * kvdram, keyvalue_t vbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
 			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } 
 			readglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
-			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)
+			#if defined(_DEBUGMODE_CHECKS2)
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->copykeyvalues(actsutilityobj->getmykeyvalues(7), globalstatsbuffer, NUM_PARTITIONS); }
 			#endif
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
@@ -11073,41 +8448,86 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0, keyvalue_t vbuffer0[NUM_V
 		bool_type enablereduce = ON;
 		
 		loadvdata(enablereduce, kvdram0, tempvbuffer, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); // CRITICAL FIXME. too expensive here
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram0, vbuffer0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram1, vbuffer1, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram2, vbuffer2, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram3, vbuffer3, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram4, vbuffer4, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram5, vbuffer5, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram6, vbuffer6, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram7, vbuffer7, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram8, vbuffer8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram9, vbuffer9, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram10, vbuffer10, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram11, vbuffer11, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram12, vbuffer12, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram13, vbuffer13, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram14, vbuffer14, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
- // COMPUTEUNITS_seq
 		loadvdata(enablereduce, kvdram15, vbuffer15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); 
+		resetvmask(vmask0);
+		resetvmask(vmask1);
+		resetvmask(vmask2);
+		resetvmask(vmask3);
+		resetvmask(vmask4);
+		resetvmask(vmask5);
+		resetvmask(vmask6);
+		resetvmask(vmask7);
+		resetvmask(vmask8);
+		resetvmask(vmask9);
+		resetvmask(vmask10);
+		resetvmask(vmask11);
+		resetvmask(vmask12);
+		resetvmask(vmask13);
+		resetvmask(vmask14);
+		resetvmask(vmask15);
 		
- // COMPUTEUNITS_seq
+ // 1_seq, COMPUTEUNITS_seq
 		dispatch(OFF, OFF, ON, kvdram0, vbuffer0, vmask0,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram1, vbuffer1, vmask1,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram2, vbuffer2, vmask2,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram3, vbuffer3, vmask3,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram4, vbuffer4, vmask4,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram5, vbuffer5, vmask5,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram6, vbuffer6, vmask6,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram7, vbuffer7, vmask7,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram8, vbuffer8, vmask8,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram9, vbuffer9, vmask9,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram10, vbuffer10, vmask10,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram11, vbuffer11, vmask11,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram12, vbuffer12, vmask12,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram13, vbuffer13, vmask13,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram14, vbuffer14, vmask14,
+			sourcestatsmarker, source_partition, _globalparams);
+ // 1_seq, COMPUTEUNITS_seq
+		dispatch(OFF, OFF, ON, kvdram15, vbuffer15, vmask15,
 			sourcestatsmarker, source_partition, _globalparams);
 		
 		#ifdef DISPATCHTYPE_SYNC
@@ -11147,10 +8567,6 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0, keyvalue_t vbuffer0[NUM_V
 		savevmasks(enablereduce, kvdram14, vmask14, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		savevmasks(enablereduce, kvdram15, vmask15, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		
-		actsutilityobj->printkeyvalues("synchronize.vbuffer5", vbuffer5, NUM_VBUFFERS, 4);
-		actsutilityobj->printkeyvalues("synchronize.vmask5", vmask5, NUM_VMASK, 4);
-		exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
-		
 		sourcestatsmarker += 1;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -11159,7 +8575,7 @@ start_reduce(uint512_dt * vdram, uint512_dt * kvdram0, keyvalue_t vbuffer0[NUM_V
 		#endif
 	}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalvars();
 	#endif
 	return;
@@ -11173,93 +8589,227 @@ start(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt *
 	keyvalue_t vbuffer0[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0
 	keyvalue_bittype vmask0[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask0
 	keyvalue_t vbuffer1[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	keyvalue_bittype vmask1[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask1
 	keyvalue_t vbuffer2[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	keyvalue_bittype vmask2[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask2
 	keyvalue_t vbuffer3[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	keyvalue_bittype vmask3[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask3
 	keyvalue_t vbuffer4[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	keyvalue_bittype vmask4[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask4
 	keyvalue_t vbuffer5[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	keyvalue_bittype vmask5[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask5
 	keyvalue_t vbuffer6[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	keyvalue_bittype vmask6[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask6
 	keyvalue_t vbuffer7[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	keyvalue_bittype vmask7[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask7
 	keyvalue_t vbuffer8[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	keyvalue_bittype vmask8[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask8
 	keyvalue_t vbuffer9[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
 	keyvalue_bittype vmask9[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask9
 	keyvalue_t vbuffer10[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
 	keyvalue_bittype vmask10[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask10
 	keyvalue_t vbuffer11[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
 	keyvalue_bittype vmask11[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask11
 	keyvalue_t vbuffer12[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12
 	keyvalue_bittype vmask12[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask12
 	keyvalue_t vbuffer13[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13
 	keyvalue_bittype vmask13[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask13
 	keyvalue_t vbuffer14[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14
 	keyvalue_bittype vmask14[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask14
 	keyvalue_t vbuffer15[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15
 	keyvalue_bittype vmask15[NUM_VMASK][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vmask15
 
 	// process & partition
 	if(globalparams[0].processcommand == ON){ // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: processing instance 0... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram0, vbuffer0, vmask0,
 					NAp, NAp, globalparams[0]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 1... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram1, vbuffer1, vmask1,
+					NAp, NAp, globalparams[1]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 2... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram2, vbuffer2, vmask2,
+					NAp, NAp, globalparams[2]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 3... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram3, vbuffer3, vmask3,
+					NAp, NAp, globalparams[3]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 4... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram4, vbuffer4, vmask4,
+					NAp, NAp, globalparams[4]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 5... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram5, vbuffer5, vmask5,
+					NAp, NAp, globalparams[5]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 6... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram6, vbuffer6, vmask6,
+					NAp, NAp, globalparams[6]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 7... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram7, vbuffer7, vmask7,
+					NAp, NAp, globalparams[7]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 8... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram8, vbuffer8, vmask8,
+					NAp, NAp, globalparams[8]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 9... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram9, vbuffer9, vmask9,
+					NAp, NAp, globalparams[9]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 10... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram10, vbuffer10, vmask10,
+					NAp, NAp, globalparams[10]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 11... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram11, vbuffer11, vmask11,
+					NAp, NAp, globalparams[11]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 12... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram12, vbuffer12, vmask12,
+					NAp, NAp, globalparams[12]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 13... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram13, vbuffer13, vmask13,
+					NAp, NAp, globalparams[13]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 14... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram14, vbuffer14, vmask14,
+					NAp, NAp, globalparams[14]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: processing instance 15... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram15, vbuffer15, vmask15,
+					NAp, NAp, globalparams[15]);
 	}
 	// return;
 	// exit(EXIT_SUCCESS);
 	
 	// partition 
 	if(globalparams[0].partitioncommand == ON){ // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: partitioning instance 0... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram0, vbuffer0, vmask0,
 					NAp, NAp, globalparams[0]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 1... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram1, vbuffer1, vmask1,
+					NAp, NAp, globalparams[1]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 2... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram2, vbuffer2, vmask2,
+					NAp, NAp, globalparams[2]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 3... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram3, vbuffer3, vmask3,
+					NAp, NAp, globalparams[3]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 4... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram4, vbuffer4, vmask4,
+					NAp, NAp, globalparams[4]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 5... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram5, vbuffer5, vmask5,
+					NAp, NAp, globalparams[5]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 6... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram6, vbuffer6, vmask6,
+					NAp, NAp, globalparams[6]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 7... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram7, vbuffer7, vmask7,
+					NAp, NAp, globalparams[7]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 8... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram8, vbuffer8, vmask8,
+					NAp, NAp, globalparams[8]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 9... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram9, vbuffer9, vmask9,
+					NAp, NAp, globalparams[9]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 10... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram10, vbuffer10, vmask10,
+					NAp, NAp, globalparams[10]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 11... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram11, vbuffer11, vmask11,
+					NAp, NAp, globalparams[11]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 12... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram12, vbuffer12, vmask12,
+					NAp, NAp, globalparams[12]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 13... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram13, vbuffer13, vmask13,
+					NAp, NAp, globalparams[13]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 14... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram14, vbuffer14, vmask14,
+					NAp, NAp, globalparams[14]);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		cout<<"start: partitioning instance 15... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram15, vbuffer15, vmask15,
+					NAp, NAp, globalparams[15]);
 	}
 	// return;
 	// exit(EXIT_SUCCESS);
 	
 	// reduce & partition
 	if(globalparams[0].reducecommand == ON){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: reducing instances 0-16... "<<endl;
 		#endif
 		start_reduce(vdram, kvdram0, vbuffer0, vmask0,kvdram1, vbuffer1, vmask1,kvdram2, vbuffer2, vmask2,kvdram3, vbuffer3, vmask3,kvdram4, vbuffer4, vmask4,kvdram5, vbuffer5, vmask5,kvdram6, vbuffer6, vmask6,kvdram7, vbuffer7, vmask7,kvdram8, vbuffer8, vmask8,kvdram9, vbuffer9, vmask9,kvdram10, vbuffer10, vmask10,kvdram11, vbuffer11, vmask11,kvdram12, vbuffer12, vmask12,kvdram13, vbuffer13, vmask13,kvdram14, vbuffer14, vmask14,kvdram15, vbuffer15, vmask15, globalparams);
@@ -11276,6 +8826,7 @@ start(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt *
 	return;
 }
 
+// dispatches (type 2 - depreciated)
 travstate_t
 	#ifdef SW 
 	acts::
@@ -11450,7 +9001,7 @@ start_reduce2(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint
 		
 		if(enablereduce == ON || enableflush == ON){
 			readkeyvalues(enablereduce, vdram, sourcevbuffer, (_globalparams.baseoffset_verticesdata_kvs + (sourcepartitionblock * PADDEDDESTBUFFER_SIZE)), PADDEDDESTBUFFER_SIZE); // reducechunksz_kvs? CRITICAL AUTOMATEME.
-			resetmanykeyandvalues(destvbuffer, PADDEDDESTBUFFER_SIZE, 0); // c++ sw issues
+			resetkeysandvalues(destvbuffer, PADDEDDESTBUFFER_SIZE, 0); // c++ sw issues
 			
 			MAIN_LOOP2: for(batch_type index=0; index<_globalparams.loadfactorforreduce + 1; index+=NUMREDUCEUPDATESPIPELINES){
 
@@ -11567,7 +9118,6 @@ kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,
 	return actvvstravstate;
 } 
 
-// dispatches (type 2)
 void
 	#ifdef SW 
 	acts::
@@ -12239,13 +9789,13 @@ partitionit2(uint512_dt * kvdram,
 	keyvalue_t unused_buffer_setof8[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer_setof8
 	
-	skeyvalue_t capsule_so1[8][NUM_PARTITIONS];
+	keyvalue_t capsule_so1[8][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-	skeyvalue_t capsule_so2[4][NUM_PARTITIONS];
+	keyvalue_t capsule_so2[4][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so2
-	skeyvalue_t capsule_so4[2][NUM_PARTITIONS];
+	keyvalue_t capsule_so4[2][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so4
-	skeyvalue_t capsule_so8[NUM_PARTITIONS];
+	keyvalue_t capsule_so8[NUM_PARTITIONS];
 	
 	keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ];		
 	batch_type skipsizes[NUM_PARTITIONS];
@@ -12254,10 +9804,10 @@ partitionit2(uint512_dt * kvdram,
 	keyvalue_t BIGKV[NUM_PARTITIONS];
 	#endif
 	
-	for(vector_type i=0; i<8; i++){ resetmanykeyandvalues(capsule_so1[i], NUM_PARTITIONS, 0); }
-	for(vector_type i=0; i<4; i++){ resetmanykeyandvalues(capsule_so2[i], NUM_PARTITIONS, 0); }
-	for(vector_type i=0; i<2; i++){ resetmanykeyandvalues(capsule_so4[i], NUM_PARTITIONS, 0); }
-	for(vector_type i=0; i<1; i++){ resetmanykeyandvalues(capsule_so8, NUM_PARTITIONS, 0); }
+	for(vector_type i=0; i<8; i++){ resetkeysandvalues(capsule_so1[i], NUM_PARTITIONS, 0); }
+	for(vector_type i=0; i<4; i++){ resetkeysandvalues(capsule_so2[i], NUM_PARTITIONS, 0); }
+	for(vector_type i=0; i<2; i++){ resetkeysandvalues(capsule_so4[i], NUM_PARTITIONS, 0); }
+	for(vector_type i=0; i<1; i++){ resetkeysandvalues(capsule_so8, NUM_PARTITIONS, 0); }
 	#ifdef _WIDEWORD
 	for(unsigned int k=0; k<globalparams.kvstatssz; k++){ kvdram[BASEOFFSET_STATSDRAM_KVS + k].range(63, 32) = 0; }
 	#else 
@@ -12281,8 +9831,8 @@ partitionit2(uint512_dt * kvdram,
 		MAIN_LOOP1B: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions
 
-			resetmanykeyandvalues(buffer_setof4, NUM_PARTITIONS, 0);
-			resetmanykeyandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
+			resetkeysandvalues(buffer_setof4, NUM_PARTITIONS, 0);
+			resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 		
 			sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
 			travstate_t travstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker, moretravstates);
@@ -12296,20 +9846,9 @@ partitionit2(uint512_dt * kvdram,
 			else { ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; }
 			if(incollectstatsstage(currentLOP, globalparams) == true && (ctravstate.end_kvs - ctravstate.begin_kvs) == 0){ ctravstate.begin_kvs = 0; ctravstate.end_kvs = 0; config.enablecollectglobalstats = OFF; } 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			#ifndef COLLECTSTATSOFFLINE
 			if(config.enablecollectglobalstats == ON){ actsutilityobj->print7("### collectgstats:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ctravstate.begin_kvs * VECTOR_SIZE, ctravstate.end_kvs * VECTOR_SIZE, (ctravstate.end_kvs - ctravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }					
 			#endif
-			#endif
-			#ifdef COLLECTSTATSOFFLINE
-				readglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
-			#else
-				collectstats(config.enablecollectglobalstats, kvdram, buffer_setof2, buffer_setof4, globalstatsbuffer, config, globalparams, sweepparams, ctravstate);
-				calculateglobaloffsets(globalstatsbuffer, skipsizes, destoffset, NUM_PARTITIONS);
-				if(incollectstatsstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
-			#endif
-			#if defined(_DEBUGMODE_CHECKS2) && defined(COLLECTSTATSOFFLINE)
-			if(config.enablecollectglobalstats == ON){ actsutilityobj->copykeyvalues(actsutilityobj->getmykeyvalues(7), globalstatsbuffer, NUM_PARTITIONS); }
-			#endif
+			readglobalstats(config.enablecollectglobalstats, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker);
 			resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 			#endif
 			
@@ -12341,7 +9880,7 @@ partitionit2(uint512_dt * kvdram,
 				sweepparams.worksourcebaseaddress_kvs,
 				sweepparams.workdestbaseaddress_kvs);
 			if(inpartitionstage(currentLOP, globalparams) == true){ saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.baseoffset_statsdram_kvs + deststatsmarker); }
-			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) && defined(COLLECTSTATSOFFLINE)// && defined(PR_ALGORITHM) // FIXME. FIXFORBFS.
+			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS) // FIXME. FIXFORBFS.
 			if(config.enablepartition == ON){ actsutilityobj->postpartitioncheck(kvdram, globalstatsbuffer, ptravstate, sweepparams, globalparams); }
 			#endif
 			#endif
@@ -12835,6 +10374,7 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	globalparams[15] = getglobalparams(kvdram15);
 	
 	unsigned int numGraphIters = globalparams[0].GraphIter;
+	unsigned int numactvvs = 1;
 	
 	#ifdef _DEBUGMODE_STATS
 	stats_greaterthan512 = 0;
@@ -12844,15 +10384,12 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	
 	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<numGraphIters; GraphIter++){
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> Light weight ACTS: Graph Iteration: "<<GraphIter<<endl;
+		cout<<">>> Light weight ACTS: Graph Iteration: "<<GraphIter<<": ("<<numactvvs<<" active vertices)"<<endl;
 		#endif
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ globalparams[i].GraphIter = GraphIter; }
 		
 		#ifdef DISPATCHTYPE_SYNC
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> Light weight ACTS (DISPATCHTYPE_SYNC): Processing, partitioning & reducing... "<<endl;
-		#endif
 		start(vdram, kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, globalparams);
 		#endif 
 
@@ -13154,7 +10691,6 @@ kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,
 		vdram[BASEOFFSET_MESSAGESDRAM_KVS + globalparams[0].baseoffset_returnvalues + GraphIter + 1].data[0].key = actvvstravstate[0].i;	
 		#endif 
 		#endif
-		#endif
 
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 			globalparams[i].actvvsize = actvvstravstate[0].i;
@@ -13165,14 +10701,23 @@ kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,
 			#endif 
 			break; 
 		}
+		#endif
+		
+		#ifdef _DEBUGMODE_STATS
+		numactvvs = actsutilityobj->globalstats_getactvvsseen();
+		cout<<"num active vertices for iteration "<<GraphIter+1<<": "<<numactvvs<<endl;
+		actsutilityobj->globalstats_setactvvsseen(0);
+		if(numactvvs == 0){ break; }
+		#endif 
 	}
 	
-	#ifdef _DEBUGMODE_STATS
+	#ifdef _DEBUGMODE_STATSX
 	cout<<"topkernel:: stats_greaterthan512: "<<stats_greaterthan512<<endl;
 	cout<<"topkernel:: stats_lessthan512: "<<stats_lessthan512<<endl;
 	cout<<"topkernel:: stats_totals: "<<stats_totals<<endl;
 	cout<<"topkernel:: total: "<<(stats_lessthan512 + stats_greaterthan512)<<endl;
 	#endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
 }
