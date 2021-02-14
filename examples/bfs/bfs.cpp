@@ -22,7 +22,6 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
-#include "../../examples/helperfunctions/compactgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
@@ -41,8 +40,7 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 	parametersobj = new parameters(); 
 	utilityobj = new utility(); 
 	postprocessobj = new postprocess(graphobj, statsobj); 
-	loadgraphobj = new loadgraph(graphobj, statsobj); 
-	compactgraphobj = new compactgraph(graphobj, statsobj);
+	loadgraphobj = new loadgraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 
 	#ifdef FPGA_IMPL
@@ -108,12 +106,7 @@ runsummary_t bfs::run(){
 	
 	// load workload
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
-	#ifdef COMPACTEDGES
-	compactgraphobj->compact(vertexptrbuffer, edgedatabuffer, packedvertexptrbuffer, packededgedatabuffer); 
-	loadgraphobj->loadedges_rowwise(0, graphobj, packedvertexptrbuffer, packededgedatabuffer, (vptr_type **)kvbuffer, (uuint64_dt **)kvbuffer, &container, BREADTHFIRSTSEARCH); 			
-	#else 
 	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BREADTHFIRSTSEARCH);
-	#endif 
 	loadgraphobj->loadoffsetmarkers((uuint64_dt **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container); 
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }

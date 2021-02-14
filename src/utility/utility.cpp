@@ -173,17 +173,8 @@ void utility::printallparameters(){
 	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE DEFINED"<<std::endl;
 	#else 
 	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE NOT DEFINED"<<std::endl;	
-	#endif 
-	#ifdef MERGEPROCESSEDGESANDPARTITIONSTAGE
-	std::cout<<"host::MERGEPROCESSEDGESANDPARTITIONSTAGE DEFINED"<<std::endl;
-	#else 
-	std::cout<<"host::MERGEPROCESSEDGESANDPARTITIONSTAGE NOT DEFINED"<<std::endl;	
-	#endif 
-	#ifdef COLLECTSTATSOFFLINE
-	std::cout<<"host::COLLECTSTATSOFFLINE DEFINED"<<std::endl;
-	#else 
-	std::cout<<"host::COLLECTSTATSOFFLINE NOT DEFINED"<<std::endl;	
 	#endif
+	std::cout<<"host::COLLECTSTATSOFFLINE DEFINED"<<std::endl;
 	#ifdef EMBEDDEDCOLLECTSTATS
 	std::cout<<"host::EMBEDDEDCOLLECTSTATS DEFINED"<<std::endl;
 	#else 
@@ -773,19 +764,7 @@ unsigned int utility::GETKEY(unsigned long longword){
 	return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
 }
 keyy_t utility::GETKEY(keyvalue_t keyvalue){ 
-	#ifdef COMPACTEDGES
-	if(keyvalue.value == INVALIDDATA){
-		return keyvalue.key;
-	} else {
-		unsigned long * longword = (unsigned long *)&keyvalue;
-		unsigned int streetaddr = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-		unsigned int numitems = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-		unsigned int item = READFROM_ULONG(*longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
-	}
-	#else 
 	return keyvalue.key;
-	#endif
 }
 
 #ifdef FPGA_IMPL

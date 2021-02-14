@@ -43,24 +43,13 @@
 
 #ifdef INMEMORYGP
 #ifdef PR_ALGORITHM
-	#define DISPATCHTYPE_SYNC // 1
-	#define MERGEPROCESSEDGESANDPARTITIONSTAGE // DEPRECIATEME.
-	#define SINELEVALUEVPTRTYPE // CRITICAL NEWCHANGE
-	#define SINELEVALUEEDGETYPE // CRITICAL NEWCHANGE 
+	#define DISPATCHTYPE_SYNC
 #endif 
 #ifdef BFS_ALGORITHM
-	#define DISPATCHTYPE2 //
-	// #define DISPATCHTYPE_ASYNC
-	#define COMPACTEDGES // 
-	#define VARIABLEPRECISIONEDGEPACKING // FIXME. unused
-	#define SINELEVALUEVPTRTYPE
-	#define SINELEVALUEEDGETYPE
+	#define DISPATCHTYPE_SYNC
 #endif 
 #ifdef SSSP_ALGORITHM
-	#define DISPATCHTYPE_SYNC // DISPATCHTYPE_SYNC, DISPATCHTYPE_ASYNC
-	#define MERGEPROCESSEDGESANDPARTITIONSTAGE
-	#define SINELEVALUEVPTRTYPE
-	#define SINELEVALUEEDGETYPE
+	#define DISPATCHTYPE_SYNC
 #endif
 #endif
 
@@ -440,9 +429,6 @@ typedef struct {
 } vertexprop_t;
 
 typedef struct {
-	#ifndef SINELEVALUEEDGETYPE
-	keyy_t srcvid;
-	#endif
 	keyy_t dstvid; 
 } edge_type;
 
@@ -453,9 +439,6 @@ typedef struct {
 
 typedef struct {
 	keyy_t key;
-	#ifndef SINELEVALUEVPTRTYPE
-	value_t value;
-	#endif 
 } vptr_type;
 
 #ifdef _WIDEWORD

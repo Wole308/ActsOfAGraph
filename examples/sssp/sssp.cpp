@@ -182,7 +182,6 @@ void sssp::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	unsigned int edgesdstv5_sum = 0;
 	unsigned int actvvs_count = 0;
 	unsigned int actvvs_verbosecount = 0;
-	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	
@@ -286,7 +285,6 @@ void sssp::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt *
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"sssp::verifykvLOP. verifying kvbuffer..."<<endl;
 	#endif 
-	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	
 	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
 	unsigned int numberofpartitions = 1 << (NUM_PARTITIONS_POW * CLOP);

@@ -74,24 +74,13 @@
 
 #ifdef INMEMORYGP
 #ifdef PR_ALGORITHM
-	#define DISPATCHTYPE_SYNC // 1
-	#define MERGEPROCESSEDGESANDPARTITIONSTAGE // DEPRECIATEME.
-	#define SINELEVALUEVPTRTYPE // CRITICAL NEWCHANGE
-	#define SINELEVALUEEDGETYPE // CRITICAL NEWCHANGE 
+	#define DISPATCHTYPE_SYNC
 #endif 
 #ifdef BFS_ALGORITHM
-	#define DISPATCHTYPE2 //
-	// #define DISPATCHTYPE_ASYNC
-	#define COMPACTEDGES // 
-	#define VARIABLEPRECISIONEDGEPACKING // FIXME. unused
-	#define SINELEVALUEVPTRTYPE
-	#define SINELEVALUEEDGETYPE
+	#define DISPATCHTYPE_SYNC
 #endif 
 #ifdef SSSP_ALGORITHM
-	#define DISPATCHTYPE_SYNC // DISPATCHTYPE_SYNC, DISPATCHTYPE_ASYNC
-	#define MERGEPROCESSEDGESANDPARTITIONSTAGE
-	#define SINELEVALUEVPTRTYPE
-	#define SINELEVALUEEDGETYPE
+	#define DISPATCHTYPE_SYNC
 #endif
 #endif
 
@@ -395,7 +384,7 @@ struct _bitData {
 
 #define NUM_KAPI 3 // number of kernel args per instance
 
-// compact graph information
+/* // compact graph information
 #define COMPACTPARAM_BITSIZE_TOTALDATA 52
 #define COMPACTPARAM_BITSIZE_EACHDATA SRAMSZ_POW
 #define COMPACTPARAM_BITSIZE_NUMITEMS 4
@@ -411,7 +400,7 @@ struct _bitData {
 #define COMPACTPARAM_ENDOFFSET_STREETADDR (COMPACTPARAM_ENDOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_STREETADDR) //56
 
 #define COMPACTPARAM_ITEMSIZE_TOTALDATA 3
-
+ */
 // inmemory BFS definitions // NB: don't change these (see acts.reduce_bfs)
 #define UNVISITED 0
 #define VISITED_IN_CURRENT_ITERATION 1
@@ -471,9 +460,6 @@ typedef struct {
 } vertexprop_t;
 
 typedef struct {
-	#ifndef SINELEVALUEEDGETYPE
-	keyy_t srcvid;
-	#endif
 	keyy_t dstvid; 
 } edge_type;
 
@@ -484,9 +470,6 @@ typedef struct {
 
 typedef struct {
 	keyy_t key;
-	#ifndef SINELEVALUEVPTRTYPE
-	value_t value;
-	#endif 
 } vptr_type;
 
 #ifdef _WIDEWORD

@@ -502,25 +502,6 @@ void actsutility::checkgraph(keyvalue_t * vertexptrs, keyvalue_t * edges, unsign
 	return;
 }
 void actsutility::checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges){
-	#ifdef SINELEVALUEEDGETYPE
-	return; // no sourcevid to check
-	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"actsutility::checkptr(A):: beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<", beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<endl;
-	#endif 
-	for(unsigned int i=beginvptr; i<endvptr; i++){
-		if((edges[i].value >= beginsrcvid) && (edges[i].value < endsrcvid)){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			if(((i-beginvptr) % 10000) == 0){ cout<<"checkptr:: edges["<<i<<"].srcvid: "<<edges[i].key<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl; }
-			#endif 
-		} else {
-			cout<<"actsutility::checkptr:: message:"<<message<<". ERROR. out-of-bounds. edges["<<i<<"].srcvid: "<<edges[i].value<<", beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<endl;
-			exit(EXIT_FAILURE);
-		}
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"actsutility::checkptr(A): check graph operation was SUCCESSFULL. "<<endl;
-	#endif 
 	return;
 }
 void actsutility::checkptr(string message, unsigned int beginsrcvid, unsigned int endsrcvid, unsigned int beginvptr, unsigned int endvptr, keyvalue_t * edges, unsigned int numedges){
