@@ -176,7 +176,6 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	unsigned int edgesdstv5_sum = 0;
 	unsigned int actvvs_count = 0;
 	unsigned int actvvs_verbosecount = 0;
-	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
 	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	
@@ -198,17 +197,11 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
 		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
-		// cout<<"3rd check: i: "<<i<<", sz: "<<sz<<endl;
 		for(unsigned int j=0; j<sz; j++){
-			// if(j%100000 == 0){ cout<<"j: "<<j<<endl; }
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
-				
-				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){
-					unsigned int numitems = utilityobj->PARSE(keyvalue, keys);
-					edges3_count += numitems; 
-					for(unsigned int t=0; t<numitems; t++){ edgesdstv3_sum += keys[t]; }
-				}
+				edges3_count += 1; 
+				edgesdstv3_sum += keyvalue.key;
 			}
 		}
 	}
@@ -294,8 +287,7 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"bfs::verify. verifying kvbuffer..."<<endl;
-	#endif 
-	keyy_t keys[COMPACTPARAM_ITEMSIZE_TOTALDATA];
+	#endif
 	
 	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
 	unsigned int numberofpartitions = 1 << (NUM_PARTITIONS_POW * CLOP);
@@ -330,12 +322,11 @@ void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * 
 			for(unsigned int k=begin; k<begin + size; k++){
 				keyvalue_t keyvalue = kvbuffer[i][baseoffset_kvdram + k];
 				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
-					keyy_t thiskey = utilityobj->GETKEY(kvbuffer[i][baseoffset_kvdram + k]);
+					keyy_t thiskey = kvbuffer[i][baseoffset_kvdram + k].key;
 					if(thiskey < lowerindex || thiskey >= upperindex){
 						#ifdef ENABLE_PERFECTACCURACY
 						if(numerrorkeys < 8){
 							cout<<"bfs::verifykvLOP::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
-							utilityobj->PARSE(keyvalue, keys);
 							exit(EXIT_FAILURE);
 						}
 						cout<<"bfs::verifykvLOP::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
@@ -345,9 +336,8 @@ void bfs::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * 
 						numerrorkeys += 1;
 					}
 					
-					unsigned int numitems = utilityobj->PARSE(kvbuffer[i][baseoffset_kvdram + k], keys);
-					*edges4_count += numitems; 
-					for(unsigned int t=0; t<numitems; t++){ *edgesdstv4_sum += keys[t]; }
+					*edges4_count += 1; 
+					*edgesdstv4_sum += kvbuffer[i][baseoffset_kvdram + k].key; 
 				}
 			}
 			#ifdef _DEBUGMODE_HOSTPRINTS

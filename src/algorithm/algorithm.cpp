@@ -101,13 +101,9 @@ value_t algorithm::cummulate(value_t data1, value_t data2){
 	else { return data2; }
 }
 value_t algorithm::vertex_initdata(){ 
-	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
-	return UNVISITED;
-	#else 
-	return INFINITI; 
-	#endif 
+	return 0xFFFFFFFF;
 }
-value_t algorithm::vertex_inittempdata(){ return INFINITI; }
+value_t algorithm::vertex_inittempdata(){ return 0xFFFFFFFF; }
 uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
 	return vtempdata;
 }
@@ -134,47 +130,13 @@ value_t algorithm::cummulate(value_t data1, value_t data2){
 	else { return data2; }
 }
 value_t algorithm::vertex_initdata(){ 
-	#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-	return 0x3FFFFFFF;
-	#else 
-	return INFINITI; 
-	#endif
+	return 0xFFFFFFFF;
 }
-value_t algorithm::vertex_inittempdata(){ return INFINITI; }
+value_t algorithm::vertex_inittempdata(){ return 0xFFFFFFFF; }
 uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
 	return vtempdata;
 	// if(vtempdata < vdata){ return vtempdata; }
 	// else { return vdata; }
-}
-#elif defined(BC_ALGORITHM)
-uint32_t algorithm::vertex_update_add(uint32_t a, uint32_t b) {
-	return a+b;
-}
-uint32_t algorithm::vertex_update(uint32_t a, uint32_t b) {
-	uint32_t ret = a;
-	return ret;
-}
-uint32_t algorithm::edge_program(uint32_t vid, uint32_t value, uint32_t fanout) {
-	//printf( "Edge-program source: %x val: %x fanout: %x\n", vid, value, fanout);
-	return vid;
-}
-uint32_t algorithm::finalize_program(uint32_t oldval, uint32_t newval) {
-	return newval;
-}
-bool algorithm::is_active(uint32_t old, uint32_t newv, bool marked) {
-	//printf( "Comparing %lx %lx %s\n", old, newv, marked?"Y":"N" );
-	if ( old == 0xffffffff ) return true;
-	//printf( "Comparing %x %x %s\n", old, newv, marked?"Y":"N" );
-	return false;
-}
-value_t algorithm::cummulate(value_t data1, value_t data2){
-	return data1 + data2;
-}
-value_t algorithm::vertex_initdata(){ return INFINITI; }
-value_t algorithm::vertex_inittempdata(){ return INFINITI; }
-uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
-	// return min(vtempdata, vdata);
-	return vtempdata;
 }
 #endif 
 

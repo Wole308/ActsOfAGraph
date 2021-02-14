@@ -70,7 +70,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-// #define _DEBUGMODE_KERNELPRINTS2 //
+#define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -353,7 +353,7 @@ struct _bitData {
 
 #define NUM_KAPI 3 // number of kernel args per instance
 
-// compact graph information
+/* // compact graph information
 #define COMPACTPARAM_BITSIZE_TOTALDATA 52
 #define COMPACTPARAM_BITSIZE_EACHDATA SRAMSZ_POW
 #define COMPACTPARAM_BITSIZE_NUMITEMS 4
@@ -369,7 +369,7 @@ struct _bitData {
 #define COMPACTPARAM_ENDOFFSET_STREETADDR (COMPACTPARAM_ENDOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_STREETADDR) //56
 
 #define COMPACTPARAM_ITEMSIZE_TOTALDATA 3
-
+ */
 // inmemory BFS definitions // NB: don't change these (see acts.reduce_bfs)
 #define UNVISITED 0
 #define VISITED_IN_CURRENT_ITERATION 1

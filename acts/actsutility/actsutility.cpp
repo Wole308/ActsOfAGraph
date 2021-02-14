@@ -202,7 +202,7 @@ void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[NUM_VBUFFE
 		cout<<".."<<endl;
 	}
 }
-void actsutility::printkeyvalues(string message, keyvalue_bittype keyvalues[NUM_VMASK][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
+void actsutility::printkeyvalues(string message, keyvalue_bittype keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
 	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
 	for(unsigned int v=0; v<numcols; v++){
 		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
@@ -1439,13 +1439,6 @@ void actsutility::WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, 
 	return; 
 }
 void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
-	/* #ifdef SW
-	ulong_dt * data = (ulong_dt *)keyvalue;
-	return WRITETO_ULONG(data, index, size, value);
-	#else 
-	NOT IMPLEMENTED.
-	#endif */
-	
 	#ifdef SW
 	ulong_dt * data = (ulong_dt *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
@@ -1456,53 +1449,6 @@ void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt 
 	#endif
 	return; 
 }
-void actsutility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz){
-	longword->data = (longword->data << databitsz) | data;
-	return;
-}
-void actsutility::PARSE(string message, ulong_dt longword){ 
-	cout<<"actsutility::PARSE::"<<message<<" message"<<endl;
-	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-	unsigned int item = 0;
-	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
-	for(unsigned int i=0; i<numitems; i++){
-		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item)<<endl;
-	}
-	return;
-}
-void actsutility::PARSE(string message, keyvalue_t keyvalue){
-	ulong_dt * longword = (ulong_dt *)&keyvalue;
-	PARSE(message, *longword);
-}
-unsigned int actsutility::PARSE(ulong_dt longword, unsigned int * _items){ 
-	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-	if(numitems > COMPACTPARAM_ITEMSIZE_TOTALDATA){
-		cout<<"actsutility::PARSE. numitems > 3. exiting..."<<endl;
-		ULONGTOBINARY(longword);
-		PARSE("compactgraph::verify actual committing...", longword);
-		exit(EXIT_FAILURE);
-	}
-	unsigned int item = 0;
-	for(unsigned int i=0; i<numitems; i++){
-		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		_items[i] = ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
-	}
-	return numitems;
-}
-unsigned int actsutility::PARSE(keyvalue_t keyvalue, unsigned int * _items){
-	ulong_dt * longword = (ulong_dt *)&keyvalue;
-	return PARSE(*longword, _items);
-}
-unsigned int actsutility::GETKEY(ulong_dt longword){ 
-	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-	return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
-}
-
 void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams){ 
 	#ifdef _DEBUGMODE_CHECKS2
 	globalstats_counterrorsinreduce(1);

@@ -93,13 +93,7 @@ public:
 	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
 	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
-	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
-	void PARSE(string message, unsigned long longword);
-	unsigned int PARSE(unsigned long longword, unsigned int * _items);
-	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
-	unsigned int GETKEY(unsigned long longword);
-	keyy_t GETKEY(keyvalue_t keyvalue);
-	
+
 	void collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum);
 	unsigned int runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters);
 	unsigned int runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters);

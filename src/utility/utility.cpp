@@ -720,52 +720,6 @@ void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned
 	return WRITETO_ULONG(data, index, size, value);
 	return; 
 }
-void utility::PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz){
-	longword->data = (longword->data << databitsz) | data;
-	return;
-}
-void utility::PARSE(string message, unsigned long longword){ 
-	cout<<"utility::PARSE::"<<message<<" message"<<endl;
-	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-	unsigned int item = 0;
-	cout<<"PARSE: streetaddr: "<<streetaddr<<", numitems: "<<numitems<<endl;
-	for(unsigned int i=0; i<numitems; i++){
-		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		cout<<"PARSE: item "<<i<<": "<<((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item)<<endl;
-	}
-	return;
-}
-unsigned int utility::PARSE(unsigned long longword, unsigned int * _items){ 
-	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-	
-	if(numitems > 3){
-		cout<<"utility::PARSE. numitems > 3. exiting..."<<endl;
-		ULONGTOBINARY(longword);
-		PARSE("utility::PARSE: actual committing...", longword);
-		exit(EXIT_FAILURE); // CRITICAL REMOVEME.
-	}
-	unsigned int item = 0;
-	for(unsigned int i=0; i<numitems; i++){
-		item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + i*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-		_items[i] = ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
-	}
-	return numitems;
-}
-unsigned int utility::PARSE(keyvalue_t keyvalue, unsigned int * _items){
-	unsigned long * longword = (unsigned long *)&keyvalue;
-	return PARSE(*longword, _items);
-}
-unsigned int utility::GETKEY(unsigned long longword){ 
-	unsigned int streetaddr = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_STREETADDR, COMPACTPARAM_BITSIZE_STREETADDR);
-	unsigned int numitems = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_NUMITEMS, COMPACTPARAM_BITSIZE_NUMITEMS);
-	unsigned int item = READFROM_ULONG(longword, COMPACTPARAM_STARTOFFSET_DATA + 0*COMPACTPARAM_BITSIZE_EACHDATA, COMPACTPARAM_BITSIZE_EACHDATA);
-	return ((streetaddr * (1 << APPLYVERTEXBUFFERSZ_POW)) + item);
-}
-keyy_t utility::GETKEY(keyvalue_t keyvalue){ 
-	return keyvalue.key;
-}
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {
