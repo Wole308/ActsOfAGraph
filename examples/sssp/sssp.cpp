@@ -82,7 +82,7 @@ runsummary_t sssp::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 3; // 4,6
+	unsigned int NumGraphIters = 12; // 4,6,12
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -129,7 +129,7 @@ runsummary_t sssp::run(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices){
-	unsigned int swnum_its = utilityobj->runbfs_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	unsigned int swnum_its = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	for(unsigned int num_its=start; num_its<start+size; num_its++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
 

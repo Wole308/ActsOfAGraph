@@ -101,7 +101,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -382,25 +382,6 @@ struct _bitData {
 #define INVALIDDATA 123456789
 #define UNUSEDDATA 987654321
 
-#define NUM_KAPI 3 // number of kernel args per instance
-
-/* // compact graph information
-#define COMPACTPARAM_BITSIZE_TOTALDATA 52
-#define COMPACTPARAM_BITSIZE_EACHDATA SRAMSZ_POW
-#define COMPACTPARAM_BITSIZE_NUMITEMS 4
-#define COMPACTPARAM_BITSIZE_STREETADDR 8
-#define COMPACTPARAM_BITSIZE_LONGWORD 64
-
-#define COMPACTPARAM_STARTOFFSET_DATA 0 // 0
-#define COMPACTPARAM_STARTOFFSET_NUMITEMS (COMPACTPARAM_STARTOFFSET_DATA + COMPACTPARAM_BITSIZE_TOTALDATA) // 52
-#define COMPACTPARAM_STARTOFFSET_STREETADDR (COMPACTPARAM_STARTOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_NUMITEMS) //56
-
-#define COMPACTPARAM_ENDOFFSET_DATA (COMPACTPARAM_STARTOFFSET_DATA + COMPACTPARAM_BITSIZE_TOTALDATA) // 52
-#define COMPACTPARAM_ENDOFFSET_NUMITEMS (COMPACTPARAM_ENDOFFSET_DATA + COMPACTPARAM_BITSIZE_NUMITEMS) // 56
-#define COMPACTPARAM_ENDOFFSET_STREETADDR (COMPACTPARAM_ENDOFFSET_NUMITEMS + COMPACTPARAM_BITSIZE_STREETADDR) //56
-
-#define COMPACTPARAM_ITEMSIZE_TOTALDATA 3
- */
 // inmemory BFS definitions // NB: don't change these (see acts.reduce_bfs)
 #define UNVISITED 0
 #define VISITED_IN_CURRENT_ITERATION 1
@@ -429,18 +410,22 @@ typedef struct {
 typedef struct {
 	ap_uint<1> key;
 	ap_uint<1> value;
-} keyvalue_bittype;
+} keyvalue2_type;
 #else 
 typedef struct {
 	unsigned int key;
 	unsigned int value;
-} keyvalue_bittype;
-#endif  //uint512_vec_dt
+} keyvalue2_type;
+#endif
 
 typedef struct {
 	unsigned int key;
 	unsigned int value;
 } keyvalue_vec_bittype;
+
+typedef struct {
+	keyvalue2_type data[NUM_PARTITIONS];
+} uintNUMPby2_type; 
 
 #ifdef _WIDEWORD
 typedef ap_uint<64> uint64_type;
