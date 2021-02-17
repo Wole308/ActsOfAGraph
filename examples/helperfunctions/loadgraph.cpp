@@ -458,11 +458,28 @@ void loadgraph::loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbu
 }
 
 void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"loadgraph::savevmasks:: saving vmask... "<<endl;
-	#endif
-	uint32_type bitsbuffer[REDUCEBUFFERSZ];
+	// #ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"-------------------loadgraph::savevmasks:: saving vmask... "<<endl;
+	// #endif
+	// uint32_type bitsbuffer[REDUCEBUFFERSZ];
+	unsigned int bitsbuffer[REDUCEBUFFERSZ];
 	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
+	
+	/* for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+		for(unsigned int k=0; k<NUM_PARTITIONS; k++){
+			// utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
+			// utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
+			#ifdef _WIDEWORD
+			bitsbuffer[i].range(k*2+1, k*2) = vmask[k][i].key;
+			bitsbuffer[i].range(k*2+1+1, k*2+1) = vmask[k][i].value;
+			#else
+			// WRITETO_UINT(&bitsbuffer[i], {{v*2}}, 1, vmask[i].data[{{v}}].key);
+			// WRITETO_UINT(&bitsbuffer[i], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
+			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
+			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
+			#endif
+		}
+	} */
 	
 	for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
 		for(unsigned int k=0; k<NUM_PARTITIONS; k++){

@@ -149,8 +149,8 @@ void goclkernel::writetokernel(unsigned int flag, uint512_vec_dt * vdram, uint51
 	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 		unsigned int subthreadid = i % NUMSUBCPUTHREADS;
 		
-		#ifdef _DEBUGMODE_HOSTPRINTS2
-		cout<<"goclkernel::writetokernel(B):: hostbeginoffset: "<<hostbeginoffset[subthreadid]<<", beginoffset["<<subthreadid<<"] "<<beginoffset[subthreadid]<<" size["<<subthreadid<<"]: "<<size[subthreadid]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		cout<<"goclkernel::writetokernel:: hostbeginoffset: "<<hostbeginoffset[subthreadid]<<", beginoffset["<<subthreadid<<"] "<<beginoffset[subthreadid]<<" size["<<subthreadid<<"]: "<<size[subthreadid]<<", PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<endl;					
 		#endif
 		if(size[subthreadid] == 0){ size[subthreadid] = 1024; } 
 		OCL_CHECK(err,

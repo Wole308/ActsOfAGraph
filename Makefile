@@ -118,10 +118,10 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 # LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
 # LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
@@ -136,10 +136,10 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:bank0
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:bank1 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:bank2 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:bank3 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:bank0
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:bank1 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:bank2 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:bank3 
 
 EXECUTABLE = host
 CMD_ARGS = $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin
