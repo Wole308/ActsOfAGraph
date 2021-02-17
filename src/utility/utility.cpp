@@ -55,6 +55,12 @@ void utility::printallparameters(){
 	std::cout<<"host:: NUMUTILITYTHREADS: "<<NUMUTILITYTHREADS<<std::endl;
 	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
 	std::cout<<"host:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
+
+	std::cout<<"host:: UNITKVDATA_BATCHSIZE: "<<UNITKVDATA_BATCHSIZE<<std::endl;
+	// std::cout<<"host:: MAXKVDATA_BATCHSIZE_KVS: "<<MAXKVDATA_BATCHSIZE_KVS<<std::endl;
+	
+	std::cout<<"host:: MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<std::endl;
+	std::cout<<"host:: MAXKVDATA_BATCHSIZE_KVS: "<<MAXKVDATA_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<std::endl;
 	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
 	std::cout<<"host:: EDGES_BATCHSIZE: "<<EDGES_BATCHSIZE<<std::endl;
@@ -119,22 +125,47 @@ void utility::printallparameters(){
 	std::cout<<"host:: PADDEDVDRAMSZ: "<<PADDEDVDRAMSZ<<std::endl;	
 	std::cout<<"host:: PADDEDVDRAMSZ_KVS: "<<PADDEDVDRAMSZ_KVS<<std::endl;
 	
-	std::cout<<">> host:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: KVDRAMSZ (bytes): "<<KVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: ACTIVEVERTICESSZ (bytes): "<<ACTIVEVERTICESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	// >>>
+	std::cout<<">> host[sizes]:: MESSAGESDRAMSZ (keyvalues): "<<MESSAGESDRAMSZ<<" keyvalues"<<std::endl;
 	
-	std::cout<<">> host:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[sizes]:: KVDRAMSZ (keyvalues): "<<KVDRAMSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: KVDRAMWORKSPACESZ (keyvalues): "<<KVDRAMWORKSPACESZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: KVSTATSDRAMSZ (keyvalues): "<<KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
+	
+	std::cout<<">> host[sizes]:: EDGESSZ (keyvalues): "<<EDGESSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: VERTEXPTRSSZ (keyvalues): "<<VERTEXPTRSSZ<<" keyvalues"<<std::endl;
+	
+	std::cout<<">> host[sizes]:: VERTICESDATASZ (keyvalues): "<<VERTICESDATASZ<<" keyvalues"<<std::endl;
+	
+	std::cout<<">> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): "<<ACTIVEVERTICESSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): "<<VERTICESDATAMASKSZ<<" keyvalues"<<std::endl;
+	
+	std::cout<<">> host[sizes]:: PADDEDVDRAMSZ (keyvalues): "<<PADDEDVDRAMSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<<std::endl;
+	
+	// >>>
+	std::cout<<">> host[bytes]:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	
+	std::cout<<">> host[bytes]:: KVDRAMSZ (bytes): "<<KVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	
+	std::cout<<">> host[bytes]:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	
+	std::cout<<">> host[bytes]:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	
+	std::cout<<">> host[bytes]:: ACTIVEVERTICESSZ (bytes): "<<ACTIVEVERTICESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: VERTICESDATAMASKSZ (bytes): "<<VERTICESDATAMASKSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	
+	std::cout<<">> host[bytes]:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	if(NUMSUBCPUTHREADS >= 12){
+	/* if(NUMSUBCPUTHREADS >= 12){
 		if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 		if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
-	}
+	} */
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
@@ -590,24 +621,6 @@ void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned 
 	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
 	return;
 }
-/* void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
-	unsigned int * skipspacing = new unsigned int[size];
-	for(unsigned int p=0; p<size; p++){ 
-		
-		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
-		unsigned int B = (A + (SRCBUFFER_SIZE-1)) / SRCBUFFER_SIZE; 
-		if(B < 80){ B = B * 2; } 
-		// if(B < 20){ B = B * 4; }
-		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
-		skipspacing[p] = (B * C) + 128; 
-		
-		cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;
-		
-		// skipspacing[p] = skipspacing[p] * 2; // CRITICAL REMOVEME.
-	}			
-	calculateoffsets(stats, size, 0, skipspacing);
-	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
-} */
 void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 	unsigned int * skipspacing = new unsigned int[size];
 	for(unsigned int p=0; p<size; p++){ 
@@ -625,7 +638,7 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		// cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;
 	}			
 	calculateoffsets(stats, size, 0, skipspacing);
-	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}					
+	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}	
 }
 
 void utility::calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size){

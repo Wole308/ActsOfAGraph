@@ -386,6 +386,16 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats, totalnumpartitions);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing statsptr [after]", (keyvalue_t *)statsptrVec, totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 		#endif
+		
+		unsigned int totalnumpartitionsb4last = 0;
+		for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (unsigned int)pow(NUM_PARTITIONS, k); } 
+		for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+			if(tempstats[k].key >= KVDRAMSZ){ 
+				cout<<"loadoffsetmarkers::tempstats 33. ERROR. out of bounds. (tempstats["<<k<<"].key("<<tempstats[k].key<<") >= KVDRAMSZ("<<KVDRAMSZ<<")) exiting..."<<endl; 
+				utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats", tempstats, k);
+				exit(EXIT_FAILURE); 
+			}
+		}
 	}
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -396,6 +406,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 	}
 	#endif
+	// exit(EXIT_SUCCESS);
 	return;
 }
 

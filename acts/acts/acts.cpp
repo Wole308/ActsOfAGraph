@@ -1810,10 +1810,9 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR
 			#endif
 			
 			if(en == ON && mask == 1){
-				#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS3
+				#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
 				if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", vid: "<<vid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<endl; }
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"+++ readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<endl; }
 				#endif 
 				
 				buffer[0][2*i + n].key = E[0][0]; 
@@ -2251,73 +2250,6 @@ applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Graph
 	return temp;
 }
 
-/* value_t 
-	#ifdef SW 
-	acts::
-	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
-	value_t res = 0;
-	#ifdef PR_ALGORITHM
-	res = value1 + value2;
-	#endif 
-	#ifdef BFS_ALGORITHM
-	res = amin(value1, value2);
-	#endif 
-	#ifdef SSSP_ALGORITHM
-	res = amin(value1, value2);
-	#endif
-	return res;
-}
-
-value_t 
-	#ifdef SW 
-	acts::
-	#endif 
-mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo){
-	value_t z = 0;
-	#if NUMCOMPUTEUNITS==1
-	z = v0;
-	#endif 
-	
-	#if NUMCOMPUTEUNITS==2
-	z = mergefunc(v0, v1, GraphAlgo);
-	#endif 
-	
-	#if NUMCOMPUTEUNITS==16
-	value_t w0 = mergefunc(v0, v1, GraphAlgo);
-	value_t w1 = mergefunc(v2, v3, GraphAlgo);
-	value_t w2 = mergefunc(v4, v5, GraphAlgo);
-	value_t w3 = mergefunc(v6, v7, GraphAlgo);
-	value_t w4 = mergefunc(v8, v9, GraphAlgo);
-	value_t w5 = mergefunc(v10, v11, GraphAlgo);
-	value_t w6 = mergefunc(v12, v13, GraphAlgo);
-	value_t w7 = mergefunc(v14, v15, GraphAlgo);
-	
-	value_t x0 = mergefunc(w0, w1, GraphAlgo);
-	value_t x1 = mergefunc(w2, w3, GraphAlgo);
-	value_t x2 = mergefunc(w4, w5, GraphAlgo);
-	value_t x3 = mergefunc(w6, w7, GraphAlgo);
-	
-	value_t y0 = mergefunc(x0, x1, GraphAlgo);
-	value_t y1 = mergefunc(x2, x3, GraphAlgo);
-	
-	z = mergefunc(y0, y1, GraphAlgo);
-	#endif 
-	return z;
-}
-
-value_t 
-	#ifdef SW 
-	acts::
-	#endif 
-mergefunc_4to1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo){
-	value_t w0 = mergefunc(v0, v1, GraphAlgo);
-	value_t w1 = mergefunc(v2, v3, GraphAlgo);
-
-	value_t z = mergefunc(w0, w1, GraphAlgo);
-	return z;
-}
- */
 void 
 	#ifdef SW 
 	acts::
@@ -2329,7 +2261,7 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[DOUBLE_BLOCKRAM_SIZE], buf
 	keyvalue_t keyvalue = kvdata;
 	vertex_t loc = keyvalue.key - upperlimit;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
 	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<upperlimit<<", REDUCESZ: "<<REDUCESZ<<endl; }
 	#endif 
 	
@@ -2507,23 +2439,11 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	return res;
 }
 
-/* value_t 
-	#ifdef SW 
-	acts::
-	#endif 
-mergefunc_4to1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo){
-	value_t w0 = mergefunc(v0, v1, GraphAlgo);
-	value_t w1 = mergefunc(v2, v3, GraphAlgo);
-
-	value_t z = mergefunc(w0, w1, GraphAlgo);
-	return z;
-}
- */
 value_t 
 	#ifdef SW 
 	acts::
 	#endif 
-mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo){
+mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo){
 	value_t z = 0;
 	#if NUMCOMPUTEUNITS==1
 	z = v0;
@@ -2531,6 +2451,34 @@ mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t
 	
 	#if NUMCOMPUTEUNITS==2
 	z = mergefunc(v0, v1, GraphAlgo);
+	#endif 
+	
+	#if NUMCOMPUTEUNITS==4
+	value_t w0 = mergefunc(v0, v1, GraphAlgo);
+	value_t w1 = mergefunc(v2, v3, GraphAlgo);
+	
+	z = mergefunc(w0, w1, GraphAlgo);
+	#endif 
+	
+	#if NUMCOMPUTEUNITS==12
+	value_t w0 = mergefunc(v0, v1, GraphAlgo);
+	value_t w1 = mergefunc(v2, v3, GraphAlgo);
+	value_t w2 = mergefunc(v4, v5, GraphAlgo);
+	value_t w3 = mergefunc(v6, v7, GraphAlgo);
+	value_t w4 = mergefunc(v8, v9, GraphAlgo);
+	value_t w5 = mergefunc(v10, v11, GraphAlgo);
+	// value_t w6 = mergefunc(v12, v13, GraphAlgo);
+	// value_t w7 = mergefunc(v14, v15, GraphAlgo);
+	
+	value_t x0 = mergefunc(w0, w1, GraphAlgo);
+	value_t x1 = mergefunc(w2, w3, GraphAlgo);
+	value_t x2 = mergefunc(w4, w5, GraphAlgo);
+	value_t x3 = 0xFFFFFFFF; // mergefunc(w6, w7, GraphAlgo);
+	
+	value_t y0 = mergefunc(x0, x1, GraphAlgo);
+	value_t y1 = mergefunc(x2, x3, GraphAlgo);
+	
+	z = mergefunc(y0, y1, GraphAlgo);
 	#endif 
 	
 	#if NUMCOMPUTEUNITS==16
@@ -2556,1075 +2504,11 @@ mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t
 	return z;
 }
 
-/* bool_type 
-	#ifdef SW 
-	acts::
-	#endif
-pmerge_4to1(bool_type enable, 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],  
-		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE],
-		globalparams_t globalparams){
-	if(enable == OFF){ return OFF; }
-	
-	unsigned int vid[NUM_PARTITIONS][2];
-	#pragma HLS ARRAY_PARTITION variable=vid complete
-	
-	keyvalue_t data0;
-	keyvalue_t res0;
-	keyvalue_t data0_0;
-	keyvalue_t data0_1;
-	keyvalue_t data0_2;
-	keyvalue_t data0_3;
-	keyvalue_t data1;
-	keyvalue_t res1;
-	keyvalue_t data1_0;
-	keyvalue_t data1_1;
-	keyvalue_t data1_2;
-	keyvalue_t data1_3;
-	keyvalue_t data2;
-	keyvalue_t res2;
-	keyvalue_t data2_0;
-	keyvalue_t data2_1;
-	keyvalue_t data2_2;
-	keyvalue_t data2_3;
-	keyvalue_t data3;
-	keyvalue_t res3;
-	keyvalue_t data3_0;
-	keyvalue_t data3_1;
-	keyvalue_t data3_2;
-	keyvalue_t data3_3;
-	keyvalue_t data4;
-	keyvalue_t res4;
-	keyvalue_t data4_0;
-	keyvalue_t data4_1;
-	keyvalue_t data4_2;
-	keyvalue_t data4_3;
-	keyvalue_t data5;
-	keyvalue_t res5;
-	keyvalue_t data5_0;
-	keyvalue_t data5_1;
-	keyvalue_t data5_2;
-	keyvalue_t data5_3;
-	keyvalue_t data6;
-	keyvalue_t res6;
-	keyvalue_t data6_0;
-	keyvalue_t data6_1;
-	keyvalue_t data6_2;
-	keyvalue_t data6_3;
-	keyvalue_t data7;
-	keyvalue_t res7;
-	keyvalue_t data7_0;
-	keyvalue_t data7_1;
-	keyvalue_t data7_2;
-	keyvalue_t data7_3;
-	keyvalue_t data8;
-	keyvalue_t res8;
-	keyvalue_t data8_0;
-	keyvalue_t data8_1;
-	keyvalue_t data8_2;
-	keyvalue_t data8_3;
-	keyvalue_t data9;
-	keyvalue_t res9;
-	keyvalue_t data9_0;
-	keyvalue_t data9_1;
-	keyvalue_t data9_2;
-	keyvalue_t data9_3;
-	keyvalue_t data10;
-	keyvalue_t res10;
-	keyvalue_t data10_0;
-	keyvalue_t data10_1;
-	keyvalue_t data10_2;
-	keyvalue_t data10_3;
-	keyvalue_t data11;
-	keyvalue_t res11;
-	keyvalue_t data11_0;
-	keyvalue_t data11_1;
-	keyvalue_t data11_2;
-	keyvalue_t data11_3;
-	keyvalue_t data12;
-	keyvalue_t res12;
-	keyvalue_t data12_0;
-	keyvalue_t data12_1;
-	keyvalue_t data12_2;
-	keyvalue_t data12_3;
-	keyvalue_t data13;
-	keyvalue_t res13;
-	keyvalue_t data13_0;
-	keyvalue_t data13_1;
-	keyvalue_t data13_2;
-	keyvalue_t data13_3;
-	keyvalue_t data14;
-	keyvalue_t res14;
-	keyvalue_t data14_0;
-	keyvalue_t data14_1;
-	keyvalue_t data14_2;
-	keyvalue_t data14_3;
-	keyvalue_t data15;
-	keyvalue_t res15;
-	keyvalue_t data15_0;
-	keyvalue_t data15_1;
-	keyvalue_t data15_2;
-	keyvalue_t data15_3;
-	
-	PMERGE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
-	#pragma HLS dependence variable=vbuffer1 inter false
-	#pragma HLS dependence variable=vbuffer2 inter false
-	#pragma HLS PIPELINE II=1
-
-		data0_0 = vbuffer0_1[0][BUFFERBASE_VDATA + i];
-		data0_1 = vbuffer1_1[0][BUFFERBASE_VDATA + i];
-		data0_2 = vbuffer2_1[0][BUFFERBASE_VDATA + i];
-		data0_3 = vbuffer3_1[0][BUFFERBASE_VDATA + i];
-		data1_0 = vbuffer0_1[1][BUFFERBASE_VDATA + i];
-		data1_1 = vbuffer1_1[1][BUFFERBASE_VDATA + i];
-		data1_2 = vbuffer2_1[1][BUFFERBASE_VDATA + i];
-		data1_3 = vbuffer3_1[1][BUFFERBASE_VDATA + i];
-		data2_0 = vbuffer0_1[2][BUFFERBASE_VDATA + i];
-		data2_1 = vbuffer1_1[2][BUFFERBASE_VDATA + i];
-		data2_2 = vbuffer2_1[2][BUFFERBASE_VDATA + i];
-		data2_3 = vbuffer3_1[2][BUFFERBASE_VDATA + i];
-		data3_0 = vbuffer0_1[3][BUFFERBASE_VDATA + i];
-		data3_1 = vbuffer1_1[3][BUFFERBASE_VDATA + i];
-		data3_2 = vbuffer2_1[3][BUFFERBASE_VDATA + i];
-		data3_3 = vbuffer3_1[3][BUFFERBASE_VDATA + i];
-		data4_0 = vbuffer0_1[4][BUFFERBASE_VDATA + i];
-		data4_1 = vbuffer1_1[4][BUFFERBASE_VDATA + i];
-		data4_2 = vbuffer2_1[4][BUFFERBASE_VDATA + i];
-		data4_3 = vbuffer3_1[4][BUFFERBASE_VDATA + i];
-		data5_0 = vbuffer0_1[5][BUFFERBASE_VDATA + i];
-		data5_1 = vbuffer1_1[5][BUFFERBASE_VDATA + i];
-		data5_2 = vbuffer2_1[5][BUFFERBASE_VDATA + i];
-		data5_3 = vbuffer3_1[5][BUFFERBASE_VDATA + i];
-		data6_0 = vbuffer0_1[6][BUFFERBASE_VDATA + i];
-		data6_1 = vbuffer1_1[6][BUFFERBASE_VDATA + i];
-		data6_2 = vbuffer2_1[6][BUFFERBASE_VDATA + i];
-		data6_3 = vbuffer3_1[6][BUFFERBASE_VDATA + i];
-		data7_0 = vbuffer0_1[7][BUFFERBASE_VDATA + i];
-		data7_1 = vbuffer1_1[7][BUFFERBASE_VDATA + i];
-		data7_2 = vbuffer2_1[7][BUFFERBASE_VDATA + i];
-		data7_3 = vbuffer3_1[7][BUFFERBASE_VDATA + i];
-		data8_0 = vbuffer0_2[0][BUFFERBASE_VDATA + i];
-		data8_1 = vbuffer1_2[0][BUFFERBASE_VDATA + i];
-		data8_2 = vbuffer2_2[0][BUFFERBASE_VDATA + i];
-		data8_3 = vbuffer3_2[0][BUFFERBASE_VDATA + i];
-		data9_0 = vbuffer0_2[1][BUFFERBASE_VDATA + i];
-		data9_1 = vbuffer1_2[1][BUFFERBASE_VDATA + i];
-		data9_2 = vbuffer2_2[1][BUFFERBASE_VDATA + i];
-		data9_3 = vbuffer3_2[1][BUFFERBASE_VDATA + i];
-		data10_0 = vbuffer0_2[2][BUFFERBASE_VDATA + i];
-		data10_1 = vbuffer1_2[2][BUFFERBASE_VDATA + i];
-		data10_2 = vbuffer2_2[2][BUFFERBASE_VDATA + i];
-		data10_3 = vbuffer3_2[2][BUFFERBASE_VDATA + i];
-		data11_0 = vbuffer0_2[3][BUFFERBASE_VDATA + i];
-		data11_1 = vbuffer1_2[3][BUFFERBASE_VDATA + i];
-		data11_2 = vbuffer2_2[3][BUFFERBASE_VDATA + i];
-		data11_3 = vbuffer3_2[3][BUFFERBASE_VDATA + i];
-		data12_0 = vbuffer0_2[4][BUFFERBASE_VDATA + i];
-		data12_1 = vbuffer1_2[4][BUFFERBASE_VDATA + i];
-		data12_2 = vbuffer2_2[4][BUFFERBASE_VDATA + i];
-		data12_3 = vbuffer3_2[4][BUFFERBASE_VDATA + i];
-		data13_0 = vbuffer0_2[5][BUFFERBASE_VDATA + i];
-		data13_1 = vbuffer1_2[5][BUFFERBASE_VDATA + i];
-		data13_2 = vbuffer2_2[5][BUFFERBASE_VDATA + i];
-		data13_3 = vbuffer3_2[5][BUFFERBASE_VDATA + i];
-		data14_0 = vbuffer0_2[6][BUFFERBASE_VDATA + i];
-		data14_1 = vbuffer1_2[6][BUFFERBASE_VDATA + i];
-		data14_2 = vbuffer2_2[6][BUFFERBASE_VDATA + i];
-		data14_3 = vbuffer3_2[6][BUFFERBASE_VDATA + i];
-		data15_0 = vbuffer0_2[7][BUFFERBASE_VDATA + i];
-		data15_1 = vbuffer1_2[7][BUFFERBASE_VDATA + i];
-		data15_2 = vbuffer2_2[7][BUFFERBASE_VDATA + i];
-		data15_3 = vbuffer3_2[7][BUFFERBASE_VDATA + i];
-		
-		data0.key = mergefunc_4to1(data0_0.key,data0_1.key,data0_2.key,data0_3.key, globalparams.GraphAlgo);
-		data1.key = mergefunc_4to1(data1_0.key,data1_1.key,data1_2.key,data1_3.key, globalparams.GraphAlgo);
-		data2.key = mergefunc_4to1(data2_0.key,data2_1.key,data2_2.key,data2_3.key, globalparams.GraphAlgo);
-		data3.key = mergefunc_4to1(data3_0.key,data3_1.key,data3_2.key,data3_3.key, globalparams.GraphAlgo);
-		data4.key = mergefunc_4to1(data4_0.key,data4_1.key,data4_2.key,data4_3.key, globalparams.GraphAlgo);
-		data5.key = mergefunc_4to1(data5_0.key,data5_1.key,data5_2.key,data5_3.key, globalparams.GraphAlgo);
-		data6.key = mergefunc_4to1(data6_0.key,data6_1.key,data6_2.key,data6_3.key, globalparams.GraphAlgo);
-		data7.key = mergefunc_4to1(data7_0.key,data7_1.key,data7_2.key,data7_3.key, globalparams.GraphAlgo);
-		data8.key = mergefunc_4to1(data8_0.key,data8_1.key,data8_2.key,data8_3.key, globalparams.GraphAlgo);
-		data9.key = mergefunc_4to1(data9_0.key,data9_1.key,data9_2.key,data9_3.key, globalparams.GraphAlgo);
-		data10.key = mergefunc_4to1(data10_0.key,data10_1.key,data10_2.key,data10_3.key, globalparams.GraphAlgo);
-		data11.key = mergefunc_4to1(data11_0.key,data11_1.key,data11_2.key,data11_3.key, globalparams.GraphAlgo);
-		data12.key = mergefunc_4to1(data12_0.key,data12_1.key,data12_2.key,data12_3.key, globalparams.GraphAlgo);
-		data13.key = mergefunc_4to1(data13_0.key,data13_1.key,data13_2.key,data13_3.key, globalparams.GraphAlgo);
-		data14.key = mergefunc_4to1(data14_0.key,data14_1.key,data14_2.key,data14_3.key, globalparams.GraphAlgo);
-		data15.key = mergefunc_4to1(data15_0.key,data15_1.key,data15_2.key,data15_3.key, globalparams.GraphAlgo);
-		data0.value = mergefunc_4to1(data0_0.value,data0_1.value,data0_2.value,data0_3.value, globalparams.GraphAlgo);
-		data1.value = mergefunc_4to1(data1_0.value,data1_1.value,data1_2.value,data1_3.value, globalparams.GraphAlgo);
-		data2.value = mergefunc_4to1(data2_0.value,data2_1.value,data2_2.value,data2_3.value, globalparams.GraphAlgo);
-		data3.value = mergefunc_4to1(data3_0.value,data3_1.value,data3_2.value,data3_3.value, globalparams.GraphAlgo);
-		data4.value = mergefunc_4to1(data4_0.value,data4_1.value,data4_2.value,data4_3.value, globalparams.GraphAlgo);
-		data5.value = mergefunc_4to1(data5_0.value,data5_1.value,data5_2.value,data5_3.value, globalparams.GraphAlgo);
-		data6.value = mergefunc_4to1(data6_0.value,data6_1.value,data6_2.value,data6_3.value, globalparams.GraphAlgo);
-		data7.value = mergefunc_4to1(data7_0.value,data7_1.value,data7_2.value,data7_3.value, globalparams.GraphAlgo);
-		data8.value = mergefunc_4to1(data8_0.value,data8_1.value,data8_2.value,data8_3.value, globalparams.GraphAlgo);
-		data9.value = mergefunc_4to1(data9_0.value,data9_1.value,data9_2.value,data9_3.value, globalparams.GraphAlgo);
-		data10.value = mergefunc_4to1(data10_0.value,data10_1.value,data10_2.value,data10_3.value, globalparams.GraphAlgo);
-		data11.value = mergefunc_4to1(data11_0.value,data11_1.value,data11_2.value,data11_3.value, globalparams.GraphAlgo);
-		data12.value = mergefunc_4to1(data12_0.value,data12_1.value,data12_2.value,data12_3.value, globalparams.GraphAlgo);
-		data13.value = mergefunc_4to1(data13_0.value,data13_1.value,data13_2.value,data13_3.value, globalparams.GraphAlgo);
-		data14.value = mergefunc_4to1(data14_0.value,data14_1.value,data14_2.value,data14_3.value, globalparams.GraphAlgo);
-		data15.value = mergefunc_4to1(data15_0.value,data15_1.value,data15_2.value,data15_3.value, globalparams.GraphAlgo);
-		
-		res0.key = data0.key; 
-		res1.key = data1.key; 
-		res2.key = data2.key; 
-		res3.key = data3.key; 
-		res4.key = data4.key; 
-		res5.key = data5.key; 
-		res6.key = data6.key; 
-		res7.key = data7.key; 
-		res8.key = data8.key; 
-		res9.key = data9.key; 
-		res10.key = data10.key; 
-		res11.key = data11.key; 
-		res12.key = data12.key; 
-		res13.key = data13.key; 
-		res14.key = data14.key; 
-		res15.key = data15.key; 
-		res0.value = data0.value; 
-		res1.value = data1.value; 
-		res2.value = data2.value; 
-		res3.value = data3.value; 
-		res4.value = data4.value; 
-		res5.value = data5.value; 
-		res6.value = data6.value; 
-		res7.value = data7.value; 
-		res8.value = data8.value; 
-		res9.value = data9.value; 
-		res10.value = data10.value; 
-		res11.value = data11.value; 
-		res12.value = data12.value; 
-		res13.value = data13.value; 
-		res14.value = data14.value; 
-		res15.value = data15.value; 
-		
-	
-		synvbuffer1[0][i] = res0;	
-	
-		synvbuffer1[1][i] = res1;	
-	
-		synvbuffer1[2][i] = res2;	
-	
-		synvbuffer1[3][i] = res3;	
-	
-		synvbuffer1[4][i] = res4;	
-	
-		synvbuffer1[5][i] = res5;	
-	
-		synvbuffer1[6][i] = res6;	
-	
-		synvbuffer1[7][i] = res7;	
-	
-		synvbuffer2[0][i] = res8;	
-	
-		synvbuffer2[1][i] = res9;	
-	
-		synvbuffer2[2][i] = res10;	
-	
-		synvbuffer2[3][i] = res11;	
-	
-		synvbuffer2[4][i] = res12;	
-	
-		synvbuffer2[5][i] = res13;	
-	
-		synvbuffer2[6][i] = res14;	
-	
-		synvbuffer2[7][i] = res15;	
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("synchronize.vbuffer1", vbuffer1, NUM_VBUFFERS, 4);
-	actsutilityobj->printkeyvalues("synchronize.vbuffer2", vbuffer2, NUM_VBUFFERS, 4);
-	#endif
-	return NAp;
-}
-
 bool_type 
 	#ifdef SW 
 	acts::
 	#endif
-pmerge_16to4(bool_type enable, 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], 
-keyvalue_t synvbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE],		globalparams_t globalparams){
-	pmerge_4to1(enable, vbuffer0_1, vbuffer0_2, vbuffer1_1, vbuffer1_2, vbuffer2_1, vbuffer2_2, vbuffer3_1, vbuffer3_2,  synvbuffer0_1, synvbuffer0_2, globalparams);
-	pmerge_4to1(enable, vbuffer4_1, vbuffer4_2, vbuffer5_1, vbuffer5_2, vbuffer6_1, vbuffer6_2, vbuffer7_1, vbuffer7_2,  synvbuffer1_1, synvbuffer1_2, globalparams);
-	pmerge_4to1(enable, vbuffer8_1, vbuffer8_2, vbuffer9_1, vbuffer9_2, vbuffer10_1, vbuffer10_2, vbuffer11_1, vbuffer11_2,  synvbuffer2_1, synvbuffer2_2, globalparams);
-	pmerge_4to1(enable, vbuffer12_1, vbuffer12_2, vbuffer13_1, vbuffer13_2, vbuffer14_1, vbuffer14_2, vbuffer15_1, vbuffer15_2,  synvbuffer3_1, synvbuffer3_2, globalparams);
-	return NAp;
-}
-
-bool_type 
-	#ifdef SW 
-	acts::
-	#endif
-pmergeandapply_4to1(bool_type enable, 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE],  
-		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-		globalparams_t globalparams){
-	if(enable == OFF){ return OFF; }
-	
-	unsigned int vid[NUM_PARTITIONS][2];
-	#pragma HLS ARRAY_PARTITION variable=vid complete
-	
-	keyvalue_t data0;
-	keyvalue_t res0;
-	keyvalue_t data0_0;
-	keyvalue_t data0_1;
-	keyvalue_t data0_2;
-	keyvalue_t data0_3;
-	keyvalue_t data0_4;
-	keyvalue_t data0_5;
-	keyvalue_t data0_6;
-	keyvalue_t data0_7;
-	keyvalue_t data0_8;
-	keyvalue_t data0_9;
-	keyvalue_t data0_10;
-	keyvalue_t data0_11;
-	keyvalue_t data0_12;
-	keyvalue_t data0_13;
-	keyvalue_t data0_14;
-	keyvalue_t data0_15;
-	keyvalue_t data1;
-	keyvalue_t res1;
-	keyvalue_t data1_0;
-	keyvalue_t data1_1;
-	keyvalue_t data1_2;
-	keyvalue_t data1_3;
-	keyvalue_t data1_4;
-	keyvalue_t data1_5;
-	keyvalue_t data1_6;
-	keyvalue_t data1_7;
-	keyvalue_t data1_8;
-	keyvalue_t data1_9;
-	keyvalue_t data1_10;
-	keyvalue_t data1_11;
-	keyvalue_t data1_12;
-	keyvalue_t data1_13;
-	keyvalue_t data1_14;
-	keyvalue_t data1_15;
-	keyvalue_t data2;
-	keyvalue_t res2;
-	keyvalue_t data2_0;
-	keyvalue_t data2_1;
-	keyvalue_t data2_2;
-	keyvalue_t data2_3;
-	keyvalue_t data2_4;
-	keyvalue_t data2_5;
-	keyvalue_t data2_6;
-	keyvalue_t data2_7;
-	keyvalue_t data2_8;
-	keyvalue_t data2_9;
-	keyvalue_t data2_10;
-	keyvalue_t data2_11;
-	keyvalue_t data2_12;
-	keyvalue_t data2_13;
-	keyvalue_t data2_14;
-	keyvalue_t data2_15;
-	keyvalue_t data3;
-	keyvalue_t res3;
-	keyvalue_t data3_0;
-	keyvalue_t data3_1;
-	keyvalue_t data3_2;
-	keyvalue_t data3_3;
-	keyvalue_t data3_4;
-	keyvalue_t data3_5;
-	keyvalue_t data3_6;
-	keyvalue_t data3_7;
-	keyvalue_t data3_8;
-	keyvalue_t data3_9;
-	keyvalue_t data3_10;
-	keyvalue_t data3_11;
-	keyvalue_t data3_12;
-	keyvalue_t data3_13;
-	keyvalue_t data3_14;
-	keyvalue_t data3_15;
-	keyvalue_t data4;
-	keyvalue_t res4;
-	keyvalue_t data4_0;
-	keyvalue_t data4_1;
-	keyvalue_t data4_2;
-	keyvalue_t data4_3;
-	keyvalue_t data4_4;
-	keyvalue_t data4_5;
-	keyvalue_t data4_6;
-	keyvalue_t data4_7;
-	keyvalue_t data4_8;
-	keyvalue_t data4_9;
-	keyvalue_t data4_10;
-	keyvalue_t data4_11;
-	keyvalue_t data4_12;
-	keyvalue_t data4_13;
-	keyvalue_t data4_14;
-	keyvalue_t data4_15;
-	keyvalue_t data5;
-	keyvalue_t res5;
-	keyvalue_t data5_0;
-	keyvalue_t data5_1;
-	keyvalue_t data5_2;
-	keyvalue_t data5_3;
-	keyvalue_t data5_4;
-	keyvalue_t data5_5;
-	keyvalue_t data5_6;
-	keyvalue_t data5_7;
-	keyvalue_t data5_8;
-	keyvalue_t data5_9;
-	keyvalue_t data5_10;
-	keyvalue_t data5_11;
-	keyvalue_t data5_12;
-	keyvalue_t data5_13;
-	keyvalue_t data5_14;
-	keyvalue_t data5_15;
-	keyvalue_t data6;
-	keyvalue_t res6;
-	keyvalue_t data6_0;
-	keyvalue_t data6_1;
-	keyvalue_t data6_2;
-	keyvalue_t data6_3;
-	keyvalue_t data6_4;
-	keyvalue_t data6_5;
-	keyvalue_t data6_6;
-	keyvalue_t data6_7;
-	keyvalue_t data6_8;
-	keyvalue_t data6_9;
-	keyvalue_t data6_10;
-	keyvalue_t data6_11;
-	keyvalue_t data6_12;
-	keyvalue_t data6_13;
-	keyvalue_t data6_14;
-	keyvalue_t data6_15;
-	keyvalue_t data7;
-	keyvalue_t res7;
-	keyvalue_t data7_0;
-	keyvalue_t data7_1;
-	keyvalue_t data7_2;
-	keyvalue_t data7_3;
-	keyvalue_t data7_4;
-	keyvalue_t data7_5;
-	keyvalue_t data7_6;
-	keyvalue_t data7_7;
-	keyvalue_t data7_8;
-	keyvalue_t data7_9;
-	keyvalue_t data7_10;
-	keyvalue_t data7_11;
-	keyvalue_t data7_12;
-	keyvalue_t data7_13;
-	keyvalue_t data7_14;
-	keyvalue_t data7_15;
-	keyvalue_t data8;
-	keyvalue_t res8;
-	keyvalue_t data8_0;
-	keyvalue_t data8_1;
-	keyvalue_t data8_2;
-	keyvalue_t data8_3;
-	keyvalue_t data8_4;
-	keyvalue_t data8_5;
-	keyvalue_t data8_6;
-	keyvalue_t data8_7;
-	keyvalue_t data8_8;
-	keyvalue_t data8_9;
-	keyvalue_t data8_10;
-	keyvalue_t data8_11;
-	keyvalue_t data8_12;
-	keyvalue_t data8_13;
-	keyvalue_t data8_14;
-	keyvalue_t data8_15;
-	keyvalue_t data9;
-	keyvalue_t res9;
-	keyvalue_t data9_0;
-	keyvalue_t data9_1;
-	keyvalue_t data9_2;
-	keyvalue_t data9_3;
-	keyvalue_t data9_4;
-	keyvalue_t data9_5;
-	keyvalue_t data9_6;
-	keyvalue_t data9_7;
-	keyvalue_t data9_8;
-	keyvalue_t data9_9;
-	keyvalue_t data9_10;
-	keyvalue_t data9_11;
-	keyvalue_t data9_12;
-	keyvalue_t data9_13;
-	keyvalue_t data9_14;
-	keyvalue_t data9_15;
-	keyvalue_t data10;
-	keyvalue_t res10;
-	keyvalue_t data10_0;
-	keyvalue_t data10_1;
-	keyvalue_t data10_2;
-	keyvalue_t data10_3;
-	keyvalue_t data10_4;
-	keyvalue_t data10_5;
-	keyvalue_t data10_6;
-	keyvalue_t data10_7;
-	keyvalue_t data10_8;
-	keyvalue_t data10_9;
-	keyvalue_t data10_10;
-	keyvalue_t data10_11;
-	keyvalue_t data10_12;
-	keyvalue_t data10_13;
-	keyvalue_t data10_14;
-	keyvalue_t data10_15;
-	keyvalue_t data11;
-	keyvalue_t res11;
-	keyvalue_t data11_0;
-	keyvalue_t data11_1;
-	keyvalue_t data11_2;
-	keyvalue_t data11_3;
-	keyvalue_t data11_4;
-	keyvalue_t data11_5;
-	keyvalue_t data11_6;
-	keyvalue_t data11_7;
-	keyvalue_t data11_8;
-	keyvalue_t data11_9;
-	keyvalue_t data11_10;
-	keyvalue_t data11_11;
-	keyvalue_t data11_12;
-	keyvalue_t data11_13;
-	keyvalue_t data11_14;
-	keyvalue_t data11_15;
-	keyvalue_t data12;
-	keyvalue_t res12;
-	keyvalue_t data12_0;
-	keyvalue_t data12_1;
-	keyvalue_t data12_2;
-	keyvalue_t data12_3;
-	keyvalue_t data12_4;
-	keyvalue_t data12_5;
-	keyvalue_t data12_6;
-	keyvalue_t data12_7;
-	keyvalue_t data12_8;
-	keyvalue_t data12_9;
-	keyvalue_t data12_10;
-	keyvalue_t data12_11;
-	keyvalue_t data12_12;
-	keyvalue_t data12_13;
-	keyvalue_t data12_14;
-	keyvalue_t data12_15;
-	keyvalue_t data13;
-	keyvalue_t res13;
-	keyvalue_t data13_0;
-	keyvalue_t data13_1;
-	keyvalue_t data13_2;
-	keyvalue_t data13_3;
-	keyvalue_t data13_4;
-	keyvalue_t data13_5;
-	keyvalue_t data13_6;
-	keyvalue_t data13_7;
-	keyvalue_t data13_8;
-	keyvalue_t data13_9;
-	keyvalue_t data13_10;
-	keyvalue_t data13_11;
-	keyvalue_t data13_12;
-	keyvalue_t data13_13;
-	keyvalue_t data13_14;
-	keyvalue_t data13_15;
-	keyvalue_t data14;
-	keyvalue_t res14;
-	keyvalue_t data14_0;
-	keyvalue_t data14_1;
-	keyvalue_t data14_2;
-	keyvalue_t data14_3;
-	keyvalue_t data14_4;
-	keyvalue_t data14_5;
-	keyvalue_t data14_6;
-	keyvalue_t data14_7;
-	keyvalue_t data14_8;
-	keyvalue_t data14_9;
-	keyvalue_t data14_10;
-	keyvalue_t data14_11;
-	keyvalue_t data14_12;
-	keyvalue_t data14_13;
-	keyvalue_t data14_14;
-	keyvalue_t data14_15;
-	keyvalue_t data15;
-	keyvalue_t res15;
-	keyvalue_t data15_0;
-	keyvalue_t data15_1;
-	keyvalue_t data15_2;
-	keyvalue_t data15_3;
-	keyvalue_t data15_4;
-	keyvalue_t data15_5;
-	keyvalue_t data15_6;
-	keyvalue_t data15_7;
-	keyvalue_t data15_8;
-	keyvalue_t data15_9;
-	keyvalue_t data15_10;
-	keyvalue_t data15_11;
-	keyvalue_t data15_12;
-	keyvalue_t data15_13;
-	keyvalue_t data15_14;
-	keyvalue_t data15_15;
-	
-	bool_type partitionisactive = OFF;
-	
-	// sync and apply
-	SYNCHRONIZE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
-	#pragma HLS dependence variable=synvbuffer1 inter false
-	#pragma HLS dependence variable=synvbuffer2 inter false
-	#pragma HLS PIPELINE II=1
-	
-		vid[0][0] = ((0*REDUCESZ) + i*2);
-		vid[0][1] = ((0*REDUCESZ) + i*2 + 1);
-		vid[1][0] = ((1*REDUCESZ) + i*2);
-		vid[1][1] = ((1*REDUCESZ) + i*2 + 1);
-		vid[2][0] = ((2*REDUCESZ) + i*2);
-		vid[2][1] = ((2*REDUCESZ) + i*2 + 1);
-		vid[3][0] = ((3*REDUCESZ) + i*2);
-		vid[3][1] = ((3*REDUCESZ) + i*2 + 1);
-		vid[4][0] = ((4*REDUCESZ) + i*2);
-		vid[4][1] = ((4*REDUCESZ) + i*2 + 1);
-		vid[5][0] = ((5*REDUCESZ) + i*2);
-		vid[5][1] = ((5*REDUCESZ) + i*2 + 1);
-		vid[6][0] = ((6*REDUCESZ) + i*2);
-		vid[6][1] = ((6*REDUCESZ) + i*2 + 1);
-		vid[7][0] = ((7*REDUCESZ) + i*2);
-		vid[7][1] = ((7*REDUCESZ) + i*2 + 1);
-		vid[8][0] = ((8*REDUCESZ) + i*2);
-		vid[8][1] = ((8*REDUCESZ) + i*2 + 1);
-		vid[9][0] = ((9*REDUCESZ) + i*2);
-		vid[9][1] = ((9*REDUCESZ) + i*2 + 1);
-		vid[10][0] = ((10*REDUCESZ) + i*2);
-		vid[10][1] = ((10*REDUCESZ) + i*2 + 1);
-		vid[11][0] = ((11*REDUCESZ) + i*2);
-		vid[11][1] = ((11*REDUCESZ) + i*2 + 1);
-		vid[12][0] = ((12*REDUCESZ) + i*2);
-		vid[12][1] = ((12*REDUCESZ) + i*2 + 1);
-		vid[13][0] = ((13*REDUCESZ) + i*2);
-		vid[13][1] = ((13*REDUCESZ) + i*2 + 1);
-		vid[14][0] = ((14*REDUCESZ) + i*2);
-		vid[14][1] = ((14*REDUCESZ) + i*2 + 1);
-		vid[15][0] = ((15*REDUCESZ) + i*2);
-		vid[15][1] = ((15*REDUCESZ) + i*2 + 1);
-	
- // AUTOMATEME.
-		data0_0 = vbuffer0_1[0][i];
-		data0_1 = vbuffer1_1[0][i];
-		data0_2 = vbuffer2_1[0][i];
-		data0_3 = vbuffer3_1[0][i];
- // AUTOMATEME.
-		data1_0 = vbuffer0_1[1][i];
-		data1_1 = vbuffer1_1[1][i];
-		data1_2 = vbuffer2_1[1][i];
-		data1_3 = vbuffer3_1[1][i];
- // AUTOMATEME.
-		data2_0 = vbuffer0_1[2][i];
-		data2_1 = vbuffer1_1[2][i];
-		data2_2 = vbuffer2_1[2][i];
-		data2_3 = vbuffer3_1[2][i];
- // AUTOMATEME.
-		data3_0 = vbuffer0_1[3][i];
-		data3_1 = vbuffer1_1[3][i];
-		data3_2 = vbuffer2_1[3][i];
-		data3_3 = vbuffer3_1[3][i];
- // AUTOMATEME.
-		data4_0 = vbuffer0_1[4][i];
-		data4_1 = vbuffer1_1[4][i];
-		data4_2 = vbuffer2_1[4][i];
-		data4_3 = vbuffer3_1[4][i];
- // AUTOMATEME.
-		data5_0 = vbuffer0_1[5][i];
-		data5_1 = vbuffer1_1[5][i];
-		data5_2 = vbuffer2_1[5][i];
-		data5_3 = vbuffer3_1[5][i];
- // AUTOMATEME.
-		data6_0 = vbuffer0_1[6][i];
-		data6_1 = vbuffer1_1[6][i];
-		data6_2 = vbuffer2_1[6][i];
-		data6_3 = vbuffer3_1[6][i];
- // AUTOMATEME.
-		data7_0 = vbuffer0_1[7][i];
-		data7_1 = vbuffer1_1[7][i];
-		data7_2 = vbuffer2_1[7][i];
-		data7_3 = vbuffer3_1[7][i];
-		data8_0 = vbuffer0_2[0][i];
-		data8_1 = vbuffer1_2[0][i];
-		data8_2 = vbuffer2_2[0][i];
-		data8_3 = vbuffer3_2[0][i];
-		data9_0 = vbuffer0_2[1][i];
-		data9_1 = vbuffer1_2[1][i];
-		data9_2 = vbuffer2_2[1][i];
-		data9_3 = vbuffer3_2[1][i];
-		data10_0 = vbuffer0_2[2][i];
-		data10_1 = vbuffer1_2[2][i];
-		data10_2 = vbuffer2_2[2][i];
-		data10_3 = vbuffer3_2[2][i];
-		data11_0 = vbuffer0_2[3][i];
-		data11_1 = vbuffer1_2[3][i];
-		data11_2 = vbuffer2_2[3][i];
-		data11_3 = vbuffer3_2[3][i];
-		data12_0 = vbuffer0_2[4][i];
-		data12_1 = vbuffer1_2[4][i];
-		data12_2 = vbuffer2_2[4][i];
-		data12_3 = vbuffer3_2[4][i];
-		data13_0 = vbuffer0_2[5][i];
-		data13_1 = vbuffer1_2[5][i];
-		data13_2 = vbuffer2_2[5][i];
-		data13_3 = vbuffer3_2[5][i];
-		data14_0 = vbuffer0_2[6][i];
-		data14_1 = vbuffer1_2[6][i];
-		data14_2 = vbuffer2_2[6][i];
-		data14_3 = vbuffer3_2[6][i];
-		data15_0 = vbuffer0_2[7][i];
-		data15_1 = vbuffer1_2[7][i];
-		data15_2 = vbuffer2_2[7][i];
-		data15_3 = vbuffer3_2[7][i];
-		
-		keyvalue_t udata0 = synvbuffer1[0][i];
-		keyvalue_t udata1 = synvbuffer1[1][i];
-		keyvalue_t udata2 = synvbuffer1[2][i];
-		keyvalue_t udata3 = synvbuffer1[3][i];
-		keyvalue_t udata4 = synvbuffer1[4][i];
-		keyvalue_t udata5 = synvbuffer1[5][i];
-		keyvalue_t udata6 = synvbuffer1[6][i];
-		keyvalue_t udata7 = synvbuffer1[7][i];
-		keyvalue_t udata8 = synvbuffer2[0][i];
-		keyvalue_t udata9 = synvbuffer2[1][i];
-		keyvalue_t udata10 = synvbuffer2[2][i];
-		keyvalue_t udata11 = synvbuffer2[3][i];
-		keyvalue_t udata12 = synvbuffer2[4][i];
-		keyvalue_t udata13 = synvbuffer2[5][i];
-		keyvalue_t udata14 = synvbuffer2[6][i];
-		keyvalue_t udata15 = synvbuffer2[7][i];
-		
-		data0.key = mergefunc_4to1(data0_0.key,data0_1.key,data0_2.key,data0_3.key, globalparams.GraphAlgo);
-		data1.key = mergefunc_4to1(data1_0.key,data1_1.key,data1_2.key,data1_3.key, globalparams.GraphAlgo);
-		data2.key = mergefunc_4to1(data2_0.key,data2_1.key,data2_2.key,data2_3.key, globalparams.GraphAlgo);
-		data3.key = mergefunc_4to1(data3_0.key,data3_1.key,data3_2.key,data3_3.key, globalparams.GraphAlgo);
-		data4.key = mergefunc_4to1(data4_0.key,data4_1.key,data4_2.key,data4_3.key, globalparams.GraphAlgo);
-		data5.key = mergefunc_4to1(data5_0.key,data5_1.key,data5_2.key,data5_3.key, globalparams.GraphAlgo);
-		data6.key = mergefunc_4to1(data6_0.key,data6_1.key,data6_2.key,data6_3.key, globalparams.GraphAlgo);
-		data7.key = mergefunc_4to1(data7_0.key,data7_1.key,data7_2.key,data7_3.key, globalparams.GraphAlgo);
-		data8.key = mergefunc_4to1(data8_0.key,data8_1.key,data8_2.key,data8_3.key, globalparams.GraphAlgo);
-		data9.key = mergefunc_4to1(data9_0.key,data9_1.key,data9_2.key,data9_3.key, globalparams.GraphAlgo);
-		data10.key = mergefunc_4to1(data10_0.key,data10_1.key,data10_2.key,data10_3.key, globalparams.GraphAlgo);
-		data11.key = mergefunc_4to1(data11_0.key,data11_1.key,data11_2.key,data11_3.key, globalparams.GraphAlgo);
-		data12.key = mergefunc_4to1(data12_0.key,data12_1.key,data12_2.key,data12_3.key, globalparams.GraphAlgo);
-		data13.key = mergefunc_4to1(data13_0.key,data13_1.key,data13_2.key,data13_3.key, globalparams.GraphAlgo);
-		data14.key = mergefunc_4to1(data14_0.key,data14_1.key,data14_2.key,data14_3.key, globalparams.GraphAlgo);
-		data15.key = mergefunc_4to1(data15_0.key,data15_1.key,data15_2.key,data15_3.key, globalparams.GraphAlgo);
-		data0.value = mergefunc_4to1(data0_0.value,data0_1.value,data0_2.value,data0_3.value, globalparams.GraphAlgo);
-		data1.value = mergefunc_4to1(data1_0.value,data1_1.value,data1_2.value,data1_3.value, globalparams.GraphAlgo);
-		data2.value = mergefunc_4to1(data2_0.value,data2_1.value,data2_2.value,data2_3.value, globalparams.GraphAlgo);
-		data3.value = mergefunc_4to1(data3_0.value,data3_1.value,data3_2.value,data3_3.value, globalparams.GraphAlgo);
-		data4.value = mergefunc_4to1(data4_0.value,data4_1.value,data4_2.value,data4_3.value, globalparams.GraphAlgo);
-		data5.value = mergefunc_4to1(data5_0.value,data5_1.value,data5_2.value,data5_3.value, globalparams.GraphAlgo);
-		data6.value = mergefunc_4to1(data6_0.value,data6_1.value,data6_2.value,data6_3.value, globalparams.GraphAlgo);
-		data7.value = mergefunc_4to1(data7_0.value,data7_1.value,data7_2.value,data7_3.value, globalparams.GraphAlgo);
-		data8.value = mergefunc_4to1(data8_0.value,data8_1.value,data8_2.value,data8_3.value, globalparams.GraphAlgo);
-		data9.value = mergefunc_4to1(data9_0.value,data9_1.value,data9_2.value,data9_3.value, globalparams.GraphAlgo);
-		data10.value = mergefunc_4to1(data10_0.value,data10_1.value,data10_2.value,data10_3.value, globalparams.GraphAlgo);
-		data11.value = mergefunc_4to1(data11_0.value,data11_1.value,data11_2.value,data11_3.value, globalparams.GraphAlgo);
-		data12.value = mergefunc_4to1(data12_0.value,data12_1.value,data12_2.value,data12_3.value, globalparams.GraphAlgo);
-		data13.value = mergefunc_4to1(data13_0.value,data13_1.value,data13_2.value,data13_3.value, globalparams.GraphAlgo);
-		data14.value = mergefunc_4to1(data14_0.value,data14_1.value,data14_2.value,data14_3.value, globalparams.GraphAlgo);
-		data15.value = mergefunc_4to1(data15_0.value,data15_1.value,data15_2.value,data15_3.value, globalparams.GraphAlgo);
-		
-		res0.key = applyfunc(udata0.key, data0.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res1.key = applyfunc(udata1.key, data1.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res2.key = applyfunc(udata2.key, data2.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res3.key = applyfunc(udata3.key, data3.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res4.key = applyfunc(udata4.key, data4.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res5.key = applyfunc(udata5.key, data5.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res6.key = applyfunc(udata6.key, data6.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res7.key = applyfunc(udata7.key, data7.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res8.key = applyfunc(udata8.key, data8.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res9.key = applyfunc(udata9.key, data9.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res10.key = applyfunc(udata10.key, data10.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res11.key = applyfunc(udata11.key, data11.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res12.key = applyfunc(udata12.key, data12.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res13.key = applyfunc(udata13.key, data13.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res14.key = applyfunc(udata14.key, data14.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res15.key = applyfunc(udata15.key, data15.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		res0.value = applyfunc(udata0.value, data0.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res1.value = applyfunc(udata1.value, data1.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res2.value = applyfunc(udata2.value, data2.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res3.value = applyfunc(udata3.value, data3.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res4.value = applyfunc(udata4.value, data4.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res5.value = applyfunc(udata5.value, data5.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res6.value = applyfunc(udata6.value, data6.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res7.value = applyfunc(udata7.value, data7.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res8.value = applyfunc(udata8.value, data8.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res9.value = applyfunc(udata9.value, data9.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res10.value = applyfunc(udata10.value, data10.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res11.value = applyfunc(udata11.value, data11.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res12.value = applyfunc(udata12.value, data12.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res13.value = applyfunc(udata13.value, data13.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res14.value = applyfunc(udata14.value, data14.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		res15.value = applyfunc(udata15.value, data15.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		
-	
-		synvbuffer1[0][i] = res0;	
-	
-		synvbuffer1[1][i] = res1;	
-	
-		synvbuffer1[2][i] = res2;	
-	
-		synvbuffer1[3][i] = res3;	
-	
-		synvbuffer1[4][i] = res4;	
-	
-		synvbuffer1[5][i] = res5;	
-	
-		synvbuffer1[6][i] = res6;	
-	
-		synvbuffer1[7][i] = res7;	
-	
-		synvbuffer2[0][i] = res8;	
-	
-		synvbuffer2[1][i] = res9;	
-	
-		synvbuffer2[2][i] = res10;	
-	
-		synvbuffer2[3][i] = res11;	
-	
-		synvbuffer2[4][i] = res12;	
-	
-		synvbuffer2[5][i] = res13;	
-	
-		synvbuffer2[6][i] = res14;	
-	
-		synvbuffer2[7][i] = res15;	
-	
-		if(res0.key != udata0.key){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
-		if(res0.value != udata0.value){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
-		if(res1.key != udata1.key){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
-		if(res1.value != udata1.value){ vmask[i].data[1].value = 1; } else { vmask[i].data[1].value = 0; }
-		if(res2.key != udata2.key){ vmask[i].data[2].key = 1; } else { vmask[i].data[2].key = 0; }
-		if(res2.value != udata2.value){ vmask[i].data[2].value = 1; } else { vmask[i].data[2].value = 0; }
-		if(res3.key != udata3.key){ vmask[i].data[3].key = 1; } else { vmask[i].data[3].key = 0; }
-		if(res3.value != udata3.value){ vmask[i].data[3].value = 1; } else { vmask[i].data[3].value = 0; }
-		if(res4.key != udata4.key){ vmask[i].data[4].key = 1; } else { vmask[i].data[4].key = 0; }
-		if(res4.value != udata4.value){ vmask[i].data[4].value = 1; } else { vmask[i].data[4].value = 0; }
-		if(res5.key != udata5.key){ vmask[i].data[5].key = 1; } else { vmask[i].data[5].key = 0; }
-		if(res5.value != udata5.value){ vmask[i].data[5].value = 1; } else { vmask[i].data[5].value = 0; }
-		if(res6.key != udata6.key){ vmask[i].data[6].key = 1; } else { vmask[i].data[6].key = 0; }
-		if(res6.value != udata6.value){ vmask[i].data[6].value = 1; } else { vmask[i].data[6].value = 0; }
-		if(res7.key != udata7.key){ vmask[i].data[7].key = 1; } else { vmask[i].data[7].key = 0; }
-		if(res7.value != udata7.value){ vmask[i].data[7].value = 1; } else { vmask[i].data[7].value = 0; }
-		if(res8.key != udata8.key){ vmask[i].data[8].key = 1; } else { vmask[i].data[8].key = 0; }
-		if(res8.value != udata8.value){ vmask[i].data[8].value = 1; } else { vmask[i].data[8].value = 0; }
-		if(res9.key != udata9.key){ vmask[i].data[9].key = 1; } else { vmask[i].data[9].key = 0; }
-		if(res9.value != udata9.value){ vmask[i].data[9].value = 1; } else { vmask[i].data[9].value = 0; }
-		if(res10.key != udata10.key){ vmask[i].data[10].key = 1; } else { vmask[i].data[10].key = 0; }
-		if(res10.value != udata10.value){ vmask[i].data[10].value = 1; } else { vmask[i].data[10].value = 0; }
-		if(res11.key != udata11.key){ vmask[i].data[11].key = 1; } else { vmask[i].data[11].key = 0; }
-		if(res11.value != udata11.value){ vmask[i].data[11].value = 1; } else { vmask[i].data[11].value = 0; }
-		if(res12.key != udata12.key){ vmask[i].data[12].key = 1; } else { vmask[i].data[12].key = 0; }
-		if(res12.value != udata12.value){ vmask[i].data[12].value = 1; } else { vmask[i].data[12].value = 0; }
-		if(res13.key != udata13.key){ vmask[i].data[13].key = 1; } else { vmask[i].data[13].key = 0; }
-		if(res13.value != udata13.value){ vmask[i].data[13].value = 1; } else { vmask[i].data[13].value = 0; }
-		if(res14.key != udata14.key){ vmask[i].data[14].key = 1; } else { vmask[i].data[14].key = 0; }
-		if(res14.value != udata14.value){ vmask[i].data[14].value = 1; } else { vmask[i].data[14].value = 0; }
-		if(res15.key != udata15.key){ vmask[i].data[15].key = 1; } else { vmask[i].data[15].key = 0; }
-		if(res15.value != udata15.value){ vmask[i].data[15].value = 1; } else { vmask[i].data[15].value = 0; }
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS3
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[0][0]<<" & vid2: "<<vid[0][1]<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl; }
-		if(res0.key != udata0.key){ cout<<"synchronize: vid: "<<vid[0][0]<<", vmask["<<i<<"].data[0].key: "<<vmask[i].data[0].key<<endl; }
-		if(res0.value != udata0.value){ cout<<"synchronize: vid: "<<vid[0][1]<<", vmask["<<i<<"].data[0].value: "<<vmask[i].data[0].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[1][0]<<" & vid2: "<<vid[1][1]<<"): res1.key: "<<res1.key<<", res1.value: "<<res1.value<<": udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl; }
-		if(res1.key != udata1.key){ cout<<"synchronize: vid: "<<vid[1][0]<<", vmask["<<i<<"].data[1].key: "<<vmask[i].data[1].key<<endl; }
-		if(res1.value != udata1.value){ cout<<"synchronize: vid: "<<vid[1][1]<<", vmask["<<i<<"].data[1].value: "<<vmask[i].data[1].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[2][0]<<" & vid2: "<<vid[2][1]<<"): res2.key: "<<res2.key<<", res2.value: "<<res2.value<<": udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl; }
-		if(res2.key != udata2.key){ cout<<"synchronize: vid: "<<vid[2][0]<<", vmask["<<i<<"].data[2].key: "<<vmask[i].data[2].key<<endl; }
-		if(res2.value != udata2.value){ cout<<"synchronize: vid: "<<vid[2][1]<<", vmask["<<i<<"].data[2].value: "<<vmask[i].data[2].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[3][0]<<" & vid2: "<<vid[3][1]<<"): res3.key: "<<res3.key<<", res3.value: "<<res3.value<<": udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl; }
-		if(res3.key != udata3.key){ cout<<"synchronize: vid: "<<vid[3][0]<<", vmask["<<i<<"].data[3].key: "<<vmask[i].data[3].key<<endl; }
-		if(res3.value != udata3.value){ cout<<"synchronize: vid: "<<vid[3][1]<<", vmask["<<i<<"].data[3].value: "<<vmask[i].data[3].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[4][0]<<" & vid2: "<<vid[4][1]<<"): res4.key: "<<res4.key<<", res4.value: "<<res4.value<<": udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl; }
-		if(res4.key != udata4.key){ cout<<"synchronize: vid: "<<vid[4][0]<<", vmask["<<i<<"].data[4].key: "<<vmask[i].data[4].key<<endl; }
-		if(res4.value != udata4.value){ cout<<"synchronize: vid: "<<vid[4][1]<<", vmask["<<i<<"].data[4].value: "<<vmask[i].data[4].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[5][0]<<" & vid2: "<<vid[5][1]<<"): res5.key: "<<res5.key<<", res5.value: "<<res5.value<<": udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl; }
-		if(res5.key != udata5.key){ cout<<"synchronize: vid: "<<vid[5][0]<<", vmask["<<i<<"].data[5].key: "<<vmask[i].data[5].key<<endl; }
-		if(res5.value != udata5.value){ cout<<"synchronize: vid: "<<vid[5][1]<<", vmask["<<i<<"].data[5].value: "<<vmask[i].data[5].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[6][0]<<" & vid2: "<<vid[6][1]<<"): res6.key: "<<res6.key<<", res6.value: "<<res6.value<<": udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl; }
-		if(res6.key != udata6.key){ cout<<"synchronize: vid: "<<vid[6][0]<<", vmask["<<i<<"].data[6].key: "<<vmask[i].data[6].key<<endl; }
-		if(res6.value != udata6.value){ cout<<"synchronize: vid: "<<vid[6][1]<<", vmask["<<i<<"].data[6].value: "<<vmask[i].data[6].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[7][0]<<" & vid2: "<<vid[7][1]<<"): res7.key: "<<res7.key<<", res7.value: "<<res7.value<<": udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl; }
-		if(res7.key != udata7.key){ cout<<"synchronize: vid: "<<vid[7][0]<<", vmask["<<i<<"].data[7].key: "<<vmask[i].data[7].key<<endl; }
-		if(res7.value != udata7.value){ cout<<"synchronize: vid: "<<vid[7][1]<<", vmask["<<i<<"].data[7].value: "<<vmask[i].data[7].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[8][0]<<" & vid2: "<<vid[8][1]<<"): res8.key: "<<res8.key<<", res8.value: "<<res8.value<<": udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<", data8.key: "<<data8.key<<", data8.value: "<<data8.value<<endl; }
-		if(res8.key != udata8.key){ cout<<"synchronize: vid: "<<vid[8][0]<<", vmask["<<i<<"].data[8].key: "<<vmask[i].data[8].key<<endl; }
-		if(res8.value != udata8.value){ cout<<"synchronize: vid: "<<vid[8][1]<<", vmask["<<i<<"].data[8].value: "<<vmask[i].data[8].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[9][0]<<" & vid2: "<<vid[9][1]<<"): res9.key: "<<res9.key<<", res9.value: "<<res9.value<<": udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<", data9.key: "<<data9.key<<", data9.value: "<<data9.value<<endl; }
-		if(res9.key != udata9.key){ cout<<"synchronize: vid: "<<vid[9][0]<<", vmask["<<i<<"].data[9].key: "<<vmask[i].data[9].key<<endl; }
-		if(res9.value != udata9.value){ cout<<"synchronize: vid: "<<vid[9][1]<<", vmask["<<i<<"].data[9].value: "<<vmask[i].data[9].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[10][0]<<" & vid2: "<<vid[10][1]<<"): res10.key: "<<res10.key<<", res10.value: "<<res10.value<<": udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<", data10.key: "<<data10.key<<", data10.value: "<<data10.value<<endl; }
-		if(res10.key != udata10.key){ cout<<"synchronize: vid: "<<vid[10][0]<<", vmask["<<i<<"].data[10].key: "<<vmask[i].data[10].key<<endl; }
-		if(res10.value != udata10.value){ cout<<"synchronize: vid: "<<vid[10][1]<<", vmask["<<i<<"].data[10].value: "<<vmask[i].data[10].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[11][0]<<" & vid2: "<<vid[11][1]<<"): res11.key: "<<res11.key<<", res11.value: "<<res11.value<<": udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<", data11.key: "<<data11.key<<", data11.value: "<<data11.value<<endl; }
-		if(res11.key != udata11.key){ cout<<"synchronize: vid: "<<vid[11][0]<<", vmask["<<i<<"].data[11].key: "<<vmask[i].data[11].key<<endl; }
-		if(res11.value != udata11.value){ cout<<"synchronize: vid: "<<vid[11][1]<<", vmask["<<i<<"].data[11].value: "<<vmask[i].data[11].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[12][0]<<" & vid2: "<<vid[12][1]<<"): res12.key: "<<res12.key<<", res12.value: "<<res12.value<<": udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<", data12.key: "<<data12.key<<", data12.value: "<<data12.value<<endl; }
-		if(res12.key != udata12.key){ cout<<"synchronize: vid: "<<vid[12][0]<<", vmask["<<i<<"].data[12].key: "<<vmask[i].data[12].key<<endl; }
-		if(res12.value != udata12.value){ cout<<"synchronize: vid: "<<vid[12][1]<<", vmask["<<i<<"].data[12].value: "<<vmask[i].data[12].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[13][0]<<" & vid2: "<<vid[13][1]<<"): res13.key: "<<res13.key<<", res13.value: "<<res13.value<<": udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<", data13.key: "<<data13.key<<", data13.value: "<<data13.value<<endl; }
-		if(res13.key != udata13.key){ cout<<"synchronize: vid: "<<vid[13][0]<<", vmask["<<i<<"].data[13].key: "<<vmask[i].data[13].key<<endl; }
-		if(res13.value != udata13.value){ cout<<"synchronize: vid: "<<vid[13][1]<<", vmask["<<i<<"].data[13].value: "<<vmask[i].data[13].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[14][0]<<" & vid2: "<<vid[14][1]<<"): res14.key: "<<res14.key<<", res14.value: "<<res14.value<<": udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<", data14.key: "<<data14.key<<", data14.value: "<<data14.value<<endl; }
-		if(res14.key != udata14.key){ cout<<"synchronize: vid: "<<vid[14][0]<<", vmask["<<i<<"].data[14].key: "<<vmask[i].data[14].key<<endl; }
-		if(res14.value != udata14.value){ cout<<"synchronize: vid: "<<vid[14][1]<<", vmask["<<i<<"].data[14].value: "<<vmask[i].data[14].value<<endl; }
-		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[15][0]<<" & vid2: "<<vid[15][1]<<"): res15.key: "<<res15.key<<", res15.value: "<<res15.value<<": udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl; }
-		if(res15.key != udata15.key){ cout<<"synchronize: vid: "<<vid[15][0]<<", vmask["<<i<<"].data[15].key: "<<vmask[i].data[15].key<<endl; }
-		if(res15.value != udata15.value){ cout<<"synchronize: vid: "<<vid[15][1]<<", vmask["<<i<<"].data[15].value: "<<vmask[i].data[15].value<<endl; }
-		#endif
-		#ifdef _DEBUGMODE_STATS
-		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res0.value != udata0.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res1.key != udata1.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res1.value != udata1.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res2.key != udata2.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res2.value != udata2.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res3.key != udata3.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res3.value != udata3.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res4.key != udata4.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res4.value != udata4.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res5.key != udata5.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res5.value != udata5.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res6.key != udata6.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res6.value != udata6.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res7.key != udata7.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res7.value != udata7.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res8.key != udata8.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res8.value != udata8.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res9.key != udata9.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res9.value != udata9.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res10.key != udata10.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res10.value != udata10.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res11.key != udata11.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res11.value != udata11.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res12.key != udata12.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res12.value != udata12.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res13.key != udata13.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res13.value != udata13.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res14.key != udata14.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res14.value != udata14.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res15.key != udata15.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res15.value != udata15.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		#endif
-	}
-	
-	// get mask
-	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		uint32_type mask = convertvmasktouint32(vmask, k);
-		if(mask > 0){ partitionisactive = ON; }
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("synchronize.synvbuffer1", synvbuffer1, NUM_VBUFFERS, 4);
-	actsutilityobj->printkeyvalues("synchronize.vmask", vmask, NUM_PARTITIONS, 4);
-	#endif
-	return partitionisactive;
-}
-
-bool_type 
-	#ifdef SW 
-	acts::
-	#endif
-preplicate_1to4(bool_type enable,
-		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type synvmask[BLOCKRAM_SIZE], 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], 
-		globalparams_t globalparams){
-	if(enable == OFF){ return OFF; }
-	
-	uintNUMPby2_type _vmask[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = _vmask
-
-	// replicate to vbuffers
-	SYNCHRONIZE_LOOP2: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		vbuffer0_1[0][k] = synvbuffer1[0][k];
-		vbuffer0_1[1][k] = synvbuffer1[1][k];
-		vbuffer0_1[2][k] = synvbuffer1[2][k];
-		vbuffer0_1[3][k] = synvbuffer1[3][k];
-		vbuffer0_1[4][k] = synvbuffer1[4][k];
-		vbuffer0_1[5][k] = synvbuffer1[5][k];
-		vbuffer0_1[6][k] = synvbuffer1[6][k];
-		vbuffer0_1[7][k] = synvbuffer1[7][k];
-		vbuffer1_1[0][k] = synvbuffer1[0][k];
-		vbuffer1_1[1][k] = synvbuffer1[1][k];
-		vbuffer1_1[2][k] = synvbuffer1[2][k];
-		vbuffer1_1[3][k] = synvbuffer1[3][k];
-		vbuffer1_1[4][k] = synvbuffer1[4][k];
-		vbuffer1_1[5][k] = synvbuffer1[5][k];
-		vbuffer1_1[6][k] = synvbuffer1[6][k];
-		vbuffer1_1[7][k] = synvbuffer1[7][k];
-		vbuffer2_1[0][k] = synvbuffer1[0][k];
-		vbuffer2_1[1][k] = synvbuffer1[1][k];
-		vbuffer2_1[2][k] = synvbuffer1[2][k];
-		vbuffer2_1[3][k] = synvbuffer1[3][k];
-		vbuffer2_1[4][k] = synvbuffer1[4][k];
-		vbuffer2_1[5][k] = synvbuffer1[5][k];
-		vbuffer2_1[6][k] = synvbuffer1[6][k];
-		vbuffer2_1[7][k] = synvbuffer1[7][k];
-		vbuffer3_1[0][k] = synvbuffer1[0][k];
-		vbuffer3_1[1][k] = synvbuffer1[1][k];
-		vbuffer3_1[2][k] = synvbuffer1[2][k];
-		vbuffer3_1[3][k] = synvbuffer1[3][k];
-		vbuffer3_1[4][k] = synvbuffer1[4][k];
-		vbuffer3_1[5][k] = synvbuffer1[5][k];
-		vbuffer3_1[6][k] = synvbuffer1[6][k];
-		vbuffer3_1[7][k] = synvbuffer1[7][k];
-		vbuffer0_2[0][k] = synvbuffer2[0][k];
-		vbuffer0_2[1][k] = synvbuffer2[1][k];
-		vbuffer0_2[2][k] = synvbuffer2[2][k];
-		vbuffer0_2[3][k] = synvbuffer2[3][k];
-		vbuffer0_2[4][k] = synvbuffer2[4][k];
-		vbuffer0_2[5][k] = synvbuffer2[5][k];
-		vbuffer0_2[6][k] = synvbuffer2[6][k];
-		vbuffer0_2[7][k] = synvbuffer2[7][k];
-		vbuffer1_2[0][k] = synvbuffer2[0][k];
-		vbuffer1_2[1][k] = synvbuffer2[1][k];
-		vbuffer1_2[2][k] = synvbuffer2[2][k];
-		vbuffer1_2[3][k] = synvbuffer2[3][k];
-		vbuffer1_2[4][k] = synvbuffer2[4][k];
-		vbuffer1_2[5][k] = synvbuffer2[5][k];
-		vbuffer1_2[6][k] = synvbuffer2[6][k];
-		vbuffer1_2[7][k] = synvbuffer2[7][k];
-		vbuffer2_2[0][k] = synvbuffer2[0][k];
-		vbuffer2_2[1][k] = synvbuffer2[1][k];
-		vbuffer2_2[2][k] = synvbuffer2[2][k];
-		vbuffer2_2[3][k] = synvbuffer2[3][k];
-		vbuffer2_2[4][k] = synvbuffer2[4][k];
-		vbuffer2_2[5][k] = synvbuffer2[5][k];
-		vbuffer2_2[6][k] = synvbuffer2[6][k];
-		vbuffer2_2[7][k] = synvbuffer2[7][k];
-		vbuffer3_2[0][k] = synvbuffer2[0][k];
-		vbuffer3_2[1][k] = synvbuffer2[1][k];
-		vbuffer3_2[2][k] = synvbuffer2[2][k];
-		vbuffer3_2[3][k] = synvbuffer2[3][k];
-		vbuffer3_2[4][k] = synvbuffer2[4][k];
-		vbuffer3_2[5][k] = synvbuffer2[5][k];
-		vbuffer3_2[6][k] = synvbuffer2[6][k];
-		vbuffer3_2[7][k] = synvbuffer2[7][k];
-	}
-	
-	// replicate to vmasks
-	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		vmask0[k] = synvmask[k];
-		vmask1[k] = synvmask[k];
-		vmask2[k] = synvmask[k];
-		vmask3[k] = synvmask[k];
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("synchronize.synvbuffer1", synvbuffer1, NUM_VBUFFERS, 4);
-	actsutilityobj->printkeyvalues("synchronize.synvmask", synvmask, NUM_PARTITIONS, 4);
-	#endif
-	return NAp;
-}
- */
-bool_type 
-	#ifdef SW 
-	acts::
-	#endif
-synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], unsigned int p, globalparams_t globalparams){
 	if(enable == OFF){ return OFF; }
 	
 	uintNUMPby2_type _vmask[BLOCKRAM_SIZE];
@@ -3639,293 +2523,102 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 	keyvalue_t data0_1;
 	keyvalue_t data0_2;
 	keyvalue_t data0_3;
-	keyvalue_t data0_4;
-	keyvalue_t data0_5;
-	keyvalue_t data0_6;
-	keyvalue_t data0_7;
-	keyvalue_t data0_8;
-	keyvalue_t data0_9;
-	keyvalue_t data0_10;
-	keyvalue_t data0_11;
-	keyvalue_t data0_12;
-	keyvalue_t data0_13;
-	keyvalue_t data0_14;
-	keyvalue_t data0_15;
 	keyvalue_t data1;
 	keyvalue_t res1;
 	keyvalue_t data1_0;
 	keyvalue_t data1_1;
 	keyvalue_t data1_2;
 	keyvalue_t data1_3;
-	keyvalue_t data1_4;
-	keyvalue_t data1_5;
-	keyvalue_t data1_6;
-	keyvalue_t data1_7;
-	keyvalue_t data1_8;
-	keyvalue_t data1_9;
-	keyvalue_t data1_10;
-	keyvalue_t data1_11;
-	keyvalue_t data1_12;
-	keyvalue_t data1_13;
-	keyvalue_t data1_14;
-	keyvalue_t data1_15;
 	keyvalue_t data2;
 	keyvalue_t res2;
 	keyvalue_t data2_0;
 	keyvalue_t data2_1;
 	keyvalue_t data2_2;
 	keyvalue_t data2_3;
-	keyvalue_t data2_4;
-	keyvalue_t data2_5;
-	keyvalue_t data2_6;
-	keyvalue_t data2_7;
-	keyvalue_t data2_8;
-	keyvalue_t data2_9;
-	keyvalue_t data2_10;
-	keyvalue_t data2_11;
-	keyvalue_t data2_12;
-	keyvalue_t data2_13;
-	keyvalue_t data2_14;
-	keyvalue_t data2_15;
 	keyvalue_t data3;
 	keyvalue_t res3;
 	keyvalue_t data3_0;
 	keyvalue_t data3_1;
 	keyvalue_t data3_2;
 	keyvalue_t data3_3;
-	keyvalue_t data3_4;
-	keyvalue_t data3_5;
-	keyvalue_t data3_6;
-	keyvalue_t data3_7;
-	keyvalue_t data3_8;
-	keyvalue_t data3_9;
-	keyvalue_t data3_10;
-	keyvalue_t data3_11;
-	keyvalue_t data3_12;
-	keyvalue_t data3_13;
-	keyvalue_t data3_14;
-	keyvalue_t data3_15;
 	keyvalue_t data4;
 	keyvalue_t res4;
 	keyvalue_t data4_0;
 	keyvalue_t data4_1;
 	keyvalue_t data4_2;
 	keyvalue_t data4_3;
-	keyvalue_t data4_4;
-	keyvalue_t data4_5;
-	keyvalue_t data4_6;
-	keyvalue_t data4_7;
-	keyvalue_t data4_8;
-	keyvalue_t data4_9;
-	keyvalue_t data4_10;
-	keyvalue_t data4_11;
-	keyvalue_t data4_12;
-	keyvalue_t data4_13;
-	keyvalue_t data4_14;
-	keyvalue_t data4_15;
 	keyvalue_t data5;
 	keyvalue_t res5;
 	keyvalue_t data5_0;
 	keyvalue_t data5_1;
 	keyvalue_t data5_2;
 	keyvalue_t data5_3;
-	keyvalue_t data5_4;
-	keyvalue_t data5_5;
-	keyvalue_t data5_6;
-	keyvalue_t data5_7;
-	keyvalue_t data5_8;
-	keyvalue_t data5_9;
-	keyvalue_t data5_10;
-	keyvalue_t data5_11;
-	keyvalue_t data5_12;
-	keyvalue_t data5_13;
-	keyvalue_t data5_14;
-	keyvalue_t data5_15;
 	keyvalue_t data6;
 	keyvalue_t res6;
 	keyvalue_t data6_0;
 	keyvalue_t data6_1;
 	keyvalue_t data6_2;
 	keyvalue_t data6_3;
-	keyvalue_t data6_4;
-	keyvalue_t data6_5;
-	keyvalue_t data6_6;
-	keyvalue_t data6_7;
-	keyvalue_t data6_8;
-	keyvalue_t data6_9;
-	keyvalue_t data6_10;
-	keyvalue_t data6_11;
-	keyvalue_t data6_12;
-	keyvalue_t data6_13;
-	keyvalue_t data6_14;
-	keyvalue_t data6_15;
 	keyvalue_t data7;
 	keyvalue_t res7;
 	keyvalue_t data7_0;
 	keyvalue_t data7_1;
 	keyvalue_t data7_2;
 	keyvalue_t data7_3;
-	keyvalue_t data7_4;
-	keyvalue_t data7_5;
-	keyvalue_t data7_6;
-	keyvalue_t data7_7;
-	keyvalue_t data7_8;
-	keyvalue_t data7_9;
-	keyvalue_t data7_10;
-	keyvalue_t data7_11;
-	keyvalue_t data7_12;
-	keyvalue_t data7_13;
-	keyvalue_t data7_14;
-	keyvalue_t data7_15;
 	keyvalue_t data8;
 	keyvalue_t res8;
 	keyvalue_t data8_0;
 	keyvalue_t data8_1;
 	keyvalue_t data8_2;
 	keyvalue_t data8_3;
-	keyvalue_t data8_4;
-	keyvalue_t data8_5;
-	keyvalue_t data8_6;
-	keyvalue_t data8_7;
-	keyvalue_t data8_8;
-	keyvalue_t data8_9;
-	keyvalue_t data8_10;
-	keyvalue_t data8_11;
-	keyvalue_t data8_12;
-	keyvalue_t data8_13;
-	keyvalue_t data8_14;
-	keyvalue_t data8_15;
 	keyvalue_t data9;
 	keyvalue_t res9;
 	keyvalue_t data9_0;
 	keyvalue_t data9_1;
 	keyvalue_t data9_2;
 	keyvalue_t data9_3;
-	keyvalue_t data9_4;
-	keyvalue_t data9_5;
-	keyvalue_t data9_6;
-	keyvalue_t data9_7;
-	keyvalue_t data9_8;
-	keyvalue_t data9_9;
-	keyvalue_t data9_10;
-	keyvalue_t data9_11;
-	keyvalue_t data9_12;
-	keyvalue_t data9_13;
-	keyvalue_t data9_14;
-	keyvalue_t data9_15;
 	keyvalue_t data10;
 	keyvalue_t res10;
 	keyvalue_t data10_0;
 	keyvalue_t data10_1;
 	keyvalue_t data10_2;
 	keyvalue_t data10_3;
-	keyvalue_t data10_4;
-	keyvalue_t data10_5;
-	keyvalue_t data10_6;
-	keyvalue_t data10_7;
-	keyvalue_t data10_8;
-	keyvalue_t data10_9;
-	keyvalue_t data10_10;
-	keyvalue_t data10_11;
-	keyvalue_t data10_12;
-	keyvalue_t data10_13;
-	keyvalue_t data10_14;
-	keyvalue_t data10_15;
 	keyvalue_t data11;
 	keyvalue_t res11;
 	keyvalue_t data11_0;
 	keyvalue_t data11_1;
 	keyvalue_t data11_2;
 	keyvalue_t data11_3;
-	keyvalue_t data11_4;
-	keyvalue_t data11_5;
-	keyvalue_t data11_6;
-	keyvalue_t data11_7;
-	keyvalue_t data11_8;
-	keyvalue_t data11_9;
-	keyvalue_t data11_10;
-	keyvalue_t data11_11;
-	keyvalue_t data11_12;
-	keyvalue_t data11_13;
-	keyvalue_t data11_14;
-	keyvalue_t data11_15;
 	keyvalue_t data12;
 	keyvalue_t res12;
 	keyvalue_t data12_0;
 	keyvalue_t data12_1;
 	keyvalue_t data12_2;
 	keyvalue_t data12_3;
-	keyvalue_t data12_4;
-	keyvalue_t data12_5;
-	keyvalue_t data12_6;
-	keyvalue_t data12_7;
-	keyvalue_t data12_8;
-	keyvalue_t data12_9;
-	keyvalue_t data12_10;
-	keyvalue_t data12_11;
-	keyvalue_t data12_12;
-	keyvalue_t data12_13;
-	keyvalue_t data12_14;
-	keyvalue_t data12_15;
 	keyvalue_t data13;
 	keyvalue_t res13;
 	keyvalue_t data13_0;
 	keyvalue_t data13_1;
 	keyvalue_t data13_2;
 	keyvalue_t data13_3;
-	keyvalue_t data13_4;
-	keyvalue_t data13_5;
-	keyvalue_t data13_6;
-	keyvalue_t data13_7;
-	keyvalue_t data13_8;
-	keyvalue_t data13_9;
-	keyvalue_t data13_10;
-	keyvalue_t data13_11;
-	keyvalue_t data13_12;
-	keyvalue_t data13_13;
-	keyvalue_t data13_14;
-	keyvalue_t data13_15;
 	keyvalue_t data14;
 	keyvalue_t res14;
 	keyvalue_t data14_0;
 	keyvalue_t data14_1;
 	keyvalue_t data14_2;
 	keyvalue_t data14_3;
-	keyvalue_t data14_4;
-	keyvalue_t data14_5;
-	keyvalue_t data14_6;
-	keyvalue_t data14_7;
-	keyvalue_t data14_8;
-	keyvalue_t data14_9;
-	keyvalue_t data14_10;
-	keyvalue_t data14_11;
-	keyvalue_t data14_12;
-	keyvalue_t data14_13;
-	keyvalue_t data14_14;
-	keyvalue_t data14_15;
 	keyvalue_t data15;
 	keyvalue_t res15;
 	keyvalue_t data15_0;
 	keyvalue_t data15_1;
 	keyvalue_t data15_2;
 	keyvalue_t data15_3;
-	keyvalue_t data15_4;
-	keyvalue_t data15_5;
-	keyvalue_t data15_6;
-	keyvalue_t data15_7;
-	keyvalue_t data15_8;
-	keyvalue_t data15_9;
-	keyvalue_t data15_10;
-	keyvalue_t data15_11;
-	keyvalue_t data15_12;
-	keyvalue_t data15_13;
-	keyvalue_t data15_14;
-	keyvalue_t data15_15;
 	
 	bool_type partitionisactive = OFF;
 	
 	// sync
 	SYNCHRONIZE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+	// SYNCHRONIZE_LOOP1: for(buffer_type i=0; i<1; i++){ // CRITICAL REMOVEME.
 	#pragma HLS dependence variable=synvbuffer inter false
 	#pragma HLS PIPELINE II=1
 	
@@ -3964,326 +2657,214 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 	
  // AUTOMATEME.
 		data0_0 = vbuffer0_1[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data0_0.key: "<<data0_0.key<<", data0_0.value: "<<data0_0.value<<endl;
 		data0_1 = vbuffer1_1[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data0_1.key: "<<data0_1.key<<", data0_1.value: "<<data0_1.value<<endl;
 		data0_2 = vbuffer2_1[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data0_2.key: "<<data0_2.key<<", data0_2.value: "<<data0_2.value<<endl;
 		data0_3 = vbuffer3_1[0][BUFFERBASE_VDATA + i];
-		data0_4 = vbuffer4_1[0][BUFFERBASE_VDATA + i];
-		data0_5 = vbuffer5_1[0][BUFFERBASE_VDATA + i];
-		data0_6 = vbuffer6_1[0][BUFFERBASE_VDATA + i];
-		data0_7 = vbuffer7_1[0][BUFFERBASE_VDATA + i];
-		data0_8 = vbuffer8_1[0][BUFFERBASE_VDATA + i];
-		data0_9 = vbuffer9_1[0][BUFFERBASE_VDATA + i];
-		data0_10 = vbuffer10_1[0][BUFFERBASE_VDATA + i];
-		data0_11 = vbuffer11_1[0][BUFFERBASE_VDATA + i];
-		data0_12 = vbuffer12_1[0][BUFFERBASE_VDATA + i];
-		data0_13 = vbuffer13_1[0][BUFFERBASE_VDATA + i];
-		data0_14 = vbuffer14_1[0][BUFFERBASE_VDATA + i];
-		data0_15 = vbuffer15_1[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data0_3.key: "<<data0_3.key<<", data0_3.value: "<<data0_3.value<<endl;
  // AUTOMATEME.
 		data1_0 = vbuffer0_1[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data1_0.key: "<<data1_0.key<<", data1_0.value: "<<data1_0.value<<endl;
 		data1_1 = vbuffer1_1[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data1_1.key: "<<data1_1.key<<", data1_1.value: "<<data1_1.value<<endl;
 		data1_2 = vbuffer2_1[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data1_2.key: "<<data1_2.key<<", data1_2.value: "<<data1_2.value<<endl;
 		data1_3 = vbuffer3_1[1][BUFFERBASE_VDATA + i];
-		data1_4 = vbuffer4_1[1][BUFFERBASE_VDATA + i];
-		data1_5 = vbuffer5_1[1][BUFFERBASE_VDATA + i];
-		data1_6 = vbuffer6_1[1][BUFFERBASE_VDATA + i];
-		data1_7 = vbuffer7_1[1][BUFFERBASE_VDATA + i];
-		data1_8 = vbuffer8_1[1][BUFFERBASE_VDATA + i];
-		data1_9 = vbuffer9_1[1][BUFFERBASE_VDATA + i];
-		data1_10 = vbuffer10_1[1][BUFFERBASE_VDATA + i];
-		data1_11 = vbuffer11_1[1][BUFFERBASE_VDATA + i];
-		data1_12 = vbuffer12_1[1][BUFFERBASE_VDATA + i];
-		data1_13 = vbuffer13_1[1][BUFFERBASE_VDATA + i];
-		data1_14 = vbuffer14_1[1][BUFFERBASE_VDATA + i];
-		data1_15 = vbuffer15_1[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data1_3.key: "<<data1_3.key<<", data1_3.value: "<<data1_3.value<<endl;
  // AUTOMATEME.
 		data2_0 = vbuffer0_1[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data2_0.key: "<<data2_0.key<<", data2_0.value: "<<data2_0.value<<endl;
 		data2_1 = vbuffer1_1[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data2_1.key: "<<data2_1.key<<", data2_1.value: "<<data2_1.value<<endl;
 		data2_2 = vbuffer2_1[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data2_2.key: "<<data2_2.key<<", data2_2.value: "<<data2_2.value<<endl;
 		data2_3 = vbuffer3_1[2][BUFFERBASE_VDATA + i];
-		data2_4 = vbuffer4_1[2][BUFFERBASE_VDATA + i];
-		data2_5 = vbuffer5_1[2][BUFFERBASE_VDATA + i];
-		data2_6 = vbuffer6_1[2][BUFFERBASE_VDATA + i];
-		data2_7 = vbuffer7_1[2][BUFFERBASE_VDATA + i];
-		data2_8 = vbuffer8_1[2][BUFFERBASE_VDATA + i];
-		data2_9 = vbuffer9_1[2][BUFFERBASE_VDATA + i];
-		data2_10 = vbuffer10_1[2][BUFFERBASE_VDATA + i];
-		data2_11 = vbuffer11_1[2][BUFFERBASE_VDATA + i];
-		data2_12 = vbuffer12_1[2][BUFFERBASE_VDATA + i];
-		data2_13 = vbuffer13_1[2][BUFFERBASE_VDATA + i];
-		data2_14 = vbuffer14_1[2][BUFFERBASE_VDATA + i];
-		data2_15 = vbuffer15_1[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data2_3.key: "<<data2_3.key<<", data2_3.value: "<<data2_3.value<<endl;
  // AUTOMATEME.
 		data3_0 = vbuffer0_1[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data3_0.key: "<<data3_0.key<<", data3_0.value: "<<data3_0.value<<endl;
 		data3_1 = vbuffer1_1[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data3_1.key: "<<data3_1.key<<", data3_1.value: "<<data3_1.value<<endl;
 		data3_2 = vbuffer2_1[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data3_2.key: "<<data3_2.key<<", data3_2.value: "<<data3_2.value<<endl;
 		data3_3 = vbuffer3_1[3][BUFFERBASE_VDATA + i];
-		data3_4 = vbuffer4_1[3][BUFFERBASE_VDATA + i];
-		data3_5 = vbuffer5_1[3][BUFFERBASE_VDATA + i];
-		data3_6 = vbuffer6_1[3][BUFFERBASE_VDATA + i];
-		data3_7 = vbuffer7_1[3][BUFFERBASE_VDATA + i];
-		data3_8 = vbuffer8_1[3][BUFFERBASE_VDATA + i];
-		data3_9 = vbuffer9_1[3][BUFFERBASE_VDATA + i];
-		data3_10 = vbuffer10_1[3][BUFFERBASE_VDATA + i];
-		data3_11 = vbuffer11_1[3][BUFFERBASE_VDATA + i];
-		data3_12 = vbuffer12_1[3][BUFFERBASE_VDATA + i];
-		data3_13 = vbuffer13_1[3][BUFFERBASE_VDATA + i];
-		data3_14 = vbuffer14_1[3][BUFFERBASE_VDATA + i];
-		data3_15 = vbuffer15_1[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data3_3.key: "<<data3_3.key<<", data3_3.value: "<<data3_3.value<<endl;
  // AUTOMATEME.
 		data4_0 = vbuffer0_1[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data4_0.key: "<<data4_0.key<<", data4_0.value: "<<data4_0.value<<endl;
 		data4_1 = vbuffer1_1[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data4_1.key: "<<data4_1.key<<", data4_1.value: "<<data4_1.value<<endl;
 		data4_2 = vbuffer2_1[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data4_2.key: "<<data4_2.key<<", data4_2.value: "<<data4_2.value<<endl;
 		data4_3 = vbuffer3_1[4][BUFFERBASE_VDATA + i];
-		data4_4 = vbuffer4_1[4][BUFFERBASE_VDATA + i];
-		data4_5 = vbuffer5_1[4][BUFFERBASE_VDATA + i];
-		data4_6 = vbuffer6_1[4][BUFFERBASE_VDATA + i];
-		data4_7 = vbuffer7_1[4][BUFFERBASE_VDATA + i];
-		data4_8 = vbuffer8_1[4][BUFFERBASE_VDATA + i];
-		data4_9 = vbuffer9_1[4][BUFFERBASE_VDATA + i];
-		data4_10 = vbuffer10_1[4][BUFFERBASE_VDATA + i];
-		data4_11 = vbuffer11_1[4][BUFFERBASE_VDATA + i];
-		data4_12 = vbuffer12_1[4][BUFFERBASE_VDATA + i];
-		data4_13 = vbuffer13_1[4][BUFFERBASE_VDATA + i];
-		data4_14 = vbuffer14_1[4][BUFFERBASE_VDATA + i];
-		data4_15 = vbuffer15_1[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data4_3.key: "<<data4_3.key<<", data4_3.value: "<<data4_3.value<<endl;
  // AUTOMATEME.
 		data5_0 = vbuffer0_1[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data5_0.key: "<<data5_0.key<<", data5_0.value: "<<data5_0.value<<endl;
 		data5_1 = vbuffer1_1[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data5_1.key: "<<data5_1.key<<", data5_1.value: "<<data5_1.value<<endl;
 		data5_2 = vbuffer2_1[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data5_2.key: "<<data5_2.key<<", data5_2.value: "<<data5_2.value<<endl;
 		data5_3 = vbuffer3_1[5][BUFFERBASE_VDATA + i];
-		data5_4 = vbuffer4_1[5][BUFFERBASE_VDATA + i];
-		data5_5 = vbuffer5_1[5][BUFFERBASE_VDATA + i];
-		data5_6 = vbuffer6_1[5][BUFFERBASE_VDATA + i];
-		data5_7 = vbuffer7_1[5][BUFFERBASE_VDATA + i];
-		data5_8 = vbuffer8_1[5][BUFFERBASE_VDATA + i];
-		data5_9 = vbuffer9_1[5][BUFFERBASE_VDATA + i];
-		data5_10 = vbuffer10_1[5][BUFFERBASE_VDATA + i];
-		data5_11 = vbuffer11_1[5][BUFFERBASE_VDATA + i];
-		data5_12 = vbuffer12_1[5][BUFFERBASE_VDATA + i];
-		data5_13 = vbuffer13_1[5][BUFFERBASE_VDATA + i];
-		data5_14 = vbuffer14_1[5][BUFFERBASE_VDATA + i];
-		data5_15 = vbuffer15_1[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data5_3.key: "<<data5_3.key<<", data5_3.value: "<<data5_3.value<<endl;
  // AUTOMATEME.
 		data6_0 = vbuffer0_1[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data6_0.key: "<<data6_0.key<<", data6_0.value: "<<data6_0.value<<endl;
 		data6_1 = vbuffer1_1[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data6_1.key: "<<data6_1.key<<", data6_1.value: "<<data6_1.value<<endl;
 		data6_2 = vbuffer2_1[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data6_2.key: "<<data6_2.key<<", data6_2.value: "<<data6_2.value<<endl;
 		data6_3 = vbuffer3_1[6][BUFFERBASE_VDATA + i];
-		data6_4 = vbuffer4_1[6][BUFFERBASE_VDATA + i];
-		data6_5 = vbuffer5_1[6][BUFFERBASE_VDATA + i];
-		data6_6 = vbuffer6_1[6][BUFFERBASE_VDATA + i];
-		data6_7 = vbuffer7_1[6][BUFFERBASE_VDATA + i];
-		data6_8 = vbuffer8_1[6][BUFFERBASE_VDATA + i];
-		data6_9 = vbuffer9_1[6][BUFFERBASE_VDATA + i];
-		data6_10 = vbuffer10_1[6][BUFFERBASE_VDATA + i];
-		data6_11 = vbuffer11_1[6][BUFFERBASE_VDATA + i];
-		data6_12 = vbuffer12_1[6][BUFFERBASE_VDATA + i];
-		data6_13 = vbuffer13_1[6][BUFFERBASE_VDATA + i];
-		data6_14 = vbuffer14_1[6][BUFFERBASE_VDATA + i];
-		data6_15 = vbuffer15_1[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data6_3.key: "<<data6_3.key<<", data6_3.value: "<<data6_3.value<<endl;
  // AUTOMATEME.
 		data7_0 = vbuffer0_1[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data7_0.key: "<<data7_0.key<<", data7_0.value: "<<data7_0.value<<endl;
 		data7_1 = vbuffer1_1[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data7_1.key: "<<data7_1.key<<", data7_1.value: "<<data7_1.value<<endl;
 		data7_2 = vbuffer2_1[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data7_2.key: "<<data7_2.key<<", data7_2.value: "<<data7_2.value<<endl;
 		data7_3 = vbuffer3_1[7][BUFFERBASE_VDATA + i];
-		data7_4 = vbuffer4_1[7][BUFFERBASE_VDATA + i];
-		data7_5 = vbuffer5_1[7][BUFFERBASE_VDATA + i];
-		data7_6 = vbuffer6_1[7][BUFFERBASE_VDATA + i];
-		data7_7 = vbuffer7_1[7][BUFFERBASE_VDATA + i];
-		data7_8 = vbuffer8_1[7][BUFFERBASE_VDATA + i];
-		data7_9 = vbuffer9_1[7][BUFFERBASE_VDATA + i];
-		data7_10 = vbuffer10_1[7][BUFFERBASE_VDATA + i];
-		data7_11 = vbuffer11_1[7][BUFFERBASE_VDATA + i];
-		data7_12 = vbuffer12_1[7][BUFFERBASE_VDATA + i];
-		data7_13 = vbuffer13_1[7][BUFFERBASE_VDATA + i];
-		data7_14 = vbuffer14_1[7][BUFFERBASE_VDATA + i];
-		data7_15 = vbuffer15_1[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data7_3.key: "<<data7_3.key<<", data7_3.value: "<<data7_3.value<<endl;
  // AUTOMATEME.
 		data8_0 = vbuffer0_2[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data8_0.key: "<<data8_0.key<<", data8_0.value: "<<data8_0.value<<endl;
 		data8_1 = vbuffer1_2[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data8_1.key: "<<data8_1.key<<", data8_1.value: "<<data8_1.value<<endl;
 		data8_2 = vbuffer2_2[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data8_2.key: "<<data8_2.key<<", data8_2.value: "<<data8_2.value<<endl;
 		data8_3 = vbuffer3_2[0][BUFFERBASE_VDATA + i];
-		data8_4 = vbuffer4_2[0][BUFFERBASE_VDATA + i];
-		data8_5 = vbuffer5_2[0][BUFFERBASE_VDATA + i];
-		data8_6 = vbuffer6_2[0][BUFFERBASE_VDATA + i];
-		data8_7 = vbuffer7_2[0][BUFFERBASE_VDATA + i];
-		data8_8 = vbuffer8_2[0][BUFFERBASE_VDATA + i];
-		data8_9 = vbuffer9_2[0][BUFFERBASE_VDATA + i];
-		data8_10 = vbuffer10_2[0][BUFFERBASE_VDATA + i];
-		data8_11 = vbuffer11_2[0][BUFFERBASE_VDATA + i];
-		data8_12 = vbuffer12_2[0][BUFFERBASE_VDATA + i];
-		data8_13 = vbuffer13_2[0][BUFFERBASE_VDATA + i];
-		data8_14 = vbuffer14_2[0][BUFFERBASE_VDATA + i];
-		data8_15 = vbuffer15_2[0][BUFFERBASE_VDATA + i];
+		// cout<<"--- data8_3.key: "<<data8_3.key<<", data8_3.value: "<<data8_3.value<<endl;
  // AUTOMATEME.
 		data9_0 = vbuffer0_2[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data9_0.key: "<<data9_0.key<<", data9_0.value: "<<data9_0.value<<endl;
 		data9_1 = vbuffer1_2[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data9_1.key: "<<data9_1.key<<", data9_1.value: "<<data9_1.value<<endl;
 		data9_2 = vbuffer2_2[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data9_2.key: "<<data9_2.key<<", data9_2.value: "<<data9_2.value<<endl;
 		data9_3 = vbuffer3_2[1][BUFFERBASE_VDATA + i];
-		data9_4 = vbuffer4_2[1][BUFFERBASE_VDATA + i];
-		data9_5 = vbuffer5_2[1][BUFFERBASE_VDATA + i];
-		data9_6 = vbuffer6_2[1][BUFFERBASE_VDATA + i];
-		data9_7 = vbuffer7_2[1][BUFFERBASE_VDATA + i];
-		data9_8 = vbuffer8_2[1][BUFFERBASE_VDATA + i];
-		data9_9 = vbuffer9_2[1][BUFFERBASE_VDATA + i];
-		data9_10 = vbuffer10_2[1][BUFFERBASE_VDATA + i];
-		data9_11 = vbuffer11_2[1][BUFFERBASE_VDATA + i];
-		data9_12 = vbuffer12_2[1][BUFFERBASE_VDATA + i];
-		data9_13 = vbuffer13_2[1][BUFFERBASE_VDATA + i];
-		data9_14 = vbuffer14_2[1][BUFFERBASE_VDATA + i];
-		data9_15 = vbuffer15_2[1][BUFFERBASE_VDATA + i];
+		// cout<<"--- data9_3.key: "<<data9_3.key<<", data9_3.value: "<<data9_3.value<<endl;
  // AUTOMATEME.
 		data10_0 = vbuffer0_2[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data10_0.key: "<<data10_0.key<<", data10_0.value: "<<data10_0.value<<endl;
 		data10_1 = vbuffer1_2[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data10_1.key: "<<data10_1.key<<", data10_1.value: "<<data10_1.value<<endl;
 		data10_2 = vbuffer2_2[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data10_2.key: "<<data10_2.key<<", data10_2.value: "<<data10_2.value<<endl;
 		data10_3 = vbuffer3_2[2][BUFFERBASE_VDATA + i];
-		data10_4 = vbuffer4_2[2][BUFFERBASE_VDATA + i];
-		data10_5 = vbuffer5_2[2][BUFFERBASE_VDATA + i];
-		data10_6 = vbuffer6_2[2][BUFFERBASE_VDATA + i];
-		data10_7 = vbuffer7_2[2][BUFFERBASE_VDATA + i];
-		data10_8 = vbuffer8_2[2][BUFFERBASE_VDATA + i];
-		data10_9 = vbuffer9_2[2][BUFFERBASE_VDATA + i];
-		data10_10 = vbuffer10_2[2][BUFFERBASE_VDATA + i];
-		data10_11 = vbuffer11_2[2][BUFFERBASE_VDATA + i];
-		data10_12 = vbuffer12_2[2][BUFFERBASE_VDATA + i];
-		data10_13 = vbuffer13_2[2][BUFFERBASE_VDATA + i];
-		data10_14 = vbuffer14_2[2][BUFFERBASE_VDATA + i];
-		data10_15 = vbuffer15_2[2][BUFFERBASE_VDATA + i];
+		// cout<<"--- data10_3.key: "<<data10_3.key<<", data10_3.value: "<<data10_3.value<<endl;
  // AUTOMATEME.
 		data11_0 = vbuffer0_2[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data11_0.key: "<<data11_0.key<<", data11_0.value: "<<data11_0.value<<endl;
 		data11_1 = vbuffer1_2[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data11_1.key: "<<data11_1.key<<", data11_1.value: "<<data11_1.value<<endl;
 		data11_2 = vbuffer2_2[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data11_2.key: "<<data11_2.key<<", data11_2.value: "<<data11_2.value<<endl;
 		data11_3 = vbuffer3_2[3][BUFFERBASE_VDATA + i];
-		data11_4 = vbuffer4_2[3][BUFFERBASE_VDATA + i];
-		data11_5 = vbuffer5_2[3][BUFFERBASE_VDATA + i];
-		data11_6 = vbuffer6_2[3][BUFFERBASE_VDATA + i];
-		data11_7 = vbuffer7_2[3][BUFFERBASE_VDATA + i];
-		data11_8 = vbuffer8_2[3][BUFFERBASE_VDATA + i];
-		data11_9 = vbuffer9_2[3][BUFFERBASE_VDATA + i];
-		data11_10 = vbuffer10_2[3][BUFFERBASE_VDATA + i];
-		data11_11 = vbuffer11_2[3][BUFFERBASE_VDATA + i];
-		data11_12 = vbuffer12_2[3][BUFFERBASE_VDATA + i];
-		data11_13 = vbuffer13_2[3][BUFFERBASE_VDATA + i];
-		data11_14 = vbuffer14_2[3][BUFFERBASE_VDATA + i];
-		data11_15 = vbuffer15_2[3][BUFFERBASE_VDATA + i];
+		// cout<<"--- data11_3.key: "<<data11_3.key<<", data11_3.value: "<<data11_3.value<<endl;
  // AUTOMATEME.
 		data12_0 = vbuffer0_2[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data12_0.key: "<<data12_0.key<<", data12_0.value: "<<data12_0.value<<endl;
 		data12_1 = vbuffer1_2[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data12_1.key: "<<data12_1.key<<", data12_1.value: "<<data12_1.value<<endl;
 		data12_2 = vbuffer2_2[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data12_2.key: "<<data12_2.key<<", data12_2.value: "<<data12_2.value<<endl;
 		data12_3 = vbuffer3_2[4][BUFFERBASE_VDATA + i];
-		data12_4 = vbuffer4_2[4][BUFFERBASE_VDATA + i];
-		data12_5 = vbuffer5_2[4][BUFFERBASE_VDATA + i];
-		data12_6 = vbuffer6_2[4][BUFFERBASE_VDATA + i];
-		data12_7 = vbuffer7_2[4][BUFFERBASE_VDATA + i];
-		data12_8 = vbuffer8_2[4][BUFFERBASE_VDATA + i];
-		data12_9 = vbuffer9_2[4][BUFFERBASE_VDATA + i];
-		data12_10 = vbuffer10_2[4][BUFFERBASE_VDATA + i];
-		data12_11 = vbuffer11_2[4][BUFFERBASE_VDATA + i];
-		data12_12 = vbuffer12_2[4][BUFFERBASE_VDATA + i];
-		data12_13 = vbuffer13_2[4][BUFFERBASE_VDATA + i];
-		data12_14 = vbuffer14_2[4][BUFFERBASE_VDATA + i];
-		data12_15 = vbuffer15_2[4][BUFFERBASE_VDATA + i];
+		// cout<<"--- data12_3.key: "<<data12_3.key<<", data12_3.value: "<<data12_3.value<<endl;
  // AUTOMATEME.
 		data13_0 = vbuffer0_2[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data13_0.key: "<<data13_0.key<<", data13_0.value: "<<data13_0.value<<endl;
 		data13_1 = vbuffer1_2[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data13_1.key: "<<data13_1.key<<", data13_1.value: "<<data13_1.value<<endl;
 		data13_2 = vbuffer2_2[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data13_2.key: "<<data13_2.key<<", data13_2.value: "<<data13_2.value<<endl;
 		data13_3 = vbuffer3_2[5][BUFFERBASE_VDATA + i];
-		data13_4 = vbuffer4_2[5][BUFFERBASE_VDATA + i];
-		data13_5 = vbuffer5_2[5][BUFFERBASE_VDATA + i];
-		data13_6 = vbuffer6_2[5][BUFFERBASE_VDATA + i];
-		data13_7 = vbuffer7_2[5][BUFFERBASE_VDATA + i];
-		data13_8 = vbuffer8_2[5][BUFFERBASE_VDATA + i];
-		data13_9 = vbuffer9_2[5][BUFFERBASE_VDATA + i];
-		data13_10 = vbuffer10_2[5][BUFFERBASE_VDATA + i];
-		data13_11 = vbuffer11_2[5][BUFFERBASE_VDATA + i];
-		data13_12 = vbuffer12_2[5][BUFFERBASE_VDATA + i];
-		data13_13 = vbuffer13_2[5][BUFFERBASE_VDATA + i];
-		data13_14 = vbuffer14_2[5][BUFFERBASE_VDATA + i];
-		data13_15 = vbuffer15_2[5][BUFFERBASE_VDATA + i];
+		// cout<<"--- data13_3.key: "<<data13_3.key<<", data13_3.value: "<<data13_3.value<<endl;
  // AUTOMATEME.
 		data14_0 = vbuffer0_2[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data14_0.key: "<<data14_0.key<<", data14_0.value: "<<data14_0.value<<endl;
 		data14_1 = vbuffer1_2[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data14_1.key: "<<data14_1.key<<", data14_1.value: "<<data14_1.value<<endl;
 		data14_2 = vbuffer2_2[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data14_2.key: "<<data14_2.key<<", data14_2.value: "<<data14_2.value<<endl;
 		data14_3 = vbuffer3_2[6][BUFFERBASE_VDATA + i];
-		data14_4 = vbuffer4_2[6][BUFFERBASE_VDATA + i];
-		data14_5 = vbuffer5_2[6][BUFFERBASE_VDATA + i];
-		data14_6 = vbuffer6_2[6][BUFFERBASE_VDATA + i];
-		data14_7 = vbuffer7_2[6][BUFFERBASE_VDATA + i];
-		data14_8 = vbuffer8_2[6][BUFFERBASE_VDATA + i];
-		data14_9 = vbuffer9_2[6][BUFFERBASE_VDATA + i];
-		data14_10 = vbuffer10_2[6][BUFFERBASE_VDATA + i];
-		data14_11 = vbuffer11_2[6][BUFFERBASE_VDATA + i];
-		data14_12 = vbuffer12_2[6][BUFFERBASE_VDATA + i];
-		data14_13 = vbuffer13_2[6][BUFFERBASE_VDATA + i];
-		data14_14 = vbuffer14_2[6][BUFFERBASE_VDATA + i];
-		data14_15 = vbuffer15_2[6][BUFFERBASE_VDATA + i];
+		// cout<<"--- data14_3.key: "<<data14_3.key<<", data14_3.value: "<<data14_3.value<<endl;
  // AUTOMATEME.
 		data15_0 = vbuffer0_2[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data15_0.key: "<<data15_0.key<<", data15_0.value: "<<data15_0.value<<endl;
 		data15_1 = vbuffer1_2[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data15_1.key: "<<data15_1.key<<", data15_1.value: "<<data15_1.value<<endl;
 		data15_2 = vbuffer2_2[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data15_2.key: "<<data15_2.key<<", data15_2.value: "<<data15_2.value<<endl;
 		data15_3 = vbuffer3_2[7][BUFFERBASE_VDATA + i];
-		data15_4 = vbuffer4_2[7][BUFFERBASE_VDATA + i];
-		data15_5 = vbuffer5_2[7][BUFFERBASE_VDATA + i];
-		data15_6 = vbuffer6_2[7][BUFFERBASE_VDATA + i];
-		data15_7 = vbuffer7_2[7][BUFFERBASE_VDATA + i];
-		data15_8 = vbuffer8_2[7][BUFFERBASE_VDATA + i];
-		data15_9 = vbuffer9_2[7][BUFFERBASE_VDATA + i];
-		data15_10 = vbuffer10_2[7][BUFFERBASE_VDATA + i];
-		data15_11 = vbuffer11_2[7][BUFFERBASE_VDATA + i];
-		data15_12 = vbuffer12_2[7][BUFFERBASE_VDATA + i];
-		data15_13 = vbuffer13_2[7][BUFFERBASE_VDATA + i];
-		data15_14 = vbuffer14_2[7][BUFFERBASE_VDATA + i];
-		data15_15 = vbuffer15_2[7][BUFFERBASE_VDATA + i];
+		// cout<<"--- data15_3.key: "<<data15_3.key<<", data15_3.value: "<<data15_3.value<<endl;
 		
 		keyvalue_t udata0 = synvbuffer[0][i];
+		// cout<<"--- udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<endl;
 		keyvalue_t udata1 = synvbuffer[1][i];
+		// cout<<"--- udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<endl;
 		keyvalue_t udata2 = synvbuffer[2][i];
+		// cout<<"--- udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<endl;
 		keyvalue_t udata3 = synvbuffer[3][i];
+		// cout<<"--- udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<endl;
 		keyvalue_t udata4 = synvbuffer[4][i];
+		// cout<<"--- udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<endl;
 		keyvalue_t udata5 = synvbuffer[5][i];
+		// cout<<"--- udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<endl;
 		keyvalue_t udata6 = synvbuffer[6][i];
+		// cout<<"--- udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<endl;
 		keyvalue_t udata7 = synvbuffer[7][i];
+		// cout<<"--- udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<endl;
 		keyvalue_t udata8 = synvbuffer[8][i];
+		// cout<<"--- udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<endl;
 		keyvalue_t udata9 = synvbuffer[9][i];
+		// cout<<"--- udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<endl;
 		keyvalue_t udata10 = synvbuffer[10][i];
+		// cout<<"--- udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<endl;
 		keyvalue_t udata11 = synvbuffer[11][i];
+		// cout<<"--- udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<endl;
 		keyvalue_t udata12 = synvbuffer[12][i];
+		// cout<<"--- udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<endl;
 		keyvalue_t udata13 = synvbuffer[13][i];
+		// cout<<"--- udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<endl;
 		keyvalue_t udata14 = synvbuffer[14][i];
+		// cout<<"--- udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<endl;
 		keyvalue_t udata15 = synvbuffer[15][i];
+		// cout<<"--- udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<endl;
 		
-		data0.key = mergefunc_NUMPto1(data0_0.key,data0_1.key,data0_2.key,data0_3.key,data0_4.key,data0_5.key,data0_6.key,data0_7.key,data0_8.key,data0_9.key,data0_10.key,data0_11.key,data0_12.key,data0_13.key,data0_14.key,data0_15.key, globalparams.GraphAlgo);
-		data1.key = mergefunc_NUMPto1(data1_0.key,data1_1.key,data1_2.key,data1_3.key,data1_4.key,data1_5.key,data1_6.key,data1_7.key,data1_8.key,data1_9.key,data1_10.key,data1_11.key,data1_12.key,data1_13.key,data1_14.key,data1_15.key, globalparams.GraphAlgo);
-		data2.key = mergefunc_NUMPto1(data2_0.key,data2_1.key,data2_2.key,data2_3.key,data2_4.key,data2_5.key,data2_6.key,data2_7.key,data2_8.key,data2_9.key,data2_10.key,data2_11.key,data2_12.key,data2_13.key,data2_14.key,data2_15.key, globalparams.GraphAlgo);
-		data3.key = mergefunc_NUMPto1(data3_0.key,data3_1.key,data3_2.key,data3_3.key,data3_4.key,data3_5.key,data3_6.key,data3_7.key,data3_8.key,data3_9.key,data3_10.key,data3_11.key,data3_12.key,data3_13.key,data3_14.key,data3_15.key, globalparams.GraphAlgo);
-		data4.key = mergefunc_NUMPto1(data4_0.key,data4_1.key,data4_2.key,data4_3.key,data4_4.key,data4_5.key,data4_6.key,data4_7.key,data4_8.key,data4_9.key,data4_10.key,data4_11.key,data4_12.key,data4_13.key,data4_14.key,data4_15.key, globalparams.GraphAlgo);
-		data5.key = mergefunc_NUMPto1(data5_0.key,data5_1.key,data5_2.key,data5_3.key,data5_4.key,data5_5.key,data5_6.key,data5_7.key,data5_8.key,data5_9.key,data5_10.key,data5_11.key,data5_12.key,data5_13.key,data5_14.key,data5_15.key, globalparams.GraphAlgo);
-		data6.key = mergefunc_NUMPto1(data6_0.key,data6_1.key,data6_2.key,data6_3.key,data6_4.key,data6_5.key,data6_6.key,data6_7.key,data6_8.key,data6_9.key,data6_10.key,data6_11.key,data6_12.key,data6_13.key,data6_14.key,data6_15.key, globalparams.GraphAlgo);
-		data7.key = mergefunc_NUMPto1(data7_0.key,data7_1.key,data7_2.key,data7_3.key,data7_4.key,data7_5.key,data7_6.key,data7_7.key,data7_8.key,data7_9.key,data7_10.key,data7_11.key,data7_12.key,data7_13.key,data7_14.key,data7_15.key, globalparams.GraphAlgo);
-		data8.key = mergefunc_NUMPto1(data8_0.key,data8_1.key,data8_2.key,data8_3.key,data8_4.key,data8_5.key,data8_6.key,data8_7.key,data8_8.key,data8_9.key,data8_10.key,data8_11.key,data8_12.key,data8_13.key,data8_14.key,data8_15.key, globalparams.GraphAlgo);
-		data9.key = mergefunc_NUMPto1(data9_0.key,data9_1.key,data9_2.key,data9_3.key,data9_4.key,data9_5.key,data9_6.key,data9_7.key,data9_8.key,data9_9.key,data9_10.key,data9_11.key,data9_12.key,data9_13.key,data9_14.key,data9_15.key, globalparams.GraphAlgo);
-		data10.key = mergefunc_NUMPto1(data10_0.key,data10_1.key,data10_2.key,data10_3.key,data10_4.key,data10_5.key,data10_6.key,data10_7.key,data10_8.key,data10_9.key,data10_10.key,data10_11.key,data10_12.key,data10_13.key,data10_14.key,data10_15.key, globalparams.GraphAlgo);
-		data11.key = mergefunc_NUMPto1(data11_0.key,data11_1.key,data11_2.key,data11_3.key,data11_4.key,data11_5.key,data11_6.key,data11_7.key,data11_8.key,data11_9.key,data11_10.key,data11_11.key,data11_12.key,data11_13.key,data11_14.key,data11_15.key, globalparams.GraphAlgo);
-		data12.key = mergefunc_NUMPto1(data12_0.key,data12_1.key,data12_2.key,data12_3.key,data12_4.key,data12_5.key,data12_6.key,data12_7.key,data12_8.key,data12_9.key,data12_10.key,data12_11.key,data12_12.key,data12_13.key,data12_14.key,data12_15.key, globalparams.GraphAlgo);
-		data13.key = mergefunc_NUMPto1(data13_0.key,data13_1.key,data13_2.key,data13_3.key,data13_4.key,data13_5.key,data13_6.key,data13_7.key,data13_8.key,data13_9.key,data13_10.key,data13_11.key,data13_12.key,data13_13.key,data13_14.key,data13_15.key, globalparams.GraphAlgo);
-		data14.key = mergefunc_NUMPto1(data14_0.key,data14_1.key,data14_2.key,data14_3.key,data14_4.key,data14_5.key,data14_6.key,data14_7.key,data14_8.key,data14_9.key,data14_10.key,data14_11.key,data14_12.key,data14_13.key,data14_14.key,data14_15.key, globalparams.GraphAlgo);
-		data15.key = mergefunc_NUMPto1(data15_0.key,data15_1.key,data15_2.key,data15_3.key,data15_4.key,data15_5.key,data15_6.key,data15_7.key,data15_8.key,data15_9.key,data15_10.key,data15_11.key,data15_12.key,data15_13.key,data15_14.key,data15_15.key, globalparams.GraphAlgo);
-		data0.value = mergefunc_NUMPto1(data0_0.value,data0_1.value,data0_2.value,data0_3.value,data0_4.value,data0_5.value,data0_6.value,data0_7.value,data0_8.value,data0_9.value,data0_10.value,data0_11.value,data0_12.value,data0_13.value,data0_14.value,data0_15.value, globalparams.GraphAlgo);
-		data1.value = mergefunc_NUMPto1(data1_0.value,data1_1.value,data1_2.value,data1_3.value,data1_4.value,data1_5.value,data1_6.value,data1_7.value,data1_8.value,data1_9.value,data1_10.value,data1_11.value,data1_12.value,data1_13.value,data1_14.value,data1_15.value, globalparams.GraphAlgo);
-		data2.value = mergefunc_NUMPto1(data2_0.value,data2_1.value,data2_2.value,data2_3.value,data2_4.value,data2_5.value,data2_6.value,data2_7.value,data2_8.value,data2_9.value,data2_10.value,data2_11.value,data2_12.value,data2_13.value,data2_14.value,data2_15.value, globalparams.GraphAlgo);
-		data3.value = mergefunc_NUMPto1(data3_0.value,data3_1.value,data3_2.value,data3_3.value,data3_4.value,data3_5.value,data3_6.value,data3_7.value,data3_8.value,data3_9.value,data3_10.value,data3_11.value,data3_12.value,data3_13.value,data3_14.value,data3_15.value, globalparams.GraphAlgo);
-		data4.value = mergefunc_NUMPto1(data4_0.value,data4_1.value,data4_2.value,data4_3.value,data4_4.value,data4_5.value,data4_6.value,data4_7.value,data4_8.value,data4_9.value,data4_10.value,data4_11.value,data4_12.value,data4_13.value,data4_14.value,data4_15.value, globalparams.GraphAlgo);
-		data5.value = mergefunc_NUMPto1(data5_0.value,data5_1.value,data5_2.value,data5_3.value,data5_4.value,data5_5.value,data5_6.value,data5_7.value,data5_8.value,data5_9.value,data5_10.value,data5_11.value,data5_12.value,data5_13.value,data5_14.value,data5_15.value, globalparams.GraphAlgo);
-		data6.value = mergefunc_NUMPto1(data6_0.value,data6_1.value,data6_2.value,data6_3.value,data6_4.value,data6_5.value,data6_6.value,data6_7.value,data6_8.value,data6_9.value,data6_10.value,data6_11.value,data6_12.value,data6_13.value,data6_14.value,data6_15.value, globalparams.GraphAlgo);
-		data7.value = mergefunc_NUMPto1(data7_0.value,data7_1.value,data7_2.value,data7_3.value,data7_4.value,data7_5.value,data7_6.value,data7_7.value,data7_8.value,data7_9.value,data7_10.value,data7_11.value,data7_12.value,data7_13.value,data7_14.value,data7_15.value, globalparams.GraphAlgo);
-		data8.value = mergefunc_NUMPto1(data8_0.value,data8_1.value,data8_2.value,data8_3.value,data8_4.value,data8_5.value,data8_6.value,data8_7.value,data8_8.value,data8_9.value,data8_10.value,data8_11.value,data8_12.value,data8_13.value,data8_14.value,data8_15.value, globalparams.GraphAlgo);
-		data9.value = mergefunc_NUMPto1(data9_0.value,data9_1.value,data9_2.value,data9_3.value,data9_4.value,data9_5.value,data9_6.value,data9_7.value,data9_8.value,data9_9.value,data9_10.value,data9_11.value,data9_12.value,data9_13.value,data9_14.value,data9_15.value, globalparams.GraphAlgo);
-		data10.value = mergefunc_NUMPto1(data10_0.value,data10_1.value,data10_2.value,data10_3.value,data10_4.value,data10_5.value,data10_6.value,data10_7.value,data10_8.value,data10_9.value,data10_10.value,data10_11.value,data10_12.value,data10_13.value,data10_14.value,data10_15.value, globalparams.GraphAlgo);
-		data11.value = mergefunc_NUMPto1(data11_0.value,data11_1.value,data11_2.value,data11_3.value,data11_4.value,data11_5.value,data11_6.value,data11_7.value,data11_8.value,data11_9.value,data11_10.value,data11_11.value,data11_12.value,data11_13.value,data11_14.value,data11_15.value, globalparams.GraphAlgo);
-		data12.value = mergefunc_NUMPto1(data12_0.value,data12_1.value,data12_2.value,data12_3.value,data12_4.value,data12_5.value,data12_6.value,data12_7.value,data12_8.value,data12_9.value,data12_10.value,data12_11.value,data12_12.value,data12_13.value,data12_14.value,data12_15.value, globalparams.GraphAlgo);
-		data13.value = mergefunc_NUMPto1(data13_0.value,data13_1.value,data13_2.value,data13_3.value,data13_4.value,data13_5.value,data13_6.value,data13_7.value,data13_8.value,data13_9.value,data13_10.value,data13_11.value,data13_12.value,data13_13.value,data13_14.value,data13_15.value, globalparams.GraphAlgo);
-		data14.value = mergefunc_NUMPto1(data14_0.value,data14_1.value,data14_2.value,data14_3.value,data14_4.value,data14_5.value,data14_6.value,data14_7.value,data14_8.value,data14_9.value,data14_10.value,data14_11.value,data14_12.value,data14_13.value,data14_14.value,data14_15.value, globalparams.GraphAlgo);
-		data15.value = mergefunc_NUMPto1(data15_0.value,data15_1.value,data15_2.value,data15_3.value,data15_4.value,data15_5.value,data15_6.value,data15_7.value,data15_8.value,data15_9.value,data15_10.value,data15_11.value,data15_12.value,data15_13.value,data15_14.value,data15_15.value, globalparams.GraphAlgo);
+		data0.key = mergefunc_NUMPto1(data0_0.key,data0_1.key,data0_2.key,data0_3.key, globalparams.GraphAlgo);
+		data1.key = mergefunc_NUMPto1(data1_0.key,data1_1.key,data1_2.key,data1_3.key, globalparams.GraphAlgo);
+		data2.key = mergefunc_NUMPto1(data2_0.key,data2_1.key,data2_2.key,data2_3.key, globalparams.GraphAlgo);
+		data3.key = mergefunc_NUMPto1(data3_0.key,data3_1.key,data3_2.key,data3_3.key, globalparams.GraphAlgo);
+		data4.key = mergefunc_NUMPto1(data4_0.key,data4_1.key,data4_2.key,data4_3.key, globalparams.GraphAlgo);
+		data5.key = mergefunc_NUMPto1(data5_0.key,data5_1.key,data5_2.key,data5_3.key, globalparams.GraphAlgo);
+		data6.key = mergefunc_NUMPto1(data6_0.key,data6_1.key,data6_2.key,data6_3.key, globalparams.GraphAlgo);
+		data7.key = mergefunc_NUMPto1(data7_0.key,data7_1.key,data7_2.key,data7_3.key, globalparams.GraphAlgo);
+		data8.key = mergefunc_NUMPto1(data8_0.key,data8_1.key,data8_2.key,data8_3.key, globalparams.GraphAlgo);
+		data9.key = mergefunc_NUMPto1(data9_0.key,data9_1.key,data9_2.key,data9_3.key, globalparams.GraphAlgo);
+		data10.key = mergefunc_NUMPto1(data10_0.key,data10_1.key,data10_2.key,data10_3.key, globalparams.GraphAlgo);
+		data11.key = mergefunc_NUMPto1(data11_0.key,data11_1.key,data11_2.key,data11_3.key, globalparams.GraphAlgo);
+		data12.key = mergefunc_NUMPto1(data12_0.key,data12_1.key,data12_2.key,data12_3.key, globalparams.GraphAlgo);
+		data13.key = mergefunc_NUMPto1(data13_0.key,data13_1.key,data13_2.key,data13_3.key, globalparams.GraphAlgo);
+		data14.key = mergefunc_NUMPto1(data14_0.key,data14_1.key,data14_2.key,data14_3.key, globalparams.GraphAlgo);
+		data15.key = mergefunc_NUMPto1(data15_0.key,data15_1.key,data15_2.key,data15_3.key, globalparams.GraphAlgo);
+		data0.value = mergefunc_NUMPto1(data0_0.value,data0_1.value,data0_2.value,data0_3.value, globalparams.GraphAlgo);
+		data1.value = mergefunc_NUMPto1(data1_0.value,data1_1.value,data1_2.value,data1_3.value, globalparams.GraphAlgo);
+		data2.value = mergefunc_NUMPto1(data2_0.value,data2_1.value,data2_2.value,data2_3.value, globalparams.GraphAlgo);
+		data3.value = mergefunc_NUMPto1(data3_0.value,data3_1.value,data3_2.value,data3_3.value, globalparams.GraphAlgo);
+		data4.value = mergefunc_NUMPto1(data4_0.value,data4_1.value,data4_2.value,data4_3.value, globalparams.GraphAlgo);
+		data5.value = mergefunc_NUMPto1(data5_0.value,data5_1.value,data5_2.value,data5_3.value, globalparams.GraphAlgo);
+		data6.value = mergefunc_NUMPto1(data6_0.value,data6_1.value,data6_2.value,data6_3.value, globalparams.GraphAlgo);
+		data7.value = mergefunc_NUMPto1(data7_0.value,data7_1.value,data7_2.value,data7_3.value, globalparams.GraphAlgo);
+		data8.value = mergefunc_NUMPto1(data8_0.value,data8_1.value,data8_2.value,data8_3.value, globalparams.GraphAlgo);
+		data9.value = mergefunc_NUMPto1(data9_0.value,data9_1.value,data9_2.value,data9_3.value, globalparams.GraphAlgo);
+		data10.value = mergefunc_NUMPto1(data10_0.value,data10_1.value,data10_2.value,data10_3.value, globalparams.GraphAlgo);
+		data11.value = mergefunc_NUMPto1(data11_0.value,data11_1.value,data11_2.value,data11_3.value, globalparams.GraphAlgo);
+		data12.value = mergefunc_NUMPto1(data12_0.value,data12_1.value,data12_2.value,data12_3.value, globalparams.GraphAlgo);
+		data13.value = mergefunc_NUMPto1(data13_0.value,data13_1.value,data13_2.value,data13_3.value, globalparams.GraphAlgo);
+		data14.value = mergefunc_NUMPto1(data14_0.value,data14_1.value,data14_2.value,data14_3.value, globalparams.GraphAlgo);
+		data15.value = mergefunc_NUMPto1(data15_0.value,data15_1.value,data15_2.value,data15_3.value, globalparams.GraphAlgo);
 		
 		res0.key = applyfunc(udata0.key, data0.key, globalparams.GraphIter, globalparams.GraphAlgo);
 		res1.key = applyfunc(udata1.key, data1.key, globalparams.GraphIter, globalparams.GraphAlgo);
@@ -4384,55 +2965,87 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 		if(res15.key != udata15.key){ _vmask[i].data[15].key = 1; } else { _vmask[i].data[15].key = 0; }
 		if(res15.value != udata15.value){ _vmask[i].data[15].value = 1; } else { _vmask[i].data[15].value = 0; }
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[0][0]<<" & vid2: "<<vid[0][1]<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl; }
-		if(res0.key != udata0.key){ cout<<"synchronize: vid: "<<vid[0][0]<<", _vmask["<<i<<"].data[0].key: "<<_vmask[i].data[0].key<<endl; }
-		if(res0.value != udata0.value){ cout<<"synchronize: vid: "<<vid[0][1]<<", _vmask["<<i<<"].data[0].value: "<<_vmask[i].data[0].value<<endl; }
+		if(res0.key != udata0.key){ cout<<"synchronize: vid[0][0]: "<<vid[0][0]<<", _vmask["<<i<<"].data[0].key: "<<_vmask[i].data[0].key<<endl; }
+		if(res0.value != udata0.value){ cout<<"synchronize: vid[0][1]: "<<vid[0][1]<<", _vmask["<<i<<"].data[0].value: "<<_vmask[i].data[0].value<<endl; }
+		// if(res0.key != udata0.key){ cout<<"synchronize: vid[0][0]: "<<vid[0][0]<<", _vmask["<<i<<"].data[0].key: "<<_vmask[i].data[0].key<<"--- res0.key: "<<res0.key<<", udata0.key: "<<udata0.key<<", data0.key: "<<data0.key<<endl; }
+		// if(res0.value != udata0.value){ cout<<"synchronize: vid[0][1]: "<<vid[0][1]<<", _vmask["<<i<<"].data[0].value: "<<_vmask[i].data[0].value<<"--- udata0.value: "<<udata0.value<<", udata0.value: "<<udata0.value<<", data0.value: "<<data0.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[1][0]<<" & vid2: "<<vid[1][1]<<"): res1.key: "<<res1.key<<", res1.value: "<<res1.value<<": udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl; }
-		if(res1.key != udata1.key){ cout<<"synchronize: vid: "<<vid[1][0]<<", _vmask["<<i<<"].data[1].key: "<<_vmask[i].data[1].key<<endl; }
-		if(res1.value != udata1.value){ cout<<"synchronize: vid: "<<vid[1][1]<<", _vmask["<<i<<"].data[1].value: "<<_vmask[i].data[1].value<<endl; }
+		if(res1.key != udata1.key){ cout<<"synchronize: vid[1][0]: "<<vid[1][0]<<", _vmask["<<i<<"].data[1].key: "<<_vmask[i].data[1].key<<endl; }
+		if(res1.value != udata1.value){ cout<<"synchronize: vid[1][1]: "<<vid[1][1]<<", _vmask["<<i<<"].data[1].value: "<<_vmask[i].data[1].value<<endl; }
+		// if(res1.key != udata1.key){ cout<<"synchronize: vid[1][0]: "<<vid[1][0]<<", _vmask["<<i<<"].data[1].key: "<<_vmask[i].data[1].key<<"--- res1.key: "<<res1.key<<", udata1.key: "<<udata1.key<<", data1.key: "<<data1.key<<endl; }
+		// if(res1.value != udata1.value){ cout<<"synchronize: vid[1][1]: "<<vid[1][1]<<", _vmask["<<i<<"].data[1].value: "<<_vmask[i].data[1].value<<"--- udata1.value: "<<udata1.value<<", udata1.value: "<<udata1.value<<", data1.value: "<<data1.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[2][0]<<" & vid2: "<<vid[2][1]<<"): res2.key: "<<res2.key<<", res2.value: "<<res2.value<<": udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl; }
-		if(res2.key != udata2.key){ cout<<"synchronize: vid: "<<vid[2][0]<<", _vmask["<<i<<"].data[2].key: "<<_vmask[i].data[2].key<<endl; }
-		if(res2.value != udata2.value){ cout<<"synchronize: vid: "<<vid[2][1]<<", _vmask["<<i<<"].data[2].value: "<<_vmask[i].data[2].value<<endl; }
+		if(res2.key != udata2.key){ cout<<"synchronize: vid[2][0]: "<<vid[2][0]<<", _vmask["<<i<<"].data[2].key: "<<_vmask[i].data[2].key<<endl; }
+		if(res2.value != udata2.value){ cout<<"synchronize: vid[2][1]: "<<vid[2][1]<<", _vmask["<<i<<"].data[2].value: "<<_vmask[i].data[2].value<<endl; }
+		// if(res2.key != udata2.key){ cout<<"synchronize: vid[2][0]: "<<vid[2][0]<<", _vmask["<<i<<"].data[2].key: "<<_vmask[i].data[2].key<<"--- res2.key: "<<res2.key<<", udata2.key: "<<udata2.key<<", data2.key: "<<data2.key<<endl; }
+		// if(res2.value != udata2.value){ cout<<"synchronize: vid[2][1]: "<<vid[2][1]<<", _vmask["<<i<<"].data[2].value: "<<_vmask[i].data[2].value<<"--- udata2.value: "<<udata2.value<<", udata2.value: "<<udata2.value<<", data2.value: "<<data2.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[3][0]<<" & vid2: "<<vid[3][1]<<"): res3.key: "<<res3.key<<", res3.value: "<<res3.value<<": udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl; }
-		if(res3.key != udata3.key){ cout<<"synchronize: vid: "<<vid[3][0]<<", _vmask["<<i<<"].data[3].key: "<<_vmask[i].data[3].key<<endl; }
-		if(res3.value != udata3.value){ cout<<"synchronize: vid: "<<vid[3][1]<<", _vmask["<<i<<"].data[3].value: "<<_vmask[i].data[3].value<<endl; }
+		if(res3.key != udata3.key){ cout<<"synchronize: vid[3][0]: "<<vid[3][0]<<", _vmask["<<i<<"].data[3].key: "<<_vmask[i].data[3].key<<endl; }
+		if(res3.value != udata3.value){ cout<<"synchronize: vid[3][1]: "<<vid[3][1]<<", _vmask["<<i<<"].data[3].value: "<<_vmask[i].data[3].value<<endl; }
+		// if(res3.key != udata3.key){ cout<<"synchronize: vid[3][0]: "<<vid[3][0]<<", _vmask["<<i<<"].data[3].key: "<<_vmask[i].data[3].key<<"--- res3.key: "<<res3.key<<", udata3.key: "<<udata3.key<<", data3.key: "<<data3.key<<endl; }
+		// if(res3.value != udata3.value){ cout<<"synchronize: vid[3][1]: "<<vid[3][1]<<", _vmask["<<i<<"].data[3].value: "<<_vmask[i].data[3].value<<"--- udata3.value: "<<udata3.value<<", udata3.value: "<<udata3.value<<", data3.value: "<<data3.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[4][0]<<" & vid2: "<<vid[4][1]<<"): res4.key: "<<res4.key<<", res4.value: "<<res4.value<<": udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl; }
-		if(res4.key != udata4.key){ cout<<"synchronize: vid: "<<vid[4][0]<<", _vmask["<<i<<"].data[4].key: "<<_vmask[i].data[4].key<<endl; }
-		if(res4.value != udata4.value){ cout<<"synchronize: vid: "<<vid[4][1]<<", _vmask["<<i<<"].data[4].value: "<<_vmask[i].data[4].value<<endl; }
+		if(res4.key != udata4.key){ cout<<"synchronize: vid[4][0]: "<<vid[4][0]<<", _vmask["<<i<<"].data[4].key: "<<_vmask[i].data[4].key<<endl; }
+		if(res4.value != udata4.value){ cout<<"synchronize: vid[4][1]: "<<vid[4][1]<<", _vmask["<<i<<"].data[4].value: "<<_vmask[i].data[4].value<<endl; }
+		// if(res4.key != udata4.key){ cout<<"synchronize: vid[4][0]: "<<vid[4][0]<<", _vmask["<<i<<"].data[4].key: "<<_vmask[i].data[4].key<<"--- res4.key: "<<res4.key<<", udata4.key: "<<udata4.key<<", data4.key: "<<data4.key<<endl; }
+		// if(res4.value != udata4.value){ cout<<"synchronize: vid[4][1]: "<<vid[4][1]<<", _vmask["<<i<<"].data[4].value: "<<_vmask[i].data[4].value<<"--- udata4.value: "<<udata4.value<<", udata4.value: "<<udata4.value<<", data4.value: "<<data4.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[5][0]<<" & vid2: "<<vid[5][1]<<"): res5.key: "<<res5.key<<", res5.value: "<<res5.value<<": udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl; }
-		if(res5.key != udata5.key){ cout<<"synchronize: vid: "<<vid[5][0]<<", _vmask["<<i<<"].data[5].key: "<<_vmask[i].data[5].key<<endl; }
-		if(res5.value != udata5.value){ cout<<"synchronize: vid: "<<vid[5][1]<<", _vmask["<<i<<"].data[5].value: "<<_vmask[i].data[5].value<<endl; }
+		if(res5.key != udata5.key){ cout<<"synchronize: vid[5][0]: "<<vid[5][0]<<", _vmask["<<i<<"].data[5].key: "<<_vmask[i].data[5].key<<endl; }
+		if(res5.value != udata5.value){ cout<<"synchronize: vid[5][1]: "<<vid[5][1]<<", _vmask["<<i<<"].data[5].value: "<<_vmask[i].data[5].value<<endl; }
+		// if(res5.key != udata5.key){ cout<<"synchronize: vid[5][0]: "<<vid[5][0]<<", _vmask["<<i<<"].data[5].key: "<<_vmask[i].data[5].key<<"--- res5.key: "<<res5.key<<", udata5.key: "<<udata5.key<<", data5.key: "<<data5.key<<endl; }
+		// if(res5.value != udata5.value){ cout<<"synchronize: vid[5][1]: "<<vid[5][1]<<", _vmask["<<i<<"].data[5].value: "<<_vmask[i].data[5].value<<"--- udata5.value: "<<udata5.value<<", udata5.value: "<<udata5.value<<", data5.value: "<<data5.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[6][0]<<" & vid2: "<<vid[6][1]<<"): res6.key: "<<res6.key<<", res6.value: "<<res6.value<<": udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl; }
-		if(res6.key != udata6.key){ cout<<"synchronize: vid: "<<vid[6][0]<<", _vmask["<<i<<"].data[6].key: "<<_vmask[i].data[6].key<<endl; }
-		if(res6.value != udata6.value){ cout<<"synchronize: vid: "<<vid[6][1]<<", _vmask["<<i<<"].data[6].value: "<<_vmask[i].data[6].value<<endl; }
+		if(res6.key != udata6.key){ cout<<"synchronize: vid[6][0]: "<<vid[6][0]<<", _vmask["<<i<<"].data[6].key: "<<_vmask[i].data[6].key<<endl; }
+		if(res6.value != udata6.value){ cout<<"synchronize: vid[6][1]: "<<vid[6][1]<<", _vmask["<<i<<"].data[6].value: "<<_vmask[i].data[6].value<<endl; }
+		// if(res6.key != udata6.key){ cout<<"synchronize: vid[6][0]: "<<vid[6][0]<<", _vmask["<<i<<"].data[6].key: "<<_vmask[i].data[6].key<<"--- res6.key: "<<res6.key<<", udata6.key: "<<udata6.key<<", data6.key: "<<data6.key<<endl; }
+		// if(res6.value != udata6.value){ cout<<"synchronize: vid[6][1]: "<<vid[6][1]<<", _vmask["<<i<<"].data[6].value: "<<_vmask[i].data[6].value<<"--- udata6.value: "<<udata6.value<<", udata6.value: "<<udata6.value<<", data6.value: "<<data6.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[7][0]<<" & vid2: "<<vid[7][1]<<"): res7.key: "<<res7.key<<", res7.value: "<<res7.value<<": udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl; }
-		if(res7.key != udata7.key){ cout<<"synchronize: vid: "<<vid[7][0]<<", _vmask["<<i<<"].data[7].key: "<<_vmask[i].data[7].key<<endl; }
-		if(res7.value != udata7.value){ cout<<"synchronize: vid: "<<vid[7][1]<<", _vmask["<<i<<"].data[7].value: "<<_vmask[i].data[7].value<<endl; }
+		if(res7.key != udata7.key){ cout<<"synchronize: vid[7][0]: "<<vid[7][0]<<", _vmask["<<i<<"].data[7].key: "<<_vmask[i].data[7].key<<endl; }
+		if(res7.value != udata7.value){ cout<<"synchronize: vid[7][1]: "<<vid[7][1]<<", _vmask["<<i<<"].data[7].value: "<<_vmask[i].data[7].value<<endl; }
+		// if(res7.key != udata7.key){ cout<<"synchronize: vid[7][0]: "<<vid[7][0]<<", _vmask["<<i<<"].data[7].key: "<<_vmask[i].data[7].key<<"--- res7.key: "<<res7.key<<", udata7.key: "<<udata7.key<<", data7.key: "<<data7.key<<endl; }
+		// if(res7.value != udata7.value){ cout<<"synchronize: vid[7][1]: "<<vid[7][1]<<", _vmask["<<i<<"].data[7].value: "<<_vmask[i].data[7].value<<"--- udata7.value: "<<udata7.value<<", udata7.value: "<<udata7.value<<", data7.value: "<<data7.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[8][0]<<" & vid2: "<<vid[8][1]<<"): res8.key: "<<res8.key<<", res8.value: "<<res8.value<<": udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<", data8.key: "<<data8.key<<", data8.value: "<<data8.value<<endl; }
-		if(res8.key != udata8.key){ cout<<"synchronize: vid: "<<vid[8][0]<<", _vmask["<<i<<"].data[8].key: "<<_vmask[i].data[8].key<<endl; }
-		if(res8.value != udata8.value){ cout<<"synchronize: vid: "<<vid[8][1]<<", _vmask["<<i<<"].data[8].value: "<<_vmask[i].data[8].value<<endl; }
+		if(res8.key != udata8.key){ cout<<"synchronize: vid[8][0]: "<<vid[8][0]<<", _vmask["<<i<<"].data[8].key: "<<_vmask[i].data[8].key<<endl; }
+		if(res8.value != udata8.value){ cout<<"synchronize: vid[8][1]: "<<vid[8][1]<<", _vmask["<<i<<"].data[8].value: "<<_vmask[i].data[8].value<<endl; }
+		// if(res8.key != udata8.key){ cout<<"synchronize: vid[8][0]: "<<vid[8][0]<<", _vmask["<<i<<"].data[8].key: "<<_vmask[i].data[8].key<<"--- res8.key: "<<res8.key<<", udata8.key: "<<udata8.key<<", data8.key: "<<data8.key<<endl; }
+		// if(res8.value != udata8.value){ cout<<"synchronize: vid[8][1]: "<<vid[8][1]<<", _vmask["<<i<<"].data[8].value: "<<_vmask[i].data[8].value<<"--- udata8.value: "<<udata8.value<<", udata8.value: "<<udata8.value<<", data8.value: "<<data8.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[9][0]<<" & vid2: "<<vid[9][1]<<"): res9.key: "<<res9.key<<", res9.value: "<<res9.value<<": udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<", data9.key: "<<data9.key<<", data9.value: "<<data9.value<<endl; }
-		if(res9.key != udata9.key){ cout<<"synchronize: vid: "<<vid[9][0]<<", _vmask["<<i<<"].data[9].key: "<<_vmask[i].data[9].key<<endl; }
-		if(res9.value != udata9.value){ cout<<"synchronize: vid: "<<vid[9][1]<<", _vmask["<<i<<"].data[9].value: "<<_vmask[i].data[9].value<<endl; }
+		if(res9.key != udata9.key){ cout<<"synchronize: vid[9][0]: "<<vid[9][0]<<", _vmask["<<i<<"].data[9].key: "<<_vmask[i].data[9].key<<endl; }
+		if(res9.value != udata9.value){ cout<<"synchronize: vid[9][1]: "<<vid[9][1]<<", _vmask["<<i<<"].data[9].value: "<<_vmask[i].data[9].value<<endl; }
+		// if(res9.key != udata9.key){ cout<<"synchronize: vid[9][0]: "<<vid[9][0]<<", _vmask["<<i<<"].data[9].key: "<<_vmask[i].data[9].key<<"--- res9.key: "<<res9.key<<", udata9.key: "<<udata9.key<<", data9.key: "<<data9.key<<endl; }
+		// if(res9.value != udata9.value){ cout<<"synchronize: vid[9][1]: "<<vid[9][1]<<", _vmask["<<i<<"].data[9].value: "<<_vmask[i].data[9].value<<"--- udata9.value: "<<udata9.value<<", udata9.value: "<<udata9.value<<", data9.value: "<<data9.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[10][0]<<" & vid2: "<<vid[10][1]<<"): res10.key: "<<res10.key<<", res10.value: "<<res10.value<<": udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<", data10.key: "<<data10.key<<", data10.value: "<<data10.value<<endl; }
-		if(res10.key != udata10.key){ cout<<"synchronize: vid: "<<vid[10][0]<<", _vmask["<<i<<"].data[10].key: "<<_vmask[i].data[10].key<<endl; }
-		if(res10.value != udata10.value){ cout<<"synchronize: vid: "<<vid[10][1]<<", _vmask["<<i<<"].data[10].value: "<<_vmask[i].data[10].value<<endl; }
+		if(res10.key != udata10.key){ cout<<"synchronize: vid[10][0]: "<<vid[10][0]<<", _vmask["<<i<<"].data[10].key: "<<_vmask[i].data[10].key<<endl; }
+		if(res10.value != udata10.value){ cout<<"synchronize: vid[10][1]: "<<vid[10][1]<<", _vmask["<<i<<"].data[10].value: "<<_vmask[i].data[10].value<<endl; }
+		// if(res10.key != udata10.key){ cout<<"synchronize: vid[10][0]: "<<vid[10][0]<<", _vmask["<<i<<"].data[10].key: "<<_vmask[i].data[10].key<<"--- res10.key: "<<res10.key<<", udata10.key: "<<udata10.key<<", data10.key: "<<data10.key<<endl; }
+		// if(res10.value != udata10.value){ cout<<"synchronize: vid[10][1]: "<<vid[10][1]<<", _vmask["<<i<<"].data[10].value: "<<_vmask[i].data[10].value<<"--- udata10.value: "<<udata10.value<<", udata10.value: "<<udata10.value<<", data10.value: "<<data10.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[11][0]<<" & vid2: "<<vid[11][1]<<"): res11.key: "<<res11.key<<", res11.value: "<<res11.value<<": udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<", data11.key: "<<data11.key<<", data11.value: "<<data11.value<<endl; }
-		if(res11.key != udata11.key){ cout<<"synchronize: vid: "<<vid[11][0]<<", _vmask["<<i<<"].data[11].key: "<<_vmask[i].data[11].key<<endl; }
-		if(res11.value != udata11.value){ cout<<"synchronize: vid: "<<vid[11][1]<<", _vmask["<<i<<"].data[11].value: "<<_vmask[i].data[11].value<<endl; }
+		if(res11.key != udata11.key){ cout<<"synchronize: vid[11][0]: "<<vid[11][0]<<", _vmask["<<i<<"].data[11].key: "<<_vmask[i].data[11].key<<endl; }
+		if(res11.value != udata11.value){ cout<<"synchronize: vid[11][1]: "<<vid[11][1]<<", _vmask["<<i<<"].data[11].value: "<<_vmask[i].data[11].value<<endl; }
+		// if(res11.key != udata11.key){ cout<<"synchronize: vid[11][0]: "<<vid[11][0]<<", _vmask["<<i<<"].data[11].key: "<<_vmask[i].data[11].key<<"--- res11.key: "<<res11.key<<", udata11.key: "<<udata11.key<<", data11.key: "<<data11.key<<endl; }
+		// if(res11.value != udata11.value){ cout<<"synchronize: vid[11][1]: "<<vid[11][1]<<", _vmask["<<i<<"].data[11].value: "<<_vmask[i].data[11].value<<"--- udata11.value: "<<udata11.value<<", udata11.value: "<<udata11.value<<", data11.value: "<<data11.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[12][0]<<" & vid2: "<<vid[12][1]<<"): res12.key: "<<res12.key<<", res12.value: "<<res12.value<<": udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<", data12.key: "<<data12.key<<", data12.value: "<<data12.value<<endl; }
-		if(res12.key != udata12.key){ cout<<"synchronize: vid: "<<vid[12][0]<<", _vmask["<<i<<"].data[12].key: "<<_vmask[i].data[12].key<<endl; }
-		if(res12.value != udata12.value){ cout<<"synchronize: vid: "<<vid[12][1]<<", _vmask["<<i<<"].data[12].value: "<<_vmask[i].data[12].value<<endl; }
+		if(res12.key != udata12.key){ cout<<"synchronize: vid[12][0]: "<<vid[12][0]<<", _vmask["<<i<<"].data[12].key: "<<_vmask[i].data[12].key<<endl; }
+		if(res12.value != udata12.value){ cout<<"synchronize: vid[12][1]: "<<vid[12][1]<<", _vmask["<<i<<"].data[12].value: "<<_vmask[i].data[12].value<<endl; }
+		// if(res12.key != udata12.key){ cout<<"synchronize: vid[12][0]: "<<vid[12][0]<<", _vmask["<<i<<"].data[12].key: "<<_vmask[i].data[12].key<<"--- res12.key: "<<res12.key<<", udata12.key: "<<udata12.key<<", data12.key: "<<data12.key<<endl; }
+		// if(res12.value != udata12.value){ cout<<"synchronize: vid[12][1]: "<<vid[12][1]<<", _vmask["<<i<<"].data[12].value: "<<_vmask[i].data[12].value<<"--- udata12.value: "<<udata12.value<<", udata12.value: "<<udata12.value<<", data12.value: "<<data12.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[13][0]<<" & vid2: "<<vid[13][1]<<"): res13.key: "<<res13.key<<", res13.value: "<<res13.value<<": udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<", data13.key: "<<data13.key<<", data13.value: "<<data13.value<<endl; }
-		if(res13.key != udata13.key){ cout<<"synchronize: vid: "<<vid[13][0]<<", _vmask["<<i<<"].data[13].key: "<<_vmask[i].data[13].key<<endl; }
-		if(res13.value != udata13.value){ cout<<"synchronize: vid: "<<vid[13][1]<<", _vmask["<<i<<"].data[13].value: "<<_vmask[i].data[13].value<<endl; }
+		if(res13.key != udata13.key){ cout<<"synchronize: vid[13][0]: "<<vid[13][0]<<", _vmask["<<i<<"].data[13].key: "<<_vmask[i].data[13].key<<endl; }
+		if(res13.value != udata13.value){ cout<<"synchronize: vid[13][1]: "<<vid[13][1]<<", _vmask["<<i<<"].data[13].value: "<<_vmask[i].data[13].value<<endl; }
+		// if(res13.key != udata13.key){ cout<<"synchronize: vid[13][0]: "<<vid[13][0]<<", _vmask["<<i<<"].data[13].key: "<<_vmask[i].data[13].key<<"--- res13.key: "<<res13.key<<", udata13.key: "<<udata13.key<<", data13.key: "<<data13.key<<endl; }
+		// if(res13.value != udata13.value){ cout<<"synchronize: vid[13][1]: "<<vid[13][1]<<", _vmask["<<i<<"].data[13].value: "<<_vmask[i].data[13].value<<"--- udata13.value: "<<udata13.value<<", udata13.value: "<<udata13.value<<", data13.value: "<<data13.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[14][0]<<" & vid2: "<<vid[14][1]<<"): res14.key: "<<res14.key<<", res14.value: "<<res14.value<<": udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<", data14.key: "<<data14.key<<", data14.value: "<<data14.value<<endl; }
-		if(res14.key != udata14.key){ cout<<"synchronize: vid: "<<vid[14][0]<<", _vmask["<<i<<"].data[14].key: "<<_vmask[i].data[14].key<<endl; }
-		if(res14.value != udata14.value){ cout<<"synchronize: vid: "<<vid[14][1]<<", _vmask["<<i<<"].data[14].value: "<<_vmask[i].data[14].value<<endl; }
+		if(res14.key != udata14.key){ cout<<"synchronize: vid[14][0]: "<<vid[14][0]<<", _vmask["<<i<<"].data[14].key: "<<_vmask[i].data[14].key<<endl; }
+		if(res14.value != udata14.value){ cout<<"synchronize: vid[14][1]: "<<vid[14][1]<<", _vmask["<<i<<"].data[14].value: "<<_vmask[i].data[14].value<<endl; }
+		// if(res14.key != udata14.key){ cout<<"synchronize: vid[14][0]: "<<vid[14][0]<<", _vmask["<<i<<"].data[14].key: "<<_vmask[i].data[14].key<<"--- res14.key: "<<res14.key<<", udata14.key: "<<udata14.key<<", data14.key: "<<data14.key<<endl; }
+		// if(res14.value != udata14.value){ cout<<"synchronize: vid[14][1]: "<<vid[14][1]<<", _vmask["<<i<<"].data[14].value: "<<_vmask[i].data[14].value<<"--- udata14.value: "<<udata14.value<<", udata14.value: "<<udata14.value<<", data14.value: "<<data14.value<<endl; }
 		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[15][0]<<" & vid2: "<<vid[15][1]<<"): res15.key: "<<res15.key<<", res15.value: "<<res15.value<<": udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl; }
-		if(res15.key != udata15.key){ cout<<"synchronize: vid: "<<vid[15][0]<<", _vmask["<<i<<"].data[15].key: "<<_vmask[i].data[15].key<<endl; }
-		if(res15.value != udata15.value){ cout<<"synchronize: vid: "<<vid[15][1]<<", _vmask["<<i<<"].data[15].value: "<<_vmask[i].data[15].value<<endl; }
+		if(res15.key != udata15.key){ cout<<"synchronize: vid[15][0]: "<<vid[15][0]<<", _vmask["<<i<<"].data[15].key: "<<_vmask[i].data[15].key<<endl; }
+		if(res15.value != udata15.value){ cout<<"synchronize: vid[15][1]: "<<vid[15][1]<<", _vmask["<<i<<"].data[15].value: "<<_vmask[i].data[15].value<<endl; }
+		// if(res15.key != udata15.key){ cout<<"synchronize: vid[15][0]: "<<vid[15][0]<<", _vmask["<<i<<"].data[15].key: "<<_vmask[i].data[15].key<<"--- res15.key: "<<res15.key<<", udata15.key: "<<udata15.key<<", data15.key: "<<data15.key<<endl; }
+		// if(res15.value != udata15.value){ cout<<"synchronize: vid[15][1]: "<<vid[15][1]<<", _vmask["<<i<<"].data[15].value: "<<_vmask[i].data[15].value<<"--- udata15.value: "<<udata15.value<<", udata15.value: "<<udata15.value<<", data15.value: "<<data15.value<<endl; }
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
@@ -4505,102 +3118,6 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 		vbuffer3_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
 		vbuffer3_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
 		vbuffer3_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer4_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer4_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer4_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer4_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer4_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer4_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer4_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer4_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer5_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer5_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer5_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer5_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer5_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer5_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer5_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer5_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer6_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer6_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer6_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer6_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer6_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer6_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer6_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer6_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer7_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer7_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer7_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer7_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer7_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer7_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer7_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer7_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer8_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer8_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer8_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer8_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer8_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer8_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer8_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer8_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer9_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer9_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer9_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer9_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer9_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer9_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer9_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer9_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer10_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer10_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer10_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer10_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer10_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer10_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer10_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer10_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer11_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer11_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer11_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer11_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer11_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer11_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer11_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer11_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer12_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer12_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer12_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer12_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer12_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer12_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer12_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer12_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer13_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer13_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer13_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer13_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer13_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer13_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer13_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer13_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer14_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer14_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer14_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer14_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer14_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer14_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer14_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer14_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
-		vbuffer15_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
-		vbuffer15_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
-		vbuffer15_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
-		vbuffer15_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
-		vbuffer15_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
-		vbuffer15_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
-		vbuffer15_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
-		vbuffer15_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
 		vbuffer0_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
 		vbuffer0_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
 		vbuffer0_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
@@ -4633,102 +3150,6 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 		vbuffer3_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
 		vbuffer3_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
 		vbuffer3_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer4_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer4_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer4_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer4_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer4_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer4_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer4_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer4_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer5_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer5_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer5_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer5_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer5_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer5_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer5_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer5_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer6_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer6_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer6_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer6_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer6_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer6_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer6_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer6_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer7_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer7_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer7_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer7_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer7_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer7_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer7_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer7_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer8_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer8_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer8_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer8_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer8_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer8_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer8_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer8_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer9_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer9_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer9_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer9_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer9_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer9_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer9_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer9_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer10_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer10_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer10_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer10_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer10_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer10_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer10_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer10_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer11_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer11_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer11_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer11_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer11_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer11_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer11_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer11_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer12_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer12_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer12_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer12_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer12_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer12_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer12_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer12_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer13_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer13_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer13_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer13_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer13_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer13_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer13_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer13_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer14_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer14_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer14_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer14_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer14_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer14_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer14_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer14_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
-		vbuffer15_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
-		vbuffer15_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
-		vbuffer15_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
-		vbuffer15_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
-		vbuffer15_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
-		vbuffer15_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
-		vbuffer15_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
-		vbuffer15_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
 	}
 	
 	// replicate to vmasks
@@ -4864,390 +3285,6 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 		vmask3[k].data[14].value = mask.range(30, 29);
 		vmask3[k].data[15].key = mask.range(31, 30);
 		vmask3[k].data[15].value = mask.range(32, 31);
-		vmask4[k].data[0].key = mask.range(1, 0);
-		vmask4[k].data[0].value = mask.range(2, 1);
-		vmask4[k].data[1].key = mask.range(3, 2);
-		vmask4[k].data[1].value = mask.range(4, 3);
-		vmask4[k].data[2].key = mask.range(5, 4);
-		vmask4[k].data[2].value = mask.range(6, 5);
-		vmask4[k].data[3].key = mask.range(7, 6);
-		vmask4[k].data[3].value = mask.range(8, 7);
-		vmask4[k].data[4].key = mask.range(9, 8);
-		vmask4[k].data[4].value = mask.range(10, 9);
-		vmask4[k].data[5].key = mask.range(11, 10);
-		vmask4[k].data[5].value = mask.range(12, 11);
-		vmask4[k].data[6].key = mask.range(13, 12);
-		vmask4[k].data[6].value = mask.range(14, 13);
-		vmask4[k].data[7].key = mask.range(15, 14);
-		vmask4[k].data[7].value = mask.range(16, 15);
-		vmask4[k].data[8].key = mask.range(17, 16);
-		vmask4[k].data[8].value = mask.range(18, 17);
-		vmask4[k].data[9].key = mask.range(19, 18);
-		vmask4[k].data[9].value = mask.range(20, 19);
-		vmask4[k].data[10].key = mask.range(21, 20);
-		vmask4[k].data[10].value = mask.range(22, 21);
-		vmask4[k].data[11].key = mask.range(23, 22);
-		vmask4[k].data[11].value = mask.range(24, 23);
-		vmask4[k].data[12].key = mask.range(25, 24);
-		vmask4[k].data[12].value = mask.range(26, 25);
-		vmask4[k].data[13].key = mask.range(27, 26);
-		vmask4[k].data[13].value = mask.range(28, 27);
-		vmask4[k].data[14].key = mask.range(29, 28);
-		vmask4[k].data[14].value = mask.range(30, 29);
-		vmask4[k].data[15].key = mask.range(31, 30);
-		vmask4[k].data[15].value = mask.range(32, 31);
-		vmask5[k].data[0].key = mask.range(1, 0);
-		vmask5[k].data[0].value = mask.range(2, 1);
-		vmask5[k].data[1].key = mask.range(3, 2);
-		vmask5[k].data[1].value = mask.range(4, 3);
-		vmask5[k].data[2].key = mask.range(5, 4);
-		vmask5[k].data[2].value = mask.range(6, 5);
-		vmask5[k].data[3].key = mask.range(7, 6);
-		vmask5[k].data[3].value = mask.range(8, 7);
-		vmask5[k].data[4].key = mask.range(9, 8);
-		vmask5[k].data[4].value = mask.range(10, 9);
-		vmask5[k].data[5].key = mask.range(11, 10);
-		vmask5[k].data[5].value = mask.range(12, 11);
-		vmask5[k].data[6].key = mask.range(13, 12);
-		vmask5[k].data[6].value = mask.range(14, 13);
-		vmask5[k].data[7].key = mask.range(15, 14);
-		vmask5[k].data[7].value = mask.range(16, 15);
-		vmask5[k].data[8].key = mask.range(17, 16);
-		vmask5[k].data[8].value = mask.range(18, 17);
-		vmask5[k].data[9].key = mask.range(19, 18);
-		vmask5[k].data[9].value = mask.range(20, 19);
-		vmask5[k].data[10].key = mask.range(21, 20);
-		vmask5[k].data[10].value = mask.range(22, 21);
-		vmask5[k].data[11].key = mask.range(23, 22);
-		vmask5[k].data[11].value = mask.range(24, 23);
-		vmask5[k].data[12].key = mask.range(25, 24);
-		vmask5[k].data[12].value = mask.range(26, 25);
-		vmask5[k].data[13].key = mask.range(27, 26);
-		vmask5[k].data[13].value = mask.range(28, 27);
-		vmask5[k].data[14].key = mask.range(29, 28);
-		vmask5[k].data[14].value = mask.range(30, 29);
-		vmask5[k].data[15].key = mask.range(31, 30);
-		vmask5[k].data[15].value = mask.range(32, 31);
-		vmask6[k].data[0].key = mask.range(1, 0);
-		vmask6[k].data[0].value = mask.range(2, 1);
-		vmask6[k].data[1].key = mask.range(3, 2);
-		vmask6[k].data[1].value = mask.range(4, 3);
-		vmask6[k].data[2].key = mask.range(5, 4);
-		vmask6[k].data[2].value = mask.range(6, 5);
-		vmask6[k].data[3].key = mask.range(7, 6);
-		vmask6[k].data[3].value = mask.range(8, 7);
-		vmask6[k].data[4].key = mask.range(9, 8);
-		vmask6[k].data[4].value = mask.range(10, 9);
-		vmask6[k].data[5].key = mask.range(11, 10);
-		vmask6[k].data[5].value = mask.range(12, 11);
-		vmask6[k].data[6].key = mask.range(13, 12);
-		vmask6[k].data[6].value = mask.range(14, 13);
-		vmask6[k].data[7].key = mask.range(15, 14);
-		vmask6[k].data[7].value = mask.range(16, 15);
-		vmask6[k].data[8].key = mask.range(17, 16);
-		vmask6[k].data[8].value = mask.range(18, 17);
-		vmask6[k].data[9].key = mask.range(19, 18);
-		vmask6[k].data[9].value = mask.range(20, 19);
-		vmask6[k].data[10].key = mask.range(21, 20);
-		vmask6[k].data[10].value = mask.range(22, 21);
-		vmask6[k].data[11].key = mask.range(23, 22);
-		vmask6[k].data[11].value = mask.range(24, 23);
-		vmask6[k].data[12].key = mask.range(25, 24);
-		vmask6[k].data[12].value = mask.range(26, 25);
-		vmask6[k].data[13].key = mask.range(27, 26);
-		vmask6[k].data[13].value = mask.range(28, 27);
-		vmask6[k].data[14].key = mask.range(29, 28);
-		vmask6[k].data[14].value = mask.range(30, 29);
-		vmask6[k].data[15].key = mask.range(31, 30);
-		vmask6[k].data[15].value = mask.range(32, 31);
-		vmask7[k].data[0].key = mask.range(1, 0);
-		vmask7[k].data[0].value = mask.range(2, 1);
-		vmask7[k].data[1].key = mask.range(3, 2);
-		vmask7[k].data[1].value = mask.range(4, 3);
-		vmask7[k].data[2].key = mask.range(5, 4);
-		vmask7[k].data[2].value = mask.range(6, 5);
-		vmask7[k].data[3].key = mask.range(7, 6);
-		vmask7[k].data[3].value = mask.range(8, 7);
-		vmask7[k].data[4].key = mask.range(9, 8);
-		vmask7[k].data[4].value = mask.range(10, 9);
-		vmask7[k].data[5].key = mask.range(11, 10);
-		vmask7[k].data[5].value = mask.range(12, 11);
-		vmask7[k].data[6].key = mask.range(13, 12);
-		vmask7[k].data[6].value = mask.range(14, 13);
-		vmask7[k].data[7].key = mask.range(15, 14);
-		vmask7[k].data[7].value = mask.range(16, 15);
-		vmask7[k].data[8].key = mask.range(17, 16);
-		vmask7[k].data[8].value = mask.range(18, 17);
-		vmask7[k].data[9].key = mask.range(19, 18);
-		vmask7[k].data[9].value = mask.range(20, 19);
-		vmask7[k].data[10].key = mask.range(21, 20);
-		vmask7[k].data[10].value = mask.range(22, 21);
-		vmask7[k].data[11].key = mask.range(23, 22);
-		vmask7[k].data[11].value = mask.range(24, 23);
-		vmask7[k].data[12].key = mask.range(25, 24);
-		vmask7[k].data[12].value = mask.range(26, 25);
-		vmask7[k].data[13].key = mask.range(27, 26);
-		vmask7[k].data[13].value = mask.range(28, 27);
-		vmask7[k].data[14].key = mask.range(29, 28);
-		vmask7[k].data[14].value = mask.range(30, 29);
-		vmask7[k].data[15].key = mask.range(31, 30);
-		vmask7[k].data[15].value = mask.range(32, 31);
-		vmask8[k].data[0].key = mask.range(1, 0);
-		vmask8[k].data[0].value = mask.range(2, 1);
-		vmask8[k].data[1].key = mask.range(3, 2);
-		vmask8[k].data[1].value = mask.range(4, 3);
-		vmask8[k].data[2].key = mask.range(5, 4);
-		vmask8[k].data[2].value = mask.range(6, 5);
-		vmask8[k].data[3].key = mask.range(7, 6);
-		vmask8[k].data[3].value = mask.range(8, 7);
-		vmask8[k].data[4].key = mask.range(9, 8);
-		vmask8[k].data[4].value = mask.range(10, 9);
-		vmask8[k].data[5].key = mask.range(11, 10);
-		vmask8[k].data[5].value = mask.range(12, 11);
-		vmask8[k].data[6].key = mask.range(13, 12);
-		vmask8[k].data[6].value = mask.range(14, 13);
-		vmask8[k].data[7].key = mask.range(15, 14);
-		vmask8[k].data[7].value = mask.range(16, 15);
-		vmask8[k].data[8].key = mask.range(17, 16);
-		vmask8[k].data[8].value = mask.range(18, 17);
-		vmask8[k].data[9].key = mask.range(19, 18);
-		vmask8[k].data[9].value = mask.range(20, 19);
-		vmask8[k].data[10].key = mask.range(21, 20);
-		vmask8[k].data[10].value = mask.range(22, 21);
-		vmask8[k].data[11].key = mask.range(23, 22);
-		vmask8[k].data[11].value = mask.range(24, 23);
-		vmask8[k].data[12].key = mask.range(25, 24);
-		vmask8[k].data[12].value = mask.range(26, 25);
-		vmask8[k].data[13].key = mask.range(27, 26);
-		vmask8[k].data[13].value = mask.range(28, 27);
-		vmask8[k].data[14].key = mask.range(29, 28);
-		vmask8[k].data[14].value = mask.range(30, 29);
-		vmask8[k].data[15].key = mask.range(31, 30);
-		vmask8[k].data[15].value = mask.range(32, 31);
-		vmask9[k].data[0].key = mask.range(1, 0);
-		vmask9[k].data[0].value = mask.range(2, 1);
-		vmask9[k].data[1].key = mask.range(3, 2);
-		vmask9[k].data[1].value = mask.range(4, 3);
-		vmask9[k].data[2].key = mask.range(5, 4);
-		vmask9[k].data[2].value = mask.range(6, 5);
-		vmask9[k].data[3].key = mask.range(7, 6);
-		vmask9[k].data[3].value = mask.range(8, 7);
-		vmask9[k].data[4].key = mask.range(9, 8);
-		vmask9[k].data[4].value = mask.range(10, 9);
-		vmask9[k].data[5].key = mask.range(11, 10);
-		vmask9[k].data[5].value = mask.range(12, 11);
-		vmask9[k].data[6].key = mask.range(13, 12);
-		vmask9[k].data[6].value = mask.range(14, 13);
-		vmask9[k].data[7].key = mask.range(15, 14);
-		vmask9[k].data[7].value = mask.range(16, 15);
-		vmask9[k].data[8].key = mask.range(17, 16);
-		vmask9[k].data[8].value = mask.range(18, 17);
-		vmask9[k].data[9].key = mask.range(19, 18);
-		vmask9[k].data[9].value = mask.range(20, 19);
-		vmask9[k].data[10].key = mask.range(21, 20);
-		vmask9[k].data[10].value = mask.range(22, 21);
-		vmask9[k].data[11].key = mask.range(23, 22);
-		vmask9[k].data[11].value = mask.range(24, 23);
-		vmask9[k].data[12].key = mask.range(25, 24);
-		vmask9[k].data[12].value = mask.range(26, 25);
-		vmask9[k].data[13].key = mask.range(27, 26);
-		vmask9[k].data[13].value = mask.range(28, 27);
-		vmask9[k].data[14].key = mask.range(29, 28);
-		vmask9[k].data[14].value = mask.range(30, 29);
-		vmask9[k].data[15].key = mask.range(31, 30);
-		vmask9[k].data[15].value = mask.range(32, 31);
-		vmask10[k].data[0].key = mask.range(1, 0);
-		vmask10[k].data[0].value = mask.range(2, 1);
-		vmask10[k].data[1].key = mask.range(3, 2);
-		vmask10[k].data[1].value = mask.range(4, 3);
-		vmask10[k].data[2].key = mask.range(5, 4);
-		vmask10[k].data[2].value = mask.range(6, 5);
-		vmask10[k].data[3].key = mask.range(7, 6);
-		vmask10[k].data[3].value = mask.range(8, 7);
-		vmask10[k].data[4].key = mask.range(9, 8);
-		vmask10[k].data[4].value = mask.range(10, 9);
-		vmask10[k].data[5].key = mask.range(11, 10);
-		vmask10[k].data[5].value = mask.range(12, 11);
-		vmask10[k].data[6].key = mask.range(13, 12);
-		vmask10[k].data[6].value = mask.range(14, 13);
-		vmask10[k].data[7].key = mask.range(15, 14);
-		vmask10[k].data[7].value = mask.range(16, 15);
-		vmask10[k].data[8].key = mask.range(17, 16);
-		vmask10[k].data[8].value = mask.range(18, 17);
-		vmask10[k].data[9].key = mask.range(19, 18);
-		vmask10[k].data[9].value = mask.range(20, 19);
-		vmask10[k].data[10].key = mask.range(21, 20);
-		vmask10[k].data[10].value = mask.range(22, 21);
-		vmask10[k].data[11].key = mask.range(23, 22);
-		vmask10[k].data[11].value = mask.range(24, 23);
-		vmask10[k].data[12].key = mask.range(25, 24);
-		vmask10[k].data[12].value = mask.range(26, 25);
-		vmask10[k].data[13].key = mask.range(27, 26);
-		vmask10[k].data[13].value = mask.range(28, 27);
-		vmask10[k].data[14].key = mask.range(29, 28);
-		vmask10[k].data[14].value = mask.range(30, 29);
-		vmask10[k].data[15].key = mask.range(31, 30);
-		vmask10[k].data[15].value = mask.range(32, 31);
-		vmask11[k].data[0].key = mask.range(1, 0);
-		vmask11[k].data[0].value = mask.range(2, 1);
-		vmask11[k].data[1].key = mask.range(3, 2);
-		vmask11[k].data[1].value = mask.range(4, 3);
-		vmask11[k].data[2].key = mask.range(5, 4);
-		vmask11[k].data[2].value = mask.range(6, 5);
-		vmask11[k].data[3].key = mask.range(7, 6);
-		vmask11[k].data[3].value = mask.range(8, 7);
-		vmask11[k].data[4].key = mask.range(9, 8);
-		vmask11[k].data[4].value = mask.range(10, 9);
-		vmask11[k].data[5].key = mask.range(11, 10);
-		vmask11[k].data[5].value = mask.range(12, 11);
-		vmask11[k].data[6].key = mask.range(13, 12);
-		vmask11[k].data[6].value = mask.range(14, 13);
-		vmask11[k].data[7].key = mask.range(15, 14);
-		vmask11[k].data[7].value = mask.range(16, 15);
-		vmask11[k].data[8].key = mask.range(17, 16);
-		vmask11[k].data[8].value = mask.range(18, 17);
-		vmask11[k].data[9].key = mask.range(19, 18);
-		vmask11[k].data[9].value = mask.range(20, 19);
-		vmask11[k].data[10].key = mask.range(21, 20);
-		vmask11[k].data[10].value = mask.range(22, 21);
-		vmask11[k].data[11].key = mask.range(23, 22);
-		vmask11[k].data[11].value = mask.range(24, 23);
-		vmask11[k].data[12].key = mask.range(25, 24);
-		vmask11[k].data[12].value = mask.range(26, 25);
-		vmask11[k].data[13].key = mask.range(27, 26);
-		vmask11[k].data[13].value = mask.range(28, 27);
-		vmask11[k].data[14].key = mask.range(29, 28);
-		vmask11[k].data[14].value = mask.range(30, 29);
-		vmask11[k].data[15].key = mask.range(31, 30);
-		vmask11[k].data[15].value = mask.range(32, 31);
-		vmask12[k].data[0].key = mask.range(1, 0);
-		vmask12[k].data[0].value = mask.range(2, 1);
-		vmask12[k].data[1].key = mask.range(3, 2);
-		vmask12[k].data[1].value = mask.range(4, 3);
-		vmask12[k].data[2].key = mask.range(5, 4);
-		vmask12[k].data[2].value = mask.range(6, 5);
-		vmask12[k].data[3].key = mask.range(7, 6);
-		vmask12[k].data[3].value = mask.range(8, 7);
-		vmask12[k].data[4].key = mask.range(9, 8);
-		vmask12[k].data[4].value = mask.range(10, 9);
-		vmask12[k].data[5].key = mask.range(11, 10);
-		vmask12[k].data[5].value = mask.range(12, 11);
-		vmask12[k].data[6].key = mask.range(13, 12);
-		vmask12[k].data[6].value = mask.range(14, 13);
-		vmask12[k].data[7].key = mask.range(15, 14);
-		vmask12[k].data[7].value = mask.range(16, 15);
-		vmask12[k].data[8].key = mask.range(17, 16);
-		vmask12[k].data[8].value = mask.range(18, 17);
-		vmask12[k].data[9].key = mask.range(19, 18);
-		vmask12[k].data[9].value = mask.range(20, 19);
-		vmask12[k].data[10].key = mask.range(21, 20);
-		vmask12[k].data[10].value = mask.range(22, 21);
-		vmask12[k].data[11].key = mask.range(23, 22);
-		vmask12[k].data[11].value = mask.range(24, 23);
-		vmask12[k].data[12].key = mask.range(25, 24);
-		vmask12[k].data[12].value = mask.range(26, 25);
-		vmask12[k].data[13].key = mask.range(27, 26);
-		vmask12[k].data[13].value = mask.range(28, 27);
-		vmask12[k].data[14].key = mask.range(29, 28);
-		vmask12[k].data[14].value = mask.range(30, 29);
-		vmask12[k].data[15].key = mask.range(31, 30);
-		vmask12[k].data[15].value = mask.range(32, 31);
-		vmask13[k].data[0].key = mask.range(1, 0);
-		vmask13[k].data[0].value = mask.range(2, 1);
-		vmask13[k].data[1].key = mask.range(3, 2);
-		vmask13[k].data[1].value = mask.range(4, 3);
-		vmask13[k].data[2].key = mask.range(5, 4);
-		vmask13[k].data[2].value = mask.range(6, 5);
-		vmask13[k].data[3].key = mask.range(7, 6);
-		vmask13[k].data[3].value = mask.range(8, 7);
-		vmask13[k].data[4].key = mask.range(9, 8);
-		vmask13[k].data[4].value = mask.range(10, 9);
-		vmask13[k].data[5].key = mask.range(11, 10);
-		vmask13[k].data[5].value = mask.range(12, 11);
-		vmask13[k].data[6].key = mask.range(13, 12);
-		vmask13[k].data[6].value = mask.range(14, 13);
-		vmask13[k].data[7].key = mask.range(15, 14);
-		vmask13[k].data[7].value = mask.range(16, 15);
-		vmask13[k].data[8].key = mask.range(17, 16);
-		vmask13[k].data[8].value = mask.range(18, 17);
-		vmask13[k].data[9].key = mask.range(19, 18);
-		vmask13[k].data[9].value = mask.range(20, 19);
-		vmask13[k].data[10].key = mask.range(21, 20);
-		vmask13[k].data[10].value = mask.range(22, 21);
-		vmask13[k].data[11].key = mask.range(23, 22);
-		vmask13[k].data[11].value = mask.range(24, 23);
-		vmask13[k].data[12].key = mask.range(25, 24);
-		vmask13[k].data[12].value = mask.range(26, 25);
-		vmask13[k].data[13].key = mask.range(27, 26);
-		vmask13[k].data[13].value = mask.range(28, 27);
-		vmask13[k].data[14].key = mask.range(29, 28);
-		vmask13[k].data[14].value = mask.range(30, 29);
-		vmask13[k].data[15].key = mask.range(31, 30);
-		vmask13[k].data[15].value = mask.range(32, 31);
-		vmask14[k].data[0].key = mask.range(1, 0);
-		vmask14[k].data[0].value = mask.range(2, 1);
-		vmask14[k].data[1].key = mask.range(3, 2);
-		vmask14[k].data[1].value = mask.range(4, 3);
-		vmask14[k].data[2].key = mask.range(5, 4);
-		vmask14[k].data[2].value = mask.range(6, 5);
-		vmask14[k].data[3].key = mask.range(7, 6);
-		vmask14[k].data[3].value = mask.range(8, 7);
-		vmask14[k].data[4].key = mask.range(9, 8);
-		vmask14[k].data[4].value = mask.range(10, 9);
-		vmask14[k].data[5].key = mask.range(11, 10);
-		vmask14[k].data[5].value = mask.range(12, 11);
-		vmask14[k].data[6].key = mask.range(13, 12);
-		vmask14[k].data[6].value = mask.range(14, 13);
-		vmask14[k].data[7].key = mask.range(15, 14);
-		vmask14[k].data[7].value = mask.range(16, 15);
-		vmask14[k].data[8].key = mask.range(17, 16);
-		vmask14[k].data[8].value = mask.range(18, 17);
-		vmask14[k].data[9].key = mask.range(19, 18);
-		vmask14[k].data[9].value = mask.range(20, 19);
-		vmask14[k].data[10].key = mask.range(21, 20);
-		vmask14[k].data[10].value = mask.range(22, 21);
-		vmask14[k].data[11].key = mask.range(23, 22);
-		vmask14[k].data[11].value = mask.range(24, 23);
-		vmask14[k].data[12].key = mask.range(25, 24);
-		vmask14[k].data[12].value = mask.range(26, 25);
-		vmask14[k].data[13].key = mask.range(27, 26);
-		vmask14[k].data[13].value = mask.range(28, 27);
-		vmask14[k].data[14].key = mask.range(29, 28);
-		vmask14[k].data[14].value = mask.range(30, 29);
-		vmask14[k].data[15].key = mask.range(31, 30);
-		vmask14[k].data[15].value = mask.range(32, 31);
-		vmask15[k].data[0].key = mask.range(1, 0);
-		vmask15[k].data[0].value = mask.range(2, 1);
-		vmask15[k].data[1].key = mask.range(3, 2);
-		vmask15[k].data[1].value = mask.range(4, 3);
-		vmask15[k].data[2].key = mask.range(5, 4);
-		vmask15[k].data[2].value = mask.range(6, 5);
-		vmask15[k].data[3].key = mask.range(7, 6);
-		vmask15[k].data[3].value = mask.range(8, 7);
-		vmask15[k].data[4].key = mask.range(9, 8);
-		vmask15[k].data[4].value = mask.range(10, 9);
-		vmask15[k].data[5].key = mask.range(11, 10);
-		vmask15[k].data[5].value = mask.range(12, 11);
-		vmask15[k].data[6].key = mask.range(13, 12);
-		vmask15[k].data[6].value = mask.range(14, 13);
-		vmask15[k].data[7].key = mask.range(15, 14);
-		vmask15[k].data[7].value = mask.range(16, 15);
-		vmask15[k].data[8].key = mask.range(17, 16);
-		vmask15[k].data[8].value = mask.range(18, 17);
-		vmask15[k].data[9].key = mask.range(19, 18);
-		vmask15[k].data[9].value = mask.range(20, 19);
-		vmask15[k].data[10].key = mask.range(21, 20);
-		vmask15[k].data[10].value = mask.range(22, 21);
-		vmask15[k].data[11].key = mask.range(23, 22);
-		vmask15[k].data[11].value = mask.range(24, 23);
-		vmask15[k].data[12].key = mask.range(25, 24);
-		vmask15[k].data[12].value = mask.range(26, 25);
-		vmask15[k].data[13].key = mask.range(27, 26);
-		vmask15[k].data[13].value = mask.range(28, 27);
-		vmask15[k].data[14].key = mask.range(29, 28);
-		vmask15[k].data[14].value = mask.range(30, 29);
-		vmask15[k].data[15].key = mask.range(31, 30);
-		vmask15[k].data[15].value = mask.range(32, 31);
 		#else 
 		vmask0[k].data[0].key = READFROM_UINT(mask, 0, 1);
 		vmask0[k].data[0].value = READFROM_UINT(mask, 1, 1);
@@ -5377,390 +3414,6 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 		vmask3[k].data[14].value = READFROM_UINT(mask, 29, 1);
 		vmask3[k].data[15].key = READFROM_UINT(mask, 30, 1);
 		vmask3[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask4[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask4[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask4[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask4[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask4[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask4[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask4[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask4[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask4[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask4[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask4[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask4[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask4[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask4[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask4[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask4[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask4[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask4[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask4[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask4[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask4[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask4[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask4[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask4[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask4[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask4[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask4[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask4[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask4[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask4[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask4[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask4[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask5[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask5[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask5[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask5[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask5[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask5[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask5[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask5[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask5[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask5[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask5[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask5[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask5[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask5[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask5[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask5[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask5[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask5[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask5[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask5[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask5[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask5[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask5[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask5[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask5[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask5[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask5[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask5[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask5[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask5[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask5[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask5[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask6[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask6[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask6[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask6[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask6[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask6[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask6[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask6[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask6[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask6[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask6[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask6[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask6[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask6[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask6[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask6[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask6[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask6[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask6[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask6[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask6[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask6[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask6[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask6[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask6[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask6[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask6[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask6[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask6[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask6[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask6[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask6[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask7[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask7[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask7[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask7[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask7[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask7[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask7[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask7[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask7[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask7[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask7[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask7[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask7[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask7[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask7[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask7[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask7[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask7[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask7[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask7[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask7[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask7[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask7[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask7[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask7[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask7[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask7[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask7[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask7[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask7[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask7[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask7[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask8[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask8[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask8[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask8[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask8[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask8[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask8[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask8[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask8[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask8[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask8[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask8[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask8[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask8[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask8[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask8[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask8[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask8[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask8[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask8[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask8[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask8[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask8[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask8[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask8[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask8[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask8[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask8[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask8[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask8[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask8[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask8[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask9[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask9[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask9[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask9[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask9[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask9[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask9[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask9[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask9[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask9[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask9[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask9[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask9[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask9[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask9[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask9[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask9[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask9[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask9[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask9[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask9[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask9[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask9[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask9[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask9[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask9[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask9[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask9[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask9[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask9[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask9[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask9[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask10[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask10[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask10[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask10[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask10[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask10[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask10[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask10[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask10[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask10[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask10[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask10[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask10[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask10[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask10[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask10[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask10[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask10[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask10[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask10[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask10[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask10[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask10[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask10[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask10[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask10[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask10[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask10[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask10[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask10[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask10[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask10[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask11[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask11[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask11[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask11[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask11[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask11[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask11[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask11[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask11[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask11[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask11[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask11[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask11[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask11[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask11[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask11[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask11[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask11[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask11[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask11[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask11[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask11[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask11[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask11[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask11[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask11[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask11[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask11[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask11[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask11[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask11[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask11[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask12[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask12[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask12[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask12[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask12[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask12[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask12[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask12[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask12[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask12[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask12[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask12[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask12[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask12[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask12[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask12[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask12[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask12[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask12[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask12[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask12[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask12[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask12[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask12[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask12[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask12[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask12[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask12[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask12[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask12[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask12[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask12[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask13[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask13[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask13[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask13[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask13[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask13[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask13[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask13[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask13[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask13[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask13[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask13[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask13[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask13[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask13[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask13[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask13[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask13[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask13[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask13[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask13[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask13[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask13[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask13[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask13[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask13[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask13[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask13[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask13[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask13[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask13[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask13[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask14[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask14[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask14[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask14[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask14[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask14[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask14[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask14[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask14[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask14[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask14[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask14[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask14[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask14[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask14[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask14[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask14[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask14[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask14[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask14[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask14[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask14[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask14[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask14[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask14[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask14[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask14[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask14[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask14[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask14[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask14[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask14[k].data[15].value = READFROM_UINT(mask, 31, 1);
-		vmask15[k].data[0].key = READFROM_UINT(mask, 0, 1);
-		vmask15[k].data[0].value = READFROM_UINT(mask, 1, 1);
-		vmask15[k].data[1].key = READFROM_UINT(mask, 2, 1);
-		vmask15[k].data[1].value = READFROM_UINT(mask, 3, 1);
-		vmask15[k].data[2].key = READFROM_UINT(mask, 4, 1);
-		vmask15[k].data[2].value = READFROM_UINT(mask, 5, 1);
-		vmask15[k].data[3].key = READFROM_UINT(mask, 6, 1);
-		vmask15[k].data[3].value = READFROM_UINT(mask, 7, 1);
-		vmask15[k].data[4].key = READFROM_UINT(mask, 8, 1);
-		vmask15[k].data[4].value = READFROM_UINT(mask, 9, 1);
-		vmask15[k].data[5].key = READFROM_UINT(mask, 10, 1);
-		vmask15[k].data[5].value = READFROM_UINT(mask, 11, 1);
-		vmask15[k].data[6].key = READFROM_UINT(mask, 12, 1);
-		vmask15[k].data[6].value = READFROM_UINT(mask, 13, 1);
-		vmask15[k].data[7].key = READFROM_UINT(mask, 14, 1);
-		vmask15[k].data[7].value = READFROM_UINT(mask, 15, 1);
-		vmask15[k].data[8].key = READFROM_UINT(mask, 16, 1);
-		vmask15[k].data[8].value = READFROM_UINT(mask, 17, 1);
-		vmask15[k].data[9].key = READFROM_UINT(mask, 18, 1);
-		vmask15[k].data[9].value = READFROM_UINT(mask, 19, 1);
-		vmask15[k].data[10].key = READFROM_UINT(mask, 20, 1);
-		vmask15[k].data[10].value = READFROM_UINT(mask, 21, 1);
-		vmask15[k].data[11].key = READFROM_UINT(mask, 22, 1);
-		vmask15[k].data[11].value = READFROM_UINT(mask, 23, 1);
-		vmask15[k].data[12].key = READFROM_UINT(mask, 24, 1);
-		vmask15[k].data[12].value = READFROM_UINT(mask, 25, 1);
-		vmask15[k].data[13].key = READFROM_UINT(mask, 26, 1);
-		vmask15[k].data[13].value = READFROM_UINT(mask, 27, 1);
-		vmask15[k].data[14].key = READFROM_UINT(mask, 28, 1);
-		vmask15[k].data[14].value = READFROM_UINT(mask, 29, 1);
-		vmask15[k].data[15].key = READFROM_UINT(mask, 30, 1);
-		vmask15[k].data[15].value = READFROM_UINT(mask, 31, 1);
 		#endif
 		if(mask > 0){ partitionisactive = ON; }
 	}
@@ -5768,8 +3421,7 @@ synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE]
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("synchronize.synvbuffer", synvbuffer, NUM_VBUFFERS, 4);
 	actsutilityobj->printkeyvalues("synchronize.vmask", _vmask, NUM_PARTITIONS, 4);
-	#endif 
-	// exit(EXIT_SUCCESS); // 
+	#endif
 	return partitionisactive;
 }
 
@@ -6642,7 +4294,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uint512_dt * kvdram1, keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uint512_dt * kvdram2, keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uint512_dt * kvdram3, keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE],uint512_dt * kvdram4, keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE],uint512_dt * kvdram5, keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE],uint512_dt * kvdram6, keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE],uint512_dt * kvdram7, keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE],uint512_dt * kvdram8, keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE],uint512_dt * kvdram9, keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE],uint512_dt * kvdram10, keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE],uint512_dt * kvdram11, keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE],uint512_dt * kvdram12, keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE],uint512_dt * kvdram13, keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE],uint512_dt * kvdram14, keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE],uint512_dt * kvdram15, keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], bool_type vpmask[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
+start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], bool_type vpmask0[BLOCKRAM_SIZE],uint512_dt * kvdram1, keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], bool_type vpmask1[BLOCKRAM_SIZE],uint512_dt * kvdram2, keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], bool_type vpmask2[BLOCKRAM_SIZE],uint512_dt * kvdram3, keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], bool_type vpmask3[BLOCKRAM_SIZE], bool_type vpmask[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -6654,51 +4306,9 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t synvbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer0_1
-	keyvalue_t synvbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer0_2
-	uintNUMPby2_type synvmask0[BLOCKRAM_SIZE];
-	keyvalue_t synvbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer1_1
-	keyvalue_t synvbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer1_2
-	uintNUMPby2_type synvmask1[BLOCKRAM_SIZE];
-	keyvalue_t synvbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer2_1
-	keyvalue_t synvbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer2_2
-	uintNUMPby2_type synvmask2[BLOCKRAM_SIZE];
-	keyvalue_t synvbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer3_1
-	keyvalue_t synvbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer3_2
-	uintNUMPby2_type synvmask3[BLOCKRAM_SIZE];
-	keyvalue_t synvbuffer4_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer4_1
-	keyvalue_t synvbuffer4_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS array_partition variable = synvbuffer4_2
-	uintNUMPby2_type synvmask4[BLOCKRAM_SIZE];
-	
 	keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer
 	
-	bool_type vpmask0[BLOCKRAM_SIZE];
-	bool_type vpmask1[BLOCKRAM_SIZE];
-	bool_type vpmask2[BLOCKRAM_SIZE];
-	bool_type vpmask3[BLOCKRAM_SIZE];
-	bool_type vpmask4[BLOCKRAM_SIZE];
-	bool_type vpmask5[BLOCKRAM_SIZE];
-	bool_type vpmask6[BLOCKRAM_SIZE];
-	bool_type vpmask7[BLOCKRAM_SIZE];
-	bool_type vpmask8[BLOCKRAM_SIZE];
-	bool_type vpmask9[BLOCKRAM_SIZE];
-	bool_type vpmask10[BLOCKRAM_SIZE];
-	bool_type vpmask11[BLOCKRAM_SIZE];
-	bool_type vpmask12[BLOCKRAM_SIZE];
-	bool_type vpmask13[BLOCKRAM_SIZE];
-	bool_type vpmask14[BLOCKRAM_SIZE];
-	bool_type vpmask15[BLOCKRAM_SIZE];
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	
@@ -6731,34 +4341,10 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
  
 		rtravstate[3] = gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker);
- 
-		rtravstate[4] = gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker);
- 
-		rtravstate[5] = gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker);
- 
-		rtravstate[6] = gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker);
- 
-		rtravstate[7] = gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker);
- 
-		rtravstate[8] = gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker);
- 
-		rtravstate[9] = gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker);
- 
-		rtravstate[10] = gettravstate(ON, kvdram10, globalparams[10], currentLOP, sourcestatsmarker);
- 
-		rtravstate[11] = gettravstate(ON, kvdram11, globalparams[11], currentLOP, sourcestatsmarker);
- 
-		rtravstate[12] = gettravstate(ON, kvdram12, globalparams[12], currentLOP, sourcestatsmarker);
- 
-		rtravstate[13] = gettravstate(ON, kvdram13, globalparams[13], currentLOP, sourcestatsmarker);
- 
-		rtravstate[14] = gettravstate(ON, kvdram14, globalparams[14], currentLOP, sourcestatsmarker);
- 
-		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
-		// read vertices 
+		// read vertices
 		loadvdata(enablereduce, kvdram0, synvbuffer, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); // CRITICAL FIXME. too expensive here
 	
 		readkeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer0_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
@@ -6773,80 +4359,20 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 		readkeyvalues(enablereduce, kvdram3, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer3_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		readkeyvalues(enablereduce, kvdram3, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer3_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 	
-		readkeyvalues(enablereduce, kvdram4, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer4_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram4, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer4_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram5, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer5_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram5, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer5_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram6, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer6_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram6, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer6_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram7, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer7_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram7, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer7_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer8_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer8_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram9, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer9_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram9, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer9_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram10, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer10_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram10, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer10_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram11, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer11_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram11, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer11_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram12, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer12_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram12, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer12_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram13, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer13_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram13, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer13_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram14, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer14_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram14, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer14_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
-		readkeyvalues(enablereduce, kvdram15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer15_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer15_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-	
 		resetvmask(vmask0);
 		resetvmask(vmask1);
 		resetvmask(vmask2);
 		resetvmask(vmask3);
-		resetvmask(vmask4);
-		resetvmask(vmask5);
-		resetvmask(vmask6);
-		resetvmask(vmask7);
-		resetvmask(vmask8);
-		resetvmask(vmask9);
-		resetvmask(vmask10);
-		resetvmask(vmask11);
-		resetvmask(vmask12);
-		resetvmask(vmask13);
-		resetvmask(vmask14);
-		resetvmask(vmask15);
 		
 		// reduce
 		dispatch(OFF, OFF, enablereduce, kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask0, sourcestatsmarker, source_partition, _globalparams);
 		dispatch(OFF, OFF, enablereduce, kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask1, sourcestatsmarker, source_partition, _globalparams);
 		dispatch(OFF, OFF, enablereduce, kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask2, sourcestatsmarker, source_partition, _globalparams);
 		dispatch(OFF, OFF, enablereduce, kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask3, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram4, vbuffer4_1, vbuffer4_2, vmask4, vpmask4, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram5, vbuffer5_1, vbuffer5_2, vmask5, vpmask5, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram6, vbuffer6_1, vbuffer6_2, vmask6, vpmask6, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram7, vbuffer7_1, vbuffer7_2, vmask7, vpmask7, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram8, vbuffer8_1, vbuffer8_2, vmask8, vpmask8, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram9, vbuffer9_1, vbuffer9_2, vmask9, vpmask9, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram10, vbuffer10_1, vbuffer10_2, vmask10, vpmask10, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram11, vbuffer11_1, vbuffer11_2, vmask11, vpmask11, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram12, vbuffer12_1, vbuffer12_2, vmask12, vpmask12, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram13, vbuffer13_1, vbuffer13_2, vmask13, vpmask13, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram14, vbuffer14_1, vbuffer14_2, vmask14, vpmask14, sourcestatsmarker, source_partition, _globalparams);
-		dispatch(OFF, OFF, enablereduce, kvdram15, vbuffer15_1, vbuffer15_2, vmask15, vpmask15, sourcestatsmarker, source_partition, _globalparams);
 		
 		// synchronize
-		#ifdef DISPATCHTYPE_SYNC // CRITICAL REMOVEME.
-		vpmask[source_partition] = synchronize(enablereduce, synvbuffer, vbuffer0_1, vbuffer0_2, vmask0,vbuffer1_1, vbuffer1_2, vmask1,vbuffer2_1, vbuffer2_2, vmask2,vbuffer3_1, vbuffer3_2, vmask3,vbuffer4_1, vbuffer4_2, vmask4,vbuffer5_1, vbuffer5_2, vmask5,vbuffer6_1, vbuffer6_2, vmask6,vbuffer7_1, vbuffer7_2, vmask7,vbuffer8_1, vbuffer8_2, vmask8,vbuffer9_1, vbuffer9_2, vmask9,vbuffer10_1, vbuffer10_2, vmask10,vbuffer11_1, vbuffer11_2, vmask11,vbuffer12_1, vbuffer12_2, vmask12,vbuffer13_1, vbuffer13_2, vmask13,vbuffer14_1, vbuffer14_2, vmask14,vbuffer15_1, vbuffer15_2, vmask15, _globalparams);
+		#ifdef DISPATCHTYPE_SYNC
+		vpmask[source_partition] = synchronize(enablereduce, synvbuffer, vbuffer0_1, vbuffer0_2, vmask0,vbuffer1_1, vbuffer1_2, vmask1,vbuffer2_1, vbuffer2_2, vmask2,vbuffer3_1, vbuffer3_2, vmask3, source_partition, _globalparams);
 		#endif
 		
 		// writeback vertices
@@ -6858,46 +4384,10 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 		savekeyvalues(enablereduce, kvdram2, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer2_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savekeyvalues(enablereduce, kvdram3, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer3_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savekeyvalues(enablereduce, kvdram3, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer3_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram4, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer4_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram4, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer4_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram5, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer5_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram5, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer5_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram6, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer6_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram6, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer6_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram7, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer7_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram7, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer7_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer8_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram8, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer8_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram9, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer9_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram9, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer9_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram10, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer10_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram10, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer10_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram11, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer11_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram11, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer11_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram12, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer12_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram12, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer12_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram13, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer13_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram13, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer13_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram14, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer14_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram14, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer14_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer15_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		savekeyvalues(enablereduce, kvdram15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer15_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savevmasks(enablereduce, kvdram0, vmask0, vbuffer0_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		savevmasks(enablereduce, kvdram1, vmask1, vbuffer1_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		savevmasks(enablereduce, kvdram2, vmask2, vbuffer2_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		savevmasks(enablereduce, kvdram3, vmask3, vbuffer3_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram4, vmask4, vbuffer4_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram5, vmask5, vbuffer5_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram6, vmask6, vbuffer6_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram7, vmask7, vbuffer7_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram8, vmask8, vbuffer8_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram9, vmask9, vbuffer9_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram10, vmask10, vbuffer10_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram11, vmask11, vbuffer11_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram12, vmask12, vbuffer12_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram13, vmask13, vbuffer13_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram14, vmask14, vbuffer14_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
-		savevmasks(enablereduce, kvdram15, vmask15, vbuffer15_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		
 		sourcestatsmarker += 1;
 	}
@@ -6912,40 +4402,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-start(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, bool_type vpmask[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
-	
-	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask0
-	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask1
-	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask2
-	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask3
-	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask4
-	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask5
-	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask6
-	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask7
-	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask8
-	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask9
-	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask10
-	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask11
-	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask12
-	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask13
-	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask14
-	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask15
+start(uint512_dt * kvdram0, uint512_dt * kvdram1, uint512_dt * kvdram2, uint512_dt * kvdram3,  bool_type vpmask[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	
 	keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0_1	
@@ -6963,229 +4420,85 @@ start(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt 
 	#pragma HLS array_partition variable = vbuffer3_1	
 	keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3_2
-	keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer4_1	
-	keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer4_2
-	keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer5_1	
-	keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer5_2
-	keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer6_1	
-	keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer6_2
-	keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer7_1	
-	keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer7_2
-	keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer8_1	
-	keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer8_2
-	keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer9_1	
-	keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer9_2
-	keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer10_1	
-	keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer10_2
-	keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer11_1	
-	keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer11_2
-	keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer12_1	
-	keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer12_2
-	keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer13_1	
-	keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer13_2
-	keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer14_1	
-	keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer14_2
-	keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer15_1	
-	keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer15_2
+	
+	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask0
+	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask1
+	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask2
+	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask3
+	
+	bool_type vpmask0[BLOCKRAM_SIZE];
+	bool_type vpmask1[BLOCKRAM_SIZE];
+	bool_type vpmask2[BLOCKRAM_SIZE];
+	bool_type vpmask3[BLOCKRAM_SIZE];
+	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+		vpmask[k] = vpmask[k]; 
+	}
 
 	// process & partition
 	if(globalparams[0].processcommand == ON){ 
- // COMPUTEUNITS_seq
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: processing instance 0... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask, NAp, NAp, globalparams[0]);
- // COMPUTEUNITS_seq
+		dispatch(ON, OFF, OFF, kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask0, NAp, NAp, globalparams[0]);
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: processing instance 1... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask, NAp, NAp, globalparams[1]);
- // COMPUTEUNITS_seq
+		dispatch(ON, OFF, OFF, kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask1, NAp, NAp, globalparams[1]);
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: processing instance 2... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask, NAp, NAp, globalparams[2]);
- // COMPUTEUNITS_seq
+		dispatch(ON, OFF, OFF, kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask2, NAp, NAp, globalparams[2]);
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: processing instance 3... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask, NAp, NAp, globalparams[3]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 4... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram4, vbuffer4_1, vbuffer4_2, vmask4, vpmask, NAp, NAp, globalparams[4]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 5... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram5, vbuffer5_1, vbuffer5_2, vmask5, vpmask, NAp, NAp, globalparams[5]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 6... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram6, vbuffer6_1, vbuffer6_2, vmask6, vpmask, NAp, NAp, globalparams[6]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 7... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram7, vbuffer7_1, vbuffer7_2, vmask7, vpmask, NAp, NAp, globalparams[7]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 8... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram8, vbuffer8_1, vbuffer8_2, vmask8, vpmask, NAp, NAp, globalparams[8]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 9... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram9, vbuffer9_1, vbuffer9_2, vmask9, vpmask, NAp, NAp, globalparams[9]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 10... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram10, vbuffer10_1, vbuffer10_2, vmask10, vpmask, NAp, NAp, globalparams[10]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 11... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram11, vbuffer11_1, vbuffer11_2, vmask11, vpmask, NAp, NAp, globalparams[11]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 12... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram12, vbuffer12_1, vbuffer12_2, vmask12, vpmask, NAp, NAp, globalparams[12]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 13... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram13, vbuffer13_1, vbuffer13_2, vmask13, vpmask, NAp, NAp, globalparams[13]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 14... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram14, vbuffer14_1, vbuffer14_2, vmask14, vpmask, NAp, NAp, globalparams[14]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: processing instance 15... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram15, vbuffer15_1, vbuffer15_2, vmask15, vpmask, NAp, NAp, globalparams[15]);
+		dispatch(ON, OFF, OFF, kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask3, NAp, NAp, globalparams[3]);
 	}
 	
 	// partition 
 	if(globalparams[0].partitioncommand == ON){ 
- // COMPUTEUNITS_seq
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: partitioning instance 0... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask, NAp, NAp, globalparams[0]);
- // COMPUTEUNITS_seq
+		dispatch(OFF, ON, OFF, kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask0, NAp, NAp, globalparams[0]);
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: partitioning instance 1... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask, NAp, NAp, globalparams[1]);
- // COMPUTEUNITS_seq
+		dispatch(OFF, ON, OFF, kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask1, NAp, NAp, globalparams[1]);
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: partitioning instance 2... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask, NAp, NAp, globalparams[2]);
- // COMPUTEUNITS_seq
+		dispatch(OFF, ON, OFF, kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask2, NAp, NAp, globalparams[2]);
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"start: partitioning instance 3... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask, NAp, NAp, globalparams[3]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 4... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram4, vbuffer4_1, vbuffer4_2, vmask4, vpmask, NAp, NAp, globalparams[4]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 5... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram5, vbuffer5_1, vbuffer5_2, vmask5, vpmask, NAp, NAp, globalparams[5]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 6... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram6, vbuffer6_1, vbuffer6_2, vmask6, vpmask, NAp, NAp, globalparams[6]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 7... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram7, vbuffer7_1, vbuffer7_2, vmask7, vpmask, NAp, NAp, globalparams[7]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 8... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram8, vbuffer8_1, vbuffer8_2, vmask8, vpmask, NAp, NAp, globalparams[8]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 9... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram9, vbuffer9_1, vbuffer9_2, vmask9, vpmask, NAp, NAp, globalparams[9]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 10... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram10, vbuffer10_1, vbuffer10_2, vmask10, vpmask, NAp, NAp, globalparams[10]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 11... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram11, vbuffer11_1, vbuffer11_2, vmask11, vpmask, NAp, NAp, globalparams[11]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 12... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram12, vbuffer12_1, vbuffer12_2, vmask12, vpmask, NAp, NAp, globalparams[12]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 13... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram13, vbuffer13_1, vbuffer13_2, vmask13, vpmask, NAp, NAp, globalparams[13]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 14... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram14, vbuffer14_1, vbuffer14_2, vmask14, vpmask, NAp, NAp, globalparams[14]);
- // COMPUTEUNITS_seq
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: partitioning instance 15... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram15, vbuffer15_1, vbuffer15_2, vmask15, vpmask, NAp, NAp, globalparams[15]);
+		dispatch(OFF, ON, OFF, kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask3, NAp, NAp, globalparams[3]);
 	}
 	
 	// reduce & partition
 	if(globalparams[0].reducecommand == ON){
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"start: reducing instances 0-16... "<<endl;
+		cout<<"start: reducing instances 0-4... "<<endl;
 		#endif
-		start_reduce(kvdram0, vbuffer0_1, vbuffer0_2, vmask0,kvdram1, vbuffer1_1, vbuffer1_2, vmask1,kvdram2, vbuffer2_1, vbuffer2_2, vmask2,kvdram3, vbuffer3_1, vbuffer3_2, vmask3,kvdram4, vbuffer4_1, vbuffer4_2, vmask4,kvdram5, vbuffer5_1, vbuffer5_2, vmask5,kvdram6, vbuffer6_1, vbuffer6_2, vmask6,kvdram7, vbuffer7_1, vbuffer7_2, vmask7,kvdram8, vbuffer8_1, vbuffer8_2, vmask8,kvdram9, vbuffer9_1, vbuffer9_2, vmask9,kvdram10, vbuffer10_1, vbuffer10_2, vmask10,kvdram11, vbuffer11_1, vbuffer11_2, vmask11,kvdram12, vbuffer12_1, vbuffer12_2, vmask12,kvdram13, vbuffer13_1, vbuffer13_2, vmask13,kvdram14, vbuffer14_1, vbuffer14_2, vmask14,kvdram15, vbuffer15_1, vbuffer15_2, vmask15, vpmask, globalparams);
+		start_reduce(kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask0,kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask1,kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask2,kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask3, vpmask, globalparams);
 	}
 	
 	#if defined(_DEBUGMODE_KERNELPRINTS3) && not defined (ALLVERTEXISACTIVE_ALGORITHM)
@@ -7208,43 +4521,17 @@ void
 	#ifdef SW 
 	acts:: 
 	#endif
-topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){ 
+topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3){ 
 	
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem0
  
-#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem1
+#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
  
-#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
  
-#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem3
+#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
  
-#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem4
- 
-#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem5
- 
-#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem6
- 
-#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem7
- 
-#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem8
- 
-#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem9
- 
-#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem10
- 
-#pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem11
- 
-#pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem12
- 
-#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem13
- 
-#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem14
- 
-#pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem15
- 
-#pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem16
+#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
 		
-#pragma HLS INTERFACE s_axilite port = vdram bundle = control
  
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
  
@@ -7253,34 +4540,9 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 #pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
  
 #pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-#pragma HLS DATA_PACK variable = vdram
  
 #pragma HLS DATA_PACK variable = kvdram0
  
@@ -7289,30 +4551,6 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 #pragma HLS DATA_PACK variable = kvdram2
  
 #pragma HLS DATA_PACK variable = kvdram3
- 
-#pragma HLS DATA_PACK variable = kvdram4
- 
-#pragma HLS DATA_PACK variable = kvdram5
- 
-#pragma HLS DATA_PACK variable = kvdram6
- 
-#pragma HLS DATA_PACK variable = kvdram7
- 
-#pragma HLS DATA_PACK variable = kvdram8
- 
-#pragma HLS DATA_PACK variable = kvdram9
- 
-#pragma HLS DATA_PACK variable = kvdram10
- 
-#pragma HLS DATA_PACK variable = kvdram11
- 
-#pragma HLS DATA_PACK variable = kvdram12
- 
-#pragma HLS DATA_PACK variable = kvdram13
- 
-#pragma HLS DATA_PACK variable = kvdram14
- 
-#pragma HLS DATA_PACK variable = kvdram15
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -7328,30 +4566,6 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	cout<<">>> Light weight ACTS 2 (_L2) Launched... size: "<<(unsigned int)(kvdram2[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
   
 	cout<<">>> Light weight ACTS 3 (_L2) Launched... size: "<<(unsigned int)(kvdram3[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 4 (_L2) Launched... size: "<<(unsigned int)(kvdram4[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 5 (_L2) Launched... size: "<<(unsigned int)(kvdram5[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 6 (_L2) Launched... size: "<<(unsigned int)(kvdram6[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 7 (_L2) Launched... size: "<<(unsigned int)(kvdram7[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 8 (_L2) Launched... size: "<<(unsigned int)(kvdram8[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 9 (_L2) Launched... size: "<<(unsigned int)(kvdram9[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 10 (_L2) Launched... size: "<<(unsigned int)(kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 11 (_L2) Launched... size: "<<(unsigned int)(kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 12 (_L2) Launched... size: "<<(unsigned int)(kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 13 (_L2) Launched... size: "<<(unsigned int)(kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 14 (_L2) Launched... size: "<<(unsigned int)(kvdram14[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
-  
-	cout<<">>> Light weight ACTS 15 (_L2) Launched... size: "<<(unsigned int)(kvdram15[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].range(31, 0))<<endl; 
 	#else
   
 	cout<<">>> Light weight ACTS 0 (_L2) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
@@ -7361,30 +4575,6 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	cout<<">>> Light weight ACTS 2 (_L2) Launched... size: "<<kvdram2[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
   
 	cout<<">>> Light weight ACTS 3 (_L2) Launched... size: "<<kvdram3[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 4 (_L2) Launched... size: "<<kvdram4[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 5 (_L2) Launched... size: "<<kvdram5[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 6 (_L2) Launched... size: "<<kvdram6[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 7 (_L2) Launched... size: "<<kvdram7[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 8 (_L2) Launched... size: "<<kvdram8[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 9 (_L2) Launched... size: "<<kvdram9[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 10 (_L2) Launched... size: "<<kvdram10[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 11 (_L2) Launched... size: "<<kvdram11[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 12 (_L2) Launched... size: "<<kvdram12[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 13 (_L2) Launched... size: "<<kvdram13[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 14 (_L2) Launched... size: "<<kvdram14[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
-  
-	cout<<">>> Light weight ACTS 15 (_L2) Launched... size: "<<kvdram15[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key<<endl; 
 	#endif
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -7449,174 +4639,6 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	#pragma HLS array_partition variable = unused_buffer63
 	keyvalue_t unused_buffer73[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
 	#pragma HLS array_partition variable = unused_buffer73
-	keyvalue_t buffer14[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer14
-	keyvalue_t buffer24[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer24
-	keyvalue_t buffer34[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer34
-	keyvalue_t buffer44[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer44
-	keyvalue_t buffer54[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer54
-	keyvalue_t unused_buffer64[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer64
-	keyvalue_t unused_buffer74[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer74
-	keyvalue_t buffer15[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer15
-	keyvalue_t buffer25[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer25
-	keyvalue_t buffer35[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer35
-	keyvalue_t buffer45[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer45
-	keyvalue_t buffer55[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer55
-	keyvalue_t unused_buffer65[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer65
-	keyvalue_t unused_buffer75[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer75
-	keyvalue_t buffer16[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer16
-	keyvalue_t buffer26[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer26
-	keyvalue_t buffer36[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer36
-	keyvalue_t buffer46[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer46
-	keyvalue_t buffer56[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer56
-	keyvalue_t unused_buffer66[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer66
-	keyvalue_t unused_buffer76[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer76
-	keyvalue_t buffer17[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer17
-	keyvalue_t buffer27[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer27
-	keyvalue_t buffer37[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer37
-	keyvalue_t buffer47[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer47
-	keyvalue_t buffer57[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer57
-	keyvalue_t unused_buffer67[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer67
-	keyvalue_t unused_buffer77[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer77
-	keyvalue_t buffer18[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer18
-	keyvalue_t buffer28[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer28
-	keyvalue_t buffer38[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer38
-	keyvalue_t buffer48[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer48
-	keyvalue_t buffer58[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer58
-	keyvalue_t unused_buffer68[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer68
-	keyvalue_t unused_buffer78[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer78
-	keyvalue_t buffer19[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer19
-	keyvalue_t buffer29[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer29
-	keyvalue_t buffer39[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer39
-	keyvalue_t buffer49[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer49
-	keyvalue_t buffer59[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer59
-	keyvalue_t unused_buffer69[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer69
-	keyvalue_t unused_buffer79[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer79
-	keyvalue_t buffer110[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer110
-	keyvalue_t buffer210[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer210
-	keyvalue_t buffer310[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer310
-	keyvalue_t buffer410[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer410
-	keyvalue_t buffer510[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer510
-	keyvalue_t unused_buffer610[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer610
-	keyvalue_t unused_buffer710[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer710
-	keyvalue_t buffer111[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer111
-	keyvalue_t buffer211[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer211
-	keyvalue_t buffer311[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer311
-	keyvalue_t buffer411[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer411
-	keyvalue_t buffer511[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer511
-	keyvalue_t unused_buffer611[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer611
-	keyvalue_t unused_buffer711[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer711
-	keyvalue_t buffer112[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer112
-	keyvalue_t buffer212[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer212
-	keyvalue_t buffer312[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer312
-	keyvalue_t buffer412[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer412
-	keyvalue_t buffer512[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer512
-	keyvalue_t unused_buffer612[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer612
-	keyvalue_t unused_buffer712[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer712
-	keyvalue_t buffer113[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer113
-	keyvalue_t buffer213[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer213
-	keyvalue_t buffer313[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer313
-	keyvalue_t buffer413[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer413
-	keyvalue_t buffer513[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer513
-	keyvalue_t unused_buffer613[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer613
-	keyvalue_t unused_buffer713[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer713
-	keyvalue_t buffer114[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer114
-	keyvalue_t buffer214[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer214
-	keyvalue_t buffer314[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer314
-	keyvalue_t buffer414[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer414
-	keyvalue_t buffer514[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer514
-	keyvalue_t unused_buffer614[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer614
-	keyvalue_t unused_buffer714[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer714
-	keyvalue_t buffer115[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer115
-	keyvalue_t buffer215[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer215
-	keyvalue_t buffer315[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer315
-	keyvalue_t buffer415[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer415
-	keyvalue_t buffer515[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = buffer515
-	keyvalue_t unused_buffer615[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer615
-	keyvalue_t unused_buffer715[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
-	#pragma HLS array_partition variable = unused_buffer715
 	
 	globalparams_t globalparams[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=globalparams complete
@@ -7628,35 +4650,12 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	globalparams[2] = getglobalparams(kvdram2);
  
 	globalparams[3] = getglobalparams(kvdram3);
- 
-	globalparams[4] = getglobalparams(kvdram4);
- 
-	globalparams[5] = getglobalparams(kvdram5);
- 
-	globalparams[6] = getglobalparams(kvdram6);
- 
-	globalparams[7] = getglobalparams(kvdram7);
- 
-	globalparams[8] = getglobalparams(kvdram8);
- 
-	globalparams[9] = getglobalparams(kvdram9);
- 
-	globalparams[10] = getglobalparams(kvdram10);
- 
-	globalparams[11] = getglobalparams(kvdram11);
- 
-	globalparams[12] = getglobalparams(kvdram12);
- 
-	globalparams[13] = getglobalparams(kvdram13);
- 
-	globalparams[14] = getglobalparams(kvdram14);
- 
-	globalparams[15] = getglobalparams(kvdram15);
-	
+
 	bool_type vpmask[BLOCKRAM_SIZE];
+	
 	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ vpmask[k] = OFF; }
 	vpmask[0] = ON; // just for test. assuming rootvid=1
-	
+
 	unsigned int numGraphIters = globalparams[0].GraphIter;
 	unsigned int numactvvs = 1;
 	
@@ -7672,14 +4671,22 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 		#endif
 		
 		for(unsigned int i=0; i<NUMCOMPUTEUNITS; i++){ globalparams[i].GraphIter = GraphIter; }
-		start(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, vpmask, globalparams);
+		start(kvdram0,kvdram1,kvdram2,kvdram3, vpmask, globalparams);
 
 		#ifdef _DEBUGMODE_STATS
 		numactvvs = actsutilityobj->globalstats_getactvvsseen();
 		cout<<"num active vertices for iteration "<<GraphIter+1<<": "<<numactvvs<<endl;
 		actsutilityobj->globalstats_setactvvsseen(0);
-		if(numactvvs == 0){ break; }
+		// if(numactvvs == 0){ break; }
 		#endif 
+		
+		unsigned int actvvstatus = 0;
+		for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ if(vpmask[k] == ON){ actvvstatus = 1; }} 
+		if(actvvstatus == 0){ 
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			cout<<"no more active vertices to process. breaking out... "<<endl;
+			#endif 
+			break; }
 	}
 	
 	#ifdef _DEBUGMODE_STATSX

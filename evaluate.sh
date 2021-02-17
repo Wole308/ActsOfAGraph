@@ -576,9 +576,9 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		# for numsubcputhreads in $NUMTHREADS_EQ4
+		for numsubcputhreads in $NUMTHREADS_EQ4
 		# for numsubcputhreads in $NUMTHREADS_EQ12
-		for numsubcputhreads in $NUMTHREADS_EQ16
+		# for numsubcputhreads in $NUMTHREADS_EQ16
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)

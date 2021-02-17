@@ -34,8 +34,6 @@ void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedra
 	// kernelobjs[0]->topkernel((uint512_dt **)kvsourcedram);
 	kernelobjs[0]->topkernel(
 	
-		(uint512_dt *)vdram,
-	
 		#if NUMCOMPUTEUNITS==1
 		(uint512_dt *)kvsourcedram[0]
 		#endif 
