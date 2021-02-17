@@ -111,6 +111,10 @@ public:
 
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_t buffer[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs);
 	
+	void savekeyvalues(bool_type enable, 
+			uint512_dt * kvdram0, uint512_dt * kvdram1, uint512_dt * kvdram2, uint512_dt * kvdram3, 
+			batch_type dramoffset_kvs, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs);
+	
 	void loadvdata(bool_type enable, uint512_dt * kvdram, keyvalue_t vdata[NUM_VBUFFERS][BLOCKRAM_SIZE], batch_type offset1_kvs, buffer_type size1_kvs, batch_type offset2_kvs, buffer_type size2_kvs);
 	
 	void savevdata(bool_type enable, uint512_dt * kvdram, keyvalue_t vdata[NUM_VBUFFERS][BLOCKRAM_SIZE], batch_type offset1_kvs, buffer_type size1_kvs, batch_type offset2_kvs, buffer_type size2_kvs);
@@ -127,7 +131,7 @@ public:
 	value_t processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo);
 	
 	void readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams);
+			batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams);
 
 	// functions (partition)
 	void readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], batch_type offset_kvs);
@@ -144,17 +148,36 @@ public:
 	void reducevector(keyvalue_t kvdata, 
 			keyvalue_t destbuffer[DOUBLE_BLOCKRAM_SIZE], 
 			buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
-	
-	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
-	
-	value_t mergefunc(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo);
-	
+
 	void reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams);
 	
-	// synchronize 
-	bool_type synchronize(bool_type enable, keyvalue_t vpropbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], 
+	// synchronize
+	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
+	
+	value_t mergefunc_4to1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo);
+	
+	value_t mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo);
+	
+	/* bool_type pmerge_4to1(bool_type enable, 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],  
+			keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE],
 			globalparams_t globalparams);
+
+	bool_type pmerge_16to4(bool_type enable, 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], 
+keyvalue_t synvbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE],			globalparams_t globalparams);
+			
+	bool_type pmergeandapply_4to1(bool_type enable, 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE],  
+			keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+			globalparams_t globalparams);
+			
+	bool_type preplicate_1to4(bool_type enable,
+			keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type synvmask[BLOCKRAM_SIZE], 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], 
+			globalparams_t globalparams); */
+
+	bool_type synchronize(bool_type enable, keyvalue_t vpropbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], globalparams_t globalparams);
 	
 	// acts
 	void resetenvbuffers(keyvalue_t capsule_so1[8][NUM_PARTITIONS], keyvalue_t capsule_so2[4][NUM_PARTITIONS], keyvalue_t capsule_so4[2][NUM_PARTITIONS], keyvalue_t capsule_so8[NUM_PARTITIONS]);

@@ -1707,6 +1707,18 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
+mergefunc_4to1({%for i in context['4_seq']%}value_t v{{i}},{%endfor%} unsigned int GraphAlgo){
+	value_t w0 = mergefunc(v0, v1, GraphAlgo);
+	value_t w1 = mergefunc(v2, v3, GraphAlgo);
+
+	value_t z = mergefunc(w0, w1, GraphAlgo);
+	return z;
+}
+
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
 mergefunc_NUMPto1({%for i in context['COMPUTEUNITS_seq']%}value_t v{{i}},{%endfor%} unsigned int GraphAlgo){
 	value_t z = 0;
 	#if NUMCOMPUTEUNITS==1
@@ -1738,6 +1750,236 @@ mergefunc_NUMPto1({%for i in context['COMPUTEUNITS_seq']%}value_t v{{i}},{%endfo
 	z = mergefunc(y0, y1, GraphAlgo);
 	#endif 
 	return z;
+}
+
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+pmerge_4to1(bool_type enable, 
+		{%for i in context['4_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%endfor%} 
+		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE],
+		globalparams_t globalparams){
+	if(enable == OFF){ return OFF; }
+	
+	unsigned int vid[NUM_PARTITIONS][2];
+	#pragma HLS ARRAY_PARTITION variable=vid complete
+	
+	{%for p in context['NUM_PARTITIONS_seq']%}
+	keyvalue_t data{{p}};
+	keyvalue_t res{{p}};
+	{%for i in context['4_seq']%}
+	keyvalue_t data{{p}}_{{i}};
+	{%endfor%}
+	{%endfor%}
+	
+	PMERGE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+	#pragma HLS dependence variable=vbuffer1 inter false
+	#pragma HLS dependence variable=vbuffer2 inter false
+	#pragma HLS PIPELINE II=1
+
+		{%for p in context['8_seq']%}
+		{%for i in context['4_seq']%}
+		data{{p}}_{{i}} = vbuffer{{i}}_1[{{p}}][BUFFERBASE_VDATA + i];
+		{%endfor%}
+		{%endfor%}
+		{%for p in context['8_seq']%}
+		{%for i in context['4_seq']%}
+		data{{8+p}}_{{i}} = vbuffer{{i}}_2[{{p}}][BUFFERBASE_VDATA + i];
+		{%endfor%}
+		{%endfor%}
+		
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		data{{p}}.key = mergefunc_4to1({%for i in context['4_seq']%}data{{p}}_{{i}}.key,{%endfor%} globalparams.GraphAlgo);
+		{%endfor%}
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		data{{p}}.value = mergefunc_4to1({%for i in context['4_seq']%}data{{p}}_{{i}}.value,{%endfor%} globalparams.GraphAlgo);
+		{%endfor%}
+		
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		res{{p}}.key = data{{p}}.key; 
+		{%endfor%}
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		res{{p}}.value = data{{p}}.value; 
+		{%endfor%}
+		
+		{%for p in context['8_seq']%}	
+		synvbuffer1[{{p}}][i] = res{{p}};	
+		{%endfor%}
+		{%for p in context['8_seq']%}	
+		synvbuffer2[{{p}}][i] = res{{8+p}};	
+		{%endfor%}
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("synchronize.vbuffer1", vbuffer1, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.vbuffer2", vbuffer2, NUM_VBUFFERS, 4);
+	#endif
+	return NAp;
+}
+
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+pmerge_16to4(bool_type enable, 
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} 
+		{%for i in context['4_seq']%}keyvalue_t synvbuffer{{i}}_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer{{i}}_2[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%}
+		globalparams_t globalparams){
+	pmerge_4to1(enable, {%for i in context['4_seq']%}vbuffer{{i}}_1, vbuffer{{i}}_2, {%endfor%} synvbuffer0_1, synvbuffer0_2, globalparams);
+	pmerge_4to1(enable, {%for i in context['4_seq']%}vbuffer{{4+i}}_1, vbuffer{{4+i}}_2, {%endfor%} synvbuffer1_1, synvbuffer1_2, globalparams);
+	pmerge_4to1(enable, {%for i in context['4_seq']%}vbuffer{{8+i}}_1, vbuffer{{8+i}}_2, {%endfor%} synvbuffer2_1, synvbuffer2_2, globalparams);
+	pmerge_4to1(enable, {%for i in context['4_seq']%}vbuffer{{12+i}}_1, vbuffer{{12+i}}_2, {%endfor%} synvbuffer3_1, synvbuffer3_2, globalparams);
+	return NAp;
+}
+
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+pmergeandapply_4to1(bool_type enable, 
+		{%for i in context['4_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][BLOCKRAM_SIZE], {%endfor%} 
+		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		globalparams_t globalparams){
+	if(enable == OFF){ return OFF; }
+	
+	unsigned int vid[NUM_PARTITIONS][2];
+	#pragma HLS ARRAY_PARTITION variable=vid complete
+	
+	{%for p in context['NUM_PARTITIONS_seq']%}
+	keyvalue_t data{{p}};
+	keyvalue_t res{{p}};
+	{%for i in context['COMPUTEUNITS_seq']%}
+	keyvalue_t data{{p}}_{{i}};
+	{%endfor%}
+	{%endfor%}
+	
+	bool_type partitionisactive = OFF;
+	
+	// sync and apply
+	SYNCHRONIZE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+	#pragma HLS dependence variable=synvbuffer1 inter false
+	#pragma HLS dependence variable=synvbuffer2 inter false
+	#pragma HLS PIPELINE II=1
+	
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		vid[{{p}}][0] = (({{p}}*REDUCESZ) + i*2);
+		vid[{{p}}][1] = (({{p}}*REDUCESZ) + i*2 + 1);
+		{%endfor%}
+	
+		{%for p in context['8_seq']%} // AUTOMATEME.
+		{%for i in context['4_seq']%}
+		data{{p}}_{{i}} = vbuffer{{i}}_1[{{p}}][i];
+		{%endfor%}
+		{%endfor%}
+		{%for p in context['8_seq']%}
+		{%for i in context['4_seq']%}
+		data{{8+p}}_{{i}} = vbuffer{{i}}_2[{{p}}][i];
+		{%endfor%}
+		{%endfor%}
+		
+		{%for p in context['8_seq']%}
+		keyvalue_t udata{{p}} = synvbuffer1[{{p}}][i];
+		{%endfor%}
+		{%for p in context['8_seq']%}
+		keyvalue_t udata{{8+p}} = synvbuffer2[{{p}}][i];
+		{%endfor%}
+		
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		data{{p}}.key = mergefunc_4to1({%for i in context['4_seq']%}data{{p}}_{{i}}.key,{%endfor%} globalparams.GraphAlgo);
+		{%endfor%}
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		data{{p}}.value = mergefunc_4to1({%for i in context['4_seq']%}data{{p}}_{{i}}.value,{%endfor%} globalparams.GraphAlgo);
+		{%endfor%}
+		
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		res{{p}}.key = applyfunc(udata{{p}}.key, data{{p}}.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		{%endfor%}
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		res{{p}}.value = applyfunc(udata{{p}}.value, data{{p}}.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		{%endfor%}
+		
+		{%for p in context['8_seq']%}	
+		synvbuffer1[{{p}}][i] = res{{p}};	
+		{%endfor%}
+		{%for p in context['8_seq']%}	
+		synvbuffer2[{{p}}][i] = res{{8+p}};	
+		{%endfor%}	
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		if(res{{p}}.key != udata{{p}}.key){ vmask[i].data[{{p}}].key = 1; } else { vmask[i].data[{{p}}].key = 0; }
+		if(res{{p}}.value != udata{{p}}.value){ vmask[i].data[{{p}}].value = 1; } else { vmask[i].data[{{p}}].value = 0; }
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS3
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[{{p}}][0]<<" & vid2: "<<vid[{{p}}][1]<<"): res{{p}}.key: "<<res{{p}}.key<<", res{{p}}.value: "<<res{{p}}.value<<": udata{{p}}.key: "<<udata{{p}}.key<<", udata{{p}}.value: "<<udata{{p}}.value<<", data{{p}}.key: "<<data{{p}}.key<<", data{{p}}.value: "<<data{{p}}.value<<endl; }
+		if(res{{p}}.key != udata{{p}}.key){ cout<<"synchronize: vid: "<<vid[{{p}}][0]<<", vmask["<<i<<"].data[{{p}}].key: "<<vmask[i].data[{{p}}].key<<endl; }
+		if(res{{p}}.value != udata{{p}}.value){ cout<<"synchronize: vid: "<<vid[{{p}}][1]<<", vmask["<<i<<"].data[{{p}}].value: "<<vmask[i].data[{{p}}].value<<endl; }
+		{%endfor%}
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		if(res{{p}}.key != udata{{p}}.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res{{p}}.value != udata{{p}}.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		{%endfor%}
+		#endif
+	}
+	
+	// get mask
+	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1
+		uint32_type mask = convertvmasktouint32(vmask, k);
+		if(mask > 0){ partitionisactive = ON; }
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("synchronize.synvbuffer1", synvbuffer1, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.vmask", vmask, NUM_PARTITIONS, 4);
+	#endif
+	return partitionisactive;
+}
+
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+preplicate_1to4(bool_type enable,
+		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type synvmask[BLOCKRAM_SIZE], 
+		{%for i in context['4_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} 
+		globalparams_t globalparams){
+	if(enable == OFF){ return OFF; }
+	
+	uintNUMPby2_type _vmask[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = _vmask
+
+	// replicate to vbuffers
+	SYNCHRONIZE_LOOP2: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1
+		{%for i in context['4_seq']%}
+		{%for p in context['8_seq']%}
+		vbuffer{{i}}_1[{{p}}][k] = synvbuffer1[{{p}}][k];
+		{%endfor%}
+		{%endfor%}
+		{%for i in context['4_seq']%}
+		{%for p in context['8_seq']%}
+		vbuffer{{i}}_2[{{p}}][k] = synvbuffer2[{{p}}][k];
+		{%endfor%}
+		{%endfor%}
+	}
+	
+	// replicate to vmasks
+	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1
+		{%for i in context['4_seq']%}
+		vmask{{i}}[k] = synvmask[k];
+		{%endfor%}
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("synchronize.synvbuffer1", synvbuffer1, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.synvmask", synvmask, NUM_PARTITIONS, 4);
+	#endif
+	return NAp;
 }
 
 bool_type 
@@ -2780,6 +3022,12 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
 		// read vertices 
+		/////////////////////////
+		// #ifdef KOKOOOOOO
+		readkeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), synvbuffer4_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
+		readkeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, synvbuffer4_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
+		// #endif
+		/////////////////////////////
 		loadvdata(enablereduce, kvdram0, synvbuffer, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); // CRITICAL FIXME. too expensive here
 		{%for i in context['COMPUTEUNITS_seq']%}	
 		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer{{i}}_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
@@ -2798,6 +3046,24 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 		#ifdef DISPATCHTYPE_SYNC // CRITICAL REMOVEME.
 		vpmask[source_partition] = synchronize(enablereduce, synvbuffer, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1, vbuffer{{i}}_2, vmask{{i}},{%endfor%} _globalparams);
 		#endif
+		/////////////////////////
+		// #ifdef KOKOOOOOO
+		pmerge_16to4(enablereduce, 
+			{%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1, vbuffer{{i}}_2,{%endfor%} 
+			{%for i in context['4_seq']%}synvbuffer{{i}}_1, synvbuffer{{i}}_2,{%endfor%} 
+			_globalparams);
+		
+		pmergeandapply_4to1(enablereduce, 
+			{%for i in context['4_seq']%}synvbuffer{{i}}_1, synvbuffer{{i}}_2,{%endfor%}
+			synvbuffer4_1, synvbuffer4_2, synvmask4,
+			_globalparams);
+		
+		preplicate_1to4(enablereduce,
+			synvbuffer4_1, synvbuffer4_2, synvmask4,
+			{%for i in context['4_seq']%}synvbuffer{{i}}_1, synvbuffer{{i}}_2, synvmask{{i}},{%endfor%}
+			_globalparams);
+		// #endif
+		/////////////////////////////
 		
 		// writeback vertices
 		{%for i in context['COMPUTEUNITS_seq']%}
@@ -2807,6 +3073,14 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 		{%for i in context['COMPUTEUNITS_seq']%}
 		savevmasks(enablereduce, kvdram{{i}}, vmask{{i}}, vbuffer{{i}}_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		{%endfor%}
+		/////////////////////////
+		#ifdef KOKOOOOOO
+		{%for i in context['4_seq']%}
+		savekeyvalues(enablereduce, {%for i in context['4_seq']%}kvdram{{i}},{%endfor%} _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), synvbuffer{{i}}_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
+		savekeyvalues(enablereduce, {%for i in context['4_seq']%}kvdram{{i}},{%endfor%} _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, synvbuffer{{i}}_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
+		{%endfor%}
+		#endif
+		/////////////////////////////
 		
 		sourcestatsmarker += 1;
 	}

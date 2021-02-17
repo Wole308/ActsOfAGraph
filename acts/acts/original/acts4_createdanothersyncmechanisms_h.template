@@ -154,8 +154,30 @@ public:
 	// synchronize
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
+	value_t mergefunc_4to1({%for i in context['4_seq']%}value_t v{{i}},{%endfor%} unsigned int GraphAlgo);
+	
 	value_t mergefunc_NUMPto1({%for i in context['COMPUTEUNITS_seq']%}value_t v{{i}},{%endfor%} unsigned int GraphAlgo);
 	
+	bool_type pmerge_4to1(bool_type enable, 
+			{%for i in context['4_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%endfor%} 
+			keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE],
+			globalparams_t globalparams);
+
+	bool_type pmerge_16to4(bool_type enable, 
+			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} 
+			{%for i in context['4_seq']%}keyvalue_t synvbuffer{{i}}_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer{{i}}_2[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%}
+			globalparams_t globalparams);
+			
+	bool_type pmergeandapply_4to1(bool_type enable, 
+			{%for i in context['4_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][BLOCKRAM_SIZE], {%endfor%} 
+			keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+			globalparams_t globalparams);
+			
+	bool_type preplicate_1to4(bool_type enable,
+			keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type synvmask[BLOCKRAM_SIZE], 
+			{%for i in context['4_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} 
+			globalparams_t globalparams);
+
 	bool_type synchronize(bool_type enable, keyvalue_t vpropbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams);
 	
 	// acts

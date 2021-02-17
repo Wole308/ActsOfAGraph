@@ -1150,6 +1150,132 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
+savekeyvalues(bool_type enable, 
+		uint512_dt * kvdram0, uint512_dt * kvdram1, uint512_dt * kvdram2, uint512_dt * kvdram3, 
+		batch_type dramoffset_kvs, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  (APPLYVERTEXBUFFERSZ / VDATAPACKINGFACTOR) / 2;
+	
+	SAVEKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		kvdram0[dramoffset_kvs + i].range(31, 0) = buffer[0][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(63, 32) = buffer[0][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(95, 64) = buffer[1][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(127, 96) = buffer[1][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(159, 128) = buffer[2][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(191, 160) = buffer[2][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(223, 192) = buffer[3][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(255, 224) = buffer[3][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(287, 256) = buffer[4][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(319, 288) = buffer[4][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(351, 320) = buffer[5][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(383, 352) = buffer[5][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(415, 384) = buffer[6][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(447, 416) = buffer[6][bufferoffset_kvs + i].value; 
+		kvdram0[dramoffset_kvs + i].range(479, 448) = buffer[7][bufferoffset_kvs + i].key; 
+		kvdram0[dramoffset_kvs + i].range(511, 480) = buffer[7][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(31, 0) = buffer[0][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(63, 32) = buffer[0][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(95, 64) = buffer[1][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(127, 96) = buffer[1][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(159, 128) = buffer[2][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(191, 160) = buffer[2][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(223, 192) = buffer[3][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(255, 224) = buffer[3][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(287, 256) = buffer[4][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(319, 288) = buffer[4][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(351, 320) = buffer[5][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(383, 352) = buffer[5][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(415, 384) = buffer[6][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(447, 416) = buffer[6][bufferoffset_kvs + i].value; 
+		kvdram1[dramoffset_kvs + i].range(479, 448) = buffer[7][bufferoffset_kvs + i].key; 
+		kvdram1[dramoffset_kvs + i].range(511, 480) = buffer[7][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(31, 0) = buffer[0][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(63, 32) = buffer[0][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(95, 64) = buffer[1][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(127, 96) = buffer[1][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(159, 128) = buffer[2][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(191, 160) = buffer[2][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(223, 192) = buffer[3][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(255, 224) = buffer[3][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(287, 256) = buffer[4][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(319, 288) = buffer[4][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(351, 320) = buffer[5][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(383, 352) = buffer[5][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(415, 384) = buffer[6][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(447, 416) = buffer[6][bufferoffset_kvs + i].value; 
+		kvdram2[dramoffset_kvs + i].range(479, 448) = buffer[7][bufferoffset_kvs + i].key; 
+		kvdram2[dramoffset_kvs + i].range(511, 480) = buffer[7][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(31, 0) = buffer[0][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(63, 32) = buffer[0][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(95, 64) = buffer[1][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(127, 96) = buffer[1][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(159, 128) = buffer[2][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(191, 160) = buffer[2][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(223, 192) = buffer[3][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(255, 224) = buffer[3][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(287, 256) = buffer[4][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(319, 288) = buffer[4][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(351, 320) = buffer[5][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(383, 352) = buffer[5][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(415, 384) = buffer[6][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(447, 416) = buffer[6][bufferoffset_kvs + i].value; 
+		kvdram3[dramoffset_kvs + i].range(479, 448) = buffer[7][bufferoffset_kvs + i].key; 
+		kvdram3[dramoffset_kvs + i].range(511, 480) = buffer[7][bufferoffset_kvs + i].value; 
+		#else 
+		kvdram0[dramoffset_kvs + i].data[0] = buffer[0][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[1] = buffer[1][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[2] = buffer[2][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[3] = buffer[3][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[4] = buffer[4][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[5] = buffer[5][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[6] = buffer[6][bufferoffset_kvs + i];
+		kvdram0[dramoffset_kvs + i].data[7] = buffer[7][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[0] = buffer[0][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[1] = buffer[1][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[2] = buffer[2][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[3] = buffer[3][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[4] = buffer[4][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[5] = buffer[5][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[6] = buffer[6][bufferoffset_kvs + i];
+		kvdram1[dramoffset_kvs + i].data[7] = buffer[7][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[0] = buffer[0][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[1] = buffer[1][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[2] = buffer[2][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[3] = buffer[3][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[4] = buffer[4][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[5] = buffer[5][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[6] = buffer[6][bufferoffset_kvs + i];
+		kvdram2[dramoffset_kvs + i].data[7] = buffer[7][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[0] = buffer[0][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[1] = buffer[1][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[2] = buffer[2][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[3] = buffer[3][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[4] = buffer[4][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[5] = buffer[5][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[6] = buffer[6][bufferoffset_kvs + i];
+		kvdram3[dramoffset_kvs + i].data[7] = buffer[7][bufferoffset_kvs + i];
+		#endif 
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE*4);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(dramoffset_kvs >= BASEOFFSET_VERTEXPTR_KVS && dramoffset_kvs < BASEOFFSET_VERTEXPTR_KVS + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs-BASEOFFSET_VERTEXPTR_KVS * VECTOR_SIZE<<"-"<<((dramoffset_kvs + size_kvs)-BASEOFFSET_VERTEXPTR_KVS) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= BASEOFFSET_VERTICESDATA_KVS && dramoffset_kvs < BASEOFFSET_VERTICESDATA_KVS + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(dramoffset_kvs-BASEOFFSET_VERTICESDATA_KVS) * VECTOR_SIZE<<"-"<<((dramoffset_kvs-BASEOFFSET_VERTICESDATA_KVS) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	#endif
+	return;
+}
+
+void 
+	#ifdef SW 
+	acts::
+	#endif 
 loadvdata(bool_type enable, uint512_dt * kvdram, keyvalue_t vdata[NUM_VBUFFERS][BLOCKRAM_SIZE], batch_type offset1_kvs, buffer_type size1_kvs, batch_type offset2_kvs, buffer_type size2_kvs){
 	#pragma HLS function_instantiate variable=kvdram
 	if(enable == OFF){ return; }
@@ -2125,7 +2251,7 @@ applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Graph
 	return temp;
 }
 
-value_t 
+/* value_t 
 	#ifdef SW 
 	acts::
 	#endif 
@@ -2147,7 +2273,7 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
-mergefunc(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo){
+mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo){
 	value_t z = 0;
 	#if NUMCOMPUTEUNITS==1
 	z = v0;
@@ -2180,6 +2306,18 @@ mergefunc(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,valu
 	return z;
 }
 
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+mergefunc_4to1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo){
+	value_t w0 = mergefunc(v0, v1, GraphAlgo);
+	value_t w1 = mergefunc(v2, v3, GraphAlgo);
+
+	value_t z = mergefunc(w0, w1, GraphAlgo);
+	return z;
+}
+ */
 void 
 	#ifdef SW 
 	acts::
@@ -2351,13 +2489,1142 @@ reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][PADDEDDESTBUFFE
 }
 
 // functions (synchronize)
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+	value_t res = 0;
+	#ifdef PR_ALGORITHM
+	res = value1 + value2;
+	#endif 
+	#ifdef BFS_ALGORITHM
+	res = amin(value1, value2);
+	#endif 
+	#ifdef SSSP_ALGORITHM
+	res = amin(value1, value2);
+	#endif
+	return res;
+}
+
+/* value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+mergefunc_4to1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo){
+	value_t w0 = mergefunc(v0, v1, GraphAlgo);
+	value_t w1 = mergefunc(v2, v3, GraphAlgo);
+
+	value_t z = mergefunc(w0, w1, GraphAlgo);
+	return z;
+}
+ */
+value_t 
+	#ifdef SW 
+	acts::
+	#endif 
+mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3,value_t v4,value_t v5,value_t v6,value_t v7,value_t v8,value_t v9,value_t v10,value_t v11,value_t v12,value_t v13,value_t v14,value_t v15, unsigned int GraphAlgo){
+	value_t z = 0;
+	#if NUMCOMPUTEUNITS==1
+	z = v0;
+	#endif 
+	
+	#if NUMCOMPUTEUNITS==2
+	z = mergefunc(v0, v1, GraphAlgo);
+	#endif 
+	
+	#if NUMCOMPUTEUNITS==16
+	value_t w0 = mergefunc(v0, v1, GraphAlgo);
+	value_t w1 = mergefunc(v2, v3, GraphAlgo);
+	value_t w2 = mergefunc(v4, v5, GraphAlgo);
+	value_t w3 = mergefunc(v6, v7, GraphAlgo);
+	value_t w4 = mergefunc(v8, v9, GraphAlgo);
+	value_t w5 = mergefunc(v10, v11, GraphAlgo);
+	value_t w6 = mergefunc(v12, v13, GraphAlgo);
+	value_t w7 = mergefunc(v14, v15, GraphAlgo);
+	
+	value_t x0 = mergefunc(w0, w1, GraphAlgo);
+	value_t x1 = mergefunc(w2, w3, GraphAlgo);
+	value_t x2 = mergefunc(w4, w5, GraphAlgo);
+	value_t x3 = mergefunc(w6, w7, GraphAlgo);
+	
+	value_t y0 = mergefunc(x0, x1, GraphAlgo);
+	value_t y1 = mergefunc(x2, x3, GraphAlgo);
+	
+	z = mergefunc(y0, y1, GraphAlgo);
+	#endif 
+	return z;
+}
+
+/* bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+pmerge_4to1(bool_type enable, 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],  
+		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE],
+		globalparams_t globalparams){
+	if(enable == OFF){ return OFF; }
+	
+	unsigned int vid[NUM_PARTITIONS][2];
+	#pragma HLS ARRAY_PARTITION variable=vid complete
+	
+	keyvalue_t data0;
+	keyvalue_t res0;
+	keyvalue_t data0_0;
+	keyvalue_t data0_1;
+	keyvalue_t data0_2;
+	keyvalue_t data0_3;
+	keyvalue_t data1;
+	keyvalue_t res1;
+	keyvalue_t data1_0;
+	keyvalue_t data1_1;
+	keyvalue_t data1_2;
+	keyvalue_t data1_3;
+	keyvalue_t data2;
+	keyvalue_t res2;
+	keyvalue_t data2_0;
+	keyvalue_t data2_1;
+	keyvalue_t data2_2;
+	keyvalue_t data2_3;
+	keyvalue_t data3;
+	keyvalue_t res3;
+	keyvalue_t data3_0;
+	keyvalue_t data3_1;
+	keyvalue_t data3_2;
+	keyvalue_t data3_3;
+	keyvalue_t data4;
+	keyvalue_t res4;
+	keyvalue_t data4_0;
+	keyvalue_t data4_1;
+	keyvalue_t data4_2;
+	keyvalue_t data4_3;
+	keyvalue_t data5;
+	keyvalue_t res5;
+	keyvalue_t data5_0;
+	keyvalue_t data5_1;
+	keyvalue_t data5_2;
+	keyvalue_t data5_3;
+	keyvalue_t data6;
+	keyvalue_t res6;
+	keyvalue_t data6_0;
+	keyvalue_t data6_1;
+	keyvalue_t data6_2;
+	keyvalue_t data6_3;
+	keyvalue_t data7;
+	keyvalue_t res7;
+	keyvalue_t data7_0;
+	keyvalue_t data7_1;
+	keyvalue_t data7_2;
+	keyvalue_t data7_3;
+	keyvalue_t data8;
+	keyvalue_t res8;
+	keyvalue_t data8_0;
+	keyvalue_t data8_1;
+	keyvalue_t data8_2;
+	keyvalue_t data8_3;
+	keyvalue_t data9;
+	keyvalue_t res9;
+	keyvalue_t data9_0;
+	keyvalue_t data9_1;
+	keyvalue_t data9_2;
+	keyvalue_t data9_3;
+	keyvalue_t data10;
+	keyvalue_t res10;
+	keyvalue_t data10_0;
+	keyvalue_t data10_1;
+	keyvalue_t data10_2;
+	keyvalue_t data10_3;
+	keyvalue_t data11;
+	keyvalue_t res11;
+	keyvalue_t data11_0;
+	keyvalue_t data11_1;
+	keyvalue_t data11_2;
+	keyvalue_t data11_3;
+	keyvalue_t data12;
+	keyvalue_t res12;
+	keyvalue_t data12_0;
+	keyvalue_t data12_1;
+	keyvalue_t data12_2;
+	keyvalue_t data12_3;
+	keyvalue_t data13;
+	keyvalue_t res13;
+	keyvalue_t data13_0;
+	keyvalue_t data13_1;
+	keyvalue_t data13_2;
+	keyvalue_t data13_3;
+	keyvalue_t data14;
+	keyvalue_t res14;
+	keyvalue_t data14_0;
+	keyvalue_t data14_1;
+	keyvalue_t data14_2;
+	keyvalue_t data14_3;
+	keyvalue_t data15;
+	keyvalue_t res15;
+	keyvalue_t data15_0;
+	keyvalue_t data15_1;
+	keyvalue_t data15_2;
+	keyvalue_t data15_3;
+	
+	PMERGE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+	#pragma HLS dependence variable=vbuffer1 inter false
+	#pragma HLS dependence variable=vbuffer2 inter false
+	#pragma HLS PIPELINE II=1
+
+		data0_0 = vbuffer0_1[0][BUFFERBASE_VDATA + i];
+		data0_1 = vbuffer1_1[0][BUFFERBASE_VDATA + i];
+		data0_2 = vbuffer2_1[0][BUFFERBASE_VDATA + i];
+		data0_3 = vbuffer3_1[0][BUFFERBASE_VDATA + i];
+		data1_0 = vbuffer0_1[1][BUFFERBASE_VDATA + i];
+		data1_1 = vbuffer1_1[1][BUFFERBASE_VDATA + i];
+		data1_2 = vbuffer2_1[1][BUFFERBASE_VDATA + i];
+		data1_3 = vbuffer3_1[1][BUFFERBASE_VDATA + i];
+		data2_0 = vbuffer0_1[2][BUFFERBASE_VDATA + i];
+		data2_1 = vbuffer1_1[2][BUFFERBASE_VDATA + i];
+		data2_2 = vbuffer2_1[2][BUFFERBASE_VDATA + i];
+		data2_3 = vbuffer3_1[2][BUFFERBASE_VDATA + i];
+		data3_0 = vbuffer0_1[3][BUFFERBASE_VDATA + i];
+		data3_1 = vbuffer1_1[3][BUFFERBASE_VDATA + i];
+		data3_2 = vbuffer2_1[3][BUFFERBASE_VDATA + i];
+		data3_3 = vbuffer3_1[3][BUFFERBASE_VDATA + i];
+		data4_0 = vbuffer0_1[4][BUFFERBASE_VDATA + i];
+		data4_1 = vbuffer1_1[4][BUFFERBASE_VDATA + i];
+		data4_2 = vbuffer2_1[4][BUFFERBASE_VDATA + i];
+		data4_3 = vbuffer3_1[4][BUFFERBASE_VDATA + i];
+		data5_0 = vbuffer0_1[5][BUFFERBASE_VDATA + i];
+		data5_1 = vbuffer1_1[5][BUFFERBASE_VDATA + i];
+		data5_2 = vbuffer2_1[5][BUFFERBASE_VDATA + i];
+		data5_3 = vbuffer3_1[5][BUFFERBASE_VDATA + i];
+		data6_0 = vbuffer0_1[6][BUFFERBASE_VDATA + i];
+		data6_1 = vbuffer1_1[6][BUFFERBASE_VDATA + i];
+		data6_2 = vbuffer2_1[6][BUFFERBASE_VDATA + i];
+		data6_3 = vbuffer3_1[6][BUFFERBASE_VDATA + i];
+		data7_0 = vbuffer0_1[7][BUFFERBASE_VDATA + i];
+		data7_1 = vbuffer1_1[7][BUFFERBASE_VDATA + i];
+		data7_2 = vbuffer2_1[7][BUFFERBASE_VDATA + i];
+		data7_3 = vbuffer3_1[7][BUFFERBASE_VDATA + i];
+		data8_0 = vbuffer0_2[0][BUFFERBASE_VDATA + i];
+		data8_1 = vbuffer1_2[0][BUFFERBASE_VDATA + i];
+		data8_2 = vbuffer2_2[0][BUFFERBASE_VDATA + i];
+		data8_3 = vbuffer3_2[0][BUFFERBASE_VDATA + i];
+		data9_0 = vbuffer0_2[1][BUFFERBASE_VDATA + i];
+		data9_1 = vbuffer1_2[1][BUFFERBASE_VDATA + i];
+		data9_2 = vbuffer2_2[1][BUFFERBASE_VDATA + i];
+		data9_3 = vbuffer3_2[1][BUFFERBASE_VDATA + i];
+		data10_0 = vbuffer0_2[2][BUFFERBASE_VDATA + i];
+		data10_1 = vbuffer1_2[2][BUFFERBASE_VDATA + i];
+		data10_2 = vbuffer2_2[2][BUFFERBASE_VDATA + i];
+		data10_3 = vbuffer3_2[2][BUFFERBASE_VDATA + i];
+		data11_0 = vbuffer0_2[3][BUFFERBASE_VDATA + i];
+		data11_1 = vbuffer1_2[3][BUFFERBASE_VDATA + i];
+		data11_2 = vbuffer2_2[3][BUFFERBASE_VDATA + i];
+		data11_3 = vbuffer3_2[3][BUFFERBASE_VDATA + i];
+		data12_0 = vbuffer0_2[4][BUFFERBASE_VDATA + i];
+		data12_1 = vbuffer1_2[4][BUFFERBASE_VDATA + i];
+		data12_2 = vbuffer2_2[4][BUFFERBASE_VDATA + i];
+		data12_3 = vbuffer3_2[4][BUFFERBASE_VDATA + i];
+		data13_0 = vbuffer0_2[5][BUFFERBASE_VDATA + i];
+		data13_1 = vbuffer1_2[5][BUFFERBASE_VDATA + i];
+		data13_2 = vbuffer2_2[5][BUFFERBASE_VDATA + i];
+		data13_3 = vbuffer3_2[5][BUFFERBASE_VDATA + i];
+		data14_0 = vbuffer0_2[6][BUFFERBASE_VDATA + i];
+		data14_1 = vbuffer1_2[6][BUFFERBASE_VDATA + i];
+		data14_2 = vbuffer2_2[6][BUFFERBASE_VDATA + i];
+		data14_3 = vbuffer3_2[6][BUFFERBASE_VDATA + i];
+		data15_0 = vbuffer0_2[7][BUFFERBASE_VDATA + i];
+		data15_1 = vbuffer1_2[7][BUFFERBASE_VDATA + i];
+		data15_2 = vbuffer2_2[7][BUFFERBASE_VDATA + i];
+		data15_3 = vbuffer3_2[7][BUFFERBASE_VDATA + i];
+		
+		data0.key = mergefunc_4to1(data0_0.key,data0_1.key,data0_2.key,data0_3.key, globalparams.GraphAlgo);
+		data1.key = mergefunc_4to1(data1_0.key,data1_1.key,data1_2.key,data1_3.key, globalparams.GraphAlgo);
+		data2.key = mergefunc_4to1(data2_0.key,data2_1.key,data2_2.key,data2_3.key, globalparams.GraphAlgo);
+		data3.key = mergefunc_4to1(data3_0.key,data3_1.key,data3_2.key,data3_3.key, globalparams.GraphAlgo);
+		data4.key = mergefunc_4to1(data4_0.key,data4_1.key,data4_2.key,data4_3.key, globalparams.GraphAlgo);
+		data5.key = mergefunc_4to1(data5_0.key,data5_1.key,data5_2.key,data5_3.key, globalparams.GraphAlgo);
+		data6.key = mergefunc_4to1(data6_0.key,data6_1.key,data6_2.key,data6_3.key, globalparams.GraphAlgo);
+		data7.key = mergefunc_4to1(data7_0.key,data7_1.key,data7_2.key,data7_3.key, globalparams.GraphAlgo);
+		data8.key = mergefunc_4to1(data8_0.key,data8_1.key,data8_2.key,data8_3.key, globalparams.GraphAlgo);
+		data9.key = mergefunc_4to1(data9_0.key,data9_1.key,data9_2.key,data9_3.key, globalparams.GraphAlgo);
+		data10.key = mergefunc_4to1(data10_0.key,data10_1.key,data10_2.key,data10_3.key, globalparams.GraphAlgo);
+		data11.key = mergefunc_4to1(data11_0.key,data11_1.key,data11_2.key,data11_3.key, globalparams.GraphAlgo);
+		data12.key = mergefunc_4to1(data12_0.key,data12_1.key,data12_2.key,data12_3.key, globalparams.GraphAlgo);
+		data13.key = mergefunc_4to1(data13_0.key,data13_1.key,data13_2.key,data13_3.key, globalparams.GraphAlgo);
+		data14.key = mergefunc_4to1(data14_0.key,data14_1.key,data14_2.key,data14_3.key, globalparams.GraphAlgo);
+		data15.key = mergefunc_4to1(data15_0.key,data15_1.key,data15_2.key,data15_3.key, globalparams.GraphAlgo);
+		data0.value = mergefunc_4to1(data0_0.value,data0_1.value,data0_2.value,data0_3.value, globalparams.GraphAlgo);
+		data1.value = mergefunc_4to1(data1_0.value,data1_1.value,data1_2.value,data1_3.value, globalparams.GraphAlgo);
+		data2.value = mergefunc_4to1(data2_0.value,data2_1.value,data2_2.value,data2_3.value, globalparams.GraphAlgo);
+		data3.value = mergefunc_4to1(data3_0.value,data3_1.value,data3_2.value,data3_3.value, globalparams.GraphAlgo);
+		data4.value = mergefunc_4to1(data4_0.value,data4_1.value,data4_2.value,data4_3.value, globalparams.GraphAlgo);
+		data5.value = mergefunc_4to1(data5_0.value,data5_1.value,data5_2.value,data5_3.value, globalparams.GraphAlgo);
+		data6.value = mergefunc_4to1(data6_0.value,data6_1.value,data6_2.value,data6_3.value, globalparams.GraphAlgo);
+		data7.value = mergefunc_4to1(data7_0.value,data7_1.value,data7_2.value,data7_3.value, globalparams.GraphAlgo);
+		data8.value = mergefunc_4to1(data8_0.value,data8_1.value,data8_2.value,data8_3.value, globalparams.GraphAlgo);
+		data9.value = mergefunc_4to1(data9_0.value,data9_1.value,data9_2.value,data9_3.value, globalparams.GraphAlgo);
+		data10.value = mergefunc_4to1(data10_0.value,data10_1.value,data10_2.value,data10_3.value, globalparams.GraphAlgo);
+		data11.value = mergefunc_4to1(data11_0.value,data11_1.value,data11_2.value,data11_3.value, globalparams.GraphAlgo);
+		data12.value = mergefunc_4to1(data12_0.value,data12_1.value,data12_2.value,data12_3.value, globalparams.GraphAlgo);
+		data13.value = mergefunc_4to1(data13_0.value,data13_1.value,data13_2.value,data13_3.value, globalparams.GraphAlgo);
+		data14.value = mergefunc_4to1(data14_0.value,data14_1.value,data14_2.value,data14_3.value, globalparams.GraphAlgo);
+		data15.value = mergefunc_4to1(data15_0.value,data15_1.value,data15_2.value,data15_3.value, globalparams.GraphAlgo);
+		
+		res0.key = data0.key; 
+		res1.key = data1.key; 
+		res2.key = data2.key; 
+		res3.key = data3.key; 
+		res4.key = data4.key; 
+		res5.key = data5.key; 
+		res6.key = data6.key; 
+		res7.key = data7.key; 
+		res8.key = data8.key; 
+		res9.key = data9.key; 
+		res10.key = data10.key; 
+		res11.key = data11.key; 
+		res12.key = data12.key; 
+		res13.key = data13.key; 
+		res14.key = data14.key; 
+		res15.key = data15.key; 
+		res0.value = data0.value; 
+		res1.value = data1.value; 
+		res2.value = data2.value; 
+		res3.value = data3.value; 
+		res4.value = data4.value; 
+		res5.value = data5.value; 
+		res6.value = data6.value; 
+		res7.value = data7.value; 
+		res8.value = data8.value; 
+		res9.value = data9.value; 
+		res10.value = data10.value; 
+		res11.value = data11.value; 
+		res12.value = data12.value; 
+		res13.value = data13.value; 
+		res14.value = data14.value; 
+		res15.value = data15.value; 
+		
+	
+		synvbuffer1[0][i] = res0;	
+	
+		synvbuffer1[1][i] = res1;	
+	
+		synvbuffer1[2][i] = res2;	
+	
+		synvbuffer1[3][i] = res3;	
+	
+		synvbuffer1[4][i] = res4;	
+	
+		synvbuffer1[5][i] = res5;	
+	
+		synvbuffer1[6][i] = res6;	
+	
+		synvbuffer1[7][i] = res7;	
+	
+		synvbuffer2[0][i] = res8;	
+	
+		synvbuffer2[1][i] = res9;	
+	
+		synvbuffer2[2][i] = res10;	
+	
+		synvbuffer2[3][i] = res11;	
+	
+		synvbuffer2[4][i] = res12;	
+	
+		synvbuffer2[5][i] = res13;	
+	
+		synvbuffer2[6][i] = res14;	
+	
+		synvbuffer2[7][i] = res15;	
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("synchronize.vbuffer1", vbuffer1, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.vbuffer2", vbuffer2, NUM_VBUFFERS, 4);
+	#endif
+	return NAp;
+}
+
 bool_type 
 	#ifdef SW 
 	acts::
 	#endif
-synchronize(bool_type enable, keyvalue_t vpropbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], 
+pmerge_16to4(bool_type enable, 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], 
+keyvalue_t synvbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_t synvbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE],		globalparams_t globalparams){
+	pmerge_4to1(enable, vbuffer0_1, vbuffer0_2, vbuffer1_1, vbuffer1_2, vbuffer2_1, vbuffer2_2, vbuffer3_1, vbuffer3_2,  synvbuffer0_1, synvbuffer0_2, globalparams);
+	pmerge_4to1(enable, vbuffer4_1, vbuffer4_2, vbuffer5_1, vbuffer5_2, vbuffer6_1, vbuffer6_2, vbuffer7_1, vbuffer7_2,  synvbuffer1_1, synvbuffer1_2, globalparams);
+	pmerge_4to1(enable, vbuffer8_1, vbuffer8_2, vbuffer9_1, vbuffer9_2, vbuffer10_1, vbuffer10_2, vbuffer11_1, vbuffer11_2,  synvbuffer2_1, synvbuffer2_2, globalparams);
+	pmerge_4to1(enable, vbuffer12_1, vbuffer12_2, vbuffer13_1, vbuffer13_2, vbuffer14_1, vbuffer14_2, vbuffer15_1, vbuffer15_2,  synvbuffer3_1, synvbuffer3_2, globalparams);
+	return NAp;
+}
+
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+pmergeandapply_4to1(bool_type enable, 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE],  
+		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		globalparams_t globalparams){
+	if(enable == OFF){ return OFF; }
+	
+	unsigned int vid[NUM_PARTITIONS][2];
+	#pragma HLS ARRAY_PARTITION variable=vid complete
+	
+	keyvalue_t data0;
+	keyvalue_t res0;
+	keyvalue_t data0_0;
+	keyvalue_t data0_1;
+	keyvalue_t data0_2;
+	keyvalue_t data0_3;
+	keyvalue_t data0_4;
+	keyvalue_t data0_5;
+	keyvalue_t data0_6;
+	keyvalue_t data0_7;
+	keyvalue_t data0_8;
+	keyvalue_t data0_9;
+	keyvalue_t data0_10;
+	keyvalue_t data0_11;
+	keyvalue_t data0_12;
+	keyvalue_t data0_13;
+	keyvalue_t data0_14;
+	keyvalue_t data0_15;
+	keyvalue_t data1;
+	keyvalue_t res1;
+	keyvalue_t data1_0;
+	keyvalue_t data1_1;
+	keyvalue_t data1_2;
+	keyvalue_t data1_3;
+	keyvalue_t data1_4;
+	keyvalue_t data1_5;
+	keyvalue_t data1_6;
+	keyvalue_t data1_7;
+	keyvalue_t data1_8;
+	keyvalue_t data1_9;
+	keyvalue_t data1_10;
+	keyvalue_t data1_11;
+	keyvalue_t data1_12;
+	keyvalue_t data1_13;
+	keyvalue_t data1_14;
+	keyvalue_t data1_15;
+	keyvalue_t data2;
+	keyvalue_t res2;
+	keyvalue_t data2_0;
+	keyvalue_t data2_1;
+	keyvalue_t data2_2;
+	keyvalue_t data2_3;
+	keyvalue_t data2_4;
+	keyvalue_t data2_5;
+	keyvalue_t data2_6;
+	keyvalue_t data2_7;
+	keyvalue_t data2_8;
+	keyvalue_t data2_9;
+	keyvalue_t data2_10;
+	keyvalue_t data2_11;
+	keyvalue_t data2_12;
+	keyvalue_t data2_13;
+	keyvalue_t data2_14;
+	keyvalue_t data2_15;
+	keyvalue_t data3;
+	keyvalue_t res3;
+	keyvalue_t data3_0;
+	keyvalue_t data3_1;
+	keyvalue_t data3_2;
+	keyvalue_t data3_3;
+	keyvalue_t data3_4;
+	keyvalue_t data3_5;
+	keyvalue_t data3_6;
+	keyvalue_t data3_7;
+	keyvalue_t data3_8;
+	keyvalue_t data3_9;
+	keyvalue_t data3_10;
+	keyvalue_t data3_11;
+	keyvalue_t data3_12;
+	keyvalue_t data3_13;
+	keyvalue_t data3_14;
+	keyvalue_t data3_15;
+	keyvalue_t data4;
+	keyvalue_t res4;
+	keyvalue_t data4_0;
+	keyvalue_t data4_1;
+	keyvalue_t data4_2;
+	keyvalue_t data4_3;
+	keyvalue_t data4_4;
+	keyvalue_t data4_5;
+	keyvalue_t data4_6;
+	keyvalue_t data4_7;
+	keyvalue_t data4_8;
+	keyvalue_t data4_9;
+	keyvalue_t data4_10;
+	keyvalue_t data4_11;
+	keyvalue_t data4_12;
+	keyvalue_t data4_13;
+	keyvalue_t data4_14;
+	keyvalue_t data4_15;
+	keyvalue_t data5;
+	keyvalue_t res5;
+	keyvalue_t data5_0;
+	keyvalue_t data5_1;
+	keyvalue_t data5_2;
+	keyvalue_t data5_3;
+	keyvalue_t data5_4;
+	keyvalue_t data5_5;
+	keyvalue_t data5_6;
+	keyvalue_t data5_7;
+	keyvalue_t data5_8;
+	keyvalue_t data5_9;
+	keyvalue_t data5_10;
+	keyvalue_t data5_11;
+	keyvalue_t data5_12;
+	keyvalue_t data5_13;
+	keyvalue_t data5_14;
+	keyvalue_t data5_15;
+	keyvalue_t data6;
+	keyvalue_t res6;
+	keyvalue_t data6_0;
+	keyvalue_t data6_1;
+	keyvalue_t data6_2;
+	keyvalue_t data6_3;
+	keyvalue_t data6_4;
+	keyvalue_t data6_5;
+	keyvalue_t data6_6;
+	keyvalue_t data6_7;
+	keyvalue_t data6_8;
+	keyvalue_t data6_9;
+	keyvalue_t data6_10;
+	keyvalue_t data6_11;
+	keyvalue_t data6_12;
+	keyvalue_t data6_13;
+	keyvalue_t data6_14;
+	keyvalue_t data6_15;
+	keyvalue_t data7;
+	keyvalue_t res7;
+	keyvalue_t data7_0;
+	keyvalue_t data7_1;
+	keyvalue_t data7_2;
+	keyvalue_t data7_3;
+	keyvalue_t data7_4;
+	keyvalue_t data7_5;
+	keyvalue_t data7_6;
+	keyvalue_t data7_7;
+	keyvalue_t data7_8;
+	keyvalue_t data7_9;
+	keyvalue_t data7_10;
+	keyvalue_t data7_11;
+	keyvalue_t data7_12;
+	keyvalue_t data7_13;
+	keyvalue_t data7_14;
+	keyvalue_t data7_15;
+	keyvalue_t data8;
+	keyvalue_t res8;
+	keyvalue_t data8_0;
+	keyvalue_t data8_1;
+	keyvalue_t data8_2;
+	keyvalue_t data8_3;
+	keyvalue_t data8_4;
+	keyvalue_t data8_5;
+	keyvalue_t data8_6;
+	keyvalue_t data8_7;
+	keyvalue_t data8_8;
+	keyvalue_t data8_9;
+	keyvalue_t data8_10;
+	keyvalue_t data8_11;
+	keyvalue_t data8_12;
+	keyvalue_t data8_13;
+	keyvalue_t data8_14;
+	keyvalue_t data8_15;
+	keyvalue_t data9;
+	keyvalue_t res9;
+	keyvalue_t data9_0;
+	keyvalue_t data9_1;
+	keyvalue_t data9_2;
+	keyvalue_t data9_3;
+	keyvalue_t data9_4;
+	keyvalue_t data9_5;
+	keyvalue_t data9_6;
+	keyvalue_t data9_7;
+	keyvalue_t data9_8;
+	keyvalue_t data9_9;
+	keyvalue_t data9_10;
+	keyvalue_t data9_11;
+	keyvalue_t data9_12;
+	keyvalue_t data9_13;
+	keyvalue_t data9_14;
+	keyvalue_t data9_15;
+	keyvalue_t data10;
+	keyvalue_t res10;
+	keyvalue_t data10_0;
+	keyvalue_t data10_1;
+	keyvalue_t data10_2;
+	keyvalue_t data10_3;
+	keyvalue_t data10_4;
+	keyvalue_t data10_5;
+	keyvalue_t data10_6;
+	keyvalue_t data10_7;
+	keyvalue_t data10_8;
+	keyvalue_t data10_9;
+	keyvalue_t data10_10;
+	keyvalue_t data10_11;
+	keyvalue_t data10_12;
+	keyvalue_t data10_13;
+	keyvalue_t data10_14;
+	keyvalue_t data10_15;
+	keyvalue_t data11;
+	keyvalue_t res11;
+	keyvalue_t data11_0;
+	keyvalue_t data11_1;
+	keyvalue_t data11_2;
+	keyvalue_t data11_3;
+	keyvalue_t data11_4;
+	keyvalue_t data11_5;
+	keyvalue_t data11_6;
+	keyvalue_t data11_7;
+	keyvalue_t data11_8;
+	keyvalue_t data11_9;
+	keyvalue_t data11_10;
+	keyvalue_t data11_11;
+	keyvalue_t data11_12;
+	keyvalue_t data11_13;
+	keyvalue_t data11_14;
+	keyvalue_t data11_15;
+	keyvalue_t data12;
+	keyvalue_t res12;
+	keyvalue_t data12_0;
+	keyvalue_t data12_1;
+	keyvalue_t data12_2;
+	keyvalue_t data12_3;
+	keyvalue_t data12_4;
+	keyvalue_t data12_5;
+	keyvalue_t data12_6;
+	keyvalue_t data12_7;
+	keyvalue_t data12_8;
+	keyvalue_t data12_9;
+	keyvalue_t data12_10;
+	keyvalue_t data12_11;
+	keyvalue_t data12_12;
+	keyvalue_t data12_13;
+	keyvalue_t data12_14;
+	keyvalue_t data12_15;
+	keyvalue_t data13;
+	keyvalue_t res13;
+	keyvalue_t data13_0;
+	keyvalue_t data13_1;
+	keyvalue_t data13_2;
+	keyvalue_t data13_3;
+	keyvalue_t data13_4;
+	keyvalue_t data13_5;
+	keyvalue_t data13_6;
+	keyvalue_t data13_7;
+	keyvalue_t data13_8;
+	keyvalue_t data13_9;
+	keyvalue_t data13_10;
+	keyvalue_t data13_11;
+	keyvalue_t data13_12;
+	keyvalue_t data13_13;
+	keyvalue_t data13_14;
+	keyvalue_t data13_15;
+	keyvalue_t data14;
+	keyvalue_t res14;
+	keyvalue_t data14_0;
+	keyvalue_t data14_1;
+	keyvalue_t data14_2;
+	keyvalue_t data14_3;
+	keyvalue_t data14_4;
+	keyvalue_t data14_5;
+	keyvalue_t data14_6;
+	keyvalue_t data14_7;
+	keyvalue_t data14_8;
+	keyvalue_t data14_9;
+	keyvalue_t data14_10;
+	keyvalue_t data14_11;
+	keyvalue_t data14_12;
+	keyvalue_t data14_13;
+	keyvalue_t data14_14;
+	keyvalue_t data14_15;
+	keyvalue_t data15;
+	keyvalue_t res15;
+	keyvalue_t data15_0;
+	keyvalue_t data15_1;
+	keyvalue_t data15_2;
+	keyvalue_t data15_3;
+	keyvalue_t data15_4;
+	keyvalue_t data15_5;
+	keyvalue_t data15_6;
+	keyvalue_t data15_7;
+	keyvalue_t data15_8;
+	keyvalue_t data15_9;
+	keyvalue_t data15_10;
+	keyvalue_t data15_11;
+	keyvalue_t data15_12;
+	keyvalue_t data15_13;
+	keyvalue_t data15_14;
+	keyvalue_t data15_15;
+	
+	bool_type partitionisactive = OFF;
+	
+	// sync and apply
+	SYNCHRONIZE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+	#pragma HLS dependence variable=synvbuffer1 inter false
+	#pragma HLS dependence variable=synvbuffer2 inter false
+	#pragma HLS PIPELINE II=1
+	
+		vid[0][0] = ((0*REDUCESZ) + i*2);
+		vid[0][1] = ((0*REDUCESZ) + i*2 + 1);
+		vid[1][0] = ((1*REDUCESZ) + i*2);
+		vid[1][1] = ((1*REDUCESZ) + i*2 + 1);
+		vid[2][0] = ((2*REDUCESZ) + i*2);
+		vid[2][1] = ((2*REDUCESZ) + i*2 + 1);
+		vid[3][0] = ((3*REDUCESZ) + i*2);
+		vid[3][1] = ((3*REDUCESZ) + i*2 + 1);
+		vid[4][0] = ((4*REDUCESZ) + i*2);
+		vid[4][1] = ((4*REDUCESZ) + i*2 + 1);
+		vid[5][0] = ((5*REDUCESZ) + i*2);
+		vid[5][1] = ((5*REDUCESZ) + i*2 + 1);
+		vid[6][0] = ((6*REDUCESZ) + i*2);
+		vid[6][1] = ((6*REDUCESZ) + i*2 + 1);
+		vid[7][0] = ((7*REDUCESZ) + i*2);
+		vid[7][1] = ((7*REDUCESZ) + i*2 + 1);
+		vid[8][0] = ((8*REDUCESZ) + i*2);
+		vid[8][1] = ((8*REDUCESZ) + i*2 + 1);
+		vid[9][0] = ((9*REDUCESZ) + i*2);
+		vid[9][1] = ((9*REDUCESZ) + i*2 + 1);
+		vid[10][0] = ((10*REDUCESZ) + i*2);
+		vid[10][1] = ((10*REDUCESZ) + i*2 + 1);
+		vid[11][0] = ((11*REDUCESZ) + i*2);
+		vid[11][1] = ((11*REDUCESZ) + i*2 + 1);
+		vid[12][0] = ((12*REDUCESZ) + i*2);
+		vid[12][1] = ((12*REDUCESZ) + i*2 + 1);
+		vid[13][0] = ((13*REDUCESZ) + i*2);
+		vid[13][1] = ((13*REDUCESZ) + i*2 + 1);
+		vid[14][0] = ((14*REDUCESZ) + i*2);
+		vid[14][1] = ((14*REDUCESZ) + i*2 + 1);
+		vid[15][0] = ((15*REDUCESZ) + i*2);
+		vid[15][1] = ((15*REDUCESZ) + i*2 + 1);
+	
+ // AUTOMATEME.
+		data0_0 = vbuffer0_1[0][i];
+		data0_1 = vbuffer1_1[0][i];
+		data0_2 = vbuffer2_1[0][i];
+		data0_3 = vbuffer3_1[0][i];
+ // AUTOMATEME.
+		data1_0 = vbuffer0_1[1][i];
+		data1_1 = vbuffer1_1[1][i];
+		data1_2 = vbuffer2_1[1][i];
+		data1_3 = vbuffer3_1[1][i];
+ // AUTOMATEME.
+		data2_0 = vbuffer0_1[2][i];
+		data2_1 = vbuffer1_1[2][i];
+		data2_2 = vbuffer2_1[2][i];
+		data2_3 = vbuffer3_1[2][i];
+ // AUTOMATEME.
+		data3_0 = vbuffer0_1[3][i];
+		data3_1 = vbuffer1_1[3][i];
+		data3_2 = vbuffer2_1[3][i];
+		data3_3 = vbuffer3_1[3][i];
+ // AUTOMATEME.
+		data4_0 = vbuffer0_1[4][i];
+		data4_1 = vbuffer1_1[4][i];
+		data4_2 = vbuffer2_1[4][i];
+		data4_3 = vbuffer3_1[4][i];
+ // AUTOMATEME.
+		data5_0 = vbuffer0_1[5][i];
+		data5_1 = vbuffer1_1[5][i];
+		data5_2 = vbuffer2_1[5][i];
+		data5_3 = vbuffer3_1[5][i];
+ // AUTOMATEME.
+		data6_0 = vbuffer0_1[6][i];
+		data6_1 = vbuffer1_1[6][i];
+		data6_2 = vbuffer2_1[6][i];
+		data6_3 = vbuffer3_1[6][i];
+ // AUTOMATEME.
+		data7_0 = vbuffer0_1[7][i];
+		data7_1 = vbuffer1_1[7][i];
+		data7_2 = vbuffer2_1[7][i];
+		data7_3 = vbuffer3_1[7][i];
+		data8_0 = vbuffer0_2[0][i];
+		data8_1 = vbuffer1_2[0][i];
+		data8_2 = vbuffer2_2[0][i];
+		data8_3 = vbuffer3_2[0][i];
+		data9_0 = vbuffer0_2[1][i];
+		data9_1 = vbuffer1_2[1][i];
+		data9_2 = vbuffer2_2[1][i];
+		data9_3 = vbuffer3_2[1][i];
+		data10_0 = vbuffer0_2[2][i];
+		data10_1 = vbuffer1_2[2][i];
+		data10_2 = vbuffer2_2[2][i];
+		data10_3 = vbuffer3_2[2][i];
+		data11_0 = vbuffer0_2[3][i];
+		data11_1 = vbuffer1_2[3][i];
+		data11_2 = vbuffer2_2[3][i];
+		data11_3 = vbuffer3_2[3][i];
+		data12_0 = vbuffer0_2[4][i];
+		data12_1 = vbuffer1_2[4][i];
+		data12_2 = vbuffer2_2[4][i];
+		data12_3 = vbuffer3_2[4][i];
+		data13_0 = vbuffer0_2[5][i];
+		data13_1 = vbuffer1_2[5][i];
+		data13_2 = vbuffer2_2[5][i];
+		data13_3 = vbuffer3_2[5][i];
+		data14_0 = vbuffer0_2[6][i];
+		data14_1 = vbuffer1_2[6][i];
+		data14_2 = vbuffer2_2[6][i];
+		data14_3 = vbuffer3_2[6][i];
+		data15_0 = vbuffer0_2[7][i];
+		data15_1 = vbuffer1_2[7][i];
+		data15_2 = vbuffer2_2[7][i];
+		data15_3 = vbuffer3_2[7][i];
+		
+		keyvalue_t udata0 = synvbuffer1[0][i];
+		keyvalue_t udata1 = synvbuffer1[1][i];
+		keyvalue_t udata2 = synvbuffer1[2][i];
+		keyvalue_t udata3 = synvbuffer1[3][i];
+		keyvalue_t udata4 = synvbuffer1[4][i];
+		keyvalue_t udata5 = synvbuffer1[5][i];
+		keyvalue_t udata6 = synvbuffer1[6][i];
+		keyvalue_t udata7 = synvbuffer1[7][i];
+		keyvalue_t udata8 = synvbuffer2[0][i];
+		keyvalue_t udata9 = synvbuffer2[1][i];
+		keyvalue_t udata10 = synvbuffer2[2][i];
+		keyvalue_t udata11 = synvbuffer2[3][i];
+		keyvalue_t udata12 = synvbuffer2[4][i];
+		keyvalue_t udata13 = synvbuffer2[5][i];
+		keyvalue_t udata14 = synvbuffer2[6][i];
+		keyvalue_t udata15 = synvbuffer2[7][i];
+		
+		data0.key = mergefunc_4to1(data0_0.key,data0_1.key,data0_2.key,data0_3.key, globalparams.GraphAlgo);
+		data1.key = mergefunc_4to1(data1_0.key,data1_1.key,data1_2.key,data1_3.key, globalparams.GraphAlgo);
+		data2.key = mergefunc_4to1(data2_0.key,data2_1.key,data2_2.key,data2_3.key, globalparams.GraphAlgo);
+		data3.key = mergefunc_4to1(data3_0.key,data3_1.key,data3_2.key,data3_3.key, globalparams.GraphAlgo);
+		data4.key = mergefunc_4to1(data4_0.key,data4_1.key,data4_2.key,data4_3.key, globalparams.GraphAlgo);
+		data5.key = mergefunc_4to1(data5_0.key,data5_1.key,data5_2.key,data5_3.key, globalparams.GraphAlgo);
+		data6.key = mergefunc_4to1(data6_0.key,data6_1.key,data6_2.key,data6_3.key, globalparams.GraphAlgo);
+		data7.key = mergefunc_4to1(data7_0.key,data7_1.key,data7_2.key,data7_3.key, globalparams.GraphAlgo);
+		data8.key = mergefunc_4to1(data8_0.key,data8_1.key,data8_2.key,data8_3.key, globalparams.GraphAlgo);
+		data9.key = mergefunc_4to1(data9_0.key,data9_1.key,data9_2.key,data9_3.key, globalparams.GraphAlgo);
+		data10.key = mergefunc_4to1(data10_0.key,data10_1.key,data10_2.key,data10_3.key, globalparams.GraphAlgo);
+		data11.key = mergefunc_4to1(data11_0.key,data11_1.key,data11_2.key,data11_3.key, globalparams.GraphAlgo);
+		data12.key = mergefunc_4to1(data12_0.key,data12_1.key,data12_2.key,data12_3.key, globalparams.GraphAlgo);
+		data13.key = mergefunc_4to1(data13_0.key,data13_1.key,data13_2.key,data13_3.key, globalparams.GraphAlgo);
+		data14.key = mergefunc_4to1(data14_0.key,data14_1.key,data14_2.key,data14_3.key, globalparams.GraphAlgo);
+		data15.key = mergefunc_4to1(data15_0.key,data15_1.key,data15_2.key,data15_3.key, globalparams.GraphAlgo);
+		data0.value = mergefunc_4to1(data0_0.value,data0_1.value,data0_2.value,data0_3.value, globalparams.GraphAlgo);
+		data1.value = mergefunc_4to1(data1_0.value,data1_1.value,data1_2.value,data1_3.value, globalparams.GraphAlgo);
+		data2.value = mergefunc_4to1(data2_0.value,data2_1.value,data2_2.value,data2_3.value, globalparams.GraphAlgo);
+		data3.value = mergefunc_4to1(data3_0.value,data3_1.value,data3_2.value,data3_3.value, globalparams.GraphAlgo);
+		data4.value = mergefunc_4to1(data4_0.value,data4_1.value,data4_2.value,data4_3.value, globalparams.GraphAlgo);
+		data5.value = mergefunc_4to1(data5_0.value,data5_1.value,data5_2.value,data5_3.value, globalparams.GraphAlgo);
+		data6.value = mergefunc_4to1(data6_0.value,data6_1.value,data6_2.value,data6_3.value, globalparams.GraphAlgo);
+		data7.value = mergefunc_4to1(data7_0.value,data7_1.value,data7_2.value,data7_3.value, globalparams.GraphAlgo);
+		data8.value = mergefunc_4to1(data8_0.value,data8_1.value,data8_2.value,data8_3.value, globalparams.GraphAlgo);
+		data9.value = mergefunc_4to1(data9_0.value,data9_1.value,data9_2.value,data9_3.value, globalparams.GraphAlgo);
+		data10.value = mergefunc_4to1(data10_0.value,data10_1.value,data10_2.value,data10_3.value, globalparams.GraphAlgo);
+		data11.value = mergefunc_4to1(data11_0.value,data11_1.value,data11_2.value,data11_3.value, globalparams.GraphAlgo);
+		data12.value = mergefunc_4to1(data12_0.value,data12_1.value,data12_2.value,data12_3.value, globalparams.GraphAlgo);
+		data13.value = mergefunc_4to1(data13_0.value,data13_1.value,data13_2.value,data13_3.value, globalparams.GraphAlgo);
+		data14.value = mergefunc_4to1(data14_0.value,data14_1.value,data14_2.value,data14_3.value, globalparams.GraphAlgo);
+		data15.value = mergefunc_4to1(data15_0.value,data15_1.value,data15_2.value,data15_3.value, globalparams.GraphAlgo);
+		
+		res0.key = applyfunc(udata0.key, data0.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res1.key = applyfunc(udata1.key, data1.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res2.key = applyfunc(udata2.key, data2.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res3.key = applyfunc(udata3.key, data3.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res4.key = applyfunc(udata4.key, data4.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res5.key = applyfunc(udata5.key, data5.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res6.key = applyfunc(udata6.key, data6.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res7.key = applyfunc(udata7.key, data7.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res8.key = applyfunc(udata8.key, data8.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res9.key = applyfunc(udata9.key, data9.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res10.key = applyfunc(udata10.key, data10.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res11.key = applyfunc(udata11.key, data11.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res12.key = applyfunc(udata12.key, data12.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res13.key = applyfunc(udata13.key, data13.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res14.key = applyfunc(udata14.key, data14.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res15.key = applyfunc(udata15.key, data15.key, globalparams.GraphIter, globalparams.GraphAlgo);
+		res0.value = applyfunc(udata0.value, data0.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res1.value = applyfunc(udata1.value, data1.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res2.value = applyfunc(udata2.value, data2.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res3.value = applyfunc(udata3.value, data3.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res4.value = applyfunc(udata4.value, data4.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res5.value = applyfunc(udata5.value, data5.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res6.value = applyfunc(udata6.value, data6.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res7.value = applyfunc(udata7.value, data7.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res8.value = applyfunc(udata8.value, data8.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res9.value = applyfunc(udata9.value, data9.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res10.value = applyfunc(udata10.value, data10.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res11.value = applyfunc(udata11.value, data11.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res12.value = applyfunc(udata12.value, data12.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res13.value = applyfunc(udata13.value, data13.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res14.value = applyfunc(udata14.value, data14.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		res15.value = applyfunc(udata15.value, data15.value, globalparams.GraphIter, globalparams.GraphAlgo);
+		
+	
+		synvbuffer1[0][i] = res0;	
+	
+		synvbuffer1[1][i] = res1;	
+	
+		synvbuffer1[2][i] = res2;	
+	
+		synvbuffer1[3][i] = res3;	
+	
+		synvbuffer1[4][i] = res4;	
+	
+		synvbuffer1[5][i] = res5;	
+	
+		synvbuffer1[6][i] = res6;	
+	
+		synvbuffer1[7][i] = res7;	
+	
+		synvbuffer2[0][i] = res8;	
+	
+		synvbuffer2[1][i] = res9;	
+	
+		synvbuffer2[2][i] = res10;	
+	
+		synvbuffer2[3][i] = res11;	
+	
+		synvbuffer2[4][i] = res12;	
+	
+		synvbuffer2[5][i] = res13;	
+	
+		synvbuffer2[6][i] = res14;	
+	
+		synvbuffer2[7][i] = res15;	
+	
+		if(res0.key != udata0.key){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
+		if(res0.value != udata0.value){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
+		if(res1.key != udata1.key){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
+		if(res1.value != udata1.value){ vmask[i].data[1].value = 1; } else { vmask[i].data[1].value = 0; }
+		if(res2.key != udata2.key){ vmask[i].data[2].key = 1; } else { vmask[i].data[2].key = 0; }
+		if(res2.value != udata2.value){ vmask[i].data[2].value = 1; } else { vmask[i].data[2].value = 0; }
+		if(res3.key != udata3.key){ vmask[i].data[3].key = 1; } else { vmask[i].data[3].key = 0; }
+		if(res3.value != udata3.value){ vmask[i].data[3].value = 1; } else { vmask[i].data[3].value = 0; }
+		if(res4.key != udata4.key){ vmask[i].data[4].key = 1; } else { vmask[i].data[4].key = 0; }
+		if(res4.value != udata4.value){ vmask[i].data[4].value = 1; } else { vmask[i].data[4].value = 0; }
+		if(res5.key != udata5.key){ vmask[i].data[5].key = 1; } else { vmask[i].data[5].key = 0; }
+		if(res5.value != udata5.value){ vmask[i].data[5].value = 1; } else { vmask[i].data[5].value = 0; }
+		if(res6.key != udata6.key){ vmask[i].data[6].key = 1; } else { vmask[i].data[6].key = 0; }
+		if(res6.value != udata6.value){ vmask[i].data[6].value = 1; } else { vmask[i].data[6].value = 0; }
+		if(res7.key != udata7.key){ vmask[i].data[7].key = 1; } else { vmask[i].data[7].key = 0; }
+		if(res7.value != udata7.value){ vmask[i].data[7].value = 1; } else { vmask[i].data[7].value = 0; }
+		if(res8.key != udata8.key){ vmask[i].data[8].key = 1; } else { vmask[i].data[8].key = 0; }
+		if(res8.value != udata8.value){ vmask[i].data[8].value = 1; } else { vmask[i].data[8].value = 0; }
+		if(res9.key != udata9.key){ vmask[i].data[9].key = 1; } else { vmask[i].data[9].key = 0; }
+		if(res9.value != udata9.value){ vmask[i].data[9].value = 1; } else { vmask[i].data[9].value = 0; }
+		if(res10.key != udata10.key){ vmask[i].data[10].key = 1; } else { vmask[i].data[10].key = 0; }
+		if(res10.value != udata10.value){ vmask[i].data[10].value = 1; } else { vmask[i].data[10].value = 0; }
+		if(res11.key != udata11.key){ vmask[i].data[11].key = 1; } else { vmask[i].data[11].key = 0; }
+		if(res11.value != udata11.value){ vmask[i].data[11].value = 1; } else { vmask[i].data[11].value = 0; }
+		if(res12.key != udata12.key){ vmask[i].data[12].key = 1; } else { vmask[i].data[12].key = 0; }
+		if(res12.value != udata12.value){ vmask[i].data[12].value = 1; } else { vmask[i].data[12].value = 0; }
+		if(res13.key != udata13.key){ vmask[i].data[13].key = 1; } else { vmask[i].data[13].key = 0; }
+		if(res13.value != udata13.value){ vmask[i].data[13].value = 1; } else { vmask[i].data[13].value = 0; }
+		if(res14.key != udata14.key){ vmask[i].data[14].key = 1; } else { vmask[i].data[14].key = 0; }
+		if(res14.value != udata14.value){ vmask[i].data[14].value = 1; } else { vmask[i].data[14].value = 0; }
+		if(res15.key != udata15.key){ vmask[i].data[15].key = 1; } else { vmask[i].data[15].key = 0; }
+		if(res15.value != udata15.value){ vmask[i].data[15].value = 1; } else { vmask[i].data[15].value = 0; }
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS3
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[0][0]<<" & vid2: "<<vid[0][1]<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl; }
+		if(res0.key != udata0.key){ cout<<"synchronize: vid: "<<vid[0][0]<<", vmask["<<i<<"].data[0].key: "<<vmask[i].data[0].key<<endl; }
+		if(res0.value != udata0.value){ cout<<"synchronize: vid: "<<vid[0][1]<<", vmask["<<i<<"].data[0].value: "<<vmask[i].data[0].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[1][0]<<" & vid2: "<<vid[1][1]<<"): res1.key: "<<res1.key<<", res1.value: "<<res1.value<<": udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl; }
+		if(res1.key != udata1.key){ cout<<"synchronize: vid: "<<vid[1][0]<<", vmask["<<i<<"].data[1].key: "<<vmask[i].data[1].key<<endl; }
+		if(res1.value != udata1.value){ cout<<"synchronize: vid: "<<vid[1][1]<<", vmask["<<i<<"].data[1].value: "<<vmask[i].data[1].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[2][0]<<" & vid2: "<<vid[2][1]<<"): res2.key: "<<res2.key<<", res2.value: "<<res2.value<<": udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl; }
+		if(res2.key != udata2.key){ cout<<"synchronize: vid: "<<vid[2][0]<<", vmask["<<i<<"].data[2].key: "<<vmask[i].data[2].key<<endl; }
+		if(res2.value != udata2.value){ cout<<"synchronize: vid: "<<vid[2][1]<<", vmask["<<i<<"].data[2].value: "<<vmask[i].data[2].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[3][0]<<" & vid2: "<<vid[3][1]<<"): res3.key: "<<res3.key<<", res3.value: "<<res3.value<<": udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl; }
+		if(res3.key != udata3.key){ cout<<"synchronize: vid: "<<vid[3][0]<<", vmask["<<i<<"].data[3].key: "<<vmask[i].data[3].key<<endl; }
+		if(res3.value != udata3.value){ cout<<"synchronize: vid: "<<vid[3][1]<<", vmask["<<i<<"].data[3].value: "<<vmask[i].data[3].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[4][0]<<" & vid2: "<<vid[4][1]<<"): res4.key: "<<res4.key<<", res4.value: "<<res4.value<<": udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl; }
+		if(res4.key != udata4.key){ cout<<"synchronize: vid: "<<vid[4][0]<<", vmask["<<i<<"].data[4].key: "<<vmask[i].data[4].key<<endl; }
+		if(res4.value != udata4.value){ cout<<"synchronize: vid: "<<vid[4][1]<<", vmask["<<i<<"].data[4].value: "<<vmask[i].data[4].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[5][0]<<" & vid2: "<<vid[5][1]<<"): res5.key: "<<res5.key<<", res5.value: "<<res5.value<<": udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl; }
+		if(res5.key != udata5.key){ cout<<"synchronize: vid: "<<vid[5][0]<<", vmask["<<i<<"].data[5].key: "<<vmask[i].data[5].key<<endl; }
+		if(res5.value != udata5.value){ cout<<"synchronize: vid: "<<vid[5][1]<<", vmask["<<i<<"].data[5].value: "<<vmask[i].data[5].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[6][0]<<" & vid2: "<<vid[6][1]<<"): res6.key: "<<res6.key<<", res6.value: "<<res6.value<<": udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl; }
+		if(res6.key != udata6.key){ cout<<"synchronize: vid: "<<vid[6][0]<<", vmask["<<i<<"].data[6].key: "<<vmask[i].data[6].key<<endl; }
+		if(res6.value != udata6.value){ cout<<"synchronize: vid: "<<vid[6][1]<<", vmask["<<i<<"].data[6].value: "<<vmask[i].data[6].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[7][0]<<" & vid2: "<<vid[7][1]<<"): res7.key: "<<res7.key<<", res7.value: "<<res7.value<<": udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl; }
+		if(res7.key != udata7.key){ cout<<"synchronize: vid: "<<vid[7][0]<<", vmask["<<i<<"].data[7].key: "<<vmask[i].data[7].key<<endl; }
+		if(res7.value != udata7.value){ cout<<"synchronize: vid: "<<vid[7][1]<<", vmask["<<i<<"].data[7].value: "<<vmask[i].data[7].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[8][0]<<" & vid2: "<<vid[8][1]<<"): res8.key: "<<res8.key<<", res8.value: "<<res8.value<<": udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<", data8.key: "<<data8.key<<", data8.value: "<<data8.value<<endl; }
+		if(res8.key != udata8.key){ cout<<"synchronize: vid: "<<vid[8][0]<<", vmask["<<i<<"].data[8].key: "<<vmask[i].data[8].key<<endl; }
+		if(res8.value != udata8.value){ cout<<"synchronize: vid: "<<vid[8][1]<<", vmask["<<i<<"].data[8].value: "<<vmask[i].data[8].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[9][0]<<" & vid2: "<<vid[9][1]<<"): res9.key: "<<res9.key<<", res9.value: "<<res9.value<<": udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<", data9.key: "<<data9.key<<", data9.value: "<<data9.value<<endl; }
+		if(res9.key != udata9.key){ cout<<"synchronize: vid: "<<vid[9][0]<<", vmask["<<i<<"].data[9].key: "<<vmask[i].data[9].key<<endl; }
+		if(res9.value != udata9.value){ cout<<"synchronize: vid: "<<vid[9][1]<<", vmask["<<i<<"].data[9].value: "<<vmask[i].data[9].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[10][0]<<" & vid2: "<<vid[10][1]<<"): res10.key: "<<res10.key<<", res10.value: "<<res10.value<<": udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<", data10.key: "<<data10.key<<", data10.value: "<<data10.value<<endl; }
+		if(res10.key != udata10.key){ cout<<"synchronize: vid: "<<vid[10][0]<<", vmask["<<i<<"].data[10].key: "<<vmask[i].data[10].key<<endl; }
+		if(res10.value != udata10.value){ cout<<"synchronize: vid: "<<vid[10][1]<<", vmask["<<i<<"].data[10].value: "<<vmask[i].data[10].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[11][0]<<" & vid2: "<<vid[11][1]<<"): res11.key: "<<res11.key<<", res11.value: "<<res11.value<<": udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<", data11.key: "<<data11.key<<", data11.value: "<<data11.value<<endl; }
+		if(res11.key != udata11.key){ cout<<"synchronize: vid: "<<vid[11][0]<<", vmask["<<i<<"].data[11].key: "<<vmask[i].data[11].key<<endl; }
+		if(res11.value != udata11.value){ cout<<"synchronize: vid: "<<vid[11][1]<<", vmask["<<i<<"].data[11].value: "<<vmask[i].data[11].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[12][0]<<" & vid2: "<<vid[12][1]<<"): res12.key: "<<res12.key<<", res12.value: "<<res12.value<<": udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<", data12.key: "<<data12.key<<", data12.value: "<<data12.value<<endl; }
+		if(res12.key != udata12.key){ cout<<"synchronize: vid: "<<vid[12][0]<<", vmask["<<i<<"].data[12].key: "<<vmask[i].data[12].key<<endl; }
+		if(res12.value != udata12.value){ cout<<"synchronize: vid: "<<vid[12][1]<<", vmask["<<i<<"].data[12].value: "<<vmask[i].data[12].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[13][0]<<" & vid2: "<<vid[13][1]<<"): res13.key: "<<res13.key<<", res13.value: "<<res13.value<<": udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<", data13.key: "<<data13.key<<", data13.value: "<<data13.value<<endl; }
+		if(res13.key != udata13.key){ cout<<"synchronize: vid: "<<vid[13][0]<<", vmask["<<i<<"].data[13].key: "<<vmask[i].data[13].key<<endl; }
+		if(res13.value != udata13.value){ cout<<"synchronize: vid: "<<vid[13][1]<<", vmask["<<i<<"].data[13].value: "<<vmask[i].data[13].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[14][0]<<" & vid2: "<<vid[14][1]<<"): res14.key: "<<res14.key<<", res14.value: "<<res14.value<<": udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<", data14.key: "<<data14.key<<", data14.value: "<<data14.value<<endl; }
+		if(res14.key != udata14.key){ cout<<"synchronize: vid: "<<vid[14][0]<<", vmask["<<i<<"].data[14].key: "<<vmask[i].data[14].key<<endl; }
+		if(res14.value != udata14.value){ cout<<"synchronize: vid: "<<vid[14][1]<<", vmask["<<i<<"].data[14].value: "<<vmask[i].data[14].value<<endl; }
+		if(false){ cout<<"SYNCHRONIZE FUNC SEEN @ (vid1: "<<vid[15][0]<<" & vid2: "<<vid[15][1]<<"): res15.key: "<<res15.key<<", res15.value: "<<res15.value<<": udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl; }
+		if(res15.key != udata15.key){ cout<<"synchronize: vid: "<<vid[15][0]<<", vmask["<<i<<"].data[15].key: "<<vmask[i].data[15].key<<endl; }
+		if(res15.value != udata15.value){ cout<<"synchronize: vid: "<<vid[15][1]<<", vmask["<<i<<"].data[15].value: "<<vmask[i].data[15].value<<endl; }
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res0.value != udata0.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.key != udata1.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.value != udata1.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.key != udata2.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.value != udata2.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.key != udata3.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.value != udata3.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.key != udata4.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.value != udata4.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.key != udata5.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.value != udata5.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.key != udata6.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.value != udata6.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.key != udata7.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.value != udata7.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res8.key != udata8.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res8.value != udata8.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res9.key != udata9.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res9.value != udata9.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res10.key != udata10.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res10.value != udata10.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res11.key != udata11.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res11.value != udata11.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res12.key != udata12.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res12.value != udata12.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res13.key != udata13.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res13.value != udata13.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res14.key != udata14.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res14.value != udata14.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res15.key != udata15.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res15.value != udata15.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		#endif
+	}
+	
+	// get mask
+	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1
+		uint32_type mask = convertvmasktouint32(vmask, k);
+		if(mask > 0){ partitionisactive = ON; }
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("synchronize.synvbuffer1", synvbuffer1, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.vmask", vmask, NUM_PARTITIONS, 4);
+	#endif
+	return partitionisactive;
+}
+
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+preplicate_1to4(bool_type enable,
+		keyvalue_t synvbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t synvbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type synvmask[BLOCKRAM_SIZE], 
+keyvalue_t vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], 
+		globalparams_t globalparams){
+	if(enable == OFF){ return OFF; }
+	
+	uintNUMPby2_type _vmask[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = _vmask
+
+	// replicate to vbuffers
+	SYNCHRONIZE_LOOP2: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1
+		vbuffer0_1[0][k] = synvbuffer1[0][k];
+		vbuffer0_1[1][k] = synvbuffer1[1][k];
+		vbuffer0_1[2][k] = synvbuffer1[2][k];
+		vbuffer0_1[3][k] = synvbuffer1[3][k];
+		vbuffer0_1[4][k] = synvbuffer1[4][k];
+		vbuffer0_1[5][k] = synvbuffer1[5][k];
+		vbuffer0_1[6][k] = synvbuffer1[6][k];
+		vbuffer0_1[7][k] = synvbuffer1[7][k];
+		vbuffer1_1[0][k] = synvbuffer1[0][k];
+		vbuffer1_1[1][k] = synvbuffer1[1][k];
+		vbuffer1_1[2][k] = synvbuffer1[2][k];
+		vbuffer1_1[3][k] = synvbuffer1[3][k];
+		vbuffer1_1[4][k] = synvbuffer1[4][k];
+		vbuffer1_1[5][k] = synvbuffer1[5][k];
+		vbuffer1_1[6][k] = synvbuffer1[6][k];
+		vbuffer1_1[7][k] = synvbuffer1[7][k];
+		vbuffer2_1[0][k] = synvbuffer1[0][k];
+		vbuffer2_1[1][k] = synvbuffer1[1][k];
+		vbuffer2_1[2][k] = synvbuffer1[2][k];
+		vbuffer2_1[3][k] = synvbuffer1[3][k];
+		vbuffer2_1[4][k] = synvbuffer1[4][k];
+		vbuffer2_1[5][k] = synvbuffer1[5][k];
+		vbuffer2_1[6][k] = synvbuffer1[6][k];
+		vbuffer2_1[7][k] = synvbuffer1[7][k];
+		vbuffer3_1[0][k] = synvbuffer1[0][k];
+		vbuffer3_1[1][k] = synvbuffer1[1][k];
+		vbuffer3_1[2][k] = synvbuffer1[2][k];
+		vbuffer3_1[3][k] = synvbuffer1[3][k];
+		vbuffer3_1[4][k] = synvbuffer1[4][k];
+		vbuffer3_1[5][k] = synvbuffer1[5][k];
+		vbuffer3_1[6][k] = synvbuffer1[6][k];
+		vbuffer3_1[7][k] = synvbuffer1[7][k];
+		vbuffer0_2[0][k] = synvbuffer2[0][k];
+		vbuffer0_2[1][k] = synvbuffer2[1][k];
+		vbuffer0_2[2][k] = synvbuffer2[2][k];
+		vbuffer0_2[3][k] = synvbuffer2[3][k];
+		vbuffer0_2[4][k] = synvbuffer2[4][k];
+		vbuffer0_2[5][k] = synvbuffer2[5][k];
+		vbuffer0_2[6][k] = synvbuffer2[6][k];
+		vbuffer0_2[7][k] = synvbuffer2[7][k];
+		vbuffer1_2[0][k] = synvbuffer2[0][k];
+		vbuffer1_2[1][k] = synvbuffer2[1][k];
+		vbuffer1_2[2][k] = synvbuffer2[2][k];
+		vbuffer1_2[3][k] = synvbuffer2[3][k];
+		vbuffer1_2[4][k] = synvbuffer2[4][k];
+		vbuffer1_2[5][k] = synvbuffer2[5][k];
+		vbuffer1_2[6][k] = synvbuffer2[6][k];
+		vbuffer1_2[7][k] = synvbuffer2[7][k];
+		vbuffer2_2[0][k] = synvbuffer2[0][k];
+		vbuffer2_2[1][k] = synvbuffer2[1][k];
+		vbuffer2_2[2][k] = synvbuffer2[2][k];
+		vbuffer2_2[3][k] = synvbuffer2[3][k];
+		vbuffer2_2[4][k] = synvbuffer2[4][k];
+		vbuffer2_2[5][k] = synvbuffer2[5][k];
+		vbuffer2_2[6][k] = synvbuffer2[6][k];
+		vbuffer2_2[7][k] = synvbuffer2[7][k];
+		vbuffer3_2[0][k] = synvbuffer2[0][k];
+		vbuffer3_2[1][k] = synvbuffer2[1][k];
+		vbuffer3_2[2][k] = synvbuffer2[2][k];
+		vbuffer3_2[3][k] = synvbuffer2[3][k];
+		vbuffer3_2[4][k] = synvbuffer2[4][k];
+		vbuffer3_2[5][k] = synvbuffer2[5][k];
+		vbuffer3_2[6][k] = synvbuffer2[6][k];
+		vbuffer3_2[7][k] = synvbuffer2[7][k];
+	}
+	
+	// replicate to vmasks
+	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1
+		vmask0[k] = synvmask[k];
+		vmask1[k] = synvmask[k];
+		vmask2[k] = synvmask[k];
+		vmask3[k] = synvmask[k];
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("synchronize.synvbuffer1", synvbuffer1, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.synvmask", synvmask, NUM_PARTITIONS, 4);
+	#endif
+	return NAp;
+}
+ */
+bool_type 
+	#ifdef SW 
+	acts::
+	#endif
+synchronize(bool_type enable, keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE], keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE],keyvalue_t vbuffer4_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer4_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE],keyvalue_t vbuffer5_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer5_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE],keyvalue_t vbuffer6_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer6_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE],keyvalue_t vbuffer7_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer7_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE],keyvalue_t vbuffer8_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer8_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE],keyvalue_t vbuffer9_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer9_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE],keyvalue_t vbuffer10_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer10_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE],keyvalue_t vbuffer11_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer11_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE],keyvalue_t vbuffer12_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer12_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE],keyvalue_t vbuffer13_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer13_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE],keyvalue_t vbuffer14_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer14_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE],keyvalue_t vbuffer15_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer15_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return OFF; }
 	
 	uintNUMPby2_type _vmask[BLOCKRAM_SIZE];
@@ -2659,7 +3926,7 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 	
 	// sync
 	SYNCHRONIZE_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
-	#pragma HLS dependence variable=vpropbuffer inter false
+	#pragma HLS dependence variable=synvbuffer inter false
 	#pragma HLS PIPELINE II=1
 	
 		vid[0][0] = ((0*REDUCESZ) + i*2);
@@ -2968,55 +4235,55 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 		data15_14 = vbuffer14_2[7][BUFFERBASE_VDATA + i];
 		data15_15 = vbuffer15_2[7][BUFFERBASE_VDATA + i];
 		
-		keyvalue_t udata0 = vpropbuffer[0][i];
-		keyvalue_t udata1 = vpropbuffer[1][i];
-		keyvalue_t udata2 = vpropbuffer[2][i];
-		keyvalue_t udata3 = vpropbuffer[3][i];
-		keyvalue_t udata4 = vpropbuffer[4][i];
-		keyvalue_t udata5 = vpropbuffer[5][i];
-		keyvalue_t udata6 = vpropbuffer[6][i];
-		keyvalue_t udata7 = vpropbuffer[7][i];
-		keyvalue_t udata8 = vpropbuffer[8][i];
-		keyvalue_t udata9 = vpropbuffer[9][i];
-		keyvalue_t udata10 = vpropbuffer[10][i];
-		keyvalue_t udata11 = vpropbuffer[11][i];
-		keyvalue_t udata12 = vpropbuffer[12][i];
-		keyvalue_t udata13 = vpropbuffer[13][i];
-		keyvalue_t udata14 = vpropbuffer[14][i];
-		keyvalue_t udata15 = vpropbuffer[15][i];
+		keyvalue_t udata0 = synvbuffer[0][i];
+		keyvalue_t udata1 = synvbuffer[1][i];
+		keyvalue_t udata2 = synvbuffer[2][i];
+		keyvalue_t udata3 = synvbuffer[3][i];
+		keyvalue_t udata4 = synvbuffer[4][i];
+		keyvalue_t udata5 = synvbuffer[5][i];
+		keyvalue_t udata6 = synvbuffer[6][i];
+		keyvalue_t udata7 = synvbuffer[7][i];
+		keyvalue_t udata8 = synvbuffer[8][i];
+		keyvalue_t udata9 = synvbuffer[9][i];
+		keyvalue_t udata10 = synvbuffer[10][i];
+		keyvalue_t udata11 = synvbuffer[11][i];
+		keyvalue_t udata12 = synvbuffer[12][i];
+		keyvalue_t udata13 = synvbuffer[13][i];
+		keyvalue_t udata14 = synvbuffer[14][i];
+		keyvalue_t udata15 = synvbuffer[15][i];
 		
-		data0.key = mergefunc(data0_0.key,data0_1.key,data0_2.key,data0_3.key,data0_4.key,data0_5.key,data0_6.key,data0_7.key,data0_8.key,data0_9.key,data0_10.key,data0_11.key,data0_12.key,data0_13.key,data0_14.key,data0_15.key, globalparams.GraphAlgo);
-		data1.key = mergefunc(data1_0.key,data1_1.key,data1_2.key,data1_3.key,data1_4.key,data1_5.key,data1_6.key,data1_7.key,data1_8.key,data1_9.key,data1_10.key,data1_11.key,data1_12.key,data1_13.key,data1_14.key,data1_15.key, globalparams.GraphAlgo);
-		data2.key = mergefunc(data2_0.key,data2_1.key,data2_2.key,data2_3.key,data2_4.key,data2_5.key,data2_6.key,data2_7.key,data2_8.key,data2_9.key,data2_10.key,data2_11.key,data2_12.key,data2_13.key,data2_14.key,data2_15.key, globalparams.GraphAlgo);
-		data3.key = mergefunc(data3_0.key,data3_1.key,data3_2.key,data3_3.key,data3_4.key,data3_5.key,data3_6.key,data3_7.key,data3_8.key,data3_9.key,data3_10.key,data3_11.key,data3_12.key,data3_13.key,data3_14.key,data3_15.key, globalparams.GraphAlgo);
-		data4.key = mergefunc(data4_0.key,data4_1.key,data4_2.key,data4_3.key,data4_4.key,data4_5.key,data4_6.key,data4_7.key,data4_8.key,data4_9.key,data4_10.key,data4_11.key,data4_12.key,data4_13.key,data4_14.key,data4_15.key, globalparams.GraphAlgo);
-		data5.key = mergefunc(data5_0.key,data5_1.key,data5_2.key,data5_3.key,data5_4.key,data5_5.key,data5_6.key,data5_7.key,data5_8.key,data5_9.key,data5_10.key,data5_11.key,data5_12.key,data5_13.key,data5_14.key,data5_15.key, globalparams.GraphAlgo);
-		data6.key = mergefunc(data6_0.key,data6_1.key,data6_2.key,data6_3.key,data6_4.key,data6_5.key,data6_6.key,data6_7.key,data6_8.key,data6_9.key,data6_10.key,data6_11.key,data6_12.key,data6_13.key,data6_14.key,data6_15.key, globalparams.GraphAlgo);
-		data7.key = mergefunc(data7_0.key,data7_1.key,data7_2.key,data7_3.key,data7_4.key,data7_5.key,data7_6.key,data7_7.key,data7_8.key,data7_9.key,data7_10.key,data7_11.key,data7_12.key,data7_13.key,data7_14.key,data7_15.key, globalparams.GraphAlgo);
-		data8.key = mergefunc(data8_0.key,data8_1.key,data8_2.key,data8_3.key,data8_4.key,data8_5.key,data8_6.key,data8_7.key,data8_8.key,data8_9.key,data8_10.key,data8_11.key,data8_12.key,data8_13.key,data8_14.key,data8_15.key, globalparams.GraphAlgo);
-		data9.key = mergefunc(data9_0.key,data9_1.key,data9_2.key,data9_3.key,data9_4.key,data9_5.key,data9_6.key,data9_7.key,data9_8.key,data9_9.key,data9_10.key,data9_11.key,data9_12.key,data9_13.key,data9_14.key,data9_15.key, globalparams.GraphAlgo);
-		data10.key = mergefunc(data10_0.key,data10_1.key,data10_2.key,data10_3.key,data10_4.key,data10_5.key,data10_6.key,data10_7.key,data10_8.key,data10_9.key,data10_10.key,data10_11.key,data10_12.key,data10_13.key,data10_14.key,data10_15.key, globalparams.GraphAlgo);
-		data11.key = mergefunc(data11_0.key,data11_1.key,data11_2.key,data11_3.key,data11_4.key,data11_5.key,data11_6.key,data11_7.key,data11_8.key,data11_9.key,data11_10.key,data11_11.key,data11_12.key,data11_13.key,data11_14.key,data11_15.key, globalparams.GraphAlgo);
-		data12.key = mergefunc(data12_0.key,data12_1.key,data12_2.key,data12_3.key,data12_4.key,data12_5.key,data12_6.key,data12_7.key,data12_8.key,data12_9.key,data12_10.key,data12_11.key,data12_12.key,data12_13.key,data12_14.key,data12_15.key, globalparams.GraphAlgo);
-		data13.key = mergefunc(data13_0.key,data13_1.key,data13_2.key,data13_3.key,data13_4.key,data13_5.key,data13_6.key,data13_7.key,data13_8.key,data13_9.key,data13_10.key,data13_11.key,data13_12.key,data13_13.key,data13_14.key,data13_15.key, globalparams.GraphAlgo);
-		data14.key = mergefunc(data14_0.key,data14_1.key,data14_2.key,data14_3.key,data14_4.key,data14_5.key,data14_6.key,data14_7.key,data14_8.key,data14_9.key,data14_10.key,data14_11.key,data14_12.key,data14_13.key,data14_14.key,data14_15.key, globalparams.GraphAlgo);
-		data15.key = mergefunc(data15_0.key,data15_1.key,data15_2.key,data15_3.key,data15_4.key,data15_5.key,data15_6.key,data15_7.key,data15_8.key,data15_9.key,data15_10.key,data15_11.key,data15_12.key,data15_13.key,data15_14.key,data15_15.key, globalparams.GraphAlgo);
-		data0.value = mergefunc(data0_0.value,data0_1.value,data0_2.value,data0_3.value,data0_4.value,data0_5.value,data0_6.value,data0_7.value,data0_8.value,data0_9.value,data0_10.value,data0_11.value,data0_12.value,data0_13.value,data0_14.value,data0_15.value, globalparams.GraphAlgo);
-		data1.value = mergefunc(data1_0.value,data1_1.value,data1_2.value,data1_3.value,data1_4.value,data1_5.value,data1_6.value,data1_7.value,data1_8.value,data1_9.value,data1_10.value,data1_11.value,data1_12.value,data1_13.value,data1_14.value,data1_15.value, globalparams.GraphAlgo);
-		data2.value = mergefunc(data2_0.value,data2_1.value,data2_2.value,data2_3.value,data2_4.value,data2_5.value,data2_6.value,data2_7.value,data2_8.value,data2_9.value,data2_10.value,data2_11.value,data2_12.value,data2_13.value,data2_14.value,data2_15.value, globalparams.GraphAlgo);
-		data3.value = mergefunc(data3_0.value,data3_1.value,data3_2.value,data3_3.value,data3_4.value,data3_5.value,data3_6.value,data3_7.value,data3_8.value,data3_9.value,data3_10.value,data3_11.value,data3_12.value,data3_13.value,data3_14.value,data3_15.value, globalparams.GraphAlgo);
-		data4.value = mergefunc(data4_0.value,data4_1.value,data4_2.value,data4_3.value,data4_4.value,data4_5.value,data4_6.value,data4_7.value,data4_8.value,data4_9.value,data4_10.value,data4_11.value,data4_12.value,data4_13.value,data4_14.value,data4_15.value, globalparams.GraphAlgo);
-		data5.value = mergefunc(data5_0.value,data5_1.value,data5_2.value,data5_3.value,data5_4.value,data5_5.value,data5_6.value,data5_7.value,data5_8.value,data5_9.value,data5_10.value,data5_11.value,data5_12.value,data5_13.value,data5_14.value,data5_15.value, globalparams.GraphAlgo);
-		data6.value = mergefunc(data6_0.value,data6_1.value,data6_2.value,data6_3.value,data6_4.value,data6_5.value,data6_6.value,data6_7.value,data6_8.value,data6_9.value,data6_10.value,data6_11.value,data6_12.value,data6_13.value,data6_14.value,data6_15.value, globalparams.GraphAlgo);
-		data7.value = mergefunc(data7_0.value,data7_1.value,data7_2.value,data7_3.value,data7_4.value,data7_5.value,data7_6.value,data7_7.value,data7_8.value,data7_9.value,data7_10.value,data7_11.value,data7_12.value,data7_13.value,data7_14.value,data7_15.value, globalparams.GraphAlgo);
-		data8.value = mergefunc(data8_0.value,data8_1.value,data8_2.value,data8_3.value,data8_4.value,data8_5.value,data8_6.value,data8_7.value,data8_8.value,data8_9.value,data8_10.value,data8_11.value,data8_12.value,data8_13.value,data8_14.value,data8_15.value, globalparams.GraphAlgo);
-		data9.value = mergefunc(data9_0.value,data9_1.value,data9_2.value,data9_3.value,data9_4.value,data9_5.value,data9_6.value,data9_7.value,data9_8.value,data9_9.value,data9_10.value,data9_11.value,data9_12.value,data9_13.value,data9_14.value,data9_15.value, globalparams.GraphAlgo);
-		data10.value = mergefunc(data10_0.value,data10_1.value,data10_2.value,data10_3.value,data10_4.value,data10_5.value,data10_6.value,data10_7.value,data10_8.value,data10_9.value,data10_10.value,data10_11.value,data10_12.value,data10_13.value,data10_14.value,data10_15.value, globalparams.GraphAlgo);
-		data11.value = mergefunc(data11_0.value,data11_1.value,data11_2.value,data11_3.value,data11_4.value,data11_5.value,data11_6.value,data11_7.value,data11_8.value,data11_9.value,data11_10.value,data11_11.value,data11_12.value,data11_13.value,data11_14.value,data11_15.value, globalparams.GraphAlgo);
-		data12.value = mergefunc(data12_0.value,data12_1.value,data12_2.value,data12_3.value,data12_4.value,data12_5.value,data12_6.value,data12_7.value,data12_8.value,data12_9.value,data12_10.value,data12_11.value,data12_12.value,data12_13.value,data12_14.value,data12_15.value, globalparams.GraphAlgo);
-		data13.value = mergefunc(data13_0.value,data13_1.value,data13_2.value,data13_3.value,data13_4.value,data13_5.value,data13_6.value,data13_7.value,data13_8.value,data13_9.value,data13_10.value,data13_11.value,data13_12.value,data13_13.value,data13_14.value,data13_15.value, globalparams.GraphAlgo);
-		data14.value = mergefunc(data14_0.value,data14_1.value,data14_2.value,data14_3.value,data14_4.value,data14_5.value,data14_6.value,data14_7.value,data14_8.value,data14_9.value,data14_10.value,data14_11.value,data14_12.value,data14_13.value,data14_14.value,data14_15.value, globalparams.GraphAlgo);
-		data15.value = mergefunc(data15_0.value,data15_1.value,data15_2.value,data15_3.value,data15_4.value,data15_5.value,data15_6.value,data15_7.value,data15_8.value,data15_9.value,data15_10.value,data15_11.value,data15_12.value,data15_13.value,data15_14.value,data15_15.value, globalparams.GraphAlgo);
+		data0.key = mergefunc_NUMPto1(data0_0.key,data0_1.key,data0_2.key,data0_3.key,data0_4.key,data0_5.key,data0_6.key,data0_7.key,data0_8.key,data0_9.key,data0_10.key,data0_11.key,data0_12.key,data0_13.key,data0_14.key,data0_15.key, globalparams.GraphAlgo);
+		data1.key = mergefunc_NUMPto1(data1_0.key,data1_1.key,data1_2.key,data1_3.key,data1_4.key,data1_5.key,data1_6.key,data1_7.key,data1_8.key,data1_9.key,data1_10.key,data1_11.key,data1_12.key,data1_13.key,data1_14.key,data1_15.key, globalparams.GraphAlgo);
+		data2.key = mergefunc_NUMPto1(data2_0.key,data2_1.key,data2_2.key,data2_3.key,data2_4.key,data2_5.key,data2_6.key,data2_7.key,data2_8.key,data2_9.key,data2_10.key,data2_11.key,data2_12.key,data2_13.key,data2_14.key,data2_15.key, globalparams.GraphAlgo);
+		data3.key = mergefunc_NUMPto1(data3_0.key,data3_1.key,data3_2.key,data3_3.key,data3_4.key,data3_5.key,data3_6.key,data3_7.key,data3_8.key,data3_9.key,data3_10.key,data3_11.key,data3_12.key,data3_13.key,data3_14.key,data3_15.key, globalparams.GraphAlgo);
+		data4.key = mergefunc_NUMPto1(data4_0.key,data4_1.key,data4_2.key,data4_3.key,data4_4.key,data4_5.key,data4_6.key,data4_7.key,data4_8.key,data4_9.key,data4_10.key,data4_11.key,data4_12.key,data4_13.key,data4_14.key,data4_15.key, globalparams.GraphAlgo);
+		data5.key = mergefunc_NUMPto1(data5_0.key,data5_1.key,data5_2.key,data5_3.key,data5_4.key,data5_5.key,data5_6.key,data5_7.key,data5_8.key,data5_9.key,data5_10.key,data5_11.key,data5_12.key,data5_13.key,data5_14.key,data5_15.key, globalparams.GraphAlgo);
+		data6.key = mergefunc_NUMPto1(data6_0.key,data6_1.key,data6_2.key,data6_3.key,data6_4.key,data6_5.key,data6_6.key,data6_7.key,data6_8.key,data6_9.key,data6_10.key,data6_11.key,data6_12.key,data6_13.key,data6_14.key,data6_15.key, globalparams.GraphAlgo);
+		data7.key = mergefunc_NUMPto1(data7_0.key,data7_1.key,data7_2.key,data7_3.key,data7_4.key,data7_5.key,data7_6.key,data7_7.key,data7_8.key,data7_9.key,data7_10.key,data7_11.key,data7_12.key,data7_13.key,data7_14.key,data7_15.key, globalparams.GraphAlgo);
+		data8.key = mergefunc_NUMPto1(data8_0.key,data8_1.key,data8_2.key,data8_3.key,data8_4.key,data8_5.key,data8_6.key,data8_7.key,data8_8.key,data8_9.key,data8_10.key,data8_11.key,data8_12.key,data8_13.key,data8_14.key,data8_15.key, globalparams.GraphAlgo);
+		data9.key = mergefunc_NUMPto1(data9_0.key,data9_1.key,data9_2.key,data9_3.key,data9_4.key,data9_5.key,data9_6.key,data9_7.key,data9_8.key,data9_9.key,data9_10.key,data9_11.key,data9_12.key,data9_13.key,data9_14.key,data9_15.key, globalparams.GraphAlgo);
+		data10.key = mergefunc_NUMPto1(data10_0.key,data10_1.key,data10_2.key,data10_3.key,data10_4.key,data10_5.key,data10_6.key,data10_7.key,data10_8.key,data10_9.key,data10_10.key,data10_11.key,data10_12.key,data10_13.key,data10_14.key,data10_15.key, globalparams.GraphAlgo);
+		data11.key = mergefunc_NUMPto1(data11_0.key,data11_1.key,data11_2.key,data11_3.key,data11_4.key,data11_5.key,data11_6.key,data11_7.key,data11_8.key,data11_9.key,data11_10.key,data11_11.key,data11_12.key,data11_13.key,data11_14.key,data11_15.key, globalparams.GraphAlgo);
+		data12.key = mergefunc_NUMPto1(data12_0.key,data12_1.key,data12_2.key,data12_3.key,data12_4.key,data12_5.key,data12_6.key,data12_7.key,data12_8.key,data12_9.key,data12_10.key,data12_11.key,data12_12.key,data12_13.key,data12_14.key,data12_15.key, globalparams.GraphAlgo);
+		data13.key = mergefunc_NUMPto1(data13_0.key,data13_1.key,data13_2.key,data13_3.key,data13_4.key,data13_5.key,data13_6.key,data13_7.key,data13_8.key,data13_9.key,data13_10.key,data13_11.key,data13_12.key,data13_13.key,data13_14.key,data13_15.key, globalparams.GraphAlgo);
+		data14.key = mergefunc_NUMPto1(data14_0.key,data14_1.key,data14_2.key,data14_3.key,data14_4.key,data14_5.key,data14_6.key,data14_7.key,data14_8.key,data14_9.key,data14_10.key,data14_11.key,data14_12.key,data14_13.key,data14_14.key,data14_15.key, globalparams.GraphAlgo);
+		data15.key = mergefunc_NUMPto1(data15_0.key,data15_1.key,data15_2.key,data15_3.key,data15_4.key,data15_5.key,data15_6.key,data15_7.key,data15_8.key,data15_9.key,data15_10.key,data15_11.key,data15_12.key,data15_13.key,data15_14.key,data15_15.key, globalparams.GraphAlgo);
+		data0.value = mergefunc_NUMPto1(data0_0.value,data0_1.value,data0_2.value,data0_3.value,data0_4.value,data0_5.value,data0_6.value,data0_7.value,data0_8.value,data0_9.value,data0_10.value,data0_11.value,data0_12.value,data0_13.value,data0_14.value,data0_15.value, globalparams.GraphAlgo);
+		data1.value = mergefunc_NUMPto1(data1_0.value,data1_1.value,data1_2.value,data1_3.value,data1_4.value,data1_5.value,data1_6.value,data1_7.value,data1_8.value,data1_9.value,data1_10.value,data1_11.value,data1_12.value,data1_13.value,data1_14.value,data1_15.value, globalparams.GraphAlgo);
+		data2.value = mergefunc_NUMPto1(data2_0.value,data2_1.value,data2_2.value,data2_3.value,data2_4.value,data2_5.value,data2_6.value,data2_7.value,data2_8.value,data2_9.value,data2_10.value,data2_11.value,data2_12.value,data2_13.value,data2_14.value,data2_15.value, globalparams.GraphAlgo);
+		data3.value = mergefunc_NUMPto1(data3_0.value,data3_1.value,data3_2.value,data3_3.value,data3_4.value,data3_5.value,data3_6.value,data3_7.value,data3_8.value,data3_9.value,data3_10.value,data3_11.value,data3_12.value,data3_13.value,data3_14.value,data3_15.value, globalparams.GraphAlgo);
+		data4.value = mergefunc_NUMPto1(data4_0.value,data4_1.value,data4_2.value,data4_3.value,data4_4.value,data4_5.value,data4_6.value,data4_7.value,data4_8.value,data4_9.value,data4_10.value,data4_11.value,data4_12.value,data4_13.value,data4_14.value,data4_15.value, globalparams.GraphAlgo);
+		data5.value = mergefunc_NUMPto1(data5_0.value,data5_1.value,data5_2.value,data5_3.value,data5_4.value,data5_5.value,data5_6.value,data5_7.value,data5_8.value,data5_9.value,data5_10.value,data5_11.value,data5_12.value,data5_13.value,data5_14.value,data5_15.value, globalparams.GraphAlgo);
+		data6.value = mergefunc_NUMPto1(data6_0.value,data6_1.value,data6_2.value,data6_3.value,data6_4.value,data6_5.value,data6_6.value,data6_7.value,data6_8.value,data6_9.value,data6_10.value,data6_11.value,data6_12.value,data6_13.value,data6_14.value,data6_15.value, globalparams.GraphAlgo);
+		data7.value = mergefunc_NUMPto1(data7_0.value,data7_1.value,data7_2.value,data7_3.value,data7_4.value,data7_5.value,data7_6.value,data7_7.value,data7_8.value,data7_9.value,data7_10.value,data7_11.value,data7_12.value,data7_13.value,data7_14.value,data7_15.value, globalparams.GraphAlgo);
+		data8.value = mergefunc_NUMPto1(data8_0.value,data8_1.value,data8_2.value,data8_3.value,data8_4.value,data8_5.value,data8_6.value,data8_7.value,data8_8.value,data8_9.value,data8_10.value,data8_11.value,data8_12.value,data8_13.value,data8_14.value,data8_15.value, globalparams.GraphAlgo);
+		data9.value = mergefunc_NUMPto1(data9_0.value,data9_1.value,data9_2.value,data9_3.value,data9_4.value,data9_5.value,data9_6.value,data9_7.value,data9_8.value,data9_9.value,data9_10.value,data9_11.value,data9_12.value,data9_13.value,data9_14.value,data9_15.value, globalparams.GraphAlgo);
+		data10.value = mergefunc_NUMPto1(data10_0.value,data10_1.value,data10_2.value,data10_3.value,data10_4.value,data10_5.value,data10_6.value,data10_7.value,data10_8.value,data10_9.value,data10_10.value,data10_11.value,data10_12.value,data10_13.value,data10_14.value,data10_15.value, globalparams.GraphAlgo);
+		data11.value = mergefunc_NUMPto1(data11_0.value,data11_1.value,data11_2.value,data11_3.value,data11_4.value,data11_5.value,data11_6.value,data11_7.value,data11_8.value,data11_9.value,data11_10.value,data11_11.value,data11_12.value,data11_13.value,data11_14.value,data11_15.value, globalparams.GraphAlgo);
+		data12.value = mergefunc_NUMPto1(data12_0.value,data12_1.value,data12_2.value,data12_3.value,data12_4.value,data12_5.value,data12_6.value,data12_7.value,data12_8.value,data12_9.value,data12_10.value,data12_11.value,data12_12.value,data12_13.value,data12_14.value,data12_15.value, globalparams.GraphAlgo);
+		data13.value = mergefunc_NUMPto1(data13_0.value,data13_1.value,data13_2.value,data13_3.value,data13_4.value,data13_5.value,data13_6.value,data13_7.value,data13_8.value,data13_9.value,data13_10.value,data13_11.value,data13_12.value,data13_13.value,data13_14.value,data13_15.value, globalparams.GraphAlgo);
+		data14.value = mergefunc_NUMPto1(data14_0.value,data14_1.value,data14_2.value,data14_3.value,data14_4.value,data14_5.value,data14_6.value,data14_7.value,data14_8.value,data14_9.value,data14_10.value,data14_11.value,data14_12.value,data14_13.value,data14_14.value,data14_15.value, globalparams.GraphAlgo);
+		data15.value = mergefunc_NUMPto1(data15_0.value,data15_1.value,data15_2.value,data15_3.value,data15_4.value,data15_5.value,data15_6.value,data15_7.value,data15_8.value,data15_9.value,data15_10.value,data15_11.value,data15_12.value,data15_13.value,data15_14.value,data15_15.value, globalparams.GraphAlgo);
 		
 		res0.key = applyfunc(udata0.key, data0.key, globalparams.GraphIter, globalparams.GraphAlgo);
 		res1.key = applyfunc(udata1.key, data1.key, globalparams.GraphIter, globalparams.GraphAlgo);
@@ -3052,53 +4319,37 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 		res15.value = applyfunc(udata15.value, data15.value, globalparams.GraphIter, globalparams.GraphAlgo);
 		
 	
-		// _vpropbuffer[0][i] = res0;	
-		vpropbuffer[0][i] = res0;	
+		synvbuffer[0][i] = res0;	
 	
-		// _vpropbuffer[1][i] = res1;	
-		vpropbuffer[1][i] = res1;	
+		synvbuffer[1][i] = res1;	
 	
-		// _vpropbuffer[2][i] = res2;	
-		vpropbuffer[2][i] = res2;	
+		synvbuffer[2][i] = res2;	
 	
-		// _vpropbuffer[3][i] = res3;	
-		vpropbuffer[3][i] = res3;	
+		synvbuffer[3][i] = res3;	
 	
-		// _vpropbuffer[4][i] = res4;	
-		vpropbuffer[4][i] = res4;	
+		synvbuffer[4][i] = res4;	
 	
-		// _vpropbuffer[5][i] = res5;	
-		vpropbuffer[5][i] = res5;	
+		synvbuffer[5][i] = res5;	
 	
-		// _vpropbuffer[6][i] = res6;	
-		vpropbuffer[6][i] = res6;	
+		synvbuffer[6][i] = res6;	
 	
-		// _vpropbuffer[7][i] = res7;	
-		vpropbuffer[7][i] = res7;	
+		synvbuffer[7][i] = res7;	
 	
-		// _vpropbuffer[8][i] = res8;	
-		vpropbuffer[8][i] = res8;	
+		synvbuffer[8][i] = res8;	
 	
-		// _vpropbuffer[9][i] = res9;	
-		vpropbuffer[9][i] = res9;	
+		synvbuffer[9][i] = res9;	
 	
-		// _vpropbuffer[10][i] = res10;	
-		vpropbuffer[10][i] = res10;	
+		synvbuffer[10][i] = res10;	
 	
-		// _vpropbuffer[11][i] = res11;	
-		vpropbuffer[11][i] = res11;	
+		synvbuffer[11][i] = res11;	
 	
-		// _vpropbuffer[12][i] = res12;	
-		vpropbuffer[12][i] = res12;	
+		synvbuffer[12][i] = res12;	
 	
-		// _vpropbuffer[13][i] = res13;	
-		vpropbuffer[13][i] = res13;	
+		synvbuffer[13][i] = res13;	
 	
-		// _vpropbuffer[14][i] = res14;	
-		vpropbuffer[14][i] = res14;	
+		synvbuffer[14][i] = res14;	
 	
-		// _vpropbuffer[15][i] = res15;	
-		vpropbuffer[15][i] = res15;	
+		synvbuffer[15][i] = res15;	
 	
 		if(res0.key != udata0.key){ _vmask[i].data[0].key = 1; } else { _vmask[i].data[0].key = 0; }
 		if(res0.value != udata0.value){ _vmask[i].data[0].value = 1; } else { _vmask[i].data[0].value = 0; }
@@ -3222,262 +4473,262 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 	// replicate to vbuffers
 	SYNCHRONIZE_LOOP2: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
 	#pragma HLS PIPELINE II=1
-		vbuffer0_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer0_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer0_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer0_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer0_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer0_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer0_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer0_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer1_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer1_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer1_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer1_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer1_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer1_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer1_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer1_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer2_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer2_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer2_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer2_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer2_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer2_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer2_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer2_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer3_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer3_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer3_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer3_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer3_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer3_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer3_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer3_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer4_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer4_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer4_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer4_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer4_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer4_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer4_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer4_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer5_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer5_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer5_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer5_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer5_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer5_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer5_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer5_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer6_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer6_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer6_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer6_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer6_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer6_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer6_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer6_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer7_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer7_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer7_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer7_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer7_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer7_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer7_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer7_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer8_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer8_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer8_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer8_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer8_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer8_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer8_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer8_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer9_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer9_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer9_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer9_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer9_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer9_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer9_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer9_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer10_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer10_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer10_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer10_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer10_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer10_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer10_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer10_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer11_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer11_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer11_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer11_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer11_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer11_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer11_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer11_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer12_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer12_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer12_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer12_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer12_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer12_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer12_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer12_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer13_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer13_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer13_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer13_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer13_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer13_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer13_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer13_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer14_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer14_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer14_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer14_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer14_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer14_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer14_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer14_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer15_1[0][BUFFERBASE_VDATA + k] = vpropbuffer[0][k]; // CRITICAL FIXME.
-		vbuffer15_1[1][BUFFERBASE_VDATA + k] = vpropbuffer[1][k]; // CRITICAL FIXME.
-		vbuffer15_1[2][BUFFERBASE_VDATA + k] = vpropbuffer[2][k]; // CRITICAL FIXME.
-		vbuffer15_1[3][BUFFERBASE_VDATA + k] = vpropbuffer[3][k]; // CRITICAL FIXME.
-		vbuffer15_1[4][BUFFERBASE_VDATA + k] = vpropbuffer[4][k]; // CRITICAL FIXME.
-		vbuffer15_1[5][BUFFERBASE_VDATA + k] = vpropbuffer[5][k]; // CRITICAL FIXME.
-		vbuffer15_1[6][BUFFERBASE_VDATA + k] = vpropbuffer[6][k]; // CRITICAL FIXME.
-		vbuffer15_1[7][BUFFERBASE_VDATA + k] = vpropbuffer[7][k]; // CRITICAL FIXME.
-		vbuffer0_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer0_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer0_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer0_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer0_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer0_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer0_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer0_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer1_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer1_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer1_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer1_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer1_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer1_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer1_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer1_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer2_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer2_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer2_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer2_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer2_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer2_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer2_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer2_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer3_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer3_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer3_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer3_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer3_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer3_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer3_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer3_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer4_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer4_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer4_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer4_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer4_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer4_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer4_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer4_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer5_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer5_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer5_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer5_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer5_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer5_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer5_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer5_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer6_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer6_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer6_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer6_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer6_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer6_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer6_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer6_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer7_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer7_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer7_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer7_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer7_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer7_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer7_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer7_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer8_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer8_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer8_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer8_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer8_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer8_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer8_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer8_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer9_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer9_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer9_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer9_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer9_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer9_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer9_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer9_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer10_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer10_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer10_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer10_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer10_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer10_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer10_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer10_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer11_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer11_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer11_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer11_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer11_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer11_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer11_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer11_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer12_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer12_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer12_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer12_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer12_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer12_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer12_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer12_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer13_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer13_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer13_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer13_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer13_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer13_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer13_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer13_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer14_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer14_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer14_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer14_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer14_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer14_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer14_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer14_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
-		vbuffer15_2[0][BUFFERBASE_VDATA + k] = vpropbuffer[8][k]; // CRITICAL FIXME.
-		vbuffer15_2[1][BUFFERBASE_VDATA + k] = vpropbuffer[9][k]; // CRITICAL FIXME.
-		vbuffer15_2[2][BUFFERBASE_VDATA + k] = vpropbuffer[10][k]; // CRITICAL FIXME.
-		vbuffer15_2[3][BUFFERBASE_VDATA + k] = vpropbuffer[11][k]; // CRITICAL FIXME.
-		vbuffer15_2[4][BUFFERBASE_VDATA + k] = vpropbuffer[12][k]; // CRITICAL FIXME.
-		vbuffer15_2[5][BUFFERBASE_VDATA + k] = vpropbuffer[13][k]; // CRITICAL FIXME.
-		vbuffer15_2[6][BUFFERBASE_VDATA + k] = vpropbuffer[14][k]; // CRITICAL FIXME.
-		vbuffer15_2[7][BUFFERBASE_VDATA + k] = vpropbuffer[15][k]; // CRITICAL FIXME.
+		vbuffer0_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer0_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer0_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer0_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer0_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer0_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer0_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer0_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer1_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer1_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer1_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer1_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer1_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer1_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer1_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer1_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer2_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer2_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer2_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer2_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer2_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer2_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer2_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer2_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer3_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer3_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer3_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer3_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer3_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer3_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer3_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer3_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer4_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer4_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer4_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer4_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer4_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer4_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer4_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer4_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer5_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer5_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer5_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer5_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer5_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer5_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer5_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer5_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer6_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer6_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer6_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer6_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer6_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer6_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer6_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer6_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer7_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer7_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer7_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer7_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer7_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer7_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer7_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer7_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer8_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer8_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer8_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer8_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer8_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer8_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer8_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer8_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer9_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer9_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer9_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer9_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer9_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer9_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer9_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer9_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer10_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer10_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer10_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer10_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer10_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer10_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer10_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer10_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer11_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer11_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer11_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer11_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer11_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer11_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer11_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer11_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer12_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer12_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer12_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer12_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer12_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer12_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer12_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer12_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer13_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer13_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer13_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer13_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer13_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer13_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer13_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer13_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer14_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer14_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer14_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer14_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer14_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer14_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer14_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer14_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer15_1[0][BUFFERBASE_VDATA + k] = synvbuffer[0][k];
+		vbuffer15_1[1][BUFFERBASE_VDATA + k] = synvbuffer[1][k];
+		vbuffer15_1[2][BUFFERBASE_VDATA + k] = synvbuffer[2][k];
+		vbuffer15_1[3][BUFFERBASE_VDATA + k] = synvbuffer[3][k];
+		vbuffer15_1[4][BUFFERBASE_VDATA + k] = synvbuffer[4][k];
+		vbuffer15_1[5][BUFFERBASE_VDATA + k] = synvbuffer[5][k];
+		vbuffer15_1[6][BUFFERBASE_VDATA + k] = synvbuffer[6][k];
+		vbuffer15_1[7][BUFFERBASE_VDATA + k] = synvbuffer[7][k];
+		vbuffer0_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer0_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer0_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer0_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer0_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer0_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer0_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer0_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer1_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer1_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer1_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer1_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer1_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer1_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer1_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer1_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer2_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer2_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer2_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer2_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer2_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer2_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer2_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer2_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer3_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer3_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer3_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer3_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer3_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer3_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer3_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer3_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer4_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer4_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer4_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer4_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer4_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer4_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer4_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer4_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer5_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer5_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer5_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer5_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer5_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer5_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer5_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer5_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer6_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer6_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer6_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer6_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer6_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer6_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer6_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer6_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer7_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer7_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer7_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer7_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer7_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer7_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer7_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer7_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer8_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer8_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer8_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer8_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer8_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer8_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer8_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer8_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer9_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer9_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer9_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer9_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer9_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer9_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer9_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer9_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer10_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer10_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer10_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer10_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer10_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer10_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer10_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer10_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer11_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer11_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer11_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer11_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer11_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer11_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer11_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer11_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer12_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer12_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer12_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer12_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer12_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer12_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer12_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer12_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer13_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer13_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer13_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer13_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer13_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer13_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer13_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer13_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer14_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer14_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer14_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer14_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer14_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer14_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer14_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer14_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
+		vbuffer15_2[0][BUFFERBASE_VDATA + k] = synvbuffer[8][k];
+		vbuffer15_2[1][BUFFERBASE_VDATA + k] = synvbuffer[9][k];
+		vbuffer15_2[2][BUFFERBASE_VDATA + k] = synvbuffer[10][k];
+		vbuffer15_2[3][BUFFERBASE_VDATA + k] = synvbuffer[11][k];
+		vbuffer15_2[4][BUFFERBASE_VDATA + k] = synvbuffer[12][k];
+		vbuffer15_2[5][BUFFERBASE_VDATA + k] = synvbuffer[13][k];
+		vbuffer15_2[6][BUFFERBASE_VDATA + k] = synvbuffer[14][k];
+		vbuffer15_2[7][BUFFERBASE_VDATA + k] = synvbuffer[15][k];
 	}
 	
 	// replicate to vmasks
@@ -4515,11 +5766,10 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	// actsutilityobj->printkeyvalues("synchronize._vpropbuffer", _vpropbuffer, NUM_VBUFFERS, 4);
-	actsutilityobj->printkeyvalues("synchronize.vpropbuffer", vpropbuffer, NUM_VBUFFERS, 4);
+	actsutilityobj->printkeyvalues("synchronize.synvbuffer", synvbuffer, NUM_VBUFFERS, 4);
 	actsutilityobj->printkeyvalues("synchronize.vmask", _vmask, NUM_PARTITIONS, 4);
-	exit(EXIT_SUCCESS); // 
 	#endif 
+	// exit(EXIT_SUCCESS); // 
 	return partitionisactive;
 }
 
@@ -5404,8 +6654,35 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t tempvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = tempvbuffer
+	keyvalue_t synvbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer0_1
+	keyvalue_t synvbuffer0_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer0_2
+	uintNUMPby2_type synvmask0[BLOCKRAM_SIZE];
+	keyvalue_t synvbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer1_1
+	keyvalue_t synvbuffer1_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer1_2
+	uintNUMPby2_type synvmask1[BLOCKRAM_SIZE];
+	keyvalue_t synvbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer2_1
+	keyvalue_t synvbuffer2_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer2_2
+	uintNUMPby2_type synvmask2[BLOCKRAM_SIZE];
+	keyvalue_t synvbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer3_1
+	keyvalue_t synvbuffer3_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer3_2
+	uintNUMPby2_type synvmask3[BLOCKRAM_SIZE];
+	keyvalue_t synvbuffer4_1[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer4_1
+	keyvalue_t synvbuffer4_2[VECTOR_SIZE][BLOCKRAM_SIZE]; 
+	#pragma HLS array_partition variable = synvbuffer4_2
+	uintNUMPby2_type synvmask4[BLOCKRAM_SIZE];
+	
+	keyvalue_t synvbuffer[NUM_VBUFFERS][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer
+	
 	bool_type vpmask0[BLOCKRAM_SIZE];
 	bool_type vpmask1[BLOCKRAM_SIZE];
 	bool_type vpmask2[BLOCKRAM_SIZE];
@@ -5481,7 +6758,8 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
-		loadvdata(enablereduce, kvdram0, tempvbuffer, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); // CRITICAL FIXME. too expensive here
+		// read vertices 
+		loadvdata(enablereduce, kvdram0, synvbuffer, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), REDUCEBUFFERSZ, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, REDUCEBUFFERSZ); // CRITICAL FIXME. too expensive here
 	
 		readkeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer0_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		readkeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer0_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
@@ -5548,43 +6826,30 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 		resetvmask(vmask14);
 		resetvmask(vmask15);
 		
- // COMPUTEUNITS_seq
+		// reduce
 		dispatch(OFF, OFF, enablereduce, kvdram0, vbuffer0_1, vbuffer0_2, vmask0, vpmask0, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram1, vbuffer1_1, vbuffer1_2, vmask1, vpmask1, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram2, vbuffer2_1, vbuffer2_2, vmask2, vpmask2, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram3, vbuffer3_1, vbuffer3_2, vmask3, vpmask3, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram4, vbuffer4_1, vbuffer4_2, vmask4, vpmask4, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram5, vbuffer5_1, vbuffer5_2, vmask5, vpmask5, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram6, vbuffer6_1, vbuffer6_2, vmask6, vpmask6, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram7, vbuffer7_1, vbuffer7_2, vmask7, vpmask7, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram8, vbuffer8_1, vbuffer8_2, vmask8, vpmask8, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram9, vbuffer9_1, vbuffer9_2, vmask9, vpmask9, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram10, vbuffer10_1, vbuffer10_2, vmask10, vpmask10, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram11, vbuffer11_1, vbuffer11_2, vmask11, vpmask11, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram12, vbuffer12_1, vbuffer12_2, vmask12, vpmask12, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram13, vbuffer13_1, vbuffer13_2, vmask13, vpmask13, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram14, vbuffer14_1, vbuffer14_2, vmask14, vpmask14, sourcestatsmarker, source_partition, _globalparams);
- // COMPUTEUNITS_seq
 		dispatch(OFF, OFF, enablereduce, kvdram15, vbuffer15_1, vbuffer15_2, vmask15, vpmask15, sourcestatsmarker, source_partition, _globalparams);
 		
-		#ifdef DISPATCHTYPE_SYNC
-		vpmask[source_partition] = synchronize(enablereduce, tempvbuffer, vbuffer0_1, vbuffer0_2, vmask0,vbuffer1_1, vbuffer1_2, vmask1,vbuffer2_1, vbuffer2_2, vmask2,vbuffer3_1, vbuffer3_2, vmask3,vbuffer4_1, vbuffer4_2, vmask4,vbuffer5_1, vbuffer5_2, vmask5,vbuffer6_1, vbuffer6_2, vmask6,vbuffer7_1, vbuffer7_2, vmask7,vbuffer8_1, vbuffer8_2, vmask8,vbuffer9_1, vbuffer9_2, vmask9,vbuffer10_1, vbuffer10_2, vmask10,vbuffer11_1, vbuffer11_2, vmask11,vbuffer12_1, vbuffer12_2, vmask12,vbuffer13_1, vbuffer13_2, vmask13,vbuffer14_1, vbuffer14_2, vmask14,vbuffer15_1, vbuffer15_2, vmask15, _globalparams);
+		// synchronize
+		#ifdef DISPATCHTYPE_SYNC // CRITICAL REMOVEME.
+		vpmask[source_partition] = synchronize(enablereduce, synvbuffer, vbuffer0_1, vbuffer0_2, vmask0,vbuffer1_1, vbuffer1_2, vmask1,vbuffer2_1, vbuffer2_2, vmask2,vbuffer3_1, vbuffer3_2, vmask3,vbuffer4_1, vbuffer4_2, vmask4,vbuffer5_1, vbuffer5_2, vmask5,vbuffer6_1, vbuffer6_2, vmask6,vbuffer7_1, vbuffer7_2, vmask7,vbuffer8_1, vbuffer8_2, vmask8,vbuffer9_1, vbuffer9_2, vmask9,vbuffer10_1, vbuffer10_2, vmask10,vbuffer11_1, vbuffer11_2, vmask11,vbuffer12_1, vbuffer12_2, vmask12,vbuffer13_1, vbuffer13_2, vmask13,vbuffer14_1, vbuffer14_2, vmask14,vbuffer15_1, vbuffer15_2, vmask15, _globalparams);
 		#endif
 		
+		// writeback vertices
 		savekeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer0_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savekeyvalues(enablereduce, kvdram0, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer0_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savekeyvalues(enablereduce, kvdram1, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer1_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
@@ -5617,7 +6882,6 @@ start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLO
 		savekeyvalues(enablereduce, kvdram14, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer14_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savekeyvalues(enablereduce, kvdram15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer15_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		savekeyvalues(enablereduce, kvdram15, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer15_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
-		
 		savevmasks(enablereduce, kvdram0, vmask0, vbuffer0_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		savevmasks(enablereduce, kvdram1, vmask1, vbuffer1_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
 		savevmasks(enablereduce, kvdram2, vmask2, vbuffer2_1, _globalparams.baseoffset_verticesdatamask_kvs + (source_partition * VMASKBUFFERSZ_KVS), VMASKBUFFERSZ_KVS);
@@ -6424,7 +7688,6 @@ topkernel(uint512_dt * vdram ,uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_
 	cout<<"topkernel:: stats_totals: "<<stats_totals<<endl;
 	cout<<"topkernel:: total: "<<(stats_lessthan512 + stats_greaterthan512)<<endl;
 	#endif
-	exit(EXIT_SUCCESS);
 	return;
 }
 }

@@ -131,10 +131,10 @@ void utility::printallparameters(){
 	std::cout<<">> host:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	#if defined(ACTGRAPH_SETUP) && not defined(_GENERATE2DGRAPH)
-	/* if(NUMSUBCPUTHREADS >= 12){
+	if(NUMSUBCPUTHREADS >= 12){
 		if((PADDEDVDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDVDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
 		if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: PADDEDKVSOURCEDRAMSZ greater than max HBM size (256MB). EXITING..."<<endl; exit(EXIT_FAILURE); }			
-	} */
+	}
 	if((PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)) >= (256 * 1024 * 1024)){ cout<<"WARNING: greater than max HBM size (256MB). EXITING..."<<endl; }
 	#endif 
 	
