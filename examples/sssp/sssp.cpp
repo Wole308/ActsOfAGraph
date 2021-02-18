@@ -82,7 +82,7 @@ runsummary_t sssp::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 4; // 4,6,12
+	unsigned int NumGraphIters = 12; // 4,6,12
 	container_t container;
 	vector<value_t> activevertices;
 
