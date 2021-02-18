@@ -50,7 +50,7 @@ using namespace std;
 
 #define NUM_VBUFFERS NUM_PARTITIONS
 
-#define _DEBUGMODE_KERNELPRINTS_UNKNOWN 
+// #define _DEBUGMODE_KERNELPRINTS_UNKNOWN 
 
 class acts {
 public:

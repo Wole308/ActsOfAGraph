@@ -82,7 +82,7 @@ runsummary_t sssp::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 3; // 4,6,12
+	unsigned int NumGraphIters = 4; // 4,6,12
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -106,7 +106,7 @@ runsummary_t sssp::run(){
 	
 	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	
-	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); // CRITICAL REMOVEME.
 	
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices); }
 	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container);
@@ -115,7 +115,7 @@ runsummary_t sssp::run(){
 	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, SSSP);
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
-	
+
 	// experiements
 	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices); // full run
 	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs
@@ -133,7 +133,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 	for(unsigned int num_its=start; num_its<start+size; num_its++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
 
-		cout<<"sssp::experiements: resetting kvdram & kvdram workspaces..."<<endl;
+		cout<<"sssp::experiements: resetting kvdram & kvdram workspaces..."<<endl; // CRITICAL REMOVEME.
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAM_KVS], KVDRAMSZ);
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], KVDRAMWORKSPACESZ);
@@ -151,262 +151,53 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		utilityobj->stopTIME(">>> sssp::finished:. Time Elapsed: ", begintime, NAp);
 		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 		
-		// if(evalid == 0){ verify(activevertices, num_its); }
-		if(false){ verify(activevertices, num_its); }
 		utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters); // runsssp_sw runbfs_sw
 	
 		statsobj->timingandsummary(num_its, totaltime_ms);
 		if(num_its > swnum_its){ break; } 
 	}
-	
-	verifyvertexdata((keyvalue_t *)vdram);
-	verifyactvvsdata((keyvalue_t *)vdram);
-	verifykernelreturnvalues(vdram);
+	verifyresults(kvbuffer[0]);
 	return;
 }
 
-void sssp::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
+void sssp::verifyresults(uint512_vec_dt * kvdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"sssp::verify. verifying..."<<endl;
-	#endif 
-	#if defined(PROCESSACTIVEVERTICESTEST) //&& defined(ENABLE_PERFECTACCURACY)
-	unsigned int edges1_count = 0;
-	unsigned int edgesdstv1_sum = 0;
-	unsigned int edges2_count = 0;
-	unsigned int edgesdstv2_sum = 0;
-	unsigned int edges3_count = 0;
-	unsigned int edgesdstv3_sum = 0;
-	unsigned int edges4_count = 0;
-	unsigned int edgesdstv4_sum = 0;
-	unsigned int edges5_count = 0;
-	unsigned int edgesdstv5_sum = 0;
-	unsigned int actvvs_count = 0;
-	unsigned int actvvs_verbosecount = 0;
-	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
-	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
+	cout<<endl<<"sssp::verifyactvvsdata: verifying vertex data... "<<endl;
+	#endif
 	
-	// 1st check (scanning edges in file...)
-	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
-	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
-	utilityobj->collectedgestats(activevertices, vertexptrbuffer, edgedatabuffer, &edges1_count, &edgesdstv1_sum);
+	unsigned int vdatas[64];
+	for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
 	
-	// 2nd check (stats collected during acts.procactvvs stage)
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		edges2_count += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[0].key; 
-		edgesdstv2_sum += kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[1].key; 
-	}
-	
-	// 3rd check (stats collected after acts.procactvvs stage)
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		unsigned int sz = kvbuffer[i][PADDEDKVSOURCEDRAMSZ_KVS-1].data[2].key;
-		if(sz > KVDRAMSZ){ cout<<"ERROR: something wrong (sz("<<sz<<") > KVDRAMSZ("<<KVDRAMSZ<<")). exiting... "<<endl; exit(EXIT_FAILURE); }
-		for(unsigned int j=0; j<sz; j++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				keyvalue_t keyvalue = kvbuffer[i][BASEOFFSET_KVDRAM_KVS + j].data[v];
-				
-				if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){
-					edges3_count += 1;
-					edgesdstv3_sum += keyvalue.key;
-				}
-			}
+	uint512_vec_dt buff[REDUCEBUFFERSZ];
+	for(unsigned int offset_kvs=0; offset_kvs<VERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
+		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
+			buff[i] = kvdram[BASEOFFSET_VERTICESDATA_KVS + offset_kvs + i];
 		}
-	}
-	if(CLOP != 1){ edges3_count = NAp; edgesdstv3_sum = NAp; }
-	
-	// 4th check (checking edges in acts.LLOP...)
-	verifykvLOP((keyvalue_t **)kvbuffer, kvbuffer, CLOP, &edges4_count, &edgesdstv4_sum);
-	
-	// 5th check 
-	edges5_count = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[3].key; 
-	edgesdstv5_sum = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[4].key; 
-
-	// 6th check 
-	unsigned int actvvsdstv1_sum = 0;
-	unsigned int cctv = 0;
-	unsigned int sz = vdram[PADDEDKVSOURCEDRAMSZ_KVS-1].data[5].key;
-	actvvs_verbosecount = sz; 
-	keyy_t * KK = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES_KVS];
-	unsigned int localactvvs_count = 0;
-	unsigned int localactvvsdstv1_sum = 0;
-	for(unsigned int k=0; k<sz; k++){
-		if(KK[k] != INVALIDDATA){
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			if(cctv < 16){ cout<<"sssp:verify: actvvid: "<<KK[k]<<endl; }
-			#endif 
-			actvvs_count += 1;
-			actvvsdstv1_sum += KK[k];
 		
-			localactvvs_count += 1;
-			localactvvsdstv1_sum += KK[k]; 
-			cctv += 1;
-		}
-	}
-	cout<<"sssp::verifyactvvs: num actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
-	
-	// 7th view
-	cout<<endl<<"[7th view]: active vertices in vdram: "<<endl;
-	keyy_t * TT = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES_KVS];
-	for(unsigned int k=0; k<4; k++){
-		if(TT[k] != INVALIDDATA){
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"sssp:verify: actvvid: "<<TT[k]<<endl;
-			#endif
-		}
-	}
-	
-	cout<<"+++++++++++++++++++++++++++++ sssp:verify (offchip, edges in file               ) edges1_count: "<<edges1_count<<", edgesdstv1_sum: "<<edgesdstv1_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ sssp:verify (onchip, during acts.procactvvs stage ) edges2_count: "<<edges2_count<<", edgesdstv2_sum: "<<edgesdstv2_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ sssp:verify (inkvdram, after acts.procactvvs stage) edges3_count: "<<edges3_count<<", edgesdstv3_sum: "<<edgesdstv3_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ sssp:verify (inkvdram, after CLOP="<<CLOP<<" stage         ) edges4_count: "<<edges4_count<<", edgesdstv4_sum: "<<edgesdstv4_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ sssp:verify (inkvdram, after acts.reduce stage    ) edges5_count: "<<edges5_count<<", edgesdstv5_sum: "<<edgesdstv5_sum<<endl;
-	cout<<"+++++++++++++++++++++++++++++ sssp:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<" (actvvs_verbosecount:"<<actvvs_verbosecount<<", actvvsdstv1_sum:"<<actvvsdstv1_sum<<")"<<endl;
-	
-	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
-	
-	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
-	if(NumGraphIters > 0){
-		if(CLOP == 1){
-			if(edges1_count != edges2_count || edges1_count != edges3_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-		} else if(CLOP == TREE_DEPTH){
-			if(edges1_count != edges2_count || edges1_count != edges4_count || edges1_count != edges5_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum || edgesdstv1_sum != edgesdstv5_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv3_sum || edgesdstv1_sum != edgesdstv4_sum. ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-		} else {
-			if(edges1_count != edges2_count || edges1_count != edges4_count){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }
-			if((edgesdstv1_sum != edgesdstv2_sum || edgesdstv1_sum != edgesdstv4_sum) && false){ cout<<"sssp::verify: INEQUALITY ERROR: ARE ALL ACTS INSTANCES RUNNING? exiting..."<<endl; exit(EXIT_FAILURE); }							
-		}
-	}
-	cout<<"sssp::verify: verify successful."<<endl;
-	#endif 
-	#endif
-	return;
-}
-void sssp::verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"sssp::verifykvLOP. verifying kvbuffer..."<<endl;
-	#endif 
-	
-	unsigned int rangeperpartition = 1 << (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * CLOP));
-	unsigned int numberofpartitions = 1 << (NUM_PARTITIONS_POW * CLOP);
-	unsigned int statsoffset = 0; for(unsigned int k=0; k<CLOP; k++){ statsoffset += (unsigned int)pow(NUM_PARTITIONS, k); } 
-	unsigned int baseoffset_stats_kvs = BASEOFFSET_STATSDRAM_KVS + statsoffset;
-	unsigned int baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE;
-	if(CLOP % 2 == 0){ baseoffset_kvdram = BASEOFFSET_KVDRAM; }
-	else { baseoffset_kvdram = BASEOFFSET_KVDRAMWORKSPACE; }
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"sssp::verifykvLOP:: numberofpartitions: "<<(1 << (NUM_PARTITIONS_POW * CLOP))<<", rangeperpartition: "<<rangeperpartition<<", baseoffset_stats_kvs: "<<baseoffset_stats_kvs<<", statsoffset: "<<statsoffset<<", baseoffset_kvdram: "<<baseoffset_kvdram<<endl;
-	if(false){ utilityobj->printkeyvalues("sssp::verifykvLOP. stats", (keyvalue_t *)&stats[0][baseoffset_stats_kvs + 0], (1 + NUM_PARTITIONS)*VECTOR_SIZE, VECTOR_SIZE); }
-	#endif
-	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"sssp::verifykvLOP:: verifying thread: "<<i<<" of "<<NUMSUBCPUTHREADS<<" threads..."<<endl;
-		#endif 
-		for(unsigned int p=0; p<numberofpartitions; p++){
-			unsigned int numerrorkeys = 0;
-			
-			unsigned int upperlimit = 0;
-			unsigned int lowerindex = upperlimit + (p * rangeperpartition);
-			unsigned int upperindex = upperlimit + ((p+1) * rangeperpartition);
-			
-			unsigned int begin = stats[i][baseoffset_stats_kvs + p].data[0].key;
-			unsigned int size = stats[i][baseoffset_stats_kvs + p].data[0].value;
-			unsigned int end = begin + size;
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"sssp::verifykvLOP:: begin: "<<begin<<", size: "<<size<<", end: "<<end<<". ["<<lowerindex<<"->"<<upperindex<<"]"<<endl;
-			#endif 
-			
-			for(unsigned int k=begin; k<begin + size; k++){
-				keyvalue_t keyvalue = kvbuffer[i][baseoffset_kvdram + k];
-				if(kvbuffer[i][baseoffset_kvdram + k].key != INVALIDDATA && kvbuffer[i][baseoffset_kvdram + k].value != INVALIDDATA){
-					keyy_t thiskey = kvbuffer[i][baseoffset_kvdram + k].key;
-					if(thiskey < lowerindex || thiskey >= upperindex){
-						#ifdef ENABLE_PERFECTACCURACY
-						if(numerrorkeys < 8){
-							cout<<"sssp::verifykvLOP::ERROR KEYVALUE. i: "<<i<<", p: "<<p<<", index: "<<k-begin<<", thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<", ["<<lowerindex<<"->"<<upperindex<<"]"<<endl; 					
-							exit(EXIT_FAILURE);
-						}
-						cout<<"sssp::verifykvLOP::ERROR KEYVALUE thiskey: "<<thiskey<<", kvbuffer["<<i<<"]["<<baseoffset_kvdram + k<<"].value: "<<kvbuffer[i][baseoffset_kvdram + k].value<<endl; 
-						exit(EXIT_FAILURE);
-						#endif 
-						
-						numerrorkeys += 1;
-					}
-					
-					*edges4_count += 1;
-					*edgesdstv4_sum += thiskey;
+		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				unsigned int pos = i*VECTOR_SIZE + v;
+				unsigned int vid1 = offset_kvs*REDUCESZ*VECTOR_SIZE + v*REDUCESZ + i*2;
+				unsigned int vid2 = vid1 + 1;
+				unsigned int vdata1 = buff[i].data[v].key;
+				unsigned int vdata2 = buff[i].data[v].value;
+				
+				if(vdata1 < 64){
+					#ifdef _DEBUGMODE_HOSTPRINTS
+					cout<<"sssp:verifyresults: vid1: "<<vid1<<endl;
+					#endif 
+					vdatas[vdata1] += 1; 
+				}
+				if(vdata2 < 64){
+					#ifdef _DEBUGMODE_HOSTPRINTS
+					cout<<"sssp:verifyresults: vid2: "<<vid2<<endl;
+					#endif
+					vdatas[vdata2] += 1; 
 				}
 			}
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"sssp::verifykvLOP:: "<<numerrorkeys<<" errors seen for partition "<<p<<". ["<<lowerindex<<" -> "<<upperindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
-			#endif
-		}
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<""<<endl;
-		#endif
-	}
-	return;
-}
-void sssp::verifyvertexdata(keyvalue_t * vdram){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"sssp::verifyvertexdata: verifying vertex data... "<<endl;
-	#endif
-	vector<value_t> activevertices;
-
-	unsigned int baseoffset = BASEOFFSET_VERTICESDATA;
-	unsigned int totalnumactvvs = 0;
-	
-	for(unsigned int i=0; i<1; i++){
-		totalnumactvvs = 0;
-		for(unsigned int vid=0; vid<KVDATA_RANGE/2; vid++){
-			keyvalue_t keyvalue = vdram[BASEOFFSET_VERTICESDATA + vid];
-			if(vid % 1000000 == 0){ cout<<"sssp::verifyvertexdata: vid: "<<vid<<endl; }
-		}
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<"sssp::verifyvertexdata: number of active vertices for next iteration (subthread "<<i<<"): "<<totalnumactvvs<<endl;
-		#endif
-	}
-	return;
-}
-void sssp::verifyactvvsdata(keyvalue_t * vdram){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"sssp::verifyactvvsdata: verifying actvvs data... "<<endl;
-	#endif
-	
-	unsigned int actvvs_count = 0;
-	unsigned int actvvsdstv1_sum = 0;
-	unsigned int cctv = 0;
-	unsigned int sz = 8; // just-for-test
-	keyy_t * KK = (keyy_t *)&vdram[BASEOFFSET_ACTIVEVERTICES];
-	unsigned int localactvvs_count = 0;
-	unsigned int localactvvsdstv1_sum = 0;
-	
-	for(unsigned int k=0; k<sz; k++){
-		if(KK[k] != INVALIDDATA){
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			if(cctv < 8){ cout<<"sssp:verifyactvvsdata: actvvid: "<<KK[k]<<endl; }
-			#endif 
-			actvvs_count += 1;
-			actvvsdstv1_sum += KK[k];
-			
-			localactvvs_count += 1;
-			localactvvsdstv1_sum += KK[k]; 
-			cctv += 1;
 		}
 	}
-	
-	cout<<"sssp::verifyactvvsdata: some actvvs found in vdram: localactvvs_count: "<<localactvvs_count<<", localactvvsdstv1_sum: "<<localactvvsdstv1_sum<<endl;
-	return;
-}
-void sssp::verifykernelreturnvalues(uint512_vec_dt * vdram){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"sssp::verifykernelreturnvalues: results returned from kernel... "<<endl;
-	#endif
-	
-	for(unsigned int i=0; i<16; i++){
-		keyvalue_t keyvalue = vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
-		cout<<"sssp::verifykernelreturnvalues:: active vertices from GraphIter "<<i<<": "<<keyvalue.key<<endl;
-	}
+	utilityobj->printvalues("sssp::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
 	return;
 }
 

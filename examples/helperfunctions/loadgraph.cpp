@@ -379,7 +379,7 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		for(unsigned int k=0; k<KVSTATSSZ; k++){
 			statsptrVec[k].data[0].key = tempstats[k].key;
 			statsptrVec[k].data[0].value = 0;
-			// statsptrVec[k].data[0].value = tempstats[k].value; // CRITICAL REMOVEME.
+			// statsptrVec[k].data[0].value = tempstats[k].value;
 		}
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
@@ -458,28 +458,11 @@ void loadgraph::loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbu
 }
 
 void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs){
-	// #ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"-------------------loadgraph::savevmasks:: saving vmask... "<<endl;
-	// #endif
-	// uint32_type bitsbuffer[REDUCEBUFFERSZ];
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadgraph::savevmasks:: saving vmask... "<<endl;
+	#endif
 	unsigned int bitsbuffer[REDUCEBUFFERSZ];
 	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
-	
-	/* for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
-		for(unsigned int k=0; k<NUM_PARTITIONS; k++){
-			// utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
-			// utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
-			#ifdef _WIDEWORD
-			bitsbuffer[i].range(k*2+1, k*2) = vmask[k][i].key;
-			bitsbuffer[i].range(k*2+1+1, k*2+1) = vmask[k][i].value;
-			#else
-			// WRITETO_UINT(&bitsbuffer[i], {{v*2}}, 1, vmask[i].data[{{v}}].key);
-			// WRITETO_UINT(&bitsbuffer[i], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
-			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
-			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
-			#endif
-		}
-	} */
 	
 	for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
 		for(unsigned int k=0; k<NUM_PARTITIONS; k++){
@@ -648,7 +631,7 @@ void loadgraph::createmessages(
 	#ifdef _DEBUGMODE_CHECKS2
 	if(runsize > MAXKVDATA_BATCHSIZE){ cout<<"loadgraph::createmessages::ERROR. runsize too large!. runsize: "<<runsize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	if(edgessize > MAXKVDATA_BATCHSIZE){ cout<<"loadgraph::createmessages::ERROR. edgessize too large!. edgessize: "<<edgessize<<", MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<". EXITING"<<endl; exit(EXIT_FAILURE); }
-	if(actvvsize > ACTIVEVERTICESSZ){ cout<<"loadgraph::createmessages::ERROR. actvvsize too large!. actvvsize: "<<actvvsize<<", ACTIVEVERTICESSZ: "<<ACTIVEVERTICESSZ<<". EXITING"<<endl; exit(EXIT_FAILURE); }
+	// if(actvvsize > ACTIVEVERTICESSZ){ cout<<"loadgraph::createmessages::ERROR. actvvsize too large!. actvvsize: "<<actvvsize<<", ACTIVEVERTICESSZ: "<<ACTIVEVERTICESSZ<<". EXITING"<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
 	unsigned int kvstatssz = 0;
@@ -683,7 +666,7 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 0;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = 0;
 	} else {
-		#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
+		#if defined(PR_ALGORITHM)
 		// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+(partition&reduce)...'
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (TREE_DEPTH-1); // MERGEPARTITIONANDREDUCE
@@ -691,7 +674,7 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#endif 
 		
-		#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+		#if defined(BFS_ALGORITHM)
 		// 'NB: first param 1 is standard, second param is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 0;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (1 + TREE_DEPTH);
@@ -699,7 +682,7 @@ void loadgraph::createmessages(
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_ENDLOP].data[0].key = NAp;
 		#endif 
 		
-		#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
+		#if defined(SSSP_ALGORITHM)
 		// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+(partition&reduce)...'
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BEGINLOP].data[0].key = 1;
 		kvstats[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key = 1 + (TREE_DEPTH-1);

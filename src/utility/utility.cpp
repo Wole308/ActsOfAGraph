@@ -101,36 +101,41 @@ void utility::printallparameters(){
 	std::cout<<"host:: VERTICESDATASZ: "<<VERTICESDATASZ<<std::endl;
 	std::cout<<"host:: VERTICESDATASZ_KVS: "<<VERTICESDATASZ_KVS<<std::endl;
 
-	std::cout<<"host:: BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<std::endl;
-	std::cout<<"host:: BASEOFFSET_KVDRAM_KVS: "<<BASEOFFSET_KVDRAM_KVS<<std::endl;
-	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<std::endl;
-	std::cout<<"host:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<BASEOFFSET_KVDRAMWORKSPACE_KVS<<std::endl;	
-	std::cout<<"host:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
-	std::cout<<"host:: BASEOFFSET_STATSDRAM_KVS: "<<BASEOFFSET_STATSDRAM_KVS<<std::endl;
-	std::cout<<"host:: BASEOFFSET_ACTIVEVERTICES: "<<BASEOFFSET_ACTIVEVERTICES<<std::endl;
-	std::cout<<"host:: BASEOFFSET_ACTIVEVERTICES_KVS: "<<BASEOFFSET_ACTIVEVERTICES_KVS<<std::endl;
-	std::cout<<"host:: BASEOFFSET_EDGESDATA: "<<BASEOFFSET_EDGESDATA<<std::endl; 
-	std::cout<<"host:: BASEOFFSET_EDGESDATA_KVS: "<<BASEOFFSET_EDGESDATA_KVS<<std::endl; 
-	std::cout<<"host:: BASEOFFSET_VERTEXPTR: "<<BASEOFFSET_VERTEXPTR<<std::endl;
-	std::cout<<"host:: BASEOFFSET_VERTEXPTR_KVS: "<<BASEOFFSET_VERTEXPTR_KVS<<std::endl;
-	std::cout<<"host:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
-	std::cout<<"host:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
+	// >>>
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_MESSAGESDRAM: "<<BASEOFFSET_MESSAGESDRAM<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_MESSAGESDRAM_KVS: "<<BASEOFFSET_MESSAGESDRAM_KVS<<std::endl;
 	
-	std::cout<<"host:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
-	std::cout<<"host:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
-	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
-	std::cout<<"host:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_EDGESDATA: "<<BASEOFFSET_EDGESDATA<<std::endl; 
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_EDGESDATA_KVS: "<<BASEOFFSET_EDGESDATA_KVS<<std::endl; 
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTEXPTR: "<<BASEOFFSET_VERTEXPTR<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTEXPTR_KVS: "<<BASEOFFSET_VERTEXPTR_KVS<<std::endl;
 	
-	std::cout<<"host:: VDRAMSZ: "<<VDRAMSZ<<std::endl;	
-	std::cout<<"host:: PADDEDVDRAMSZ: "<<PADDEDVDRAMSZ<<std::endl;	
-	std::cout<<"host:: PADDEDVDRAMSZ_KVS: "<<PADDEDVDRAMSZ_KVS<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
+	
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_ACTIVEVERTICES: "<<BASEOFFSET_ACTIVEVERTICES<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_ACTIVEVERTICES_KVS: "<<BASEOFFSET_ACTIVEVERTICES_KVS<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATAMASK: "<<BASEOFFSET_VERTICESDATAMASK<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATAMASK_KVS: "<<BASEOFFSET_VERTICESDATAMASK_KVS<<std::endl;
+	
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAM_KVS: "<<BASEOFFSET_KVDRAM_KVS<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<BASEOFFSET_KVDRAMWORKSPACE_KVS<<std::endl;	
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
+	std::cout<<">> host[baseoffsets]:: BASEOFFSET_STATSDRAM_KVS: "<<BASEOFFSET_STATSDRAM_KVS<<std::endl;
+	
+	std::cout<<">> host[baseoffsets]:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
+	std::cout<<">> host[baseoffsets]:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
+	std::cout<<">> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ: "<<PADDEDKVSOURCEDRAMSZ<<std::endl;	
+	std::cout<<">> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ_KVS: "<<PADDEDKVSOURCEDRAMSZ_KVS<<std::endl;
+	
+	std::cout<<">> host[baseoffsets]:: VDRAMSZ: "<<VDRAMSZ<<std::endl;	
+	std::cout<<">> host[baseoffsets]:: PADDEDVDRAMSZ: "<<PADDEDVDRAMSZ<<std::endl;	
+	std::cout<<">> host[baseoffsets]:: PADDEDVDRAMSZ_KVS: "<<PADDEDVDRAMSZ_KVS<<std::endl;
 	
 	// >>>
 	std::cout<<">> host[sizes]:: MESSAGESDRAMSZ (keyvalues): "<<MESSAGESDRAMSZ<<" keyvalues"<<std::endl;
-	
-	std::cout<<">> host[sizes]:: KVDRAMSZ (keyvalues): "<<KVDRAMSZ<<" keyvalues"<<std::endl;
-	std::cout<<">> host[sizes]:: KVDRAMWORKSPACESZ (keyvalues): "<<KVDRAMWORKSPACESZ<<" keyvalues"<<std::endl;
-	std::cout<<">> host[sizes]:: KVSTATSDRAMSZ (keyvalues): "<<KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
 	
 	std::cout<<">> host[sizes]:: EDGESSZ (keyvalues): "<<EDGESSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTEXPTRSSZ (keyvalues): "<<VERTEXPTRSSZ<<" keyvalues"<<std::endl;
@@ -139,6 +144,10 @@ void utility::printallparameters(){
 	
 	std::cout<<">> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): "<<ACTIVEVERTICESSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): "<<VERTICESDATAMASKSZ<<" keyvalues"<<std::endl;
+	
+	std::cout<<">> host[sizes]:: KVDRAMSZ (keyvalues): "<<KVDRAMSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: KVDRAMWORKSPACESZ (keyvalues): "<<KVDRAMWORKSPACESZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: KVSTATSDRAMSZ (keyvalues): "<<KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
 	
 	std::cout<<">> host[sizes]:: PADDEDVDRAMSZ (keyvalues): "<<PADDEDVDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<<std::endl;
@@ -182,13 +191,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
 	
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
-
-	#ifdef INMEMORYGP
-	std::cout<<"host:: INMEMORYGP enabled "<<std::endl;
-	#endif 
-	#ifndef INMEMORYGP
-	std::cout<<"host:: INMEMORYGP disabled "<<std::endl;
-	#endif
 	
 	#ifdef ACTSFAST
 	std::cout<<"host::ACTSFAST DEFINED"<<std::endl;
@@ -632,9 +634,9 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
-		#ifdef ROWWISEEDGELAYOUT
+		/* #ifdef ROWWISEEDGELAYOUT // CRITICAL REMOVEME.
 		skipspacing[p] = skipspacing[p] * 2; // CRITICAL REMOVEME.
-		#endif 
+		#endif  */
 		// cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;
 	}			
 	calculateoffsets(stats, size, 0, skipspacing);

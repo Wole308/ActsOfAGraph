@@ -86,12 +86,12 @@ void event_cb2(cl_event event1, cl_int cmd_status, void *data){
         status_str = "Completed";
         break;
     }
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	// #ifdef _DEBUGMODE_HOSTPRINTS3
     printf("[%s]: %s %s\n",
            reinterpret_cast<char *>(data),
            status_str,
            command_str);
-	#endif 
+	// #endif 
     fflush(stdout);
 }
 // Sets the callback for a particular event
@@ -105,7 +105,7 @@ void set_callback2(cl::Event event, const char *queue_name){
 void goclkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
 	double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
-	#ifdef _DEBUGMODE_TIMERS2
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
 	#endif
 	

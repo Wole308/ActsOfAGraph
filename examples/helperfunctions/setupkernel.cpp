@@ -63,12 +63,7 @@ void setupkernel::launchmykernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsour
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	#endif 
-	
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);	
-		utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS], kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);
-	}
-	
+
 	#ifdef ACTGRAPH_SETUP
 	kernelobj->launchkernel(vdram, kvsourcedram, flag);
 	#endif 

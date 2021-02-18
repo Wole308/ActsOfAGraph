@@ -21,11 +21,7 @@ public:
 	runsummary_t run();
 	void experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices);
 	
-	void verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters);
-	void verifykvLOP(keyvalue_t * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], unsigned int CLOP, unsigned int * edges4_count, unsigned int * edgesdstv4_sum);					
-	void verifyvertexdata(keyvalue_t * vdram);
-	void verifyactvvsdata(keyvalue_t * vdram);
-	void verifykernelreturnvalues(uint512_vec_dt * vdram);
+	void verifyresults(uint512_vec_dt * kvdram);
 	
 private:
 	graph * graphobj;

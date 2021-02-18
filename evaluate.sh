@@ -165,9 +165,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_VHLS
@@ -1157,6 +1157,8 @@ do
 							rm -rf xclbin
 							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
 							
+							cp -rf xclbin/topkernel.hw.xilinx_aws_vu9p_f1.xclbin kernel.xclbin
+							
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120
 							
@@ -1187,6 +1189,8 @@ do
 							make cleanall
 							rm -rf xclbin
 							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
+							
+							cp -rf xclbin/topkernel.hw.xilinx_aws_vu9p_f1.xclbin kernel.xclbin
 							
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120
@@ -1223,6 +1227,8 @@ do
 							make cleanall
 							rm -rf xclbin
 							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
+							
+							cp -rf xclbin/topkernel.hw.xilinx_aws_vu9p_f1.xclbin kernel.xclbin
 							
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120

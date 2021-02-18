@@ -4240,39 +4240,12 @@ processit(uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_
 	vertex_t firstvptr = kvdram[vptrbaseoffset_kvs].data[0].key;
 	#endif 
 	
-	actsutilityobj->printkeyvalues("processit:((((((((((( ", (keyvalue_t *)&kvdram[globalparams.baseoffset_vertexptr_kvs], 64 );
-	exit(EXIT_SUCCESS);
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->print7("### processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 	MAIN_LOOP: for(batch_type source_partition=0; source_partition<nnum_source_partitions; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
-	
-		///
-		/* cout<<"---+++ processit for source_partition: "<<source_partition<<":"<<endl;
-		uint32_type TY = vmask_p[source_partition];
-		cout<<"[";
-		for(unsigned int k=0; k<NUM_PARTITIONS; k++){ 
-			unsigned int thisbit_key = READFROM_UINT(TY, 2*k, 1);
-			unsigned int thisbit_val = READFROM_UINT(TY, 2*k+1, 1);
-			unsigned int thisbit = thisbit_key | thisbit_val;
-			cout<<""<<thisbit<<", ";
-		}
-		cout<<"]"<<endl; */
-		///
-		///
-		// cout<<"---+++ processit for source_partition: "<<source_partition<<":"<<endl;
-		/* uint32_type TY = vmask_p[source_partition];
-		unsigned int seen = 0;
-		for(unsigned int k=0; k<NUM_PARTITIONS; k++){ 
-			unsigned int thisbit_key = READFROM_UINT(TY, 2*k, 1);
-			unsigned int thisbit_val = READFROM_UINT(TY, 2*k+1, 1);
-			unsigned int thisbit = thisbit_key | thisbit_val;
-			if(thisbit == 1){ cout<<"sp("<<source_partition<<"),sbp("<<k<<"), "; }
-		} */
-		///
-		
+
 		batch_type voffset_kvs = source_partition * REDUCEBUFFERSZ * (NUM_PARTITIONS / VECTOR_SIZE);
 		if(voffset_kvs >= avtravstate.end_kvs){ continue; }
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
@@ -4356,7 +4329,7 @@ processit(uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	exit(EXIT_SUCCESS); // 
+	// exit(EXIT_SUCCESS); // 
 	return;
 }
 

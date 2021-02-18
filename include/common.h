@@ -1,8 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define SWEMU // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define SSSP_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -35,13 +38,6 @@
 
 ////////////////
 
-#if defined(ACTGRAPH_SETUP) && not defined(TESTKERNEL_ACTSMAX)// && defined(PR_ALGORITHM)
-#if defined(_ORKUT_3M_106M) || defined(_HOLLYWOOD_1M_57M) || defined(_INDOCHINA_7M_194M) || defined(_KRON21_2M_91M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
-#define INMEMORYGP
-#endif
-#endif
-
-#ifdef INMEMORYGP
 #ifdef PR_ALGORITHM
 	#define DISPATCHTYPE_SYNC
 #endif 
@@ -51,15 +47,12 @@
 #ifdef SSSP_ALGORITHM
 	#define DISPATCHTYPE_SYNC
 #endif
-#endif
 
 #if defined(_HOLLYWOOD_1M_57M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
 #define GRAPHISUNDIRECTED
 #else 
 // #define GRAPHISUNDIRECTED
-#endif 
-
-////////////////
+#endif
 
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
@@ -70,7 +63,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -103,6 +96,7 @@
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
 #define NUMCOMPUTEUNITS 4
+#define NUMINTSINKEYVALUETYPE 2
 
 #define NUMDRAMBANKS 4
 #define NUMINSTANCES 1
@@ -188,20 +182,16 @@
 
 ////////////////
 
-#ifdef INMEMORYGP
-	#ifdef PR_ALGORITHM
-	#define UNITKVDATA_BATCHSIZE 12000000
-	#endif 
-	#ifdef BFS_ALGORITHM
-	#define UNITKVDATA_BATCHSIZE 6000000
-	#endif 
-	#ifdef SSSP_ALGORITHM
-	#define UNITKVDATA_BATCHSIZE 12000000
-	#endif
-#else 
-	#define UNITKVDATA_BATCHSIZE 12000000
+#ifdef PR_ALGORITHM
+#define UNITKVDATA_BATCHSIZE 12000000
 #endif 
-// #define MAXKVDATA_BATCHSIZE (UNITKVDATA_BATCHSIZE * ((12 + (NUMSUBCPUTHREADS-1)) / NUMSUBCPUTHREADS))
+#ifdef BFS_ALGORITHM
+#define UNITKVDATA_BATCHSIZE 6000000
+#endif 
+#ifdef SSSP_ALGORITHM
+// #define UNITKVDATA_BATCHSIZE 12000000
+#define UNITKVDATA_BATCHSIZE 10000000 // CRITICAL REMOVEME.
+#endif
 #define MAXKVDATA_BATCHSIZE (UNITKVDATA_BATCHSIZE * (16 / NUMSUBCPUTHREADS))
 #define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
 #define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE

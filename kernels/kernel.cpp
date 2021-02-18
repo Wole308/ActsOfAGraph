@@ -33,10 +33,6 @@ void kernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[
 	utilityobj->printstructuresbeforekernelrun("kernel::launchkernel", (uint512_vec_dt **)kvsourcedram, NUMSUBCPUTHREADS);
 	#endif
 	
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
-		utilityobj->paddkeyvalues((keyvalue_t *)&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS], kvsourcedram[i][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_RUNSIZE].data[0].key, INVALIDDATA);						
-	}
-	
 	#ifdef FPGA_IMPL
 	writetokernel(flag, vdram, kvsourcedram);
 	#endif
