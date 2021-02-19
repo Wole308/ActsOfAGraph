@@ -86,12 +86,12 @@ void event_cb2(cl_event event1, cl_int cmd_status, void *data){
         status_str = "Completed";
         break;
     }
-	// #ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS2
     printf("[%s]: %s %s\n",
            reinterpret_cast<char *>(data),
            status_str,
            command_str);
-	// #endif 
+	#endif 
     fflush(stdout);
 }
 // Sets the callback for a particular event
@@ -271,7 +271,6 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 						 &inoutBufExt[i],
 						 &err));
 	}
-	// exit(EXIT_SUCCESS); // 
 	return;
 }
 void goclkernel::finishOCL(){

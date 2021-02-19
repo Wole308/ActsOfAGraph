@@ -115,14 +115,6 @@ public:
 
 	void readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type buffer1offset_kvs, keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs);
 
-	// void readkeyvalues(bool_type enable, uint512_dt * kvdram, 
-				// batch_type dramoffset1_kvs, keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset1_kvs, buffer_type size1_kvs,
-				// batch_type dramoffset2_kvs, keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset2_kvs, buffer_type size2_kvs);
-	
-	// void savekeyvalues(bool_type enable, uint512_dt * kvdram, 
-				// batch_type dramoffset1_kvs, keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset1_kvs, buffer_type size1_kvs,
-				// batch_type dramoffset2_kvs, keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset2_kvs, buffer_type size2_kvs);
-				
 	void loadvdata(bool_type enable, uint512_dt * kvdram, keyvalue_t vdata[NUM_VBUFFERS][BLOCKRAM_SIZE], batch_type offset1_kvs, buffer_type size1_kvs, batch_type offset2_kvs, buffer_type size2_kvs);
 	
 	void savevdata(bool_type enable, uint512_dt * kvdram, keyvalue_t vdata[NUM_VBUFFERS][BLOCKRAM_SIZE], batch_type offset1_kvs, buffer_type size1_kvs, batch_type offset2_kvs, buffer_type size2_kvs);
@@ -184,7 +176,7 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 									unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams);
 
 	void actit(bool_type enable, unsigned int mode,
-			uint512_dt * kvdram, keyvalue_t buffer_setof2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer_setof4[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], 
+			uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[GLOBALSTATSBUFFERSZ], 
 			globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 			bool_type resetenv, bool_type flush);
 
