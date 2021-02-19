@@ -125,12 +125,7 @@ void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer,
 	return;
 }
 
-#ifdef COMPACTEDGES
-void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
-#else 
-void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
-#endif
-{
+void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::loadedges_rowwise:: loading edges (rowwise)... "<<endl;
 	#endif 
@@ -195,12 +190,7 @@ void loadgraph::loadedges_rowwise(unsigned int col, graph * graphobj, edge_t * v
 	#endif
 }
 
-#ifdef COMPACTEDGES
-void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, uuint64_dt * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], uuint64_dt * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
-#else 
-void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo)
-#endif
-{
+void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::loadedges_rowblockwise:: loading edges (rowwise)... "<<endl;
 	#endif 
@@ -288,8 +278,7 @@ void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_
 	
 	// >>> dummy overflows
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		for(unsigned int k=counts[i]; k<counts[i] + (512*2*8); k++){ 
-			// edges[i][2*BASEOFFSET_EDGESDATA + k].dstvid = UNUSEDDATA;
+		for(unsigned int k=counts[i]; k<counts[i] + (512*2*8); k++){
 			edges[i][2*BASEOFFSET_EDGESDATA + k].dstvid = UNUSEDDATA;
 		}
 	}
@@ -505,7 +494,7 @@ void loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_
 	#endif
 	
 	keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ];
-	keyvalue_t kvdrambuffer[VECTOR_SIZE][PADDEDDESTBUFFER_SIZE];
+	keyvalue_t kvdrambuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS; k++){ 
