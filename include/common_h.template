@@ -377,6 +377,9 @@ struct _bitData {
 #define INACTIVEINNEXTITERATION 0
 #define ACTIVEINNEXTITERATION 1
 
+#define ONE 1
+#define TWO 2
+
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))
 typedef unsigned long edge_t;

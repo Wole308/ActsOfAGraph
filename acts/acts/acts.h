@@ -39,9 +39,6 @@ using namespace std;
 #define PP2
 #endif
 
-#define BUFFERBASE_KVDATA 0
-#define BUFFERBASE_VDATA BLOCKRAM_SIZE
-
 #define PROCESSMODE 0
 #define PARTITIONMODE 1
 #define REDUCEMODE 2
@@ -52,7 +49,7 @@ using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_UNKNOWN //
 
-#define THENEWSYNC
+#define SHIFTSYNCHRONIZE
 
 class acts {
 public:
@@ -162,16 +159,16 @@ public:
 keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], 
 			globalparams_t globalparams);
 
-	void synchronize2(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer0[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer3[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
+	void shiftsynchronize(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer0[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer3[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
 	
 	uint32_type apply(bool_type enable, 
 		keyvalue_t vbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],
 		keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t synvbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		globalparams_t globalparams);
 		
-	void spread2(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer0[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer3[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
+	void spread(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer0[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer3[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
 
-	void spread2(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE], globalparams_t globalparams);
+	void spread(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE], globalparams_t globalparams);
 		
 	// acts
 	void resetenvbuffers(keyvalue_t capsule_so1[8][NUM_PARTITIONS], keyvalue_t capsule_so2[4][NUM_PARTITIONS], keyvalue_t capsule_so4[2][NUM_PARTITIONS], keyvalue_t capsule_so8[NUM_PARTITIONS]);

@@ -39,9 +39,6 @@ using namespace std;
 #define PP2
 #endif
 
-#define BUFFERBASE_KVDATA 0
-#define BUFFERBASE_VDATA BLOCKRAM_SIZE
-
 #define PROCESSMODE 0
 #define PARTITIONMODE 1
 #define REDUCEMODE 2
@@ -52,7 +49,7 @@ using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_UNKNOWN //
 
-#define THENEWSYNC
+#define SHIFTSYNCHRONIZE
 
 class acts {
 public:
@@ -162,16 +159,16 @@ public:
 			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} 
 			globalparams_t globalparams);
 
-	void synchronize2(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
+	void shiftsynchronize(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
 	
 	uint32_type apply(bool_type enable, 
 		keyvalue_t vbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],
 		keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t synvbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		globalparams_t globalparams);
 		
-	void spread2(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
+	void spread(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
 
-	void spread2(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams);
+	void spread(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams);
 		
 	// acts
 	void resetenvbuffers(keyvalue_t capsule_so1[8][NUM_PARTITIONS], keyvalue_t capsule_so2[4][NUM_PARTITIONS], keyvalue_t capsule_so4[2][NUM_PARTITIONS], keyvalue_t capsule_so8[NUM_PARTITIONS]);
