@@ -156,7 +156,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		statsobj->timingandsummary(num_its, totaltime_ms);
 		if(num_its > swnum_its){ break; } 
 	}
-	verifyresults(kvbuffer[0]);
+	verifyresults(kvbuffer[3]);
 	return;
 }
 

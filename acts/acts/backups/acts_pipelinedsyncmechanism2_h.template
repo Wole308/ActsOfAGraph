@@ -50,9 +50,7 @@ using namespace std;
 
 #define NUM_VBUFFERS NUM_PARTITIONS
 
-// #define _DEBUGMODE_KERNELPRINTS_UNKNOWN //
-
-#define THENEWSYNC
+#define _DEBUGMODE_KERNELPRINTS_UNKNOWN //
 
 class acts {
 public:
@@ -156,23 +154,16 @@ public:
 	// synchronize
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
-	value_t mergefunc_NUMPto1(value_t v0,value_t v1,value_t v2,value_t v3, unsigned int GraphAlgo);
+	value_t mergefunc_NUMPto1({%for i in context['COMPUTEUNITS_seq']%}value_t v{{i}},{%endfor%} unsigned int GraphAlgo);
 	
 	uint32_type synchronize(bool_type enable, keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t synvbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], 
-keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE],keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE],keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], 
+			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} 
 			globalparams_t globalparams);
 
-	void synchronize2(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer0[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer3[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
+	uint32_type synchronize2(keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
 	
-	uint32_type apply(bool_type enable, 
-		keyvalue_t vbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],
-		keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t synvbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-		globalparams_t globalparams);
-		
-	void spread2(bool_type enable, keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t buffer0[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],keyvalue_t buffer3[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
+	uint32_type spread2(keyvalue_t head[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams);
 
-	void spread2(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE], globalparams_t globalparams);
-		
 	// acts
 	void resetenvbuffers(keyvalue_t capsule_so1[8][NUM_PARTITIONS], keyvalue_t capsule_so2[4][NUM_PARTITIONS], keyvalue_t capsule_so4[2][NUM_PARTITIONS], keyvalue_t capsule_so8[NUM_PARTITIONS]);
 
@@ -203,17 +194,18 @@ keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[
 	void dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams);
 	
-	void start_reduce(uint512_dt * kvdram0, keyvalue_t vbuffer0_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer0_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],uint512_dt * kvdram1, keyvalue_t vbuffer1_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer1_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],uint512_dt * kvdram2, keyvalue_t vbuffer2_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer2_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],uint512_dt * kvdram3, keyvalue_t vbuffer3_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer3_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]);
+	void start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, keyvalue_t vbuffer{{i}}_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer{{i}}_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE], uint32_type vmask_p{{i}}[BLOCKRAM_SIZE],{%endfor%} uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]);
 
-	void start(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]);
+	void start({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]);
 	
-	void topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3);
+	void topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
 private:
 	#ifndef FPGA_IMPL
 	actsutility * actsutilityobj;
 	#endif
 };
 #endif 
+
 
 
 

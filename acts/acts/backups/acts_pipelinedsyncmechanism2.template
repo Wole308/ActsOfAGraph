@@ -1954,50 +1954,43 @@ synchronize(bool_type enable, keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKR
 	return cummvmask_sp;
 }
 
-void
+uint32_type
 	#ifdef SW 
 	acts::
 	#endif
-synchronize2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-	cout<<"synchronize2: synchronize function called."<<endl;
-	#endif 
-	
+synchronize2({%for i in context['COMPUTEUNITSplus1_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams){
 	unsigned int v0index = 0;
-	{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+	{%for i in context['COMPUTEUNITSplus1_seq']%}
 	{%if(i>0)%}
 	unsigned int v{{i}}index = BUFFERBASE_VDATA;
 	{%endif%}
 	{%endfor%}
-	unsigned int tailindex = 0;
+	unsigned int tailindex = 0;//BUFFERBASE_VDATA;
 	unsigned int synbaseindex = tailindex;
-	unsigned int flushsz = 10 * NUMCOMPUTEUNITS;
 	
-	{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+	{%for i in context['COMPUTEUNITSplus1_seq']%}
 	{%for v in context['VECTOR_SIZE_seq']%}
 	keyvalue_t keyvalue{{v}}_vault{{i}}[8];
-	#pragma HLS ARRAY_PARTITION variable=keyvalue{{v}}_vault{{i}} complete
 	{%endfor%}	
 	{%endfor%}
 	
 	for(unsigned int i=0; i<8; i++){
-		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+		{%for i in context['COMPUTEUNITSplus1_seq']%}
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue{{v}}_vault{{i}}[i].key = 0; keyvalue{{v}}_vault{{i}}[i].value = 0;
 		{%endfor%}	
 		{%endfor%}
 	}
 	
-	SYNCHRONIZE_LOOP1: for (buffer_type i=0; i<REDUCEBUFFERSZ + flushsz; i++){
+	for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){ // 8
 	#pragma HLS PIPELINE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue{{v}}_vault0[i%8] = buffer0[{{v}}][v0index]; 
 		{%endfor%}
 			
-		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+		{%for i in context['COMPUTEUNITSplus1_seq']%}
 		{%if(i>0)%}
-		if(i>={{i}} && v{{i}}index<BUFFERBASE_VDATA + REDUCEBUFFERSZ){
+		if(i>={{i}}){
 			{%for v in context['VECTOR_SIZE_seq']%}
 			keyvalue{{v}}_vault{{i}}[(i)%8].key = mergefunc(keyvalue{{v}}_vault{{i-1}}[(i-1)%8].key, buffer{{i}}[{{v}}][v{{i}}index].key, NAp);
 			keyvalue{{v}}_vault{{i}}[(i)%8].value = mergefunc(keyvalue{{v}}_vault{{i-1}}[(i-1)%8].value, buffer{{i}}[{{v}}][v{{i}}index].value, NAp);
@@ -2006,205 +1999,133 @@ synchronize2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyv
 		{%endif%}
 		{%endfor%}
 		
-		if(i>={{context['NUMCOMPUTEUNITS']+1}} && tailindex<REDUCEBUFFERSZ){
+		if(i>={{context['NUMCOMPUTEUNITS']+1}}){
 			{%for v in context['VECTOR_SIZE_seq']%}
 			tail[{{v}}][tailindex] = keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']}}[(i-1)%8];
 			{%endfor%}	
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
-			#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-			if(tail[{{v}}][tailindex].key < 0xFFFFFFFF){ cout<<"actvvid(synchronize): "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex))<<endl; } 
-			if(tail[{{v}}][tailindex].value < 0xFFFFFFFF){ cout<<"actvvid(synchronize): "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex) + 1)<<endl; } 
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(tail[{{v}}][tailindex].key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex))<<endl; } 
+			if(tail[{{v}}][tailindex].value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex) + 1)<<endl; } 
 			#endif
 			{%endfor%}	
 		}
 		
-		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+		{%for i in context['COMPUTEUNITSplus1_seq']%}
 		if(i>={{i}}){ v{{i}}index += 1; }
 		{%endfor%}
 		if(i>={{context['NUMCOMPUTEUNITS']+1}}){ tailindex += 1; }
 	}
-	return;
+	// actsutilityobj->printkeyvalues("--- synchronize2.tail", tail, 8);
+	return 0;
 }
 
 uint32_type
 	#ifdef SW 
 	acts::
 	#endif
-apply(bool_type enable, 
-		keyvalue_t vbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t vbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],
-		keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t synvbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-		globalparams_t globalparams){
-	if(enable == OFF){ return 0; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-	cout<<"apply: apply function called."<<endl;
-	#endif 
-	
-	unsigned int vid[NUM_PARTITIONS][2];
-	#pragma HLS ARRAY_PARTITION variable=vid complete
-	
-	{%for p in context['NUM_PARTITIONS_seq']%}
-	keyvalue_t data{{p}};
-	keyvalue_t res{{p}};
-	{%endfor%}
-	
-	APPLY_LOOP1: for(buffer_type i=0; i<REDUCEBUFFERSZ; i++){
-	#pragma HLS PIPELINE II=1
-	
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		vid[{{p}}][0] = (({{p}}*REDUCESZ) + i*2);
-		vid[{{p}}][1] = (({{p}}*REDUCESZ) + i*2 + 1);
-		{%endfor%}
-	
-		{%for p in context['8_seq']%}
-		data{{p}} = vbuffer{{i}}_1[{{p}}][0 + i]; // BUFFERBASE_VDATA // CRITICAL CHECKME.
-		{%endfor%}
-		{%for p in context['8_seq']%}
-		data{{8+p}} = vbuffer{{i}}_2[{{p}}][0 + i]; // BUFFERBASE_VDATA
-		{%endfor%}
-		
-		{%for p in context['8_seq']%}
-		keyvalue_t udata{{p}} = synvbuffer_1[{{p}}][i];
-		{%endfor%}
-		{%for p in context['8_seq']%}
-		keyvalue_t udata{{8+p}} = synvbuffer_2[{{p}}][i];
-		{%endfor%}
-		
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		res{{p}}.key = applyfunc(udata{{p}}.key, data{{p}}.key, globalparams.GraphIter, globalparams.GraphAlgo);
-		{%endfor%}
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		res{{p}}.value = applyfunc(udata{{p}}.value, data{{p}}.value, globalparams.GraphIter, globalparams.GraphAlgo);
-		{%endfor%}
-		
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		if(res{{p}}.key != udata{{p}}.key){ vmask[i].data[{{p}}].key = 1; } else { vmask[i].data[{{p}}].key = 0; }
-		if(res{{p}}.value != udata{{p}}.value){ vmask[i].data[{{p}}].value = 1; } else { vmask[i].data[{{p}}].value = 0; }
-		{%endfor%}
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[{{p}}][0]<<" & vid2: "<<vid[{{p}}][1]<<"): res{{p}}.key: "<<res{{p}}.key<<", res{{p}}.value: "<<res{{p}}.value<<": udata{{p}}.key: "<<udata{{p}}.key<<", udata{{p}}.value: "<<udata{{p}}.value<<", data{{p}}.key: "<<data{{p}}.key<<", data{{p}}.value: "<<data{{p}}.value<<endl; }
-		if(res{{p}}.key != udata{{p}}.key){ cout<<"apply: vid[{{p}}][0]: "<<vid[{{p}}][0]<<", vmask["<<i<<"].data[{{p}}].key: "<<vmask[i].data[{{p}}].key<<endl; }
-		if(res{{p}}.value != udata{{p}}.value){ cout<<"apply: vid[{{p}}][1]: "<<vid[{{p}}][1]<<", vmask["<<i<<"].data[{{p}}].value: "<<vmask[i].data[{{p}}].value<<endl; }
-		{%endfor%}
-		#endif
-		#ifdef _DEBUGMODE_STATS
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		if(res{{p}}.key != udata{{p}}.key){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res{{p}}.value != udata{{p}}.value){ actsutilityobj->globalstats_countactvvsseen(1); }
-		{%endfor%}
-		#endif
-	}
-	
-	uint32_type cummvmask_sp = 0;
-	SYNCHRONIZE_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		uint32_type mask = convertvmasktouint32(vmask, k);
-		cummvmask_sp = cummvmask_sp | mask;
-	}
-	return cummvmask_sp;
-}
-
-void
-	#ifdef SW 
-	acts::
-	#endif
-spread2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-	cout<<"spread: spread (vdata) function called."<<endl;
-	#endif 
-	
+spread2({%for i in context['COMPUTEUNITSplus1_seq']%}keyvalue_t buffer{{i}}[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE],{%endfor%} keyvalue_t tail[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams){
 	unsigned int v0index = 0;
-	{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+	{%for i in context['COMPUTEUNITSplus1_seq']%}
 	{%if(i>0)%}
 	unsigned int v{{i}}index = BUFFERBASE_VDATA;
 	{%endif%}
 	{%endfor%}
-	unsigned int tailindex = 0;
+	unsigned int tailindex = BUFFERBASE_VDATA;
 	unsigned int synbaseindex = tailindex;
-	unsigned int flushsz = 10 * NUMCOMPUTEUNITS;
 	
-	{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+	{%for i in context['COMPUTEUNITSplus1_seq']%}
 	{%for v in context['VECTOR_SIZE_seq']%}
 	keyvalue_t keyvalue{{v}}_vault{{i}}[8];
-	#pragma HLS ARRAY_PARTITION variable=keyvalue{{v}}_vault{{i}} complete
 	{%endfor%}	
 	{%endfor%}
 	
 	for(unsigned int i=0; i<8; i++){
-		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+		{%for i in context['COMPUTEUNITSplus1_seq']%}
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue{{v}}_vault{{i}}[i].key = 0; keyvalue{{v}}_vault{{i}}[i].value = 0;
 		{%endfor%}	
 		{%endfor%}
 	}
 	
-	SPREAD_LOOP1: for (buffer_type i=0; i<REDUCEBUFFERSZ + flushsz; i++){
+	// actsutilityobj->printkeyvalues("--- spread2.buffer0", buffer0, 8);
+	// exit(EXIT_SUCCESS);
+	
+	for (buffer_type i=0; i<16; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS PIPELINE
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"--------------------------------------- spread2: "<<i<<" --------------------------------------------------"<<endl;
+		#endif 
+		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue{{v}}_vault0[i%8] = buffer0[{{v}}][v0index]; 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"keyvalue{{v}}_vault0["<<(i)%8<<"].key("<<keyvalue{{v}}_vault0[(i)%8].key<<")"<<endl;
+		cout<<"keyvalue{{v}}_vault0["<<(i)%8<<"].value("<<keyvalue{{v}}_vault0[(i)%8].value<<")"<<endl;	
+		#endif 
 		{%endfor%}
 			
-		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+		{%for i in context['COMPUTEUNITSplus1_seq']%}
 		{%if(i>0)%}
-		if(i>={{i}} && v{{i}}index<BUFFERBASE_VDATA + REDUCEBUFFERSZ){
+		if(i>={{i}}){
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"########################### index: "<<i<<", vault: v{{i}} processed."<<endl;
+			#endif 
+			
 			{%for v in context['VECTOR_SIZE_seq']%}
 			keyvalue{{v}}_vault{{i}}[(i)%8] = keyvalue{{v}}_vault{{i-1}}[(i-1)%8];
 			buffer{{i}}[{{v}}][v{{i}}index] = keyvalue{{v}}_vault{{i-1}}[(i-1)%8];
 			{%endfor%}	
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
-			#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-			if(buffer{{i}}[{{v}}][v{{i}}index].key < 0xFFFFFFFF){ cout<<"actvvid{{i}} (spread): "<<({{v}}*REDUCESZ + 2*(v{{i}}index-BUFFERBASE_VDATA))<<endl; }
-			if(buffer{{i}}[{{v}}][v{{i}}index].value < 0xFFFFFFFF){ cout<<"actvvid{{i}} (spread): "<<({{v}}*REDUCESZ + 2*(v{{i}}index-BUFFERBASE_VDATA) + 1)<<endl; }
-			#endif
-			{%endfor%}
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(buffer{{i}}[{{v}}][v{{i}}index].key < 0xFFFFFFFF){ cout<<"actvvid{{i}}: "<<({{v}}*REDUCESZ + 2*(v{{i}}index-BUFFERBASE_VDATA))<<endl; }
+			if(buffer{{i}}[{{v}}][v{{i}}index].value < 0xFFFFFFFF){ cout<<"actvvid{{i}}: "<<({{v}}*REDUCESZ + 2*(v{{i}}index-BUFFERBASE_VDATA) + 1)<<endl; }
+			#endif 
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"buffer{{i}}[{{v}}]["<<v{{i}}index<<"].key("<<buffer{{i}}[{{v}}][v{{i}}index].key<<") = keyvalue{{v}}_vault{{i-1}}["<<(i-1)%8<<"].key("<<keyvalue{{v}}_vault{{i-1}}[(i-1)%8].key<<")"<<endl;
+			cout<<"buffer{{i}}[{{v}}]["<<v{{i}}index<<"].value("<<buffer{{i}}[{{v}}][v{{i}}index].value<<") = keyvalue{{v}}_vault{{i-1}}["<<(i-1)%8<<"].value("<<keyvalue{{v}}_vault{{i-1}}[(i-1)%8].value<<")"<<endl;
+			#endif 
+			{%endfor%}	
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"-"<<endl;
+			#endif 
+		} else {
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^ index: "<<i<<", vault: v{{i}} NOT processed."<<endl;
+			#endif 
 		}
 		{%endif%}
 		{%endfor%}
 		
-		if(i>={{context['NUMCOMPUTEUNITS']+1}} && tailindex<REDUCEBUFFERSZ){
+		if(i>={{context['NUMCOMPUTEUNITS']+1}}){
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"########################### index: "<<i<<", syn vault: processed."<<endl;
+			#endif 
+			
 			{%for v in context['VECTOR_SIZE_seq']%}
 			tail[{{v}}][tailindex] = keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']}}[(i-1)%8];
 			{%endfor%}	
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			if(tail[{{v}}][tailindex].key < 0xFFFFFFFF){ cout<<"actvvid (spread): "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex))<<endl; } 
-			if(tail[{{v}}][tailindex].value < 0xFFFFFFFF){ cout<<"actvvid (spread): "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex) + 1)<<endl; } 
-			#endif
+			if(tail[{{v}}][tailindex].key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex))<<endl; } 
+			if(tail[{{v}}][tailindex].value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*(tailindex-synbaseindex) + 1)<<endl; } 
+			#endif 
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"$$$ tail[{{v}}]["<<tailindex<<"] <= keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']}}["<<(i-1)%8<<"].key("<<keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']}}[(i-1)%8].key<<")"<<endl;
+			cout<<"$$$ tail[{{v}}]["<<tailindex<<"] <= keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']}}["<<(i-1)%8<<"].value("<<keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']}}[(i-1)%8].value<<")"<<endl;
+			#endif 
 			{%endfor%}	
 		}
 		
-		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
+		{%for i in context['COMPUTEUNITSplus1_seq']%}
 		if(i>={{i}}){ v{{i}}index += 1; }
 		{%endfor%}
 		if(i>={{context['NUMCOMPUTEUNITS']+1}}){ tailindex += 1; }
 	}
-	return;
-}
-
-void
-	#ifdef SW 
-	acts::
-	#endif
-spread2(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
-	#ifdef _DEBUGMODE_KERNELPRINTS_UNKNOWN
-	cout<<"spread: spread (vmasks) function called."<<endl;
-	#endif 
-	if(enable == OFF){ return; }
-	
-	SPREAD_LOOP3: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		{%for i in context['COMPUTEUNITS_seq']%}
-		{%for v in context['NUM_PARTITIONS_seq']%}
-		vmask{{i}}[k].data[{{v}}] = vmask[k].data[{{v}}];
-		{%endfor%}
-		{%endfor%}
-	}
-	return;
+	return 0;
 }
 
 // acts 
@@ -2891,6 +2812,8 @@ processit(uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_
 		bool_type flush = ON;
 		if(voffset_kvs == avtravstate.begin_kvs){ resetenv = ON; } else { resetenv = OFF; }
 		if((voffset_kvs + (REDUCEBUFFERSZ * FETFACTOR)) >= avtravstate.end_kvs){ flush = ON; } else { flush = OFF; }
+		// resetenv = ON; // CRITICAL FIXME. SWEMU, HW error when this is disabled?
+		// flush = ON;
 		
 		actit(
 			ON, PROCESSMODE,
@@ -2911,6 +2834,7 @@ processit(uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][DOUBLE_BLOCKRAM_
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
+	// exit(EXIT_SUCCESS); // 
 	return;
 }
 
@@ -3071,17 +2995,10 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t synvbuffer_head_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	keyvalue_t synvbuffer_head_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_head_1
-	#pragma HLS array_partition variable = synvbuffer_head_2
-	
-	#ifdef THENEWSYNC
-	keyvalue_t synvbuffer_tail_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	keyvalue_t synvbuffer_tail_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_tail_1
-	#pragma HLS array_partition variable = synvbuffer_tail_2
-	#endif 
+	keyvalue_t synvbuffer_1[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_1
+	keyvalue_t synvbuffer_2[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_2
 	
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
@@ -3116,8 +3033,8 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 		// read vertices
 		{%for i in context['COMPUTEUNITS_seq']%}
 		{%if(i==0)%}
-		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer{{i}}_1, BUFFERBASE_VDATA, synvbuffer_head_1, 0, REDUCEBUFFERSZ);
-		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer{{i}}_2, BUFFERBASE_VDATA, synvbuffer_head_2, 0, REDUCEBUFFERSZ);
+		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer{{i}}_1, BUFFERBASE_VDATA, synvbuffer_1, 0, REDUCEBUFFERSZ);
+		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer{{i}}_2, BUFFERBASE_VDATA, synvbuffer_2, 0, REDUCEBUFFERSZ);
 		{%else%}		
 		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2), vbuffer{{i}}_1, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
 		readkeyvalues(enablereduce, kvdram{{i}}, _globalparams.baseoffset_verticesdata_kvs + (source_partition * REDUCEBUFFERSZ * 2) + REDUCEBUFFERSZ, vbuffer{{i}}_2, BUFFERBASE_VDATA, REDUCEBUFFERSZ);
@@ -3133,17 +3050,13 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 		{%endfor%}
 		
 		// synchronize
-		#ifdef THENEWSYNC
-		synchronize2(enablereduce, synvbuffer_head_1, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1,{%endfor%} synvbuffer_tail_1, _globalparams);
-		synchronize2(enablereduce, synvbuffer_head_2, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_2,{%endfor%} synvbuffer_tail_2, _globalparams); 
-		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail_1, synvbuffer_tail_2, synvbuffer_head_1, synvbuffer_head_2, vmask0, _globalparams);
-		spread2(enablereduce, synvbuffer_tail_1, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1,{%endfor%} synvbuffer_head_1, _globalparams);  // CRITICAL FIXME. vbuffer{{i}}_1s should be reversed in order to help sdaccel linker
-		spread2(enablereduce, synvbuffer_tail_2, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_2,{%endfor%} synvbuffer_head_2, _globalparams);
-		spread2(enablereduce, vmask0, {%for i in context['COMPUTEUNITS_seq']%}vmask{{i}},{%endfor%} _globalparams);
-		#else 
-		vmask_p[source_partition] = synchronize(enablereduce, synvbuffer_head_1, synvbuffer_head_2, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1, vbuffer{{i}}_2, vmask{{i}},{%endfor%} _globalparams); 	
+		#ifdef DISPATCHTYPE_SYNC
+		// vmask_p[source_partition] = synchronize(enablereduce, synvbuffer_1, synvbuffer_2, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1, vbuffer{{i}}_2, vmask{{i}},{%endfor%} _globalparams); // CRITICAL CHANGE.
+		// synchronize2({%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1,{%endfor%} synvbuffer_2, _globalparams); // CRITICAL FIXME
+		synchronize2(synvbuffer_1, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1,{%endfor%} synvbuffer_2, _globalparams); // CRITICAL FIXME
+		spread2(synvbuffer_2, {%for i in context['COMPUTEUNITS_seq']%}vbuffer{{i}}_1,{%endfor%} synvbuffer_1, _globalparams);  // CRITICAL FIXME. vbuffer{{i}}_1s should be reversed in order to help sdaccel linker
 		#endif
-		// exit(EXIT_SUCCESS);
+		exit(EXIT_SUCCESS);
 		
 		// writeback vertices
 		{%for i in context['COMPUTEUNITS_seq']%}
@@ -3155,7 +3068,6 @@ start_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}}, k
 		{%endfor%}
 		
 		sourcestatsmarker += 1;
-		// break; // CRITICAL REMOVEME.
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
