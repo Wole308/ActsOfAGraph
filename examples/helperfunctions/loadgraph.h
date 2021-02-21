@@ -3,7 +3,6 @@
 #include <mutex>
 #include <thread>
 #include "../../examples/helperfunctions/postprocess.h"
-#include "../../examples/helperfunctions/postprocess.h"
 #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"

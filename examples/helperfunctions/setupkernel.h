@@ -21,8 +21,6 @@ public:
 	~setupkernel();
 
 	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
-	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag);					
-	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag);			
 	void launchmykernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	
 	unsigned int getflag(unsigned int globaliteration_idx);
@@ -49,8 +47,7 @@ private:
 	#ifdef GRAFBOOST_SETUP 
 	SortReduce<uint64_t,uint32_t>* _sr;
 	VertexValues<uint32_t,uint32_t>* vertex_values;
-	#endif 
-	procedges * procedgesobj;
+	#endif
 
 	std::thread mythread[NUMUTILITYTHREADS];
 	std::thread mykernelthread[NUMUTILITYTHREADS];

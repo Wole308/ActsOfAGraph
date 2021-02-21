@@ -65,7 +65,6 @@ HOST_SRCS += src/algorithm/algorithm.cpp
 HOST_SRCS += examples/helperfunctions/postprocess.cpp
 HOST_SRCS += examples/helperfunctions/loadgraph.cpp
 HOST_SRCS += examples/helperfunctions/setupkernel.cpp
-HOST_SRCS += examples/helperfunctions/procedges.cpp
 HOST_SRCS += examples/helperfunctions/evalparams.cpp
 HOST_SRCS += examples/pagerank/pagerank.cpp
 HOST_SRCS += examples/bfs/bfs.cpp

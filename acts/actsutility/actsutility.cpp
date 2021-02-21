@@ -285,43 +285,60 @@ void actsutility::printglobalvars(){
 }
 void actsutility::printglobalparameters(string message, globalparams_t globalparams){
 	cout<<endl<<"actsutility::printglobalparameters: "<<message<<endl;
-	std::cout<<"Kernel Started: globalparams.runkernelcommand: "<<globalparams.runkernelcommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.processcommand: "<<globalparams.processcommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.collectstatscommand: "<<globalparams.collectstatscommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.partitioncommand: "<<globalparams.partitioncommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.reducecommand: "<<globalparams.reducecommand<<std::endl;
-	std::cout<<"Kernel Started: globalparams.srcvoffset: "<<globalparams.srcvoffset<<std::endl;
-	std::cout<<"Kernel Started: globalparams.srcvsize: "<<globalparams.srcvsize<<std::endl;
-	std::cout<<"Kernel Started: globalparams.srcvsize_kvs: "<<globalparams.srcvsize_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.edgessize: "<<globalparams.edgessize<<std::endl;
-	std::cout<<"Kernel Started: globalparams.edgessize_kvs: "<<globalparams.edgessize_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.destvoffset: "<<globalparams.destvoffset<<std::endl;
-	std::cout<<"Kernel Started: globalparams.firstvid: "<<globalparams.firstvid<<std::endl;
-	std::cout<<"Kernel Started: globalparams.firstkey: "<<globalparams.firstkey<<std::endl;
-	std::cout<<"Kernel Started: globalparams.firstvalue: "<<globalparams.firstvalue<<std::endl;
-	std::cout<<"Kernel Started: globalparams.treedepth: "<<globalparams.treedepth<<std::endl;
-	std::cout<<"Kernel Started: globalparams.LLOPnumpartitions: "<<globalparams.LLOPnumpartitions<<std::endl;
-	std::cout<<"Kernel Started: globalparams.GraphIter: "<<globalparams.GraphIter<<std::endl;
-	std::cout<<"Kernel Started: globalparams.batchsize: "<<globalparams.batchsize<<std::endl;
-	std::cout<<"Kernel Started: globalparams.runsize: "<<globalparams.runsize<<std::endl;
-	std::cout<<"Kernel Started: globalparams.nextbatchoffset: "<<globalparams.nextbatchoffset<<std::endl;
-	std::cout<<"Kernel Started: globalparams.groupid: "<<globalparams.groupid<<std::endl;
-	std::cout<<"Kernel Started: globalparams.beginLOP: "<<globalparams.beginLOP<<std::endl;
-	std::cout<<"Kernel Started: globalparams.endLOP: "<<globalparams.endLOP<<std::endl;
-	std::cout<<"Kernel Started: globalparams.numLOPs: "<<globalparams.numLOPs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.batch_range: "<<globalparams.batch_range<<std::endl;
-	std::cout<<"Kernel Started: globalparams.batch_range_pow: "<<globalparams.batch_range_pow<<std::endl;
-	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz: "<<globalparams.applyvertexbuffersz<<std::endl;
-	std::cout<<"Kernel Started: globalparams.applyvertexbuffersz_kvs: "<<globalparams.applyvertexbuffersz_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_messagesdram_kvs: "<<globalparams.baseoffset_messagesdram_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_kvdram_kvs: "<<globalparams.baseoffset_kvdram_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_kvdramworkspace_kvs: "<<globalparams.baseoffset_kvdramworkspace_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_statsdram_kvs: "<<globalparams.baseoffset_statsdram_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_edgesdata_kvs: "<<globalparams.baseoffset_edgesdata_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_vertexptr_kvs: "<<globalparams.baseoffset_vertexptr_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_verticesdata_kvs: "<<globalparams.baseoffset_verticesdata_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_activevertices_kvs: "<<globalparams.baseoffset_activevertices_kvs<<std::endl;
-	std::cout<<"Kernel Started: globalparams.baseoffset_verticesdatamask_kvs: "<<globalparams.baseoffset_verticesdatamask_kvs<<std::endl;
+	std::cout<<"Kernel Started: globalparams.ENABLE_RUNKERNELCOMMAND: "<<globalparams.ENABLE_RUNKERNELCOMMAND<<endl;
+	std::cout<<"Kernel Started: globalparams.ENABLE_PROCESSCOMMAND: "<<globalparams.ENABLE_PROCESSCOMMAND<<endl;
+	std::cout<<"Kernel Started: globalparams.ENABLE_PARTITIONCOMMAND: "<<globalparams.ENABLE_PARTITIONCOMMAND<<endl;
+	std::cout<<"Kernel Started: globalparams.ENABLE_APPLYUPDATESCOMMAND: "<<globalparams.ENABLE_APPLYUPDATESCOMMAND<<endl;
+
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_MESSAGESDATA: "<<globalparams.BASEOFFSETKVS_MESSAGESDATA<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_EDGESDATA: "<<globalparams.BASEOFFSETKVS_EDGESDATA<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_VERTEXPTR: "<<globalparams.BASEOFFSETKVS_VERTEXPTR<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_VERTICESDATA: "<<globalparams.BASEOFFSETKVS_VERTICESDATA<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_ACTIVEVERTICES: "<<globalparams.BASEOFFSETKVS_ACTIVEVERTICES<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_KVDRAM: "<<globalparams.BASEOFFSETKVS_KVDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: "<<globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE<<endl;
+
+	std::cout<<"Kernel Started: globalparams.SIZE_MESSAGESDRAM: "<<globalparams.SIZE_MESSAGESDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_EDGES: "<<globalparams.SIZE_EDGES<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_VERTEXPTRS: "<<globalparams.SIZE_VERTEXPTRS<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_VERTICESDATA: "<<globalparams.SIZE_VERTICESDATA<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_ACTIVEVERTICES: "<<globalparams.SIZE_ACTIVEVERTICES<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_VERTICESDATAMASK: "<<globalparams.SIZE_VERTICESDATAMASK<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_KVSTATSDRAM: "<<globalparams.SIZE_KVSTATSDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAM: "<<globalparams.SIZE_KVDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAMWORKSPACE: "<<globalparams.SIZE_KVDRAMWORKSPACE<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_APPLYVERTEXBUFFER: "<<globalparams.SIZE_APPLYVERTEXBUFFER<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_BATCHRANGE: "<<globalparams.SIZE_BATCHRANGE<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_RUN: "<<globalparams.SIZE_RUN<<endl;
+
+	std::cout<<"Kernel Started: globalparams.POW_MESSAGESDRAM: "<<globalparams.POW_MESSAGESDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_EDGES: "<<globalparams.POW_EDGES<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_VERTEXPTRS: "<<globalparams.POW_VERTEXPTRS<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_VERTICESDATA: "<<globalparams.POW_VERTICESDATA<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_ACTIVEVERTICES: "<<globalparams.POW_ACTIVEVERTICES<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_VERTICESDATAMASK: "<<globalparams.POW_VERTICESDATAMASK<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_KVSTATSDRAM: "<<globalparams.POW_KVSTATSDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_KVDRAM: "<<globalparams.POW_KVDRAM<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_KVDRAMWORKSPACE: "<<globalparams.POW_KVDRAMWORKSPACE<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_APPLYVERTEXBUFFER: "<<globalparams.POW_APPLYVERTEXBUFFER<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_BATCHRANGE: "<<globalparams.POW_BATCHRANGE<<endl;
+
+	std::cout<<"Kernel Started: globalparams.ALGORITHMINFO_GRAPHITERATIONID: "<<globalparams.ALGORITHMINFO_GRAPHITERATIONID<<endl;
+	std::cout<<"Kernel Started: globalparams.ALGORITHMINFO_GRAPHALGORITHMID: "<<globalparams.ALGORITHMINFO_GRAPHALGORITHMID<<endl;
+
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_BEGINLOP: "<<globalparams.ACTSPARAMS_BEGINLOP<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_NUMLOPS: "<<globalparams.ACTSPARAMS_NUMLOPS<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_TREEDEPTH: "<<globalparams.ACTSPARAMS_TREEDEPTH<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_FINALNUMPARTITIONS: "<<globalparams.ACTSPARAMS_FINALNUMPARTITIONS<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_SRCVOFFSET: "<<globalparams.ACTSPARAMS_SRCVOFFSET<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_SRCVSIZE: "<<globalparams.ACTSPARAMS_SRCVSIZE<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_DESTVOFFSET: "<<globalparams.ACTSPARAMS_DESTVOFFSET<<endl;
+
+	std::cout<<"Kernel Started: globalparams.RETURN_RETURNVALUES: "<<globalparams.RETURN_RETURNVALUES<<endl;
+	
+	
 	std::cout<<std::endl;
 }
 void actsutility::printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams){
@@ -1276,8 +1293,8 @@ void actsutility::postpartitioncheck(uint512_dt * kvdram, keyvalue_t globalstats
 	#if defined(_DEBUGMODE_CHECKS2) && defined(ENABLE_PERFECTACCURACY)
 	checkforoverlap("actsutility::postpartitioncheck: globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS);
 	#endif
-	collectstats(OFF, (keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 0);
-	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.batch_range_pow, 7, 2);
+	collectstats(OFF, (keyvalue_t *)&kvdram[sweepparams.worksourcebaseaddress_kvs], ptravstate.size_kvs * VECTOR_SIZE, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.POW_BATCHRANGE, 7, 0);
+	collectstats(ON, (keyvalue_t *)&kvdram[sweepparams.workdestbaseaddress_kvs], globalstatsbuffer, sweepparams.currentLOP, sweepparams.upperlimit, globalparams.POW_BATCHRANGE, 7, 2);
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	printvalues("actsutility::postpartitioncheck: stats collected online [before partition stage (7,0)]", getstats(7, 0), NUM_PARTITIONS);
 	printvalues("actsutility::postpartitioncheck: stats collected online [after partition stage (7,2)]", getstats(7, 2), NUM_PARTITIONS);
@@ -1462,7 +1479,7 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	#endif
 	#ifdef _DEBUGMODE_CHECKS2
 	#ifdef ENABLE_VOICEOUTREDUCEERRORS
-	cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.applyvertexbuffersz<<endl; 
+	cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.SIZE_APPLYVERTEXBUFFER<<endl; 
 	#endif 
 	
 	#ifdef ENABLE_PERFECTACCURACY

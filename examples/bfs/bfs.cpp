@@ -176,7 +176,7 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	unsigned int edgesdstv5_sum = 0;
 	unsigned int actvvs_count = 0;
 	unsigned int actvvs_verbosecount = 0;
-	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_NUMLOPS].data[0].key - 1;
+	unsigned int CLOP = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_NUMLOPS].data[0].key - 1;
 	if(CLOP == TREE_DEPTH+1){ CLOP = TREE_DEPTH; } // exclude reduce phase
 	
 	// 1st check (scanning edges in file...)
@@ -263,7 +263,7 @@ void bfs::verify(vector<vertex_t> &activevertices, unsigned int NumGraphIters){
 	cout<<"+++++++++++++++++++++++++++++ bfs:verify (onchip, active vertices for next it  ) actvvs_count: "<<actvvs_count<<" (actvvs_verbosecount:"<<actvvs_verbosecount<<", actvvsdstv1_sum:"<<actvvsdstv1_sum<<")"<<endl;
 	
 	cout<<"bfs::verify. 8"<<endl;
-	if(kvbuffer[0][BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
+	if(kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key > 1){ edges1_count = edges2_count; }
 	
 	cout<<"bfs::verify. 9"<<endl;
 	#if defined(_DEBUGMODE_HOSTCHECKS2) && not defined(HW)
@@ -422,7 +422,7 @@ void bfs::verifykernelreturnvalues(uint512_vec_dt * vdram){
 	#endif
 	
 	for(unsigned int i=0; i<16; i++){
-		keyvalue_t keyvalue = vdram[BASEOFFSET_MESSAGESDRAM_KVS + MESSAGES_BASEOFFSET_RETURNVALUES + i].data[0];	
+		keyvalue_t keyvalue = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES + i].data[0];	
 		cout<<"bfs::verifykernelreturnvalues:: active vertices from GraphIter "<<i<<": "<<keyvalue.key<<endl;
 	}
 	return;

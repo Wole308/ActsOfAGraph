@@ -27,7 +27,6 @@ setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	kernelobj = new kernel(_statsobj);
-	procedgesobj = new procedges(_statsobj);
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif
@@ -44,16 +43,6 @@ setupkernel::setupkernel(stats * _statsobj){
 setupkernel::~setupkernel(){} 
 
 void setupkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){ // for INMEMORYGP PR
-	launchmykernel(vdram, kvsourcedram, flag);
-	return;
-}
-void setupkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs, value_t * vertexdatabuffer, edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP PR
-	procedgesobj->start((uint512_vec_dt **)kvsourcedram, vertexptrs, vertexdatabuffer, (keyvalue_t **)edgedatabuffer); // REMOVEME.
-	launchmykernel(vdram, kvsourcedram, flag);
-	return;
-}
-void setupkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], edge_t * vertexptrs[NUMSUBCPUTHREADS], value_t * verticesdata[NUMSUBCPUTHREADS], edge_type * edgedatabuffer[NUMSUBCPUTHREADS], unsigned int flag){ // for NOT INMEMORYGP BFS, SSSP etc.					
-	procedgesobj->start((uint512_vec_dt **)kvsourcedram, vertexptrs, verticesdata, (keyvalue_t **)edgedatabuffer);
 	launchmykernel(vdram, kvsourcedram, flag);
 	return;
 }

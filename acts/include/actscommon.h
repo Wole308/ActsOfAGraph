@@ -81,7 +81,7 @@ typedef struct {
 	unsigned int enableprocessedges;
 } config_t;
 
-typedef struct {
+/* typedef struct {
 	unsigned int command;
 	unsigned int runkernelcommand;
 	unsigned int processcommand;
@@ -89,39 +89,39 @@ typedef struct {
 	unsigned int partitioncommand;
 	unsigned int reducecommand;
 	unsigned int finalnumpartitions;
-	unsigned int treedepthid;
-	unsigned int ssdpartitionid;
+	// unsigned int treedepthid;
+	// unsigned int ssdpartitionid;
 	unsigned int srcvoffset;
 	unsigned int srcvsize;
-	unsigned int srcvsize_kvs;
+	// unsigned int srcvsize_kvs;
 	unsigned int edgessize;
-	unsigned int edgessize_kvs;
+	// unsigned int edgessize_kvs;
 	unsigned int destvoffset;
 	unsigned int actvvsize; //
-	unsigned int firstvid;
-	unsigned int firstkey;
-	unsigned int firstvalue;
+	// unsigned int firstvid;
+	// unsigned int firstkey;
+	// unsigned int firstvalue;
 	unsigned int treedepth;
 	unsigned int LLOPnumpartitions;
-	unsigned int batchsize;
+	// unsigned int batchsize;
 	unsigned int runsize;
-	unsigned int runsize_kvs;
-	unsigned int nextbatchoffset;
+	// unsigned int runsize_kvs;
+	// unsigned int nextbatchoffset;
 	unsigned int GraphIter;
 	unsigned int GraphAlgo;
-	unsigned int statsalreadycollected;
-	unsigned int groupid;
+	// unsigned int statsalreadycollected;
+	// unsigned int groupid;
 	unsigned int beginLOP;
-	unsigned int endLOP;
+	// unsigned int endLOP;
 	unsigned int numLOPs;
 	unsigned int batch_range;
-	unsigned int batch_range_kvs;
+	// unsigned int batch_range_kvs;
 	unsigned int batch_range_pow;
 	unsigned int applyvertexbuffersz;
-	unsigned int applyvertexbuffersz_kvs;
+	// unsigned int applyvertexbuffersz_kvs;
 	unsigned int applyvertexbuffersz_pow;
-	unsigned int loadfactorforreduce;
-	unsigned int baseoffset_messagesdram_kvs;
+	// unsigned int loadfactorforreduce;
+	// unsigned int baseoffset_messagesdram_kvs;
 	unsigned int baseoffset_kvdram_kvs;
 	unsigned int baseoffset_kvdramworkspace_kvs;
 	unsigned int baseoffset_statsdram_kvs;
@@ -132,6 +132,61 @@ typedef struct {
 	unsigned int baseoffset_verticesdatamask_kvs;
 	unsigned int kvstatssz;
 	unsigned int baseoffset_returnvalues;
+} globalparams_t; */
+
+typedef struct {
+	unsigned int ENABLE_RUNKERNELCOMMAND;
+	unsigned int ENABLE_PROCESSCOMMAND;
+	unsigned int ENABLE_PARTITIONCOMMAND;
+	unsigned int ENABLE_APPLYUPDATESCOMMAND;
+
+	unsigned int BASEOFFSETKVS_MESSAGESDATA;
+	unsigned int BASEOFFSETKVS_EDGESDATA;
+	unsigned int BASEOFFSETKVS_VERTEXPTR;
+	unsigned int BASEOFFSETKVS_VERTICESDATA;
+	unsigned int BASEOFFSETKVS_ACTIVEVERTICES;
+	unsigned int BASEOFFSETKVS_VERTICESDATAMASK;
+	unsigned int BASEOFFSETKVS_STATSDRAM;
+	unsigned int BASEOFFSETKVS_KVDRAM;
+	unsigned int BASEOFFSETKVS_KVDRAMWORKSPACE;
+
+	unsigned int SIZE_MESSAGESDRAM;
+	unsigned int SIZE_EDGES;
+	unsigned int SIZE_VERTEXPTRS;
+	unsigned int SIZE_VERTICESDATA;
+	unsigned int SIZE_ACTIVEVERTICES;
+	unsigned int SIZE_VERTICESDATAMASK;
+	unsigned int SIZE_KVSTATSDRAM;
+	unsigned int SIZE_KVDRAM;
+	unsigned int SIZE_KVDRAMWORKSPACE;
+	unsigned int SIZE_APPLYVERTEXBUFFER;
+	unsigned int SIZE_BATCHRANGE;
+	unsigned int SIZE_RUN;
+
+	unsigned int POW_MESSAGESDRAM;
+	unsigned int POW_EDGES;
+	unsigned int POW_VERTEXPTRS;
+	unsigned int POW_VERTICESDATA;
+	unsigned int POW_ACTIVEVERTICES;
+	unsigned int POW_VERTICESDATAMASK;
+	unsigned int POW_KVSTATSDRAM;
+	unsigned int POW_KVDRAM;
+	unsigned int POW_KVDRAMWORKSPACE;
+	unsigned int POW_APPLYVERTEXBUFFER;
+	unsigned int POW_BATCHRANGE;
+
+	unsigned int ALGORITHMINFO_GRAPHITERATIONID;
+	unsigned int ALGORITHMINFO_GRAPHALGORITHMID;
+
+	unsigned int ACTSPARAMS_BEGINLOP;
+	unsigned int ACTSPARAMS_NUMLOPS;
+	unsigned int ACTSPARAMS_TREEDEPTH;
+	unsigned int ACTSPARAMS_FINALNUMPARTITIONS;
+	unsigned int ACTSPARAMS_SRCVOFFSET;
+	unsigned int ACTSPARAMS_SRCVSIZE;
+	unsigned int ACTSPARAMS_DESTVOFFSET;
+
+	unsigned int RETURN_RETURNVALUES;
 } globalparams_t;
 
 typedef struct {
@@ -226,10 +281,10 @@ typedef struct {
 #define PADDEDVDRAMSZ_KVS (PADDEDVDRAMSZ / VECTOR_SIZE)
 
 // base addresses
-#define BASEOFFSET_MESSAGESDRAM 0 //
-#define BASEOFFSET_MESSAGESDRAM_KVS (BASEOFFSET_MESSAGESDRAM / VECTOR_SIZE) 
+#define BASEOFFSET_MESSAGESDATA 0 //
+#define BASEOFFSET_MESSAGESDATA_KVS (BASEOFFSET_MESSAGESDATA / VECTOR_SIZE) 
 
-#define BASEOFFSET_EDGESDATA (BASEOFFSET_MESSAGESDRAM + MESSAGESDRAMSZ) //
+#define BASEOFFSET_EDGESDATA (BASEOFFSET_MESSAGESDATA + MESSAGESDRAMSZ) //
 #define BASEOFFSET_EDGESDATA_KVS (BASEOFFSET_EDGESDATA / VECTOR_SIZE)
 
 #define BASEOFFSET_VERTEXPTR (BASEOFFSET_EDGESDATA + EDGESSZ) 
