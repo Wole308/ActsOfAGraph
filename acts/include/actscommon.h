@@ -81,59 +81,6 @@ typedef struct {
 	unsigned int enableprocessedges;
 } config_t;
 
-/* typedef struct {
-	unsigned int command;
-	unsigned int runkernelcommand;
-	unsigned int processcommand;
-	unsigned int collectstatscommand;
-	unsigned int partitioncommand;
-	unsigned int reducecommand;
-	unsigned int finalnumpartitions;
-	// unsigned int treedepthid;
-	// unsigned int ssdpartitionid;
-	unsigned int srcvoffset;
-	unsigned int srcvsize;
-	// unsigned int srcvsize_kvs;
-	unsigned int edgessize;
-	// unsigned int edgessize_kvs;
-	unsigned int destvoffset;
-	unsigned int actvvsize; //
-	// unsigned int firstvid;
-	// unsigned int firstkey;
-	// unsigned int firstvalue;
-	unsigned int treedepth;
-	unsigned int LLOPnumpartitions;
-	// unsigned int batchsize;
-	unsigned int runsize;
-	// unsigned int runsize_kvs;
-	// unsigned int nextbatchoffset;
-	unsigned int GraphIter;
-	unsigned int GraphAlgo;
-	// unsigned int statsalreadycollected;
-	// unsigned int groupid;
-	unsigned int beginLOP;
-	// unsigned int endLOP;
-	unsigned int numLOPs;
-	unsigned int batch_range;
-	// unsigned int batch_range_kvs;
-	unsigned int batch_range_pow;
-	unsigned int applyvertexbuffersz;
-	// unsigned int applyvertexbuffersz_kvs;
-	unsigned int applyvertexbuffersz_pow;
-	// unsigned int loadfactorforreduce;
-	// unsigned int baseoffset_messagesdram_kvs;
-	unsigned int baseoffset_kvdram_kvs;
-	unsigned int baseoffset_kvdramworkspace_kvs;
-	unsigned int baseoffset_statsdram_kvs;
-	unsigned int baseoffset_edgesdata_kvs;
-	unsigned int baseoffset_vertexptr_kvs;
-	unsigned int baseoffset_verticesdata_kvs;
-	unsigned int baseoffset_activevertices_kvs;
-	unsigned int baseoffset_verticesdatamask_kvs;
-	unsigned int kvstatssz;
-	unsigned int baseoffset_returnvalues;
-} globalparams_t; */
-
 typedef struct {
 	unsigned int ENABLE_RUNKERNELCOMMAND;
 	unsigned int ENABLE_PROCESSCOMMAND;
@@ -159,7 +106,7 @@ typedef struct {
 	unsigned int SIZE_KVSTATSDRAM;
 	unsigned int SIZE_KVDRAM;
 	unsigned int SIZE_KVDRAMWORKSPACE;
-	unsigned int SIZE_APPLYVERTEXBUFFER;
+	unsigned int SIZE_REDUCE;
 	unsigned int SIZE_BATCHRANGE;
 	unsigned int SIZE_RUN;
 
@@ -172,7 +119,7 @@ typedef struct {
 	unsigned int POW_KVSTATSDRAM;
 	unsigned int POW_KVDRAM;
 	unsigned int POW_KVDRAMWORKSPACE;
-	unsigned int POW_APPLYVERTEXBUFFER;
+	unsigned int POW_REDUCE;
 	unsigned int POW_BATCHRANGE;
 
 	unsigned int ALGORITHMINFO_GRAPHITERATIONID;

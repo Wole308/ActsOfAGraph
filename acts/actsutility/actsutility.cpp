@@ -309,7 +309,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.SIZE_KVSTATSDRAM: "<<globalparams.SIZE_KVSTATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAM: "<<globalparams.SIZE_KVDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAMWORKSPACE: "<<globalparams.SIZE_KVDRAMWORKSPACE<<endl;
-	std::cout<<"Kernel Started: globalparams.SIZE_APPLYVERTEXBUFFER: "<<globalparams.SIZE_APPLYVERTEXBUFFER<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_REDUCE: "<<globalparams.SIZE_REDUCE<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_BATCHRANGE: "<<globalparams.SIZE_BATCHRANGE<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_RUN: "<<globalparams.SIZE_RUN<<endl;
 
@@ -322,7 +322,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.POW_KVSTATSDRAM: "<<globalparams.POW_KVSTATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_KVDRAM: "<<globalparams.POW_KVDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_KVDRAMWORKSPACE: "<<globalparams.POW_KVDRAMWORKSPACE<<endl;
-	std::cout<<"Kernel Started: globalparams.POW_APPLYVERTEXBUFFER: "<<globalparams.POW_APPLYVERTEXBUFFER<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_BATCHRANGE: "<<globalparams.POW_BATCHRANGE<<endl;
 
 	std::cout<<"Kernel Started: globalparams.ALGORITHMINFO_GRAPHITERATIONID: "<<globalparams.ALGORITHMINFO_GRAPHITERATIONID<<endl;
@@ -1479,7 +1479,7 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	#endif
 	#ifdef _DEBUGMODE_CHECKS2
 	#ifdef ENABLE_VOICEOUTREDUCEERRORS
-	cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.SIZE_APPLYVERTEXBUFFER<<endl; 
+	cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.SIZE_REDUCE<<endl; 
 	#endif 
 	
 	#ifdef ENABLE_PERFECTACCURACY
