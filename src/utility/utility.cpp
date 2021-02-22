@@ -52,7 +52,7 @@ void utility::printallparameters(){
 	std::cout<<"host:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
 	std::cout<<"host:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
 	std::cout<<"host:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
-	std::cout<<"host:: NUMUTILITYTHREADS: "<<NUMUTILITYTHREADS<<std::endl;
+	// std::cout<<"host:: NUMUTILITYTHREADS: "<<NUMUTILITYTHREADS<<std::endl;
 	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
 	std::cout<<"host:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
 

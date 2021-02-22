@@ -6,7 +6,6 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
-#include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -32,7 +31,6 @@ private:
 	graph * graphobj;
 	parameters * parametersobj;
 	utility * utilityobj;
-	postprocess * postprocessobj;
 	loadgraph * loadgraphobj;
 	setupkernel * setupkernelobj;
 	stats * statsobj;

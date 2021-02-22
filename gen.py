@@ -367,9 +367,9 @@ context['COMPUTEUNITSPLUS1_seq'] = []
 for i in range (0,(context['NUMCOMPUTEUNITS']+1)):
 		context['COMPUTEUNITSPLUS1_seq'].append(i)
         
-context['COMPUTEUNITSplus2_seq'] = []
+context['COMPUTEUNITSPLUS2_seq'] = []
 for i in range (0,(context['NUMCOMPUTEUNITS']+2)):
-		context['COMPUTEUNITSplus2_seq'].append(i)
+		context['COMPUTEUNITSPLUS2_seq'].append(i)
         
 context['COMPUTEUNITS_1seq'] = []
 for i in range (1,(context['NUMCOMPUTEUNITS'])):

@@ -2,7 +2,6 @@
 #define EVALPARAMS_H
 #include <mutex>
 #include <thread>
-#include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"

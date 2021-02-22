@@ -62,7 +62,6 @@ KERNEL_TOP += acts/actsutility/actsutility.cpp
 HOST_TOP += examples/hostprocess.cpp
 
 HOST_SRCS += src/algorithm/algorithm.cpp
-HOST_SRCS += examples/helperfunctions/postprocess.cpp
 HOST_SRCS += examples/helperfunctions/loadgraph.cpp
 HOST_SRCS += examples/helperfunctions/setupkernel.cpp
 HOST_SRCS += examples/helperfunctions/evalparams.cpp

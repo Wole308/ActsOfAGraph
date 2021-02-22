@@ -8,7 +8,6 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-#include "../../examples/helperfunctions/postprocess.h"
 #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
@@ -28,7 +27,6 @@ loadgraph::loadgraph(graph * _graphobj, stats * _statsobj){
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();
 	statsobj = _statsobj;
-	postprocessobj = new postprocess(graphobj, statsobj); 
 	evalparamsobj = new evalparams();
 }
 loadgraph::loadgraph(){
@@ -642,7 +640,7 @@ void loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVSTATSDRAM].data[0].key = kvstatssz;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key = KVDRAMSZ;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key = KVSTATSDRAMSZ;
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key = REDUCESZ; // APPLYVERTEXBUFFERSZ;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key = REDUCESZ; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].data[0].key = BATCH_RANGE; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key = runsize; //
 

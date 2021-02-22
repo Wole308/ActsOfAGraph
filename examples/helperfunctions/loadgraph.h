@@ -2,7 +2,6 @@
 #define LOADGRAPH_H
 #include <mutex>
 #include <thread>
-#include "../../examples/helperfunctions/postprocess.h"
 #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
@@ -66,7 +65,6 @@ private:
 	graph * graphobj;
 	algorithm * algorithmobj;
 	stats * statsobj;
-	postprocess * postprocessobj;
 	evalparams * evalparamsobj;
 };
 #endif

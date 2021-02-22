@@ -17,7 +17,6 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
-#include "../../examples/helperfunctions/postprocess.h"
 // #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
@@ -31,8 +30,7 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
 	statsobj = new stats(graphobj);
 	parametersobj = new parameters(); 
-	utilityobj = new utility(); 
-	postprocessobj = new postprocess(graphobj, statsobj); 
+	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj); 
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 	// evalparamsobj = new evalparams();

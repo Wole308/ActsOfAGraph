@@ -23,7 +23,6 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
-#include "../../examples/helperfunctions/postprocess.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -38,8 +37,7 @@ sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryF
 	statsobj = new stats(graphobj);
 	algorithmobj = new algorithm();
 	parametersobj = new parameters(); 
-	utilityobj = new utility(); 
-	postprocessobj = new postprocess(graphobj, statsobj); 
+	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 

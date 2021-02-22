@@ -541,7 +541,7 @@ void graph::loadalldatasets(){
 	_datasets[30].num_edges = 106349209;
 	_datasets[30].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[30].graphorder = DST_SRC;
-	_datasets[30].skewratio = SKEWRATIO;
+	_datasets[30].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[31].graphtopname = "hollywood-2009";
 	_datasets[31].graphname = "hollywood-2009";
@@ -556,7 +556,7 @@ void graph::loadalldatasets(){
 	_datasets[31].num_edges = 57515616;
 	_datasets[31].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[31].graphorder = DST_SRC;
-	_datasets[31].skewratio = SKEWRATIO;
+	_datasets[31].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[32].graphtopname = "indochina-04";
 	_datasets[32].graphname = "indochina-04";
@@ -571,7 +571,7 @@ void graph::loadalldatasets(){
 	_datasets[32].num_edges = 194109311;
 	_datasets[32].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[32].graphorder = DST_SRC;
-	_datasets[32].skewratio = SKEWRATIO;
+	_datasets[32].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[33].graphtopname = "kron-g500-logn21";
 	_datasets[33].graphname = "kron-g500-logn21";
@@ -586,7 +586,7 @@ void graph::loadalldatasets(){
 	_datasets[33].num_edges = 91042010;
 	_datasets[33].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[33].graphorder = DST_SRC; // DST_SRC, SRC_DST;
-	_datasets[33].skewratio = SKEWRATIO;
+	_datasets[33].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[34].graphtopname = "rgg_n_2_24_s0";
 	_datasets[34].graphname = "rgg_n_2_24_s0";
@@ -601,7 +601,7 @@ void graph::loadalldatasets(){
 	_datasets[34].num_edges = 132557200;
 	_datasets[34].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[34].graphorder = DST_SRC;
-	_datasets[34].skewratio = SKEWRATIO;
+	_datasets[34].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[35].graphtopname = "roadNet-CA";
 	_datasets[35].graphname = "roadNet-CA";
@@ -616,7 +616,7 @@ void graph::loadalldatasets(){
 	_datasets[35].num_edges = 2766607;
 	_datasets[35].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[35].graphorder = DST_SRC;
-	_datasets[35].skewratio = SKEWRATIO;
+	_datasets[35].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[36].graphtopname = "flickr";
 	_datasets[36].graphname = "flickr";
@@ -631,7 +631,7 @@ void graph::loadalldatasets(){
 	_datasets[36].num_edges = 9837214;
 	_datasets[36].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[36].graphorder = DST_SRC;
-	_datasets[36].skewratio = SKEWRATIO;
+	_datasets[36].skewratio = NAp; // SKEWRATIO;
 	
 	// large dataset
 	_datasets[2].graphtopname = "twitter";
@@ -647,7 +647,7 @@ void graph::loadalldatasets(){
 	_datasets[2].num_edges = 1468365184; 
 	_datasets[2].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[2].graphorder = DST_SRC;
-	_datasets[2].skewratio = SKEWRATIO;
+	_datasets[2].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[3].graphtopname = "MOLIERE_2016";
 	_datasets[3].graphname = "MOLIERE_2016";
@@ -662,7 +662,7 @@ void graph::loadalldatasets(){
 	_datasets[3].num_edges = 3338650683; 
 	_datasets[3].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[3].graphorder = DST_SRC_EDGEW;
-	_datasets[3].skewratio = SKEWRATIO;
+	_datasets[3].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[4].graphtopname = "kronecker26";
 	_datasets[4].graphname = "kronecker26";
@@ -677,7 +677,7 @@ void graph::loadalldatasets(){
 	_datasets[4].num_edges = 1073741824; // 1073741824
 	_datasets[4].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[4].graphorder = SRC_DST;
-	_datasets[4].skewratio = SKEWRATIO;
+	_datasets[4].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[5].graphtopname = "kronecker28";
 	_datasets[5].graphname = "kronecker28";
@@ -692,7 +692,7 @@ void graph::loadalldatasets(){
 	_datasets[5].num_edges = 4294967290;
 	_datasets[5].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[5].graphorder = SRC_DST;
-	_datasets[5].skewratio = SKEWRATIO;
+	_datasets[5].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[6].graphtopname = "kronecker30";
 	_datasets[6].graphname = "kronecker30";
@@ -707,7 +707,7 @@ void graph::loadalldatasets(){
 	_datasets[6].num_edges = 17179869184;
 	_datasets[6].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[6].graphorder = SRC_DST;
-	_datasets[6].skewratio = SKEWRATIO;
+	_datasets[6].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[7].graphtopname = "kronecker32";
 	_datasets[7].graphname = "kronecker32";
@@ -722,7 +722,7 @@ void graph::loadalldatasets(){
 	_datasets[7].num_edges = 68719476736;
 	_datasets[7].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[7].graphorder = SRC_DST;
-	_datasets[7].skewratio = SKEWRATIO;
+	_datasets[7].skewratio = NAp; // SKEWRATIO;
 	
 	_datasets[10].graphtopname = "wdc";
 	_datasets[10].graphname = "wdc";
@@ -737,7 +737,7 @@ void graph::loadalldatasets(){
 	_datasets[10].num_edges = 0;
 	_datasets[10].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[10].graphorder = SRC_DST;
-	_datasets[10].skewratio = SKEWRATIO;
+	_datasets[10].skewratio = NAp; // SKEWRATIO;
 
 	for(unsigned int i=0; i<32; i++){
 		_datasets[i].groupvoffset[0] = 0;
