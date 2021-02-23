@@ -104,7 +104,7 @@ void loadgraph::loadedges_columnwise(unsigned int col, edge_t * vertexptrbuffer,
 		container->srcvsize[i] = srcvsize;
 		container->edgessize[i] = edgessize;
 		if(GraphAlgo == PAGERANK){ container->runsize[i] = edgessize; } else { container->runsize[i] = 1; }
-		container->destvoffset[i] = col * KVDATA_RANGE_PERSSDPARTITION;
+		container->destvoffset[i] = col * KVDATA_RANGE;
 		container->actvvsize[i] = 0;
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printkeyvalues("loadgraph::loadedges_columnwise::first", (keyvalue_t *)&edges[i][BASEOFFSET_EDGESDATA], 16);
@@ -199,7 +199,8 @@ void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_
 	
 	unsigned int packingfactor = 2;
 	
-	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
+	unsigned int vid=0;
+	for(vid=0; vid<KVDATA_RANGE-1; vid++){
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		if(vid % 100000 == 0){ cout<<"### loadgraph::loadedges_rowblockwise:: vid: "<<vid<<", vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		#endif 
@@ -274,12 +275,33 @@ void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_
 		container->actvvsize[i] = 0;
 	}
 	
-	// >>> dummy overflows
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		for(unsigned int k=counts[i]; k<counts[i] + (512*2*8); k++){
+	// >>> dummy writes
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int k=counts[i]; k<counts[i] + (DRAMPADD/2); k++){
 			edges[i][2*BASEOFFSET_EDGESDATA + k].dstvid = UNUSEDDATA;
 		}
 	}
+	
+	// >>> dummy writes
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		for(unsigned int k=vid; k<vid + (DRAMPADD/2); k++){
+			vptrs[i][2*BASEOFFSET_VERTEXPTR + k + 1].key = counts[i]; 
+		}
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	unsigned int totalsize = 0;
+	cout<<"loadedges_rowblockwise:: loading Acts... sizes: ["; 
+	cout<<"["; for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ totalsize += container->edgessize[i]; cout<<container->edgessize[i]; if(i<NUMSUBCPUTHREADS-1){ cout<<", "; }} cout<<"]";
+	cout<<"]"<<endl;
+	cout<<"loadedges_rowblockwise:: total sizes: "<<totalsize<<endl; 
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		utilityobj->checkoutofbounds("loadgraph::loadedges_rowblockwise.counts[i]", counts[i], EDGESSZ*2, i, NAp, NAp);
+	}
+	#endif
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::loadedges_rowblockwise:: index1: "<<index1<<", index2: "<<index2<<endl;
@@ -301,7 +323,7 @@ void loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_
 }
 
 void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#endif 
 	unsigned int baseoffset_edgedata = 2*BASEOFFSET_EDGESDATA;
@@ -370,10 +392,18 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 		}
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
+		unsigned int totalnumpartitionsb4lastt = 17;//0;
+		// for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4lastt += (unsigned int)pow(NUM_PARTITIONS, k); } 
+		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats, totalnumpartitionsb4lastt); // totalnumpartitions
+		utilityobj->printkeyvalues("loadoffsetmarkers: printing statsptr [after]", (keyvalue_t *)statsptrVec, totalnumpartitionsb4lastt * VECTOR_SIZE, VECTOR_SIZE); // totalnumpartitions
+		#endif
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats, totalnumpartitions);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing statsptr [after]", (keyvalue_t *)statsptrVec, totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 		#endif
 		
+		#ifdef _DEBUGMODE_CHECKS3
 		unsigned int totalnumpartitionsb4last = 0;
 		for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (unsigned int)pow(NUM_PARTITIONS, k); } 
 		for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -383,17 +413,17 @@ void loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_
 				exit(EXIT_FAILURE); 
 			}
 		}
+		#endif 
 	}
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS
+	for(unsigned int i=0; i<1; i++){
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA]", (keyvalue_t *)&edges[i][baseoffset_edgedata], 16);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing edges[i][BASEOFFSET_EDGESDATA][last]", (keyvalue_t *)&edges[i][baseoffset_edgedata+container->runsize[i]-32], 16);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM], (1+16) * VECTOR_SIZE, VECTOR_SIZE);
 		utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][BASEOFFSET_STATSDRAM]", (keyvalue_t *)&stats[i][BASEOFFSET_STATSDRAM], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 	}
 	#endif
-	// exit(EXIT_SUCCESS);
 	return;
 }
 
@@ -492,7 +522,6 @@ void loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_
 	#endif
 	
 	keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ];
-	// keyvalue_t kvdrambuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS; k++){ 
@@ -505,8 +534,6 @@ void loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_
 	
 	unsigned int vmaskoffset_kvs = 0;
 	for(unsigned int offset=0; offset<BATCH_RANGE; offset+=REDUCESZ * NUM_PARTITIONS){
-	// for(unsigned int offset=0; offset<8 * REDUCESZ * NUM_PARTITIONS; offset+=REDUCESZ * NUM_PARTITIONS){
-		// cout<<"offset: "<<offset<<endl;
 		for(unsigned int i=0; i<NUM_PARTITIONS; i++){
 			unsigned int * V = (unsigned int *)vmask[i]; 
 			for(unsigned int k=0; k<REDUCESZ; k++){
@@ -524,8 +551,7 @@ void loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_
 	utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, NUM_PARTITIONS, 4);
 	utilityobj->printkeyvalues("generatevmaskdata.kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][BASEOFFSET_VERTICESDATAMASK_KVS], 4);
 	cout<<"loadgraph::generatevmaskdata:: end. "<<endl;
-	#endif 
-	// exit(EXIT_SUCCESS);
+	#endif
 	return;
 }
 

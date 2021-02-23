@@ -52,7 +52,7 @@ private:
 	// std::vector<edge2_type> edges2buffer[MAXNUMEDGEBANKS];
 	edge_t * vertexptrs[MAXNUMEDGEBANKS];	
 	edge_t totalnumedgeswritten[MAXNUMEDGEBANKS];
-	edge2_type firstedge[NUMSSDPARTITIONS];
+	edge2_type firstedge[1];
 	
 	// analyze graph 
 	unsigned int * vertexoutdegrees;

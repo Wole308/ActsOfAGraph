@@ -73,13 +73,9 @@ void utility::printallparameters(){
 	std::cout<<"host:: EDGESSZ: "<<EDGESSZ<<std::endl; 
 	
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
-	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;	
-	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION_POW: "<<KVDATA_RANGE_PERSSDPARTITION_POW<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE_PERSSDPARTITION: "<<KVDATA_RANGE_PERSSDPARTITION<<std::endl;
-	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;	
-	std::cout<<"host:: NUMSSDPARTITIONS: "<<NUMSSDPARTITIONS<<std::endl;
-	std::cout<<"host:: NUMSSDPARTITIONS_POW: "<<NUMSSDPARTITIONS_POW<<std::endl;
-	std::cout<<"host:: MAXNUMSSDPARTITIONS: "<<MAXNUMSSDPARTITIONS<<std::endl;
+	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
+	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
+	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;
 	#ifdef LOCKE
 	std::cout<<"host:: LOCKE DEFINED"<<std::endl;
 	#else 
@@ -274,12 +270,6 @@ void utility::printkeyvalues(string message, keyvalue_vec_bittype keyvalues[NUM_
 void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }
-}
-void utility::printpackededges(string message, uuint64_dt * edges, unsigned int size){
-	cout<<endl<<"utility::printpackededges:"<<message<<endl;
-	for(unsigned int i=0; i<size; i++){
-		// printcodedkeyvalue("printpackededges.edges["+std::to_string(i)+"].data", edges[i].data);
-	}
 }
 void utility::printmessages(string message, uint512_vec_dt * keyvalues){
 	cout<<"utility::printmessages::"<<message<<":: printing messages (after kernel launch) "<<endl;
@@ -476,7 +466,7 @@ int utility::runActs(unsigned int IterCount, bool forcetrue){
 	else { return 0; }
 }
 unsigned int utility::GETKVDATA_RANGEOFFSET_FORSSDPARTITION_(unsigned int ssdpartitonid){
-	return (ssdpartitonid * KVDATA_RANGE_PERSSDPARTITION);
+	return (ssdpartitonid * KVDATA_RANGE);
 }
 void utility::resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<"utility::resetkeyvalues:"<<message<<endl;
@@ -627,6 +617,8 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		skipspacing[p] = skipspacing[p] * 2; // CRITICAL REMOVEME.
 		#endif  */
 		// cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;
+		
+		skipspacing[p] = 0; // CRITICAL REMOVEME
 	}			
 	calculateoffsets(stats, size, 0, skipspacing);
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}	
@@ -823,6 +815,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 			edge_t vptr_begin = vertexptrbuffer[vid];
 			edge_t vptr_end = vertexptrbuffer[vid+1];
 			edge_t edges_size = vptr_end - vptr_begin;
+			if(vptr_end < vptr_begin){ continue; } // FIXME.
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
@@ -837,7 +830,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 				}
 				else if(labels[dstvid] == VISITED_IN_CURRENT_ITERATION){ } 
 				else if(labels[dstvid] == VISITED_IN_PAST_ITERATION){ } 
-				else{ cout<<"utility::runbfs_sw: should never get here. exiting..."<<endl; exit(EXIT_FAILURE); }
+				else{ cout<<"utility::runbfs_sw: should never get here. "<<": dstvid: "<<dstvid<<". exiting..."<<endl; exit(EXIT_FAILURE); }
 			}
 		}
 		
@@ -861,7 +854,7 @@ unsigned int utility::runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuf
 }
 unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"utility::runsssp_sw:: running traditional bfs... "<<endl;
+	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
 	#endif 
 	
 	unsigned int * labels = new unsigned int[KVDATA_RANGE];
@@ -889,14 +882,21 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 			edge_t vptr_begin = vertexptrbuffer[vid];
 			edge_t vptr_end = vertexptrbuffer[vid+1];
 			edge_t edges_size = vptr_end - vptr_begin;
+			if(vptr_end < vptr_begin){ continue; } // FIXME.
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
+				#ifdef _DEBUGMODE_CHECKS
+				checkoutofbounds("utility::runsssp_sw.vptr_begin + k", vptr_begin + k, 91042010, vid, vptr_begin, vptr_end);
+				#endif
 				
-				unsigned int res = labels[vid] + ew;
+				unsigned int res = labels[vid] + ew; // CRITICAL REMOVEME.
 				if(res < labels[dstvid]){
 					#ifdef _DEBUGMODE_KERNELPRINTS
 					cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
+					#endif
+					#ifdef _DEBUGMODE_CHECKS3
+					checkoutofbounds("utility::runsssp_sw.dstvid", dstvid, KVDATA_RANGE, NAp, NAp, NAp);
 					#endif
 					
 					labels[dstvid] = res;
@@ -912,6 +912,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 				}
 			}
 		}
+		// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<activevertices.size()<<" (actvvsdstv1_sum: "<<actvvsdstv1_sum<<")"<<endl;

@@ -116,28 +116,28 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 # LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
 # LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:DDR[0] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:DDR[1] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:DDR[2] 
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:DDR[3]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:DDR[0] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:DDR[1] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:DDR[2] 
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:DDR[3]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:bank0
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:bank1 
@@ -169,7 +169,7 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
+	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 

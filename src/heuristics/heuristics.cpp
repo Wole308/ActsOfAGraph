@@ -45,16 +45,16 @@ heuristicstype_t heuristics::gettype(unsigned int algorithmID, unsigned int grap
 	#ifdef ACTGRAPH_SETUP
 	#ifdef PR_ALGORITHM
 	type = STREAMING_ACCESS_TYPE;
-	numvertexbanks = NUMSSDPARTITIONS;
-	numedgebanks = NUMSSDPARTITIONS;
+	numvertexbanks = 1;
+	numedgebanks = 1;
 	#else
 	if(num_active_vertices > SWITCHTTHRESHOLD){
 		type = STREAMING_ACCESS_TYPE;
-		numvertexbanks = NUMSSDPARTITIONS;
-		numedgebanks = NUMSSDPARTITIONS;
+		numvertexbanks = 1;
+		numedgebanks = 1;
 	} else {
 		type = PARTIAL_ACCESS_TYPE;
-		numvertexbanks = NUMSSDPARTITIONS;
+		numvertexbanks = 1;
 		numedgebanks = 1;
 	}
 	#endif	
@@ -73,21 +73,7 @@ unsigned int heuristics::getdefaultnumvertexbanks(){
 	return 1;
 }
 unsigned int heuristics::getdefaultnumedgebanks(){	
-	return NUMSSDPARTITIONS;
-	/* #ifdef ACTGRAPH_SETUP
-	#if defined(PR_ALGORITHM)
-	return NUMSSDPARTITIONS;
-	#else 
 	return 1;
-	#endif
-	#endif 
-	#ifdef GRAFBOOST_SETUP
-	#if defined(PR_ALGORITHM)
-	return 1;
-	#else 
-	return 1;
-	#endif
-	#endif */
 }
 
 

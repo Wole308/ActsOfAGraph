@@ -8,7 +8,6 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
 #include "../../kernels/kernel.h"
-#include "procedges.h"
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"

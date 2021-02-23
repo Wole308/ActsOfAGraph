@@ -145,7 +145,7 @@ private:
 	value_t * tempvertexdatabuffer;
 	vertexprop_t * vertexpropertybuffer;
 	edge_t * vertexptrbuffer; 
-	unsigned long * totalkeyvaluesread[MAXNUMSSDPARTITIONS];
+	unsigned long * totalkeyvaluesread[1];
 	unsigned int * vertexisactivebitbuffer;
 };
 #endif

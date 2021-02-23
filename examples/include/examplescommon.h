@@ -13,8 +13,8 @@ typedef struct {
 	unsigned int batchoffset[NUMSUBCPUTHREADS];
 	unsigned int batchsize[NUMSUBCPUTHREADS];
 	unsigned int runsize[NUMSUBCPUTHREADS]; 
-	unsigned int numedgesretrieved[NUMSSDPARTITIONS];
-	unsigned int totalnumedgesinfile[NUMSSDPARTITIONS];
+	unsigned int numedgesretrieved[1];
+	unsigned int totalnumedgesinfile[1];
 	edge_t * vertexptrs[NUMSUBCPUTHREADS];
 	edge2_type * edgesbuffer[NUMSUBCPUTHREADS];
 	edge_t tempvertexptrs[NUMSUBCPUTHREADS][2];

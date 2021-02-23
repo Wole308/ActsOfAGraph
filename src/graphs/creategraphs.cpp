@@ -33,6 +33,8 @@
 using namespace std;
 #define YES
 
+unsigned int globalerrorfound1;
+
 creategraphs::creategraphs(unsigned int datasetid){
 	algorithm * algorithmobj = new algorithm();
 	heuristics * heuristicsobj = new heuristics();
@@ -86,7 +88,8 @@ void creategraphs::createdatastructures(){
 		lvertexindegrees[j] = new edge_t[KVDATA_RANGE];
 		vertexptrs[j] = new edge_t[KVDATA_RANGE];
 	}
-	for(unsigned int i=0; i<NUMSSDPARTITIONS; i++){ firstedge[i].srcvid = INVALIDDATA; firstedge[i].dstvid = INVALIDDATA;  }
+	firstedge[0].srcvid = INVALIDDATA; 
+	firstedge[0].dstvid = INVALIDDATA; 
 } 
 void creategraphs::resetdatastructures(unsigned int _groupid){
 	cout<<"~creategraphs::resetting structures..."<<endl;
@@ -99,7 +102,8 @@ void creategraphs::resetdatastructures(unsigned int _groupid){
 		numedges[i] = 0;
 		totalnumedgeswritten[i] = 0;
 	}
-	for(unsigned int i=0; i<NUMSSDPARTITIONS; i++){ firstedge[i].srcvid = INVALIDDATA; firstedge[i].dstvid = INVALIDDATA;  }
+	firstedge[0].srcvid = INVALIDDATA; 
+	firstedge[0].dstvid = INVALIDDATA; 
 	groupid = _groupid;
 } 
 
@@ -118,6 +122,8 @@ void creategraphs::start(){
 	edge_t linecount = 0;
 	edge_t alllinecount = 0;
 	vertex_t prevsrcv = 0;
+	
+	globalerrorfound1 = 0;
 	
 	// create graph
 	if (file_graph.is_open()) {
@@ -156,6 +162,7 @@ void creategraphs::start(){
 				#endif
 				
 				unsigned int col = getbank(local_dstv);
+				if(col > 0){ continue; } // FIXME.
 				
 				#ifdef _DEBUGMODE_CHECKS
 				if (linecount < 16){ cout<<"creategraphs:: gedge: ["<<local_srcv<<","<<local_dstv<<"]"<<endl; }
@@ -418,8 +425,13 @@ void creategraphs::writevertexptrstofile(){
 
 unsigned int creategraphs::getbank(vertex_t vertexid){
 	unsigned int bank;
-	bank = vertexid / KVDATA_RANGE_PERSSDPARTITION;
-	if(bank >= graphobj->getnumedgebanks()){ cout<<"creategraphs:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", graphobj->getdataset().num_vertices: "<<graphobj->getdataset().num_vertices<<", graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl; exit(EXIT_FAILURE); }  	
+	bank = vertexid / KVDATA_RANGE;
+	if(bank >= graphobj->getnumedgebanks()){
+		cout<<"creategraphs:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", graphobj->getdataset().num_vertices: "<<graphobj->getdataset().num_vertices<<", graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl;
+		if(globalerrorfound1++ > 10000){ exit(EXIT_FAILURE); }
+		// exit(EXIT_FAILURE); 
+		bank = 0;
+	}  	
 	return bank;	
 }
 unsigned int creategraphs::getgroup(unsigned int vid){

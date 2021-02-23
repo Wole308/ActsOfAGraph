@@ -70,7 +70,6 @@ runsummary_t pagerank::run(){
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
-	// tempvertexdatabuffer = graphobj->generatetempverticesdata();
 	graphobj->openfilesforreading(0);
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0)); 
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0); 

@@ -18,7 +18,7 @@ public:
 	
 private:
 	graph * graphobj;
-	unsigned long * totalkeyvaluesread[MAXNUMSSDPARTITIONS][MAXNUMSSDPARTITIONS];
+	unsigned long * totalkeyvaluesread[1][1];
 	long double kerneltime_ms;
 	long double totalprocessedgestime_ms;
 	long double totalcummvstime_ms;

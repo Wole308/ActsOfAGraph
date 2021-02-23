@@ -70,7 +70,7 @@ void sssp::finish(){
 
 runsummary_t sssp::run(){
 	long double totaltime_ms = 0;
-	#ifdef SSSP_ALGORITHM
+	// #ifdef SSSP_ALGORITHM
 	cout<<"sssp::run:: sssp algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
@@ -80,7 +80,7 @@ runsummary_t sssp::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 12; // 4,6,12
+	unsigned int NumGraphIters = 3; // 4,6,12
 	container_t container;
 	vector<value_t> activevertices;
 
@@ -100,7 +100,7 @@ runsummary_t sssp::run(){
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
 	#ifdef DISPATCHTYPE_SYNC
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE); }
-	#endif 
+	#endif
 	
 	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
 	
@@ -123,7 +123,7 @@ runsummary_t sssp::run(){
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
-	#endif 
+	// #endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices){
@@ -131,7 +131,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 	for(unsigned int num_its=start; num_its<start+size; num_its++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
 
-		cout<<"sssp::experiements: resetting kvdram & kvdram workspaces..."<<endl; // CRITICAL REMOVEME.
+		cout<<"sssp::experiements: resetting kvdram & kvdram workspaces..."<<endl;
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAM_KVS], KVDRAMSZ);
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], KVDRAMWORKSPACESZ);
@@ -140,7 +140,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
 		loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, container); 
 		
-		loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, BREADTHFIRSTSEARCH);
+		loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, SSSP);
 		loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, evalid);
 		
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -154,7 +154,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		statsobj->timingandsummary(num_its, totaltime_ms);
 		if(num_its > swnum_its){ break; } 
 	}
-	verifyresults(kvbuffer[3]);
+	verifyresults(kvbuffer[0]);
 	return;
 }
 
@@ -182,13 +182,13 @@ void sssp::verifyresults(uint512_vec_dt * kvdram){
 				
 				if(vdata1 < 64){
 					#ifdef _DEBUGMODE_HOSTPRINTS
-					cout<<"sssp:verifyresults: vid1: "<<vid1<<endl;
+					cout<<"sssp:verifyresults: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
 					#endif 
 					vdatas[vdata1] += 1; 
 				}
 				if(vdata2 < 64){
 					#ifdef _DEBUGMODE_HOSTPRINTS
-					cout<<"sssp:verifyresults: vid2: "<<vid2<<endl;
+					cout<<"sssp:verifyresults: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
 					#endif
 					vdatas[vdata2] += 1; 
 				}
@@ -198,7 +198,6 @@ void sssp::verifyresults(uint512_vec_dt * kvdram){
 	utilityobj->printvalues("sssp::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
 	return;
 }
-
 
 
 

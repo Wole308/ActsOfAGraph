@@ -156,7 +156,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -165,7 +165,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
@@ -576,8 +576,9 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		for numsubcputhreads in $NUMTHREADS_EQ4
-		# for numsubcputhreads in $NUMTHREADS_EQ12
+		# for numsubcputhreads in $NUMTHREADS_EQ4
+		for numsubcputhreads in $NUMTHREADS_EQ12
+		# for numsubcputhreads in $NUMTHREADS_EQ14
 		# for numsubcputhreads in $NUMTHREADS_EQ16
 		
 		do
@@ -590,8 +591,8 @@ do
 				
 				# for dataset in $NODATASET
 				# for dataset in $HOLLYWOOD_1M_57M
-				# for dataset in $KRON21_2M_91M
-				for dataset in $ORKUT_3M_106M #
+				for dataset in $KRON21_2M_91M #
+				# for dataset in $ORKUT_3M_106M #
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M

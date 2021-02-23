@@ -17,7 +17,6 @@
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
-#include "procedges.h"
 #include "setupkernel.h"
 using namespace std;
 
@@ -213,7 +212,6 @@ void setupkernel::loadSRstructures(){
 	vertex_values = new VertexValues<uint32_t,uint32_t>(tmp_dir, vertex_count, 0xffffffff, &is_active, &finalize_program, max_vertexval_thread_count);
 	#endif 
 }
-
 
 void setupkernel::startSRteration(){
 	string tmp_dir = graphobj->gettmp_dir();

@@ -24,7 +24,7 @@ evalparams::evalparams(){}
 evalparams::~evalparams(){} 
 
 void evalparams::loadevalparams(unsigned int testid, uint512_vec_dt * kvstats){
-	#if defined(INMEMORYGP) && defined(PR_ALGORITHM)
+	/* #if defined(INMEMORYGP) && defined(PR_ALGORITHM)
 	// 'NB: first param 1 is standard, second param is: 1=procactvvs+partition, 2=procactvvs+partition+partition...'
 	if(testid == 0){ 
 		cout<<"loadevalparams pr:: general evaluation."<<endl;
@@ -37,9 +37,9 @@ void evalparams::loadevalparams(unsigned int testid, uint512_vec_dt * kvstats){
 		cout<<"loadevalparams pr:: no evaluation (TEST "<<testid<<"). exiting..."<<endl;
 		exit(EXIT_FAILURE);
 	}
-	#endif
+	#endif */
 	
-	#if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
+	/* #if defined(INMEMORYGP) && defined(BFS_ALGORITHM)
 	// 'NB: first param 1 is standard, second param is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
 	if(testid == 0){
 		cout<<"loadevalparams bfs:: general evaluation."<<endl;
@@ -74,8 +74,8 @@ void evalparams::loadevalparams(unsigned int testid, uint512_vec_dt * kvstats){
 	#endif
 	
 	#if defined(INMEMORYGP) && defined(SSSP_ALGORITHM)
-	// 'NB: first param 1 is standard, second param is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...'
-	if(testid == 0){
+	// 'NB: first param 1 is standard, second param is: 1=procactvvs, 2=procactvvs+partition, 3=procactvvs+partition+partition ...' */
+	/* if(testid == 0){
 		cout<<"loadevalparams sssp:: general evaluation."<<endl;
 	} else if(testid == 1){
 		cout<<"loadevalparams sssp:: custom evaluation. evaluating all latency."<<endl;
@@ -104,8 +104,8 @@ void evalparams::loadevalparams(unsigned int testid, uint512_vec_dt * kvstats){
 	} else {
 		cout<<"loadevalparams sssp:: no evaluation (TEST "<<testid<<"). exiting..."<<endl;
 		exit(EXIT_FAILURE);
-	}
-	#endif
+	} */
+	// #endif
 	return;
 }
 

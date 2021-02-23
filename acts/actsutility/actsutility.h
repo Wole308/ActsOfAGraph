@@ -175,7 +175,7 @@ public:
 	unsigned int READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size);
 	void WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value);
 	void WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value);
-	void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
+	// void PUSH(uuint64_dt * longword, unsigned int data, unsigned int databitsz);
 	void PARSE(string message, ulong_dt longword);
 	void PARSE(string message, keyvalue_t keyvalue);
 	unsigned int PARSE(ulong_dt longword, unsigned int * _items);

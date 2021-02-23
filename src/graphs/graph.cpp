@@ -86,8 +86,8 @@ void graph::initgraphstructures(){
 	return;
 }
 void graph::initstatstructures(){
-	for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[j] = new unsigned long[1]; }
-	for(unsigned int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalkeyvaluesread[j][0] = 0; }
+	totalkeyvaluesread[0] = new unsigned long[1];
+	totalkeyvaluesread[0][0] = 0;
 	return;
 }
 
@@ -581,8 +581,8 @@ void graph::loadalldatasets(){
 	_datasets[33].vertices_path_bin = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21_bin.vertices";
 	_datasets[33].edges_path_bin = rootDir + "dataset/kron-g500-logn21/kron-g500-logn21_bin.edges";
 	_datasets[33].min_vertex = 0;
-	_datasets[33].max_vertex = 2097152; 
-	_datasets[33].num_vertices = 2097152;
+	_datasets[33].max_vertex = 2097151; // 2097152
+	_datasets[33].num_vertices = 2097151;
 	_datasets[33].num_edges = 91042010;
 	_datasets[33].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[33].graphorder = DST_SRC; // DST_SRC, SRC_DST;

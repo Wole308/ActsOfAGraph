@@ -6,7 +6,7 @@ import math
 import sys
 import array as arr 
 
-ACTSACCEL1_params = arr.array('i', [1, 4, 1])
+# ACTSACCEL1_params = arr.array('i', [1, 4, 1])
 
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
@@ -36,11 +36,11 @@ context['NUMSUBWORKERS'] = 3#4
 
 EV_PERFORMANCEOFALGORITHM = [0, 1, 2, 3, 4]
 if context['EVALUATION_TYPE'] == "EV_PERFORMANCEOFALGORITHM":
-    context['MAXNUMSSDPARTITIONS_POW'] = EV_PERFORMANCEOFALGORITHM[context['EVALUATION_PARAM0']]
+    context['VECTOR_SIZE'] = 8
         
 EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
-    context['MAXNUMSSDPARTITIONS_POW'] = EV_IMPACTOFRANGE[context['EVALUATION_PARAM0']]
+    context['VECTOR_SIZE'] = 8
 
 EV_IMPACTOFPARTITIONFANOUT = [3, 4, 5, 6, 7, 8]
 if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT":
@@ -60,7 +60,7 @@ if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS":
     
 EV_CREATENDGRAPH = [0, 1, 2, 3, 4]
 if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
-    context['MAXNUMSSDPARTITIONS_POW'] = EV_CREATENDGRAPH[context['EVALUATION_PARAM0']]
+    context['VECTOR_SIZE'] = 8
     
 if context['DATASET'] == "_ORKUT_3M_106M": # small dataset
     context['KVDATA_RANGE_POW'] = 22
@@ -116,16 +116,10 @@ context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
 context['NUMDRAMBANKS'] = 4
 context['NUMWORKERS'] = 1
-context['BUNDLEFACTOR'] = ACTSACCEL1_params[2]
 context['NUMPEFUNCS'] = 8
-context['NUMWORKERS_APPLYPH'] = 1
-context['NUMSUBWORKERS_APPLYPH'] = ACTSACCEL1_params[1] 
-context['BUNDLEFACTOR_APPLYPH'] = 1
-context['NUMPARTIALRESULTS'] = 4
 context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
-context['KERNELNAME'] = "ACTS" # "TRADITIONAL"
+context['KERNELNAME'] = "ACTS"
 context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
-context['MAXNUMSSDPARTITIONS'] = 2**context['MAXNUMSSDPARTITIONS_POW']
 context['NUMCOMPUTEUNITS'] = context['NUMSUBCPUTHREADS']
     
 print ('Generating sources... ')
@@ -146,10 +140,6 @@ print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))
 print ('NUMWORKERS: ' + str(context['NUMWORKERS'])) 
 print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
-print ('BUNDLEFACTOR: ' + str(context['BUNDLEFACTOR'])) 
-print ('NUMWORKERS_APPLYPH: ' + str(context['NUMWORKERS_APPLYPH'])) 
-print ('NUMSUBWORKERS_APPLYPH: ' + str(context['NUMSUBWORKERS_APPLYPH'])) 
-print ('BUNDLEFACTOR_APPLYPH: ' + str(context['BUNDLEFACTOR_APPLYPH'])) 
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 	
 o_path0="acts/acts/acts.cpp"
@@ -240,69 +230,15 @@ for i in range (0,(context['NUMINSTANCES'])):
 context['NUMWORKERS_seq'] = []
 for i in range (0,(context['NUMWORKERS'])):
 		context['NUMWORKERS_seq'].append(i)   
-		
-context['NUMWORKERS_APPLYPH_seq'] = []
-for i in range (0,(context['NUMWORKERS_APPLYPH'])):
-		context['NUMWORKERS_APPLYPH_seq'].append(i)   
 
 context['NUMSUBWORKERS_seq'] = []
 for i in range (0,(context['NUMSUBWORKERS'])):
 		context['NUMSUBWORKERS_seq'].append(i)
-		
-context['NUMSUBWORKERS_APPLYPH_seq'] = []
-for i in range (0,(context['NUMSUBWORKERS_APPLYPH'])):
-		context['NUMSUBWORKERS_APPLYPH_seq'].append(i)
-		
-context['BUNDLEFACTOR_seq'] = []
-for i in range (0,(context['BUNDLEFACTOR'])):
-		context['BUNDLEFACTOR_seq'].append(i)
-		
-if context['BUNDLEFACTOR'] == 1:
-	context['BUNDLEFACTOR_lseq'] = []
-	for i in range (0,(context['NUMWORKERS'])):
-			context['BUNDLEFACTOR_lseq'].append(0)
-else:
-	context['BUNDLEFACTOR_lseq'] = []
-	for i in range (0,(context['NUMWORKERS'])):
-			context['BUNDLEFACTOR_lseq'].append(i)
 
-if context['BUNDLEFACTOR_APPLYPH'] == 1:
-	context['BUNDLEFACTOR_APPLYPH_lseq'] = []
-	for i in range (0,(context['NUMWORKERS_APPLYPH'])):
-			context['BUNDLEFACTOR_APPLYPH_lseq'].append(0)
-else:
-	context['BUNDLEFACTOR_APPLYPH_lseq'] = []
-	for i in range (0,(context['NUMWORKERS_APPLYPH'])):
-			context['BUNDLEFACTOR_APPLYPH_lseq'].append(i)
-
-context['NUMPEFUNCS_seq'] = []
-for i in range (0,(context['NUMPEFUNCS'])):
-		context['NUMPEFUNCS_seq'].append(i)
-		
-context['MAXNUMSSDPARTITIONS_seq'] = []
-for i in range (0,(context['MAXNUMSSDPARTITIONS'])):
-		context['MAXNUMSSDPARTITIONS_seq'].append(i)
-		
-context['NUMWORKERS_FROM2nd_seq'] = []
-for i in range (1,(context['NUMWORKERS'])):
-		context['NUMWORKERS_FROM2nd_seq'].append(i)   
-		
 context['NUM_PARTITIONS_seq'] = []
 for i in range (0,(context['NUM_PARTITIONS'])):
 		context['NUM_PARTITIONS_seq'].append(i)
-		
-context['NUMPARTIALRESULTS_seq'] = []
-for i in range (0,(context['NUMPARTIALRESULTS'])):
-		context['NUMPARTIALRESULTS_seq'].append(i)
-		
-context['NUMPARTITIONS_seq'] = []
-for i in range (0,(context['NUM_PARTITIONS'])):
-		context['NUMPARTITIONS_seq'].append(i)   
-        
-context['NUMSUBWORKERSPERVECTOR_seq'] = []
-for i in range (0,(context['NUMSUBWORKERSPERVECTOR'])):
-		context['NUMSUBWORKERSPERVECTOR_seq'].append(i)
-        
+
 context['64_seq'] = []
 for i in range (0,64):
 		context['64_seq'].append(i)

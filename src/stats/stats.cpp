@@ -39,7 +39,7 @@ void stats::appendapplyvstimeelapsed(long double timeelapsed_ms){
 }
 unsigned long stats::gettotalkeyvaluesread(){
 	unsigned long totalsize = 0;
-	for (int j = 0; j < MAXNUMSSDPARTITIONS; j++){ totalsize += graphobj->gettotalkeyvaluesread(j); }
+	totalsize += graphobj->gettotalkeyvaluesread(0);
 	return totalsize;
 }
 runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long double totaltime_ms){
@@ -53,7 +53,7 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	long double totaltime_Kernel_ms = time_KernelPre_ms + time_Kernel_ms + time_KernelPost_ms;
 	long double totaltime_OverallProcessing_ms = totaltime_SSDtransfers_ms + totaltime_OCLtransfers_ms + totaltime_Kernel_ms;
 
-	for (int j = 0; j < NUMSSDPARTITIONS; j++){ cout<<">>> stats::summary Total number of kvReads in bank ["<<j<<"]: "<<graphobj->gettotalkeyvaluesread(j)<<endl; }
+	cout<<">>> stats::summary Total number of kvReads in bank [0]: "<<graphobj->gettotalkeyvaluesread(0)<<endl; 
 	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total number of kvReads for all threads: "<<gettotalkeyvaluesread()<< RESET <<endl;
 	
 	cout <<">>> stats::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms << " milliseconds"  <<endl;
