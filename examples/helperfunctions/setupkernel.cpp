@@ -8,7 +8,6 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-#include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -21,7 +20,6 @@
 using namespace std;
 
 setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
-	parametersobj = new parameters();
 	utilityobj = new utility();
 	graphobj = _graphobj;
 	algorithmobj = new algorithm();

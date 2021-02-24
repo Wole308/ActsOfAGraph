@@ -70,10 +70,8 @@ HOST_SRCS += examples/bfs/bfs.cpp
 HOST_SRCS += examples/sssp/sssp.cpp
 HOST_SRCS += examples/test/test.cpp
 HOST_SRCS += src/graphs/graph.cpp
-HOST_SRCS += src/heuristics/heuristics.cpp
 HOST_SRCS += src/stats/stats.cpp
 HOST_SRCS += src/utility/utility.cpp
-HOST_SRCS += src/parameters/parameters.cpp
 HOST_SRCS += src/dataset/dataset.cpp
 HOST_SRCS += kernels/kernel.cpp
 HOST_SRCS += kernels/swkernel.cpp
@@ -128,10 +126,10 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:DDR[0] 
@@ -169,7 +167,7 @@ $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 

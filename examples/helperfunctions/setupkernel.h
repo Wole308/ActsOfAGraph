@@ -2,7 +2,6 @@
 #define SETUPKERNEL_H
 #include <mutex>
 #include <thread>
-#include "../../src/parameters/parameters.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -38,7 +37,6 @@ private:
 	#ifdef GRAFBOOST_SETUP
 	sr * srkernelobj;
 	#endif
-	parameters * parametersobj;
 	utility * utilityobj;
 	graph * graphobj;
 	algorithm * algorithmobj;

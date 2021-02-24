@@ -79,7 +79,7 @@ uint32_t algorithm::apply(value_t vtempdata, value_t vdata) {
 	// return (0.1 + ((1 − 0.1) * vtempdata)); // / vprop.outdegree;
 }
 #endif 
-/* #ifdef BFS_ALGORITHM
+#ifdef BFS_ALGORITHM
 uint32_t algorithm::vertex_update(uint32_t a, uint32_t b) {
 	uint32_t ret = a;
 	return ret;
@@ -109,7 +109,7 @@ uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
 	return vtempdata;
 }
 #endif 
-#ifdef SSSP_ALGORITHM */
+#ifdef SSSP_ALGORITHM
 uint32_t algorithm::vertex_update(uint32_t a, uint32_t b) {
 	uint32_t ret = a;
 	return ret;
@@ -140,7 +140,7 @@ uint32_t algorithm::apply(value_t vtempdata, value_t vdata){
 	// if(vtempdata < vdata){ return vtempdata; }
 	// else { return vdata; }
 }
-// #endif 
+#endif 
 
 
 

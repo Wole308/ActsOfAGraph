@@ -32,11 +32,9 @@ using namespace std;
 
 sssp::sssp(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
-	heuristics * heuristicsobj = new heuristics();
-	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
+	graphobj = new graph(thisalgorithmobj, datasetid, 1, true, true, true);
 	statsobj = new stats(graphobj);
 	algorithmobj = new algorithm();
-	parametersobj = new parameters(); 
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
@@ -70,7 +68,6 @@ void sssp::finish(){
 
 runsummary_t sssp::run(){
 	long double totaltime_ms = 0;
-	// #ifdef SSSP_ALGORITHM
 	cout<<"sssp::run:: sssp algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
@@ -83,6 +80,7 @@ runsummary_t sssp::run(){
 	unsigned int NumGraphIters = 3; // 4,6,12
 	container_t container;
 	vector<value_t> activevertices;
+	globalparams_t globalparams;
 
 	activevertices.push_back(1);
 	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
@@ -96,37 +94,43 @@ runsummary_t sssp::run(){
 	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
 	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 	
-	// load workload
-	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
-	#ifdef DISPATCHTYPE_SYNC
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE); }
-	#endif
+	// load workload information
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
 	
-	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, SSSP);
+	// edges & vptrs
+	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BFS, globalparams);
 	
-	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container); 
+	// vertex data
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE, globalparams); }
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices, globalparams); }
 	
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices); }
-	loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, &container);
-	loadgraphobj->generatevmaskdata(activevertices, kvbuffer);
+	// active vertices & masks
+	// globalparams = loadgraphobj->loadactvvertices(activevertices, kvbuffer, container, globalparams);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(activevertices, (keyy_t *)&kvbuffer[i], &container, globalparams); }
+	globalparams = loadgraphobj->generatevmaskdata(activevertices, kvbuffer, globalparams);
 	
-	loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, SSSP);
+	// workspace info 
+	globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container, globalparams); 
+	
+	// messages
+	globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BFS, globalparams);
+	
+	// others
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
-
+	
 	// experiements
-	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices); // full run
-	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs
-	// experiements(2, 0, NumGraphIters, NumGraphIters, &container, activevertices); // N full runs, isolating partition & reduce phases
+	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices, globalparams); // full run
+	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices, globalparams); // N full runs
+	// experiements(2, 0, NumGraphIters, NumGraphIters, &container, activevertices, globalparams); // N full runs, isolating partition & reduce phases
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
-	// #endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
-void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices){
+void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices, globalparams_t globalparams){
 	unsigned int swnum_its = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	for(unsigned int num_its=start; num_its<start+size; num_its++){
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> sssp::run: sssp evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
@@ -137,10 +141,7 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][BASEOFFSET_KVDRAMWORKSPACE_KVS], KVDRAMWORKSPACESZ);
 		}
 
-		loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE); 
-		loadgraphobj->loadactvvertices(activevertices, (keyy_t *)vdram, container); 
-		
-		loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, SSSP);
+		globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, SSSP, globalparams);
 		loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, evalid);
 		
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -154,11 +155,11 @@ void sssp::experiements(unsigned int evalid, unsigned int start, unsigned int si
 		statsobj->timingandsummary(num_its, totaltime_ms);
 		if(num_its > swnum_its){ break; } 
 	}
-	verifyresults(kvbuffer[0]);
+	verifyresults(kvbuffer[0], globalparams);
 	return;
 }
 
-void sssp::verifyresults(uint512_vec_dt * kvdram){
+void sssp::verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"sssp::verifyactvvsdata: verifying vertex data... "<<endl;
 	#endif
@@ -169,7 +170,8 @@ void sssp::verifyresults(uint512_vec_dt * kvdram){
 	uint512_vec_dt buff[REDUCEBUFFERSZ];
 	for(unsigned int offset_kvs=0; offset_kvs<VERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
 		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
-			buff[i] = kvdram[BASEOFFSET_VERTICESDATA_KVS + offset_kvs + i];
+			// buff[i] = kvdram[BASEOFFSET_VERTICESDATA_KVS + offset_kvs + i];
+			buff[i] = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + offset_kvs + i];
 		}
 		
 		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){

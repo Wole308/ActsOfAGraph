@@ -25,7 +25,6 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
-#include "../../src/heuristics/heuristics.h"
 #include "../../include/common.h"
 #include "../../include/host_common.h"
 #include "mysort.h"
@@ -37,9 +36,8 @@ unsigned int globalerrorfound1;
 
 creategraphs::creategraphs(unsigned int datasetid){
 	algorithm * algorithmobj = new algorithm();
-	heuristics * heuristicsobj = new heuristics();
 	utilityobj = new utility();
-	graphobj = new graph(algorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, false, false);
+	graphobj = new graph(algorithmobj, datasetid, 1, true, false, false);
 	mysortobj = new mysort(graphobj);
 	
 	cout<<"creategraphs:: constructor called: creating structures... "<<endl;

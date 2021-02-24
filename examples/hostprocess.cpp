@@ -13,7 +13,6 @@
 #include "../examples/pagerank/pagerank.h"
 #include "../examples/bfs/bfs.h"
 #include "../examples/sssp/sssp.h"
-// #include "../examples/advance_op/advance_op.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"
 #include "../include/common.h"
@@ -55,14 +54,14 @@ int main(int argc, char** argv){
 	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);	
 	pagerankobj->run();
 	#endif
-	// #if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	// bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
-	// bfsobj->run();
-	// #endif
-	// #if (defined(SSSP_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
+	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
+	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+	bfsobj->run();
+	#endif
+	#if (defined(SSSP_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
 	sssp * ssspobj = new sssp(NAp, datasetobj->getdatasetid(), binaryFile);
 	ssspobj->run();
-	// #endif
+	#endif
 	#if (defined(ADVANCE_ALGORITHM))
 	advance_op * advanceobj = new advance_op(NAp, datasetobj->getdatasetid(), binaryFile);
 	advanceobj->run();

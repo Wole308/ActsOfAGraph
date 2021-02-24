@@ -17,7 +17,6 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
-// #include "../../examples/helperfunctions/evalparams.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -26,14 +25,11 @@ using namespace std;
 
 pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
-	heuristics * heuristicsobj = new heuristics();
-	graphobj = new graph(thisalgorithmobj, datasetid, heuristicsobj->getdefaultnumedgebanks(), true, true, true);
+	graphobj = new graph(thisalgorithmobj, datasetid, 1, true, true, true);
 	statsobj = new stats(graphobj);
-	parametersobj = new parameters(); 
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj); 
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
-	// evalparamsobj = new evalparams();
 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }
@@ -65,7 +61,6 @@ void pagerank::finish(){
 
 runsummary_t pagerank::run(){
 	long double totaltime_ms = 0;
-	#ifdef PR_ALGORITHM
 	cout<<"pagerank::run:: pagerank algorithm started. "<<endl;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
@@ -76,20 +71,29 @@ runsummary_t pagerank::run(){
 
 	container_t container;
 	vector<value_t> activevertices;
-
-	// load workload
-	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE);
-	#ifdef DISPATCHTYPE_SYNC
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE); }
-	#endif 
+	globalparams_t globalparams;
 	
-	loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK);
+	// load workload information
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
 	
-	loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container);
+	// edges & vptrs
+	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, PAGERANK, globalparams);				
 	
-	loadgraphobj->generatevmaskdata(activevertices, kvbuffer); //
+	// vertex data
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE, globalparams); }
 	
-	loadgraphobj->loadmessages(vdram, (uint512_vec_dt **)kvbuffer, &container, 1, PAGERANK);
+	// active vertices & masks
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(activevertices, (keyy_t *)&kvbuffer[i], &container, globalparams); }
+	// globalparams = loadgraphobj->loadactvvertices(activevertices, kvbuffer, container, globalparams);
+	globalparams = loadgraphobj->generatevmaskdata(activevertices, kvbuffer, globalparams); //
+	
+	// workspace info 
+	globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container, globalparams); 
+	
+	// messages
+	globalparams = loadgraphobj->loadmessages(vdram, (uint512_vec_dt **)kvbuffer, &container, 1, PAGERANK, globalparams);
+	
+	// others
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
@@ -103,7 +107,6 @@ runsummary_t pagerank::run(){
 	graphobj->closefilesforreading();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
-	#endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 

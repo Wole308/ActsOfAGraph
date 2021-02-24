@@ -18,19 +18,17 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices);
+	void experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices, globalparams_t globalparams);				
 	
-	void verifyresults(uint512_vec_dt * kvdram);
+	void verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams);
 	
 private:
 	graph * graphobj;
-	parameters * parametersobj;
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
 	setupkernel * setupkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
-	hostglobalparams_t globalparams;
 	
 	edge_t * vertexptrbuffer;
 	value_t * vertexdatabuffer;

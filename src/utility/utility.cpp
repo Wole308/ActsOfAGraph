@@ -883,6 +883,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 			edge_t vptr_end = vertexptrbuffer[vid+1];
 			edge_t edges_size = vptr_end - vptr_begin;
 			if(vptr_end < vptr_begin){ continue; } // FIXME.
+			// cout<<"utility::runsssp_sw: edges_size: "<<edges_size<<endl;
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;

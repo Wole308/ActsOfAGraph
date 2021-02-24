@@ -8,7 +8,6 @@
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
-#include "../../src/heuristics/heuristics.h"
 #include "../../include/common.h"
 #include "../../include/host_common.h"
 #include "mysort.h"
