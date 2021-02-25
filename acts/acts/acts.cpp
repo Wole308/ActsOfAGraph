@@ -962,10 +962,9 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][BLOCKR
 			cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. (globalcapsule["<<i<<"].key("<<globalcapsule[i].key<<") + globalcapsule["<<i<<"].value("<<globalcapsule[i].value<<") >= globalcapsule["<<i+1<<"].key("<<globalcapsule[i+1].key<<")) printing and exiting..."<<endl; 
 			actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 34", globalcapsule, NUM_PARTITIONS); 
 			exit(EXIT_FAILURE); 
-		}			
-		// actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 35", globalcapsule[i].key + globalcapsule[i].value, globalcapsule[i+1].key, i, globalcapsule[i].value, NAp); 
+		}
 	}
-	if(globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value >= KVDRAMSZ){ 
+	if(globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value >= globalparams.SIZE_KVDRAM){ // KVDRAMSZ){ 
 		cout<<"savekeyvalues::globalcapsule 36. ERROR. out of bounds. (globalcapsule["<<NUM_PARTITIONS-1<<"].key("<<globalcapsule[NUM_PARTITIONS-1].key<<") + globalcapsule["<<NUM_PARTITIONS-1<<"].value("<<globalcapsule[NUM_PARTITIONS-1].value<<") >= KVDRAMSZ("<<KVDRAMSZ<<")) printing and exiting..."<<endl; 
 		actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 37", globalcapsule, NUM_PARTITIONS); 
 		exit(EXIT_FAILURE); 
@@ -2203,7 +2202,11 @@ void
 	acts::
 	#endif
 reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
-	#pragma HLS PIPELINE II=2 // CRITICAL VHLS FIXME. 
+	#ifdef VERTEXCOLORING
+	#pragma HLS PIPELINE II=2
+	#else 
+	#pragma HLS PIPELINE II=3	
+	#endif 
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 		
 	keyvalue_t keyvalue = kvdata;
@@ -2224,7 +2227,6 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[BLOCKRAM_SIZE], buffer_typ
 	
 	#ifdef VERTEXCOLORING
 	if(keyvalue.key == INVALIDDATA || keyvalue.value == INVALIDDATA){ rowindex = 0; colindex = 0; }
-	// actsutilityobj->checkoutofbounds(ON, "reducevector: destoffset + rowindex", destoffset + rowindex, BLOCKRAM_SIZE, destoffset, rowindex, NAp);
 	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
 	else { destbuffer[destoffset + rowindex].value = 1; }
 	#else
@@ -4254,8 +4256,10 @@ processit(uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		bool_type flush = ON;
 		if(voffset_kvs == avtravstate.begin_kvs){ resetenv = ON; } else { resetenv = OFF; }
 		if((voffset_kvs + (reducebuffersz * FETFACTOR)) >= avtravstate.end_kvs){ flush = ON; } else { flush = OFF; }
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 		resetenv = ON;
 		flush = ON; // CRITICAL FIXME. flushing disabled issues with hollywood
+		#endif 
 		
 		actit(
 			ON, PROCESSMODE,
@@ -4395,7 +4399,7 @@ reduceit(uint512_dt * kvdram, keyvalue_t vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], k
 
 	if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablereduce = OFF; }
 	else { config.enablereduce = ON; }
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3//2
 	if(ptravstate.size_kvs > 0){ actsutilityobj->print7("### reduceit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 	#endif
 	bool_type resetenv; if(source_partition==0){ resetenv = ON; } else { resetenv = OFF; }

@@ -764,10 +764,9 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[8][BLOCKR
 			cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. (globalcapsule["<<i<<"].key("<<globalcapsule[i].key<<") + globalcapsule["<<i<<"].value("<<globalcapsule[i].value<<") >= globalcapsule["<<i+1<<"].key("<<globalcapsule[i+1].key<<")) printing and exiting..."<<endl; 
 			actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 34", globalcapsule, NUM_PARTITIONS); 
 			exit(EXIT_FAILURE); 
-		}			
-		// actsutilityobj->checkoutofbounds("savekeyvalues::globalcapsule 35", globalcapsule[i].key + globalcapsule[i].value, globalcapsule[i+1].key, i, globalcapsule[i].value, NAp); 
+		}
 	}
-	if(globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value >= KVDRAMSZ){ 
+	if(globalcapsule[NUM_PARTITIONS-1].key + globalcapsule[NUM_PARTITIONS-1].value >= globalparams.SIZE_KVDRAM){ // KVDRAMSZ){ 
 		cout<<"savekeyvalues::globalcapsule 36. ERROR. out of bounds. (globalcapsule["<<NUM_PARTITIONS-1<<"].key("<<globalcapsule[NUM_PARTITIONS-1].key<<") + globalcapsule["<<NUM_PARTITIONS-1<<"].value("<<globalcapsule[NUM_PARTITIONS-1].value<<") >= KVDRAMSZ("<<KVDRAMSZ<<")) printing and exiting..."<<endl; 
 		actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 37", globalcapsule, NUM_PARTITIONS); 
 		exit(EXIT_FAILURE); 
@@ -1480,7 +1479,11 @@ void
 	acts::
 	#endif
 reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
-	#pragma HLS PIPELINE II=2 // CRITICAL VHLS FIXME. 
+	#ifdef VERTEXCOLORING
+	#pragma HLS PIPELINE II=2
+	#else 
+	#pragma HLS PIPELINE II=3	
+	#endif 
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 		
 	keyvalue_t keyvalue = kvdata;
@@ -1501,7 +1504,6 @@ reducevector(keyvalue_t kvdata, keyvalue_t destbuffer[BLOCKRAM_SIZE], buffer_typ
 	
 	#ifdef VERTEXCOLORING
 	if(keyvalue.key == INVALIDDATA || keyvalue.value == INVALIDDATA){ rowindex = 0; colindex = 0; }
-	// actsutilityobj->checkoutofbounds(ON, "reducevector: destoffset + rowindex", destoffset + rowindex, BLOCKRAM_SIZE, destoffset, rowindex, NAp);
 	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
 	else { destbuffer[destoffset + rowindex].value = 1; }
 	#else

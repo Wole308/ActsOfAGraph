@@ -1490,7 +1490,7 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	// #endif 
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	if(globalstats_getcounterrorsinreduce() > 40000){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
+	if(globalstats_getcounterrorsinreduce() > (40000 * NUMSUBWORKERS)){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
 	#endif 
 	#endif
 	return;
