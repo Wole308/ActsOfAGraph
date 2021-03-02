@@ -147,7 +147,7 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -156,7 +156,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -593,12 +593,12 @@ do
 				# for dataset in $NODATASET
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $KRON21_2M_91M #
-				# for dataset in $ORKUT_3M_106M #
+				for dataset in $ORKUT_3M_106M #
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M
 				# for dataset in $FLICKR_1M_10M
-				for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $ORKUT_3M_106M
+				# for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $ORKUT_3M_106M
 				
 				# for dataset in $TWITTER_67M #
 				# for dataset in $MOLIERE2016_33M
