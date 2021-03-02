@@ -30,7 +30,7 @@ void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedra
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
-	#ifdef MULTIACTSINSTANCES
+	#ifdef NACTS_IN_1COMPUTEUNIT
 	// kernelobjs[0]->topkernel((uint512_dt **)kvsourcedram);
 	kernelobjs[0]->topkernel(
 	
@@ -107,11 +107,11 @@ void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedra
 		(uint512_dt *)kvsourcedram[15]
 		#endif 
 		);
-	#else 
+	#endif 
+	
+	#ifdef NACTS_IN_NCOMPUTEUNITS
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		kernelobjs[i]->topkernel((uint512_dt *)kvsourcedram[i]);
-		// exit(EXIT_SUCCESS); 
-		// break;
 	}
 	#endif 
 	
