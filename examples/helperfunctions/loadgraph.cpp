@@ -450,8 +450,8 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 		#endif
 	}
 		
-	globalparams.SIZE_KVDRAM = maxdramsz;
-	globalparams.SIZE_KVDRAMWORKSPACE = maxdramsz;
+	globalparams.SIZE_KVDRAM = maxdramsz + 64;
+	globalparams.SIZE_KVDRAMWORKSPACE = globalparams.SIZE_KVDRAM; // maxdramsz;
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i=0; i<1; i++){
