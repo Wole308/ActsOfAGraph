@@ -377,12 +377,24 @@ typedef struct {
 typedef struct {
 	ap_uint<1> key;
 	ap_uint<1> value;
-} keyvalue2_type;
+} keyvalue1_type;
 #else 
 typedef struct {
 	unsigned int key;
 	unsigned int value;
-} keyvalue2_type;
+} keyvalue1_type;
+#endif
+
+#ifdef _WIDEWORD
+typedef struct {
+	ap_uint<16> key;
+	ap_uint<16> value;
+} keyvalue16_type;
+#else 
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue16_type;
 #endif
 
 typedef struct {
@@ -391,7 +403,7 @@ typedef struct {
 } keyvalue_vec_bittype;
 
 typedef struct {
-	keyvalue2_type data[NUM_PARTITIONS];
+	keyvalue1_type data[NUM_PARTITIONS];
 } uintNUMPby2_type; 
 
 #ifdef _WIDEWORD

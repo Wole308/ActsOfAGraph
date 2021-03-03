@@ -6,8 +6,6 @@ import math
 import sys
 import array as arr 
 
-# ACTSACCEL1_params = arr.array('i', [1, 4, 1])
-
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
 context['XWARE'] = sys.argv[1]

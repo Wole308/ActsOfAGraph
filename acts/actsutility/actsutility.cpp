@@ -209,7 +209,7 @@ void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[NUM_PARTIT
 		cout<<".."<<endl;
 	}
 }
-void actsutility::printkeyvalues(string message, keyvalue2_type keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
+void actsutility::printkeyvalues(string message, keyvalue1_type keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
 	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
 	for(unsigned int v=0; v<numcols; v++){
 		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }

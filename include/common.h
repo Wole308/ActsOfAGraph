@@ -1,13 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -349,12 +346,24 @@ typedef struct {
 typedef struct {
 	ap_uint<1> key;
 	ap_uint<1> value;
-} keyvalue2_type;
+} keyvalue1_type;
 #else 
 typedef struct {
 	unsigned int key;
 	unsigned int value;
-} keyvalue2_type;
+} keyvalue1_type;
+#endif
+
+#ifdef _WIDEWORD
+typedef struct {
+	ap_uint<16> key;
+	ap_uint<16> value;
+} keyvalue16_type;
+#else 
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue16_type;
 #endif
 
 typedef struct {
@@ -363,7 +372,7 @@ typedef struct {
 } keyvalue_vec_bittype;
 
 typedef struct {
-	keyvalue2_type data[NUM_PARTITIONS];
+	keyvalue1_type data[NUM_PARTITIONS];
 } uintNUMPby2_type; 
 
 #ifdef _WIDEWORD
