@@ -525,6 +525,7 @@ void
 calculateoffsets(keyvalue_t * buffer, buffer_type size){
 	unsigned int analysis_size = NUM_PARTITIONS;
 	for(buffer_type i=1; i<size; i++){ 
+	#pragma HLS PIPELINE II=2
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_size avg=analysis_size	
 		buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value); 
 	}
@@ -788,14 +789,20 @@ void
 	acts::
 	#endif 
 resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ buffer[i].value = resetval; }
+	for(buffer_type i=0; i<size; i++){ 
+	#pragma HLS PIPELINE II=1
+		buffer[i].value = resetval; 
+	}
 }
 void 
 	#ifdef SW 
 	acts::
 	#endif 
 resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
-	for(buffer_type i=0; i<size; i++){ buffer[i] = resetval; }
+	for(buffer_type i=0; i<size; i++){ 
+	#pragma HLS PIPELINE II=1
+		buffer[i] = resetval; 
+	}
 }
 void 
 	#ifdef SW 
@@ -1267,11 +1274,12 @@ void
 	acts::
 	#endif 
 readkeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	#pragma HLS INLINE
 	if(enable == OFF){ return; }
 	
 	readkeyvalues(ON, kvdram, offset_kvs, tempbuffer, 0, size_kvs, globalparams);
 	buffer_type index = 0;
-	LOADVMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){ //  * 16
+	LOADVMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=8
 		bitsbuffer[index + 0] = tempbuffer[0][i].key;
 		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
@@ -1300,10 +1308,11 @@ void
 	acts::
 	#endif 
 savekeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	#pragma HLS INLINE
 	if(enable == OFF){ return; }
 
 	buffer_type index = 0;
-	SAVEVMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){ //  * 16
+	SAVEVMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=8
 		tempbuffer[0][i].key = bitsbuffer[index + 0];
 		tempbuffer[0][i].value = bitsbuffer[index + 0 + 1]; 
@@ -1689,7 +1698,7 @@ void
 loadvmask_p(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
-		vmask_p[i] = kvdram[offset_kvs + i].data[0].range(31, 0);
+		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
 		#else
 		vmask_p[i] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
@@ -5036,6 +5045,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_t buffer_setof1[VECT
 	#pragma HLS ARRAY_PARTITION variable=tempcutoffs complete
 
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	// #pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;
 		capsule_so8[p].value = capsule_so1[0][p].value + capsule_so1[1][p].value 
 									+ capsule_so1[2][p].value + capsule_so1[3][p].value 
@@ -5114,7 +5124,8 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_t buffer_setof1[VECT
 			} else {
 				buffer_setof8[4][yoffset0] = kvA0[0]; buffer_setof8[5][yoffset0] = kvA0[1]; buffer_setof8[6][yoffset0] = kvA0[2]; buffer_setof8[7][yoffset0] = kvA0[3]; 
 			}
-			if(!((kvA0[0].value == INVALIDDATA) && (kvA0[1].value == INVALIDDATA) && (kvA0[2].value == INVALIDDATA) && (kvA0[3].value == INVALIDDATA))){ tempbufferDcapsule[pA0] += 4; }
+			// if(!((kvA0[0].value == INVALIDDATA) && (kvA0[1].value == INVALIDDATA) && (kvA0[2].value == INVALIDDATA) && (kvA0[3].value == INVALIDDATA))){ tempbufferDcapsule[pA0] += 4; }
+			if(kvA0[0].value != INVALIDDATA){ tempbufferDcapsule[pA0] += 4; } // ERROR CHECKPOINT.
 			
 			buffer_type _posD0 = capsule_so8[pA2].key + tempbufferDcapsule[pA2];
 			unsigned int yoffset1 = _posD0 / 8;
@@ -5130,7 +5141,8 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_t buffer_setof1[VECT
 			} else {
 				buffer_setof8[4][yoffset1] = kvA2[0]; buffer_setof8[5][yoffset1] = kvA2[1]; buffer_setof8[6][yoffset1] = kvA2[2]; buffer_setof8[7][yoffset1] = kvA2[3]; 
 			}
-			if(!((kvA2[0].value == INVALIDDATA) && (kvA2[1].value == INVALIDDATA) && (kvA2[2].value == INVALIDDATA) && (kvA2[3].value == INVALIDDATA))){ tempbufferDcapsule[pA2] += 4; }
+			// if(!((kvA2[0].value == INVALIDDATA) && (kvA2[1].value == INVALIDDATA) && (kvA2[2].value == INVALIDDATA) && (kvA2[3].value == INVALIDDATA))){ tempbufferDcapsule[pA2] += 4; }
+			if(kvA2[0].value != INVALIDDATA){ tempbufferDcapsule[pA2] += 4; } // ERROR CHECKPOINT.
 			
 			buffer_type __posD0 = capsule_so8[pA4].key + tempbufferDcapsule[pA4];
 			unsigned int yoffset2 = __posD0 / 8;
@@ -5146,7 +5158,8 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_t buffer_setof1[VECT
 			} else {
 				buffer_setof8[4][yoffset2] = kvA4[0]; buffer_setof8[5][yoffset2] = kvA4[1]; buffer_setof8[6][yoffset2] = kvA4[2]; buffer_setof8[7][yoffset2] = kvA4[3]; 
 			}
-			if(!((kvA4[0].value == INVALIDDATA) && (kvA4[1].value == INVALIDDATA) && (kvA4[2].value == INVALIDDATA) && (kvA4[3].value == INVALIDDATA))){ tempbufferDcapsule[pA4] += 4; }
+			// if(!((kvA4[0].value == INVALIDDATA) && (kvA4[1].value == INVALIDDATA) && (kvA4[2].value == INVALIDDATA) && (kvA4[3].value == INVALIDDATA))){ tempbufferDcapsule[pA4] += 4; }
+			if(kvA4[0].value != INVALIDDATA){ tempbufferDcapsule[pA4] += 4; } // ERROR CHECKPOINT.
 			
 			buffer_type ___posD0 = capsule_so8[pA6].key + tempbufferDcapsule[pA6];
 			unsigned int yoffset3 = ___posD0 / 8;
@@ -5162,7 +5175,8 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_t buffer_setof1[VECT
 			} else {
 				buffer_setof8[4][yoffset3] = kvA6[0]; buffer_setof8[5][yoffset3] = kvA6[1]; buffer_setof8[6][yoffset3] = kvA6[2]; buffer_setof8[7][yoffset3] = kvA6[3]; 
 			}
-			if(!((kvA6[0].value == INVALIDDATA) && (kvA6[1].value == INVALIDDATA) && (kvA6[2].value == INVALIDDATA) && (kvA6[3].value == INVALIDDATA))){ tempbufferDcapsule[pA6] += 4; }
+			// if(!((kvA6[0].value == INVALIDDATA) && (kvA6[1].value == INVALIDDATA) && (kvA6[2].value == INVALIDDATA) && (kvA6[3].value == INVALIDDATA))){ tempbufferDcapsule[pA6] += 4; }
+			if(kvA6[0].value != INVALIDDATA){ tempbufferDcapsule[pA6] += 4; } // ERROR CHECKPOINT.
 		}
 	}
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
@@ -5197,14 +5211,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-static keyvalue_t capsule_so8[NUM_PARTITIONS];
+keyvalue_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -5217,8 +5231,8 @@ static keyvalue_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
