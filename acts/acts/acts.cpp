@@ -3742,7 +3742,7 @@ apply(bool_type enable,
 		res14.value = applyfunc(udata14.value, data14.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res15.value = applyfunc(udata15.value, data15.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		
-		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL FIXME. CAUSEOFERROR
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
 		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
 		if(res0.value != udata0.value || res0.value < 0xFFFFFFFF){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
 		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
@@ -3865,6 +3865,40 @@ apply(bool_type enable,
 		if(res15.value != udata15.value || res15.value < 0xFFFFFFFF){ cout<<"apply: vid[15][1]: "<<vid[15][1]<<", vmask["<<i<<"].data[15].value: "<<vmask[i].data[15].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif
 		#ifdef _DEBUGMODE_STATS
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
+		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res0.value != udata0.value || res0.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.value != udata1.value || res1.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.key != udata2.key || res2.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.value != udata2.value || res2.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.key != udata3.key || res3.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.value != udata3.value || res3.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.key != udata4.key || res4.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.value != udata4.value || res4.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.key != udata5.key || res5.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.value != udata5.value || res5.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.key != udata6.key || res6.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.value != udata6.value || res6.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.key != udata7.key || res7.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.value != udata7.value || res7.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res8.key != udata8.key || res8.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res8.value != udata8.value || res8.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res9.key != udata9.key || res9.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res9.value != udata9.value || res9.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res10.key != udata10.key || res10.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res10.value != udata10.value || res10.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res11.key != udata11.key || res11.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res11.value != udata11.value || res11.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res12.key != udata12.key || res12.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res12.value != udata12.value || res12.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res13.key != udata13.key || res13.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res13.value != udata13.value || res13.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res14.key != udata14.key || res14.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res14.value != udata14.value || res14.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res15.key != udata15.key || res15.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res15.value != udata15.value || res15.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		#else 
 		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res0.value != udata0.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res1.key != udata1.key){ actsutilityobj->globalstats_countactvvsseen(1); }
@@ -3897,6 +3931,7 @@ apply(bool_type enable,
 		if(res14.value != udata14.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res15.key != udata15.key){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res15.value != udata15.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		#endif 
 		#endif
 	}
 	return cummvmask_sp;
@@ -6494,7 +6529,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
  
 #pragma HLS DATA_PACK variable = kvdram15
 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
 	#endif
 	
@@ -6621,6 +6656,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
 	}
 	
+	unsigned int GraphIter = 777;
 	unsigned int vreadoffset = 0;
 	unsigned int vmaskreadoffset = 0;
 	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2;
@@ -6852,543 +6888,16 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}
 	cout<<""<<endl;
 	#endif
-	
-	/* for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ 
-		kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		
-		// if(k<5){cout<<"active partitions: vmask_p["<<k<<"]: "<<vmask_p[k]<<endl;}
-		
-		// #ifdef _WIDEWORD
-		// 		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
-		// 		// 		// #else
-		// 		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
-		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
-		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
-		// 		// 		// #endif
-	} */
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
+	actsutilityobj->globalstats_setactvvsseen(0);
+	#endif 
 	return;
 }
 }
@@ -7410,11 +6919,11 @@ topkernel(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef _WIDEWORD
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
 	#else
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
 	#endif
 	#endif
 	
@@ -7437,7 +6946,7 @@ topkernel(uint512_dt * kvdram){
 	// process & partition
 	#ifdef PROCESSMODULE
 	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"topkernel: processing instance ... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
@@ -7447,7 +6956,7 @@ topkernel(uint512_dt * kvdram){
 	// partition
 	#ifdef PARTITIONMODULE
 	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"topkernel: partitioning instance ... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
@@ -7457,7 +6966,7 @@ topkernel(uint512_dt * kvdram){
 	// reduce & partition
 	#ifdef REDUCEMODULE
 	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"topkernel: reducing instance ... "<<endl;
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams);
@@ -7479,7 +6988,8 @@ void
 	acts:: 
 	#endif
 mainkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){ // NB: for CPU test only
-	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<2; GraphIter++){
+	globalparams_t globalparams = getglobalparams(kvdram0);
+	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams.ALGORITHMINFO_GRAPHITERATIONID; GraphIter++){
 		topkernel(kvdram0);
 		topkernel(kvdram1);
 		topkernel(kvdram2);

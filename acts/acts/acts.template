@@ -1929,7 +1929,7 @@ apply(bool_type enable,
 		res{{p}}.value = applyfunc(udata{{p}}.value, data{{p}}.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}
 		
-		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL FIXME. CAUSEOFERROR
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
 		{%for p in context['NUM_PARTITIONS_seq']%}
 		if(res{{p}}.key != udata{{p}}.key || res{{p}}.key < 0xFFFFFFFF){ vmask[i].data[{{p}}].key = 1; } else { vmask[i].data[{{p}}].key = 0; }
 		if(res{{p}}.value != udata{{p}}.value || res{{p}}.value < 0xFFFFFFFF){ vmask[i].data[{{p}}].value = 1; } else { vmask[i].data[{{p}}].value = 0; }
@@ -1952,10 +1952,17 @@ apply(bool_type enable,
 		{%endfor%}
 		#endif
 		#ifdef _DEBUGMODE_STATS
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
+		{%for p in context['NUM_PARTITIONS_seq']%}
+		if(res{{p}}.key != udata{{p}}.key || res{{p}}.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res{{p}}.value != udata{{p}}.value || res{{p}}.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		{%endfor%}
+		#else 
 		{%for p in context['NUM_PARTITIONS_seq']%}
 		if(res{{p}}.key != udata{{p}}.key){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res{{p}}.value != udata{{p}}.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		{%endfor%}
+		#endif 
 		#endif
 	}
 	return cummvmask_sp;
@@ -2962,7 +2969,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endfor%}
 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
 	#endif
 	
@@ -3006,6 +3013,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
 	}
 	
+	unsigned int GraphIter = 777;
 	unsigned int vreadoffset = 0;
 	unsigned int vmaskreadoffset = 0;
 	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2;
@@ -3082,30 +3090,16 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}
 	cout<<""<<endl;
 	#endif
-	
-	/* for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ 
-		{%for i in context['COMPUTEUNITS_seq']%}
-		kvdram{{i}}[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
-		{%endfor%}
-		
-		// if(k<5){cout<<"active partitions: vmask_p["<<k<<"]: "<<vmask_p[k]<<endl;}
-		
-		// #ifdef _WIDEWORD
-		// {%for i in context['COMPUTEUNITS_seq']%}
-		// {%for v in context['VECTOR_SIZE_seq']%}
-		// kvdram{{i}}[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = {%if(v==0)%}vmask_p[k]{%else%}0{%endif%}; 
-		// kvdram{{i}}[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = 0; 
-		// {%endfor%}
-		// {%endfor%}
-		// #else
-		// {%for i in context['COMPUTEUNITS_seq']%}
-		// {%for v in context['VECTOR_SIZE_seq']%}
-		// kvdram{{i}}[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[{{v}}].key = {%if(v==0)%}vmask_p[k]{%else%}0{%endif%}; 
-		// kvdram{{i}}[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[{{v}}].value = 0; 
-		// {%endfor%}
-		// {%endfor%}
-		// #endif
-	} */
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
+	actsutilityobj->globalstats_setactvvsseen(0);
+	#endif 
 	return;
 }
 }
@@ -3127,11 +3121,11 @@ topkernel(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	#ifdef _WIDEWORD
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
 	#else
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
 	#endif
 	#endif
 	
@@ -3154,7 +3148,7 @@ topkernel(uint512_dt * kvdram){
 	// process & partition
 	#ifdef PROCESSMODULE
 	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"topkernel: processing instance ... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
@@ -3164,7 +3158,7 @@ topkernel(uint512_dt * kvdram){
 	// partition
 	#ifdef PARTITIONMODULE
 	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"topkernel: partitioning instance ... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
@@ -3174,7 +3168,7 @@ topkernel(uint512_dt * kvdram){
 	// reduce & partition
 	#ifdef REDUCEMODULE
 	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"topkernel: reducing instance ... "<<endl;
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams);
@@ -3196,7 +3190,8 @@ void
 	acts:: 
 	#endif
 mainkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%}){ // NB: for CPU test only
-	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<2; GraphIter++){
+	globalparams_t globalparams = getglobalparams(kvdram0);
+	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams.ALGORITHMINFO_GRAPHITERATIONID; GraphIter++){
 		{%for i in context['COMPUTEUNITS_seq']%}
 		topkernel(kvdram{{i}});
 		{%endfor%}
