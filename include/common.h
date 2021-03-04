@@ -129,15 +129,6 @@
 #define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
 #define SRAMSZ_POW 10
-/* #ifdef PR_ALGORITHM
-#define SRAMSZ_POW 10
-#endif 
-#ifdef BFS_ALGORITHM
-#define SRAMSZ_POW 10 // 14
-#endif 
-#ifdef SSSP_ALGORITHM
-#define SRAMSZ_POW 10
-#endif */
 #define SRAMSZ (1 << SRAMSZ_POW)
 
 // tree-depth:sramsz constraint
@@ -167,12 +158,6 @@
 #define EDGES_BATCHSIZE (MAXKVDATA_BATCHSIZE * NUMSUBCPUTHREADS)
 #define EDGES_BATCHSIZE_KVS (EDGES_BATCHSIZE / VECTOR_SIZE)
 #define PADDEDEDGES_BATCHSIZE (EDGES_BATCHSIZE + 1000000)
-
-#if defined(FPGA_IMPL)
-#define DRAMBATCHFACTOR 1//10
-#else
-#define DRAMBATCHFACTOR 1
-#endif
 
 ////////////////
 

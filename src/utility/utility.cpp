@@ -449,14 +449,6 @@ unsigned int utility::RetrieveBit(unsigned int * edgeoffsetbits, size_t index){
 	unsigned int data = edgeoffsetbits[uinttoread];
 	return READFROM(data, position, 1);
 }
-int utility::runActs(unsigned int IterCount){
-	if((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)){ return 1; }
-	else { return 0; }
-}
-int utility::runActs(unsigned int IterCount, bool forcetrue){
-	if(((IterCount % DRAMBATCHFACTOR) == (DRAMBATCHFACTOR - 1)) || (forcetrue == true)){ return 1; }
-	else { return 0; }
-}
 unsigned int utility::GETKVDATA_RANGEOFFSET_FORSSDPARTITION_(unsigned int ssdpartitonid){
 	return (ssdpartitonid * KVDATA_RANGE);
 }

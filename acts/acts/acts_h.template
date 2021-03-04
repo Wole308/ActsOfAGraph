@@ -80,6 +80,7 @@ public:
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
 	travstate_t gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
+	void savevmaskp(uint512_dt * kvdram, unsigned int offset_kvs, uint32_type vmask_p, globalparams_t globalparams);
 	partition_type getpartition(bool_type enable, keyvalue_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow);
 
 	// functions (resets)
@@ -109,6 +110,7 @@ public:
 	void savekeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 
 	void readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams);				
+	void readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 
 	void loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 
@@ -150,12 +152,19 @@ public:
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
 	void synchronize(bool_type enable, vertexdata_wtype head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}vertexdata_wtype buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} vertexdata_wtype tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	
+	void synchronize2(bool_type enable, vertexdata_wtype head[VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}vertexdata_wtype buffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
+	// void synchronize(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}vertexdata_wtype buffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
+
 	uint32_type apply(bool_type enable, 
-			vertexdata_wtype vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+			vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 			batch_type voffset_kvs, globalparams_t globalparams);
-	
+	uint32_type apply2(bool_type enable, 
+		vertexdata_wtype vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		batch_type voffset_kvs, globalparams_t globalparams);
+		
 	void spreadvdata(bool_type enable, vertexdata_wtype head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}vertexdata_wtype buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} vertexdata_wtype tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
+	void spreadvdata2(bool_type enable, vertexdata_wtype head[VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}vertexdata_wtype buffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
+	// void spreadvdata(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}vertexdata_wtype buffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
 
 	void spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams);
 	

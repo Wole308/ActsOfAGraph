@@ -743,6 +743,18 @@ gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams,
 	travstate.i_kvs = travstate.begin_kvs;
 	return travstate;	
 }
+void 
+	#ifdef SW 
+	acts::
+	#endif  
+savevmaskp(uint512_dt * kvdram, unsigned int offset_kvs, uint32_type vmask_p, globalparams_t globalparams){
+	#ifdef _WIDEWORD
+	kvdram[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + offset_kvs].range(31, 0) = vmask_p;
+	#else
+	kvdram[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + offset_kvs].data[0].key = vmask_p;
+	#endif 
+	return;
+}
 partition_type
 	#ifdef SW 
 	acts::
@@ -854,11 +866,6 @@ void
 	#endif 
 resetvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
 	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
-		// for(unsigned int p=0; p<NUM_PARTITIONS; p++){
-		// #pragma HLS UNROLL
-			// vmask[i].data[p].key = 0;
-			// vmask[i].data[p].value = 0;
-		// }	
 		vmask[i].data[0].key = 0;
 		vmask[i].data[0].value = 0;
 		vmask[i].data[1].key = 0;
@@ -919,11 +926,11 @@ void
 	#endif 
 readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	buffer_type chunk_size = getchunksize_kvs(size_kvs, travstate, 0);
 	
 	READKEYVALUES1_LOOP: for (buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		buffer[0][i].key = kvdram[offset_kvs + i].range(31, 0);
@@ -1055,8 +1062,10 @@ void
 	#endif 
 readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
 	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		buffer[0][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
@@ -1105,7 +1114,7 @@ void
 	#endif 
 savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  APPLYVERTEXBUFFERSZ / 2;
+	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
 	
 	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1157,8 +1166,10 @@ void
 	#endif 
 readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
 	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		buffer[begincol + 0][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
@@ -1276,10 +1287,12 @@ void
 readkeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = REDUCEBUFFERSZ / 16;
 	
 	readkeyvalues(ON, kvdram, offset_kvs, tempbuffer, 0, size_kvs, globalparams);
 	buffer_type index = 0;
 	LOADVMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=8
 		bitsbuffer[index + 0] = tempbuffer[0][i].key;
 		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
@@ -1310,9 +1323,11 @@ void
 savekeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = REDUCEBUFFERSZ / 16;
 
 	buffer_type index = 0;
 	SAVEVMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=8
 		tempbuffer[0][i].key = bitsbuffer[index + 0];
 		tempbuffer[0][i].value = bitsbuffer[index + 0 + 1]; 
@@ -1343,8 +1358,10 @@ void
 	#endif 
 readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
 	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		buffer1[begincol + 0][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
@@ -1426,6 +1443,97 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, 
 	#endif
 	return;
 }
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
+		
+	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		buffer1[0][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		buffer1[0][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		buffer1[1][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		buffer1[1][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		buffer1[2][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		buffer1[2][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		buffer1[3][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		buffer1[3][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		buffer1[4][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		buffer1[4][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		buffer1[5][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		buffer1[5][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		buffer1[6][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		buffer1[6][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		buffer1[7][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		buffer1[7][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		buffer2[0][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		buffer2[0][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		buffer2[1][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		buffer2[1][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		buffer2[2][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		buffer2[2][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		buffer2[3][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		buffer2[3][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		buffer2[4][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		buffer2[4][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		buffer2[5][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		buffer2[5][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		buffer2[6][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		buffer2[6][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		buffer2[7][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		buffer2[7][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		#else 
+		buffer1[0][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[0].key; 
+		buffer1[0][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[0].value; 
+		buffer1[1][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[1].key; 
+		buffer1[1][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[1].value; 
+		buffer1[2][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[2].key; 
+		buffer1[2][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[2].value; 
+		buffer1[3][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[3].key; 
+		buffer1[3][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[3].value; 
+		buffer1[4][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[4].key; 
+		buffer1[4][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[4].value; 
+		buffer1[5][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[5].key; 
+		buffer1[5][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[5].value; 
+		buffer1[6][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[6].key; 
+		buffer1[6][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[6].value; 
+		buffer1[7][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[7].key; 
+		buffer1[7][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[7].value; 
+		buffer2[0][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[0].key; 
+		buffer2[0][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[0].value; 
+		buffer2[1][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[1].key; 
+		buffer2[1][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[1].value; 
+		buffer2[2][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[2].key; 
+		buffer2[2][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[2].value; 
+		buffer2[3][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[3].key; 
+		buffer2[3][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[3].value; 
+		buffer2[4][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[4].key; 
+		buffer2[4][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[4].value; 
+		buffer2[5][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[5].key; 
+		buffer2[5][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[5].value; 
+		buffer2[6][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[6].key; 
+		buffer2[6][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[6].value; 
+		buffer2[7][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[7].key; 
+		buffer2[7][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[7].value; 
+		#endif 
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	#endif
+	return;
+}
 
 void 
 	#ifdef SW 
@@ -1433,13 +1541,16 @@ void
 	#endif 
 loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 	
-	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
-	buffer_type vmaskbuffersz_kvs = (globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512;
+	// buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2; // CRITICAL REMOVEME.
+	// buffer_type vmaskbuffersz_kvs = (globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512;
+	buffer_type transfsize = size_kvs * 16;
 
 	readkeyvalues(ON, kvdram, bitsbuffer, tempbuffer, offset_kvs, size_kvs, globalparams);
-	LOADVMASKS_LOOP2: for (buffer_type i=0; i<reducebuffersz; i++){
+	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		vmask[i].data[0].key = bitsbuffer[i].range(0, 0);
@@ -1518,12 +1629,15 @@ void
 	#endif 
 savevmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 	
-	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
-	buffer_type vmaskbuffersz_kvs = (globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512;
-
-	SAVEVMASKS_LOOP1: for (buffer_type i=0; i<reducebuffersz; i++){
+	// buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2; // CRITICAL REMOVEME.
+	// buffer_type vmaskbuffersz_kvs = (globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512;
+	buffer_type transfsize = size_kvs * 16;
+	
+	SAVEVMASKS_LOOP1: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		bitsbuffer[i].range(0, 0) = vmask[i].data[0].key;
@@ -1726,160 +1840,6 @@ processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	return res;
 }
 
-#ifdef KOKOOOOOOO
-bool_type 
-	#ifdef SW 
-	acts::
-	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){	
-	if(enable == OFF){ return OFF; }
-	analysis_type analysis_srcbuffersz = WORKBUFFER_SIZE / 2;
-	
-	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = tempbuffer
-	value_t E[2][VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E complete
-	bool_type en = ON;
-	bool_type validfetch = OFF;
-	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
-	unsigned int validbound = reducebuffersz * FETFACTOR * VECTOR2_SIZE;
-	
-	travstate.i_kvs = travstate.i_kvs / 2; // edges is singlevaluetype
-	travstate.end_kvs = travstate.end_kvs / 2;
-	loffset_kvs = loffset_kvs / 2;
-	size_kvs = size_kvs / 2;
-	
-	readkeyvalues(ON, kvdram, tempbuffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams);
-	
-	buffer_type chunk_size = getchunksize_kvs(size_kvs, travstate, 0);
-	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-	#pragma HLS PIPELINE II=2 // CRITICAL NEWCHANGE.
-		E[0][0] = tempbuffer[0][i].key;
-		E[0][1] = tempbuffer[0][i].value;
-		E[0][2] = tempbuffer[1][i].key;
-		E[0][3] = tempbuffer[1][i].value;
-		E[0][4] = tempbuffer[2][i].key;
-		E[0][5] = tempbuffer[2][i].value;
-		E[0][6] = tempbuffer[3][i].key;
-		E[0][7] = tempbuffer[3][i].value;
-		E[1][0] = tempbuffer[4][i].key;
-		E[1][1] = tempbuffer[4][i].value;
-		E[1][2] = tempbuffer[5][i].key;
-		E[1][3] = tempbuffer[5][i].value;
-		E[1][4] = tempbuffer[6][i].key;
-		E[1][5] = tempbuffer[6][i].value;
-		E[1][6] = tempbuffer[7][i].key;
-		E[1][7] = tempbuffer[7][i].value;
-		
-		en = ON;
-		
-		vertex_t srcvid = E[0][0]; // first data is srcvid
-		vertex_t lvid = srcvid - travstate.i2;
-		if(lvid >= validbound || srcvid == UNUSEDDATA){ en = OFF; lvid = 0; }
-		#ifdef _DEBUGMODE_CHECKS2
-		if(srcvid < travstate.i2){ cout<<"readandprocess: INVALID srcvid. this is an error. i: "<<i<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<". exiting..."<<endl; exit(EXIT_FAILURE); }
-		actsutilityobj->checkoutofbounds("readandprocess.1", lvid, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid, travstate.i2, NAp);
-		#endif
-		
-		value_t udata = readfromvbuffer(vbuffer, lvid, globalparams);
-		#ifdef ALLVERTEXISACTIVE_ALGORITHM
-		unsigned int mask = 1;
-		#else
-		unsigned int mask = readfromvmask(vmask, lvid, globalparams);
-		#endif
-		if(mask == 1){ validfetch = ON; }
-		value_t res  = processfunc(udata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
-		#endif
-		
-		if(en == ON && mask == 1){
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			#endif 
-			
-			buffer[0][2*i].key = E[0][0]; 
-			buffer[0][2*i].value = res; 
-			buffer[1][2*i].key = E[0][1]; 
-			buffer[1][2*i].value = res; 
-			buffer[2][2*i].key = E[0][2]; 
-			buffer[2][2*i].value = res; 
-			buffer[3][2*i].key = E[0][3]; 
-			buffer[3][2*i].value = res; 
-			buffer[4][2*i].key = E[0][4]; 
-			buffer[4][2*i].value = res; 
-			buffer[5][2*i].key = E[0][5]; 
-			buffer[5][2*i].value = res; 
-			buffer[6][2*i].key = E[0][6]; 
-			buffer[6][2*i].value = res; 
-			buffer[7][2*i].key = E[0][7]; 
-			buffer[7][2*i].value = res; 
-			buffer[0][2*i + 1].key = E[1][0]; 
-			buffer[0][2*i + 1].value = res; 
-			buffer[1][2*i + 1].key = E[1][1]; 
-			buffer[1][2*i + 1].value = res; 
-			buffer[2][2*i + 1].key = E[1][2]; 
-			buffer[2][2*i + 1].value = res; 
-			buffer[3][2*i + 1].key = E[1][3]; 
-			buffer[3][2*i + 1].value = res; 
-			buffer[4][2*i + 1].key = E[1][4]; 
-			buffer[4][2*i + 1].value = res; 
-			buffer[5][2*i + 1].key = E[1][5]; 
-			buffer[5][2*i + 1].value = res; 
-			buffer[6][2*i + 1].key = E[1][6]; 
-			buffer[6][2*i + 1].value = res; 
-			buffer[7][2*i + 1].key = E[1][7]; 
-			buffer[7][2*i + 1].value = res; 
-		} else {
-			buffer[0][2*i].key = INVALIDDATA; 
-			buffer[0][2*i].value = INVALIDDATA; 
-			buffer[1][2*i].key = INVALIDDATA; 
-			buffer[1][2*i].value = INVALIDDATA; 
-			buffer[2][2*i].key = INVALIDDATA; 
-			buffer[2][2*i].value = INVALIDDATA; 
-			buffer[3][2*i].key = INVALIDDATA; 
-			buffer[3][2*i].value = INVALIDDATA; 
-			buffer[4][2*i].key = INVALIDDATA; 
-			buffer[4][2*i].value = INVALIDDATA; 
-			buffer[5][2*i].key = INVALIDDATA; 
-			buffer[5][2*i].value = INVALIDDATA; 
-			buffer[6][2*i].key = INVALIDDATA; 
-			buffer[6][2*i].value = INVALIDDATA; 
-			buffer[7][2*i].key = INVALIDDATA; 
-			buffer[7][2*i].value = INVALIDDATA; 
-			buffer[0][2*i + 1].key = INVALIDDATA; 
-			buffer[0][2*i + 1].value = INVALIDDATA; 
-			buffer[1][2*i + 1].key = INVALIDDATA; 
-			buffer[1][2*i + 1].value = INVALIDDATA; 
-			buffer[2][2*i + 1].key = INVALIDDATA; 
-			buffer[2][2*i + 1].value = INVALIDDATA; 
-			buffer[3][2*i + 1].key = INVALIDDATA; 
-			buffer[3][2*i + 1].value = INVALIDDATA; 
-			buffer[4][2*i + 1].key = INVALIDDATA; 
-			buffer[4][2*i + 1].value = INVALIDDATA; 
-			buffer[5][2*i + 1].key = INVALIDDATA; 
-			buffer[5][2*i + 1].value = INVALIDDATA; 
-			buffer[6][2*i + 1].key = INVALIDDATA; 
-			buffer[6][2*i + 1].value = INVALIDDATA; 
-			buffer[7][2*i + 1].key = INVALIDDATA; 
-			buffer[7][2*i + 1].value = INVALIDDATA; 
-		}
-		
-		buffer[0][2*i].key = INVALIDDATA;
-		buffer[0][2*i].value = INVALIDDATA;
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE*2);
-		if(en == ON && mask == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(VECTOR_SIZE*2); }
-		#endif 
-	}
-	return validfetch;
-}
-#endif
 bool_type 
 	#ifdef SW 
 	acts::
@@ -2428,128 +2388,6 @@ reducevector(keyvalue_t kvdata, vertexdata_wtype destbuffer[BLOCKRAM_SIZE], buff
 	return;
 }
 
-#ifdef KOKOOOOOOO
-void 
-	#ifdef SW 
-	acts::
-	#endif 
-reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // '2' is safety padding.
-	
-	uint512_vec_dt data0;
-	keyvalue_t kvdata0;
-	uint512_vec_dt data1;
-	keyvalue_t kvdata1;
-	uint512_vec_dt data2;
-	keyvalue_t kvdata2;
-	uint512_vec_dt data3;
-	keyvalue_t kvdata3;
-	uint512_vec_dt data4;
-	keyvalue_t kvdata4;
-	uint512_vec_dt data5;
-	keyvalue_t kvdata5;
-	uint512_vec_dt data6;
-	keyvalue_t kvdata6;
-	uint512_vec_dt data7;
-	keyvalue_t kvdata7;
-	uint512_vec_dt data8;
-	keyvalue_t kvdata8;
-	uint512_vec_dt data9;
-	keyvalue_t kvdata9;
-	uint512_vec_dt data10;
-	keyvalue_t kvdata10;
-	uint512_vec_dt data11;
-	keyvalue_t kvdata11;
-	uint512_vec_dt data12;
-	keyvalue_t kvdata12;
-	uint512_vec_dt data13;
-	keyvalue_t kvdata13;
-	uint512_vec_dt data14;
-	keyvalue_t kvdata14;
-	uint512_vec_dt data15;
-	keyvalue_t kvdata15;
-	buffer_type bramoffset_kvs[NUM_PARTITIONS];
-	#pragma HLS ARRAY_PARTITION variable=bramoffset_kvs complete
-	buffer_type size_kvs[NUM_PARTITIONS];
-	#pragma HLS ARRAY_PARTITION variable=size_kvs complete
-	buffer_type maxsize_kvs = 0;
-	unsigned int upperlimits[NUM_PARTITIONS];
-	#pragma HLS ARRAY_PARTITION variable=upperlimits complete
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
-	#endif 
-	#ifdef _DEBUGMODE_STATS
-	unsigned int i=0;
-	unsigned int isgreaterthan512 = OFF;
-	unsigned int islessthan512 = OFF;
-	for(i=0; i<NUM_PARTITIONS; i++){ if(localcapsule[i].value > (1024*4)){ isgreaterthan512 = ON; }} // 512, 1024
-	if(isgreaterthan512 == OFF){ islessthan512 = ON; }
-	if(isgreaterthan512 == ON && islessthan512 == ON){ cout<<"ERROR: should never be seen here. exiting... "<<endl; exit(EXIT_FAILURE); }
-	if(isgreaterthan512 == ON){ stats_greaterthan512 += 1; }
-	if(islessthan512 == ON){ stats_lessthan512 += 1; }
-	stats_totals += 1;
-	#endif 
-
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){
-	#pragma HLS PIPELINE II=1
-		bramoffset_kvs[p] = localcapsule[p].key / VECTOR_SIZE;
-		size_kvs[p] = localcapsule[p].value / VECTOR_SIZE;
-		if(maxsize_kvs < size_kvs[p]){ maxsize_kvs = size_kvs[p]; }
-	}
-	
-	unsigned int lloprange = getrangeforeachllop(globalparams);
-	unsigned int tmplloprange = 0;
-	for(unsigned int p=0; p<NUM_PARTITIONS; p++){
-	#pragma HLS PIPELINE II=1
-		upperlimits[p] = sweepparams.upperlimit + tmplloprange;
-		tmplloprange += lloprange;
-	}
-	
-	REDUCEBUFFERPARTITIONS_LOOP: for(buffer_type i=0; i<maxsize_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=16
-		for(vector_type v=0; v<VECTOR_SIZE; v++){
-			kvdata0 = buffer[v][bramoffset_kvs[0] + i]; 	
-			kvdata1 = buffer[v][bramoffset_kvs[1] + i]; 	
-			kvdata2 = buffer[v][bramoffset_kvs[2] + i]; 	
-			kvdata3 = buffer[v][bramoffset_kvs[3] + i]; 	
-			kvdata4 = buffer[v][bramoffset_kvs[4] + i]; 	
-			kvdata5 = buffer[v][bramoffset_kvs[5] + i]; 	
-			kvdata6 = buffer[v][bramoffset_kvs[6] + i]; 	
-			kvdata7 = buffer[v][bramoffset_kvs[7] + i]; 	
-			kvdata8 = buffer[v][bramoffset_kvs[8] + i]; 	
-			kvdata9 = buffer[v][bramoffset_kvs[9] + i]; 	
-			kvdata10 = buffer[v][bramoffset_kvs[10] + i]; 	
-			kvdata11 = buffer[v][bramoffset_kvs[11] + i]; 	
-			kvdata12 = buffer[v][bramoffset_kvs[12] + i]; 	
-			kvdata13 = buffer[v][bramoffset_kvs[13] + i]; 	
-			kvdata14 = buffer[v][bramoffset_kvs[14] + i]; 	
-			kvdata15 = buffer[v][bramoffset_kvs[15] + i]; 	
-	
-
-			if(i< size_kvs[0]){ reducevector(kvdata0, vbuffer[0], 0, upperlimits[0], sweepparams, globalparams); }
-			if(i< size_kvs[1]){ reducevector(kvdata1, vbuffer[1], 0, upperlimits[1], sweepparams, globalparams); }
-			if(i< size_kvs[2]){ reducevector(kvdata2, vbuffer[2], 0, upperlimits[2], sweepparams, globalparams); }
-			if(i< size_kvs[3]){ reducevector(kvdata3, vbuffer[3], 0, upperlimits[3], sweepparams, globalparams); }
-			if(i< size_kvs[4]){ reducevector(kvdata4, vbuffer[4], 0, upperlimits[4], sweepparams, globalparams); }
-			if(i< size_kvs[5]){ reducevector(kvdata5, vbuffer[5], 0, upperlimits[5], sweepparams, globalparams); }
-			if(i< size_kvs[6]){ reducevector(kvdata6, vbuffer[6], 0, upperlimits[6], sweepparams, globalparams); }
-			if(i< size_kvs[7]){ reducevector(kvdata7, vbuffer[7], 0, upperlimits[7], sweepparams, globalparams); }
-			if(i< size_kvs[8]){ reducevector(kvdata8, vbuffer[8], 0, upperlimits[8], sweepparams, globalparams); }
-			if(i< size_kvs[9]){ reducevector(kvdata9, vbuffer[9], 0, upperlimits[9], sweepparams, globalparams); }
-			if(i< size_kvs[10]){ reducevector(kvdata10, vbuffer[10], 0, upperlimits[10], sweepparams, globalparams); }
-			if(i< size_kvs[11]){ reducevector(kvdata11, vbuffer[11], 0, upperlimits[11], sweepparams, globalparams); }
-			if(i< size_kvs[12]){ reducevector(kvdata12, vbuffer[12], 0, upperlimits[12], sweepparams, globalparams); }
-			if(i< size_kvs[13]){ reducevector(kvdata13, vbuffer[13], 0, upperlimits[13], sweepparams, globalparams); }
-			if(i< size_kvs[14]){ reducevector(kvdata14, vbuffer[14], 0, upperlimits[14], sweepparams, globalparams); }
-			if(i< size_kvs[15]){ reducevector(kvdata15, vbuffer[15], 0, upperlimits[15], sweepparams, globalparams); }
-		}
-	}
-	return;
-}
-#endif 
 void 
 	#ifdef SW 
 	acts::
@@ -3594,18 +3432,510 @@ synchronize(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOC
 	}
 	return;
 }
+void
+	#ifdef SW 
+	acts::
+	#endif
+synchronize2(bool_type enable, vertexdata_wtype buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"synchronize: synchronize function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	vertexdata_wtype keyvalue0_vault0;
+	vertexdata_wtype keyvalue1_vault0;
+	vertexdata_wtype keyvalue2_vault0;
+	vertexdata_wtype keyvalue3_vault0;
+	vertexdata_wtype keyvalue4_vault0;
+	vertexdata_wtype keyvalue5_vault0;
+	vertexdata_wtype keyvalue6_vault0;
+	vertexdata_wtype keyvalue7_vault0;
+	
+	vertexdata_wtype keyvalue0_vault1;
+	vertexdata_wtype keyvalue1_vault1;
+	vertexdata_wtype keyvalue2_vault1;
+	vertexdata_wtype keyvalue3_vault1;
+	vertexdata_wtype keyvalue4_vault1;
+	vertexdata_wtype keyvalue5_vault1;
+	vertexdata_wtype keyvalue6_vault1;
+	vertexdata_wtype keyvalue7_vault1;
+	
+	vertexdata_wtype keyvalue0_vault2;
+	vertexdata_wtype keyvalue1_vault2;
+	vertexdata_wtype keyvalue2_vault2;
+	vertexdata_wtype keyvalue3_vault2;
+	vertexdata_wtype keyvalue4_vault2;
+	vertexdata_wtype keyvalue5_vault2;
+	vertexdata_wtype keyvalue6_vault2;
+	vertexdata_wtype keyvalue7_vault2;
+	
+	vertexdata_wtype keyvalue0_vault3;
+	vertexdata_wtype keyvalue1_vault3;
+	vertexdata_wtype keyvalue2_vault3;
+	vertexdata_wtype keyvalue3_vault3;
+	vertexdata_wtype keyvalue4_vault3;
+	vertexdata_wtype keyvalue5_vault3;
+	vertexdata_wtype keyvalue6_vault3;
+	vertexdata_wtype keyvalue7_vault3;
+	
+	vertexdata_wtype keyvalue0_vault4;
+	vertexdata_wtype keyvalue1_vault4;
+	vertexdata_wtype keyvalue2_vault4;
+	vertexdata_wtype keyvalue3_vault4;
+	vertexdata_wtype keyvalue4_vault4;
+	vertexdata_wtype keyvalue5_vault4;
+	vertexdata_wtype keyvalue6_vault4;
+	vertexdata_wtype keyvalue7_vault4;
+	
+	vertexdata_wtype keyvalue0_vault5;
+	vertexdata_wtype keyvalue1_vault5;
+	vertexdata_wtype keyvalue2_vault5;
+	vertexdata_wtype keyvalue3_vault5;
+	vertexdata_wtype keyvalue4_vault5;
+	vertexdata_wtype keyvalue5_vault5;
+	vertexdata_wtype keyvalue6_vault5;
+	vertexdata_wtype keyvalue7_vault5;
+	
+	vertexdata_wtype keyvalue0_vault6;
+	vertexdata_wtype keyvalue1_vault6;
+	vertexdata_wtype keyvalue2_vault6;
+	vertexdata_wtype keyvalue3_vault6;
+	vertexdata_wtype keyvalue4_vault6;
+	vertexdata_wtype keyvalue5_vault6;
+	vertexdata_wtype keyvalue6_vault6;
+	vertexdata_wtype keyvalue7_vault6;
+	
+	vertexdata_wtype keyvalue0_vault7;
+	vertexdata_wtype keyvalue1_vault7;
+	vertexdata_wtype keyvalue2_vault7;
+	vertexdata_wtype keyvalue3_vault7;
+	vertexdata_wtype keyvalue4_vault7;
+	vertexdata_wtype keyvalue5_vault7;
+	vertexdata_wtype keyvalue6_vault7;
+	vertexdata_wtype keyvalue7_vault7;
+	
+	vertexdata_wtype keyvalue0_vault8;
+	vertexdata_wtype keyvalue1_vault8;
+	vertexdata_wtype keyvalue2_vault8;
+	vertexdata_wtype keyvalue3_vault8;
+	vertexdata_wtype keyvalue4_vault8;
+	vertexdata_wtype keyvalue5_vault8;
+	vertexdata_wtype keyvalue6_vault8;
+	vertexdata_wtype keyvalue7_vault8;
+	
+	vertexdata_wtype keyvalue0_vault9;
+	vertexdata_wtype keyvalue1_vault9;
+	vertexdata_wtype keyvalue2_vault9;
+	vertexdata_wtype keyvalue3_vault9;
+	vertexdata_wtype keyvalue4_vault9;
+	vertexdata_wtype keyvalue5_vault9;
+	vertexdata_wtype keyvalue6_vault9;
+	vertexdata_wtype keyvalue7_vault9;
+	
+	vertexdata_wtype keyvalue0_vault10;
+	vertexdata_wtype keyvalue1_vault10;
+	vertexdata_wtype keyvalue2_vault10;
+	vertexdata_wtype keyvalue3_vault10;
+	vertexdata_wtype keyvalue4_vault10;
+	vertexdata_wtype keyvalue5_vault10;
+	vertexdata_wtype keyvalue6_vault10;
+	vertexdata_wtype keyvalue7_vault10;
+	
+	vertexdata_wtype keyvalue0_vault11;
+	vertexdata_wtype keyvalue1_vault11;
+	vertexdata_wtype keyvalue2_vault11;
+	vertexdata_wtype keyvalue3_vault11;
+	vertexdata_wtype keyvalue4_vault11;
+	vertexdata_wtype keyvalue5_vault11;
+	vertexdata_wtype keyvalue6_vault11;
+	vertexdata_wtype keyvalue7_vault11;
+	
+	vertexdata_wtype keyvalue0_vault12;
+	vertexdata_wtype keyvalue1_vault12;
+	vertexdata_wtype keyvalue2_vault12;
+	vertexdata_wtype keyvalue3_vault12;
+	vertexdata_wtype keyvalue4_vault12;
+	vertexdata_wtype keyvalue5_vault12;
+	vertexdata_wtype keyvalue6_vault12;
+	vertexdata_wtype keyvalue7_vault12;
+	
+	vertexdata_wtype keyvalue0_vault13;
+	vertexdata_wtype keyvalue1_vault13;
+	vertexdata_wtype keyvalue2_vault13;
+	vertexdata_wtype keyvalue3_vault13;
+	vertexdata_wtype keyvalue4_vault13;
+	vertexdata_wtype keyvalue5_vault13;
+	vertexdata_wtype keyvalue6_vault13;
+	vertexdata_wtype keyvalue7_vault13;
+	
+	vertexdata_wtype keyvalue0_vault14;
+	vertexdata_wtype keyvalue1_vault14;
+	vertexdata_wtype keyvalue2_vault14;
+	vertexdata_wtype keyvalue3_vault14;
+	vertexdata_wtype keyvalue4_vault14;
+	vertexdata_wtype keyvalue5_vault14;
+	vertexdata_wtype keyvalue6_vault14;
+	vertexdata_wtype keyvalue7_vault14;
+	
+	vertexdata_wtype keyvalue0_vault15;
+	vertexdata_wtype keyvalue1_vault15;
+	vertexdata_wtype keyvalue2_vault15;
+	vertexdata_wtype keyvalue3_vault15;
+	vertexdata_wtype keyvalue4_vault15;
+	vertexdata_wtype keyvalue5_vault15;
+	vertexdata_wtype keyvalue6_vault15;
+	vertexdata_wtype keyvalue7_vault15;
+	
+	vertexdata_wtype keyvalue0_vault16;
+	vertexdata_wtype keyvalue1_vault16;
+	vertexdata_wtype keyvalue2_vault16;
+	vertexdata_wtype keyvalue3_vault16;
+	vertexdata_wtype keyvalue4_vault16;
+	vertexdata_wtype keyvalue5_vault16;
+	vertexdata_wtype keyvalue6_vault16;
+	vertexdata_wtype keyvalue7_vault16;
+	
+	vertexdata_wtype keyvalue0_vault17;
+	vertexdata_wtype keyvalue1_vault17;
+	vertexdata_wtype keyvalue2_vault17;
+	vertexdata_wtype keyvalue3_vault17;
+	vertexdata_wtype keyvalue4_vault17;
+	vertexdata_wtype keyvalue5_vault17;
+	vertexdata_wtype keyvalue6_vault17;
+	vertexdata_wtype keyvalue7_vault17;
+	
+	
+	for (buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		keyvalue0_vault1 = buffer0[0][i]; 
+		keyvalue1_vault1 = buffer0[1][i]; 
+		keyvalue2_vault1 = buffer0[2][i]; 
+		keyvalue3_vault1 = buffer0[3][i]; 
+		keyvalue4_vault1 = buffer0[4][i]; 
+		keyvalue5_vault1 = buffer0[5][i]; 
+		keyvalue6_vault1 = buffer0[6][i]; 
+		keyvalue7_vault1 = buffer0[7][i]; 
+			
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, buffer1[0][i].key, NAp);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, buffer1[0][i].value, NAp);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, buffer1[1][i].key, NAp);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, buffer1[1][i].value, NAp);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, buffer1[2][i].key, NAp);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, buffer1[2][i].value, NAp);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, buffer1[3][i].key, NAp);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, buffer1[3][i].value, NAp);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, buffer1[4][i].key, NAp);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, buffer1[4][i].value, NAp);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, buffer1[5][i].key, NAp);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, buffer1[5][i].value, NAp);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, buffer1[6][i].key, NAp);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, buffer1[6][i].value, NAp);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, buffer1[7][i].key, NAp);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, buffer1[7][i].value, NAp);
+	
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, buffer2[0][i].key, NAp);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, buffer2[0][i].value, NAp);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, buffer2[1][i].key, NAp);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, buffer2[1][i].value, NAp);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, buffer2[2][i].key, NAp);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, buffer2[2][i].value, NAp);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, buffer2[3][i].key, NAp);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, buffer2[3][i].value, NAp);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, buffer2[4][i].key, NAp);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, buffer2[4][i].value, NAp);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, buffer2[5][i].key, NAp);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, buffer2[5][i].value, NAp);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, buffer2[6][i].key, NAp);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, buffer2[6][i].value, NAp);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, buffer2[7][i].key, NAp);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, buffer2[7][i].value, NAp);
+	
+		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, buffer3[0][i].key, NAp);
+		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, buffer3[0][i].value, NAp);
+		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, buffer3[1][i].key, NAp);
+		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, buffer3[1][i].value, NAp);
+		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, buffer3[2][i].key, NAp);
+		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, buffer3[2][i].value, NAp);
+		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, buffer3[3][i].key, NAp);
+		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, buffer3[3][i].value, NAp);
+		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, buffer3[4][i].key, NAp);
+		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, buffer3[4][i].value, NAp);
+		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, buffer3[5][i].key, NAp);
+		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, buffer3[5][i].value, NAp);
+		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, buffer3[6][i].key, NAp);
+		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, buffer3[6][i].value, NAp);
+		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, buffer3[7][i].key, NAp);
+		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, buffer3[7][i].value, NAp);
+	
+		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, buffer4[0][i].key, NAp);
+		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, buffer4[0][i].value, NAp);
+		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, buffer4[1][i].key, NAp);
+		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, buffer4[1][i].value, NAp);
+		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, buffer4[2][i].key, NAp);
+		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, buffer4[2][i].value, NAp);
+		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, buffer4[3][i].key, NAp);
+		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, buffer4[3][i].value, NAp);
+		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, buffer4[4][i].key, NAp);
+		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, buffer4[4][i].value, NAp);
+		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, buffer4[5][i].key, NAp);
+		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, buffer4[5][i].value, NAp);
+		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, buffer4[6][i].key, NAp);
+		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, buffer4[6][i].value, NAp);
+		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, buffer4[7][i].key, NAp);
+		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, buffer4[7][i].value, NAp);
+	
+		keyvalue0_vault6.key = mergefunc(keyvalue0_vault5.key, buffer5[0][i].key, NAp);
+		keyvalue0_vault6.value = mergefunc(keyvalue0_vault5.value, buffer5[0][i].value, NAp);
+		keyvalue1_vault6.key = mergefunc(keyvalue1_vault5.key, buffer5[1][i].key, NAp);
+		keyvalue1_vault6.value = mergefunc(keyvalue1_vault5.value, buffer5[1][i].value, NAp);
+		keyvalue2_vault6.key = mergefunc(keyvalue2_vault5.key, buffer5[2][i].key, NAp);
+		keyvalue2_vault6.value = mergefunc(keyvalue2_vault5.value, buffer5[2][i].value, NAp);
+		keyvalue3_vault6.key = mergefunc(keyvalue3_vault5.key, buffer5[3][i].key, NAp);
+		keyvalue3_vault6.value = mergefunc(keyvalue3_vault5.value, buffer5[3][i].value, NAp);
+		keyvalue4_vault6.key = mergefunc(keyvalue4_vault5.key, buffer5[4][i].key, NAp);
+		keyvalue4_vault6.value = mergefunc(keyvalue4_vault5.value, buffer5[4][i].value, NAp);
+		keyvalue5_vault6.key = mergefunc(keyvalue5_vault5.key, buffer5[5][i].key, NAp);
+		keyvalue5_vault6.value = mergefunc(keyvalue5_vault5.value, buffer5[5][i].value, NAp);
+		keyvalue6_vault6.key = mergefunc(keyvalue6_vault5.key, buffer5[6][i].key, NAp);
+		keyvalue6_vault6.value = mergefunc(keyvalue6_vault5.value, buffer5[6][i].value, NAp);
+		keyvalue7_vault6.key = mergefunc(keyvalue7_vault5.key, buffer5[7][i].key, NAp);
+		keyvalue7_vault6.value = mergefunc(keyvalue7_vault5.value, buffer5[7][i].value, NAp);
+	
+		keyvalue0_vault7.key = mergefunc(keyvalue0_vault6.key, buffer6[0][i].key, NAp);
+		keyvalue0_vault7.value = mergefunc(keyvalue0_vault6.value, buffer6[0][i].value, NAp);
+		keyvalue1_vault7.key = mergefunc(keyvalue1_vault6.key, buffer6[1][i].key, NAp);
+		keyvalue1_vault7.value = mergefunc(keyvalue1_vault6.value, buffer6[1][i].value, NAp);
+		keyvalue2_vault7.key = mergefunc(keyvalue2_vault6.key, buffer6[2][i].key, NAp);
+		keyvalue2_vault7.value = mergefunc(keyvalue2_vault6.value, buffer6[2][i].value, NAp);
+		keyvalue3_vault7.key = mergefunc(keyvalue3_vault6.key, buffer6[3][i].key, NAp);
+		keyvalue3_vault7.value = mergefunc(keyvalue3_vault6.value, buffer6[3][i].value, NAp);
+		keyvalue4_vault7.key = mergefunc(keyvalue4_vault6.key, buffer6[4][i].key, NAp);
+		keyvalue4_vault7.value = mergefunc(keyvalue4_vault6.value, buffer6[4][i].value, NAp);
+		keyvalue5_vault7.key = mergefunc(keyvalue5_vault6.key, buffer6[5][i].key, NAp);
+		keyvalue5_vault7.value = mergefunc(keyvalue5_vault6.value, buffer6[5][i].value, NAp);
+		keyvalue6_vault7.key = mergefunc(keyvalue6_vault6.key, buffer6[6][i].key, NAp);
+		keyvalue6_vault7.value = mergefunc(keyvalue6_vault6.value, buffer6[6][i].value, NAp);
+		keyvalue7_vault7.key = mergefunc(keyvalue7_vault6.key, buffer6[7][i].key, NAp);
+		keyvalue7_vault7.value = mergefunc(keyvalue7_vault6.value, buffer6[7][i].value, NAp);
+	
+		keyvalue0_vault8.key = mergefunc(keyvalue0_vault7.key, buffer7[0][i].key, NAp);
+		keyvalue0_vault8.value = mergefunc(keyvalue0_vault7.value, buffer7[0][i].value, NAp);
+		keyvalue1_vault8.key = mergefunc(keyvalue1_vault7.key, buffer7[1][i].key, NAp);
+		keyvalue1_vault8.value = mergefunc(keyvalue1_vault7.value, buffer7[1][i].value, NAp);
+		keyvalue2_vault8.key = mergefunc(keyvalue2_vault7.key, buffer7[2][i].key, NAp);
+		keyvalue2_vault8.value = mergefunc(keyvalue2_vault7.value, buffer7[2][i].value, NAp);
+		keyvalue3_vault8.key = mergefunc(keyvalue3_vault7.key, buffer7[3][i].key, NAp);
+		keyvalue3_vault8.value = mergefunc(keyvalue3_vault7.value, buffer7[3][i].value, NAp);
+		keyvalue4_vault8.key = mergefunc(keyvalue4_vault7.key, buffer7[4][i].key, NAp);
+		keyvalue4_vault8.value = mergefunc(keyvalue4_vault7.value, buffer7[4][i].value, NAp);
+		keyvalue5_vault8.key = mergefunc(keyvalue5_vault7.key, buffer7[5][i].key, NAp);
+		keyvalue5_vault8.value = mergefunc(keyvalue5_vault7.value, buffer7[5][i].value, NAp);
+		keyvalue6_vault8.key = mergefunc(keyvalue6_vault7.key, buffer7[6][i].key, NAp);
+		keyvalue6_vault8.value = mergefunc(keyvalue6_vault7.value, buffer7[6][i].value, NAp);
+		keyvalue7_vault8.key = mergefunc(keyvalue7_vault7.key, buffer7[7][i].key, NAp);
+		keyvalue7_vault8.value = mergefunc(keyvalue7_vault7.value, buffer7[7][i].value, NAp);
+	
+		keyvalue0_vault9.key = mergefunc(keyvalue0_vault8.key, buffer8[0][i].key, NAp);
+		keyvalue0_vault9.value = mergefunc(keyvalue0_vault8.value, buffer8[0][i].value, NAp);
+		keyvalue1_vault9.key = mergefunc(keyvalue1_vault8.key, buffer8[1][i].key, NAp);
+		keyvalue1_vault9.value = mergefunc(keyvalue1_vault8.value, buffer8[1][i].value, NAp);
+		keyvalue2_vault9.key = mergefunc(keyvalue2_vault8.key, buffer8[2][i].key, NAp);
+		keyvalue2_vault9.value = mergefunc(keyvalue2_vault8.value, buffer8[2][i].value, NAp);
+		keyvalue3_vault9.key = mergefunc(keyvalue3_vault8.key, buffer8[3][i].key, NAp);
+		keyvalue3_vault9.value = mergefunc(keyvalue3_vault8.value, buffer8[3][i].value, NAp);
+		keyvalue4_vault9.key = mergefunc(keyvalue4_vault8.key, buffer8[4][i].key, NAp);
+		keyvalue4_vault9.value = mergefunc(keyvalue4_vault8.value, buffer8[4][i].value, NAp);
+		keyvalue5_vault9.key = mergefunc(keyvalue5_vault8.key, buffer8[5][i].key, NAp);
+		keyvalue5_vault9.value = mergefunc(keyvalue5_vault8.value, buffer8[5][i].value, NAp);
+		keyvalue6_vault9.key = mergefunc(keyvalue6_vault8.key, buffer8[6][i].key, NAp);
+		keyvalue6_vault9.value = mergefunc(keyvalue6_vault8.value, buffer8[6][i].value, NAp);
+		keyvalue7_vault9.key = mergefunc(keyvalue7_vault8.key, buffer8[7][i].key, NAp);
+		keyvalue7_vault9.value = mergefunc(keyvalue7_vault8.value, buffer8[7][i].value, NAp);
+	
+		keyvalue0_vault10.key = mergefunc(keyvalue0_vault9.key, buffer9[0][i].key, NAp);
+		keyvalue0_vault10.value = mergefunc(keyvalue0_vault9.value, buffer9[0][i].value, NAp);
+		keyvalue1_vault10.key = mergefunc(keyvalue1_vault9.key, buffer9[1][i].key, NAp);
+		keyvalue1_vault10.value = mergefunc(keyvalue1_vault9.value, buffer9[1][i].value, NAp);
+		keyvalue2_vault10.key = mergefunc(keyvalue2_vault9.key, buffer9[2][i].key, NAp);
+		keyvalue2_vault10.value = mergefunc(keyvalue2_vault9.value, buffer9[2][i].value, NAp);
+		keyvalue3_vault10.key = mergefunc(keyvalue3_vault9.key, buffer9[3][i].key, NAp);
+		keyvalue3_vault10.value = mergefunc(keyvalue3_vault9.value, buffer9[3][i].value, NAp);
+		keyvalue4_vault10.key = mergefunc(keyvalue4_vault9.key, buffer9[4][i].key, NAp);
+		keyvalue4_vault10.value = mergefunc(keyvalue4_vault9.value, buffer9[4][i].value, NAp);
+		keyvalue5_vault10.key = mergefunc(keyvalue5_vault9.key, buffer9[5][i].key, NAp);
+		keyvalue5_vault10.value = mergefunc(keyvalue5_vault9.value, buffer9[5][i].value, NAp);
+		keyvalue6_vault10.key = mergefunc(keyvalue6_vault9.key, buffer9[6][i].key, NAp);
+		keyvalue6_vault10.value = mergefunc(keyvalue6_vault9.value, buffer9[6][i].value, NAp);
+		keyvalue7_vault10.key = mergefunc(keyvalue7_vault9.key, buffer9[7][i].key, NAp);
+		keyvalue7_vault10.value = mergefunc(keyvalue7_vault9.value, buffer9[7][i].value, NAp);
+	
+		keyvalue0_vault11.key = mergefunc(keyvalue0_vault10.key, buffer10[0][i].key, NAp);
+		keyvalue0_vault11.value = mergefunc(keyvalue0_vault10.value, buffer10[0][i].value, NAp);
+		keyvalue1_vault11.key = mergefunc(keyvalue1_vault10.key, buffer10[1][i].key, NAp);
+		keyvalue1_vault11.value = mergefunc(keyvalue1_vault10.value, buffer10[1][i].value, NAp);
+		keyvalue2_vault11.key = mergefunc(keyvalue2_vault10.key, buffer10[2][i].key, NAp);
+		keyvalue2_vault11.value = mergefunc(keyvalue2_vault10.value, buffer10[2][i].value, NAp);
+		keyvalue3_vault11.key = mergefunc(keyvalue3_vault10.key, buffer10[3][i].key, NAp);
+		keyvalue3_vault11.value = mergefunc(keyvalue3_vault10.value, buffer10[3][i].value, NAp);
+		keyvalue4_vault11.key = mergefunc(keyvalue4_vault10.key, buffer10[4][i].key, NAp);
+		keyvalue4_vault11.value = mergefunc(keyvalue4_vault10.value, buffer10[4][i].value, NAp);
+		keyvalue5_vault11.key = mergefunc(keyvalue5_vault10.key, buffer10[5][i].key, NAp);
+		keyvalue5_vault11.value = mergefunc(keyvalue5_vault10.value, buffer10[5][i].value, NAp);
+		keyvalue6_vault11.key = mergefunc(keyvalue6_vault10.key, buffer10[6][i].key, NAp);
+		keyvalue6_vault11.value = mergefunc(keyvalue6_vault10.value, buffer10[6][i].value, NAp);
+		keyvalue7_vault11.key = mergefunc(keyvalue7_vault10.key, buffer10[7][i].key, NAp);
+		keyvalue7_vault11.value = mergefunc(keyvalue7_vault10.value, buffer10[7][i].value, NAp);
+	
+		keyvalue0_vault12.key = mergefunc(keyvalue0_vault11.key, buffer11[0][i].key, NAp);
+		keyvalue0_vault12.value = mergefunc(keyvalue0_vault11.value, buffer11[0][i].value, NAp);
+		keyvalue1_vault12.key = mergefunc(keyvalue1_vault11.key, buffer11[1][i].key, NAp);
+		keyvalue1_vault12.value = mergefunc(keyvalue1_vault11.value, buffer11[1][i].value, NAp);
+		keyvalue2_vault12.key = mergefunc(keyvalue2_vault11.key, buffer11[2][i].key, NAp);
+		keyvalue2_vault12.value = mergefunc(keyvalue2_vault11.value, buffer11[2][i].value, NAp);
+		keyvalue3_vault12.key = mergefunc(keyvalue3_vault11.key, buffer11[3][i].key, NAp);
+		keyvalue3_vault12.value = mergefunc(keyvalue3_vault11.value, buffer11[3][i].value, NAp);
+		keyvalue4_vault12.key = mergefunc(keyvalue4_vault11.key, buffer11[4][i].key, NAp);
+		keyvalue4_vault12.value = mergefunc(keyvalue4_vault11.value, buffer11[4][i].value, NAp);
+		keyvalue5_vault12.key = mergefunc(keyvalue5_vault11.key, buffer11[5][i].key, NAp);
+		keyvalue5_vault12.value = mergefunc(keyvalue5_vault11.value, buffer11[5][i].value, NAp);
+		keyvalue6_vault12.key = mergefunc(keyvalue6_vault11.key, buffer11[6][i].key, NAp);
+		keyvalue6_vault12.value = mergefunc(keyvalue6_vault11.value, buffer11[6][i].value, NAp);
+		keyvalue7_vault12.key = mergefunc(keyvalue7_vault11.key, buffer11[7][i].key, NAp);
+		keyvalue7_vault12.value = mergefunc(keyvalue7_vault11.value, buffer11[7][i].value, NAp);
+	
+		keyvalue0_vault13.key = mergefunc(keyvalue0_vault12.key, buffer12[0][i].key, NAp);
+		keyvalue0_vault13.value = mergefunc(keyvalue0_vault12.value, buffer12[0][i].value, NAp);
+		keyvalue1_vault13.key = mergefunc(keyvalue1_vault12.key, buffer12[1][i].key, NAp);
+		keyvalue1_vault13.value = mergefunc(keyvalue1_vault12.value, buffer12[1][i].value, NAp);
+		keyvalue2_vault13.key = mergefunc(keyvalue2_vault12.key, buffer12[2][i].key, NAp);
+		keyvalue2_vault13.value = mergefunc(keyvalue2_vault12.value, buffer12[2][i].value, NAp);
+		keyvalue3_vault13.key = mergefunc(keyvalue3_vault12.key, buffer12[3][i].key, NAp);
+		keyvalue3_vault13.value = mergefunc(keyvalue3_vault12.value, buffer12[3][i].value, NAp);
+		keyvalue4_vault13.key = mergefunc(keyvalue4_vault12.key, buffer12[4][i].key, NAp);
+		keyvalue4_vault13.value = mergefunc(keyvalue4_vault12.value, buffer12[4][i].value, NAp);
+		keyvalue5_vault13.key = mergefunc(keyvalue5_vault12.key, buffer12[5][i].key, NAp);
+		keyvalue5_vault13.value = mergefunc(keyvalue5_vault12.value, buffer12[5][i].value, NAp);
+		keyvalue6_vault13.key = mergefunc(keyvalue6_vault12.key, buffer12[6][i].key, NAp);
+		keyvalue6_vault13.value = mergefunc(keyvalue6_vault12.value, buffer12[6][i].value, NAp);
+		keyvalue7_vault13.key = mergefunc(keyvalue7_vault12.key, buffer12[7][i].key, NAp);
+		keyvalue7_vault13.value = mergefunc(keyvalue7_vault12.value, buffer12[7][i].value, NAp);
+	
+		keyvalue0_vault14.key = mergefunc(keyvalue0_vault13.key, buffer13[0][i].key, NAp);
+		keyvalue0_vault14.value = mergefunc(keyvalue0_vault13.value, buffer13[0][i].value, NAp);
+		keyvalue1_vault14.key = mergefunc(keyvalue1_vault13.key, buffer13[1][i].key, NAp);
+		keyvalue1_vault14.value = mergefunc(keyvalue1_vault13.value, buffer13[1][i].value, NAp);
+		keyvalue2_vault14.key = mergefunc(keyvalue2_vault13.key, buffer13[2][i].key, NAp);
+		keyvalue2_vault14.value = mergefunc(keyvalue2_vault13.value, buffer13[2][i].value, NAp);
+		keyvalue3_vault14.key = mergefunc(keyvalue3_vault13.key, buffer13[3][i].key, NAp);
+		keyvalue3_vault14.value = mergefunc(keyvalue3_vault13.value, buffer13[3][i].value, NAp);
+		keyvalue4_vault14.key = mergefunc(keyvalue4_vault13.key, buffer13[4][i].key, NAp);
+		keyvalue4_vault14.value = mergefunc(keyvalue4_vault13.value, buffer13[4][i].value, NAp);
+		keyvalue5_vault14.key = mergefunc(keyvalue5_vault13.key, buffer13[5][i].key, NAp);
+		keyvalue5_vault14.value = mergefunc(keyvalue5_vault13.value, buffer13[5][i].value, NAp);
+		keyvalue6_vault14.key = mergefunc(keyvalue6_vault13.key, buffer13[6][i].key, NAp);
+		keyvalue6_vault14.value = mergefunc(keyvalue6_vault13.value, buffer13[6][i].value, NAp);
+		keyvalue7_vault14.key = mergefunc(keyvalue7_vault13.key, buffer13[7][i].key, NAp);
+		keyvalue7_vault14.value = mergefunc(keyvalue7_vault13.value, buffer13[7][i].value, NAp);
+	
+		keyvalue0_vault15.key = mergefunc(keyvalue0_vault14.key, buffer14[0][i].key, NAp);
+		keyvalue0_vault15.value = mergefunc(keyvalue0_vault14.value, buffer14[0][i].value, NAp);
+		keyvalue1_vault15.key = mergefunc(keyvalue1_vault14.key, buffer14[1][i].key, NAp);
+		keyvalue1_vault15.value = mergefunc(keyvalue1_vault14.value, buffer14[1][i].value, NAp);
+		keyvalue2_vault15.key = mergefunc(keyvalue2_vault14.key, buffer14[2][i].key, NAp);
+		keyvalue2_vault15.value = mergefunc(keyvalue2_vault14.value, buffer14[2][i].value, NAp);
+		keyvalue3_vault15.key = mergefunc(keyvalue3_vault14.key, buffer14[3][i].key, NAp);
+		keyvalue3_vault15.value = mergefunc(keyvalue3_vault14.value, buffer14[3][i].value, NAp);
+		keyvalue4_vault15.key = mergefunc(keyvalue4_vault14.key, buffer14[4][i].key, NAp);
+		keyvalue4_vault15.value = mergefunc(keyvalue4_vault14.value, buffer14[4][i].value, NAp);
+		keyvalue5_vault15.key = mergefunc(keyvalue5_vault14.key, buffer14[5][i].key, NAp);
+		keyvalue5_vault15.value = mergefunc(keyvalue5_vault14.value, buffer14[5][i].value, NAp);
+		keyvalue6_vault15.key = mergefunc(keyvalue6_vault14.key, buffer14[6][i].key, NAp);
+		keyvalue6_vault15.value = mergefunc(keyvalue6_vault14.value, buffer14[6][i].value, NAp);
+		keyvalue7_vault15.key = mergefunc(keyvalue7_vault14.key, buffer14[7][i].key, NAp);
+		keyvalue7_vault15.value = mergefunc(keyvalue7_vault14.value, buffer14[7][i].value, NAp);
+	
+		keyvalue0_vault16.key = mergefunc(keyvalue0_vault15.key, buffer15[0][i].key, NAp);
+		keyvalue0_vault16.value = mergefunc(keyvalue0_vault15.value, buffer15[0][i].value, NAp);
+		keyvalue1_vault16.key = mergefunc(keyvalue1_vault15.key, buffer15[1][i].key, NAp);
+		keyvalue1_vault16.value = mergefunc(keyvalue1_vault15.value, buffer15[1][i].value, NAp);
+		keyvalue2_vault16.key = mergefunc(keyvalue2_vault15.key, buffer15[2][i].key, NAp);
+		keyvalue2_vault16.value = mergefunc(keyvalue2_vault15.value, buffer15[2][i].value, NAp);
+		keyvalue3_vault16.key = mergefunc(keyvalue3_vault15.key, buffer15[3][i].key, NAp);
+		keyvalue3_vault16.value = mergefunc(keyvalue3_vault15.value, buffer15[3][i].value, NAp);
+		keyvalue4_vault16.key = mergefunc(keyvalue4_vault15.key, buffer15[4][i].key, NAp);
+		keyvalue4_vault16.value = mergefunc(keyvalue4_vault15.value, buffer15[4][i].value, NAp);
+		keyvalue5_vault16.key = mergefunc(keyvalue5_vault15.key, buffer15[5][i].key, NAp);
+		keyvalue5_vault16.value = mergefunc(keyvalue5_vault15.value, buffer15[5][i].value, NAp);
+		keyvalue6_vault16.key = mergefunc(keyvalue6_vault15.key, buffer15[6][i].key, NAp);
+		keyvalue6_vault16.value = mergefunc(keyvalue6_vault15.value, buffer15[6][i].value, NAp);
+		keyvalue7_vault16.key = mergefunc(keyvalue7_vault15.key, buffer15[7][i].key, NAp);
+		keyvalue7_vault16.value = mergefunc(keyvalue7_vault15.value, buffer15[7][i].value, NAp);
+	
+		keyvalue0_vault17.key = mergefunc(keyvalue0_vault16.key, buffer16[0][i].key, NAp);
+		keyvalue0_vault17.value = mergefunc(keyvalue0_vault16.value, buffer16[0][i].value, NAp);
+		keyvalue1_vault17.key = mergefunc(keyvalue1_vault16.key, buffer16[1][i].key, NAp);
+		keyvalue1_vault17.value = mergefunc(keyvalue1_vault16.value, buffer16[1][i].value, NAp);
+		keyvalue2_vault17.key = mergefunc(keyvalue2_vault16.key, buffer16[2][i].key, NAp);
+		keyvalue2_vault17.value = mergefunc(keyvalue2_vault16.value, buffer16[2][i].value, NAp);
+		keyvalue3_vault17.key = mergefunc(keyvalue3_vault16.key, buffer16[3][i].key, NAp);
+		keyvalue3_vault17.value = mergefunc(keyvalue3_vault16.value, buffer16[3][i].value, NAp);
+		keyvalue4_vault17.key = mergefunc(keyvalue4_vault16.key, buffer16[4][i].key, NAp);
+		keyvalue4_vault17.value = mergefunc(keyvalue4_vault16.value, buffer16[4][i].value, NAp);
+		keyvalue5_vault17.key = mergefunc(keyvalue5_vault16.key, buffer16[5][i].key, NAp);
+		keyvalue5_vault17.value = mergefunc(keyvalue5_vault16.value, buffer16[5][i].value, NAp);
+		keyvalue6_vault17.key = mergefunc(keyvalue6_vault16.key, buffer16[6][i].key, NAp);
+		keyvalue6_vault17.value = mergefunc(keyvalue6_vault16.value, buffer16[6][i].value, NAp);
+		keyvalue7_vault17.key = mergefunc(keyvalue7_vault16.key, buffer16[7][i].key, NAp);
+		keyvalue7_vault17.value = mergefunc(keyvalue7_vault16.value, buffer16[7][i].value, NAp);
+	
+		
+		tail[0][i] = keyvalue0_vault17;
+		tail[1][i] = keyvalue1_vault17;
+		tail[2][i] = keyvalue2_vault17;
+		tail[3][i] = keyvalue3_vault17;
+		tail[4][i] = keyvalue4_vault17;
+		tail[5][i] = keyvalue5_vault17;
+		tail[6][i] = keyvalue6_vault17;
+		tail[7][i] = keyvalue7_vault17;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(tail[0][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(tail[0][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[1][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(tail[1][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[2][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(tail[2][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[3][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(tail[3][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[4][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(tail[4][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[5][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(tail[5][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[6][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(tail[6][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[7][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(tail[7][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+	
+		#endif 
+	}
+	return;
+}
 
 uint32_type
 	#ifdef SW 
 	acts::
 	#endif
 apply(bool_type enable, 
-		vertexdata_wtype vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"apply: apply function called."<<endl;
 	#endif 
+	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
 	
 	unsigned int vid[NUM_PARTITIONS][2];
 	#pragma HLS ARRAY_PARTITION variable=vid complete
@@ -3647,6 +3977,7 @@ apply(bool_type enable,
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
 	APPLY_LOOP1: for(buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -3940,6 +4271,206 @@ apply(bool_type enable,
 		if(res14.value != udata14.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res15.key != udata15.key){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res15.value != udata15.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		#endif 
+		#endif
+	}
+	return cummvmask_sp;
+}
+uint32_type
+	#ifdef SW 
+	acts::
+	#endif
+apply2(bool_type enable, 
+		vertexdata_wtype vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		batch_type voffset_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return 0; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"apply: apply function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
+	
+	unsigned int vid[NUM_PARTITIONS][2];
+	#pragma HLS ARRAY_PARTITION variable=vid complete
+	
+	vertexdata_wtype data0;
+	vertexdata_wtype res0;
+	vertexdata_wtype data1;
+	vertexdata_wtype res1;
+	vertexdata_wtype data2;
+	vertexdata_wtype res2;
+	vertexdata_wtype data3;
+	vertexdata_wtype res3;
+	vertexdata_wtype data4;
+	vertexdata_wtype res4;
+	vertexdata_wtype data5;
+	vertexdata_wtype res5;
+	vertexdata_wtype data6;
+	vertexdata_wtype res6;
+	vertexdata_wtype data7;
+	vertexdata_wtype res7;
+	
+	uint32_type cummvmask_sp = 0;
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	APPLY_LOOP1: for(buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		vid[0][0] = voffset_kvs*VECTOR_SIZE*2 + ((0*globalparams.SIZE_REDUCE) + i*2);
+		vid[0][1] = voffset_kvs*VECTOR_SIZE*2 + ((0*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[1][0] = voffset_kvs*VECTOR_SIZE*2 + ((1*globalparams.SIZE_REDUCE) + i*2);
+		vid[1][1] = voffset_kvs*VECTOR_SIZE*2 + ((1*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[2][0] = voffset_kvs*VECTOR_SIZE*2 + ((2*globalparams.SIZE_REDUCE) + i*2);
+		vid[2][1] = voffset_kvs*VECTOR_SIZE*2 + ((2*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[3][0] = voffset_kvs*VECTOR_SIZE*2 + ((3*globalparams.SIZE_REDUCE) + i*2);
+		vid[3][1] = voffset_kvs*VECTOR_SIZE*2 + ((3*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[4][0] = voffset_kvs*VECTOR_SIZE*2 + ((4*globalparams.SIZE_REDUCE) + i*2);
+		vid[4][1] = voffset_kvs*VECTOR_SIZE*2 + ((4*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[5][0] = voffset_kvs*VECTOR_SIZE*2 + ((5*globalparams.SIZE_REDUCE) + i*2);
+		vid[5][1] = voffset_kvs*VECTOR_SIZE*2 + ((5*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[6][0] = voffset_kvs*VECTOR_SIZE*2 + ((6*globalparams.SIZE_REDUCE) + i*2);
+		vid[6][1] = voffset_kvs*VECTOR_SIZE*2 + ((6*globalparams.SIZE_REDUCE) + i*2 + 1);
+		vid[7][0] = voffset_kvs*VECTOR_SIZE*2 + ((7*globalparams.SIZE_REDUCE) + i*2);
+		vid[7][1] = voffset_kvs*VECTOR_SIZE*2 + ((7*globalparams.SIZE_REDUCE) + i*2 + 1);
+		#endif 
+	
+		data0 = vbuffer[0][i];
+		data1 = vbuffer[1][i];
+		data2 = vbuffer[2][i];
+		data3 = vbuffer[3][i];
+		data4 = vbuffer[4][i];
+		data5 = vbuffer[5][i];
+		data6 = vbuffer[6][i];
+		data7 = vbuffer[7][i];
+		
+		vertexdata_wtype udata0 = synvbuffer[0][i];
+		vertexdata_wtype udata1 = synvbuffer[1][i];
+		vertexdata_wtype udata2 = synvbuffer[2][i];
+		vertexdata_wtype udata3 = synvbuffer[3][i];
+		vertexdata_wtype udata4 = synvbuffer[4][i];
+		vertexdata_wtype udata5 = synvbuffer[5][i];
+		vertexdata_wtype udata6 = synvbuffer[6][i];
+		vertexdata_wtype udata7 = synvbuffer[7][i];
+		
+		res0.key = applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res1.key = applyfunc(udata1.key, data1.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res2.key = applyfunc(udata2.key, data2.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res3.key = applyfunc(udata3.key, data3.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res4.key = applyfunc(udata4.key, data4.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res5.key = applyfunc(udata5.key, data5.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res6.key = applyfunc(udata6.key, data6.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res7.key = applyfunc(udata7.key, data7.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res0.value = applyfunc(udata0.value, data0.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res1.value = applyfunc(udata1.value, data1.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res2.value = applyfunc(udata2.value, data2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res3.value = applyfunc(udata3.value, data3.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res4.value = applyfunc(udata4.value, data4.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res5.value = applyfunc(udata5.value, data5.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res6.value = applyfunc(udata6.value, data6.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res7.value = applyfunc(udata7.value, data7.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
+		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
+		if(res0.value != udata0.value || res0.value < 0xFFFFFFFF){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
+		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
+		if(res1.value != udata1.value || res1.value < 0xFFFFFFFF){ vmask[i].data[1].value = 1; } else { vmask[i].data[1].value = 0; }
+		if(res2.key != udata2.key || res2.key < 0xFFFFFFFF){ vmask[i].data[2].key = 1; } else { vmask[i].data[2].key = 0; }
+		if(res2.value != udata2.value || res2.value < 0xFFFFFFFF){ vmask[i].data[2].value = 1; } else { vmask[i].data[2].value = 0; }
+		if(res3.key != udata3.key || res3.key < 0xFFFFFFFF){ vmask[i].data[3].key = 1; } else { vmask[i].data[3].key = 0; }
+		if(res3.value != udata3.value || res3.value < 0xFFFFFFFF){ vmask[i].data[3].value = 1; } else { vmask[i].data[3].value = 0; }
+		if(res4.key != udata4.key || res4.key < 0xFFFFFFFF){ vmask[i].data[4].key = 1; } else { vmask[i].data[4].key = 0; }
+		if(res4.value != udata4.value || res4.value < 0xFFFFFFFF){ vmask[i].data[4].value = 1; } else { vmask[i].data[4].value = 0; }
+		if(res5.key != udata5.key || res5.key < 0xFFFFFFFF){ vmask[i].data[5].key = 1; } else { vmask[i].data[5].key = 0; }
+		if(res5.value != udata5.value || res5.value < 0xFFFFFFFF){ vmask[i].data[5].value = 1; } else { vmask[i].data[5].value = 0; }
+		if(res6.key != udata6.key || res6.key < 0xFFFFFFFF){ vmask[i].data[6].key = 1; } else { vmask[i].data[6].key = 0; }
+		if(res6.value != udata6.value || res6.value < 0xFFFFFFFF){ vmask[i].data[6].value = 1; } else { vmask[i].data[6].value = 0; }
+		if(res7.key != udata7.key || res7.key < 0xFFFFFFFF){ vmask[i].data[7].key = 1; } else { vmask[i].data[7].key = 0; }
+		if(res7.value != udata7.value || res7.value < 0xFFFFFFFF){ vmask[i].data[7].value = 1; } else { vmask[i].data[7].value = 0; }
+	
+		#else
+		if(res0.key != udata0.key){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
+		if(res0.value != udata0.value){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
+		if(res1.key != udata1.key){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
+		if(res1.value != udata1.value){ vmask[i].data[1].value = 1; } else { vmask[i].data[1].value = 0; }
+		if(res2.key != udata2.key){ vmask[i].data[2].key = 1; } else { vmask[i].data[2].key = 0; }
+		if(res2.value != udata2.value){ vmask[i].data[2].value = 1; } else { vmask[i].data[2].value = 0; }
+		if(res3.key != udata3.key){ vmask[i].data[3].key = 1; } else { vmask[i].data[3].key = 0; }
+		if(res3.value != udata3.value){ vmask[i].data[3].value = 1; } else { vmask[i].data[3].value = 0; }
+		if(res4.key != udata4.key){ vmask[i].data[4].key = 1; } else { vmask[i].data[4].key = 0; }
+		if(res4.value != udata4.value){ vmask[i].data[4].value = 1; } else { vmask[i].data[4].value = 0; }
+		if(res5.key != udata5.key){ vmask[i].data[5].key = 1; } else { vmask[i].data[5].key = 0; }
+		if(res5.value != udata5.value){ vmask[i].data[5].value = 1; } else { vmask[i].data[5].value = 0; }
+		if(res6.key != udata6.key){ vmask[i].data[6].key = 1; } else { vmask[i].data[6].key = 0; }
+		if(res6.value != udata6.value){ vmask[i].data[6].value = 1; } else { vmask[i].data[6].value = 0; }
+		if(res7.key != udata7.key){ vmask[i].data[7].key = 1; } else { vmask[i].data[7].key = 0; }
+		if(res7.value != udata7.value){ vmask[i].data[7].value = 1; } else { vmask[i].data[7].value = 0; }
+		#endif 
+		
+		uint32_type mask = convertvmasktouint32(vmask, i);
+		cummvmask_sp = cummvmask_sp | mask;
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[0][0]<<" & vid2: "<<vid[0][1]<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl; }
+		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ cout<<"apply: vid[0][0]: "<<vid[0][0]<<", vmask["<<i<<"].data[0].key: "<<vmask[i].data[0].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res0.value != udata0.value || res0.value < 0xFFFFFFFF){ cout<<"apply: vid[0][1]: "<<vid[0][1]<<", vmask["<<i<<"].data[0].value: "<<vmask[i].data[0].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[1][0]<<" & vid2: "<<vid[1][1]<<"): res1.key: "<<res1.key<<", res1.value: "<<res1.value<<": udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl; }
+		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ cout<<"apply: vid[1][0]: "<<vid[1][0]<<", vmask["<<i<<"].data[1].key: "<<vmask[i].data[1].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res1.value != udata1.value || res1.value < 0xFFFFFFFF){ cout<<"apply: vid[1][1]: "<<vid[1][1]<<", vmask["<<i<<"].data[1].value: "<<vmask[i].data[1].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[2][0]<<" & vid2: "<<vid[2][1]<<"): res2.key: "<<res2.key<<", res2.value: "<<res2.value<<": udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl; }
+		if(res2.key != udata2.key || res2.key < 0xFFFFFFFF){ cout<<"apply: vid[2][0]: "<<vid[2][0]<<", vmask["<<i<<"].data[2].key: "<<vmask[i].data[2].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res2.value != udata2.value || res2.value < 0xFFFFFFFF){ cout<<"apply: vid[2][1]: "<<vid[2][1]<<", vmask["<<i<<"].data[2].value: "<<vmask[i].data[2].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[3][0]<<" & vid2: "<<vid[3][1]<<"): res3.key: "<<res3.key<<", res3.value: "<<res3.value<<": udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl; }
+		if(res3.key != udata3.key || res3.key < 0xFFFFFFFF){ cout<<"apply: vid[3][0]: "<<vid[3][0]<<", vmask["<<i<<"].data[3].key: "<<vmask[i].data[3].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res3.value != udata3.value || res3.value < 0xFFFFFFFF){ cout<<"apply: vid[3][1]: "<<vid[3][1]<<", vmask["<<i<<"].data[3].value: "<<vmask[i].data[3].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[4][0]<<" & vid2: "<<vid[4][1]<<"): res4.key: "<<res4.key<<", res4.value: "<<res4.value<<": udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl; }
+		if(res4.key != udata4.key || res4.key < 0xFFFFFFFF){ cout<<"apply: vid[4][0]: "<<vid[4][0]<<", vmask["<<i<<"].data[4].key: "<<vmask[i].data[4].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res4.value != udata4.value || res4.value < 0xFFFFFFFF){ cout<<"apply: vid[4][1]: "<<vid[4][1]<<", vmask["<<i<<"].data[4].value: "<<vmask[i].data[4].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[5][0]<<" & vid2: "<<vid[5][1]<<"): res5.key: "<<res5.key<<", res5.value: "<<res5.value<<": udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl; }
+		if(res5.key != udata5.key || res5.key < 0xFFFFFFFF){ cout<<"apply: vid[5][0]: "<<vid[5][0]<<", vmask["<<i<<"].data[5].key: "<<vmask[i].data[5].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res5.value != udata5.value || res5.value < 0xFFFFFFFF){ cout<<"apply: vid[5][1]: "<<vid[5][1]<<", vmask["<<i<<"].data[5].value: "<<vmask[i].data[5].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[6][0]<<" & vid2: "<<vid[6][1]<<"): res6.key: "<<res6.key<<", res6.value: "<<res6.value<<": udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl; }
+		if(res6.key != udata6.key || res6.key < 0xFFFFFFFF){ cout<<"apply: vid[6][0]: "<<vid[6][0]<<", vmask["<<i<<"].data[6].key: "<<vmask[i].data[6].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res6.value != udata6.value || res6.value < 0xFFFFFFFF){ cout<<"apply: vid[6][1]: "<<vid[6][1]<<", vmask["<<i<<"].data[6].value: "<<vmask[i].data[6].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[7][0]<<" & vid2: "<<vid[7][1]<<"): res7.key: "<<res7.key<<", res7.value: "<<res7.value<<": udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl; }
+		if(res7.key != udata7.key || res7.key < 0xFFFFFFFF){ cout<<"apply: vid[7][0]: "<<vid[7][0]<<", vmask["<<i<<"].data[7].key: "<<vmask[i].data[7].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res7.value != udata7.value || res7.value < 0xFFFFFFFF){ cout<<"apply: vid[7][1]: "<<vid[7][1]<<", vmask["<<i<<"].data[7].value: "<<vmask[i].data[7].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		#endif
+		#ifdef _DEBUGMODE_STATS
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
+		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res0.value != udata0.value || res0.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.value != udata1.value || res1.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.key != udata2.key || res2.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.value != udata2.value || res2.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.key != udata3.key || res3.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.value != udata3.value || res3.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.key != udata4.key || res4.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.value != udata4.value || res4.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.key != udata5.key || res5.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.value != udata5.value || res5.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.key != udata6.key || res6.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.value != udata6.value || res6.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.key != udata7.key || res7.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.value != udata7.value || res7.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		#else 
+		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res0.value != udata0.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.key != udata1.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res1.value != udata1.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.key != udata2.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res2.value != udata2.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.key != udata3.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res3.value != udata3.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.key != udata4.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res4.value != udata4.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.key != udata5.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res5.value != udata5.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.key != udata6.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res6.value != udata6.value){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.key != udata7.key){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res7.value != udata7.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		#endif 
 		#endif
 	}
@@ -4871,6 +5402,499 @@ spreadvdata(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOC
 	}
 	return;
 }
+void
+	#ifdef SW 
+	acts::
+	#endif
+spreadvdata2(bool_type enable, vertexdata_wtype buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"spreadvdata: spread (vdata) function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	vertexdata_wtype keyvalue0_vault0;
+	vertexdata_wtype keyvalue1_vault0;
+	vertexdata_wtype keyvalue2_vault0;
+	vertexdata_wtype keyvalue3_vault0;
+	vertexdata_wtype keyvalue4_vault0;
+	vertexdata_wtype keyvalue5_vault0;
+	vertexdata_wtype keyvalue6_vault0;
+	vertexdata_wtype keyvalue7_vault0;
+	
+	vertexdata_wtype keyvalue0_vault1;
+	vertexdata_wtype keyvalue1_vault1;
+	vertexdata_wtype keyvalue2_vault1;
+	vertexdata_wtype keyvalue3_vault1;
+	vertexdata_wtype keyvalue4_vault1;
+	vertexdata_wtype keyvalue5_vault1;
+	vertexdata_wtype keyvalue6_vault1;
+	vertexdata_wtype keyvalue7_vault1;
+	
+	vertexdata_wtype keyvalue0_vault2;
+	vertexdata_wtype keyvalue1_vault2;
+	vertexdata_wtype keyvalue2_vault2;
+	vertexdata_wtype keyvalue3_vault2;
+	vertexdata_wtype keyvalue4_vault2;
+	vertexdata_wtype keyvalue5_vault2;
+	vertexdata_wtype keyvalue6_vault2;
+	vertexdata_wtype keyvalue7_vault2;
+	
+	vertexdata_wtype keyvalue0_vault3;
+	vertexdata_wtype keyvalue1_vault3;
+	vertexdata_wtype keyvalue2_vault3;
+	vertexdata_wtype keyvalue3_vault3;
+	vertexdata_wtype keyvalue4_vault3;
+	vertexdata_wtype keyvalue5_vault3;
+	vertexdata_wtype keyvalue6_vault3;
+	vertexdata_wtype keyvalue7_vault3;
+	
+	vertexdata_wtype keyvalue0_vault4;
+	vertexdata_wtype keyvalue1_vault4;
+	vertexdata_wtype keyvalue2_vault4;
+	vertexdata_wtype keyvalue3_vault4;
+	vertexdata_wtype keyvalue4_vault4;
+	vertexdata_wtype keyvalue5_vault4;
+	vertexdata_wtype keyvalue6_vault4;
+	vertexdata_wtype keyvalue7_vault4;
+	
+	vertexdata_wtype keyvalue0_vault5;
+	vertexdata_wtype keyvalue1_vault5;
+	vertexdata_wtype keyvalue2_vault5;
+	vertexdata_wtype keyvalue3_vault5;
+	vertexdata_wtype keyvalue4_vault5;
+	vertexdata_wtype keyvalue5_vault5;
+	vertexdata_wtype keyvalue6_vault5;
+	vertexdata_wtype keyvalue7_vault5;
+	
+	vertexdata_wtype keyvalue0_vault6;
+	vertexdata_wtype keyvalue1_vault6;
+	vertexdata_wtype keyvalue2_vault6;
+	vertexdata_wtype keyvalue3_vault6;
+	vertexdata_wtype keyvalue4_vault6;
+	vertexdata_wtype keyvalue5_vault6;
+	vertexdata_wtype keyvalue6_vault6;
+	vertexdata_wtype keyvalue7_vault6;
+	
+	vertexdata_wtype keyvalue0_vault7;
+	vertexdata_wtype keyvalue1_vault7;
+	vertexdata_wtype keyvalue2_vault7;
+	vertexdata_wtype keyvalue3_vault7;
+	vertexdata_wtype keyvalue4_vault7;
+	vertexdata_wtype keyvalue5_vault7;
+	vertexdata_wtype keyvalue6_vault7;
+	vertexdata_wtype keyvalue7_vault7;
+	
+	vertexdata_wtype keyvalue0_vault8;
+	vertexdata_wtype keyvalue1_vault8;
+	vertexdata_wtype keyvalue2_vault8;
+	vertexdata_wtype keyvalue3_vault8;
+	vertexdata_wtype keyvalue4_vault8;
+	vertexdata_wtype keyvalue5_vault8;
+	vertexdata_wtype keyvalue6_vault8;
+	vertexdata_wtype keyvalue7_vault8;
+	
+	vertexdata_wtype keyvalue0_vault9;
+	vertexdata_wtype keyvalue1_vault9;
+	vertexdata_wtype keyvalue2_vault9;
+	vertexdata_wtype keyvalue3_vault9;
+	vertexdata_wtype keyvalue4_vault9;
+	vertexdata_wtype keyvalue5_vault9;
+	vertexdata_wtype keyvalue6_vault9;
+	vertexdata_wtype keyvalue7_vault9;
+	
+	vertexdata_wtype keyvalue0_vault10;
+	vertexdata_wtype keyvalue1_vault10;
+	vertexdata_wtype keyvalue2_vault10;
+	vertexdata_wtype keyvalue3_vault10;
+	vertexdata_wtype keyvalue4_vault10;
+	vertexdata_wtype keyvalue5_vault10;
+	vertexdata_wtype keyvalue6_vault10;
+	vertexdata_wtype keyvalue7_vault10;
+	
+	vertexdata_wtype keyvalue0_vault11;
+	vertexdata_wtype keyvalue1_vault11;
+	vertexdata_wtype keyvalue2_vault11;
+	vertexdata_wtype keyvalue3_vault11;
+	vertexdata_wtype keyvalue4_vault11;
+	vertexdata_wtype keyvalue5_vault11;
+	vertexdata_wtype keyvalue6_vault11;
+	vertexdata_wtype keyvalue7_vault11;
+	
+	vertexdata_wtype keyvalue0_vault12;
+	vertexdata_wtype keyvalue1_vault12;
+	vertexdata_wtype keyvalue2_vault12;
+	vertexdata_wtype keyvalue3_vault12;
+	vertexdata_wtype keyvalue4_vault12;
+	vertexdata_wtype keyvalue5_vault12;
+	vertexdata_wtype keyvalue6_vault12;
+	vertexdata_wtype keyvalue7_vault12;
+	
+	vertexdata_wtype keyvalue0_vault13;
+	vertexdata_wtype keyvalue1_vault13;
+	vertexdata_wtype keyvalue2_vault13;
+	vertexdata_wtype keyvalue3_vault13;
+	vertexdata_wtype keyvalue4_vault13;
+	vertexdata_wtype keyvalue5_vault13;
+	vertexdata_wtype keyvalue6_vault13;
+	vertexdata_wtype keyvalue7_vault13;
+	
+	vertexdata_wtype keyvalue0_vault14;
+	vertexdata_wtype keyvalue1_vault14;
+	vertexdata_wtype keyvalue2_vault14;
+	vertexdata_wtype keyvalue3_vault14;
+	vertexdata_wtype keyvalue4_vault14;
+	vertexdata_wtype keyvalue5_vault14;
+	vertexdata_wtype keyvalue6_vault14;
+	vertexdata_wtype keyvalue7_vault14;
+	
+	vertexdata_wtype keyvalue0_vault15;
+	vertexdata_wtype keyvalue1_vault15;
+	vertexdata_wtype keyvalue2_vault15;
+	vertexdata_wtype keyvalue3_vault15;
+	vertexdata_wtype keyvalue4_vault15;
+	vertexdata_wtype keyvalue5_vault15;
+	vertexdata_wtype keyvalue6_vault15;
+	vertexdata_wtype keyvalue7_vault15;
+	
+	vertexdata_wtype keyvalue0_vault16;
+	vertexdata_wtype keyvalue1_vault16;
+	vertexdata_wtype keyvalue2_vault16;
+	vertexdata_wtype keyvalue3_vault16;
+	vertexdata_wtype keyvalue4_vault16;
+	vertexdata_wtype keyvalue5_vault16;
+	vertexdata_wtype keyvalue6_vault16;
+	vertexdata_wtype keyvalue7_vault16;
+	
+	vertexdata_wtype keyvalue0_vault17;
+	vertexdata_wtype keyvalue1_vault17;
+	vertexdata_wtype keyvalue2_vault17;
+	vertexdata_wtype keyvalue3_vault17;
+	vertexdata_wtype keyvalue4_vault17;
+	vertexdata_wtype keyvalue5_vault17;
+	vertexdata_wtype keyvalue6_vault17;
+	vertexdata_wtype keyvalue7_vault17;
+	
+	
+	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		keyvalue0_vault1 = buffer0[0][i]; 
+		keyvalue1_vault1 = buffer0[1][i]; 
+		keyvalue2_vault1 = buffer0[2][i]; 
+		keyvalue3_vault1 = buffer0[3][i]; 
+		keyvalue4_vault1 = buffer0[4][i]; 
+		keyvalue5_vault1 = buffer0[5][i]; 
+		keyvalue6_vault1 = buffer0[6][i]; 
+		keyvalue7_vault1 = buffer0[7][i]; 
+			
+	
+		keyvalue0_vault2 = keyvalue0_vault1;
+		buffer1[0][i] = keyvalue0_vault1;
+		keyvalue1_vault2 = keyvalue1_vault1;
+		buffer1[1][i] = keyvalue1_vault1;
+		keyvalue2_vault2 = keyvalue2_vault1;
+		buffer1[2][i] = keyvalue2_vault1;
+		keyvalue3_vault2 = keyvalue3_vault1;
+		buffer1[3][i] = keyvalue3_vault1;
+		keyvalue4_vault2 = keyvalue4_vault1;
+		buffer1[4][i] = keyvalue4_vault1;
+		keyvalue5_vault2 = keyvalue5_vault1;
+		buffer1[5][i] = keyvalue5_vault1;
+		keyvalue6_vault2 = keyvalue6_vault1;
+		buffer1[6][i] = keyvalue6_vault1;
+		keyvalue7_vault2 = keyvalue7_vault1;
+		buffer1[7][i] = keyvalue7_vault1;
+	
+		keyvalue0_vault3 = keyvalue0_vault2;
+		buffer2[0][i] = keyvalue0_vault2;
+		keyvalue1_vault3 = keyvalue1_vault2;
+		buffer2[1][i] = keyvalue1_vault2;
+		keyvalue2_vault3 = keyvalue2_vault2;
+		buffer2[2][i] = keyvalue2_vault2;
+		keyvalue3_vault3 = keyvalue3_vault2;
+		buffer2[3][i] = keyvalue3_vault2;
+		keyvalue4_vault3 = keyvalue4_vault2;
+		buffer2[4][i] = keyvalue4_vault2;
+		keyvalue5_vault3 = keyvalue5_vault2;
+		buffer2[5][i] = keyvalue5_vault2;
+		keyvalue6_vault3 = keyvalue6_vault2;
+		buffer2[6][i] = keyvalue6_vault2;
+		keyvalue7_vault3 = keyvalue7_vault2;
+		buffer2[7][i] = keyvalue7_vault2;
+	
+		keyvalue0_vault4 = keyvalue0_vault3;
+		buffer3[0][i] = keyvalue0_vault3;
+		keyvalue1_vault4 = keyvalue1_vault3;
+		buffer3[1][i] = keyvalue1_vault3;
+		keyvalue2_vault4 = keyvalue2_vault3;
+		buffer3[2][i] = keyvalue2_vault3;
+		keyvalue3_vault4 = keyvalue3_vault3;
+		buffer3[3][i] = keyvalue3_vault3;
+		keyvalue4_vault4 = keyvalue4_vault3;
+		buffer3[4][i] = keyvalue4_vault3;
+		keyvalue5_vault4 = keyvalue5_vault3;
+		buffer3[5][i] = keyvalue5_vault3;
+		keyvalue6_vault4 = keyvalue6_vault3;
+		buffer3[6][i] = keyvalue6_vault3;
+		keyvalue7_vault4 = keyvalue7_vault3;
+		buffer3[7][i] = keyvalue7_vault3;
+	
+		keyvalue0_vault5 = keyvalue0_vault4;
+		buffer4[0][i] = keyvalue0_vault4;
+		keyvalue1_vault5 = keyvalue1_vault4;
+		buffer4[1][i] = keyvalue1_vault4;
+		keyvalue2_vault5 = keyvalue2_vault4;
+		buffer4[2][i] = keyvalue2_vault4;
+		keyvalue3_vault5 = keyvalue3_vault4;
+		buffer4[3][i] = keyvalue3_vault4;
+		keyvalue4_vault5 = keyvalue4_vault4;
+		buffer4[4][i] = keyvalue4_vault4;
+		keyvalue5_vault5 = keyvalue5_vault4;
+		buffer4[5][i] = keyvalue5_vault4;
+		keyvalue6_vault5 = keyvalue6_vault4;
+		buffer4[6][i] = keyvalue6_vault4;
+		keyvalue7_vault5 = keyvalue7_vault4;
+		buffer4[7][i] = keyvalue7_vault4;
+	
+		keyvalue0_vault6 = keyvalue0_vault5;
+		buffer5[0][i] = keyvalue0_vault5;
+		keyvalue1_vault6 = keyvalue1_vault5;
+		buffer5[1][i] = keyvalue1_vault5;
+		keyvalue2_vault6 = keyvalue2_vault5;
+		buffer5[2][i] = keyvalue2_vault5;
+		keyvalue3_vault6 = keyvalue3_vault5;
+		buffer5[3][i] = keyvalue3_vault5;
+		keyvalue4_vault6 = keyvalue4_vault5;
+		buffer5[4][i] = keyvalue4_vault5;
+		keyvalue5_vault6 = keyvalue5_vault5;
+		buffer5[5][i] = keyvalue5_vault5;
+		keyvalue6_vault6 = keyvalue6_vault5;
+		buffer5[6][i] = keyvalue6_vault5;
+		keyvalue7_vault6 = keyvalue7_vault5;
+		buffer5[7][i] = keyvalue7_vault5;
+	
+		keyvalue0_vault7 = keyvalue0_vault6;
+		buffer6[0][i] = keyvalue0_vault6;
+		keyvalue1_vault7 = keyvalue1_vault6;
+		buffer6[1][i] = keyvalue1_vault6;
+		keyvalue2_vault7 = keyvalue2_vault6;
+		buffer6[2][i] = keyvalue2_vault6;
+		keyvalue3_vault7 = keyvalue3_vault6;
+		buffer6[3][i] = keyvalue3_vault6;
+		keyvalue4_vault7 = keyvalue4_vault6;
+		buffer6[4][i] = keyvalue4_vault6;
+		keyvalue5_vault7 = keyvalue5_vault6;
+		buffer6[5][i] = keyvalue5_vault6;
+		keyvalue6_vault7 = keyvalue6_vault6;
+		buffer6[6][i] = keyvalue6_vault6;
+		keyvalue7_vault7 = keyvalue7_vault6;
+		buffer6[7][i] = keyvalue7_vault6;
+	
+		keyvalue0_vault8 = keyvalue0_vault7;
+		buffer7[0][i] = keyvalue0_vault7;
+		keyvalue1_vault8 = keyvalue1_vault7;
+		buffer7[1][i] = keyvalue1_vault7;
+		keyvalue2_vault8 = keyvalue2_vault7;
+		buffer7[2][i] = keyvalue2_vault7;
+		keyvalue3_vault8 = keyvalue3_vault7;
+		buffer7[3][i] = keyvalue3_vault7;
+		keyvalue4_vault8 = keyvalue4_vault7;
+		buffer7[4][i] = keyvalue4_vault7;
+		keyvalue5_vault8 = keyvalue5_vault7;
+		buffer7[5][i] = keyvalue5_vault7;
+		keyvalue6_vault8 = keyvalue6_vault7;
+		buffer7[6][i] = keyvalue6_vault7;
+		keyvalue7_vault8 = keyvalue7_vault7;
+		buffer7[7][i] = keyvalue7_vault7;
+	
+		keyvalue0_vault9 = keyvalue0_vault8;
+		buffer8[0][i] = keyvalue0_vault8;
+		keyvalue1_vault9 = keyvalue1_vault8;
+		buffer8[1][i] = keyvalue1_vault8;
+		keyvalue2_vault9 = keyvalue2_vault8;
+		buffer8[2][i] = keyvalue2_vault8;
+		keyvalue3_vault9 = keyvalue3_vault8;
+		buffer8[3][i] = keyvalue3_vault8;
+		keyvalue4_vault9 = keyvalue4_vault8;
+		buffer8[4][i] = keyvalue4_vault8;
+		keyvalue5_vault9 = keyvalue5_vault8;
+		buffer8[5][i] = keyvalue5_vault8;
+		keyvalue6_vault9 = keyvalue6_vault8;
+		buffer8[6][i] = keyvalue6_vault8;
+		keyvalue7_vault9 = keyvalue7_vault8;
+		buffer8[7][i] = keyvalue7_vault8;
+	
+		keyvalue0_vault10 = keyvalue0_vault9;
+		buffer9[0][i] = keyvalue0_vault9;
+		keyvalue1_vault10 = keyvalue1_vault9;
+		buffer9[1][i] = keyvalue1_vault9;
+		keyvalue2_vault10 = keyvalue2_vault9;
+		buffer9[2][i] = keyvalue2_vault9;
+		keyvalue3_vault10 = keyvalue3_vault9;
+		buffer9[3][i] = keyvalue3_vault9;
+		keyvalue4_vault10 = keyvalue4_vault9;
+		buffer9[4][i] = keyvalue4_vault9;
+		keyvalue5_vault10 = keyvalue5_vault9;
+		buffer9[5][i] = keyvalue5_vault9;
+		keyvalue6_vault10 = keyvalue6_vault9;
+		buffer9[6][i] = keyvalue6_vault9;
+		keyvalue7_vault10 = keyvalue7_vault9;
+		buffer9[7][i] = keyvalue7_vault9;
+	
+		keyvalue0_vault11 = keyvalue0_vault10;
+		buffer10[0][i] = keyvalue0_vault10;
+		keyvalue1_vault11 = keyvalue1_vault10;
+		buffer10[1][i] = keyvalue1_vault10;
+		keyvalue2_vault11 = keyvalue2_vault10;
+		buffer10[2][i] = keyvalue2_vault10;
+		keyvalue3_vault11 = keyvalue3_vault10;
+		buffer10[3][i] = keyvalue3_vault10;
+		keyvalue4_vault11 = keyvalue4_vault10;
+		buffer10[4][i] = keyvalue4_vault10;
+		keyvalue5_vault11 = keyvalue5_vault10;
+		buffer10[5][i] = keyvalue5_vault10;
+		keyvalue6_vault11 = keyvalue6_vault10;
+		buffer10[6][i] = keyvalue6_vault10;
+		keyvalue7_vault11 = keyvalue7_vault10;
+		buffer10[7][i] = keyvalue7_vault10;
+	
+		keyvalue0_vault12 = keyvalue0_vault11;
+		buffer11[0][i] = keyvalue0_vault11;
+		keyvalue1_vault12 = keyvalue1_vault11;
+		buffer11[1][i] = keyvalue1_vault11;
+		keyvalue2_vault12 = keyvalue2_vault11;
+		buffer11[2][i] = keyvalue2_vault11;
+		keyvalue3_vault12 = keyvalue3_vault11;
+		buffer11[3][i] = keyvalue3_vault11;
+		keyvalue4_vault12 = keyvalue4_vault11;
+		buffer11[4][i] = keyvalue4_vault11;
+		keyvalue5_vault12 = keyvalue5_vault11;
+		buffer11[5][i] = keyvalue5_vault11;
+		keyvalue6_vault12 = keyvalue6_vault11;
+		buffer11[6][i] = keyvalue6_vault11;
+		keyvalue7_vault12 = keyvalue7_vault11;
+		buffer11[7][i] = keyvalue7_vault11;
+	
+		keyvalue0_vault13 = keyvalue0_vault12;
+		buffer12[0][i] = keyvalue0_vault12;
+		keyvalue1_vault13 = keyvalue1_vault12;
+		buffer12[1][i] = keyvalue1_vault12;
+		keyvalue2_vault13 = keyvalue2_vault12;
+		buffer12[2][i] = keyvalue2_vault12;
+		keyvalue3_vault13 = keyvalue3_vault12;
+		buffer12[3][i] = keyvalue3_vault12;
+		keyvalue4_vault13 = keyvalue4_vault12;
+		buffer12[4][i] = keyvalue4_vault12;
+		keyvalue5_vault13 = keyvalue5_vault12;
+		buffer12[5][i] = keyvalue5_vault12;
+		keyvalue6_vault13 = keyvalue6_vault12;
+		buffer12[6][i] = keyvalue6_vault12;
+		keyvalue7_vault13 = keyvalue7_vault12;
+		buffer12[7][i] = keyvalue7_vault12;
+	
+		keyvalue0_vault14 = keyvalue0_vault13;
+		buffer13[0][i] = keyvalue0_vault13;
+		keyvalue1_vault14 = keyvalue1_vault13;
+		buffer13[1][i] = keyvalue1_vault13;
+		keyvalue2_vault14 = keyvalue2_vault13;
+		buffer13[2][i] = keyvalue2_vault13;
+		keyvalue3_vault14 = keyvalue3_vault13;
+		buffer13[3][i] = keyvalue3_vault13;
+		keyvalue4_vault14 = keyvalue4_vault13;
+		buffer13[4][i] = keyvalue4_vault13;
+		keyvalue5_vault14 = keyvalue5_vault13;
+		buffer13[5][i] = keyvalue5_vault13;
+		keyvalue6_vault14 = keyvalue6_vault13;
+		buffer13[6][i] = keyvalue6_vault13;
+		keyvalue7_vault14 = keyvalue7_vault13;
+		buffer13[7][i] = keyvalue7_vault13;
+	
+		keyvalue0_vault15 = keyvalue0_vault14;
+		buffer14[0][i] = keyvalue0_vault14;
+		keyvalue1_vault15 = keyvalue1_vault14;
+		buffer14[1][i] = keyvalue1_vault14;
+		keyvalue2_vault15 = keyvalue2_vault14;
+		buffer14[2][i] = keyvalue2_vault14;
+		keyvalue3_vault15 = keyvalue3_vault14;
+		buffer14[3][i] = keyvalue3_vault14;
+		keyvalue4_vault15 = keyvalue4_vault14;
+		buffer14[4][i] = keyvalue4_vault14;
+		keyvalue5_vault15 = keyvalue5_vault14;
+		buffer14[5][i] = keyvalue5_vault14;
+		keyvalue6_vault15 = keyvalue6_vault14;
+		buffer14[6][i] = keyvalue6_vault14;
+		keyvalue7_vault15 = keyvalue7_vault14;
+		buffer14[7][i] = keyvalue7_vault14;
+	
+		keyvalue0_vault16 = keyvalue0_vault15;
+		buffer15[0][i] = keyvalue0_vault15;
+		keyvalue1_vault16 = keyvalue1_vault15;
+		buffer15[1][i] = keyvalue1_vault15;
+		keyvalue2_vault16 = keyvalue2_vault15;
+		buffer15[2][i] = keyvalue2_vault15;
+		keyvalue3_vault16 = keyvalue3_vault15;
+		buffer15[3][i] = keyvalue3_vault15;
+		keyvalue4_vault16 = keyvalue4_vault15;
+		buffer15[4][i] = keyvalue4_vault15;
+		keyvalue5_vault16 = keyvalue5_vault15;
+		buffer15[5][i] = keyvalue5_vault15;
+		keyvalue6_vault16 = keyvalue6_vault15;
+		buffer15[6][i] = keyvalue6_vault15;
+		keyvalue7_vault16 = keyvalue7_vault15;
+		buffer15[7][i] = keyvalue7_vault15;
+	
+		keyvalue0_vault17 = keyvalue0_vault16;
+		buffer16[0][i] = keyvalue0_vault16;
+		keyvalue1_vault17 = keyvalue1_vault16;
+		buffer16[1][i] = keyvalue1_vault16;
+		keyvalue2_vault17 = keyvalue2_vault16;
+		buffer16[2][i] = keyvalue2_vault16;
+		keyvalue3_vault17 = keyvalue3_vault16;
+		buffer16[3][i] = keyvalue3_vault16;
+		keyvalue4_vault17 = keyvalue4_vault16;
+		buffer16[4][i] = keyvalue4_vault16;
+		keyvalue5_vault17 = keyvalue5_vault16;
+		buffer16[5][i] = keyvalue5_vault16;
+		keyvalue6_vault17 = keyvalue6_vault16;
+		buffer16[6][i] = keyvalue6_vault16;
+		keyvalue7_vault17 = keyvalue7_vault16;
+		buffer16[7][i] = keyvalue7_vault16;
+	
+		
+		tail[0][i] = keyvalue0_vault17;
+		tail[1][i] = keyvalue1_vault17;
+		tail[2][i] = keyvalue2_vault17;
+		tail[3][i] = keyvalue3_vault17;
+		tail[4][i] = keyvalue4_vault17;
+		tail[5][i] = keyvalue5_vault17;
+		tail[6][i] = keyvalue6_vault17;
+		tail[7][i] = keyvalue7_vault17;
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(tail[0][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(tail[0][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[1][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(tail[1][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[2][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(tail[2][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[3][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(tail[3][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[4][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(tail[4][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[5][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(tail[5][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[6][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(tail[6][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(tail[7][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(tail[7][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+	
+		#endif 
+	}
+	return;
+}
 
 void
 	#ifdef SW 
@@ -5592,7 +6616,7 @@ keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer0_
 	}
 	
 	unsigned int vreadoffset = 0;
-	unsigned int vmaskreadoffset = 0;
+	unsigned int vmaskreadoffset_kvs = 0;
 	buffer_type reducebuffersz = globalparams[0].SIZE_REDUCE / 2;
 	buffer_type vmaskbuffersz_kvs = (globalparams[0].SIZE_REDUCE * NUM_PARTITIONS) / 512;
 	
@@ -5766,27 +6790,27 @@ keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer0_
 		savekeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15_1, 0, 0, reducebuffersz, _globalparams);
 		savekeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15_1, 8, 0, reducebuffersz, _globalparams);
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		savevmasks(enablereduce, kvdram0, vmask0, sourcebuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram1, vmask1, sourcebuffer1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram2, vmask2, sourcebuffer2, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram3, vmask3, sourcebuffer3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram4, vmask4, sourcebuffer4, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram5, vmask5, sourcebuffer5, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram6, vmask6, sourcebuffer6, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram7, vmask7, sourcebuffer7, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram8, vmask8, sourcebuffer8, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram9, vmask9, sourcebuffer9, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram10, vmask10, sourcebuffer10, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram11, vmask11, sourcebuffer11, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram12, vmask12, sourcebuffer12, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram13, vmask13, sourcebuffer13, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram14, vmask14, sourcebuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram15, vmask15, sourcebuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram0, vmask0, sourcebuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram1, vmask1, sourcebuffer1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram2, vmask2, sourcebuffer2, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram3, vmask3, sourcebuffer3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram4, vmask4, sourcebuffer4, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram5, vmask5, sourcebuffer5, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram6, vmask6, sourcebuffer6, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram7, vmask7, sourcebuffer7, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram8, vmask8, sourcebuffer8, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram9, vmask9, sourcebuffer9, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram10, vmask10, sourcebuffer10, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram11, vmask11, sourcebuffer11, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram12, vmask12, sourcebuffer12, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram13, vmask13, sourcebuffer13, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram14, vmask14, sourcebuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+		savevmasks(enablereduce, kvdram15, vmask15, sourcebuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
 		#endif 
 		
 		sourcestatsmarker += 1;
 		vreadoffset += reducebuffersz * 2;
-		vmaskreadoffset += vmaskbuffersz_kvs;
+		vmaskreadoffset_kvs += vmaskbuffersz_kvs;
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -6397,7 +7421,7 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKR
 		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
 	}
 	
-	unsigned int vreadoffset = 0;
+	unsigned int vreadoffset_kvs = 0;
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
 	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
@@ -6406,7 +7430,6 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKR
 	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
 	
 	bool_type enablereduce = ON;
-	unsigned int ntravszs = 0;
 	
 	DISPATCHREDUCE_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
@@ -6420,22 +7443,23 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKR
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer, 0, 0, reducebuffersz, globalparams);
-		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
+		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
+		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
 		
 		// reduce
 		dispatch(OFF, OFF, enablereduce, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, sourcestatsmarker, source_partition, globalparams);
 		
 		// writeback vertices
-		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer, 0, 0, reducebuffersz, globalparams);
-		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
+		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
+		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
 		
 		sourcestatsmarker += 1;
-		vreadoffset += reducebuffersz * 2;
+		vreadoffset_kvs += reducebuffersz * 2;
 	}
 	return;
 } 
 
+#ifdef KOKOOOOOOO // NONOPTIMIZED, CORRECT OUTPUT
 extern "C" {
 void 
 	#ifdef SW 
@@ -6915,6 +7939,427 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	return;
 }
 }
+#endif 
+// #ifdef KOKOOOOOOO // OPTIMIZED, INCORRECT OUTPUT. FIXME. 
+extern "C" {
+void 
+	#ifdef SW 
+	acts:: 
+	#endif
+topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){
+ 
+#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15		
+
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+ 
+#pragma HLS DATA_PACK variable = kvdram0
+ 
+#pragma HLS DATA_PACK variable = kvdram1
+ 
+#pragma HLS DATA_PACK variable = kvdram2
+ 
+#pragma HLS DATA_PACK variable = kvdram3
+ 
+#pragma HLS DATA_PACK variable = kvdram4
+ 
+#pragma HLS DATA_PACK variable = kvdram5
+ 
+#pragma HLS DATA_PACK variable = kvdram6
+ 
+#pragma HLS DATA_PACK variable = kvdram7
+ 
+#pragma HLS DATA_PACK variable = kvdram8
+ 
+#pragma HLS DATA_PACK variable = kvdram9
+ 
+#pragma HLS DATA_PACK variable = kvdram10
+ 
+#pragma HLS DATA_PACK variable = kvdram11
+ 
+#pragma HLS DATA_PACK variable = kvdram12
+ 
+#pragma HLS DATA_PACK variable = kvdram13
+ 
+#pragma HLS DATA_PACK variable = kvdram14
+ 
+#pragma HLS DATA_PACK variable = kvdram15
+
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
+	#endif
+	
+	vertexdata_wtype synvbuffer_head[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_head
+	
+	vertexdata_wtype synvbuffer_tail[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_tail
+	
+	travstate_t rtravstate[NUMCOMPUTEUNITS];
+	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
+	
+	vertexdata_wtype vbuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer0
+	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask0
+	uint32_type vmask_p0[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer1
+	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask1
+	uint32_type vmask_p1[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer2
+	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask2
+	uint32_type vmask_p2[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer3
+	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask3
+	uint32_type vmask_p3[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer4
+	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask4
+	uint32_type vmask_p4[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer5
+	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask5
+	uint32_type vmask_p5[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer6
+	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask6
+	uint32_type vmask_p6[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer7
+	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask7
+	uint32_type vmask_p7[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer8
+	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask8
+	uint32_type vmask_p8[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer9
+	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask9
+	uint32_type vmask_p9[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer10
+	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask10
+	uint32_type vmask_p10[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer11
+	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask11
+	uint32_type vmask_p11[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer12
+	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask12
+	uint32_type vmask_p12[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer13
+	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask13
+	uint32_type vmask_p13[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer14
+	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask14
+	uint32_type vmask_p14[BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer15
+	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask15
+	uint32_type vmask_p15[BLOCKRAM_SIZE];
+	
+	globalparams_t globalparams[NUMCOMPUTEUNITS];
+	#pragma HLS ARRAY_PARTITION variable=globalparams complete
+	uint32_type vmask_p[BLOCKRAM_SIZE];
+	
+	analysis_type analysis_loop1 = 1;
+	analysis_type analysis_treedepth = TREE_DEPTH;
+	#ifdef _DEBUGMODE_STATS
+	actsutilityobj->clearglobalvars();
+	#endif
+
+	globalparams[0] = getglobalparams(kvdram0);
+	globalparams[1] = globalparams[0];
+	globalparams[2] = globalparams[0];
+	globalparams[3] = globalparams[0];
+	globalparams[4] = globalparams[0];
+	globalparams[5] = globalparams[0];
+	globalparams[6] = globalparams[0];
+	globalparams[7] = globalparams[0];
+	globalparams[8] = globalparams[0];
+	globalparams[9] = globalparams[0];
+	globalparams[10] = globalparams[0];
+	globalparams[11] = globalparams[0];
+	globalparams[12] = globalparams[0];
+	globalparams[13] = globalparams[0];
+	globalparams[14] = globalparams[0];
+	globalparams[15] = globalparams[0];
+	globalparams_t _globalparams = globalparams[0];
+	unsigned int sourcestatsmarker = 0;
+	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ 
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
+		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
+	}
+	
+	unsigned int vreadoffset_kvs = 0;
+	unsigned int vmaskreadoffset_kvs = 0;
+	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2; // 512
+	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512; // 32
+	
+	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+
+	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
+
+	TOPKERNELSYNC_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
+	
+		bool_type enablereduce = ON;
+		unsigned int ntravszs = 0;
+		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
+		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
+		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
+		rtravstate[3] = gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker);
+		rtravstate[4] = gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker);
+		rtravstate[5] = gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker);
+		rtravstate[6] = gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker);
+		rtravstate[7] = gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker);
+		rtravstate[8] = gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker);
+		rtravstate[9] = gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker);
+		rtravstate[10] = gettravstate(ON, kvdram10, globalparams[10], currentLOP, sourcestatsmarker);
+		rtravstate[11] = gettravstate(ON, kvdram11, globalparams[11], currentLOP, sourcestatsmarker);
+		rtravstate[12] = gettravstate(ON, kvdram12, globalparams[12], currentLOP, sourcestatsmarker);
+		rtravstate[13] = gettravstate(ON, kvdram13, globalparams[13], currentLOP, sourcestatsmarker);
+		rtravstate[14] = gettravstate(ON, kvdram14, globalparams[14], currentLOP, sourcestatsmarker);
+		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
+		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
+		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
+	
+		uint32_type vmask_p__source_partition = 0;
+		
+		TOPKERNELSYNC_MAINLOOP1B: for(batch_type it=0; it<2; it+=1){
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
+			#endif
+			
+			batch_type voffset_kvs = (source_partition * reducebuffersz * FETFACTOR) + (it * reducebuffersz);
+			
+			// read vertices
+			readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer0, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer1, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer2, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer3, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer4, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer5, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer6, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer7, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer8, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer9, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer10, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer11, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer12, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer13, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer14, 0,  reducebuffersz, _globalparams);
+			readkeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer15, 0,  reducebuffersz, _globalparams);
+			#ifndef ALLVERTEXISACTIVE_ALGORITHM
+			resetvmask(vmask0);
+			resetvmask(vmask1);
+			resetvmask(vmask2);
+			resetvmask(vmask3);
+			resetvmask(vmask4);
+			resetvmask(vmask5);
+			resetvmask(vmask6);
+			resetvmask(vmask7);
+			resetvmask(vmask8);
+			resetvmask(vmask9);
+			resetvmask(vmask10);
+			resetvmask(vmask11);
+			resetvmask(vmask12);
+			resetvmask(vmask13);
+			resetvmask(vmask14);
+			resetvmask(vmask15);
+			#endif
+			
+			// synchronize
+			synchronize2(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15, synvbuffer_tail, _globalparams);
+			vmask_p__source_partition = apply2(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, voffset_kvs, _globalparams);
+			if(enablereduce == ON){ vmask_p[source_partition] = vmask_p[source_partition] | vmask_p__source_partition; }
+			spreadvdata2(enablereduce, synvbuffer_tail, vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
+			#ifndef ALLVERTEXISACTIVE_ALGORITHM
+			spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
+			#endif
+			
+			// writeback vertices
+			savekeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer0, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer1, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer2, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer3, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer4, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer5, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer6, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer7, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer8, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer9, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer10, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer11, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer12, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer13, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer14, 0, reducebuffersz, _globalparams);
+			savekeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer15, 0, reducebuffersz, _globalparams);
+	
+			#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	
+			savevmasks(enablereduce, kvdram0, vmask0, vbuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram1, vmask1, vbuffer1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram2, vmask2, vbuffer2, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram3, vmask3, vbuffer3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram4, vmask4, vbuffer4, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram5, vmask5, vbuffer5, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram6, vmask6, vbuffer6, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram7, vmask7, vbuffer7, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram8, vmask8, vbuffer8, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram9, vmask9, vbuffer9, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram10, vmask10, vbuffer10, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram11, vmask11, vbuffer11, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram12, vmask12, vbuffer12, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram13, vmask13, vbuffer13, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram14, vmask14, vbuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			savevmasks(enablereduce, kvdram15, vmask15, vbuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+			#endif 
+			
+			vreadoffset_kvs += (reducebuffersz * 2) / 2;
+			vmaskreadoffset_kvs += vmaskbuffersz_kvs / 2;
+		}
+		
+		// save mask
+		savevmaskp(kvdram0, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram1, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram2, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram3, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram4, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram5, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram6, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram7, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram8, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram9, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram10, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram11, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram12, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram13, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram14, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram15, source_partition, vmask_p[source_partition], _globalparams);
+		sourcestatsmarker += 1;
+	}
+	
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && not defined (ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<"active partitions: ";
+	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}
+	cout<<""<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	#ifdef _DEBUGMODE_STATS
+	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
+	actsutilityobj->globalstats_setactvvsseen(0);
+	#endif 
+	return;
+}
+}
+// #endif
 
 extern "C" {
 void 

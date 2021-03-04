@@ -52,8 +52,6 @@ public:
 	int hmax(size_t val1, size_t val2);
 	void InsertBit(unsigned int * edgeoffsetbits, size_t index, unsigned int bit);
 	unsigned int RetrieveBit(unsigned int * edgeoffsetbits, size_t index);
-	int runActs(unsigned int IterCount);
-	int runActs(unsigned int IterCount, bool forcetrue);
 	unsigned int GETKVDATA_RANGEOFFSET_FORSSDPARTITION_(unsigned int ssdpartitonid);
 	void resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size);
 	void resetkeyvalues(keyvalue_t * keyvalues, unsigned int size);
