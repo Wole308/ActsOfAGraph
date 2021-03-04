@@ -39,7 +39,7 @@ using namespace std;
 #define SHIFTSYNCHRONIZE
 
 // #define AUTOMATEMODEON //
-// #define VERTEXCOLORING // JUST-FOR-TEST
+#define VERTEXCOLORING // JUST-FOR-TEST
 
 class acts {
 public:

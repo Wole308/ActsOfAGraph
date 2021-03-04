@@ -208,7 +208,7 @@ globalparams_t loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t 
 	cout<<"loadgraph::loadvertexdata:: loading vertex datas... "<<endl;
 	#endif
 	globalparams.BASEOFFSETKVS_VERTICESDATA = globalparams.BASEOFFSETKVS_VERTEXPTR + ((globalparams.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
-	globalparams.SIZE_VERTICESDATA = KVDATA_RANGE;
+	globalparams.SIZE_VERTICESDATA = KVDATA_RANGE; // CRITICAL FIXME? incorrect?
 	unsigned int _BASEOFFSET_VERTICESDATA = globalparams.BASEOFFSETKVS_VERTICESDATA * VECTOR_SIZE;
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_VERTICESDATA: "<<globalparams.BASEOFFSETKVS_VERTICESDATA * VECTOR_SIZE<<"]"<<endl;
@@ -310,7 +310,12 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 	#endif
 	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
+	
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	globalparams.SIZE_VERTICESPARTITIONMASK = 512 * VECTOR_SIZE;
+	
 	unsigned int _BASEOFFSET_VERTICESDATAMASK_KVS = globalparams.BASEOFFSETKVS_VERTICESDATAMASK;
+	unsigned int _BASEOFFSET_VERTICESPARTITIONMASK_KVS = globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK;
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK<<"]"<<endl;
@@ -345,6 +350,16 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 		vmaskoffset_kvs += VMASKBUFFERSZ_KVS;
 	}
 	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ 
+			#ifdef _DEBUGMODE_CHECKS3
+			utilityobj->checkoutofbounds("loadgraph::generatevmaskdata 2._BASEOFFSET_VERTICESPARTITIONMASK_KVS", _BASEOFFSET_VERTICESPARTITIONMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
+			#endif
+			kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS + k].data[0].key = 0;
+		}
+		kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS].data[0].key = 1;
+	}
+	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, NUM_PARTITIONS, 4);
 	utilityobj->printkeyvalues("generatevmaskdata.kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][_BASEOFFSET_VERTICESDATAMASK_KVS], 4);
@@ -356,8 +371,8 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::loadoffsetmarkers:: loading offset markers... "<<endl;
-	#endif 
-	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	#endif
+	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.SIZE_VERTICESPARTITIONMASK / VECTOR_SIZE);
 	globalparams.SIZE_KVSTATSDRAM = KVSTATSDRAMSZ;
 	
 	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
@@ -582,6 +597,7 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key = globalparams.BASEOFFSETKVS_VERTICESDATA;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key = globalparams.BASEOFFSETKVS_ACTIVEVERTICES;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key = globalparams.BASEOFFSETKVS_VERTICESDATAMASK;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key = globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key = globalparams.BASEOFFSETKVS_STATSDRAM;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].data[0].key = globalparams.BASEOFFSETKVS_KVDRAM;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE;
@@ -591,7 +607,8 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTEXPTRS].data[0].key = srcvsize; // 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATA].data[0].key = VERTICESDATASZ;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEVERTICES].data[0].key = actvvsize; // 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATAMASK].data[0].key = VERTICESDATAMASKSZ;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATAMASK].data[0].key = globalparams.SIZE_VERTICESDATAMASK; // VERTICESDATAMASKSZ;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].data[0].key = globalparams.SIZE_VERTICESPARTITIONMASK;// VERTICESDATAMASKSZ; // CRITICAL FIXME.
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVSTATSDRAM].data[0].key = kvstatssz;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key = globalparams.SIZE_KVDRAM; // KVDRAMSZ;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key = KVSTATSDRAMSZ;

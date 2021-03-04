@@ -305,7 +305,7 @@ READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size){
 	ulong_dt * thisdata = (ulong_dt *)&keyvalue;
 	data = *thisdata;
 	#else
-	data = CONVERTTOLONG_KV(keyvalue); // VHLS CRITICAL CHECKME.
+	data = CONVERTTOLONG_KV(keyvalue);
 	#endif 
 	return READFROM_ULONG(data, index, size);
 }
@@ -341,7 +341,7 @@ void
 	#endif
 WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
 	#ifdef _WIDEWORD
-	ulong_dt data = CONVERTTOLONG_KV(*keyvalue); // CRITICAL CHECKME.
+	ulong_dt data = CONVERTTOLONG_KV(*keyvalue);
 	WRITETO_ULONG(&data, index, size, value);
 	*keyvalue = CONVERTTOKV_ULONG(data);
 	return;
@@ -580,6 +580,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.BASEOFFSETKVS_VERTICESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].range(31, 0);
 	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].range(31, 0);
 	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].range(31, 0);
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
 	globalparams.BASEOFFSETKVS_STATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].range(31, 0);
 	globalparams.BASEOFFSETKVS_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].range(31, 0);
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].range(31, 0);
@@ -590,6 +591,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_VERTICESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATA].range(31, 0);
 	globalparams.SIZE_ACTIVEVERTICES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEVERTICES].range(31, 0);
 	globalparams.SIZE_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATAMASK].range(31, 0);
+	globalparams.SIZE_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].range(31, 0);
 	globalparams.SIZE_KVSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVSTATSDRAM].range(31, 0);
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].range(31, 0);
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].range(31, 0);
@@ -633,6 +635,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.BASEOFFSETKVS_VERTICESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
 	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
 	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 	globalparams.BASEOFFSETKVS_STATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
 	globalparams.BASEOFFSETKVS_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].data[0].key;
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
@@ -643,6 +646,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_VERTICESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATA].data[0].key;
 	globalparams.SIZE_ACTIVEVERTICES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEVERTICES].data[0].key;
 	globalparams.SIZE_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATAMASK].data[0].key;
+	globalparams.SIZE_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].data[0].key;
 	globalparams.SIZE_KVSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVSTATSDRAM].data[0].key;
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key;
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key;
@@ -1144,7 +1148,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue16_type buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 		
 	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
@@ -1202,7 +1206,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue16_type buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  APPLYVERTEXBUFFERSZ / 2;
 	
@@ -1262,7 +1266,73 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue16_type buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, keyvalue16_type buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+readkeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	
+	readkeyvalues(ON, kvdram, offset_kvs, tempbuffer, 0, size_kvs, globalparams);
+	buffer_type index = 0;
+	LOADVMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){ //  * 16
+	#pragma HLS PIPELINE II=8
+		bitsbuffer[index + 0] = tempbuffer[0][i].key;
+		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
+		bitsbuffer[index + 2] = tempbuffer[1][i].key;
+		bitsbuffer[index + 2 + 1] = tempbuffer[1][i].value;
+		bitsbuffer[index + 4] = tempbuffer[2][i].key;
+		bitsbuffer[index + 4 + 1] = tempbuffer[2][i].value;
+		bitsbuffer[index + 6] = tempbuffer[3][i].key;
+		bitsbuffer[index + 6 + 1] = tempbuffer[3][i].value;
+		bitsbuffer[index + 8] = tempbuffer[4][i].key;
+		bitsbuffer[index + 8 + 1] = tempbuffer[4][i].value;
+		bitsbuffer[index + 10] = tempbuffer[5][i].key;
+		bitsbuffer[index + 10 + 1] = tempbuffer[5][i].value;
+		bitsbuffer[index + 12] = tempbuffer[6][i].key;
+		bitsbuffer[index + 12 + 1] = tempbuffer[6][i].value;
+		bitsbuffer[index + 14] = tempbuffer[7][i].key;
+		bitsbuffer[index + 14 + 1] = tempbuffer[7][i].value;
+		
+		index += VECTOR_SIZE * 2;
+	}
+	return;
+}
+
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+savekeyvalues(bool_type enable, uint512_dt * kvdram, uint32_type bitsbuffer[BLOCKRAM_SIZE], keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+
+	buffer_type index = 0;
+	SAVEVMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){ //  * 16
+	#pragma HLS PIPELINE II=8
+		tempbuffer[0][i].key = bitsbuffer[index + 0];
+		tempbuffer[0][i].value = bitsbuffer[index + 0 + 1]; 
+		tempbuffer[1][i].key = bitsbuffer[index + 2];
+		tempbuffer[1][i].value = bitsbuffer[index + 2 + 1]; 
+		tempbuffer[2][i].key = bitsbuffer[index + 4];
+		tempbuffer[2][i].value = bitsbuffer[index + 4 + 1]; 
+		tempbuffer[3][i].key = bitsbuffer[index + 6];
+		tempbuffer[3][i].value = bitsbuffer[index + 6 + 1]; 
+		tempbuffer[4][i].key = bitsbuffer[index + 8];
+		tempbuffer[4][i].value = bitsbuffer[index + 8 + 1]; 
+		tempbuffer[5][i].key = bitsbuffer[index + 10];
+		tempbuffer[5][i].value = bitsbuffer[index + 10 + 1]; 
+		tempbuffer[6][i].key = bitsbuffer[index + 12];
+		tempbuffer[6][i].value = bitsbuffer[index + 12 + 1]; 
+		tempbuffer[7][i].key = bitsbuffer[index + 14];
+		tempbuffer[7][i].value = bitsbuffer[index + 14 + 1]; 
+		
+		index += VECTOR_SIZE * 2;
+	}
+	savekeyvalues(ON, kvdram, offset_kvs, tempbuffer, 0, size_kvs, globalparams); 
+	return;
+}
+
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 		
 	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
@@ -1358,36 +1428,8 @@ loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	buffer_type vmaskbuffersz_kvs = (globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512;
-	
-	readkeyvalues(ON, kvdram, offset_kvs, tempbuffer, 0, size_kvs, globalparams);
-	buffer_type index = 0;
-	LOADVMASKS_LOOP1: for (buffer_type i=0; i<vmaskbuffersz_kvs; i++){
-	#pragma HLS PIPELINE II=8
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("acts::loadvmasks 1", i*16, reducebuffersz, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("acts::loadvmasks 1", i, vmaskbuffersz_kvs, NAp, NAp, NAp);
-		#endif
-	
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 2 + 1] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 4 + 1] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 6 + 1] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 8 + 1] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 10 + 1] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 12 + 1] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 14 + 1] = tempbuffer[7][i].value;
-		
-		index += NUM_PARTITIONS;
-	}
-	
+
+	readkeyvalues(ON, kvdram, bitsbuffer, tempbuffer, offset_kvs, size_kvs, globalparams);
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<reducebuffersz; i++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1542,36 +1584,7 @@ savevmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 		WRITETO_UINT(&bitsbuffer[i], 31, 1, vmask[i].data[15].value);
 		#endif
 	}
-	
-	buffer_type index = 0;
-	SAVEVMASKS_LOOP2: for (buffer_type i=0; i<vmaskbuffersz_kvs; i++){
-	#pragma HLS PIPELINE II=8
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("acts::savevmasks 1", i*16, reducebuffersz, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("acts::savevmasks 1", i, vmaskbuffersz_kvs, NAp, NAp, NAp);
-		#endif
-		
-		tempbuffer[0][i].key = bitsbuffer[index + 0];
-		tempbuffer[0][i].value = bitsbuffer[index + 0 + 1]; 
-		tempbuffer[1][i].key = bitsbuffer[index + 2];
-		tempbuffer[1][i].value = bitsbuffer[index + 2 + 1]; 
-		tempbuffer[2][i].key = bitsbuffer[index + 4];
-		tempbuffer[2][i].value = bitsbuffer[index + 4 + 1]; 
-		tempbuffer[3][i].key = bitsbuffer[index + 6];
-		tempbuffer[3][i].value = bitsbuffer[index + 6 + 1]; 
-		tempbuffer[4][i].key = bitsbuffer[index + 8];
-		tempbuffer[4][i].value = bitsbuffer[index + 8 + 1]; 
-		tempbuffer[5][i].key = bitsbuffer[index + 10];
-		tempbuffer[5][i].value = bitsbuffer[index + 10 + 1]; 
-		tempbuffer[6][i].key = bitsbuffer[index + 12];
-		tempbuffer[6][i].value = bitsbuffer[index + 12 + 1]; 
-		tempbuffer[7][i].key = bitsbuffer[index + 14];
-		tempbuffer[7][i].value = bitsbuffer[index + 14 + 1]; 
-		
-		index += NUM_PARTITIONS;
-		
-	}
-	savekeyvalues(ON, kvdram, offset_kvs, tempbuffer, 0, size_kvs, globalparams); 
+	savekeyvalues(ON, kvdram, bitsbuffer, tempbuffer, offset_kvs, size_kvs, globalparams);
 	return;
 }
 
@@ -1579,7 +1592,7 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
-readfromvbuffer(keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+readfromvbuffer(vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -1669,6 +1682,21 @@ readfromvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalpar
 	return data;
 }
 
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+loadvmask_p(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+		#ifdef _WIDEWORD
+		vmask_p[i] = kvdram[offset_kvs + i].data[0].range(31, 0);
+		#else
+		vmask_p[i] = kvdram[offset_kvs + i].data[0].key;
+		#endif 
+	}
+	return;
+}
+
 // functions (process)
 value_t 
 	#ifdef SW 
@@ -1694,7 +1722,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){	
 	if(enable == OFF){ return OFF; }
 	analysis_type analysis_srcbuffersz = WORKBUFFER_SIZE / 2;
@@ -1847,7 +1875,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	
 	if(enable == OFF){ return OFF; }
@@ -2337,7 +2365,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-reducevector(keyvalue_t kvdata, keyvalue16_type destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+reducevector(keyvalue_t kvdata, vertexdata_wtype destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#ifdef VERTEXCOLORING
 	#pragma HLS PIPELINE II=2
 	#else 
@@ -2366,7 +2394,7 @@ reducevector(keyvalue_t kvdata, keyvalue16_type destbuffer[BLOCKRAM_SIZE], buffe
 	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
 	else { destbuffer[destoffset + rowindex].value = 1; }
 	#else
-	keyvalue16_type vprop;
+	vertexdata_wtype vprop;
 	if(keyvalue.key != INVALIDDATA && keyvalue.value != INVALIDDATA){ vprop = destbuffer[destoffset + rowindex]; }
 	
 	value_t temp;
@@ -2391,11 +2419,12 @@ reducevector(keyvalue_t kvdata, keyvalue16_type destbuffer[BLOCKRAM_SIZE], buffe
 	return;
 }
 
+#ifdef KOKOOOOOOO
 void 
 	#ifdef SW 
 	acts::
 	#endif 
-reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // '2' is safety padding.
 	
@@ -2511,6 +2540,89 @@ reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE],
 	}
 	return;
 }
+#endif 
+void 
+	#ifdef SW 
+	acts::
+	#endif 
+reduceandbuffer(bool_type enable, keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t localcapsule[NUM_PARTITIONS], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
+	
+	keyvalue_t kvdata0;
+	keyvalue_t kvdata1;
+	keyvalue_t kvdata2;
+	keyvalue_t kvdata3;
+	keyvalue_t kvdata4;
+	keyvalue_t kvdata5;
+	keyvalue_t kvdata6;
+	keyvalue_t kvdata7;
+	buffer_type bramoffset_kvs[8];
+	#pragma HLS ARRAY_PARTITION variable=bramoffset_kvs complete
+	buffer_type size_kvs[8];
+	#pragma HLS ARRAY_PARTITION variable=size_kvs complete
+	unsigned int upperlimits[8];
+	#pragma HLS ARRAY_PARTITION variable=upperlimits complete
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	#endif 
+	#ifdef _DEBUGMODE_STATS
+	unsigned int p=0;
+	unsigned int isgreaterthan512 = OFF;
+	unsigned int islessthan512 = OFF;
+	for(p=0; p<NUM_PARTITIONS; p++){ if(localcapsule[p].value > (1024*4)){ isgreaterthan512 = ON; }} // 512, 1024
+	if(isgreaterthan512 == OFF){ islessthan512 = ON; }
+	if(isgreaterthan512 == ON && islessthan512 == ON){ cout<<"ERROR: should never be seen here. exiting... "<<endl; exit(EXIT_FAILURE); }
+	if(isgreaterthan512 == ON){ stats_greaterthan512 += 1; }
+	if(islessthan512 == ON){ stats_lessthan512 += 1; }
+	stats_totals += 1;
+	#endif 
+
+	unsigned int tmplloprange = 0;
+	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int it=0; it<NUM_PARTITIONS; it+=NUM_PARTITIONS/2){
+		buffer_type maxsize_kvs = 0;
+		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
+		#pragma HLS PIPELINE II=1
+			bramoffset_kvs[p] = localcapsule[it+p].key / VECTOR_SIZE;
+			size_kvs[p] = localcapsule[it+p].value / VECTOR_SIZE;
+			if(maxsize_kvs < size_kvs[p]){ maxsize_kvs = size_kvs[p]; }
+		}
+		
+		unsigned int lloprange = getrangeforeachllop(globalparams);
+		REDUCEBUFFERPARTITIONS_LOOP1C: for(unsigned int p=0; p<NUM_PARTITIONS/2; p++){
+		#pragma HLS PIPELINE II=1
+			upperlimits[p] = sweepparams.upperlimit + tmplloprange;
+			tmplloprange += lloprange;
+		}
+		
+		REDUCEBUFFERPARTITIONS_LOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=16
+			for(vector_type v=0; v<VECTOR_SIZE; v++){
+				kvdata0 = buffer[v][bramoffset_kvs[0] + i]; 	
+				kvdata1 = buffer[v][bramoffset_kvs[1] + i]; 	
+				kvdata2 = buffer[v][bramoffset_kvs[2] + i]; 	
+				kvdata3 = buffer[v][bramoffset_kvs[3] + i]; 	
+				kvdata4 = buffer[v][bramoffset_kvs[4] + i]; 	
+				kvdata5 = buffer[v][bramoffset_kvs[5] + i]; 	
+				kvdata6 = buffer[v][bramoffset_kvs[6] + i]; 	
+				kvdata7 = buffer[v][bramoffset_kvs[7] + i]; 	
+	
+
+				if(i< size_kvs[0]){ reducevector(kvdata0, vbuffer[it+0], 0, upperlimits[0], sweepparams, globalparams); }
+				if(i< size_kvs[1]){ reducevector(kvdata1, vbuffer[it+1], 0, upperlimits[1], sweepparams, globalparams); }
+				if(i< size_kvs[2]){ reducevector(kvdata2, vbuffer[it+2], 0, upperlimits[2], sweepparams, globalparams); }
+				if(i< size_kvs[3]){ reducevector(kvdata3, vbuffer[it+3], 0, upperlimits[3], sweepparams, globalparams); }
+				if(i< size_kvs[4]){ reducevector(kvdata4, vbuffer[it+4], 0, upperlimits[4], sweepparams, globalparams); }
+				if(i< size_kvs[5]){ reducevector(kvdata5, vbuffer[it+5], 0, upperlimits[5], sweepparams, globalparams); }
+				if(i< size_kvs[6]){ reducevector(kvdata6, vbuffer[it+6], 0, upperlimits[6], sweepparams, globalparams); }
+				if(i< size_kvs[7]){ reducevector(kvdata7, vbuffer[it+7], 0, upperlimits[7], sweepparams, globalparams); }
+			}
+		}
+	}
+	return;
+}
 
 // functions (synchronize)
 value_t 
@@ -2554,7 +2666,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-synchronize(bool_type enable, keyvalue16_type buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronize: synchronize function called."<<endl;
@@ -2563,311 +2675,311 @@ synchronize(bool_type enable, keyvalue16_type buffer0[VBUFFER_VECTOR_SIZE][BLOCK
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	keyvalue16_type keyvalue0_vault0;
-	keyvalue16_type keyvalue1_vault0;
-	keyvalue16_type keyvalue2_vault0;
-	keyvalue16_type keyvalue3_vault0;
-	keyvalue16_type keyvalue4_vault0;
-	keyvalue16_type keyvalue5_vault0;
-	keyvalue16_type keyvalue6_vault0;
-	keyvalue16_type keyvalue7_vault0;
-	keyvalue16_type keyvalue8_vault0;
-	keyvalue16_type keyvalue9_vault0;
-	keyvalue16_type keyvalue10_vault0;
-	keyvalue16_type keyvalue11_vault0;
-	keyvalue16_type keyvalue12_vault0;
-	keyvalue16_type keyvalue13_vault0;
-	keyvalue16_type keyvalue14_vault0;
-	keyvalue16_type keyvalue15_vault0;
+	vertexdata_wtype keyvalue0_vault0;
+	vertexdata_wtype keyvalue1_vault0;
+	vertexdata_wtype keyvalue2_vault0;
+	vertexdata_wtype keyvalue3_vault0;
+	vertexdata_wtype keyvalue4_vault0;
+	vertexdata_wtype keyvalue5_vault0;
+	vertexdata_wtype keyvalue6_vault0;
+	vertexdata_wtype keyvalue7_vault0;
+	vertexdata_wtype keyvalue8_vault0;
+	vertexdata_wtype keyvalue9_vault0;
+	vertexdata_wtype keyvalue10_vault0;
+	vertexdata_wtype keyvalue11_vault0;
+	vertexdata_wtype keyvalue12_vault0;
+	vertexdata_wtype keyvalue13_vault0;
+	vertexdata_wtype keyvalue14_vault0;
+	vertexdata_wtype keyvalue15_vault0;
 	
-	keyvalue16_type keyvalue0_vault1;
-	keyvalue16_type keyvalue1_vault1;
-	keyvalue16_type keyvalue2_vault1;
-	keyvalue16_type keyvalue3_vault1;
-	keyvalue16_type keyvalue4_vault1;
-	keyvalue16_type keyvalue5_vault1;
-	keyvalue16_type keyvalue6_vault1;
-	keyvalue16_type keyvalue7_vault1;
-	keyvalue16_type keyvalue8_vault1;
-	keyvalue16_type keyvalue9_vault1;
-	keyvalue16_type keyvalue10_vault1;
-	keyvalue16_type keyvalue11_vault1;
-	keyvalue16_type keyvalue12_vault1;
-	keyvalue16_type keyvalue13_vault1;
-	keyvalue16_type keyvalue14_vault1;
-	keyvalue16_type keyvalue15_vault1;
+	vertexdata_wtype keyvalue0_vault1;
+	vertexdata_wtype keyvalue1_vault1;
+	vertexdata_wtype keyvalue2_vault1;
+	vertexdata_wtype keyvalue3_vault1;
+	vertexdata_wtype keyvalue4_vault1;
+	vertexdata_wtype keyvalue5_vault1;
+	vertexdata_wtype keyvalue6_vault1;
+	vertexdata_wtype keyvalue7_vault1;
+	vertexdata_wtype keyvalue8_vault1;
+	vertexdata_wtype keyvalue9_vault1;
+	vertexdata_wtype keyvalue10_vault1;
+	vertexdata_wtype keyvalue11_vault1;
+	vertexdata_wtype keyvalue12_vault1;
+	vertexdata_wtype keyvalue13_vault1;
+	vertexdata_wtype keyvalue14_vault1;
+	vertexdata_wtype keyvalue15_vault1;
 	
-	keyvalue16_type keyvalue0_vault2;
-	keyvalue16_type keyvalue1_vault2;
-	keyvalue16_type keyvalue2_vault2;
-	keyvalue16_type keyvalue3_vault2;
-	keyvalue16_type keyvalue4_vault2;
-	keyvalue16_type keyvalue5_vault2;
-	keyvalue16_type keyvalue6_vault2;
-	keyvalue16_type keyvalue7_vault2;
-	keyvalue16_type keyvalue8_vault2;
-	keyvalue16_type keyvalue9_vault2;
-	keyvalue16_type keyvalue10_vault2;
-	keyvalue16_type keyvalue11_vault2;
-	keyvalue16_type keyvalue12_vault2;
-	keyvalue16_type keyvalue13_vault2;
-	keyvalue16_type keyvalue14_vault2;
-	keyvalue16_type keyvalue15_vault2;
+	vertexdata_wtype keyvalue0_vault2;
+	vertexdata_wtype keyvalue1_vault2;
+	vertexdata_wtype keyvalue2_vault2;
+	vertexdata_wtype keyvalue3_vault2;
+	vertexdata_wtype keyvalue4_vault2;
+	vertexdata_wtype keyvalue5_vault2;
+	vertexdata_wtype keyvalue6_vault2;
+	vertexdata_wtype keyvalue7_vault2;
+	vertexdata_wtype keyvalue8_vault2;
+	vertexdata_wtype keyvalue9_vault2;
+	vertexdata_wtype keyvalue10_vault2;
+	vertexdata_wtype keyvalue11_vault2;
+	vertexdata_wtype keyvalue12_vault2;
+	vertexdata_wtype keyvalue13_vault2;
+	vertexdata_wtype keyvalue14_vault2;
+	vertexdata_wtype keyvalue15_vault2;
 	
-	keyvalue16_type keyvalue0_vault3;
-	keyvalue16_type keyvalue1_vault3;
-	keyvalue16_type keyvalue2_vault3;
-	keyvalue16_type keyvalue3_vault3;
-	keyvalue16_type keyvalue4_vault3;
-	keyvalue16_type keyvalue5_vault3;
-	keyvalue16_type keyvalue6_vault3;
-	keyvalue16_type keyvalue7_vault3;
-	keyvalue16_type keyvalue8_vault3;
-	keyvalue16_type keyvalue9_vault3;
-	keyvalue16_type keyvalue10_vault3;
-	keyvalue16_type keyvalue11_vault3;
-	keyvalue16_type keyvalue12_vault3;
-	keyvalue16_type keyvalue13_vault3;
-	keyvalue16_type keyvalue14_vault3;
-	keyvalue16_type keyvalue15_vault3;
+	vertexdata_wtype keyvalue0_vault3;
+	vertexdata_wtype keyvalue1_vault3;
+	vertexdata_wtype keyvalue2_vault3;
+	vertexdata_wtype keyvalue3_vault3;
+	vertexdata_wtype keyvalue4_vault3;
+	vertexdata_wtype keyvalue5_vault3;
+	vertexdata_wtype keyvalue6_vault3;
+	vertexdata_wtype keyvalue7_vault3;
+	vertexdata_wtype keyvalue8_vault3;
+	vertexdata_wtype keyvalue9_vault3;
+	vertexdata_wtype keyvalue10_vault3;
+	vertexdata_wtype keyvalue11_vault3;
+	vertexdata_wtype keyvalue12_vault3;
+	vertexdata_wtype keyvalue13_vault3;
+	vertexdata_wtype keyvalue14_vault3;
+	vertexdata_wtype keyvalue15_vault3;
 	
-	keyvalue16_type keyvalue0_vault4;
-	keyvalue16_type keyvalue1_vault4;
-	keyvalue16_type keyvalue2_vault4;
-	keyvalue16_type keyvalue3_vault4;
-	keyvalue16_type keyvalue4_vault4;
-	keyvalue16_type keyvalue5_vault4;
-	keyvalue16_type keyvalue6_vault4;
-	keyvalue16_type keyvalue7_vault4;
-	keyvalue16_type keyvalue8_vault4;
-	keyvalue16_type keyvalue9_vault4;
-	keyvalue16_type keyvalue10_vault4;
-	keyvalue16_type keyvalue11_vault4;
-	keyvalue16_type keyvalue12_vault4;
-	keyvalue16_type keyvalue13_vault4;
-	keyvalue16_type keyvalue14_vault4;
-	keyvalue16_type keyvalue15_vault4;
+	vertexdata_wtype keyvalue0_vault4;
+	vertexdata_wtype keyvalue1_vault4;
+	vertexdata_wtype keyvalue2_vault4;
+	vertexdata_wtype keyvalue3_vault4;
+	vertexdata_wtype keyvalue4_vault4;
+	vertexdata_wtype keyvalue5_vault4;
+	vertexdata_wtype keyvalue6_vault4;
+	vertexdata_wtype keyvalue7_vault4;
+	vertexdata_wtype keyvalue8_vault4;
+	vertexdata_wtype keyvalue9_vault4;
+	vertexdata_wtype keyvalue10_vault4;
+	vertexdata_wtype keyvalue11_vault4;
+	vertexdata_wtype keyvalue12_vault4;
+	vertexdata_wtype keyvalue13_vault4;
+	vertexdata_wtype keyvalue14_vault4;
+	vertexdata_wtype keyvalue15_vault4;
 	
-	keyvalue16_type keyvalue0_vault5;
-	keyvalue16_type keyvalue1_vault5;
-	keyvalue16_type keyvalue2_vault5;
-	keyvalue16_type keyvalue3_vault5;
-	keyvalue16_type keyvalue4_vault5;
-	keyvalue16_type keyvalue5_vault5;
-	keyvalue16_type keyvalue6_vault5;
-	keyvalue16_type keyvalue7_vault5;
-	keyvalue16_type keyvalue8_vault5;
-	keyvalue16_type keyvalue9_vault5;
-	keyvalue16_type keyvalue10_vault5;
-	keyvalue16_type keyvalue11_vault5;
-	keyvalue16_type keyvalue12_vault5;
-	keyvalue16_type keyvalue13_vault5;
-	keyvalue16_type keyvalue14_vault5;
-	keyvalue16_type keyvalue15_vault5;
+	vertexdata_wtype keyvalue0_vault5;
+	vertexdata_wtype keyvalue1_vault5;
+	vertexdata_wtype keyvalue2_vault5;
+	vertexdata_wtype keyvalue3_vault5;
+	vertexdata_wtype keyvalue4_vault5;
+	vertexdata_wtype keyvalue5_vault5;
+	vertexdata_wtype keyvalue6_vault5;
+	vertexdata_wtype keyvalue7_vault5;
+	vertexdata_wtype keyvalue8_vault5;
+	vertexdata_wtype keyvalue9_vault5;
+	vertexdata_wtype keyvalue10_vault5;
+	vertexdata_wtype keyvalue11_vault5;
+	vertexdata_wtype keyvalue12_vault5;
+	vertexdata_wtype keyvalue13_vault5;
+	vertexdata_wtype keyvalue14_vault5;
+	vertexdata_wtype keyvalue15_vault5;
 	
-	keyvalue16_type keyvalue0_vault6;
-	keyvalue16_type keyvalue1_vault6;
-	keyvalue16_type keyvalue2_vault6;
-	keyvalue16_type keyvalue3_vault6;
-	keyvalue16_type keyvalue4_vault6;
-	keyvalue16_type keyvalue5_vault6;
-	keyvalue16_type keyvalue6_vault6;
-	keyvalue16_type keyvalue7_vault6;
-	keyvalue16_type keyvalue8_vault6;
-	keyvalue16_type keyvalue9_vault6;
-	keyvalue16_type keyvalue10_vault6;
-	keyvalue16_type keyvalue11_vault6;
-	keyvalue16_type keyvalue12_vault6;
-	keyvalue16_type keyvalue13_vault6;
-	keyvalue16_type keyvalue14_vault6;
-	keyvalue16_type keyvalue15_vault6;
+	vertexdata_wtype keyvalue0_vault6;
+	vertexdata_wtype keyvalue1_vault6;
+	vertexdata_wtype keyvalue2_vault6;
+	vertexdata_wtype keyvalue3_vault6;
+	vertexdata_wtype keyvalue4_vault6;
+	vertexdata_wtype keyvalue5_vault6;
+	vertexdata_wtype keyvalue6_vault6;
+	vertexdata_wtype keyvalue7_vault6;
+	vertexdata_wtype keyvalue8_vault6;
+	vertexdata_wtype keyvalue9_vault6;
+	vertexdata_wtype keyvalue10_vault6;
+	vertexdata_wtype keyvalue11_vault6;
+	vertexdata_wtype keyvalue12_vault6;
+	vertexdata_wtype keyvalue13_vault6;
+	vertexdata_wtype keyvalue14_vault6;
+	vertexdata_wtype keyvalue15_vault6;
 	
-	keyvalue16_type keyvalue0_vault7;
-	keyvalue16_type keyvalue1_vault7;
-	keyvalue16_type keyvalue2_vault7;
-	keyvalue16_type keyvalue3_vault7;
-	keyvalue16_type keyvalue4_vault7;
-	keyvalue16_type keyvalue5_vault7;
-	keyvalue16_type keyvalue6_vault7;
-	keyvalue16_type keyvalue7_vault7;
-	keyvalue16_type keyvalue8_vault7;
-	keyvalue16_type keyvalue9_vault7;
-	keyvalue16_type keyvalue10_vault7;
-	keyvalue16_type keyvalue11_vault7;
-	keyvalue16_type keyvalue12_vault7;
-	keyvalue16_type keyvalue13_vault7;
-	keyvalue16_type keyvalue14_vault7;
-	keyvalue16_type keyvalue15_vault7;
+	vertexdata_wtype keyvalue0_vault7;
+	vertexdata_wtype keyvalue1_vault7;
+	vertexdata_wtype keyvalue2_vault7;
+	vertexdata_wtype keyvalue3_vault7;
+	vertexdata_wtype keyvalue4_vault7;
+	vertexdata_wtype keyvalue5_vault7;
+	vertexdata_wtype keyvalue6_vault7;
+	vertexdata_wtype keyvalue7_vault7;
+	vertexdata_wtype keyvalue8_vault7;
+	vertexdata_wtype keyvalue9_vault7;
+	vertexdata_wtype keyvalue10_vault7;
+	vertexdata_wtype keyvalue11_vault7;
+	vertexdata_wtype keyvalue12_vault7;
+	vertexdata_wtype keyvalue13_vault7;
+	vertexdata_wtype keyvalue14_vault7;
+	vertexdata_wtype keyvalue15_vault7;
 	
-	keyvalue16_type keyvalue0_vault8;
-	keyvalue16_type keyvalue1_vault8;
-	keyvalue16_type keyvalue2_vault8;
-	keyvalue16_type keyvalue3_vault8;
-	keyvalue16_type keyvalue4_vault8;
-	keyvalue16_type keyvalue5_vault8;
-	keyvalue16_type keyvalue6_vault8;
-	keyvalue16_type keyvalue7_vault8;
-	keyvalue16_type keyvalue8_vault8;
-	keyvalue16_type keyvalue9_vault8;
-	keyvalue16_type keyvalue10_vault8;
-	keyvalue16_type keyvalue11_vault8;
-	keyvalue16_type keyvalue12_vault8;
-	keyvalue16_type keyvalue13_vault8;
-	keyvalue16_type keyvalue14_vault8;
-	keyvalue16_type keyvalue15_vault8;
+	vertexdata_wtype keyvalue0_vault8;
+	vertexdata_wtype keyvalue1_vault8;
+	vertexdata_wtype keyvalue2_vault8;
+	vertexdata_wtype keyvalue3_vault8;
+	vertexdata_wtype keyvalue4_vault8;
+	vertexdata_wtype keyvalue5_vault8;
+	vertexdata_wtype keyvalue6_vault8;
+	vertexdata_wtype keyvalue7_vault8;
+	vertexdata_wtype keyvalue8_vault8;
+	vertexdata_wtype keyvalue9_vault8;
+	vertexdata_wtype keyvalue10_vault8;
+	vertexdata_wtype keyvalue11_vault8;
+	vertexdata_wtype keyvalue12_vault8;
+	vertexdata_wtype keyvalue13_vault8;
+	vertexdata_wtype keyvalue14_vault8;
+	vertexdata_wtype keyvalue15_vault8;
 	
-	keyvalue16_type keyvalue0_vault9;
-	keyvalue16_type keyvalue1_vault9;
-	keyvalue16_type keyvalue2_vault9;
-	keyvalue16_type keyvalue3_vault9;
-	keyvalue16_type keyvalue4_vault9;
-	keyvalue16_type keyvalue5_vault9;
-	keyvalue16_type keyvalue6_vault9;
-	keyvalue16_type keyvalue7_vault9;
-	keyvalue16_type keyvalue8_vault9;
-	keyvalue16_type keyvalue9_vault9;
-	keyvalue16_type keyvalue10_vault9;
-	keyvalue16_type keyvalue11_vault9;
-	keyvalue16_type keyvalue12_vault9;
-	keyvalue16_type keyvalue13_vault9;
-	keyvalue16_type keyvalue14_vault9;
-	keyvalue16_type keyvalue15_vault9;
+	vertexdata_wtype keyvalue0_vault9;
+	vertexdata_wtype keyvalue1_vault9;
+	vertexdata_wtype keyvalue2_vault9;
+	vertexdata_wtype keyvalue3_vault9;
+	vertexdata_wtype keyvalue4_vault9;
+	vertexdata_wtype keyvalue5_vault9;
+	vertexdata_wtype keyvalue6_vault9;
+	vertexdata_wtype keyvalue7_vault9;
+	vertexdata_wtype keyvalue8_vault9;
+	vertexdata_wtype keyvalue9_vault9;
+	vertexdata_wtype keyvalue10_vault9;
+	vertexdata_wtype keyvalue11_vault9;
+	vertexdata_wtype keyvalue12_vault9;
+	vertexdata_wtype keyvalue13_vault9;
+	vertexdata_wtype keyvalue14_vault9;
+	vertexdata_wtype keyvalue15_vault9;
 	
-	keyvalue16_type keyvalue0_vault10;
-	keyvalue16_type keyvalue1_vault10;
-	keyvalue16_type keyvalue2_vault10;
-	keyvalue16_type keyvalue3_vault10;
-	keyvalue16_type keyvalue4_vault10;
-	keyvalue16_type keyvalue5_vault10;
-	keyvalue16_type keyvalue6_vault10;
-	keyvalue16_type keyvalue7_vault10;
-	keyvalue16_type keyvalue8_vault10;
-	keyvalue16_type keyvalue9_vault10;
-	keyvalue16_type keyvalue10_vault10;
-	keyvalue16_type keyvalue11_vault10;
-	keyvalue16_type keyvalue12_vault10;
-	keyvalue16_type keyvalue13_vault10;
-	keyvalue16_type keyvalue14_vault10;
-	keyvalue16_type keyvalue15_vault10;
+	vertexdata_wtype keyvalue0_vault10;
+	vertexdata_wtype keyvalue1_vault10;
+	vertexdata_wtype keyvalue2_vault10;
+	vertexdata_wtype keyvalue3_vault10;
+	vertexdata_wtype keyvalue4_vault10;
+	vertexdata_wtype keyvalue5_vault10;
+	vertexdata_wtype keyvalue6_vault10;
+	vertexdata_wtype keyvalue7_vault10;
+	vertexdata_wtype keyvalue8_vault10;
+	vertexdata_wtype keyvalue9_vault10;
+	vertexdata_wtype keyvalue10_vault10;
+	vertexdata_wtype keyvalue11_vault10;
+	vertexdata_wtype keyvalue12_vault10;
+	vertexdata_wtype keyvalue13_vault10;
+	vertexdata_wtype keyvalue14_vault10;
+	vertexdata_wtype keyvalue15_vault10;
 	
-	keyvalue16_type keyvalue0_vault11;
-	keyvalue16_type keyvalue1_vault11;
-	keyvalue16_type keyvalue2_vault11;
-	keyvalue16_type keyvalue3_vault11;
-	keyvalue16_type keyvalue4_vault11;
-	keyvalue16_type keyvalue5_vault11;
-	keyvalue16_type keyvalue6_vault11;
-	keyvalue16_type keyvalue7_vault11;
-	keyvalue16_type keyvalue8_vault11;
-	keyvalue16_type keyvalue9_vault11;
-	keyvalue16_type keyvalue10_vault11;
-	keyvalue16_type keyvalue11_vault11;
-	keyvalue16_type keyvalue12_vault11;
-	keyvalue16_type keyvalue13_vault11;
-	keyvalue16_type keyvalue14_vault11;
-	keyvalue16_type keyvalue15_vault11;
+	vertexdata_wtype keyvalue0_vault11;
+	vertexdata_wtype keyvalue1_vault11;
+	vertexdata_wtype keyvalue2_vault11;
+	vertexdata_wtype keyvalue3_vault11;
+	vertexdata_wtype keyvalue4_vault11;
+	vertexdata_wtype keyvalue5_vault11;
+	vertexdata_wtype keyvalue6_vault11;
+	vertexdata_wtype keyvalue7_vault11;
+	vertexdata_wtype keyvalue8_vault11;
+	vertexdata_wtype keyvalue9_vault11;
+	vertexdata_wtype keyvalue10_vault11;
+	vertexdata_wtype keyvalue11_vault11;
+	vertexdata_wtype keyvalue12_vault11;
+	vertexdata_wtype keyvalue13_vault11;
+	vertexdata_wtype keyvalue14_vault11;
+	vertexdata_wtype keyvalue15_vault11;
 	
-	keyvalue16_type keyvalue0_vault12;
-	keyvalue16_type keyvalue1_vault12;
-	keyvalue16_type keyvalue2_vault12;
-	keyvalue16_type keyvalue3_vault12;
-	keyvalue16_type keyvalue4_vault12;
-	keyvalue16_type keyvalue5_vault12;
-	keyvalue16_type keyvalue6_vault12;
-	keyvalue16_type keyvalue7_vault12;
-	keyvalue16_type keyvalue8_vault12;
-	keyvalue16_type keyvalue9_vault12;
-	keyvalue16_type keyvalue10_vault12;
-	keyvalue16_type keyvalue11_vault12;
-	keyvalue16_type keyvalue12_vault12;
-	keyvalue16_type keyvalue13_vault12;
-	keyvalue16_type keyvalue14_vault12;
-	keyvalue16_type keyvalue15_vault12;
+	vertexdata_wtype keyvalue0_vault12;
+	vertexdata_wtype keyvalue1_vault12;
+	vertexdata_wtype keyvalue2_vault12;
+	vertexdata_wtype keyvalue3_vault12;
+	vertexdata_wtype keyvalue4_vault12;
+	vertexdata_wtype keyvalue5_vault12;
+	vertexdata_wtype keyvalue6_vault12;
+	vertexdata_wtype keyvalue7_vault12;
+	vertexdata_wtype keyvalue8_vault12;
+	vertexdata_wtype keyvalue9_vault12;
+	vertexdata_wtype keyvalue10_vault12;
+	vertexdata_wtype keyvalue11_vault12;
+	vertexdata_wtype keyvalue12_vault12;
+	vertexdata_wtype keyvalue13_vault12;
+	vertexdata_wtype keyvalue14_vault12;
+	vertexdata_wtype keyvalue15_vault12;
 	
-	keyvalue16_type keyvalue0_vault13;
-	keyvalue16_type keyvalue1_vault13;
-	keyvalue16_type keyvalue2_vault13;
-	keyvalue16_type keyvalue3_vault13;
-	keyvalue16_type keyvalue4_vault13;
-	keyvalue16_type keyvalue5_vault13;
-	keyvalue16_type keyvalue6_vault13;
-	keyvalue16_type keyvalue7_vault13;
-	keyvalue16_type keyvalue8_vault13;
-	keyvalue16_type keyvalue9_vault13;
-	keyvalue16_type keyvalue10_vault13;
-	keyvalue16_type keyvalue11_vault13;
-	keyvalue16_type keyvalue12_vault13;
-	keyvalue16_type keyvalue13_vault13;
-	keyvalue16_type keyvalue14_vault13;
-	keyvalue16_type keyvalue15_vault13;
+	vertexdata_wtype keyvalue0_vault13;
+	vertexdata_wtype keyvalue1_vault13;
+	vertexdata_wtype keyvalue2_vault13;
+	vertexdata_wtype keyvalue3_vault13;
+	vertexdata_wtype keyvalue4_vault13;
+	vertexdata_wtype keyvalue5_vault13;
+	vertexdata_wtype keyvalue6_vault13;
+	vertexdata_wtype keyvalue7_vault13;
+	vertexdata_wtype keyvalue8_vault13;
+	vertexdata_wtype keyvalue9_vault13;
+	vertexdata_wtype keyvalue10_vault13;
+	vertexdata_wtype keyvalue11_vault13;
+	vertexdata_wtype keyvalue12_vault13;
+	vertexdata_wtype keyvalue13_vault13;
+	vertexdata_wtype keyvalue14_vault13;
+	vertexdata_wtype keyvalue15_vault13;
 	
-	keyvalue16_type keyvalue0_vault14;
-	keyvalue16_type keyvalue1_vault14;
-	keyvalue16_type keyvalue2_vault14;
-	keyvalue16_type keyvalue3_vault14;
-	keyvalue16_type keyvalue4_vault14;
-	keyvalue16_type keyvalue5_vault14;
-	keyvalue16_type keyvalue6_vault14;
-	keyvalue16_type keyvalue7_vault14;
-	keyvalue16_type keyvalue8_vault14;
-	keyvalue16_type keyvalue9_vault14;
-	keyvalue16_type keyvalue10_vault14;
-	keyvalue16_type keyvalue11_vault14;
-	keyvalue16_type keyvalue12_vault14;
-	keyvalue16_type keyvalue13_vault14;
-	keyvalue16_type keyvalue14_vault14;
-	keyvalue16_type keyvalue15_vault14;
+	vertexdata_wtype keyvalue0_vault14;
+	vertexdata_wtype keyvalue1_vault14;
+	vertexdata_wtype keyvalue2_vault14;
+	vertexdata_wtype keyvalue3_vault14;
+	vertexdata_wtype keyvalue4_vault14;
+	vertexdata_wtype keyvalue5_vault14;
+	vertexdata_wtype keyvalue6_vault14;
+	vertexdata_wtype keyvalue7_vault14;
+	vertexdata_wtype keyvalue8_vault14;
+	vertexdata_wtype keyvalue9_vault14;
+	vertexdata_wtype keyvalue10_vault14;
+	vertexdata_wtype keyvalue11_vault14;
+	vertexdata_wtype keyvalue12_vault14;
+	vertexdata_wtype keyvalue13_vault14;
+	vertexdata_wtype keyvalue14_vault14;
+	vertexdata_wtype keyvalue15_vault14;
 	
-	keyvalue16_type keyvalue0_vault15;
-	keyvalue16_type keyvalue1_vault15;
-	keyvalue16_type keyvalue2_vault15;
-	keyvalue16_type keyvalue3_vault15;
-	keyvalue16_type keyvalue4_vault15;
-	keyvalue16_type keyvalue5_vault15;
-	keyvalue16_type keyvalue6_vault15;
-	keyvalue16_type keyvalue7_vault15;
-	keyvalue16_type keyvalue8_vault15;
-	keyvalue16_type keyvalue9_vault15;
-	keyvalue16_type keyvalue10_vault15;
-	keyvalue16_type keyvalue11_vault15;
-	keyvalue16_type keyvalue12_vault15;
-	keyvalue16_type keyvalue13_vault15;
-	keyvalue16_type keyvalue14_vault15;
-	keyvalue16_type keyvalue15_vault15;
+	vertexdata_wtype keyvalue0_vault15;
+	vertexdata_wtype keyvalue1_vault15;
+	vertexdata_wtype keyvalue2_vault15;
+	vertexdata_wtype keyvalue3_vault15;
+	vertexdata_wtype keyvalue4_vault15;
+	vertexdata_wtype keyvalue5_vault15;
+	vertexdata_wtype keyvalue6_vault15;
+	vertexdata_wtype keyvalue7_vault15;
+	vertexdata_wtype keyvalue8_vault15;
+	vertexdata_wtype keyvalue9_vault15;
+	vertexdata_wtype keyvalue10_vault15;
+	vertexdata_wtype keyvalue11_vault15;
+	vertexdata_wtype keyvalue12_vault15;
+	vertexdata_wtype keyvalue13_vault15;
+	vertexdata_wtype keyvalue14_vault15;
+	vertexdata_wtype keyvalue15_vault15;
 	
-	keyvalue16_type keyvalue0_vault16;
-	keyvalue16_type keyvalue1_vault16;
-	keyvalue16_type keyvalue2_vault16;
-	keyvalue16_type keyvalue3_vault16;
-	keyvalue16_type keyvalue4_vault16;
-	keyvalue16_type keyvalue5_vault16;
-	keyvalue16_type keyvalue6_vault16;
-	keyvalue16_type keyvalue7_vault16;
-	keyvalue16_type keyvalue8_vault16;
-	keyvalue16_type keyvalue9_vault16;
-	keyvalue16_type keyvalue10_vault16;
-	keyvalue16_type keyvalue11_vault16;
-	keyvalue16_type keyvalue12_vault16;
-	keyvalue16_type keyvalue13_vault16;
-	keyvalue16_type keyvalue14_vault16;
-	keyvalue16_type keyvalue15_vault16;
+	vertexdata_wtype keyvalue0_vault16;
+	vertexdata_wtype keyvalue1_vault16;
+	vertexdata_wtype keyvalue2_vault16;
+	vertexdata_wtype keyvalue3_vault16;
+	vertexdata_wtype keyvalue4_vault16;
+	vertexdata_wtype keyvalue5_vault16;
+	vertexdata_wtype keyvalue6_vault16;
+	vertexdata_wtype keyvalue7_vault16;
+	vertexdata_wtype keyvalue8_vault16;
+	vertexdata_wtype keyvalue9_vault16;
+	vertexdata_wtype keyvalue10_vault16;
+	vertexdata_wtype keyvalue11_vault16;
+	vertexdata_wtype keyvalue12_vault16;
+	vertexdata_wtype keyvalue13_vault16;
+	vertexdata_wtype keyvalue14_vault16;
+	vertexdata_wtype keyvalue15_vault16;
 	
-	keyvalue16_type keyvalue0_vault17;
-	keyvalue16_type keyvalue1_vault17;
-	keyvalue16_type keyvalue2_vault17;
-	keyvalue16_type keyvalue3_vault17;
-	keyvalue16_type keyvalue4_vault17;
-	keyvalue16_type keyvalue5_vault17;
-	keyvalue16_type keyvalue6_vault17;
-	keyvalue16_type keyvalue7_vault17;
-	keyvalue16_type keyvalue8_vault17;
-	keyvalue16_type keyvalue9_vault17;
-	keyvalue16_type keyvalue10_vault17;
-	keyvalue16_type keyvalue11_vault17;
-	keyvalue16_type keyvalue12_vault17;
-	keyvalue16_type keyvalue13_vault17;
-	keyvalue16_type keyvalue14_vault17;
-	keyvalue16_type keyvalue15_vault17;
+	vertexdata_wtype keyvalue0_vault17;
+	vertexdata_wtype keyvalue1_vault17;
+	vertexdata_wtype keyvalue2_vault17;
+	vertexdata_wtype keyvalue3_vault17;
+	vertexdata_wtype keyvalue4_vault17;
+	vertexdata_wtype keyvalue5_vault17;
+	vertexdata_wtype keyvalue6_vault17;
+	vertexdata_wtype keyvalue7_vault17;
+	vertexdata_wtype keyvalue8_vault17;
+	vertexdata_wtype keyvalue9_vault17;
+	vertexdata_wtype keyvalue10_vault17;
+	vertexdata_wtype keyvalue11_vault17;
+	vertexdata_wtype keyvalue12_vault17;
+	vertexdata_wtype keyvalue13_vault17;
+	vertexdata_wtype keyvalue14_vault17;
+	vertexdata_wtype keyvalue15_vault17;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -3479,7 +3591,7 @@ uint32_type
 	acts::
 	#endif
 apply(bool_type enable, 
-		keyvalue16_type vbuffer_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type synvbuffer_1[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		vertexdata_wtype vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -3489,38 +3601,38 @@ apply(bool_type enable,
 	unsigned int vid[NUM_PARTITIONS][2];
 	#pragma HLS ARRAY_PARTITION variable=vid complete
 	
-	keyvalue16_type data0;
-	keyvalue16_type res0;
-	keyvalue16_type data1;
-	keyvalue16_type res1;
-	keyvalue16_type data2;
-	keyvalue16_type res2;
-	keyvalue16_type data3;
-	keyvalue16_type res3;
-	keyvalue16_type data4;
-	keyvalue16_type res4;
-	keyvalue16_type data5;
-	keyvalue16_type res5;
-	keyvalue16_type data6;
-	keyvalue16_type res6;
-	keyvalue16_type data7;
-	keyvalue16_type res7;
-	keyvalue16_type data8;
-	keyvalue16_type res8;
-	keyvalue16_type data9;
-	keyvalue16_type res9;
-	keyvalue16_type data10;
-	keyvalue16_type res10;
-	keyvalue16_type data11;
-	keyvalue16_type res11;
-	keyvalue16_type data12;
-	keyvalue16_type res12;
-	keyvalue16_type data13;
-	keyvalue16_type res13;
-	keyvalue16_type data14;
-	keyvalue16_type res14;
-	keyvalue16_type data15;
-	keyvalue16_type res15;
+	vertexdata_wtype data0;
+	vertexdata_wtype res0;
+	vertexdata_wtype data1;
+	vertexdata_wtype res1;
+	vertexdata_wtype data2;
+	vertexdata_wtype res2;
+	vertexdata_wtype data3;
+	vertexdata_wtype res3;
+	vertexdata_wtype data4;
+	vertexdata_wtype res4;
+	vertexdata_wtype data5;
+	vertexdata_wtype res5;
+	vertexdata_wtype data6;
+	vertexdata_wtype res6;
+	vertexdata_wtype data7;
+	vertexdata_wtype res7;
+	vertexdata_wtype data8;
+	vertexdata_wtype res8;
+	vertexdata_wtype data9;
+	vertexdata_wtype res9;
+	vertexdata_wtype data10;
+	vertexdata_wtype res10;
+	vertexdata_wtype data11;
+	vertexdata_wtype res11;
+	vertexdata_wtype data12;
+	vertexdata_wtype res12;
+	vertexdata_wtype data13;
+	vertexdata_wtype res13;
+	vertexdata_wtype data14;
+	vertexdata_wtype res14;
+	vertexdata_wtype data15;
+	vertexdata_wtype res15;
 	
 	uint32_type cummvmask_sp = 0;
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
@@ -3563,39 +3675,39 @@ apply(bool_type enable,
 		vid[15][1] = voffset_kvs*VECTOR_SIZE*2 + ((15*globalparams.SIZE_REDUCE) + i*2 + 1);
 		#endif 
 	
-		data0 = vbuffer_1[0][i];
-		data1 = vbuffer_1[1][i];
-		data2 = vbuffer_1[2][i];
-		data3 = vbuffer_1[3][i];
-		data4 = vbuffer_1[4][i];
-		data5 = vbuffer_1[5][i];
-		data6 = vbuffer_1[6][i];
-		data7 = vbuffer_1[7][i];
-		data8 = vbuffer_1[8][i];
-		data9 = vbuffer_1[9][i];
-		data10 = vbuffer_1[10][i];
-		data11 = vbuffer_1[11][i];
-		data12 = vbuffer_1[12][i];
-		data13 = vbuffer_1[13][i];
-		data14 = vbuffer_1[14][i];
-		data15 = vbuffer_1[15][i];
+		data0 = vbuffer[0][i];
+		data1 = vbuffer[1][i];
+		data2 = vbuffer[2][i];
+		data3 = vbuffer[3][i];
+		data4 = vbuffer[4][i];
+		data5 = vbuffer[5][i];
+		data6 = vbuffer[6][i];
+		data7 = vbuffer[7][i];
+		data8 = vbuffer[8][i];
+		data9 = vbuffer[9][i];
+		data10 = vbuffer[10][i];
+		data11 = vbuffer[11][i];
+		data12 = vbuffer[12][i];
+		data13 = vbuffer[13][i];
+		data14 = vbuffer[14][i];
+		data15 = vbuffer[15][i];
 		
-		keyvalue16_type udata0 = synvbuffer_1[0][i];
-		keyvalue16_type udata1 = synvbuffer_1[1][i];
-		keyvalue16_type udata2 = synvbuffer_1[2][i];
-		keyvalue16_type udata3 = synvbuffer_1[3][i];
-		keyvalue16_type udata4 = synvbuffer_1[4][i];
-		keyvalue16_type udata5 = synvbuffer_1[5][i];
-		keyvalue16_type udata6 = synvbuffer_1[6][i];
-		keyvalue16_type udata7 = synvbuffer_1[7][i];
-		keyvalue16_type udata8 = synvbuffer_1[8][i];
-		keyvalue16_type udata9 = synvbuffer_1[9][i];
-		keyvalue16_type udata10 = synvbuffer_1[10][i];
-		keyvalue16_type udata11 = synvbuffer_1[11][i];
-		keyvalue16_type udata12 = synvbuffer_1[12][i];
-		keyvalue16_type udata13 = synvbuffer_1[13][i];
-		keyvalue16_type udata14 = synvbuffer_1[14][i];
-		keyvalue16_type udata15 = synvbuffer_1[15][i];
+		vertexdata_wtype udata0 = synvbuffer[0][i];
+		vertexdata_wtype udata1 = synvbuffer[1][i];
+		vertexdata_wtype udata2 = synvbuffer[2][i];
+		vertexdata_wtype udata3 = synvbuffer[3][i];
+		vertexdata_wtype udata4 = synvbuffer[4][i];
+		vertexdata_wtype udata5 = synvbuffer[5][i];
+		vertexdata_wtype udata6 = synvbuffer[6][i];
+		vertexdata_wtype udata7 = synvbuffer[7][i];
+		vertexdata_wtype udata8 = synvbuffer[8][i];
+		vertexdata_wtype udata9 = synvbuffer[9][i];
+		vertexdata_wtype udata10 = synvbuffer[10][i];
+		vertexdata_wtype udata11 = synvbuffer[11][i];
+		vertexdata_wtype udata12 = synvbuffer[12][i];
+		vertexdata_wtype udata13 = synvbuffer[13][i];
+		vertexdata_wtype udata14 = synvbuffer[14][i];
+		vertexdata_wtype udata15 = synvbuffer[15][i];
 		
 		res0.key = applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res1.key = applyfunc(udata1.key, data1.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -3630,6 +3742,41 @@ apply(bool_type enable,
 		res14.value = applyfunc(udata14.value, data14.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res15.value = applyfunc(udata15.value, data15.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		
+		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL FIXME. CAUSEOFERROR
+		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
+		if(res0.value != udata0.value || res0.value < 0xFFFFFFFF){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
+		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
+		if(res1.value != udata1.value || res1.value < 0xFFFFFFFF){ vmask[i].data[1].value = 1; } else { vmask[i].data[1].value = 0; }
+		if(res2.key != udata2.key || res2.key < 0xFFFFFFFF){ vmask[i].data[2].key = 1; } else { vmask[i].data[2].key = 0; }
+		if(res2.value != udata2.value || res2.value < 0xFFFFFFFF){ vmask[i].data[2].value = 1; } else { vmask[i].data[2].value = 0; }
+		if(res3.key != udata3.key || res3.key < 0xFFFFFFFF){ vmask[i].data[3].key = 1; } else { vmask[i].data[3].key = 0; }
+		if(res3.value != udata3.value || res3.value < 0xFFFFFFFF){ vmask[i].data[3].value = 1; } else { vmask[i].data[3].value = 0; }
+		if(res4.key != udata4.key || res4.key < 0xFFFFFFFF){ vmask[i].data[4].key = 1; } else { vmask[i].data[4].key = 0; }
+		if(res4.value != udata4.value || res4.value < 0xFFFFFFFF){ vmask[i].data[4].value = 1; } else { vmask[i].data[4].value = 0; }
+		if(res5.key != udata5.key || res5.key < 0xFFFFFFFF){ vmask[i].data[5].key = 1; } else { vmask[i].data[5].key = 0; }
+		if(res5.value != udata5.value || res5.value < 0xFFFFFFFF){ vmask[i].data[5].value = 1; } else { vmask[i].data[5].value = 0; }
+		if(res6.key != udata6.key || res6.key < 0xFFFFFFFF){ vmask[i].data[6].key = 1; } else { vmask[i].data[6].key = 0; }
+		if(res6.value != udata6.value || res6.value < 0xFFFFFFFF){ vmask[i].data[6].value = 1; } else { vmask[i].data[6].value = 0; }
+		if(res7.key != udata7.key || res7.key < 0xFFFFFFFF){ vmask[i].data[7].key = 1; } else { vmask[i].data[7].key = 0; }
+		if(res7.value != udata7.value || res7.value < 0xFFFFFFFF){ vmask[i].data[7].value = 1; } else { vmask[i].data[7].value = 0; }
+		if(res8.key != udata8.key || res8.key < 0xFFFFFFFF){ vmask[i].data[8].key = 1; } else { vmask[i].data[8].key = 0; }
+		if(res8.value != udata8.value || res8.value < 0xFFFFFFFF){ vmask[i].data[8].value = 1; } else { vmask[i].data[8].value = 0; }
+		if(res9.key != udata9.key || res9.key < 0xFFFFFFFF){ vmask[i].data[9].key = 1; } else { vmask[i].data[9].key = 0; }
+		if(res9.value != udata9.value || res9.value < 0xFFFFFFFF){ vmask[i].data[9].value = 1; } else { vmask[i].data[9].value = 0; }
+		if(res10.key != udata10.key || res10.key < 0xFFFFFFFF){ vmask[i].data[10].key = 1; } else { vmask[i].data[10].key = 0; }
+		if(res10.value != udata10.value || res10.value < 0xFFFFFFFF){ vmask[i].data[10].value = 1; } else { vmask[i].data[10].value = 0; }
+		if(res11.key != udata11.key || res11.key < 0xFFFFFFFF){ vmask[i].data[11].key = 1; } else { vmask[i].data[11].key = 0; }
+		if(res11.value != udata11.value || res11.value < 0xFFFFFFFF){ vmask[i].data[11].value = 1; } else { vmask[i].data[11].value = 0; }
+		if(res12.key != udata12.key || res12.key < 0xFFFFFFFF){ vmask[i].data[12].key = 1; } else { vmask[i].data[12].key = 0; }
+		if(res12.value != udata12.value || res12.value < 0xFFFFFFFF){ vmask[i].data[12].value = 1; } else { vmask[i].data[12].value = 0; }
+		if(res13.key != udata13.key || res13.key < 0xFFFFFFFF){ vmask[i].data[13].key = 1; } else { vmask[i].data[13].key = 0; }
+		if(res13.value != udata13.value || res13.value < 0xFFFFFFFF){ vmask[i].data[13].value = 1; } else { vmask[i].data[13].value = 0; }
+		if(res14.key != udata14.key || res14.key < 0xFFFFFFFF){ vmask[i].data[14].key = 1; } else { vmask[i].data[14].key = 0; }
+		if(res14.value != udata14.value || res14.value < 0xFFFFFFFF){ vmask[i].data[14].value = 1; } else { vmask[i].data[14].value = 0; }
+		if(res15.key != udata15.key || res15.key < 0xFFFFFFFF){ vmask[i].data[15].key = 1; } else { vmask[i].data[15].key = 0; }
+		if(res15.value != udata15.value || res15.value < 0xFFFFFFFF){ vmask[i].data[15].value = 1; } else { vmask[i].data[15].value = 0; }
+	
+		#else
 		if(res0.key != udata0.key){ vmask[i].data[0].key = 1; } else { vmask[i].data[0].key = 0; }
 		if(res0.value != udata0.value){ vmask[i].data[0].value = 1; } else { vmask[i].data[0].value = 0; }
 		if(res1.key != udata1.key){ vmask[i].data[1].key = 1; } else { vmask[i].data[1].key = 0; }
@@ -3662,59 +3809,60 @@ apply(bool_type enable,
 		if(res14.value != udata14.value){ vmask[i].data[14].value = 1; } else { vmask[i].data[14].value = 0; }
 		if(res15.key != udata15.key){ vmask[i].data[15].key = 1; } else { vmask[i].data[15].key = 0; }
 		if(res15.value != udata15.value){ vmask[i].data[15].value = 1; } else { vmask[i].data[15].value = 0; }
+		#endif 
 		
 		uint32_type mask = convertvmasktouint32(vmask, i);
 		cummvmask_sp = cummvmask_sp | mask;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[0][0]<<" & vid2: "<<vid[0][1]<<"): res0.key: "<<res0.key<<", res0.value: "<<res0.value<<": udata0.key: "<<udata0.key<<", udata0.value: "<<udata0.value<<", data0.key: "<<data0.key<<", data0.value: "<<data0.value<<endl; }
-		if(res0.key != udata0.key){ cout<<"apply: vid[0][0]: "<<vid[0][0]<<", vmask["<<i<<"].data[0].key: "<<vmask[i].data[0].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res0.value != udata0.value){ cout<<"apply: vid[0][1]: "<<vid[0][1]<<", vmask["<<i<<"].data[0].value: "<<vmask[i].data[0].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res0.key != udata0.key || res0.key < 0xFFFFFFFF){ cout<<"apply: vid[0][0]: "<<vid[0][0]<<", vmask["<<i<<"].data[0].key: "<<vmask[i].data[0].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res0.value != udata0.value || res0.value < 0xFFFFFFFF){ cout<<"apply: vid[0][1]: "<<vid[0][1]<<", vmask["<<i<<"].data[0].value: "<<vmask[i].data[0].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[1][0]<<" & vid2: "<<vid[1][1]<<"): res1.key: "<<res1.key<<", res1.value: "<<res1.value<<": udata1.key: "<<udata1.key<<", udata1.value: "<<udata1.value<<", data1.key: "<<data1.key<<", data1.value: "<<data1.value<<endl; }
-		if(res1.key != udata1.key){ cout<<"apply: vid[1][0]: "<<vid[1][0]<<", vmask["<<i<<"].data[1].key: "<<vmask[i].data[1].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res1.value != udata1.value){ cout<<"apply: vid[1][1]: "<<vid[1][1]<<", vmask["<<i<<"].data[1].value: "<<vmask[i].data[1].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res1.key != udata1.key || res1.key < 0xFFFFFFFF){ cout<<"apply: vid[1][0]: "<<vid[1][0]<<", vmask["<<i<<"].data[1].key: "<<vmask[i].data[1].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res1.value != udata1.value || res1.value < 0xFFFFFFFF){ cout<<"apply: vid[1][1]: "<<vid[1][1]<<", vmask["<<i<<"].data[1].value: "<<vmask[i].data[1].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[2][0]<<" & vid2: "<<vid[2][1]<<"): res2.key: "<<res2.key<<", res2.value: "<<res2.value<<": udata2.key: "<<udata2.key<<", udata2.value: "<<udata2.value<<", data2.key: "<<data2.key<<", data2.value: "<<data2.value<<endl; }
-		if(res2.key != udata2.key){ cout<<"apply: vid[2][0]: "<<vid[2][0]<<", vmask["<<i<<"].data[2].key: "<<vmask[i].data[2].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res2.value != udata2.value){ cout<<"apply: vid[2][1]: "<<vid[2][1]<<", vmask["<<i<<"].data[2].value: "<<vmask[i].data[2].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res2.key != udata2.key || res2.key < 0xFFFFFFFF){ cout<<"apply: vid[2][0]: "<<vid[2][0]<<", vmask["<<i<<"].data[2].key: "<<vmask[i].data[2].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res2.value != udata2.value || res2.value < 0xFFFFFFFF){ cout<<"apply: vid[2][1]: "<<vid[2][1]<<", vmask["<<i<<"].data[2].value: "<<vmask[i].data[2].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[3][0]<<" & vid2: "<<vid[3][1]<<"): res3.key: "<<res3.key<<", res3.value: "<<res3.value<<": udata3.key: "<<udata3.key<<", udata3.value: "<<udata3.value<<", data3.key: "<<data3.key<<", data3.value: "<<data3.value<<endl; }
-		if(res3.key != udata3.key){ cout<<"apply: vid[3][0]: "<<vid[3][0]<<", vmask["<<i<<"].data[3].key: "<<vmask[i].data[3].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res3.value != udata3.value){ cout<<"apply: vid[3][1]: "<<vid[3][1]<<", vmask["<<i<<"].data[3].value: "<<vmask[i].data[3].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res3.key != udata3.key || res3.key < 0xFFFFFFFF){ cout<<"apply: vid[3][0]: "<<vid[3][0]<<", vmask["<<i<<"].data[3].key: "<<vmask[i].data[3].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res3.value != udata3.value || res3.value < 0xFFFFFFFF){ cout<<"apply: vid[3][1]: "<<vid[3][1]<<", vmask["<<i<<"].data[3].value: "<<vmask[i].data[3].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[4][0]<<" & vid2: "<<vid[4][1]<<"): res4.key: "<<res4.key<<", res4.value: "<<res4.value<<": udata4.key: "<<udata4.key<<", udata4.value: "<<udata4.value<<", data4.key: "<<data4.key<<", data4.value: "<<data4.value<<endl; }
-		if(res4.key != udata4.key){ cout<<"apply: vid[4][0]: "<<vid[4][0]<<", vmask["<<i<<"].data[4].key: "<<vmask[i].data[4].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res4.value != udata4.value){ cout<<"apply: vid[4][1]: "<<vid[4][1]<<", vmask["<<i<<"].data[4].value: "<<vmask[i].data[4].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res4.key != udata4.key || res4.key < 0xFFFFFFFF){ cout<<"apply: vid[4][0]: "<<vid[4][0]<<", vmask["<<i<<"].data[4].key: "<<vmask[i].data[4].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res4.value != udata4.value || res4.value < 0xFFFFFFFF){ cout<<"apply: vid[4][1]: "<<vid[4][1]<<", vmask["<<i<<"].data[4].value: "<<vmask[i].data[4].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[5][0]<<" & vid2: "<<vid[5][1]<<"): res5.key: "<<res5.key<<", res5.value: "<<res5.value<<": udata5.key: "<<udata5.key<<", udata5.value: "<<udata5.value<<", data5.key: "<<data5.key<<", data5.value: "<<data5.value<<endl; }
-		if(res5.key != udata5.key){ cout<<"apply: vid[5][0]: "<<vid[5][0]<<", vmask["<<i<<"].data[5].key: "<<vmask[i].data[5].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res5.value != udata5.value){ cout<<"apply: vid[5][1]: "<<vid[5][1]<<", vmask["<<i<<"].data[5].value: "<<vmask[i].data[5].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res5.key != udata5.key || res5.key < 0xFFFFFFFF){ cout<<"apply: vid[5][0]: "<<vid[5][0]<<", vmask["<<i<<"].data[5].key: "<<vmask[i].data[5].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res5.value != udata5.value || res5.value < 0xFFFFFFFF){ cout<<"apply: vid[5][1]: "<<vid[5][1]<<", vmask["<<i<<"].data[5].value: "<<vmask[i].data[5].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[6][0]<<" & vid2: "<<vid[6][1]<<"): res6.key: "<<res6.key<<", res6.value: "<<res6.value<<": udata6.key: "<<udata6.key<<", udata6.value: "<<udata6.value<<", data6.key: "<<data6.key<<", data6.value: "<<data6.value<<endl; }
-		if(res6.key != udata6.key){ cout<<"apply: vid[6][0]: "<<vid[6][0]<<", vmask["<<i<<"].data[6].key: "<<vmask[i].data[6].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res6.value != udata6.value){ cout<<"apply: vid[6][1]: "<<vid[6][1]<<", vmask["<<i<<"].data[6].value: "<<vmask[i].data[6].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res6.key != udata6.key || res6.key < 0xFFFFFFFF){ cout<<"apply: vid[6][0]: "<<vid[6][0]<<", vmask["<<i<<"].data[6].key: "<<vmask[i].data[6].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res6.value != udata6.value || res6.value < 0xFFFFFFFF){ cout<<"apply: vid[6][1]: "<<vid[6][1]<<", vmask["<<i<<"].data[6].value: "<<vmask[i].data[6].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[7][0]<<" & vid2: "<<vid[7][1]<<"): res7.key: "<<res7.key<<", res7.value: "<<res7.value<<": udata7.key: "<<udata7.key<<", udata7.value: "<<udata7.value<<", data7.key: "<<data7.key<<", data7.value: "<<data7.value<<endl; }
-		if(res7.key != udata7.key){ cout<<"apply: vid[7][0]: "<<vid[7][0]<<", vmask["<<i<<"].data[7].key: "<<vmask[i].data[7].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res7.value != udata7.value){ cout<<"apply: vid[7][1]: "<<vid[7][1]<<", vmask["<<i<<"].data[7].value: "<<vmask[i].data[7].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res7.key != udata7.key || res7.key < 0xFFFFFFFF){ cout<<"apply: vid[7][0]: "<<vid[7][0]<<", vmask["<<i<<"].data[7].key: "<<vmask[i].data[7].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res7.value != udata7.value || res7.value < 0xFFFFFFFF){ cout<<"apply: vid[7][1]: "<<vid[7][1]<<", vmask["<<i<<"].data[7].value: "<<vmask[i].data[7].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[8][0]<<" & vid2: "<<vid[8][1]<<"): res8.key: "<<res8.key<<", res8.value: "<<res8.value<<": udata8.key: "<<udata8.key<<", udata8.value: "<<udata8.value<<", data8.key: "<<data8.key<<", data8.value: "<<data8.value<<endl; }
-		if(res8.key != udata8.key){ cout<<"apply: vid[8][0]: "<<vid[8][0]<<", vmask["<<i<<"].data[8].key: "<<vmask[i].data[8].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res8.value != udata8.value){ cout<<"apply: vid[8][1]: "<<vid[8][1]<<", vmask["<<i<<"].data[8].value: "<<vmask[i].data[8].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res8.key != udata8.key || res8.key < 0xFFFFFFFF){ cout<<"apply: vid[8][0]: "<<vid[8][0]<<", vmask["<<i<<"].data[8].key: "<<vmask[i].data[8].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res8.value != udata8.value || res8.value < 0xFFFFFFFF){ cout<<"apply: vid[8][1]: "<<vid[8][1]<<", vmask["<<i<<"].data[8].value: "<<vmask[i].data[8].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[9][0]<<" & vid2: "<<vid[9][1]<<"): res9.key: "<<res9.key<<", res9.value: "<<res9.value<<": udata9.key: "<<udata9.key<<", udata9.value: "<<udata9.value<<", data9.key: "<<data9.key<<", data9.value: "<<data9.value<<endl; }
-		if(res9.key != udata9.key){ cout<<"apply: vid[9][0]: "<<vid[9][0]<<", vmask["<<i<<"].data[9].key: "<<vmask[i].data[9].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res9.value != udata9.value){ cout<<"apply: vid[9][1]: "<<vid[9][1]<<", vmask["<<i<<"].data[9].value: "<<vmask[i].data[9].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res9.key != udata9.key || res9.key < 0xFFFFFFFF){ cout<<"apply: vid[9][0]: "<<vid[9][0]<<", vmask["<<i<<"].data[9].key: "<<vmask[i].data[9].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res9.value != udata9.value || res9.value < 0xFFFFFFFF){ cout<<"apply: vid[9][1]: "<<vid[9][1]<<", vmask["<<i<<"].data[9].value: "<<vmask[i].data[9].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[10][0]<<" & vid2: "<<vid[10][1]<<"): res10.key: "<<res10.key<<", res10.value: "<<res10.value<<": udata10.key: "<<udata10.key<<", udata10.value: "<<udata10.value<<", data10.key: "<<data10.key<<", data10.value: "<<data10.value<<endl; }
-		if(res10.key != udata10.key){ cout<<"apply: vid[10][0]: "<<vid[10][0]<<", vmask["<<i<<"].data[10].key: "<<vmask[i].data[10].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res10.value != udata10.value){ cout<<"apply: vid[10][1]: "<<vid[10][1]<<", vmask["<<i<<"].data[10].value: "<<vmask[i].data[10].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res10.key != udata10.key || res10.key < 0xFFFFFFFF){ cout<<"apply: vid[10][0]: "<<vid[10][0]<<", vmask["<<i<<"].data[10].key: "<<vmask[i].data[10].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res10.value != udata10.value || res10.value < 0xFFFFFFFF){ cout<<"apply: vid[10][1]: "<<vid[10][1]<<", vmask["<<i<<"].data[10].value: "<<vmask[i].data[10].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[11][0]<<" & vid2: "<<vid[11][1]<<"): res11.key: "<<res11.key<<", res11.value: "<<res11.value<<": udata11.key: "<<udata11.key<<", udata11.value: "<<udata11.value<<", data11.key: "<<data11.key<<", data11.value: "<<data11.value<<endl; }
-		if(res11.key != udata11.key){ cout<<"apply: vid[11][0]: "<<vid[11][0]<<", vmask["<<i<<"].data[11].key: "<<vmask[i].data[11].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res11.value != udata11.value){ cout<<"apply: vid[11][1]: "<<vid[11][1]<<", vmask["<<i<<"].data[11].value: "<<vmask[i].data[11].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res11.key != udata11.key || res11.key < 0xFFFFFFFF){ cout<<"apply: vid[11][0]: "<<vid[11][0]<<", vmask["<<i<<"].data[11].key: "<<vmask[i].data[11].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res11.value != udata11.value || res11.value < 0xFFFFFFFF){ cout<<"apply: vid[11][1]: "<<vid[11][1]<<", vmask["<<i<<"].data[11].value: "<<vmask[i].data[11].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[12][0]<<" & vid2: "<<vid[12][1]<<"): res12.key: "<<res12.key<<", res12.value: "<<res12.value<<": udata12.key: "<<udata12.key<<", udata12.value: "<<udata12.value<<", data12.key: "<<data12.key<<", data12.value: "<<data12.value<<endl; }
-		if(res12.key != udata12.key){ cout<<"apply: vid[12][0]: "<<vid[12][0]<<", vmask["<<i<<"].data[12].key: "<<vmask[i].data[12].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res12.value != udata12.value){ cout<<"apply: vid[12][1]: "<<vid[12][1]<<", vmask["<<i<<"].data[12].value: "<<vmask[i].data[12].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res12.key != udata12.key || res12.key < 0xFFFFFFFF){ cout<<"apply: vid[12][0]: "<<vid[12][0]<<", vmask["<<i<<"].data[12].key: "<<vmask[i].data[12].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res12.value != udata12.value || res12.value < 0xFFFFFFFF){ cout<<"apply: vid[12][1]: "<<vid[12][1]<<", vmask["<<i<<"].data[12].value: "<<vmask[i].data[12].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[13][0]<<" & vid2: "<<vid[13][1]<<"): res13.key: "<<res13.key<<", res13.value: "<<res13.value<<": udata13.key: "<<udata13.key<<", udata13.value: "<<udata13.value<<", data13.key: "<<data13.key<<", data13.value: "<<data13.value<<endl; }
-		if(res13.key != udata13.key){ cout<<"apply: vid[13][0]: "<<vid[13][0]<<", vmask["<<i<<"].data[13].key: "<<vmask[i].data[13].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res13.value != udata13.value){ cout<<"apply: vid[13][1]: "<<vid[13][1]<<", vmask["<<i<<"].data[13].value: "<<vmask[i].data[13].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res13.key != udata13.key || res13.key < 0xFFFFFFFF){ cout<<"apply: vid[13][0]: "<<vid[13][0]<<", vmask["<<i<<"].data[13].key: "<<vmask[i].data[13].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res13.value != udata13.value || res13.value < 0xFFFFFFFF){ cout<<"apply: vid[13][1]: "<<vid[13][1]<<", vmask["<<i<<"].data[13].value: "<<vmask[i].data[13].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[14][0]<<" & vid2: "<<vid[14][1]<<"): res14.key: "<<res14.key<<", res14.value: "<<res14.value<<": udata14.key: "<<udata14.key<<", udata14.value: "<<udata14.value<<", data14.key: "<<data14.key<<", data14.value: "<<data14.value<<endl; }
-		if(res14.key != udata14.key){ cout<<"apply: vid[14][0]: "<<vid[14][0]<<", vmask["<<i<<"].data[14].key: "<<vmask[i].data[14].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res14.value != udata14.value){ cout<<"apply: vid[14][1]: "<<vid[14][1]<<", vmask["<<i<<"].data[14].value: "<<vmask[i].data[14].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res14.key != udata14.key || res14.key < 0xFFFFFFFF){ cout<<"apply: vid[14][0]: "<<vid[14][0]<<", vmask["<<i<<"].data[14].key: "<<vmask[i].data[14].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res14.value != udata14.value || res14.value < 0xFFFFFFFF){ cout<<"apply: vid[14][1]: "<<vid[14][1]<<", vmask["<<i<<"].data[14].value: "<<vmask[i].data[14].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[15][0]<<" & vid2: "<<vid[15][1]<<"): res15.key: "<<res15.key<<", res15.value: "<<res15.value<<": udata15.key: "<<udata15.key<<", udata15.value: "<<udata15.value<<", data15.key: "<<data15.key<<", data15.value: "<<data15.value<<endl; }
-		if(res15.key != udata15.key){ cout<<"apply: vid[15][0]: "<<vid[15][0]<<", vmask["<<i<<"].data[15].key: "<<vmask[i].data[15].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res15.value != udata15.value){ cout<<"apply: vid[15][1]: "<<vid[15][1]<<", vmask["<<i<<"].data[15].value: "<<vmask[i].data[15].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res15.key != udata15.key || res15.key < 0xFFFFFFFF){ cout<<"apply: vid[15][0]: "<<vid[15][0]<<", vmask["<<i<<"].data[15].key: "<<vmask[i].data[15].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res15.value != udata15.value || res15.value < 0xFFFFFFFF){ cout<<"apply: vid[15][1]: "<<vid[15][1]<<", vmask["<<i<<"].data[15].value: "<<vmask[i].data[15].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		if(res0.key != udata0.key){ actsutilityobj->globalstats_countactvvsseen(1); }
@@ -3758,7 +3906,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvdata(bool_type enable, keyvalue16_type buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue16_type buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
@@ -3767,311 +3915,311 @@ spreadvdata(bool_type enable, keyvalue16_type buffer0[VBUFFER_VECTOR_SIZE][BLOCK
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	keyvalue16_type keyvalue0_vault0;
-	keyvalue16_type keyvalue1_vault0;
-	keyvalue16_type keyvalue2_vault0;
-	keyvalue16_type keyvalue3_vault0;
-	keyvalue16_type keyvalue4_vault0;
-	keyvalue16_type keyvalue5_vault0;
-	keyvalue16_type keyvalue6_vault0;
-	keyvalue16_type keyvalue7_vault0;
-	keyvalue16_type keyvalue8_vault0;
-	keyvalue16_type keyvalue9_vault0;
-	keyvalue16_type keyvalue10_vault0;
-	keyvalue16_type keyvalue11_vault0;
-	keyvalue16_type keyvalue12_vault0;
-	keyvalue16_type keyvalue13_vault0;
-	keyvalue16_type keyvalue14_vault0;
-	keyvalue16_type keyvalue15_vault0;
+	vertexdata_wtype keyvalue0_vault0;
+	vertexdata_wtype keyvalue1_vault0;
+	vertexdata_wtype keyvalue2_vault0;
+	vertexdata_wtype keyvalue3_vault0;
+	vertexdata_wtype keyvalue4_vault0;
+	vertexdata_wtype keyvalue5_vault0;
+	vertexdata_wtype keyvalue6_vault0;
+	vertexdata_wtype keyvalue7_vault0;
+	vertexdata_wtype keyvalue8_vault0;
+	vertexdata_wtype keyvalue9_vault0;
+	vertexdata_wtype keyvalue10_vault0;
+	vertexdata_wtype keyvalue11_vault0;
+	vertexdata_wtype keyvalue12_vault0;
+	vertexdata_wtype keyvalue13_vault0;
+	vertexdata_wtype keyvalue14_vault0;
+	vertexdata_wtype keyvalue15_vault0;
 	
-	keyvalue16_type keyvalue0_vault1;
-	keyvalue16_type keyvalue1_vault1;
-	keyvalue16_type keyvalue2_vault1;
-	keyvalue16_type keyvalue3_vault1;
-	keyvalue16_type keyvalue4_vault1;
-	keyvalue16_type keyvalue5_vault1;
-	keyvalue16_type keyvalue6_vault1;
-	keyvalue16_type keyvalue7_vault1;
-	keyvalue16_type keyvalue8_vault1;
-	keyvalue16_type keyvalue9_vault1;
-	keyvalue16_type keyvalue10_vault1;
-	keyvalue16_type keyvalue11_vault1;
-	keyvalue16_type keyvalue12_vault1;
-	keyvalue16_type keyvalue13_vault1;
-	keyvalue16_type keyvalue14_vault1;
-	keyvalue16_type keyvalue15_vault1;
+	vertexdata_wtype keyvalue0_vault1;
+	vertexdata_wtype keyvalue1_vault1;
+	vertexdata_wtype keyvalue2_vault1;
+	vertexdata_wtype keyvalue3_vault1;
+	vertexdata_wtype keyvalue4_vault1;
+	vertexdata_wtype keyvalue5_vault1;
+	vertexdata_wtype keyvalue6_vault1;
+	vertexdata_wtype keyvalue7_vault1;
+	vertexdata_wtype keyvalue8_vault1;
+	vertexdata_wtype keyvalue9_vault1;
+	vertexdata_wtype keyvalue10_vault1;
+	vertexdata_wtype keyvalue11_vault1;
+	vertexdata_wtype keyvalue12_vault1;
+	vertexdata_wtype keyvalue13_vault1;
+	vertexdata_wtype keyvalue14_vault1;
+	vertexdata_wtype keyvalue15_vault1;
 	
-	keyvalue16_type keyvalue0_vault2;
-	keyvalue16_type keyvalue1_vault2;
-	keyvalue16_type keyvalue2_vault2;
-	keyvalue16_type keyvalue3_vault2;
-	keyvalue16_type keyvalue4_vault2;
-	keyvalue16_type keyvalue5_vault2;
-	keyvalue16_type keyvalue6_vault2;
-	keyvalue16_type keyvalue7_vault2;
-	keyvalue16_type keyvalue8_vault2;
-	keyvalue16_type keyvalue9_vault2;
-	keyvalue16_type keyvalue10_vault2;
-	keyvalue16_type keyvalue11_vault2;
-	keyvalue16_type keyvalue12_vault2;
-	keyvalue16_type keyvalue13_vault2;
-	keyvalue16_type keyvalue14_vault2;
-	keyvalue16_type keyvalue15_vault2;
+	vertexdata_wtype keyvalue0_vault2;
+	vertexdata_wtype keyvalue1_vault2;
+	vertexdata_wtype keyvalue2_vault2;
+	vertexdata_wtype keyvalue3_vault2;
+	vertexdata_wtype keyvalue4_vault2;
+	vertexdata_wtype keyvalue5_vault2;
+	vertexdata_wtype keyvalue6_vault2;
+	vertexdata_wtype keyvalue7_vault2;
+	vertexdata_wtype keyvalue8_vault2;
+	vertexdata_wtype keyvalue9_vault2;
+	vertexdata_wtype keyvalue10_vault2;
+	vertexdata_wtype keyvalue11_vault2;
+	vertexdata_wtype keyvalue12_vault2;
+	vertexdata_wtype keyvalue13_vault2;
+	vertexdata_wtype keyvalue14_vault2;
+	vertexdata_wtype keyvalue15_vault2;
 	
-	keyvalue16_type keyvalue0_vault3;
-	keyvalue16_type keyvalue1_vault3;
-	keyvalue16_type keyvalue2_vault3;
-	keyvalue16_type keyvalue3_vault3;
-	keyvalue16_type keyvalue4_vault3;
-	keyvalue16_type keyvalue5_vault3;
-	keyvalue16_type keyvalue6_vault3;
-	keyvalue16_type keyvalue7_vault3;
-	keyvalue16_type keyvalue8_vault3;
-	keyvalue16_type keyvalue9_vault3;
-	keyvalue16_type keyvalue10_vault3;
-	keyvalue16_type keyvalue11_vault3;
-	keyvalue16_type keyvalue12_vault3;
-	keyvalue16_type keyvalue13_vault3;
-	keyvalue16_type keyvalue14_vault3;
-	keyvalue16_type keyvalue15_vault3;
+	vertexdata_wtype keyvalue0_vault3;
+	vertexdata_wtype keyvalue1_vault3;
+	vertexdata_wtype keyvalue2_vault3;
+	vertexdata_wtype keyvalue3_vault3;
+	vertexdata_wtype keyvalue4_vault3;
+	vertexdata_wtype keyvalue5_vault3;
+	vertexdata_wtype keyvalue6_vault3;
+	vertexdata_wtype keyvalue7_vault3;
+	vertexdata_wtype keyvalue8_vault3;
+	vertexdata_wtype keyvalue9_vault3;
+	vertexdata_wtype keyvalue10_vault3;
+	vertexdata_wtype keyvalue11_vault3;
+	vertexdata_wtype keyvalue12_vault3;
+	vertexdata_wtype keyvalue13_vault3;
+	vertexdata_wtype keyvalue14_vault3;
+	vertexdata_wtype keyvalue15_vault3;
 	
-	keyvalue16_type keyvalue0_vault4;
-	keyvalue16_type keyvalue1_vault4;
-	keyvalue16_type keyvalue2_vault4;
-	keyvalue16_type keyvalue3_vault4;
-	keyvalue16_type keyvalue4_vault4;
-	keyvalue16_type keyvalue5_vault4;
-	keyvalue16_type keyvalue6_vault4;
-	keyvalue16_type keyvalue7_vault4;
-	keyvalue16_type keyvalue8_vault4;
-	keyvalue16_type keyvalue9_vault4;
-	keyvalue16_type keyvalue10_vault4;
-	keyvalue16_type keyvalue11_vault4;
-	keyvalue16_type keyvalue12_vault4;
-	keyvalue16_type keyvalue13_vault4;
-	keyvalue16_type keyvalue14_vault4;
-	keyvalue16_type keyvalue15_vault4;
+	vertexdata_wtype keyvalue0_vault4;
+	vertexdata_wtype keyvalue1_vault4;
+	vertexdata_wtype keyvalue2_vault4;
+	vertexdata_wtype keyvalue3_vault4;
+	vertexdata_wtype keyvalue4_vault4;
+	vertexdata_wtype keyvalue5_vault4;
+	vertexdata_wtype keyvalue6_vault4;
+	vertexdata_wtype keyvalue7_vault4;
+	vertexdata_wtype keyvalue8_vault4;
+	vertexdata_wtype keyvalue9_vault4;
+	vertexdata_wtype keyvalue10_vault4;
+	vertexdata_wtype keyvalue11_vault4;
+	vertexdata_wtype keyvalue12_vault4;
+	vertexdata_wtype keyvalue13_vault4;
+	vertexdata_wtype keyvalue14_vault4;
+	vertexdata_wtype keyvalue15_vault4;
 	
-	keyvalue16_type keyvalue0_vault5;
-	keyvalue16_type keyvalue1_vault5;
-	keyvalue16_type keyvalue2_vault5;
-	keyvalue16_type keyvalue3_vault5;
-	keyvalue16_type keyvalue4_vault5;
-	keyvalue16_type keyvalue5_vault5;
-	keyvalue16_type keyvalue6_vault5;
-	keyvalue16_type keyvalue7_vault5;
-	keyvalue16_type keyvalue8_vault5;
-	keyvalue16_type keyvalue9_vault5;
-	keyvalue16_type keyvalue10_vault5;
-	keyvalue16_type keyvalue11_vault5;
-	keyvalue16_type keyvalue12_vault5;
-	keyvalue16_type keyvalue13_vault5;
-	keyvalue16_type keyvalue14_vault5;
-	keyvalue16_type keyvalue15_vault5;
+	vertexdata_wtype keyvalue0_vault5;
+	vertexdata_wtype keyvalue1_vault5;
+	vertexdata_wtype keyvalue2_vault5;
+	vertexdata_wtype keyvalue3_vault5;
+	vertexdata_wtype keyvalue4_vault5;
+	vertexdata_wtype keyvalue5_vault5;
+	vertexdata_wtype keyvalue6_vault5;
+	vertexdata_wtype keyvalue7_vault5;
+	vertexdata_wtype keyvalue8_vault5;
+	vertexdata_wtype keyvalue9_vault5;
+	vertexdata_wtype keyvalue10_vault5;
+	vertexdata_wtype keyvalue11_vault5;
+	vertexdata_wtype keyvalue12_vault5;
+	vertexdata_wtype keyvalue13_vault5;
+	vertexdata_wtype keyvalue14_vault5;
+	vertexdata_wtype keyvalue15_vault5;
 	
-	keyvalue16_type keyvalue0_vault6;
-	keyvalue16_type keyvalue1_vault6;
-	keyvalue16_type keyvalue2_vault6;
-	keyvalue16_type keyvalue3_vault6;
-	keyvalue16_type keyvalue4_vault6;
-	keyvalue16_type keyvalue5_vault6;
-	keyvalue16_type keyvalue6_vault6;
-	keyvalue16_type keyvalue7_vault6;
-	keyvalue16_type keyvalue8_vault6;
-	keyvalue16_type keyvalue9_vault6;
-	keyvalue16_type keyvalue10_vault6;
-	keyvalue16_type keyvalue11_vault6;
-	keyvalue16_type keyvalue12_vault6;
-	keyvalue16_type keyvalue13_vault6;
-	keyvalue16_type keyvalue14_vault6;
-	keyvalue16_type keyvalue15_vault6;
+	vertexdata_wtype keyvalue0_vault6;
+	vertexdata_wtype keyvalue1_vault6;
+	vertexdata_wtype keyvalue2_vault6;
+	vertexdata_wtype keyvalue3_vault6;
+	vertexdata_wtype keyvalue4_vault6;
+	vertexdata_wtype keyvalue5_vault6;
+	vertexdata_wtype keyvalue6_vault6;
+	vertexdata_wtype keyvalue7_vault6;
+	vertexdata_wtype keyvalue8_vault6;
+	vertexdata_wtype keyvalue9_vault6;
+	vertexdata_wtype keyvalue10_vault6;
+	vertexdata_wtype keyvalue11_vault6;
+	vertexdata_wtype keyvalue12_vault6;
+	vertexdata_wtype keyvalue13_vault6;
+	vertexdata_wtype keyvalue14_vault6;
+	vertexdata_wtype keyvalue15_vault6;
 	
-	keyvalue16_type keyvalue0_vault7;
-	keyvalue16_type keyvalue1_vault7;
-	keyvalue16_type keyvalue2_vault7;
-	keyvalue16_type keyvalue3_vault7;
-	keyvalue16_type keyvalue4_vault7;
-	keyvalue16_type keyvalue5_vault7;
-	keyvalue16_type keyvalue6_vault7;
-	keyvalue16_type keyvalue7_vault7;
-	keyvalue16_type keyvalue8_vault7;
-	keyvalue16_type keyvalue9_vault7;
-	keyvalue16_type keyvalue10_vault7;
-	keyvalue16_type keyvalue11_vault7;
-	keyvalue16_type keyvalue12_vault7;
-	keyvalue16_type keyvalue13_vault7;
-	keyvalue16_type keyvalue14_vault7;
-	keyvalue16_type keyvalue15_vault7;
+	vertexdata_wtype keyvalue0_vault7;
+	vertexdata_wtype keyvalue1_vault7;
+	vertexdata_wtype keyvalue2_vault7;
+	vertexdata_wtype keyvalue3_vault7;
+	vertexdata_wtype keyvalue4_vault7;
+	vertexdata_wtype keyvalue5_vault7;
+	vertexdata_wtype keyvalue6_vault7;
+	vertexdata_wtype keyvalue7_vault7;
+	vertexdata_wtype keyvalue8_vault7;
+	vertexdata_wtype keyvalue9_vault7;
+	vertexdata_wtype keyvalue10_vault7;
+	vertexdata_wtype keyvalue11_vault7;
+	vertexdata_wtype keyvalue12_vault7;
+	vertexdata_wtype keyvalue13_vault7;
+	vertexdata_wtype keyvalue14_vault7;
+	vertexdata_wtype keyvalue15_vault7;
 	
-	keyvalue16_type keyvalue0_vault8;
-	keyvalue16_type keyvalue1_vault8;
-	keyvalue16_type keyvalue2_vault8;
-	keyvalue16_type keyvalue3_vault8;
-	keyvalue16_type keyvalue4_vault8;
-	keyvalue16_type keyvalue5_vault8;
-	keyvalue16_type keyvalue6_vault8;
-	keyvalue16_type keyvalue7_vault8;
-	keyvalue16_type keyvalue8_vault8;
-	keyvalue16_type keyvalue9_vault8;
-	keyvalue16_type keyvalue10_vault8;
-	keyvalue16_type keyvalue11_vault8;
-	keyvalue16_type keyvalue12_vault8;
-	keyvalue16_type keyvalue13_vault8;
-	keyvalue16_type keyvalue14_vault8;
-	keyvalue16_type keyvalue15_vault8;
+	vertexdata_wtype keyvalue0_vault8;
+	vertexdata_wtype keyvalue1_vault8;
+	vertexdata_wtype keyvalue2_vault8;
+	vertexdata_wtype keyvalue3_vault8;
+	vertexdata_wtype keyvalue4_vault8;
+	vertexdata_wtype keyvalue5_vault8;
+	vertexdata_wtype keyvalue6_vault8;
+	vertexdata_wtype keyvalue7_vault8;
+	vertexdata_wtype keyvalue8_vault8;
+	vertexdata_wtype keyvalue9_vault8;
+	vertexdata_wtype keyvalue10_vault8;
+	vertexdata_wtype keyvalue11_vault8;
+	vertexdata_wtype keyvalue12_vault8;
+	vertexdata_wtype keyvalue13_vault8;
+	vertexdata_wtype keyvalue14_vault8;
+	vertexdata_wtype keyvalue15_vault8;
 	
-	keyvalue16_type keyvalue0_vault9;
-	keyvalue16_type keyvalue1_vault9;
-	keyvalue16_type keyvalue2_vault9;
-	keyvalue16_type keyvalue3_vault9;
-	keyvalue16_type keyvalue4_vault9;
-	keyvalue16_type keyvalue5_vault9;
-	keyvalue16_type keyvalue6_vault9;
-	keyvalue16_type keyvalue7_vault9;
-	keyvalue16_type keyvalue8_vault9;
-	keyvalue16_type keyvalue9_vault9;
-	keyvalue16_type keyvalue10_vault9;
-	keyvalue16_type keyvalue11_vault9;
-	keyvalue16_type keyvalue12_vault9;
-	keyvalue16_type keyvalue13_vault9;
-	keyvalue16_type keyvalue14_vault9;
-	keyvalue16_type keyvalue15_vault9;
+	vertexdata_wtype keyvalue0_vault9;
+	vertexdata_wtype keyvalue1_vault9;
+	vertexdata_wtype keyvalue2_vault9;
+	vertexdata_wtype keyvalue3_vault9;
+	vertexdata_wtype keyvalue4_vault9;
+	vertexdata_wtype keyvalue5_vault9;
+	vertexdata_wtype keyvalue6_vault9;
+	vertexdata_wtype keyvalue7_vault9;
+	vertexdata_wtype keyvalue8_vault9;
+	vertexdata_wtype keyvalue9_vault9;
+	vertexdata_wtype keyvalue10_vault9;
+	vertexdata_wtype keyvalue11_vault9;
+	vertexdata_wtype keyvalue12_vault9;
+	vertexdata_wtype keyvalue13_vault9;
+	vertexdata_wtype keyvalue14_vault9;
+	vertexdata_wtype keyvalue15_vault9;
 	
-	keyvalue16_type keyvalue0_vault10;
-	keyvalue16_type keyvalue1_vault10;
-	keyvalue16_type keyvalue2_vault10;
-	keyvalue16_type keyvalue3_vault10;
-	keyvalue16_type keyvalue4_vault10;
-	keyvalue16_type keyvalue5_vault10;
-	keyvalue16_type keyvalue6_vault10;
-	keyvalue16_type keyvalue7_vault10;
-	keyvalue16_type keyvalue8_vault10;
-	keyvalue16_type keyvalue9_vault10;
-	keyvalue16_type keyvalue10_vault10;
-	keyvalue16_type keyvalue11_vault10;
-	keyvalue16_type keyvalue12_vault10;
-	keyvalue16_type keyvalue13_vault10;
-	keyvalue16_type keyvalue14_vault10;
-	keyvalue16_type keyvalue15_vault10;
+	vertexdata_wtype keyvalue0_vault10;
+	vertexdata_wtype keyvalue1_vault10;
+	vertexdata_wtype keyvalue2_vault10;
+	vertexdata_wtype keyvalue3_vault10;
+	vertexdata_wtype keyvalue4_vault10;
+	vertexdata_wtype keyvalue5_vault10;
+	vertexdata_wtype keyvalue6_vault10;
+	vertexdata_wtype keyvalue7_vault10;
+	vertexdata_wtype keyvalue8_vault10;
+	vertexdata_wtype keyvalue9_vault10;
+	vertexdata_wtype keyvalue10_vault10;
+	vertexdata_wtype keyvalue11_vault10;
+	vertexdata_wtype keyvalue12_vault10;
+	vertexdata_wtype keyvalue13_vault10;
+	vertexdata_wtype keyvalue14_vault10;
+	vertexdata_wtype keyvalue15_vault10;
 	
-	keyvalue16_type keyvalue0_vault11;
-	keyvalue16_type keyvalue1_vault11;
-	keyvalue16_type keyvalue2_vault11;
-	keyvalue16_type keyvalue3_vault11;
-	keyvalue16_type keyvalue4_vault11;
-	keyvalue16_type keyvalue5_vault11;
-	keyvalue16_type keyvalue6_vault11;
-	keyvalue16_type keyvalue7_vault11;
-	keyvalue16_type keyvalue8_vault11;
-	keyvalue16_type keyvalue9_vault11;
-	keyvalue16_type keyvalue10_vault11;
-	keyvalue16_type keyvalue11_vault11;
-	keyvalue16_type keyvalue12_vault11;
-	keyvalue16_type keyvalue13_vault11;
-	keyvalue16_type keyvalue14_vault11;
-	keyvalue16_type keyvalue15_vault11;
+	vertexdata_wtype keyvalue0_vault11;
+	vertexdata_wtype keyvalue1_vault11;
+	vertexdata_wtype keyvalue2_vault11;
+	vertexdata_wtype keyvalue3_vault11;
+	vertexdata_wtype keyvalue4_vault11;
+	vertexdata_wtype keyvalue5_vault11;
+	vertexdata_wtype keyvalue6_vault11;
+	vertexdata_wtype keyvalue7_vault11;
+	vertexdata_wtype keyvalue8_vault11;
+	vertexdata_wtype keyvalue9_vault11;
+	vertexdata_wtype keyvalue10_vault11;
+	vertexdata_wtype keyvalue11_vault11;
+	vertexdata_wtype keyvalue12_vault11;
+	vertexdata_wtype keyvalue13_vault11;
+	vertexdata_wtype keyvalue14_vault11;
+	vertexdata_wtype keyvalue15_vault11;
 	
-	keyvalue16_type keyvalue0_vault12;
-	keyvalue16_type keyvalue1_vault12;
-	keyvalue16_type keyvalue2_vault12;
-	keyvalue16_type keyvalue3_vault12;
-	keyvalue16_type keyvalue4_vault12;
-	keyvalue16_type keyvalue5_vault12;
-	keyvalue16_type keyvalue6_vault12;
-	keyvalue16_type keyvalue7_vault12;
-	keyvalue16_type keyvalue8_vault12;
-	keyvalue16_type keyvalue9_vault12;
-	keyvalue16_type keyvalue10_vault12;
-	keyvalue16_type keyvalue11_vault12;
-	keyvalue16_type keyvalue12_vault12;
-	keyvalue16_type keyvalue13_vault12;
-	keyvalue16_type keyvalue14_vault12;
-	keyvalue16_type keyvalue15_vault12;
+	vertexdata_wtype keyvalue0_vault12;
+	vertexdata_wtype keyvalue1_vault12;
+	vertexdata_wtype keyvalue2_vault12;
+	vertexdata_wtype keyvalue3_vault12;
+	vertexdata_wtype keyvalue4_vault12;
+	vertexdata_wtype keyvalue5_vault12;
+	vertexdata_wtype keyvalue6_vault12;
+	vertexdata_wtype keyvalue7_vault12;
+	vertexdata_wtype keyvalue8_vault12;
+	vertexdata_wtype keyvalue9_vault12;
+	vertexdata_wtype keyvalue10_vault12;
+	vertexdata_wtype keyvalue11_vault12;
+	vertexdata_wtype keyvalue12_vault12;
+	vertexdata_wtype keyvalue13_vault12;
+	vertexdata_wtype keyvalue14_vault12;
+	vertexdata_wtype keyvalue15_vault12;
 	
-	keyvalue16_type keyvalue0_vault13;
-	keyvalue16_type keyvalue1_vault13;
-	keyvalue16_type keyvalue2_vault13;
-	keyvalue16_type keyvalue3_vault13;
-	keyvalue16_type keyvalue4_vault13;
-	keyvalue16_type keyvalue5_vault13;
-	keyvalue16_type keyvalue6_vault13;
-	keyvalue16_type keyvalue7_vault13;
-	keyvalue16_type keyvalue8_vault13;
-	keyvalue16_type keyvalue9_vault13;
-	keyvalue16_type keyvalue10_vault13;
-	keyvalue16_type keyvalue11_vault13;
-	keyvalue16_type keyvalue12_vault13;
-	keyvalue16_type keyvalue13_vault13;
-	keyvalue16_type keyvalue14_vault13;
-	keyvalue16_type keyvalue15_vault13;
+	vertexdata_wtype keyvalue0_vault13;
+	vertexdata_wtype keyvalue1_vault13;
+	vertexdata_wtype keyvalue2_vault13;
+	vertexdata_wtype keyvalue3_vault13;
+	vertexdata_wtype keyvalue4_vault13;
+	vertexdata_wtype keyvalue5_vault13;
+	vertexdata_wtype keyvalue6_vault13;
+	vertexdata_wtype keyvalue7_vault13;
+	vertexdata_wtype keyvalue8_vault13;
+	vertexdata_wtype keyvalue9_vault13;
+	vertexdata_wtype keyvalue10_vault13;
+	vertexdata_wtype keyvalue11_vault13;
+	vertexdata_wtype keyvalue12_vault13;
+	vertexdata_wtype keyvalue13_vault13;
+	vertexdata_wtype keyvalue14_vault13;
+	vertexdata_wtype keyvalue15_vault13;
 	
-	keyvalue16_type keyvalue0_vault14;
-	keyvalue16_type keyvalue1_vault14;
-	keyvalue16_type keyvalue2_vault14;
-	keyvalue16_type keyvalue3_vault14;
-	keyvalue16_type keyvalue4_vault14;
-	keyvalue16_type keyvalue5_vault14;
-	keyvalue16_type keyvalue6_vault14;
-	keyvalue16_type keyvalue7_vault14;
-	keyvalue16_type keyvalue8_vault14;
-	keyvalue16_type keyvalue9_vault14;
-	keyvalue16_type keyvalue10_vault14;
-	keyvalue16_type keyvalue11_vault14;
-	keyvalue16_type keyvalue12_vault14;
-	keyvalue16_type keyvalue13_vault14;
-	keyvalue16_type keyvalue14_vault14;
-	keyvalue16_type keyvalue15_vault14;
+	vertexdata_wtype keyvalue0_vault14;
+	vertexdata_wtype keyvalue1_vault14;
+	vertexdata_wtype keyvalue2_vault14;
+	vertexdata_wtype keyvalue3_vault14;
+	vertexdata_wtype keyvalue4_vault14;
+	vertexdata_wtype keyvalue5_vault14;
+	vertexdata_wtype keyvalue6_vault14;
+	vertexdata_wtype keyvalue7_vault14;
+	vertexdata_wtype keyvalue8_vault14;
+	vertexdata_wtype keyvalue9_vault14;
+	vertexdata_wtype keyvalue10_vault14;
+	vertexdata_wtype keyvalue11_vault14;
+	vertexdata_wtype keyvalue12_vault14;
+	vertexdata_wtype keyvalue13_vault14;
+	vertexdata_wtype keyvalue14_vault14;
+	vertexdata_wtype keyvalue15_vault14;
 	
-	keyvalue16_type keyvalue0_vault15;
-	keyvalue16_type keyvalue1_vault15;
-	keyvalue16_type keyvalue2_vault15;
-	keyvalue16_type keyvalue3_vault15;
-	keyvalue16_type keyvalue4_vault15;
-	keyvalue16_type keyvalue5_vault15;
-	keyvalue16_type keyvalue6_vault15;
-	keyvalue16_type keyvalue7_vault15;
-	keyvalue16_type keyvalue8_vault15;
-	keyvalue16_type keyvalue9_vault15;
-	keyvalue16_type keyvalue10_vault15;
-	keyvalue16_type keyvalue11_vault15;
-	keyvalue16_type keyvalue12_vault15;
-	keyvalue16_type keyvalue13_vault15;
-	keyvalue16_type keyvalue14_vault15;
-	keyvalue16_type keyvalue15_vault15;
+	vertexdata_wtype keyvalue0_vault15;
+	vertexdata_wtype keyvalue1_vault15;
+	vertexdata_wtype keyvalue2_vault15;
+	vertexdata_wtype keyvalue3_vault15;
+	vertexdata_wtype keyvalue4_vault15;
+	vertexdata_wtype keyvalue5_vault15;
+	vertexdata_wtype keyvalue6_vault15;
+	vertexdata_wtype keyvalue7_vault15;
+	vertexdata_wtype keyvalue8_vault15;
+	vertexdata_wtype keyvalue9_vault15;
+	vertexdata_wtype keyvalue10_vault15;
+	vertexdata_wtype keyvalue11_vault15;
+	vertexdata_wtype keyvalue12_vault15;
+	vertexdata_wtype keyvalue13_vault15;
+	vertexdata_wtype keyvalue14_vault15;
+	vertexdata_wtype keyvalue15_vault15;
 	
-	keyvalue16_type keyvalue0_vault16;
-	keyvalue16_type keyvalue1_vault16;
-	keyvalue16_type keyvalue2_vault16;
-	keyvalue16_type keyvalue3_vault16;
-	keyvalue16_type keyvalue4_vault16;
-	keyvalue16_type keyvalue5_vault16;
-	keyvalue16_type keyvalue6_vault16;
-	keyvalue16_type keyvalue7_vault16;
-	keyvalue16_type keyvalue8_vault16;
-	keyvalue16_type keyvalue9_vault16;
-	keyvalue16_type keyvalue10_vault16;
-	keyvalue16_type keyvalue11_vault16;
-	keyvalue16_type keyvalue12_vault16;
-	keyvalue16_type keyvalue13_vault16;
-	keyvalue16_type keyvalue14_vault16;
-	keyvalue16_type keyvalue15_vault16;
+	vertexdata_wtype keyvalue0_vault16;
+	vertexdata_wtype keyvalue1_vault16;
+	vertexdata_wtype keyvalue2_vault16;
+	vertexdata_wtype keyvalue3_vault16;
+	vertexdata_wtype keyvalue4_vault16;
+	vertexdata_wtype keyvalue5_vault16;
+	vertexdata_wtype keyvalue6_vault16;
+	vertexdata_wtype keyvalue7_vault16;
+	vertexdata_wtype keyvalue8_vault16;
+	vertexdata_wtype keyvalue9_vault16;
+	vertexdata_wtype keyvalue10_vault16;
+	vertexdata_wtype keyvalue11_vault16;
+	vertexdata_wtype keyvalue12_vault16;
+	vertexdata_wtype keyvalue13_vault16;
+	vertexdata_wtype keyvalue14_vault16;
+	vertexdata_wtype keyvalue15_vault16;
 	
-	keyvalue16_type keyvalue0_vault17;
-	keyvalue16_type keyvalue1_vault17;
-	keyvalue16_type keyvalue2_vault17;
-	keyvalue16_type keyvalue3_vault17;
-	keyvalue16_type keyvalue4_vault17;
-	keyvalue16_type keyvalue5_vault17;
-	keyvalue16_type keyvalue6_vault17;
-	keyvalue16_type keyvalue7_vault17;
-	keyvalue16_type keyvalue8_vault17;
-	keyvalue16_type keyvalue9_vault17;
-	keyvalue16_type keyvalue10_vault17;
-	keyvalue16_type keyvalue11_vault17;
-	keyvalue16_type keyvalue12_vault17;
-	keyvalue16_type keyvalue13_vault17;
-	keyvalue16_type keyvalue14_vault17;
-	keyvalue16_type keyvalue15_vault17;
+	vertexdata_wtype keyvalue0_vault17;
+	vertexdata_wtype keyvalue1_vault17;
+	vertexdata_wtype keyvalue2_vault17;
+	vertexdata_wtype keyvalue3_vault17;
+	vertexdata_wtype keyvalue4_vault17;
+	vertexdata_wtype keyvalue5_vault17;
+	vertexdata_wtype keyvalue6_vault17;
+	vertexdata_wtype keyvalue7_vault17;
+	vertexdata_wtype keyvalue8_vault17;
+	vertexdata_wtype keyvalue9_vault17;
+	vertexdata_wtype keyvalue10_vault17;
+	vertexdata_wtype keyvalue11_vault17;
+	vertexdata_wtype keyvalue12_vault17;
+	vertexdata_wtype keyvalue13_vault17;
+	vertexdata_wtype keyvalue14_vault17;
+	vertexdata_wtype keyvalue15_vault17;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -4802,7 +4950,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif 
-fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	bool_type validfetch = ON;
 	if(mode == PROCESSMODE){
@@ -4817,7 +4965,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[NUM_PARTITIONS], keyvalue_t localcapsule[NUM_PARTITIONS], 
+commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[NUM_PARTITIONS], keyvalue_t localcapsule[NUM_PARTITIONS], 
 		batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == REDUCEMODE){
 		reduceandbuffer(enable1, buffer, localcapsule, vbuffer, sweepparams, globalparams);
@@ -4881,7 +5029,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_t buffer_setof1[VECT
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
 		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
-		#pragma HLS PIPELINE II=4 // CRITICAL REMOVEME.
+		#pragma HLS PIPELINE II=4
 		
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(k % 16 == 0){ cout<<"k: "<<k<<endl; }
@@ -5008,7 +5156,7 @@ void
 	acts::
 	#endif
 actit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
@@ -5095,7 +5243,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-processit(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+processit(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
@@ -5231,7 +5379,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-partitionit(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
+partitionit(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -5319,7 +5467,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-reduceit(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
+reduceit(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -5354,7 +5502,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){
 	if(en_process == ON){ processit(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams); } 
 	if(en_partition == ON){ partitionit(kvdram, sourcebuffer, vbuffer, vmask, globalparams); } 
@@ -5369,7 +5517,7 @@ void
 	acts::
 	#endif 
 dispatch_reduce(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
-keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE], 
+keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE], 
 		uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -5378,11 +5526,11 @@ keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer0_1
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue16_type synvbuffer_head_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_head_1
+	vertexdata_wtype synvbuffer_head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_head
 	
-	keyvalue16_type synvbuffer_tail_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_tail_1
+	vertexdata_wtype synvbuffer_tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_tail
 	
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
@@ -5436,8 +5584,8 @@ keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer0_1
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0_1, 0, 0, synvbuffer_head_1, 0, reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer0_1, 8, 0, synvbuffer_head_1, 0, reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0_1, 0, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer0_1, 8, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
 		readkeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1_1, 0, 0,  reducebuffersz, _globalparams);
 		readkeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer1_1, 8, 0,  reducebuffersz, _globalparams);
 		readkeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2_1, 0, 0,  reducebuffersz, _globalparams);
@@ -5524,14 +5672,14 @@ keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue16_type vbuffer0_1
 		// synchronize 
 		#ifdef SYNCHRONIZEMODULE
 		#ifdef SHIFTSYNCHRONIZE
-		synchronize(enablereduce, synvbuffer_head_1, vbuffer0_1,vbuffer1_1,vbuffer2_1,vbuffer3_1,vbuffer4_1,vbuffer5_1,vbuffer6_1,vbuffer7_1,vbuffer8_1,vbuffer9_1,vbuffer10_1,vbuffer11_1,vbuffer12_1,vbuffer13_1,vbuffer14_1,vbuffer15_1, synvbuffer_tail_1, _globalparams);
-		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail_1, synvbuffer_head_1, vmask0, voffset_kvs, _globalparams);
-		spreadvdata(enablereduce, synvbuffer_tail_1, vbuffer15_1,vbuffer14_1,vbuffer13_1,vbuffer12_1,vbuffer11_1,vbuffer10_1,vbuffer9_1,vbuffer8_1,vbuffer7_1,vbuffer6_1,vbuffer5_1,vbuffer4_1,vbuffer3_1,vbuffer2_1,vbuffer1_1,vbuffer0_1, synvbuffer_head_1, _globalparams);  // CRITICAL FIXME. vbuffer_1s should be reversed in order to help sdaccel linker
+		synchronize(enablereduce, synvbuffer_head, vbuffer0_1,vbuffer1_1,vbuffer2_1,vbuffer3_1,vbuffer4_1,vbuffer5_1,vbuffer6_1,vbuffer7_1,vbuffer8_1,vbuffer9_1,vbuffer10_1,vbuffer11_1,vbuffer12_1,vbuffer13_1,vbuffer14_1,vbuffer15_1, synvbuffer_tail, _globalparams);
+		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, voffset_kvs, _globalparams);
+		spreadvdata(enablereduce, synvbuffer_tail, vbuffer15_1,vbuffer14_1,vbuffer13_1,vbuffer12_1,vbuffer11_1,vbuffer10_1,vbuffer9_1,vbuffer8_1,vbuffer7_1,vbuffer6_1,vbuffer5_1,vbuffer4_1,vbuffer3_1,vbuffer2_1,vbuffer1_1,vbuffer0_1, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffer_1s should be reversed in order to help sdaccel linker
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
 		#endif 
 		#else 
-		vmask_p[source_partition] = synchronize(enablereduce, synvbuffer_head_1, vbuffer0_1, vmask0,vbuffer1_1, vmask1,vbuffer2_1, vmask2,vbuffer3_1, vmask3,vbuffer4_1, vmask4,vbuffer5_1, vmask5,vbuffer6_1, vmask6,vbuffer7_1, vmask7,vbuffer8_1, vmask8,vbuffer9_1, vmask9,vbuffer10_1, vmask10,vbuffer11_1, vmask11,vbuffer12_1, vmask12,vbuffer13_1, vmask13,vbuffer14_1, vmask14,vbuffer15_1, vmask15, _globalparams); 	
+		vmask_p[source_partition] = synchronize(enablereduce, synvbuffer_head, vbuffer0_1, vmask0,vbuffer1_1, vmask1,vbuffer2_1, vmask2,vbuffer3_1, vmask3,vbuffer4_1, vmask4,vbuffer5_1, vmask5,vbuffer6_1, vmask6,vbuffer7_1, vmask7,vbuffer8_1, vmask8,vbuffer9_1, vmask9,vbuffer10_1, vmask10,vbuffer11_1, vmask11,vbuffer12_1, vmask12,vbuffer13_1, vmask13,vbuffer14_1, vmask14,vbuffer15_1, vmask15, _globalparams); 	
 		#endif
 		#endif
 		
@@ -5785,112 +5933,112 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	
 	keyvalue_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer0
-	keyvalue16_type vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0_1
 	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer1
-	keyvalue16_type vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1_1
 	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer2
-	keyvalue16_type vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2_1
 	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer3
-	keyvalue16_type vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3_1
 	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer4
-	keyvalue16_type vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4_1
 	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer5
-	keyvalue16_type vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5_1
 	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer6
-	keyvalue16_type vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6_1
 	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer7
-	keyvalue16_type vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7_1
 	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer8
-	keyvalue16_type vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8_1
 	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer9
-	keyvalue16_type vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9_1
 	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer10
-	keyvalue16_type vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10_1
 	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer11
-	keyvalue16_type vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11_1
 	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer12
-	keyvalue16_type vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12_1
 	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer13
-	keyvalue16_type vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13_1
 	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer14
-	keyvalue16_type vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14_1
 	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
 	keyvalue_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer15
-	keyvalue16_type vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	vertexdata_wtype vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15_1
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
@@ -5944,7 +6092,7 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 		#endif
 		
 		for(unsigned int i=0; i<NUMCOMPUTEUNITS; i++){ globalparams[i].ALGORITHMINFO_GRAPHITERATIONID = GraphIter; }
-		START_REPLICATEVMASK_LOOP1: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+		TOPKERNEL_REPLICATEVMASK_LOOP1: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
 			vmask_p0[k] = vmask_p[k]; 
 			vmask_p1[k] = vmask_p[k]; 
 			vmask_p2[k] = vmask_p[k]; 
@@ -6136,8 +6284,7 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			#endif
 			dispatch(OFF, ON, OFF, kvdram15, sourcebuffer15, vbuffer15_1, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
 		}
-		#endif 
-		// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
+		#endif
 		
 		// reduce & partition
 		#ifdef REDUCEMODULE
@@ -6187,7 +6334,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduce(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer_1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t vbuffer_2[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+dispatch_reduce(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -6224,102 +6371,21 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKR
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer_1, 0, 0, reducebuffersz, globalparams);
-		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer_1, 8, 0, reducebuffersz, globalparams);
+		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer, 0, 0, reducebuffersz, globalparams);
+		readkeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
 		
 		// reduce
-		dispatch(OFF, OFF, enablereduce, kvdram, sourcebuffer, vbuffer_1, vbuffer_2, vmask, vmask_p, sourcestatsmarker, source_partition, globalparams);
+		dispatch(OFF, OFF, enablereduce, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, sourcestatsmarker, source_partition, globalparams);
 		
 		// writeback vertices
-		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer_1, 0, 0, reducebuffersz, globalparams);
-		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer_1, 8, 0, reducebuffersz, globalparams);
+		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer, 0, 0, reducebuffersz, globalparams);
+		savekeyvalues(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
 		
 		sourcestatsmarker += 1;
 		vreadoffset += reducebuffersz * 2;
 	}
 	return;
 } 
-
-extern "C" {
-void 
-	#ifdef SW 
-	acts:: 
-	#endif
-topkernel(uint512_dt * kvdram){
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0			
-		
-#pragma HLS INTERFACE s_axilite port = kvdram bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
-#pragma HLS DATA_PACK variable = kvdram
-
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printparameters();
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	#ifdef _WIDEWORD
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
-	#else
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
-	#endif
-	#endif
-	
-	keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = sourcebuffer
-	keyvalue_t vbuffer_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer_1	
-	keyvalue_t vbuffer_2[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer_2
-	uintNUMPby2_type vmask[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask
-	uint32_type vmask_p[BLOCKRAM_SIZE];
-	
-	globalparams_t globalparams = getglobalparams(kvdram);
-	
-	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	resetkvdramstats(kvdram, globalparams);
-	#endif
-	
-	// process & partition
-	#ifdef PROCESSMODULE
-	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"topkernel: processing instance ... "<<endl;
-		#endif
-		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer_1, vbuffer_2, vmask, vmask_p, NAp, NAp, globalparams);
-	}
-	#endif 
-	
-	// partition
-	#ifdef PARTITIONMODULE
-	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"topkernel: partitioning instance ... "<<endl;
-		#endif
-		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer_1, vbuffer_2, vmask, vmask_p, NAp, NAp, globalparams);
-	}
-	#endif 
-	
-	// reduce & partition
-	#ifdef REDUCEMODULE
-	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"topkernel: reducing instance ... "<<endl;
-		#endif
-		dispatch_reduce(kvdram, sourcebuffer, vbuffer_1, vbuffer_2, vmask, vmask_p, globalparams);
-	}
-	#endif 
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->printglobalvars();
-	#endif 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
-	actsutilityobj->clearglobalvars();
-	#endif
-	return;
-}
-}
 
 extern "C" {
 void 
@@ -6428,99 +6494,96 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
  
 #pragma HLS DATA_PACK variable = kvdram15
 
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printparameters();
-	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
 	#endif
 	
-	keyvalue16_type synvbuffer_head_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_head_1
+	vertexdata_wtype synvbuffer_head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_head
 	
-	keyvalue16_type synvbuffer_tail_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_tail_1
+	vertexdata_wtype synvbuffer_tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = synvbuffer_tail
 	
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	
-	keyvalue16_type vbuffer0_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer0_1
+	vertexdata_wtype vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer0
 	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer1_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer1_1
+	vertexdata_wtype vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer1
 	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer2_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer2_1
+	vertexdata_wtype vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer2
 	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer3_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer3_1
+	vertexdata_wtype vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer3
 	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer4_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer4_1
+	vertexdata_wtype vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer4
 	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer5_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer5_1
+	vertexdata_wtype vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer5
 	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer6_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer6_1
+	vertexdata_wtype vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer6
 	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer7_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer7_1
+	vertexdata_wtype vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer7
 	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer8_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer8_1
+	vertexdata_wtype vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer8
 	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer9_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer9_1
+	vertexdata_wtype vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer9
 	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer10_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer10_1
+	vertexdata_wtype vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer10
 	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer11_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer11_1
+	vertexdata_wtype vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer11
 	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer12_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer12_1
+	vertexdata_wtype vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer12
 	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer13_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer13_1
+	vertexdata_wtype vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer13
 	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer14_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer14_1
+	vertexdata_wtype vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer14
 	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
-	keyvalue16_type vbuffer15_1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer15_1
+	vertexdata_wtype vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer15
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
 	uint32_type vmask_p15[BLOCKRAM_SIZE];
@@ -6567,7 +6630,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 
 	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
-	
+
 	TOPKERNELSYNC_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -6597,22 +6660,38 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0_1, 0, synvbuffer_head_1, 0, reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer3_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer4_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer5_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer6_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer7_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer8_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer9_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer10_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer11_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer12_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer13_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer14_1, 0,  reducebuffersz, _globalparams);
-		readkeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15_1, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0, 0, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer0, 8, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer1, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer2, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer3, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer3, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer4, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer4, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer5, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer5, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer6, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer6, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer7, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer7, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer8, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer8, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer9, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer9, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer10, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer10, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer11, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer11, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer12, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer12, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer13, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer13, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer14, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer14, 8, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15, 0, 0,  reducebuffersz, _globalparams);
+		readkeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15, 8, 0,  reducebuffersz, _globalparams);
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 		resetvmask(vmask0);
 		resetvmask(vmask1);
@@ -6633,55 +6712,794 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		#endif
 		
 		// synchronize
-		synchronize(enablereduce, synvbuffer_head_1, vbuffer0_1,vbuffer1_1,vbuffer2_1,vbuffer3_1,vbuffer4_1,vbuffer5_1,vbuffer6_1,vbuffer7_1,vbuffer8_1,vbuffer9_1,vbuffer10_1,vbuffer11_1,vbuffer12_1,vbuffer13_1,vbuffer14_1,vbuffer15_1, synvbuffer_tail_1, _globalparams);
-		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail_1, synvbuffer_head_1, vmask0, voffset_kvs, _globalparams);
-		spreadvdata(enablereduce, synvbuffer_tail_1, vbuffer15_1,vbuffer14_1,vbuffer13_1,vbuffer12_1,vbuffer11_1,vbuffer10_1,vbuffer9_1,vbuffer8_1,vbuffer7_1,vbuffer6_1,vbuffer5_1,vbuffer4_1,vbuffer3_1,vbuffer2_1,vbuffer1_1,vbuffer0_1, synvbuffer_head_1, _globalparams);  // CRITICAL FIXME. vbuffer_1s should be reversed in order to help sdaccel linker
+		synchronize(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15, synvbuffer_tail, _globalparams);
+		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, voffset_kvs, _globalparams);
+		spreadvdata(enablereduce, synvbuffer_tail, vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
 		#endif
 		
+		// save mask 
+		#ifdef _WIDEWORD
+ // CRITICAL REMOVEME.
+		kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+ // CRITICAL REMOVEME.
+		kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
+		#else
+		kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
+		#endif 
+		
 		// writeback vertices
-		savekeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer3_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer4_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer5_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer6_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer7_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer8_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer9_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer10_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer11_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer12_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer13_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer14_1, 0, reducebuffersz, _globalparams);
-		savekeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15_1, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer3, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer4, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer5, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer6, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer7, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer8, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer8, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer9, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer9, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer10, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer10, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer11, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer11, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer12, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer12, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer13, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer13, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer14, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer14, 8, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15, 0, 0, reducebuffersz, _globalparams);
+		savekeyvalues(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15, 8, 0, reducebuffersz, _globalparams);
+	
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		savevmasks(enablereduce, kvdram0, vmask0, vbuffer0_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram1, vmask1, vbuffer1_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram2, vmask2, vbuffer2_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram3, vmask3, vbuffer3_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram4, vmask4, vbuffer4_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram5, vmask5, vbuffer5_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram6, vmask6, vbuffer6_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram7, vmask7, vbuffer7_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram8, vmask8, vbuffer8_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram9, vmask9, vbuffer9_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram10, vmask10, vbuffer10_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram11, vmask11, vbuffer11_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram12, vmask12, vbuffer12_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram13, vmask13, vbuffer13_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram14, vmask14, vbuffer14_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-		savevmasks(enablereduce, kvdram15, vmask15, vbuffer15_1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram0, vmask0, vbuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram1, vmask1, vbuffer1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram2, vmask2, vbuffer2, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram3, vmask3, vbuffer3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram4, vmask4, vbuffer4, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram5, vmask5, vbuffer5, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram6, vmask6, vbuffer6, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram7, vmask7, vbuffer7, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram8, vmask8, vbuffer8, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram9, vmask9, vbuffer9, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram10, vmask10, vbuffer10, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram11, vmask11, vbuffer11, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram12, vmask12, vbuffer12, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram13, vmask13, vbuffer13, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram14, vmask14, vbuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram15, vmask15, vbuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
+	
 		#endif 
 		
 		sourcestatsmarker += 1;
-		vreadoffset += reducebuffersz * 1; // 2;
+		vreadoffset += reducebuffersz * 2;
 		vmaskreadoffset += vmaskbuffersz_kvs;
 	}
+	
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && not defined (ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<"active partitions: ";
+	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}
+	cout<<""<<endl;
+	#endif
+	
+	/* for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ 
+		kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k];
+		
+		// if(k<5){cout<<"active partitions: vmask_p["<<k<<"]: "<<vmask_p[k]<<endl;}
+		
+		// #ifdef _WIDEWORD
+		// 		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(31, 0) = vmask_p[k]; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(63, 32) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(95, 64) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(127, 96) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(159, 128) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(191, 160) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(223, 192) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(255, 224) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(287, 256) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(319, 288) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(351, 320) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(383, 352) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(415, 384) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(447, 416) = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(479, 448) = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].range(511, 480) = 0; 
+		// 		// 		// #else
+		// 		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].key = vmask_p[k]; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[0].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[1].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[2].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[3].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[4].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[5].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[6].value = 0; 
+		// 		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].key = 0; 
+		// kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + k].data[7].value = 0; 
+		// 		// 		// #endif
+	} */
 	return;
 }
+}
+
+extern "C" {
+void 
+	#ifdef SW 
+	acts:: 
+	#endif
+topkernel(uint512_dt * kvdram){
+#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0			
+		
+#pragma HLS INTERFACE s_axilite port = kvdram bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#pragma HLS DATA_PACK variable = kvdram
+
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _WIDEWORD
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	#else
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	#endif
+	#endif
+	
+	keyvalue_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer
+	vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer
+	uintNUMPby2_type vmask[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask
+	uint32_type vmask_p[BLOCKRAM_SIZE];
+	
+	globalparams_t globalparams = getglobalparams(kvdram);
+	
+	loadvmask_p(kvdram, vmask_p, globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE);
+	
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	resetkvdramstats(kvdram, globalparams);
+	#endif
+	
+	// process & partition
+	#ifdef PROCESSMODULE
+	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<"topkernel: processing instance ... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
+	}
+	#endif 
+	
+	// partition
+	#ifdef PARTITIONMODULE
+	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<"topkernel: partitioning instance ... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
+	}
+	#endif 
+	
+	// reduce & partition
+	#ifdef REDUCEMODULE
+	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<"topkernel: reducing instance ... "<<endl;
+		#endif
+		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams);
+	}
+	#endif 
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	return;
+}
+}
+
+void 
+	#ifdef SW 
+	acts:: 
+	#endif
+mainkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){ // NB: for CPU test only
+	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<2; GraphIter++){
+		topkernel(kvdram0);
+		topkernel(kvdram1);
+		topkernel(kvdram2);
+		topkernel(kvdram3);
+		topkernel(kvdram4);
+		topkernel(kvdram5);
+		topkernel(kvdram6);
+		topkernel(kvdram7);
+		topkernel(kvdram8);
+		topkernel(kvdram9);
+		topkernel(kvdram10);
+		topkernel(kvdram11);
+		topkernel(kvdram12);
+		topkernel(kvdram13);
+		topkernel(kvdram14);
+		topkernel(kvdram15);
+		
+		topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15);
+	}
+	return;
 }
 #endif 
 

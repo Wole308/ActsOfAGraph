@@ -96,8 +96,6 @@ LDFLAGS += -lrt -lstdc++
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags (***choice between CREBTREE or AWS***)
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0]
-
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
 # LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[2] 
