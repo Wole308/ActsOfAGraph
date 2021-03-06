@@ -67,9 +67,23 @@ typedef struct {
 	#endif 
 } keyvalue_buffer_t; */
 
-typedef struct {
-	unsigned long data; // CRITICAL REMOVEME
-} keyvalue_buffer_t;
+#ifdef _WIDEWORD
+typedef ap_uint<32> keyvalue_buffer_t;
+#else 
+typedef keyvalue_t keyvalue_buffer_t;
+// typedef struct {
+	// unsigned int key;
+	// unsigned int value;
+// } keyvalue_buffer_t;
+#endif 
+/* typedef struct {
+	#ifdef _WIDEWORD
+	ap_uint<32> data;
+	#else 
+	unsigned int key;
+	unsigned int value;
+	#endif 
+} keyvalue_buffer_t; */
 
 /* struct __attribute__((packed)) keyvalue_buffer_t{
 	ap_uint<24> key;
@@ -78,7 +92,7 @@ typedef struct {
 	// ap_uint<16> value;
 }; */
 
-typedef struct {
+/* typedef struct {
 	#ifdef _WIDEWORD
 	// ap_uint<16> key;
 	// ap_uint<16> value;
@@ -88,9 +102,9 @@ typedef struct {
 	unsigned int key;
 	unsigned int value;
 	#endif 
-} keyvalue_dram_t;
+} keyvalue_t; */
 
-typedef keyvalue_t vertexdata_wtype; //
+typedef keyvalue_t keyvalue_vbuffer_t; //
 
 typedef struct {
 	unsigned int currentLOP;
