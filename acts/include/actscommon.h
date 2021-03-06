@@ -44,6 +44,44 @@ typedef unsigned int visitstate_type;
 #endif
 
 typedef struct {
+	#ifdef _WIDEWORD
+	ap_uint<16> key;
+	ap_uint<16> value; // CRITICAL NEWCHANGE.
+	// unsigned int key;
+	// unsigned int value;
+	#else 
+	unsigned int key;
+	unsigned int value;
+	#endif 
+} keyvalue_capsule_t;
+
+typedef struct {
+	#ifdef _WIDEWORD
+	ap_uint<16> key;
+	ap_uint<16> value; // CRITICAL REMOVEME.
+	// unsigned int key;
+	// unsigned int value;
+	#else 
+	unsigned int key;
+	unsigned int value;
+	#endif 
+} keyvalue_buffer_t;
+
+typedef struct {
+	#ifdef _WIDEWORD
+	// ap_uint<16> key;
+	// ap_uint<16> value;
+	unsigned int key; // CRITICAL REMOVEME.
+	unsigned int value;
+	#else 
+	unsigned int key;
+	unsigned int value;
+	#endif 
+} keyvalue_dram_t;
+
+typedef keyvalue_t vertexdata_wtype; //
+
+typedef struct {
 	unsigned int currentLOP;
 	unsigned int upperlimit;
 	unsigned int upperpartition;

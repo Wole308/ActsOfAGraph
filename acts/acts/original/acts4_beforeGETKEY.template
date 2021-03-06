@@ -583,8 +583,7 @@ void
 	#endif 
 resetkeysandvalues(keyvalue_dram_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){
-		buffer[i].key = resetval; 
-		buffer[i].value = resetval; 
+		buffer[i].key = resetval; buffer[i].value = resetval; 
 	}
 	return;
 }

@@ -181,7 +181,7 @@ public:
 	unsigned int PARSE(keyvalue_t keyvalue, unsigned int * _items);
 	unsigned int GETKEY(ulong_dt longword);
 	
-	void reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams);
+	void reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_buffer_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 private:
 	#ifdef SW 

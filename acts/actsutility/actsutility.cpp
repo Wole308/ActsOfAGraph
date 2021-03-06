@@ -1472,7 +1472,7 @@ void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt 
 	#endif
 	return; 
 }
-void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams){ 
+void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_buffer_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams){ 
 	#ifdef _DEBUGMODE_CHECKS2
 	globalstats_counterrorsinreduce(1);
 	#endif
