@@ -150,8 +150,6 @@ GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
-	// res.key = data.range(15, 0);
-	// res.value = data.range(31, 16);
 	res.key = data.range(21, 0);
 	res.value = data.range(31, 22);
 	#else 
@@ -168,8 +166,6 @@ GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
-	// res.range(15, 0) = data.key;
-	// res.range(31, 16) = data.value;
 	res.range(21, 0) = data.key;
 	res.range(31, 22) = data.value;
 	#else
@@ -178,6 +174,47 @@ GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
+keyvalue_t 
+	#ifdef SW 
+	acts::
+	#endif 
+GETKV2(keyvalue_vbuffer_t data){
+	#pragma HLS INLINE
+	keyvalue_t res;
+	#ifdef _WIDEWORD
+	res.key = data.range(15, 0); //
+	res.value = data.range(31, 16);
+	// res.key = data.range(31, 0);
+	// res.value = data.range(63, 32);
+	#else 
+	res.key = data.key;
+	res.value = data.value;	
+	// res.key = data.data; // CRITICAL REMOVEME.
+	// res.value = data.data;	
+	#endif 
+	return res;
+}
+keyvalue_vbuffer_t 
+	#ifdef SW 
+	acts::
+	#endif 
+GETKV2(keyvalue_t data){
+	#pragma HLS INLINE
+	keyvalue_vbuffer_t res;
+	#ifdef _WIDEWORD
+	res.range(15, 0) = data.key; //
+	res.range(31, 16) = data.value;
+	// res.range(31, 0) = data.key;
+	// res.range(63, 32) = data.value;
+	#else
+	res.key = data.key;
+	res.value = data.value;	
+	// res.data = data.key; // CRITICAL REMOVEME.
+	// res.data = data.value;	
+	#endif 
+	return res;
+}
+
 uint32_type 
 	#ifdef SW 
 	acts::
@@ -1130,14 +1167,72 @@ void //
 	#ifdef SW 
 	acts::
 	#endif 
-readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
 	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+		keyvalue_t mykeyvalue0;
+		keyvalue_t mykeyvalue1;
+		keyvalue_t mykeyvalue2;
+		keyvalue_t mykeyvalue3;
+		keyvalue_t mykeyvalue4;
+		keyvalue_t mykeyvalue5;
+		keyvalue_t mykeyvalue6;
+		keyvalue_t mykeyvalue7;
+		
 		#ifdef _WIDEWORD
+		mykeyvalue0.key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue0.value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue1.key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue1.value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue2.key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue2.value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue3.key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue3.value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue4.key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue4.value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue5.key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue5.value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue6.key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue6.value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue7.key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue7.value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		#else 
+		mykeyvalue0.key = kvdram[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue0.value = kvdram[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue1.key = kvdram[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue1.value = kvdram[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue2.key = kvdram[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue2.value = kvdram[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue3.key = kvdram[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue3.value = kvdram[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue4.key = kvdram[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue4.value = kvdram[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue5.key = kvdram[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue5.value = kvdram[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue6.key = kvdram[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue6.value = kvdram[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue7.key = kvdram[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue7.value = kvdram[dramoffset_kvs + i].data[7].value; 
+		#endif 
+		
+		buffer[begincol + 0][bufferoffset_kvs + i] = GETKV2(mykeyvalue0);
+		buffer[begincol + 1][bufferoffset_kvs + i] = GETKV2(mykeyvalue1);
+		buffer[begincol + 2][bufferoffset_kvs + i] = GETKV2(mykeyvalue2);
+		buffer[begincol + 3][bufferoffset_kvs + i] = GETKV2(mykeyvalue3);
+		buffer[begincol + 4][bufferoffset_kvs + i] = GETKV2(mykeyvalue4);
+		buffer[begincol + 5][bufferoffset_kvs + i] = GETKV2(mykeyvalue5);
+		buffer[begincol + 6][bufferoffset_kvs + i] = GETKV2(mykeyvalue6);
+		buffer[begincol + 7][bufferoffset_kvs + i] = GETKV2(mykeyvalue7);
+		
+		
+		
+		
+	
+		/* #ifdef _WIDEWORD
 		buffer[begincol + 0][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
 		buffer[begincol + 0][bufferoffset_kvs + i].value = kvdram[dramoffset_kvs + i].range(63, 32); 
 		buffer[begincol + 1][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].range(95, 64); 
@@ -1171,7 +1266,8 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vert
 		buffer[begincol + 6][bufferoffset_kvs + i].value = kvdram[dramoffset_kvs + i].data[6].value; 
 		buffer[begincol + 7][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].data[7].key; 
 		buffer[begincol + 7][bufferoffset_kvs + i].value = kvdram[dramoffset_kvs + i].data[7].value; 
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -1190,14 +1286,65 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  APPLYVERTEXBUFFERSZ / 2;
 	
-	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	SAVEVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+		keyvalue_t mykeyvalue0 = GETKV2(buffer[begincol + 0][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue1 = GETKV2(buffer[begincol + 1][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue2 = GETKV2(buffer[begincol + 2][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue3 = GETKV2(buffer[begincol + 3][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue4 = GETKV2(buffer[begincol + 4][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue5 = GETKV2(buffer[begincol + 5][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue6 = GETKV2(buffer[begincol + 6][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue7 = GETKV2(buffer[begincol + 7][bufferoffset_kvs + i]);
+	
 		#ifdef _WIDEWORD
+		kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
+		kvdram[dramoffset_kvs + i].range(63, 32) = mykeyvalue0.value; 
+		kvdram[dramoffset_kvs + i].range(95, 64) = mykeyvalue1.key; 
+		kvdram[dramoffset_kvs + i].range(127, 96) = mykeyvalue1.value; 
+		kvdram[dramoffset_kvs + i].range(159, 128) = mykeyvalue2.key; 
+		kvdram[dramoffset_kvs + i].range(191, 160) = mykeyvalue2.value; 
+		kvdram[dramoffset_kvs + i].range(223, 192) = mykeyvalue3.key; 
+		kvdram[dramoffset_kvs + i].range(255, 224) = mykeyvalue3.value; 
+		kvdram[dramoffset_kvs + i].range(287, 256) = mykeyvalue4.key; 
+		kvdram[dramoffset_kvs + i].range(319, 288) = mykeyvalue4.value; 
+		kvdram[dramoffset_kvs + i].range(351, 320) = mykeyvalue5.key; 
+		kvdram[dramoffset_kvs + i].range(383, 352) = mykeyvalue5.value; 
+		kvdram[dramoffset_kvs + i].range(415, 384) = mykeyvalue6.key; 
+		kvdram[dramoffset_kvs + i].range(447, 416) = mykeyvalue6.value; 
+		kvdram[dramoffset_kvs + i].range(479, 448) = mykeyvalue7.key; 
+		kvdram[dramoffset_kvs + i].range(511, 480) = mykeyvalue7.value; 
+		#else 
+		kvdram[dramoffset_kvs + i].data[0].key = mykeyvalue0.key;
+		kvdram[dramoffset_kvs + i].data[0].value = mykeyvalue0.value;
+		kvdram[dramoffset_kvs + i].data[1].key = mykeyvalue1.key;
+		kvdram[dramoffset_kvs + i].data[1].value = mykeyvalue1.value;
+		kvdram[dramoffset_kvs + i].data[2].key = mykeyvalue2.key;
+		kvdram[dramoffset_kvs + i].data[2].value = mykeyvalue2.value;
+		kvdram[dramoffset_kvs + i].data[3].key = mykeyvalue3.key;
+		kvdram[dramoffset_kvs + i].data[3].value = mykeyvalue3.value;
+		kvdram[dramoffset_kvs + i].data[4].key = mykeyvalue4.key;
+		kvdram[dramoffset_kvs + i].data[4].value = mykeyvalue4.value;
+		kvdram[dramoffset_kvs + i].data[5].key = mykeyvalue5.key;
+		kvdram[dramoffset_kvs + i].data[5].value = mykeyvalue5.value;
+		kvdram[dramoffset_kvs + i].data[6].key = mykeyvalue6.key;
+		kvdram[dramoffset_kvs + i].data[6].value = mykeyvalue6.value;
+		kvdram[dramoffset_kvs + i].data[7].key = mykeyvalue7.key;
+		kvdram[dramoffset_kvs + i].data[7].value = mykeyvalue7.value;
+		#endif 
+	
+	
+	
+	
+	
+	
+	
+		/* #ifdef _WIDEWORD
 		kvdram[dramoffset_kvs + i].range(31, 0) = buffer[begincol + 0][bufferoffset_kvs + i].key; 
 		kvdram[dramoffset_kvs + i].range(63, 32) = buffer[begincol + 0][bufferoffset_kvs + i].value; 
 		kvdram[dramoffset_kvs + i].range(95, 64) = buffer[begincol + 1][bufferoffset_kvs + i].key; 
@@ -1231,7 +1378,8 @@ savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vert
 		kvdram[dramoffset_kvs + i].data[6].value = buffer[begincol + 6][bufferoffset_kvs + i].value;
 		kvdram[dramoffset_kvs + i].data[7].key = buffer[begincol + 7][bufferoffset_kvs + i].key;
 		kvdram[dramoffset_kvs + i].data[7].value = buffer[begincol + 7][bufferoffset_kvs + i].value;
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
 		#endif
@@ -1250,14 +1398,119 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
-	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+		keyvalue_t mykeyvalue10;
+		keyvalue_t mykeyvalue11;
+		keyvalue_t mykeyvalue12;
+		keyvalue_t mykeyvalue13;
+		keyvalue_t mykeyvalue14;
+		keyvalue_t mykeyvalue15;
+		keyvalue_t mykeyvalue16;
+		keyvalue_t mykeyvalue17;
+		keyvalue_t mykeyvalue20;
+		keyvalue_t mykeyvalue21;
+		keyvalue_t mykeyvalue22;
+		keyvalue_t mykeyvalue23;
+		keyvalue_t mykeyvalue24;
+		keyvalue_t mykeyvalue25;
+		keyvalue_t mykeyvalue26;
+		keyvalue_t mykeyvalue27;
+		
 		#ifdef _WIDEWORD
+		mykeyvalue10.key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue10.value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue11.key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue11.value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue12.key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue12.value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue13.key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue13.value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue14.key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue14.value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue15.key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue15.value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue16.key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue16.value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue17.key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue17.value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue20.key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue20.value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue21.key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue21.value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue22.key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue22.value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue23.key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue23.value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue24.key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue24.value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue25.key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue25.value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue26.key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue26.value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue27.key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue27.value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		#else 
+		mykeyvalue10.key = kvdram[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue10.value = kvdram[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue11.key = kvdram[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue11.value = kvdram[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue12.key = kvdram[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue12.value = kvdram[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue13.key = kvdram[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue13.value = kvdram[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue14.key = kvdram[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue14.value = kvdram[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue15.key = kvdram[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue15.value = kvdram[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue16.key = kvdram[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue16.value = kvdram[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue17.key = kvdram[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue17.value = kvdram[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue20.key = kvdram[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue20.value = kvdram[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue21.key = kvdram[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue21.value = kvdram[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue22.key = kvdram[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue22.value = kvdram[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue23.key = kvdram[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue23.value = kvdram[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue24.key = kvdram[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue24.value = kvdram[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue25.key = kvdram[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue25.value = kvdram[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue26.key = kvdram[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue26.value = kvdram[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue27.key = kvdram[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue27.value = kvdram[dramoffset_kvs + i].data[7].value; 
+		#endif 
+		
+		buffer1[begincol + 0][buffer1offset_kvs + i] = GETKV2(mykeyvalue10);
+		buffer1[begincol + 1][buffer1offset_kvs + i] = GETKV2(mykeyvalue11);
+		buffer1[begincol + 2][buffer1offset_kvs + i] = GETKV2(mykeyvalue12);
+		buffer1[begincol + 3][buffer1offset_kvs + i] = GETKV2(mykeyvalue13);
+		buffer1[begincol + 4][buffer1offset_kvs + i] = GETKV2(mykeyvalue14);
+		buffer1[begincol + 5][buffer1offset_kvs + i] = GETKV2(mykeyvalue15);
+		buffer1[begincol + 6][buffer1offset_kvs + i] = GETKV2(mykeyvalue16);
+		buffer1[begincol + 7][buffer1offset_kvs + i] = GETKV2(mykeyvalue17);
+		buffer2[begincol + 0][buffer2offset_kvs + i] = GETKV2(mykeyvalue20);
+		buffer2[begincol + 1][buffer2offset_kvs + i] = GETKV2(mykeyvalue21);
+		buffer2[begincol + 2][buffer2offset_kvs + i] = GETKV2(mykeyvalue22);
+		buffer2[begincol + 3][buffer2offset_kvs + i] = GETKV2(mykeyvalue23);
+		buffer2[begincol + 4][buffer2offset_kvs + i] = GETKV2(mykeyvalue24);
+		buffer2[begincol + 5][buffer2offset_kvs + i] = GETKV2(mykeyvalue25);
+		buffer2[begincol + 6][buffer2offset_kvs + i] = GETKV2(mykeyvalue26);
+		buffer2[begincol + 7][buffer2offset_kvs + i] = GETKV2(mykeyvalue27);
+		
+	
+	
+	
+		/* #ifdef _WIDEWORD
 		buffer1[begincol + 0][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
 		buffer1[begincol + 0][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(63, 32); 
 		buffer1[begincol + 1][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(95, 64); 
@@ -1323,7 +1576,8 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vert
 		buffer2[begincol + 6][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[6].value; 
 		buffer2[begincol + 7][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[7].key; 
 		buffer2[begincol + 7][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[7].value; 
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -1342,14 +1596,136 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer1offset_kvs, vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer1offset_kvs, keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
-	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+	
+		// 		// buffer1[0][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		// buffer1[0][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		// 		// buffer1[1][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		// buffer1[1][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		// 		// buffer1[2][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		// buffer1[2][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		// 		// buffer1[3][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		// buffer1[3][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		// 		// buffer1[4][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		// buffer1[4][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		// 		// buffer1[5][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		// buffer1[5][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		// 		// buffer1[6][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		// buffer1[6][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		// 		// buffer1[7][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		// buffer1[7][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		// 		
+		keyvalue_t mykeyvalue10;
+		keyvalue_t mykeyvalue11;
+		keyvalue_t mykeyvalue12;
+		keyvalue_t mykeyvalue13;
+		keyvalue_t mykeyvalue14;
+		keyvalue_t mykeyvalue15;
+		keyvalue_t mykeyvalue16;
+		keyvalue_t mykeyvalue17;
+		keyvalue_t mykeyvalue20;
+		keyvalue_t mykeyvalue21;
+		keyvalue_t mykeyvalue22;
+		keyvalue_t mykeyvalue23;
+		keyvalue_t mykeyvalue24;
+		keyvalue_t mykeyvalue25;
+		keyvalue_t mykeyvalue26;
+		keyvalue_t mykeyvalue27;
+		
 		#ifdef _WIDEWORD
+		mykeyvalue10.key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue10.value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue11.key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue11.value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue12.key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue12.value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue13.key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue13.value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue14.key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue14.value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue15.key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue15.value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue16.key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue16.value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue17.key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue17.value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue20.key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue20.value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue21.key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue21.value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue22.key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue22.value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue23.key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue23.value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue24.key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue24.value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue25.key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue25.value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue26.key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue26.value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue27.key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue27.value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		#else 
+		mykeyvalue10.key = kvdram[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue10.value = kvdram[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue11.key = kvdram[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue11.value = kvdram[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue12.key = kvdram[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue12.value = kvdram[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue13.key = kvdram[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue13.value = kvdram[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue14.key = kvdram[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue14.value = kvdram[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue15.key = kvdram[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue15.value = kvdram[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue16.key = kvdram[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue16.value = kvdram[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue17.key = kvdram[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue17.value = kvdram[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue20.key = kvdram[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue20.value = kvdram[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue21.key = kvdram[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue21.value = kvdram[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue22.key = kvdram[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue22.value = kvdram[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue23.key = kvdram[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue23.value = kvdram[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue24.key = kvdram[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue24.value = kvdram[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue25.key = kvdram[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue25.value = kvdram[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue26.key = kvdram[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue26.value = kvdram[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue27.key = kvdram[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue27.value = kvdram[dramoffset_kvs + i].data[7].value; 
+		#endif 
+		
+		buffer1[0][buffer1offset_kvs + i] = GETKV2(mykeyvalue10);
+		buffer1[1][buffer1offset_kvs + i] = GETKV2(mykeyvalue11);
+		buffer1[2][buffer1offset_kvs + i] = GETKV2(mykeyvalue12);
+		buffer1[3][buffer1offset_kvs + i] = GETKV2(mykeyvalue13);
+		buffer1[4][buffer1offset_kvs + i] = GETKV2(mykeyvalue14);
+		buffer1[5][buffer1offset_kvs + i] = GETKV2(mykeyvalue15);
+		buffer1[6][buffer1offset_kvs + i] = GETKV2(mykeyvalue16);
+		buffer1[7][buffer1offset_kvs + i] = GETKV2(mykeyvalue17);
+		buffer2[0][buffer2offset_kvs + i] = GETKV2(mykeyvalue20);
+		buffer2[1][buffer2offset_kvs + i] = GETKV2(mykeyvalue21);
+		buffer2[2][buffer2offset_kvs + i] = GETKV2(mykeyvalue22);
+		buffer2[3][buffer2offset_kvs + i] = GETKV2(mykeyvalue23);
+		buffer2[4][buffer2offset_kvs + i] = GETKV2(mykeyvalue24);
+		buffer2[5][buffer2offset_kvs + i] = GETKV2(mykeyvalue25);
+		buffer2[6][buffer2offset_kvs + i] = GETKV2(mykeyvalue26);
+		buffer2[7][buffer2offset_kvs + i] = GETKV2(mykeyvalue27);
+		
+		
+	
+		/* #ifdef _WIDEWORD
 		buffer1[0][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(31, 0); 
 		buffer1[0][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range(63, 32); 
 		buffer1[1][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range(95, 64); 
@@ -1415,7 +1791,8 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, vert
 		buffer2[6][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[6].value; 
 		buffer2[7][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[7].key; 
 		buffer2[7][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[7].value; 
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -1436,7 +1813,9 @@ void //
 	#endif 
 loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE]; // CRITICAL REMOVEME. JUST FOR TEST
 	#pragma HLS array_partition variable = tempbuffer
@@ -1444,7 +1823,7 @@ loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 	buffer_type transfsize = size_kvs * 16;
 
 	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		tempbuffer[0][i].key = kvdram[offset_kvs + i].range(31, 0); 
@@ -1488,7 +1867,7 @@ loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 	
 	buffer_type index = 0;
 	LOADVMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
 	#pragma HLS PIPELINE II=8
 		bitsbuffer[index + 0] = tempbuffer[0][i].key;
 		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
@@ -1511,7 +1890,7 @@ loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 	}
 
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		vmask[i].data[0].key = bitsbuffer[i].range(0, 0);
@@ -1833,7 +2212,7 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
-getv(vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+getv(keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -1867,16 +2246,8 @@ getv(vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int 
 	actsutilityobj->checkoutofbounds("getv.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 	#endif 
 	
-	if(loc % 2 == 0){ data = vbuffer[col][row].key; } 
-	else { data = vbuffer[col][row].value; }
-	
-	// if(col < NUM_PARTITIONS/2){
-		// if(loc % 2 == 0){ data = vbuffer[col][row].key; } 
-		// else { data = vbuffer[col][row].value; }
-	// } else {
-		// if(loc % 2 == 0){ data = vbuffer2[col - (NUM_PARTITIONS/2)][row].key; } 
-		// else { data = vbuffer2[col - (NUM_PARTITIONS/2)][row].value; }
-	// }
+	if(loc % 2 == 0){ data = GETKV2(vbuffer[col][row]).key; } 
+	else { data = GETKV2(vbuffer[col][row]).value; }
 	return data;
 }
 
@@ -1902,7 +2273,7 @@ getvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t
 	} else {
 		row = 0;
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"getv: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
+		cout<<"getvmask: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
 		exit(EXIT_FAILURE);
 		#endif 
 	}
@@ -1928,7 +2299,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	
 	if(enable == OFF){ return OFF; }
@@ -2033,7 +2404,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 			actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 			#endif
 			
-			if(en == ON && mask == 1){
+			/* if(en == ON && mask == 1){
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 				if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
@@ -2074,12 +2445,72 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 				buffer[7][2*i + n].key = INVALIDDATA; 
 				buffer[7][2*i + n].value = INVALIDDATA; 
 	
-			}
+			} 
 			
 			if(n==0){
 				buffer[0][2*i].key = INVALIDDATA;
 				buffer[0][2*i].value = INVALIDDATA;
 			}
+			*/
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(en == ON && mask == 1){
+				if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+				// for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			}
+			#endif 
+			
+			if(en == ON && mask == 1){
+				mykeyvalue0.key = E[0][0]; 
+				mykeyvalue0.value = res; 
+				mykeyvalue1.key = E[0][1]; 
+				mykeyvalue1.value = res; 
+				mykeyvalue2.key = E[0][2]; 
+				mykeyvalue2.value = res; 
+				mykeyvalue3.key = E[0][3]; 
+				mykeyvalue3.value = res; 
+				mykeyvalue4.key = E[0][4]; 
+				mykeyvalue4.value = res; 
+				mykeyvalue5.key = E[0][5]; 
+				mykeyvalue5.value = res; 
+				mykeyvalue6.key = E[0][6]; 
+				mykeyvalue6.value = res; 
+				mykeyvalue7.key = E[0][7]; 
+				mykeyvalue7.value = res; 
+			} else {
+				mykeyvalue0.key = INVALIDDATA; 
+				mykeyvalue0.value = INVALIDDATA; 
+				mykeyvalue1.key = INVALIDDATA; 
+				mykeyvalue1.value = INVALIDDATA; 
+				mykeyvalue2.key = INVALIDDATA; 
+				mykeyvalue2.value = INVALIDDATA; 
+				mykeyvalue3.key = INVALIDDATA; 
+				mykeyvalue3.value = INVALIDDATA; 
+				mykeyvalue4.key = INVALIDDATA; 
+				mykeyvalue4.value = INVALIDDATA; 
+				mykeyvalue5.key = INVALIDDATA; 
+				mykeyvalue5.value = INVALIDDATA; 
+				mykeyvalue6.key = INVALIDDATA; 
+				mykeyvalue6.value = INVALIDDATA; 
+				mykeyvalue7.key = INVALIDDATA; 
+				mykeyvalue7.value = INVALIDDATA; 
+	
+			}
+			
+			if(n==0){
+				mykeyvalue00.key = INVALIDDATA;
+				mykeyvalue00.value = INVALIDDATA;
+			}
+			
+			buffer[0][2*i + n] = GETKV(mykeyvalue0);
+			buffer[1][2*i + n] = GETKV(mykeyvalue1);
+			buffer[2][2*i + n] = GETKV(mykeyvalue2);
+			buffer[3][2*i + n] = GETKV(mykeyvalue3);
+			buffer[4][2*i + n] = GETKV(mykeyvalue4);
+			buffer[5][2*i + n] = GETKV(mykeyvalue5);
+			buffer[6][2*i + n] = GETKV(mykeyvalue6);
+			buffer[7][2*i + n] = GETKV(mykeyvalue7);
 			
 			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
@@ -2094,7 +2525,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return OFF; }
 	analysis_type analysis_loop = BLOCKRAM_SIZE / 2;
@@ -2176,97 +2607,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 		actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 		#endif
 		
-		// 		// keyvalue_buffer_t mykeyvalue00 = GETKV(E[0][0], res);
-		// 		// keyvalue_buffer_t mykeyvalue01 = GETKV(E[0][1], res);
-		// 		// keyvalue_buffer_t mykeyvalue02 = GETKV(E[0][2], res);
-		// 		// keyvalue_buffer_t mykeyvalue03 = GETKV(E[0][3], res);
-		// 		// keyvalue_buffer_t mykeyvalue04 = GETKV(E[0][4], res);
-		// 		// keyvalue_buffer_t mykeyvalue05 = GETKV(E[0][5], res);
-		// 		// keyvalue_buffer_t mykeyvalue06 = GETKV(E[0][6], res);
-		// 		// keyvalue_buffer_t mykeyvalue07 = GETKV(E[0][7], res);
-		// 		// 		// keyvalue_buffer_t mykeyvalue10 = GETKV(E[1][0], res);
-		// 		// keyvalue_buffer_t mykeyvalue11 = GETKV(E[1][1], res);
-		// 		// keyvalue_buffer_t mykeyvalue12 = GETKV(E[1][2], res);
-		// 		// keyvalue_buffer_t mykeyvalue13 = GETKV(E[1][3], res);
-		// 		// keyvalue_buffer_t mykeyvalue14 = GETKV(E[1][4], res);
-		// 		// keyvalue_buffer_t mykeyvalue15 = GETKV(E[1][5], res);
-		// 		// keyvalue_buffer_t mykeyvalue16 = GETKV(E[1][6], res);
-		// 		// keyvalue_buffer_t mykeyvalue17 = GETKV(E[1][7], res);
-		// 		
-		/* if(en == ON && mask == 1){
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			#endif
-			
-			buffer[0][2*i].key = E[0][0]; 
-			buffer[0][2*i].value = res; 
-			buffer[1][2*i].key = E[0][1]; 
-			buffer[1][2*i].value = res; 
-			buffer[2][2*i].key = E[0][2]; 
-			buffer[2][2*i].value = res; 
-			buffer[3][2*i].key = E[0][3]; 
-			buffer[3][2*i].value = res; 
-			buffer[4][2*i].key = E[0][4]; 
-			buffer[4][2*i].value = res; 
-			buffer[5][2*i].key = E[0][5]; 
-			buffer[5][2*i].value = res; 
-			buffer[6][2*i].key = E[0][6]; 
-			buffer[6][2*i].value = res; 
-			buffer[7][2*i].key = E[0][7]; 
-			buffer[7][2*i].value = res; 
-			buffer[0][2*i + 1].key = E[1][0]; 
-			buffer[0][2*i + 1].value = res; 
-			buffer[1][2*i + 1].key = E[1][1]; 
-			buffer[1][2*i + 1].value = res; 
-			buffer[2][2*i + 1].key = E[1][2]; 
-			buffer[2][2*i + 1].value = res; 
-			buffer[3][2*i + 1].key = E[1][3]; 
-			buffer[3][2*i + 1].value = res; 
-			buffer[4][2*i + 1].key = E[1][4]; 
-			buffer[4][2*i + 1].value = res; 
-			buffer[5][2*i + 1].key = E[1][5]; 
-			buffer[5][2*i + 1].value = res; 
-			buffer[6][2*i + 1].key = E[1][6]; 
-			buffer[6][2*i + 1].value = res; 
-			buffer[7][2*i + 1].key = E[1][7]; 
-			buffer[7][2*i + 1].value = res; 
-		} else {
-			buffer[0][2*i].key = INVALIDDATA; 
-			buffer[0][2*i].value = INVALIDDATA; 
-			buffer[1][2*i].key = INVALIDDATA; 
-			buffer[1][2*i].value = INVALIDDATA; 
-			buffer[2][2*i].key = INVALIDDATA; 
-			buffer[2][2*i].value = INVALIDDATA; 
-			buffer[3][2*i].key = INVALIDDATA; 
-			buffer[3][2*i].value = INVALIDDATA; 
-			buffer[4][2*i].key = INVALIDDATA; 
-			buffer[4][2*i].value = INVALIDDATA; 
-			buffer[5][2*i].key = INVALIDDATA; 
-			buffer[5][2*i].value = INVALIDDATA; 
-			buffer[6][2*i].key = INVALIDDATA; 
-			buffer[6][2*i].value = INVALIDDATA; 
-			buffer[7][2*i].key = INVALIDDATA; 
-			buffer[7][2*i].value = INVALIDDATA; 
-			buffer[0][2*i + 1].key = INVALIDDATA; 
-			buffer[0][2*i + 1].value = INVALIDDATA; 
-			buffer[1][2*i + 1].key = INVALIDDATA; 
-			buffer[1][2*i + 1].value = INVALIDDATA; 
-			buffer[2][2*i + 1].key = INVALIDDATA; 
-			buffer[2][2*i + 1].value = INVALIDDATA; 
-			buffer[3][2*i + 1].key = INVALIDDATA; 
-			buffer[3][2*i + 1].value = INVALIDDATA; 
-			buffer[4][2*i + 1].key = INVALIDDATA; 
-			buffer[4][2*i + 1].value = INVALIDDATA; 
-			buffer[5][2*i + 1].key = INVALIDDATA; 
-			buffer[5][2*i + 1].value = INVALIDDATA; 
-			buffer[6][2*i + 1].key = INVALIDDATA; 
-			buffer[6][2*i + 1].value = INVALIDDATA; 
-			buffer[7][2*i + 1].key = INVALIDDATA; 
-			buffer[7][2*i + 1].value = INVALIDDATA; 
-		} */
-		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		if(en == ON && mask == 1){
 			if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
@@ -2274,165 +2614,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
 		}
 		#endif
-		
-		/* if(en == ON && mask == 1){
-			buffer[0][2*i].key = mykeyvalue00.key; 
-			buffer[0][2*i].value = mykeyvalue00.value; 
-			buffer[1][2*i].key = mykeyvalue01.key; 
-			buffer[1][2*i].value = mykeyvalue01.value; 
-			buffer[2][2*i].key = mykeyvalue02.key; 
-			buffer[2][2*i].value = mykeyvalue02.value; 
-			buffer[3][2*i].key = mykeyvalue03.key; 
-			buffer[3][2*i].value = mykeyvalue03.value; 
-			buffer[4][2*i].key = mykeyvalue04.key; 
-			buffer[4][2*i].value = mykeyvalue04.value; 
-			buffer[5][2*i].key = mykeyvalue05.key; 
-			buffer[5][2*i].value = mykeyvalue05.value; 
-			buffer[6][2*i].key = mykeyvalue06.key; 
-			buffer[6][2*i].value = mykeyvalue06.value; 
-			buffer[7][2*i].key = mykeyvalue07.key; 
-			buffer[7][2*i].value = mykeyvalue07.value; 
-			buffer[0][2*i + 1].key = mykeyvalue10.key; 
-			buffer[0][2*i + 1].value = mykeyvalue10.value; 
-			buffer[1][2*i + 1].key = mykeyvalue11.key; 
-			buffer[1][2*i + 1].value = mykeyvalue11.value; 
-			buffer[2][2*i + 1].key = mykeyvalue12.key; 
-			buffer[2][2*i + 1].value = mykeyvalue12.value; 
-			buffer[3][2*i + 1].key = mykeyvalue13.key; 
-			buffer[3][2*i + 1].value = mykeyvalue13.value; 
-			buffer[4][2*i + 1].key = mykeyvalue14.key; 
-			buffer[4][2*i + 1].value = mykeyvalue14.value; 
-			buffer[5][2*i + 1].key = mykeyvalue15.key; 
-			buffer[5][2*i + 1].value = mykeyvalue15.value; 
-			buffer[6][2*i + 1].key = mykeyvalue16.key; 
-			buffer[6][2*i + 1].value = mykeyvalue16.value; 
-			buffer[7][2*i + 1].key = mykeyvalue17.key; 
-			buffer[7][2*i + 1].value = mykeyvalue17.value; 
-		} else {
-			buffer[0][2*i].key = INVALIDDATA; 
-			buffer[0][2*i].value = INVALIDDATA; 
-			buffer[1][2*i].key = INVALIDDATA; 
-			buffer[1][2*i].value = INVALIDDATA; 
-			buffer[2][2*i].key = INVALIDDATA; 
-			buffer[2][2*i].value = INVALIDDATA; 
-			buffer[3][2*i].key = INVALIDDATA; 
-			buffer[3][2*i].value = INVALIDDATA; 
-			buffer[4][2*i].key = INVALIDDATA; 
-			buffer[4][2*i].value = INVALIDDATA; 
-			buffer[5][2*i].key = INVALIDDATA; 
-			buffer[5][2*i].value = INVALIDDATA; 
-			buffer[6][2*i].key = INVALIDDATA; 
-			buffer[6][2*i].value = INVALIDDATA; 
-			buffer[7][2*i].key = INVALIDDATA; 
-			buffer[7][2*i].value = INVALIDDATA; 
-			buffer[0][2*i + 1].key = INVALIDDATA; 
-			buffer[0][2*i + 1].value = INVALIDDATA; 
-			buffer[1][2*i + 1].key = INVALIDDATA; 
-			buffer[1][2*i + 1].value = INVALIDDATA; 
-			buffer[2][2*i + 1].key = INVALIDDATA; 
-			buffer[2][2*i + 1].value = INVALIDDATA; 
-			buffer[3][2*i + 1].key = INVALIDDATA; 
-			buffer[3][2*i + 1].value = INVALIDDATA; 
-			buffer[4][2*i + 1].key = INVALIDDATA; 
-			buffer[4][2*i + 1].value = INVALIDDATA; 
-			buffer[5][2*i + 1].key = INVALIDDATA; 
-			buffer[5][2*i + 1].value = INVALIDDATA; 
-			buffer[6][2*i + 1].key = INVALIDDATA; 
-			buffer[6][2*i + 1].value = INVALIDDATA; 
-			buffer[7][2*i + 1].key = INVALIDDATA; 
-			buffer[7][2*i + 1].value = INVALIDDATA; 
-		} */
-		/* if(en == ON && mask == 1){
-			buffer[0][2*i] = mykeyvalue00;
-			buffer[0][2*i + 1] = 
-			
-			buffer[0][2*i].key = mykeyvalue00.key; 
-			buffer[0][2*i].value = mykeyvalue00.value; 
-			buffer[1][2*i] = mykeyvalue01;
-			buffer[1][2*i + 1] = 
-			
-			buffer[1][2*i].key = mykeyvalue01.key; 
-			buffer[1][2*i].value = mykeyvalue01.value; 
-			buffer[2][2*i] = mykeyvalue02;
-			buffer[2][2*i + 1] = 
-			
-			buffer[2][2*i].key = mykeyvalue02.key; 
-			buffer[2][2*i].value = mykeyvalue02.value; 
-			buffer[3][2*i] = mykeyvalue03;
-			buffer[3][2*i + 1] = 
-			
-			buffer[3][2*i].key = mykeyvalue03.key; 
-			buffer[3][2*i].value = mykeyvalue03.value; 
-			buffer[4][2*i] = mykeyvalue04;
-			buffer[4][2*i + 1] = 
-			
-			buffer[4][2*i].key = mykeyvalue04.key; 
-			buffer[4][2*i].value = mykeyvalue04.value; 
-			buffer[5][2*i] = mykeyvalue05;
-			buffer[5][2*i + 1] = 
-			
-			buffer[5][2*i].key = mykeyvalue05.key; 
-			buffer[5][2*i].value = mykeyvalue05.value; 
-			buffer[6][2*i] = mykeyvalue06;
-			buffer[6][2*i + 1] = 
-			
-			buffer[6][2*i].key = mykeyvalue06.key; 
-			buffer[6][2*i].value = mykeyvalue06.value; 
-			buffer[7][2*i] = mykeyvalue07;
-			buffer[7][2*i + 1] = 
-			
-			buffer[7][2*i].key = mykeyvalue07.key; 
-			buffer[7][2*i].value = mykeyvalue07.value; 
-			buffer[0][2*i + 1].key = mykeyvalue10.key; 
-			buffer[0][2*i + 1].value = mykeyvalue10.value; 
-			buffer[1][2*i + 1].key = mykeyvalue11.key; 
-			buffer[1][2*i + 1].value = mykeyvalue11.value; 
-			buffer[2][2*i + 1].key = mykeyvalue12.key; 
-			buffer[2][2*i + 1].value = mykeyvalue12.value; 
-			buffer[3][2*i + 1].key = mykeyvalue13.key; 
-			buffer[3][2*i + 1].value = mykeyvalue13.value; 
-			buffer[4][2*i + 1].key = mykeyvalue14.key; 
-			buffer[4][2*i + 1].value = mykeyvalue14.value; 
-			buffer[5][2*i + 1].key = mykeyvalue15.key; 
-			buffer[5][2*i + 1].value = mykeyvalue15.value; 
-			buffer[6][2*i + 1].key = mykeyvalue16.key; 
-			buffer[6][2*i + 1].value = mykeyvalue16.value; 
-			buffer[7][2*i + 1].key = mykeyvalue17.key; 
-			buffer[7][2*i + 1].value = mykeyvalue17.value; 
-		} else {
-			buffer[0][2*i].key = INVALIDDATA; 
-			buffer[0][2*i].value = INVALIDDATA; 
-			buffer[1][2*i].key = INVALIDDATA; 
-			buffer[1][2*i].value = INVALIDDATA; 
-			buffer[2][2*i].key = INVALIDDATA; 
-			buffer[2][2*i].value = INVALIDDATA; 
-			buffer[3][2*i].key = INVALIDDATA; 
-			buffer[3][2*i].value = INVALIDDATA; 
-			buffer[4][2*i].key = INVALIDDATA; 
-			buffer[4][2*i].value = INVALIDDATA; 
-			buffer[5][2*i].key = INVALIDDATA; 
-			buffer[5][2*i].value = INVALIDDATA; 
-			buffer[6][2*i].key = INVALIDDATA; 
-			buffer[6][2*i].value = INVALIDDATA; 
-			buffer[7][2*i].key = INVALIDDATA; 
-			buffer[7][2*i].value = INVALIDDATA; 
-			buffer[0][2*i + 1].key = INVALIDDATA; 
-			buffer[0][2*i + 1].value = INVALIDDATA; 
-			buffer[1][2*i + 1].key = INVALIDDATA; 
-			buffer[1][2*i + 1].value = INVALIDDATA; 
-			buffer[2][2*i + 1].key = INVALIDDATA; 
-			buffer[2][2*i + 1].value = INVALIDDATA; 
-			buffer[3][2*i + 1].key = INVALIDDATA; 
-			buffer[3][2*i + 1].value = INVALIDDATA; 
-			buffer[4][2*i + 1].key = INVALIDDATA; 
-			buffer[4][2*i + 1].value = INVALIDDATA; 
-			buffer[5][2*i + 1].key = INVALIDDATA; 
-			buffer[5][2*i + 1].value = INVALIDDATA; 
-			buffer[6][2*i + 1].key = INVALIDDATA; 
-			buffer[6][2*i + 1].value = INVALIDDATA; 
-			buffer[7][2*i + 1].key = INVALIDDATA; 
-			buffer[7][2*i + 1].value = INVALIDDATA; 
-		} */
 		
 		keyvalue_t mykeyvalue00;
 		keyvalue_t mykeyvalue01;
@@ -2875,7 +3056,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-reducevector(keyvalue_buffer_t kvdata, vertexdata_wtype destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#ifdef VERTEXCOLORING
 	#pragma HLS PIPELINE II=2
 	#else 
@@ -2906,22 +3087,23 @@ reducevector(keyvalue_buffer_t kvdata, vertexdata_wtype destbuffer[BLOCKRAM_SIZE
 	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
 	else { destbuffer[destoffset + rowindex].value = 1; }
 	#else
-	vertexdata_wtype vprop;
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ vprop = destbuffer[destoffset + rowindex]; }
+	// keyvalue_vbuffer_t vprop;
+	keyvalue_t myvprop;
+	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ myvprop = GETKV2(destbuffer[destoffset + rowindex]); }
 	
 	value_t temp;
-	if(colindex == 0){ temp = vprop.key; }
-	else { temp = vprop.value; }
+	if(colindex == 0){ temp = myvprop.key; }
+	else { temp = myvprop.value; }
 	
 	value_t rettemp = reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reducevector:: rettemp: "<<rettemp<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	if(colindex == 0){ vprop.key = rettemp; }
-	else { vprop.value = rettemp; }
+	if(colindex == 0){ myvprop.key = rettemp; }
+	else { myvprop.value = rettemp; }
 	
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ destbuffer[destoffset + rowindex] = vprop; }
+	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ destbuffer[destoffset + rowindex] = GETKV2(myvprop); }
 	#endif 
 	
 	#ifdef _DEBUGMODE_STATS
@@ -2935,7 +3117,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
 	
@@ -3056,7 +3238,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-synchronize(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronize: synchronize function called."<<endl;
@@ -3065,911 +3247,911 @@ synchronize(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOC
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	vertexdata_wtype keyvalue0_vault0;
-	vertexdata_wtype keyvalue1_vault0;
-	vertexdata_wtype keyvalue2_vault0;
-	vertexdata_wtype keyvalue3_vault0;
-	vertexdata_wtype keyvalue4_vault0;
-	vertexdata_wtype keyvalue5_vault0;
-	vertexdata_wtype keyvalue6_vault0;
-	vertexdata_wtype keyvalue7_vault0;
-	vertexdata_wtype keyvalue8_vault0;
-	vertexdata_wtype keyvalue9_vault0;
-	vertexdata_wtype keyvalue10_vault0;
-	vertexdata_wtype keyvalue11_vault0;
-	vertexdata_wtype keyvalue12_vault0;
-	vertexdata_wtype keyvalue13_vault0;
-	vertexdata_wtype keyvalue14_vault0;
-	vertexdata_wtype keyvalue15_vault0;
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	keyvalue_t keyvalue8_vault0;
+	keyvalue_t keyvalue9_vault0;
+	keyvalue_t keyvalue10_vault0;
+	keyvalue_t keyvalue11_vault0;
+	keyvalue_t keyvalue12_vault0;
+	keyvalue_t keyvalue13_vault0;
+	keyvalue_t keyvalue14_vault0;
+	keyvalue_t keyvalue15_vault0;
 	
-	vertexdata_wtype keyvalue0_vault1;
-	vertexdata_wtype keyvalue1_vault1;
-	vertexdata_wtype keyvalue2_vault1;
-	vertexdata_wtype keyvalue3_vault1;
-	vertexdata_wtype keyvalue4_vault1;
-	vertexdata_wtype keyvalue5_vault1;
-	vertexdata_wtype keyvalue6_vault1;
-	vertexdata_wtype keyvalue7_vault1;
-	vertexdata_wtype keyvalue8_vault1;
-	vertexdata_wtype keyvalue9_vault1;
-	vertexdata_wtype keyvalue10_vault1;
-	vertexdata_wtype keyvalue11_vault1;
-	vertexdata_wtype keyvalue12_vault1;
-	vertexdata_wtype keyvalue13_vault1;
-	vertexdata_wtype keyvalue14_vault1;
-	vertexdata_wtype keyvalue15_vault1;
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	keyvalue_t keyvalue8_vault1;
+	keyvalue_t keyvalue9_vault1;
+	keyvalue_t keyvalue10_vault1;
+	keyvalue_t keyvalue11_vault1;
+	keyvalue_t keyvalue12_vault1;
+	keyvalue_t keyvalue13_vault1;
+	keyvalue_t keyvalue14_vault1;
+	keyvalue_t keyvalue15_vault1;
 	
-	vertexdata_wtype keyvalue0_vault2;
-	vertexdata_wtype keyvalue1_vault2;
-	vertexdata_wtype keyvalue2_vault2;
-	vertexdata_wtype keyvalue3_vault2;
-	vertexdata_wtype keyvalue4_vault2;
-	vertexdata_wtype keyvalue5_vault2;
-	vertexdata_wtype keyvalue6_vault2;
-	vertexdata_wtype keyvalue7_vault2;
-	vertexdata_wtype keyvalue8_vault2;
-	vertexdata_wtype keyvalue9_vault2;
-	vertexdata_wtype keyvalue10_vault2;
-	vertexdata_wtype keyvalue11_vault2;
-	vertexdata_wtype keyvalue12_vault2;
-	vertexdata_wtype keyvalue13_vault2;
-	vertexdata_wtype keyvalue14_vault2;
-	vertexdata_wtype keyvalue15_vault2;
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	keyvalue_t keyvalue8_vault2;
+	keyvalue_t keyvalue9_vault2;
+	keyvalue_t keyvalue10_vault2;
+	keyvalue_t keyvalue11_vault2;
+	keyvalue_t keyvalue12_vault2;
+	keyvalue_t keyvalue13_vault2;
+	keyvalue_t keyvalue14_vault2;
+	keyvalue_t keyvalue15_vault2;
 	
-	vertexdata_wtype keyvalue0_vault3;
-	vertexdata_wtype keyvalue1_vault3;
-	vertexdata_wtype keyvalue2_vault3;
-	vertexdata_wtype keyvalue3_vault3;
-	vertexdata_wtype keyvalue4_vault3;
-	vertexdata_wtype keyvalue5_vault3;
-	vertexdata_wtype keyvalue6_vault3;
-	vertexdata_wtype keyvalue7_vault3;
-	vertexdata_wtype keyvalue8_vault3;
-	vertexdata_wtype keyvalue9_vault3;
-	vertexdata_wtype keyvalue10_vault3;
-	vertexdata_wtype keyvalue11_vault3;
-	vertexdata_wtype keyvalue12_vault3;
-	vertexdata_wtype keyvalue13_vault3;
-	vertexdata_wtype keyvalue14_vault3;
-	vertexdata_wtype keyvalue15_vault3;
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	keyvalue_t keyvalue8_vault3;
+	keyvalue_t keyvalue9_vault3;
+	keyvalue_t keyvalue10_vault3;
+	keyvalue_t keyvalue11_vault3;
+	keyvalue_t keyvalue12_vault3;
+	keyvalue_t keyvalue13_vault3;
+	keyvalue_t keyvalue14_vault3;
+	keyvalue_t keyvalue15_vault3;
 	
-	vertexdata_wtype keyvalue0_vault4;
-	vertexdata_wtype keyvalue1_vault4;
-	vertexdata_wtype keyvalue2_vault4;
-	vertexdata_wtype keyvalue3_vault4;
-	vertexdata_wtype keyvalue4_vault4;
-	vertexdata_wtype keyvalue5_vault4;
-	vertexdata_wtype keyvalue6_vault4;
-	vertexdata_wtype keyvalue7_vault4;
-	vertexdata_wtype keyvalue8_vault4;
-	vertexdata_wtype keyvalue9_vault4;
-	vertexdata_wtype keyvalue10_vault4;
-	vertexdata_wtype keyvalue11_vault4;
-	vertexdata_wtype keyvalue12_vault4;
-	vertexdata_wtype keyvalue13_vault4;
-	vertexdata_wtype keyvalue14_vault4;
-	vertexdata_wtype keyvalue15_vault4;
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	keyvalue_t keyvalue8_vault4;
+	keyvalue_t keyvalue9_vault4;
+	keyvalue_t keyvalue10_vault4;
+	keyvalue_t keyvalue11_vault4;
+	keyvalue_t keyvalue12_vault4;
+	keyvalue_t keyvalue13_vault4;
+	keyvalue_t keyvalue14_vault4;
+	keyvalue_t keyvalue15_vault4;
 	
-	vertexdata_wtype keyvalue0_vault5;
-	vertexdata_wtype keyvalue1_vault5;
-	vertexdata_wtype keyvalue2_vault5;
-	vertexdata_wtype keyvalue3_vault5;
-	vertexdata_wtype keyvalue4_vault5;
-	vertexdata_wtype keyvalue5_vault5;
-	vertexdata_wtype keyvalue6_vault5;
-	vertexdata_wtype keyvalue7_vault5;
-	vertexdata_wtype keyvalue8_vault5;
-	vertexdata_wtype keyvalue9_vault5;
-	vertexdata_wtype keyvalue10_vault5;
-	vertexdata_wtype keyvalue11_vault5;
-	vertexdata_wtype keyvalue12_vault5;
-	vertexdata_wtype keyvalue13_vault5;
-	vertexdata_wtype keyvalue14_vault5;
-	vertexdata_wtype keyvalue15_vault5;
+	keyvalue_t keyvalue0_vault5;
+	keyvalue_t keyvalue1_vault5;
+	keyvalue_t keyvalue2_vault5;
+	keyvalue_t keyvalue3_vault5;
+	keyvalue_t keyvalue4_vault5;
+	keyvalue_t keyvalue5_vault5;
+	keyvalue_t keyvalue6_vault5;
+	keyvalue_t keyvalue7_vault5;
+	keyvalue_t keyvalue8_vault5;
+	keyvalue_t keyvalue9_vault5;
+	keyvalue_t keyvalue10_vault5;
+	keyvalue_t keyvalue11_vault5;
+	keyvalue_t keyvalue12_vault5;
+	keyvalue_t keyvalue13_vault5;
+	keyvalue_t keyvalue14_vault5;
+	keyvalue_t keyvalue15_vault5;
 	
-	vertexdata_wtype keyvalue0_vault6;
-	vertexdata_wtype keyvalue1_vault6;
-	vertexdata_wtype keyvalue2_vault6;
-	vertexdata_wtype keyvalue3_vault6;
-	vertexdata_wtype keyvalue4_vault6;
-	vertexdata_wtype keyvalue5_vault6;
-	vertexdata_wtype keyvalue6_vault6;
-	vertexdata_wtype keyvalue7_vault6;
-	vertexdata_wtype keyvalue8_vault6;
-	vertexdata_wtype keyvalue9_vault6;
-	vertexdata_wtype keyvalue10_vault6;
-	vertexdata_wtype keyvalue11_vault6;
-	vertexdata_wtype keyvalue12_vault6;
-	vertexdata_wtype keyvalue13_vault6;
-	vertexdata_wtype keyvalue14_vault6;
-	vertexdata_wtype keyvalue15_vault6;
+	keyvalue_t keyvalue0_vault6;
+	keyvalue_t keyvalue1_vault6;
+	keyvalue_t keyvalue2_vault6;
+	keyvalue_t keyvalue3_vault6;
+	keyvalue_t keyvalue4_vault6;
+	keyvalue_t keyvalue5_vault6;
+	keyvalue_t keyvalue6_vault6;
+	keyvalue_t keyvalue7_vault6;
+	keyvalue_t keyvalue8_vault6;
+	keyvalue_t keyvalue9_vault6;
+	keyvalue_t keyvalue10_vault6;
+	keyvalue_t keyvalue11_vault6;
+	keyvalue_t keyvalue12_vault6;
+	keyvalue_t keyvalue13_vault6;
+	keyvalue_t keyvalue14_vault6;
+	keyvalue_t keyvalue15_vault6;
 	
-	vertexdata_wtype keyvalue0_vault7;
-	vertexdata_wtype keyvalue1_vault7;
-	vertexdata_wtype keyvalue2_vault7;
-	vertexdata_wtype keyvalue3_vault7;
-	vertexdata_wtype keyvalue4_vault7;
-	vertexdata_wtype keyvalue5_vault7;
-	vertexdata_wtype keyvalue6_vault7;
-	vertexdata_wtype keyvalue7_vault7;
-	vertexdata_wtype keyvalue8_vault7;
-	vertexdata_wtype keyvalue9_vault7;
-	vertexdata_wtype keyvalue10_vault7;
-	vertexdata_wtype keyvalue11_vault7;
-	vertexdata_wtype keyvalue12_vault7;
-	vertexdata_wtype keyvalue13_vault7;
-	vertexdata_wtype keyvalue14_vault7;
-	vertexdata_wtype keyvalue15_vault7;
+	keyvalue_t keyvalue0_vault7;
+	keyvalue_t keyvalue1_vault7;
+	keyvalue_t keyvalue2_vault7;
+	keyvalue_t keyvalue3_vault7;
+	keyvalue_t keyvalue4_vault7;
+	keyvalue_t keyvalue5_vault7;
+	keyvalue_t keyvalue6_vault7;
+	keyvalue_t keyvalue7_vault7;
+	keyvalue_t keyvalue8_vault7;
+	keyvalue_t keyvalue9_vault7;
+	keyvalue_t keyvalue10_vault7;
+	keyvalue_t keyvalue11_vault7;
+	keyvalue_t keyvalue12_vault7;
+	keyvalue_t keyvalue13_vault7;
+	keyvalue_t keyvalue14_vault7;
+	keyvalue_t keyvalue15_vault7;
 	
-	vertexdata_wtype keyvalue0_vault8;
-	vertexdata_wtype keyvalue1_vault8;
-	vertexdata_wtype keyvalue2_vault8;
-	vertexdata_wtype keyvalue3_vault8;
-	vertexdata_wtype keyvalue4_vault8;
-	vertexdata_wtype keyvalue5_vault8;
-	vertexdata_wtype keyvalue6_vault8;
-	vertexdata_wtype keyvalue7_vault8;
-	vertexdata_wtype keyvalue8_vault8;
-	vertexdata_wtype keyvalue9_vault8;
-	vertexdata_wtype keyvalue10_vault8;
-	vertexdata_wtype keyvalue11_vault8;
-	vertexdata_wtype keyvalue12_vault8;
-	vertexdata_wtype keyvalue13_vault8;
-	vertexdata_wtype keyvalue14_vault8;
-	vertexdata_wtype keyvalue15_vault8;
+	keyvalue_t keyvalue0_vault8;
+	keyvalue_t keyvalue1_vault8;
+	keyvalue_t keyvalue2_vault8;
+	keyvalue_t keyvalue3_vault8;
+	keyvalue_t keyvalue4_vault8;
+	keyvalue_t keyvalue5_vault8;
+	keyvalue_t keyvalue6_vault8;
+	keyvalue_t keyvalue7_vault8;
+	keyvalue_t keyvalue8_vault8;
+	keyvalue_t keyvalue9_vault8;
+	keyvalue_t keyvalue10_vault8;
+	keyvalue_t keyvalue11_vault8;
+	keyvalue_t keyvalue12_vault8;
+	keyvalue_t keyvalue13_vault8;
+	keyvalue_t keyvalue14_vault8;
+	keyvalue_t keyvalue15_vault8;
 	
-	vertexdata_wtype keyvalue0_vault9;
-	vertexdata_wtype keyvalue1_vault9;
-	vertexdata_wtype keyvalue2_vault9;
-	vertexdata_wtype keyvalue3_vault9;
-	vertexdata_wtype keyvalue4_vault9;
-	vertexdata_wtype keyvalue5_vault9;
-	vertexdata_wtype keyvalue6_vault9;
-	vertexdata_wtype keyvalue7_vault9;
-	vertexdata_wtype keyvalue8_vault9;
-	vertexdata_wtype keyvalue9_vault9;
-	vertexdata_wtype keyvalue10_vault9;
-	vertexdata_wtype keyvalue11_vault9;
-	vertexdata_wtype keyvalue12_vault9;
-	vertexdata_wtype keyvalue13_vault9;
-	vertexdata_wtype keyvalue14_vault9;
-	vertexdata_wtype keyvalue15_vault9;
+	keyvalue_t keyvalue0_vault9;
+	keyvalue_t keyvalue1_vault9;
+	keyvalue_t keyvalue2_vault9;
+	keyvalue_t keyvalue3_vault9;
+	keyvalue_t keyvalue4_vault9;
+	keyvalue_t keyvalue5_vault9;
+	keyvalue_t keyvalue6_vault9;
+	keyvalue_t keyvalue7_vault9;
+	keyvalue_t keyvalue8_vault9;
+	keyvalue_t keyvalue9_vault9;
+	keyvalue_t keyvalue10_vault9;
+	keyvalue_t keyvalue11_vault9;
+	keyvalue_t keyvalue12_vault9;
+	keyvalue_t keyvalue13_vault9;
+	keyvalue_t keyvalue14_vault9;
+	keyvalue_t keyvalue15_vault9;
 	
-	vertexdata_wtype keyvalue0_vault10;
-	vertexdata_wtype keyvalue1_vault10;
-	vertexdata_wtype keyvalue2_vault10;
-	vertexdata_wtype keyvalue3_vault10;
-	vertexdata_wtype keyvalue4_vault10;
-	vertexdata_wtype keyvalue5_vault10;
-	vertexdata_wtype keyvalue6_vault10;
-	vertexdata_wtype keyvalue7_vault10;
-	vertexdata_wtype keyvalue8_vault10;
-	vertexdata_wtype keyvalue9_vault10;
-	vertexdata_wtype keyvalue10_vault10;
-	vertexdata_wtype keyvalue11_vault10;
-	vertexdata_wtype keyvalue12_vault10;
-	vertexdata_wtype keyvalue13_vault10;
-	vertexdata_wtype keyvalue14_vault10;
-	vertexdata_wtype keyvalue15_vault10;
+	keyvalue_t keyvalue0_vault10;
+	keyvalue_t keyvalue1_vault10;
+	keyvalue_t keyvalue2_vault10;
+	keyvalue_t keyvalue3_vault10;
+	keyvalue_t keyvalue4_vault10;
+	keyvalue_t keyvalue5_vault10;
+	keyvalue_t keyvalue6_vault10;
+	keyvalue_t keyvalue7_vault10;
+	keyvalue_t keyvalue8_vault10;
+	keyvalue_t keyvalue9_vault10;
+	keyvalue_t keyvalue10_vault10;
+	keyvalue_t keyvalue11_vault10;
+	keyvalue_t keyvalue12_vault10;
+	keyvalue_t keyvalue13_vault10;
+	keyvalue_t keyvalue14_vault10;
+	keyvalue_t keyvalue15_vault10;
 	
-	vertexdata_wtype keyvalue0_vault11;
-	vertexdata_wtype keyvalue1_vault11;
-	vertexdata_wtype keyvalue2_vault11;
-	vertexdata_wtype keyvalue3_vault11;
-	vertexdata_wtype keyvalue4_vault11;
-	vertexdata_wtype keyvalue5_vault11;
-	vertexdata_wtype keyvalue6_vault11;
-	vertexdata_wtype keyvalue7_vault11;
-	vertexdata_wtype keyvalue8_vault11;
-	vertexdata_wtype keyvalue9_vault11;
-	vertexdata_wtype keyvalue10_vault11;
-	vertexdata_wtype keyvalue11_vault11;
-	vertexdata_wtype keyvalue12_vault11;
-	vertexdata_wtype keyvalue13_vault11;
-	vertexdata_wtype keyvalue14_vault11;
-	vertexdata_wtype keyvalue15_vault11;
+	keyvalue_t keyvalue0_vault11;
+	keyvalue_t keyvalue1_vault11;
+	keyvalue_t keyvalue2_vault11;
+	keyvalue_t keyvalue3_vault11;
+	keyvalue_t keyvalue4_vault11;
+	keyvalue_t keyvalue5_vault11;
+	keyvalue_t keyvalue6_vault11;
+	keyvalue_t keyvalue7_vault11;
+	keyvalue_t keyvalue8_vault11;
+	keyvalue_t keyvalue9_vault11;
+	keyvalue_t keyvalue10_vault11;
+	keyvalue_t keyvalue11_vault11;
+	keyvalue_t keyvalue12_vault11;
+	keyvalue_t keyvalue13_vault11;
+	keyvalue_t keyvalue14_vault11;
+	keyvalue_t keyvalue15_vault11;
 	
-	vertexdata_wtype keyvalue0_vault12;
-	vertexdata_wtype keyvalue1_vault12;
-	vertexdata_wtype keyvalue2_vault12;
-	vertexdata_wtype keyvalue3_vault12;
-	vertexdata_wtype keyvalue4_vault12;
-	vertexdata_wtype keyvalue5_vault12;
-	vertexdata_wtype keyvalue6_vault12;
-	vertexdata_wtype keyvalue7_vault12;
-	vertexdata_wtype keyvalue8_vault12;
-	vertexdata_wtype keyvalue9_vault12;
-	vertexdata_wtype keyvalue10_vault12;
-	vertexdata_wtype keyvalue11_vault12;
-	vertexdata_wtype keyvalue12_vault12;
-	vertexdata_wtype keyvalue13_vault12;
-	vertexdata_wtype keyvalue14_vault12;
-	vertexdata_wtype keyvalue15_vault12;
+	keyvalue_t keyvalue0_vault12;
+	keyvalue_t keyvalue1_vault12;
+	keyvalue_t keyvalue2_vault12;
+	keyvalue_t keyvalue3_vault12;
+	keyvalue_t keyvalue4_vault12;
+	keyvalue_t keyvalue5_vault12;
+	keyvalue_t keyvalue6_vault12;
+	keyvalue_t keyvalue7_vault12;
+	keyvalue_t keyvalue8_vault12;
+	keyvalue_t keyvalue9_vault12;
+	keyvalue_t keyvalue10_vault12;
+	keyvalue_t keyvalue11_vault12;
+	keyvalue_t keyvalue12_vault12;
+	keyvalue_t keyvalue13_vault12;
+	keyvalue_t keyvalue14_vault12;
+	keyvalue_t keyvalue15_vault12;
 	
-	vertexdata_wtype keyvalue0_vault13;
-	vertexdata_wtype keyvalue1_vault13;
-	vertexdata_wtype keyvalue2_vault13;
-	vertexdata_wtype keyvalue3_vault13;
-	vertexdata_wtype keyvalue4_vault13;
-	vertexdata_wtype keyvalue5_vault13;
-	vertexdata_wtype keyvalue6_vault13;
-	vertexdata_wtype keyvalue7_vault13;
-	vertexdata_wtype keyvalue8_vault13;
-	vertexdata_wtype keyvalue9_vault13;
-	vertexdata_wtype keyvalue10_vault13;
-	vertexdata_wtype keyvalue11_vault13;
-	vertexdata_wtype keyvalue12_vault13;
-	vertexdata_wtype keyvalue13_vault13;
-	vertexdata_wtype keyvalue14_vault13;
-	vertexdata_wtype keyvalue15_vault13;
+	keyvalue_t keyvalue0_vault13;
+	keyvalue_t keyvalue1_vault13;
+	keyvalue_t keyvalue2_vault13;
+	keyvalue_t keyvalue3_vault13;
+	keyvalue_t keyvalue4_vault13;
+	keyvalue_t keyvalue5_vault13;
+	keyvalue_t keyvalue6_vault13;
+	keyvalue_t keyvalue7_vault13;
+	keyvalue_t keyvalue8_vault13;
+	keyvalue_t keyvalue9_vault13;
+	keyvalue_t keyvalue10_vault13;
+	keyvalue_t keyvalue11_vault13;
+	keyvalue_t keyvalue12_vault13;
+	keyvalue_t keyvalue13_vault13;
+	keyvalue_t keyvalue14_vault13;
+	keyvalue_t keyvalue15_vault13;
 	
-	vertexdata_wtype keyvalue0_vault14;
-	vertexdata_wtype keyvalue1_vault14;
-	vertexdata_wtype keyvalue2_vault14;
-	vertexdata_wtype keyvalue3_vault14;
-	vertexdata_wtype keyvalue4_vault14;
-	vertexdata_wtype keyvalue5_vault14;
-	vertexdata_wtype keyvalue6_vault14;
-	vertexdata_wtype keyvalue7_vault14;
-	vertexdata_wtype keyvalue8_vault14;
-	vertexdata_wtype keyvalue9_vault14;
-	vertexdata_wtype keyvalue10_vault14;
-	vertexdata_wtype keyvalue11_vault14;
-	vertexdata_wtype keyvalue12_vault14;
-	vertexdata_wtype keyvalue13_vault14;
-	vertexdata_wtype keyvalue14_vault14;
-	vertexdata_wtype keyvalue15_vault14;
+	keyvalue_t keyvalue0_vault14;
+	keyvalue_t keyvalue1_vault14;
+	keyvalue_t keyvalue2_vault14;
+	keyvalue_t keyvalue3_vault14;
+	keyvalue_t keyvalue4_vault14;
+	keyvalue_t keyvalue5_vault14;
+	keyvalue_t keyvalue6_vault14;
+	keyvalue_t keyvalue7_vault14;
+	keyvalue_t keyvalue8_vault14;
+	keyvalue_t keyvalue9_vault14;
+	keyvalue_t keyvalue10_vault14;
+	keyvalue_t keyvalue11_vault14;
+	keyvalue_t keyvalue12_vault14;
+	keyvalue_t keyvalue13_vault14;
+	keyvalue_t keyvalue14_vault14;
+	keyvalue_t keyvalue15_vault14;
 	
-	vertexdata_wtype keyvalue0_vault15;
-	vertexdata_wtype keyvalue1_vault15;
-	vertexdata_wtype keyvalue2_vault15;
-	vertexdata_wtype keyvalue3_vault15;
-	vertexdata_wtype keyvalue4_vault15;
-	vertexdata_wtype keyvalue5_vault15;
-	vertexdata_wtype keyvalue6_vault15;
-	vertexdata_wtype keyvalue7_vault15;
-	vertexdata_wtype keyvalue8_vault15;
-	vertexdata_wtype keyvalue9_vault15;
-	vertexdata_wtype keyvalue10_vault15;
-	vertexdata_wtype keyvalue11_vault15;
-	vertexdata_wtype keyvalue12_vault15;
-	vertexdata_wtype keyvalue13_vault15;
-	vertexdata_wtype keyvalue14_vault15;
-	vertexdata_wtype keyvalue15_vault15;
+	keyvalue_t keyvalue0_vault15;
+	keyvalue_t keyvalue1_vault15;
+	keyvalue_t keyvalue2_vault15;
+	keyvalue_t keyvalue3_vault15;
+	keyvalue_t keyvalue4_vault15;
+	keyvalue_t keyvalue5_vault15;
+	keyvalue_t keyvalue6_vault15;
+	keyvalue_t keyvalue7_vault15;
+	keyvalue_t keyvalue8_vault15;
+	keyvalue_t keyvalue9_vault15;
+	keyvalue_t keyvalue10_vault15;
+	keyvalue_t keyvalue11_vault15;
+	keyvalue_t keyvalue12_vault15;
+	keyvalue_t keyvalue13_vault15;
+	keyvalue_t keyvalue14_vault15;
+	keyvalue_t keyvalue15_vault15;
 	
-	vertexdata_wtype keyvalue0_vault16;
-	vertexdata_wtype keyvalue1_vault16;
-	vertexdata_wtype keyvalue2_vault16;
-	vertexdata_wtype keyvalue3_vault16;
-	vertexdata_wtype keyvalue4_vault16;
-	vertexdata_wtype keyvalue5_vault16;
-	vertexdata_wtype keyvalue6_vault16;
-	vertexdata_wtype keyvalue7_vault16;
-	vertexdata_wtype keyvalue8_vault16;
-	vertexdata_wtype keyvalue9_vault16;
-	vertexdata_wtype keyvalue10_vault16;
-	vertexdata_wtype keyvalue11_vault16;
-	vertexdata_wtype keyvalue12_vault16;
-	vertexdata_wtype keyvalue13_vault16;
-	vertexdata_wtype keyvalue14_vault16;
-	vertexdata_wtype keyvalue15_vault16;
+	keyvalue_t keyvalue0_vault16;
+	keyvalue_t keyvalue1_vault16;
+	keyvalue_t keyvalue2_vault16;
+	keyvalue_t keyvalue3_vault16;
+	keyvalue_t keyvalue4_vault16;
+	keyvalue_t keyvalue5_vault16;
+	keyvalue_t keyvalue6_vault16;
+	keyvalue_t keyvalue7_vault16;
+	keyvalue_t keyvalue8_vault16;
+	keyvalue_t keyvalue9_vault16;
+	keyvalue_t keyvalue10_vault16;
+	keyvalue_t keyvalue11_vault16;
+	keyvalue_t keyvalue12_vault16;
+	keyvalue_t keyvalue13_vault16;
+	keyvalue_t keyvalue14_vault16;
+	keyvalue_t keyvalue15_vault16;
 	
-	vertexdata_wtype keyvalue0_vault17;
-	vertexdata_wtype keyvalue1_vault17;
-	vertexdata_wtype keyvalue2_vault17;
-	vertexdata_wtype keyvalue3_vault17;
-	vertexdata_wtype keyvalue4_vault17;
-	vertexdata_wtype keyvalue5_vault17;
-	vertexdata_wtype keyvalue6_vault17;
-	vertexdata_wtype keyvalue7_vault17;
-	vertexdata_wtype keyvalue8_vault17;
-	vertexdata_wtype keyvalue9_vault17;
-	vertexdata_wtype keyvalue10_vault17;
-	vertexdata_wtype keyvalue11_vault17;
-	vertexdata_wtype keyvalue12_vault17;
-	vertexdata_wtype keyvalue13_vault17;
-	vertexdata_wtype keyvalue14_vault17;
-	vertexdata_wtype keyvalue15_vault17;
+	keyvalue_t keyvalue0_vault17;
+	keyvalue_t keyvalue1_vault17;
+	keyvalue_t keyvalue2_vault17;
+	keyvalue_t keyvalue3_vault17;
+	keyvalue_t keyvalue4_vault17;
+	keyvalue_t keyvalue5_vault17;
+	keyvalue_t keyvalue6_vault17;
+	keyvalue_t keyvalue7_vault17;
+	keyvalue_t keyvalue8_vault17;
+	keyvalue_t keyvalue9_vault17;
+	keyvalue_t keyvalue10_vault17;
+	keyvalue_t keyvalue11_vault17;
+	keyvalue_t keyvalue12_vault17;
+	keyvalue_t keyvalue13_vault17;
+	keyvalue_t keyvalue14_vault17;
+	keyvalue_t keyvalue15_vault17;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		keyvalue0_vault1 = buffer0[0][i]; 
-		keyvalue1_vault1 = buffer0[1][i]; 
-		keyvalue2_vault1 = buffer0[2][i]; 
-		keyvalue3_vault1 = buffer0[3][i]; 
-		keyvalue4_vault1 = buffer0[4][i]; 
-		keyvalue5_vault1 = buffer0[5][i]; 
-		keyvalue6_vault1 = buffer0[6][i]; 
-		keyvalue7_vault1 = buffer0[7][i]; 
-		keyvalue8_vault1 = buffer0[8][i]; 
-		keyvalue9_vault1 = buffer0[9][i]; 
-		keyvalue10_vault1 = buffer0[10][i]; 
-		keyvalue11_vault1 = buffer0[11][i]; 
-		keyvalue12_vault1 = buffer0[12][i]; 
-		keyvalue13_vault1 = buffer0[13][i]; 
-		keyvalue14_vault1 = buffer0[14][i]; 
-		keyvalue15_vault1 = buffer0[15][i]; 
+		keyvalue0_vault1 = GETKV2(buffer0[0][i]); 
+		keyvalue1_vault1 = GETKV2(buffer0[1][i]); 
+		keyvalue2_vault1 = GETKV2(buffer0[2][i]); 
+		keyvalue3_vault1 = GETKV2(buffer0[3][i]); 
+		keyvalue4_vault1 = GETKV2(buffer0[4][i]); 
+		keyvalue5_vault1 = GETKV2(buffer0[5][i]); 
+		keyvalue6_vault1 = GETKV2(buffer0[6][i]); 
+		keyvalue7_vault1 = GETKV2(buffer0[7][i]); 
+		keyvalue8_vault1 = GETKV2(buffer0[8][i]); 
+		keyvalue9_vault1 = GETKV2(buffer0[9][i]); 
+		keyvalue10_vault1 = GETKV2(buffer0[10][i]); 
+		keyvalue11_vault1 = GETKV2(buffer0[11][i]); 
+		keyvalue12_vault1 = GETKV2(buffer0[12][i]); 
+		keyvalue13_vault1 = GETKV2(buffer0[13][i]); 
+		keyvalue14_vault1 = GETKV2(buffer0[14][i]); 
+		keyvalue15_vault1 = GETKV2(buffer0[15][i]); 
 			
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, buffer1[0][i].key, NAp);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, buffer1[0][i].value, NAp);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, buffer1[1][i].key, NAp);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, buffer1[1][i].value, NAp);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, buffer1[2][i].key, NAp);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, buffer1[2][i].value, NAp);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, buffer1[3][i].key, NAp);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, buffer1[3][i].value, NAp);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, buffer1[4][i].key, NAp);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, buffer1[4][i].value, NAp);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, buffer1[5][i].key, NAp);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, buffer1[5][i].value, NAp);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, buffer1[6][i].key, NAp);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, buffer1[6][i].value, NAp);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, buffer1[7][i].key, NAp);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, buffer1[7][i].value, NAp);
-		keyvalue8_vault2.key = mergefunc(keyvalue8_vault1.key, buffer1[8][i].key, NAp);
-		keyvalue8_vault2.value = mergefunc(keyvalue8_vault1.value, buffer1[8][i].value, NAp);
-		keyvalue9_vault2.key = mergefunc(keyvalue9_vault1.key, buffer1[9][i].key, NAp);
-		keyvalue9_vault2.value = mergefunc(keyvalue9_vault1.value, buffer1[9][i].value, NAp);
-		keyvalue10_vault2.key = mergefunc(keyvalue10_vault1.key, buffer1[10][i].key, NAp);
-		keyvalue10_vault2.value = mergefunc(keyvalue10_vault1.value, buffer1[10][i].value, NAp);
-		keyvalue11_vault2.key = mergefunc(keyvalue11_vault1.key, buffer1[11][i].key, NAp);
-		keyvalue11_vault2.value = mergefunc(keyvalue11_vault1.value, buffer1[11][i].value, NAp);
-		keyvalue12_vault2.key = mergefunc(keyvalue12_vault1.key, buffer1[12][i].key, NAp);
-		keyvalue12_vault2.value = mergefunc(keyvalue12_vault1.value, buffer1[12][i].value, NAp);
-		keyvalue13_vault2.key = mergefunc(keyvalue13_vault1.key, buffer1[13][i].key, NAp);
-		keyvalue13_vault2.value = mergefunc(keyvalue13_vault1.value, buffer1[13][i].value, NAp);
-		keyvalue14_vault2.key = mergefunc(keyvalue14_vault1.key, buffer1[14][i].key, NAp);
-		keyvalue14_vault2.value = mergefunc(keyvalue14_vault1.value, buffer1[14][i].value, NAp);
-		keyvalue15_vault2.key = mergefunc(keyvalue15_vault1.key, buffer1[15][i].key, NAp);
-		keyvalue15_vault2.value = mergefunc(keyvalue15_vault1.value, buffer1[15][i].value, NAp);
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, GETKV2(buffer1[0][i]).key, NAp);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, GETKV2(buffer1[0][i]).value, NAp);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, GETKV2(buffer1[1][i]).key, NAp);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, GETKV2(buffer1[1][i]).value, NAp);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, GETKV2(buffer1[2][i]).key, NAp);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, GETKV2(buffer1[2][i]).value, NAp);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, GETKV2(buffer1[3][i]).key, NAp);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, GETKV2(buffer1[3][i]).value, NAp);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, GETKV2(buffer1[4][i]).key, NAp);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, GETKV2(buffer1[4][i]).value, NAp);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, GETKV2(buffer1[5][i]).key, NAp);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, GETKV2(buffer1[5][i]).value, NAp);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, GETKV2(buffer1[6][i]).key, NAp);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, GETKV2(buffer1[6][i]).value, NAp);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, GETKV2(buffer1[7][i]).key, NAp);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, GETKV2(buffer1[7][i]).value, NAp);
+		keyvalue8_vault2.key = mergefunc(keyvalue8_vault1.key, GETKV2(buffer1[8][i]).key, NAp);
+		keyvalue8_vault2.value = mergefunc(keyvalue8_vault1.value, GETKV2(buffer1[8][i]).value, NAp);
+		keyvalue9_vault2.key = mergefunc(keyvalue9_vault1.key, GETKV2(buffer1[9][i]).key, NAp);
+		keyvalue9_vault2.value = mergefunc(keyvalue9_vault1.value, GETKV2(buffer1[9][i]).value, NAp);
+		keyvalue10_vault2.key = mergefunc(keyvalue10_vault1.key, GETKV2(buffer1[10][i]).key, NAp);
+		keyvalue10_vault2.value = mergefunc(keyvalue10_vault1.value, GETKV2(buffer1[10][i]).value, NAp);
+		keyvalue11_vault2.key = mergefunc(keyvalue11_vault1.key, GETKV2(buffer1[11][i]).key, NAp);
+		keyvalue11_vault2.value = mergefunc(keyvalue11_vault1.value, GETKV2(buffer1[11][i]).value, NAp);
+		keyvalue12_vault2.key = mergefunc(keyvalue12_vault1.key, GETKV2(buffer1[12][i]).key, NAp);
+		keyvalue12_vault2.value = mergefunc(keyvalue12_vault1.value, GETKV2(buffer1[12][i]).value, NAp);
+		keyvalue13_vault2.key = mergefunc(keyvalue13_vault1.key, GETKV2(buffer1[13][i]).key, NAp);
+		keyvalue13_vault2.value = mergefunc(keyvalue13_vault1.value, GETKV2(buffer1[13][i]).value, NAp);
+		keyvalue14_vault2.key = mergefunc(keyvalue14_vault1.key, GETKV2(buffer1[14][i]).key, NAp);
+		keyvalue14_vault2.value = mergefunc(keyvalue14_vault1.value, GETKV2(buffer1[14][i]).value, NAp);
+		keyvalue15_vault2.key = mergefunc(keyvalue15_vault1.key, GETKV2(buffer1[15][i]).key, NAp);
+		keyvalue15_vault2.value = mergefunc(keyvalue15_vault1.value, GETKV2(buffer1[15][i]).value, NAp);
 	
-		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, buffer2[0][i].key, NAp);
-		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, buffer2[0][i].value, NAp);
-		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, buffer2[1][i].key, NAp);
-		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, buffer2[1][i].value, NAp);
-		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, buffer2[2][i].key, NAp);
-		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, buffer2[2][i].value, NAp);
-		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, buffer2[3][i].key, NAp);
-		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, buffer2[3][i].value, NAp);
-		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, buffer2[4][i].key, NAp);
-		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, buffer2[4][i].value, NAp);
-		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, buffer2[5][i].key, NAp);
-		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, buffer2[5][i].value, NAp);
-		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, buffer2[6][i].key, NAp);
-		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, buffer2[6][i].value, NAp);
-		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, buffer2[7][i].key, NAp);
-		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, buffer2[7][i].value, NAp);
-		keyvalue8_vault3.key = mergefunc(keyvalue8_vault2.key, buffer2[8][i].key, NAp);
-		keyvalue8_vault3.value = mergefunc(keyvalue8_vault2.value, buffer2[8][i].value, NAp);
-		keyvalue9_vault3.key = mergefunc(keyvalue9_vault2.key, buffer2[9][i].key, NAp);
-		keyvalue9_vault3.value = mergefunc(keyvalue9_vault2.value, buffer2[9][i].value, NAp);
-		keyvalue10_vault3.key = mergefunc(keyvalue10_vault2.key, buffer2[10][i].key, NAp);
-		keyvalue10_vault3.value = mergefunc(keyvalue10_vault2.value, buffer2[10][i].value, NAp);
-		keyvalue11_vault3.key = mergefunc(keyvalue11_vault2.key, buffer2[11][i].key, NAp);
-		keyvalue11_vault3.value = mergefunc(keyvalue11_vault2.value, buffer2[11][i].value, NAp);
-		keyvalue12_vault3.key = mergefunc(keyvalue12_vault2.key, buffer2[12][i].key, NAp);
-		keyvalue12_vault3.value = mergefunc(keyvalue12_vault2.value, buffer2[12][i].value, NAp);
-		keyvalue13_vault3.key = mergefunc(keyvalue13_vault2.key, buffer2[13][i].key, NAp);
-		keyvalue13_vault3.value = mergefunc(keyvalue13_vault2.value, buffer2[13][i].value, NAp);
-		keyvalue14_vault3.key = mergefunc(keyvalue14_vault2.key, buffer2[14][i].key, NAp);
-		keyvalue14_vault3.value = mergefunc(keyvalue14_vault2.value, buffer2[14][i].value, NAp);
-		keyvalue15_vault3.key = mergefunc(keyvalue15_vault2.key, buffer2[15][i].key, NAp);
-		keyvalue15_vault3.value = mergefunc(keyvalue15_vault2.value, buffer2[15][i].value, NAp);
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, GETKV2(buffer2[0][i]).key, NAp);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, GETKV2(buffer2[0][i]).value, NAp);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, GETKV2(buffer2[1][i]).key, NAp);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, GETKV2(buffer2[1][i]).value, NAp);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, GETKV2(buffer2[2][i]).key, NAp);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, GETKV2(buffer2[2][i]).value, NAp);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, GETKV2(buffer2[3][i]).key, NAp);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, GETKV2(buffer2[3][i]).value, NAp);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, GETKV2(buffer2[4][i]).key, NAp);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, GETKV2(buffer2[4][i]).value, NAp);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, GETKV2(buffer2[5][i]).key, NAp);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, GETKV2(buffer2[5][i]).value, NAp);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, GETKV2(buffer2[6][i]).key, NAp);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, GETKV2(buffer2[6][i]).value, NAp);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, GETKV2(buffer2[7][i]).key, NAp);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, GETKV2(buffer2[7][i]).value, NAp);
+		keyvalue8_vault3.key = mergefunc(keyvalue8_vault2.key, GETKV2(buffer2[8][i]).key, NAp);
+		keyvalue8_vault3.value = mergefunc(keyvalue8_vault2.value, GETKV2(buffer2[8][i]).value, NAp);
+		keyvalue9_vault3.key = mergefunc(keyvalue9_vault2.key, GETKV2(buffer2[9][i]).key, NAp);
+		keyvalue9_vault3.value = mergefunc(keyvalue9_vault2.value, GETKV2(buffer2[9][i]).value, NAp);
+		keyvalue10_vault3.key = mergefunc(keyvalue10_vault2.key, GETKV2(buffer2[10][i]).key, NAp);
+		keyvalue10_vault3.value = mergefunc(keyvalue10_vault2.value, GETKV2(buffer2[10][i]).value, NAp);
+		keyvalue11_vault3.key = mergefunc(keyvalue11_vault2.key, GETKV2(buffer2[11][i]).key, NAp);
+		keyvalue11_vault3.value = mergefunc(keyvalue11_vault2.value, GETKV2(buffer2[11][i]).value, NAp);
+		keyvalue12_vault3.key = mergefunc(keyvalue12_vault2.key, GETKV2(buffer2[12][i]).key, NAp);
+		keyvalue12_vault3.value = mergefunc(keyvalue12_vault2.value, GETKV2(buffer2[12][i]).value, NAp);
+		keyvalue13_vault3.key = mergefunc(keyvalue13_vault2.key, GETKV2(buffer2[13][i]).key, NAp);
+		keyvalue13_vault3.value = mergefunc(keyvalue13_vault2.value, GETKV2(buffer2[13][i]).value, NAp);
+		keyvalue14_vault3.key = mergefunc(keyvalue14_vault2.key, GETKV2(buffer2[14][i]).key, NAp);
+		keyvalue14_vault3.value = mergefunc(keyvalue14_vault2.value, GETKV2(buffer2[14][i]).value, NAp);
+		keyvalue15_vault3.key = mergefunc(keyvalue15_vault2.key, GETKV2(buffer2[15][i]).key, NAp);
+		keyvalue15_vault3.value = mergefunc(keyvalue15_vault2.value, GETKV2(buffer2[15][i]).value, NAp);
 	
-		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, buffer3[0][i].key, NAp);
-		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, buffer3[0][i].value, NAp);
-		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, buffer3[1][i].key, NAp);
-		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, buffer3[1][i].value, NAp);
-		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, buffer3[2][i].key, NAp);
-		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, buffer3[2][i].value, NAp);
-		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, buffer3[3][i].key, NAp);
-		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, buffer3[3][i].value, NAp);
-		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, buffer3[4][i].key, NAp);
-		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, buffer3[4][i].value, NAp);
-		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, buffer3[5][i].key, NAp);
-		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, buffer3[5][i].value, NAp);
-		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, buffer3[6][i].key, NAp);
-		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, buffer3[6][i].value, NAp);
-		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, buffer3[7][i].key, NAp);
-		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, buffer3[7][i].value, NAp);
-		keyvalue8_vault4.key = mergefunc(keyvalue8_vault3.key, buffer3[8][i].key, NAp);
-		keyvalue8_vault4.value = mergefunc(keyvalue8_vault3.value, buffer3[8][i].value, NAp);
-		keyvalue9_vault4.key = mergefunc(keyvalue9_vault3.key, buffer3[9][i].key, NAp);
-		keyvalue9_vault4.value = mergefunc(keyvalue9_vault3.value, buffer3[9][i].value, NAp);
-		keyvalue10_vault4.key = mergefunc(keyvalue10_vault3.key, buffer3[10][i].key, NAp);
-		keyvalue10_vault4.value = mergefunc(keyvalue10_vault3.value, buffer3[10][i].value, NAp);
-		keyvalue11_vault4.key = mergefunc(keyvalue11_vault3.key, buffer3[11][i].key, NAp);
-		keyvalue11_vault4.value = mergefunc(keyvalue11_vault3.value, buffer3[11][i].value, NAp);
-		keyvalue12_vault4.key = mergefunc(keyvalue12_vault3.key, buffer3[12][i].key, NAp);
-		keyvalue12_vault4.value = mergefunc(keyvalue12_vault3.value, buffer3[12][i].value, NAp);
-		keyvalue13_vault4.key = mergefunc(keyvalue13_vault3.key, buffer3[13][i].key, NAp);
-		keyvalue13_vault4.value = mergefunc(keyvalue13_vault3.value, buffer3[13][i].value, NAp);
-		keyvalue14_vault4.key = mergefunc(keyvalue14_vault3.key, buffer3[14][i].key, NAp);
-		keyvalue14_vault4.value = mergefunc(keyvalue14_vault3.value, buffer3[14][i].value, NAp);
-		keyvalue15_vault4.key = mergefunc(keyvalue15_vault3.key, buffer3[15][i].key, NAp);
-		keyvalue15_vault4.value = mergefunc(keyvalue15_vault3.value, buffer3[15][i].value, NAp);
+		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, GETKV2(buffer3[0][i]).key, NAp);
+		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, GETKV2(buffer3[0][i]).value, NAp);
+		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, GETKV2(buffer3[1][i]).key, NAp);
+		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, GETKV2(buffer3[1][i]).value, NAp);
+		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, GETKV2(buffer3[2][i]).key, NAp);
+		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, GETKV2(buffer3[2][i]).value, NAp);
+		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, GETKV2(buffer3[3][i]).key, NAp);
+		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, GETKV2(buffer3[3][i]).value, NAp);
+		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, GETKV2(buffer3[4][i]).key, NAp);
+		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, GETKV2(buffer3[4][i]).value, NAp);
+		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, GETKV2(buffer3[5][i]).key, NAp);
+		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, GETKV2(buffer3[5][i]).value, NAp);
+		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, GETKV2(buffer3[6][i]).key, NAp);
+		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, GETKV2(buffer3[6][i]).value, NAp);
+		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, GETKV2(buffer3[7][i]).key, NAp);
+		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, GETKV2(buffer3[7][i]).value, NAp);
+		keyvalue8_vault4.key = mergefunc(keyvalue8_vault3.key, GETKV2(buffer3[8][i]).key, NAp);
+		keyvalue8_vault4.value = mergefunc(keyvalue8_vault3.value, GETKV2(buffer3[8][i]).value, NAp);
+		keyvalue9_vault4.key = mergefunc(keyvalue9_vault3.key, GETKV2(buffer3[9][i]).key, NAp);
+		keyvalue9_vault4.value = mergefunc(keyvalue9_vault3.value, GETKV2(buffer3[9][i]).value, NAp);
+		keyvalue10_vault4.key = mergefunc(keyvalue10_vault3.key, GETKV2(buffer3[10][i]).key, NAp);
+		keyvalue10_vault4.value = mergefunc(keyvalue10_vault3.value, GETKV2(buffer3[10][i]).value, NAp);
+		keyvalue11_vault4.key = mergefunc(keyvalue11_vault3.key, GETKV2(buffer3[11][i]).key, NAp);
+		keyvalue11_vault4.value = mergefunc(keyvalue11_vault3.value, GETKV2(buffer3[11][i]).value, NAp);
+		keyvalue12_vault4.key = mergefunc(keyvalue12_vault3.key, GETKV2(buffer3[12][i]).key, NAp);
+		keyvalue12_vault4.value = mergefunc(keyvalue12_vault3.value, GETKV2(buffer3[12][i]).value, NAp);
+		keyvalue13_vault4.key = mergefunc(keyvalue13_vault3.key, GETKV2(buffer3[13][i]).key, NAp);
+		keyvalue13_vault4.value = mergefunc(keyvalue13_vault3.value, GETKV2(buffer3[13][i]).value, NAp);
+		keyvalue14_vault4.key = mergefunc(keyvalue14_vault3.key, GETKV2(buffer3[14][i]).key, NAp);
+		keyvalue14_vault4.value = mergefunc(keyvalue14_vault3.value, GETKV2(buffer3[14][i]).value, NAp);
+		keyvalue15_vault4.key = mergefunc(keyvalue15_vault3.key, GETKV2(buffer3[15][i]).key, NAp);
+		keyvalue15_vault4.value = mergefunc(keyvalue15_vault3.value, GETKV2(buffer3[15][i]).value, NAp);
 	
-		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, buffer4[0][i].key, NAp);
-		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, buffer4[0][i].value, NAp);
-		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, buffer4[1][i].key, NAp);
-		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, buffer4[1][i].value, NAp);
-		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, buffer4[2][i].key, NAp);
-		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, buffer4[2][i].value, NAp);
-		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, buffer4[3][i].key, NAp);
-		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, buffer4[3][i].value, NAp);
-		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, buffer4[4][i].key, NAp);
-		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, buffer4[4][i].value, NAp);
-		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, buffer4[5][i].key, NAp);
-		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, buffer4[5][i].value, NAp);
-		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, buffer4[6][i].key, NAp);
-		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, buffer4[6][i].value, NAp);
-		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, buffer4[7][i].key, NAp);
-		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, buffer4[7][i].value, NAp);
-		keyvalue8_vault5.key = mergefunc(keyvalue8_vault4.key, buffer4[8][i].key, NAp);
-		keyvalue8_vault5.value = mergefunc(keyvalue8_vault4.value, buffer4[8][i].value, NAp);
-		keyvalue9_vault5.key = mergefunc(keyvalue9_vault4.key, buffer4[9][i].key, NAp);
-		keyvalue9_vault5.value = mergefunc(keyvalue9_vault4.value, buffer4[9][i].value, NAp);
-		keyvalue10_vault5.key = mergefunc(keyvalue10_vault4.key, buffer4[10][i].key, NAp);
-		keyvalue10_vault5.value = mergefunc(keyvalue10_vault4.value, buffer4[10][i].value, NAp);
-		keyvalue11_vault5.key = mergefunc(keyvalue11_vault4.key, buffer4[11][i].key, NAp);
-		keyvalue11_vault5.value = mergefunc(keyvalue11_vault4.value, buffer4[11][i].value, NAp);
-		keyvalue12_vault5.key = mergefunc(keyvalue12_vault4.key, buffer4[12][i].key, NAp);
-		keyvalue12_vault5.value = mergefunc(keyvalue12_vault4.value, buffer4[12][i].value, NAp);
-		keyvalue13_vault5.key = mergefunc(keyvalue13_vault4.key, buffer4[13][i].key, NAp);
-		keyvalue13_vault5.value = mergefunc(keyvalue13_vault4.value, buffer4[13][i].value, NAp);
-		keyvalue14_vault5.key = mergefunc(keyvalue14_vault4.key, buffer4[14][i].key, NAp);
-		keyvalue14_vault5.value = mergefunc(keyvalue14_vault4.value, buffer4[14][i].value, NAp);
-		keyvalue15_vault5.key = mergefunc(keyvalue15_vault4.key, buffer4[15][i].key, NAp);
-		keyvalue15_vault5.value = mergefunc(keyvalue15_vault4.value, buffer4[15][i].value, NAp);
+		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, GETKV2(buffer4[0][i]).key, NAp);
+		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, GETKV2(buffer4[0][i]).value, NAp);
+		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, GETKV2(buffer4[1][i]).key, NAp);
+		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, GETKV2(buffer4[1][i]).value, NAp);
+		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, GETKV2(buffer4[2][i]).key, NAp);
+		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, GETKV2(buffer4[2][i]).value, NAp);
+		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, GETKV2(buffer4[3][i]).key, NAp);
+		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, GETKV2(buffer4[3][i]).value, NAp);
+		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, GETKV2(buffer4[4][i]).key, NAp);
+		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, GETKV2(buffer4[4][i]).value, NAp);
+		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, GETKV2(buffer4[5][i]).key, NAp);
+		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, GETKV2(buffer4[5][i]).value, NAp);
+		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, GETKV2(buffer4[6][i]).key, NAp);
+		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, GETKV2(buffer4[6][i]).value, NAp);
+		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, GETKV2(buffer4[7][i]).key, NAp);
+		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, GETKV2(buffer4[7][i]).value, NAp);
+		keyvalue8_vault5.key = mergefunc(keyvalue8_vault4.key, GETKV2(buffer4[8][i]).key, NAp);
+		keyvalue8_vault5.value = mergefunc(keyvalue8_vault4.value, GETKV2(buffer4[8][i]).value, NAp);
+		keyvalue9_vault5.key = mergefunc(keyvalue9_vault4.key, GETKV2(buffer4[9][i]).key, NAp);
+		keyvalue9_vault5.value = mergefunc(keyvalue9_vault4.value, GETKV2(buffer4[9][i]).value, NAp);
+		keyvalue10_vault5.key = mergefunc(keyvalue10_vault4.key, GETKV2(buffer4[10][i]).key, NAp);
+		keyvalue10_vault5.value = mergefunc(keyvalue10_vault4.value, GETKV2(buffer4[10][i]).value, NAp);
+		keyvalue11_vault5.key = mergefunc(keyvalue11_vault4.key, GETKV2(buffer4[11][i]).key, NAp);
+		keyvalue11_vault5.value = mergefunc(keyvalue11_vault4.value, GETKV2(buffer4[11][i]).value, NAp);
+		keyvalue12_vault5.key = mergefunc(keyvalue12_vault4.key, GETKV2(buffer4[12][i]).key, NAp);
+		keyvalue12_vault5.value = mergefunc(keyvalue12_vault4.value, GETKV2(buffer4[12][i]).value, NAp);
+		keyvalue13_vault5.key = mergefunc(keyvalue13_vault4.key, GETKV2(buffer4[13][i]).key, NAp);
+		keyvalue13_vault5.value = mergefunc(keyvalue13_vault4.value, GETKV2(buffer4[13][i]).value, NAp);
+		keyvalue14_vault5.key = mergefunc(keyvalue14_vault4.key, GETKV2(buffer4[14][i]).key, NAp);
+		keyvalue14_vault5.value = mergefunc(keyvalue14_vault4.value, GETKV2(buffer4[14][i]).value, NAp);
+		keyvalue15_vault5.key = mergefunc(keyvalue15_vault4.key, GETKV2(buffer4[15][i]).key, NAp);
+		keyvalue15_vault5.value = mergefunc(keyvalue15_vault4.value, GETKV2(buffer4[15][i]).value, NAp);
 	
-		keyvalue0_vault6.key = mergefunc(keyvalue0_vault5.key, buffer5[0][i].key, NAp);
-		keyvalue0_vault6.value = mergefunc(keyvalue0_vault5.value, buffer5[0][i].value, NAp);
-		keyvalue1_vault6.key = mergefunc(keyvalue1_vault5.key, buffer5[1][i].key, NAp);
-		keyvalue1_vault6.value = mergefunc(keyvalue1_vault5.value, buffer5[1][i].value, NAp);
-		keyvalue2_vault6.key = mergefunc(keyvalue2_vault5.key, buffer5[2][i].key, NAp);
-		keyvalue2_vault6.value = mergefunc(keyvalue2_vault5.value, buffer5[2][i].value, NAp);
-		keyvalue3_vault6.key = mergefunc(keyvalue3_vault5.key, buffer5[3][i].key, NAp);
-		keyvalue3_vault6.value = mergefunc(keyvalue3_vault5.value, buffer5[3][i].value, NAp);
-		keyvalue4_vault6.key = mergefunc(keyvalue4_vault5.key, buffer5[4][i].key, NAp);
-		keyvalue4_vault6.value = mergefunc(keyvalue4_vault5.value, buffer5[4][i].value, NAp);
-		keyvalue5_vault6.key = mergefunc(keyvalue5_vault5.key, buffer5[5][i].key, NAp);
-		keyvalue5_vault6.value = mergefunc(keyvalue5_vault5.value, buffer5[5][i].value, NAp);
-		keyvalue6_vault6.key = mergefunc(keyvalue6_vault5.key, buffer5[6][i].key, NAp);
-		keyvalue6_vault6.value = mergefunc(keyvalue6_vault5.value, buffer5[6][i].value, NAp);
-		keyvalue7_vault6.key = mergefunc(keyvalue7_vault5.key, buffer5[7][i].key, NAp);
-		keyvalue7_vault6.value = mergefunc(keyvalue7_vault5.value, buffer5[7][i].value, NAp);
-		keyvalue8_vault6.key = mergefunc(keyvalue8_vault5.key, buffer5[8][i].key, NAp);
-		keyvalue8_vault6.value = mergefunc(keyvalue8_vault5.value, buffer5[8][i].value, NAp);
-		keyvalue9_vault6.key = mergefunc(keyvalue9_vault5.key, buffer5[9][i].key, NAp);
-		keyvalue9_vault6.value = mergefunc(keyvalue9_vault5.value, buffer5[9][i].value, NAp);
-		keyvalue10_vault6.key = mergefunc(keyvalue10_vault5.key, buffer5[10][i].key, NAp);
-		keyvalue10_vault6.value = mergefunc(keyvalue10_vault5.value, buffer5[10][i].value, NAp);
-		keyvalue11_vault6.key = mergefunc(keyvalue11_vault5.key, buffer5[11][i].key, NAp);
-		keyvalue11_vault6.value = mergefunc(keyvalue11_vault5.value, buffer5[11][i].value, NAp);
-		keyvalue12_vault6.key = mergefunc(keyvalue12_vault5.key, buffer5[12][i].key, NAp);
-		keyvalue12_vault6.value = mergefunc(keyvalue12_vault5.value, buffer5[12][i].value, NAp);
-		keyvalue13_vault6.key = mergefunc(keyvalue13_vault5.key, buffer5[13][i].key, NAp);
-		keyvalue13_vault6.value = mergefunc(keyvalue13_vault5.value, buffer5[13][i].value, NAp);
-		keyvalue14_vault6.key = mergefunc(keyvalue14_vault5.key, buffer5[14][i].key, NAp);
-		keyvalue14_vault6.value = mergefunc(keyvalue14_vault5.value, buffer5[14][i].value, NAp);
-		keyvalue15_vault6.key = mergefunc(keyvalue15_vault5.key, buffer5[15][i].key, NAp);
-		keyvalue15_vault6.value = mergefunc(keyvalue15_vault5.value, buffer5[15][i].value, NAp);
+		keyvalue0_vault6.key = mergefunc(keyvalue0_vault5.key, GETKV2(buffer5[0][i]).key, NAp);
+		keyvalue0_vault6.value = mergefunc(keyvalue0_vault5.value, GETKV2(buffer5[0][i]).value, NAp);
+		keyvalue1_vault6.key = mergefunc(keyvalue1_vault5.key, GETKV2(buffer5[1][i]).key, NAp);
+		keyvalue1_vault6.value = mergefunc(keyvalue1_vault5.value, GETKV2(buffer5[1][i]).value, NAp);
+		keyvalue2_vault6.key = mergefunc(keyvalue2_vault5.key, GETKV2(buffer5[2][i]).key, NAp);
+		keyvalue2_vault6.value = mergefunc(keyvalue2_vault5.value, GETKV2(buffer5[2][i]).value, NAp);
+		keyvalue3_vault6.key = mergefunc(keyvalue3_vault5.key, GETKV2(buffer5[3][i]).key, NAp);
+		keyvalue3_vault6.value = mergefunc(keyvalue3_vault5.value, GETKV2(buffer5[3][i]).value, NAp);
+		keyvalue4_vault6.key = mergefunc(keyvalue4_vault5.key, GETKV2(buffer5[4][i]).key, NAp);
+		keyvalue4_vault6.value = mergefunc(keyvalue4_vault5.value, GETKV2(buffer5[4][i]).value, NAp);
+		keyvalue5_vault6.key = mergefunc(keyvalue5_vault5.key, GETKV2(buffer5[5][i]).key, NAp);
+		keyvalue5_vault6.value = mergefunc(keyvalue5_vault5.value, GETKV2(buffer5[5][i]).value, NAp);
+		keyvalue6_vault6.key = mergefunc(keyvalue6_vault5.key, GETKV2(buffer5[6][i]).key, NAp);
+		keyvalue6_vault6.value = mergefunc(keyvalue6_vault5.value, GETKV2(buffer5[6][i]).value, NAp);
+		keyvalue7_vault6.key = mergefunc(keyvalue7_vault5.key, GETKV2(buffer5[7][i]).key, NAp);
+		keyvalue7_vault6.value = mergefunc(keyvalue7_vault5.value, GETKV2(buffer5[7][i]).value, NAp);
+		keyvalue8_vault6.key = mergefunc(keyvalue8_vault5.key, GETKV2(buffer5[8][i]).key, NAp);
+		keyvalue8_vault6.value = mergefunc(keyvalue8_vault5.value, GETKV2(buffer5[8][i]).value, NAp);
+		keyvalue9_vault6.key = mergefunc(keyvalue9_vault5.key, GETKV2(buffer5[9][i]).key, NAp);
+		keyvalue9_vault6.value = mergefunc(keyvalue9_vault5.value, GETKV2(buffer5[9][i]).value, NAp);
+		keyvalue10_vault6.key = mergefunc(keyvalue10_vault5.key, GETKV2(buffer5[10][i]).key, NAp);
+		keyvalue10_vault6.value = mergefunc(keyvalue10_vault5.value, GETKV2(buffer5[10][i]).value, NAp);
+		keyvalue11_vault6.key = mergefunc(keyvalue11_vault5.key, GETKV2(buffer5[11][i]).key, NAp);
+		keyvalue11_vault6.value = mergefunc(keyvalue11_vault5.value, GETKV2(buffer5[11][i]).value, NAp);
+		keyvalue12_vault6.key = mergefunc(keyvalue12_vault5.key, GETKV2(buffer5[12][i]).key, NAp);
+		keyvalue12_vault6.value = mergefunc(keyvalue12_vault5.value, GETKV2(buffer5[12][i]).value, NAp);
+		keyvalue13_vault6.key = mergefunc(keyvalue13_vault5.key, GETKV2(buffer5[13][i]).key, NAp);
+		keyvalue13_vault6.value = mergefunc(keyvalue13_vault5.value, GETKV2(buffer5[13][i]).value, NAp);
+		keyvalue14_vault6.key = mergefunc(keyvalue14_vault5.key, GETKV2(buffer5[14][i]).key, NAp);
+		keyvalue14_vault6.value = mergefunc(keyvalue14_vault5.value, GETKV2(buffer5[14][i]).value, NAp);
+		keyvalue15_vault6.key = mergefunc(keyvalue15_vault5.key, GETKV2(buffer5[15][i]).key, NAp);
+		keyvalue15_vault6.value = mergefunc(keyvalue15_vault5.value, GETKV2(buffer5[15][i]).value, NAp);
 	
-		keyvalue0_vault7.key = mergefunc(keyvalue0_vault6.key, buffer6[0][i].key, NAp);
-		keyvalue0_vault7.value = mergefunc(keyvalue0_vault6.value, buffer6[0][i].value, NAp);
-		keyvalue1_vault7.key = mergefunc(keyvalue1_vault6.key, buffer6[1][i].key, NAp);
-		keyvalue1_vault7.value = mergefunc(keyvalue1_vault6.value, buffer6[1][i].value, NAp);
-		keyvalue2_vault7.key = mergefunc(keyvalue2_vault6.key, buffer6[2][i].key, NAp);
-		keyvalue2_vault7.value = mergefunc(keyvalue2_vault6.value, buffer6[2][i].value, NAp);
-		keyvalue3_vault7.key = mergefunc(keyvalue3_vault6.key, buffer6[3][i].key, NAp);
-		keyvalue3_vault7.value = mergefunc(keyvalue3_vault6.value, buffer6[3][i].value, NAp);
-		keyvalue4_vault7.key = mergefunc(keyvalue4_vault6.key, buffer6[4][i].key, NAp);
-		keyvalue4_vault7.value = mergefunc(keyvalue4_vault6.value, buffer6[4][i].value, NAp);
-		keyvalue5_vault7.key = mergefunc(keyvalue5_vault6.key, buffer6[5][i].key, NAp);
-		keyvalue5_vault7.value = mergefunc(keyvalue5_vault6.value, buffer6[5][i].value, NAp);
-		keyvalue6_vault7.key = mergefunc(keyvalue6_vault6.key, buffer6[6][i].key, NAp);
-		keyvalue6_vault7.value = mergefunc(keyvalue6_vault6.value, buffer6[6][i].value, NAp);
-		keyvalue7_vault7.key = mergefunc(keyvalue7_vault6.key, buffer6[7][i].key, NAp);
-		keyvalue7_vault7.value = mergefunc(keyvalue7_vault6.value, buffer6[7][i].value, NAp);
-		keyvalue8_vault7.key = mergefunc(keyvalue8_vault6.key, buffer6[8][i].key, NAp);
-		keyvalue8_vault7.value = mergefunc(keyvalue8_vault6.value, buffer6[8][i].value, NAp);
-		keyvalue9_vault7.key = mergefunc(keyvalue9_vault6.key, buffer6[9][i].key, NAp);
-		keyvalue9_vault7.value = mergefunc(keyvalue9_vault6.value, buffer6[9][i].value, NAp);
-		keyvalue10_vault7.key = mergefunc(keyvalue10_vault6.key, buffer6[10][i].key, NAp);
-		keyvalue10_vault7.value = mergefunc(keyvalue10_vault6.value, buffer6[10][i].value, NAp);
-		keyvalue11_vault7.key = mergefunc(keyvalue11_vault6.key, buffer6[11][i].key, NAp);
-		keyvalue11_vault7.value = mergefunc(keyvalue11_vault6.value, buffer6[11][i].value, NAp);
-		keyvalue12_vault7.key = mergefunc(keyvalue12_vault6.key, buffer6[12][i].key, NAp);
-		keyvalue12_vault7.value = mergefunc(keyvalue12_vault6.value, buffer6[12][i].value, NAp);
-		keyvalue13_vault7.key = mergefunc(keyvalue13_vault6.key, buffer6[13][i].key, NAp);
-		keyvalue13_vault7.value = mergefunc(keyvalue13_vault6.value, buffer6[13][i].value, NAp);
-		keyvalue14_vault7.key = mergefunc(keyvalue14_vault6.key, buffer6[14][i].key, NAp);
-		keyvalue14_vault7.value = mergefunc(keyvalue14_vault6.value, buffer6[14][i].value, NAp);
-		keyvalue15_vault7.key = mergefunc(keyvalue15_vault6.key, buffer6[15][i].key, NAp);
-		keyvalue15_vault7.value = mergefunc(keyvalue15_vault6.value, buffer6[15][i].value, NAp);
+		keyvalue0_vault7.key = mergefunc(keyvalue0_vault6.key, GETKV2(buffer6[0][i]).key, NAp);
+		keyvalue0_vault7.value = mergefunc(keyvalue0_vault6.value, GETKV2(buffer6[0][i]).value, NAp);
+		keyvalue1_vault7.key = mergefunc(keyvalue1_vault6.key, GETKV2(buffer6[1][i]).key, NAp);
+		keyvalue1_vault7.value = mergefunc(keyvalue1_vault6.value, GETKV2(buffer6[1][i]).value, NAp);
+		keyvalue2_vault7.key = mergefunc(keyvalue2_vault6.key, GETKV2(buffer6[2][i]).key, NAp);
+		keyvalue2_vault7.value = mergefunc(keyvalue2_vault6.value, GETKV2(buffer6[2][i]).value, NAp);
+		keyvalue3_vault7.key = mergefunc(keyvalue3_vault6.key, GETKV2(buffer6[3][i]).key, NAp);
+		keyvalue3_vault7.value = mergefunc(keyvalue3_vault6.value, GETKV2(buffer6[3][i]).value, NAp);
+		keyvalue4_vault7.key = mergefunc(keyvalue4_vault6.key, GETKV2(buffer6[4][i]).key, NAp);
+		keyvalue4_vault7.value = mergefunc(keyvalue4_vault6.value, GETKV2(buffer6[4][i]).value, NAp);
+		keyvalue5_vault7.key = mergefunc(keyvalue5_vault6.key, GETKV2(buffer6[5][i]).key, NAp);
+		keyvalue5_vault7.value = mergefunc(keyvalue5_vault6.value, GETKV2(buffer6[5][i]).value, NAp);
+		keyvalue6_vault7.key = mergefunc(keyvalue6_vault6.key, GETKV2(buffer6[6][i]).key, NAp);
+		keyvalue6_vault7.value = mergefunc(keyvalue6_vault6.value, GETKV2(buffer6[6][i]).value, NAp);
+		keyvalue7_vault7.key = mergefunc(keyvalue7_vault6.key, GETKV2(buffer6[7][i]).key, NAp);
+		keyvalue7_vault7.value = mergefunc(keyvalue7_vault6.value, GETKV2(buffer6[7][i]).value, NAp);
+		keyvalue8_vault7.key = mergefunc(keyvalue8_vault6.key, GETKV2(buffer6[8][i]).key, NAp);
+		keyvalue8_vault7.value = mergefunc(keyvalue8_vault6.value, GETKV2(buffer6[8][i]).value, NAp);
+		keyvalue9_vault7.key = mergefunc(keyvalue9_vault6.key, GETKV2(buffer6[9][i]).key, NAp);
+		keyvalue9_vault7.value = mergefunc(keyvalue9_vault6.value, GETKV2(buffer6[9][i]).value, NAp);
+		keyvalue10_vault7.key = mergefunc(keyvalue10_vault6.key, GETKV2(buffer6[10][i]).key, NAp);
+		keyvalue10_vault7.value = mergefunc(keyvalue10_vault6.value, GETKV2(buffer6[10][i]).value, NAp);
+		keyvalue11_vault7.key = mergefunc(keyvalue11_vault6.key, GETKV2(buffer6[11][i]).key, NAp);
+		keyvalue11_vault7.value = mergefunc(keyvalue11_vault6.value, GETKV2(buffer6[11][i]).value, NAp);
+		keyvalue12_vault7.key = mergefunc(keyvalue12_vault6.key, GETKV2(buffer6[12][i]).key, NAp);
+		keyvalue12_vault7.value = mergefunc(keyvalue12_vault6.value, GETKV2(buffer6[12][i]).value, NAp);
+		keyvalue13_vault7.key = mergefunc(keyvalue13_vault6.key, GETKV2(buffer6[13][i]).key, NAp);
+		keyvalue13_vault7.value = mergefunc(keyvalue13_vault6.value, GETKV2(buffer6[13][i]).value, NAp);
+		keyvalue14_vault7.key = mergefunc(keyvalue14_vault6.key, GETKV2(buffer6[14][i]).key, NAp);
+		keyvalue14_vault7.value = mergefunc(keyvalue14_vault6.value, GETKV2(buffer6[14][i]).value, NAp);
+		keyvalue15_vault7.key = mergefunc(keyvalue15_vault6.key, GETKV2(buffer6[15][i]).key, NAp);
+		keyvalue15_vault7.value = mergefunc(keyvalue15_vault6.value, GETKV2(buffer6[15][i]).value, NAp);
 	
-		keyvalue0_vault8.key = mergefunc(keyvalue0_vault7.key, buffer7[0][i].key, NAp);
-		keyvalue0_vault8.value = mergefunc(keyvalue0_vault7.value, buffer7[0][i].value, NAp);
-		keyvalue1_vault8.key = mergefunc(keyvalue1_vault7.key, buffer7[1][i].key, NAp);
-		keyvalue1_vault8.value = mergefunc(keyvalue1_vault7.value, buffer7[1][i].value, NAp);
-		keyvalue2_vault8.key = mergefunc(keyvalue2_vault7.key, buffer7[2][i].key, NAp);
-		keyvalue2_vault8.value = mergefunc(keyvalue2_vault7.value, buffer7[2][i].value, NAp);
-		keyvalue3_vault8.key = mergefunc(keyvalue3_vault7.key, buffer7[3][i].key, NAp);
-		keyvalue3_vault8.value = mergefunc(keyvalue3_vault7.value, buffer7[3][i].value, NAp);
-		keyvalue4_vault8.key = mergefunc(keyvalue4_vault7.key, buffer7[4][i].key, NAp);
-		keyvalue4_vault8.value = mergefunc(keyvalue4_vault7.value, buffer7[4][i].value, NAp);
-		keyvalue5_vault8.key = mergefunc(keyvalue5_vault7.key, buffer7[5][i].key, NAp);
-		keyvalue5_vault8.value = mergefunc(keyvalue5_vault7.value, buffer7[5][i].value, NAp);
-		keyvalue6_vault8.key = mergefunc(keyvalue6_vault7.key, buffer7[6][i].key, NAp);
-		keyvalue6_vault8.value = mergefunc(keyvalue6_vault7.value, buffer7[6][i].value, NAp);
-		keyvalue7_vault8.key = mergefunc(keyvalue7_vault7.key, buffer7[7][i].key, NAp);
-		keyvalue7_vault8.value = mergefunc(keyvalue7_vault7.value, buffer7[7][i].value, NAp);
-		keyvalue8_vault8.key = mergefunc(keyvalue8_vault7.key, buffer7[8][i].key, NAp);
-		keyvalue8_vault8.value = mergefunc(keyvalue8_vault7.value, buffer7[8][i].value, NAp);
-		keyvalue9_vault8.key = mergefunc(keyvalue9_vault7.key, buffer7[9][i].key, NAp);
-		keyvalue9_vault8.value = mergefunc(keyvalue9_vault7.value, buffer7[9][i].value, NAp);
-		keyvalue10_vault8.key = mergefunc(keyvalue10_vault7.key, buffer7[10][i].key, NAp);
-		keyvalue10_vault8.value = mergefunc(keyvalue10_vault7.value, buffer7[10][i].value, NAp);
-		keyvalue11_vault8.key = mergefunc(keyvalue11_vault7.key, buffer7[11][i].key, NAp);
-		keyvalue11_vault8.value = mergefunc(keyvalue11_vault7.value, buffer7[11][i].value, NAp);
-		keyvalue12_vault8.key = mergefunc(keyvalue12_vault7.key, buffer7[12][i].key, NAp);
-		keyvalue12_vault8.value = mergefunc(keyvalue12_vault7.value, buffer7[12][i].value, NAp);
-		keyvalue13_vault8.key = mergefunc(keyvalue13_vault7.key, buffer7[13][i].key, NAp);
-		keyvalue13_vault8.value = mergefunc(keyvalue13_vault7.value, buffer7[13][i].value, NAp);
-		keyvalue14_vault8.key = mergefunc(keyvalue14_vault7.key, buffer7[14][i].key, NAp);
-		keyvalue14_vault8.value = mergefunc(keyvalue14_vault7.value, buffer7[14][i].value, NAp);
-		keyvalue15_vault8.key = mergefunc(keyvalue15_vault7.key, buffer7[15][i].key, NAp);
-		keyvalue15_vault8.value = mergefunc(keyvalue15_vault7.value, buffer7[15][i].value, NAp);
+		keyvalue0_vault8.key = mergefunc(keyvalue0_vault7.key, GETKV2(buffer7[0][i]).key, NAp);
+		keyvalue0_vault8.value = mergefunc(keyvalue0_vault7.value, GETKV2(buffer7[0][i]).value, NAp);
+		keyvalue1_vault8.key = mergefunc(keyvalue1_vault7.key, GETKV2(buffer7[1][i]).key, NAp);
+		keyvalue1_vault8.value = mergefunc(keyvalue1_vault7.value, GETKV2(buffer7[1][i]).value, NAp);
+		keyvalue2_vault8.key = mergefunc(keyvalue2_vault7.key, GETKV2(buffer7[2][i]).key, NAp);
+		keyvalue2_vault8.value = mergefunc(keyvalue2_vault7.value, GETKV2(buffer7[2][i]).value, NAp);
+		keyvalue3_vault8.key = mergefunc(keyvalue3_vault7.key, GETKV2(buffer7[3][i]).key, NAp);
+		keyvalue3_vault8.value = mergefunc(keyvalue3_vault7.value, GETKV2(buffer7[3][i]).value, NAp);
+		keyvalue4_vault8.key = mergefunc(keyvalue4_vault7.key, GETKV2(buffer7[4][i]).key, NAp);
+		keyvalue4_vault8.value = mergefunc(keyvalue4_vault7.value, GETKV2(buffer7[4][i]).value, NAp);
+		keyvalue5_vault8.key = mergefunc(keyvalue5_vault7.key, GETKV2(buffer7[5][i]).key, NAp);
+		keyvalue5_vault8.value = mergefunc(keyvalue5_vault7.value, GETKV2(buffer7[5][i]).value, NAp);
+		keyvalue6_vault8.key = mergefunc(keyvalue6_vault7.key, GETKV2(buffer7[6][i]).key, NAp);
+		keyvalue6_vault8.value = mergefunc(keyvalue6_vault7.value, GETKV2(buffer7[6][i]).value, NAp);
+		keyvalue7_vault8.key = mergefunc(keyvalue7_vault7.key, GETKV2(buffer7[7][i]).key, NAp);
+		keyvalue7_vault8.value = mergefunc(keyvalue7_vault7.value, GETKV2(buffer7[7][i]).value, NAp);
+		keyvalue8_vault8.key = mergefunc(keyvalue8_vault7.key, GETKV2(buffer7[8][i]).key, NAp);
+		keyvalue8_vault8.value = mergefunc(keyvalue8_vault7.value, GETKV2(buffer7[8][i]).value, NAp);
+		keyvalue9_vault8.key = mergefunc(keyvalue9_vault7.key, GETKV2(buffer7[9][i]).key, NAp);
+		keyvalue9_vault8.value = mergefunc(keyvalue9_vault7.value, GETKV2(buffer7[9][i]).value, NAp);
+		keyvalue10_vault8.key = mergefunc(keyvalue10_vault7.key, GETKV2(buffer7[10][i]).key, NAp);
+		keyvalue10_vault8.value = mergefunc(keyvalue10_vault7.value, GETKV2(buffer7[10][i]).value, NAp);
+		keyvalue11_vault8.key = mergefunc(keyvalue11_vault7.key, GETKV2(buffer7[11][i]).key, NAp);
+		keyvalue11_vault8.value = mergefunc(keyvalue11_vault7.value, GETKV2(buffer7[11][i]).value, NAp);
+		keyvalue12_vault8.key = mergefunc(keyvalue12_vault7.key, GETKV2(buffer7[12][i]).key, NAp);
+		keyvalue12_vault8.value = mergefunc(keyvalue12_vault7.value, GETKV2(buffer7[12][i]).value, NAp);
+		keyvalue13_vault8.key = mergefunc(keyvalue13_vault7.key, GETKV2(buffer7[13][i]).key, NAp);
+		keyvalue13_vault8.value = mergefunc(keyvalue13_vault7.value, GETKV2(buffer7[13][i]).value, NAp);
+		keyvalue14_vault8.key = mergefunc(keyvalue14_vault7.key, GETKV2(buffer7[14][i]).key, NAp);
+		keyvalue14_vault8.value = mergefunc(keyvalue14_vault7.value, GETKV2(buffer7[14][i]).value, NAp);
+		keyvalue15_vault8.key = mergefunc(keyvalue15_vault7.key, GETKV2(buffer7[15][i]).key, NAp);
+		keyvalue15_vault8.value = mergefunc(keyvalue15_vault7.value, GETKV2(buffer7[15][i]).value, NAp);
 	
-		keyvalue0_vault9.key = mergefunc(keyvalue0_vault8.key, buffer8[0][i].key, NAp);
-		keyvalue0_vault9.value = mergefunc(keyvalue0_vault8.value, buffer8[0][i].value, NAp);
-		keyvalue1_vault9.key = mergefunc(keyvalue1_vault8.key, buffer8[1][i].key, NAp);
-		keyvalue1_vault9.value = mergefunc(keyvalue1_vault8.value, buffer8[1][i].value, NAp);
-		keyvalue2_vault9.key = mergefunc(keyvalue2_vault8.key, buffer8[2][i].key, NAp);
-		keyvalue2_vault9.value = mergefunc(keyvalue2_vault8.value, buffer8[2][i].value, NAp);
-		keyvalue3_vault9.key = mergefunc(keyvalue3_vault8.key, buffer8[3][i].key, NAp);
-		keyvalue3_vault9.value = mergefunc(keyvalue3_vault8.value, buffer8[3][i].value, NAp);
-		keyvalue4_vault9.key = mergefunc(keyvalue4_vault8.key, buffer8[4][i].key, NAp);
-		keyvalue4_vault9.value = mergefunc(keyvalue4_vault8.value, buffer8[4][i].value, NAp);
-		keyvalue5_vault9.key = mergefunc(keyvalue5_vault8.key, buffer8[5][i].key, NAp);
-		keyvalue5_vault9.value = mergefunc(keyvalue5_vault8.value, buffer8[5][i].value, NAp);
-		keyvalue6_vault9.key = mergefunc(keyvalue6_vault8.key, buffer8[6][i].key, NAp);
-		keyvalue6_vault9.value = mergefunc(keyvalue6_vault8.value, buffer8[6][i].value, NAp);
-		keyvalue7_vault9.key = mergefunc(keyvalue7_vault8.key, buffer8[7][i].key, NAp);
-		keyvalue7_vault9.value = mergefunc(keyvalue7_vault8.value, buffer8[7][i].value, NAp);
-		keyvalue8_vault9.key = mergefunc(keyvalue8_vault8.key, buffer8[8][i].key, NAp);
-		keyvalue8_vault9.value = mergefunc(keyvalue8_vault8.value, buffer8[8][i].value, NAp);
-		keyvalue9_vault9.key = mergefunc(keyvalue9_vault8.key, buffer8[9][i].key, NAp);
-		keyvalue9_vault9.value = mergefunc(keyvalue9_vault8.value, buffer8[9][i].value, NAp);
-		keyvalue10_vault9.key = mergefunc(keyvalue10_vault8.key, buffer8[10][i].key, NAp);
-		keyvalue10_vault9.value = mergefunc(keyvalue10_vault8.value, buffer8[10][i].value, NAp);
-		keyvalue11_vault9.key = mergefunc(keyvalue11_vault8.key, buffer8[11][i].key, NAp);
-		keyvalue11_vault9.value = mergefunc(keyvalue11_vault8.value, buffer8[11][i].value, NAp);
-		keyvalue12_vault9.key = mergefunc(keyvalue12_vault8.key, buffer8[12][i].key, NAp);
-		keyvalue12_vault9.value = mergefunc(keyvalue12_vault8.value, buffer8[12][i].value, NAp);
-		keyvalue13_vault9.key = mergefunc(keyvalue13_vault8.key, buffer8[13][i].key, NAp);
-		keyvalue13_vault9.value = mergefunc(keyvalue13_vault8.value, buffer8[13][i].value, NAp);
-		keyvalue14_vault9.key = mergefunc(keyvalue14_vault8.key, buffer8[14][i].key, NAp);
-		keyvalue14_vault9.value = mergefunc(keyvalue14_vault8.value, buffer8[14][i].value, NAp);
-		keyvalue15_vault9.key = mergefunc(keyvalue15_vault8.key, buffer8[15][i].key, NAp);
-		keyvalue15_vault9.value = mergefunc(keyvalue15_vault8.value, buffer8[15][i].value, NAp);
+		keyvalue0_vault9.key = mergefunc(keyvalue0_vault8.key, GETKV2(buffer8[0][i]).key, NAp);
+		keyvalue0_vault9.value = mergefunc(keyvalue0_vault8.value, GETKV2(buffer8[0][i]).value, NAp);
+		keyvalue1_vault9.key = mergefunc(keyvalue1_vault8.key, GETKV2(buffer8[1][i]).key, NAp);
+		keyvalue1_vault9.value = mergefunc(keyvalue1_vault8.value, GETKV2(buffer8[1][i]).value, NAp);
+		keyvalue2_vault9.key = mergefunc(keyvalue2_vault8.key, GETKV2(buffer8[2][i]).key, NAp);
+		keyvalue2_vault9.value = mergefunc(keyvalue2_vault8.value, GETKV2(buffer8[2][i]).value, NAp);
+		keyvalue3_vault9.key = mergefunc(keyvalue3_vault8.key, GETKV2(buffer8[3][i]).key, NAp);
+		keyvalue3_vault9.value = mergefunc(keyvalue3_vault8.value, GETKV2(buffer8[3][i]).value, NAp);
+		keyvalue4_vault9.key = mergefunc(keyvalue4_vault8.key, GETKV2(buffer8[4][i]).key, NAp);
+		keyvalue4_vault9.value = mergefunc(keyvalue4_vault8.value, GETKV2(buffer8[4][i]).value, NAp);
+		keyvalue5_vault9.key = mergefunc(keyvalue5_vault8.key, GETKV2(buffer8[5][i]).key, NAp);
+		keyvalue5_vault9.value = mergefunc(keyvalue5_vault8.value, GETKV2(buffer8[5][i]).value, NAp);
+		keyvalue6_vault9.key = mergefunc(keyvalue6_vault8.key, GETKV2(buffer8[6][i]).key, NAp);
+		keyvalue6_vault9.value = mergefunc(keyvalue6_vault8.value, GETKV2(buffer8[6][i]).value, NAp);
+		keyvalue7_vault9.key = mergefunc(keyvalue7_vault8.key, GETKV2(buffer8[7][i]).key, NAp);
+		keyvalue7_vault9.value = mergefunc(keyvalue7_vault8.value, GETKV2(buffer8[7][i]).value, NAp);
+		keyvalue8_vault9.key = mergefunc(keyvalue8_vault8.key, GETKV2(buffer8[8][i]).key, NAp);
+		keyvalue8_vault9.value = mergefunc(keyvalue8_vault8.value, GETKV2(buffer8[8][i]).value, NAp);
+		keyvalue9_vault9.key = mergefunc(keyvalue9_vault8.key, GETKV2(buffer8[9][i]).key, NAp);
+		keyvalue9_vault9.value = mergefunc(keyvalue9_vault8.value, GETKV2(buffer8[9][i]).value, NAp);
+		keyvalue10_vault9.key = mergefunc(keyvalue10_vault8.key, GETKV2(buffer8[10][i]).key, NAp);
+		keyvalue10_vault9.value = mergefunc(keyvalue10_vault8.value, GETKV2(buffer8[10][i]).value, NAp);
+		keyvalue11_vault9.key = mergefunc(keyvalue11_vault8.key, GETKV2(buffer8[11][i]).key, NAp);
+		keyvalue11_vault9.value = mergefunc(keyvalue11_vault8.value, GETKV2(buffer8[11][i]).value, NAp);
+		keyvalue12_vault9.key = mergefunc(keyvalue12_vault8.key, GETKV2(buffer8[12][i]).key, NAp);
+		keyvalue12_vault9.value = mergefunc(keyvalue12_vault8.value, GETKV2(buffer8[12][i]).value, NAp);
+		keyvalue13_vault9.key = mergefunc(keyvalue13_vault8.key, GETKV2(buffer8[13][i]).key, NAp);
+		keyvalue13_vault9.value = mergefunc(keyvalue13_vault8.value, GETKV2(buffer8[13][i]).value, NAp);
+		keyvalue14_vault9.key = mergefunc(keyvalue14_vault8.key, GETKV2(buffer8[14][i]).key, NAp);
+		keyvalue14_vault9.value = mergefunc(keyvalue14_vault8.value, GETKV2(buffer8[14][i]).value, NAp);
+		keyvalue15_vault9.key = mergefunc(keyvalue15_vault8.key, GETKV2(buffer8[15][i]).key, NAp);
+		keyvalue15_vault9.value = mergefunc(keyvalue15_vault8.value, GETKV2(buffer8[15][i]).value, NAp);
 	
-		keyvalue0_vault10.key = mergefunc(keyvalue0_vault9.key, buffer9[0][i].key, NAp);
-		keyvalue0_vault10.value = mergefunc(keyvalue0_vault9.value, buffer9[0][i].value, NAp);
-		keyvalue1_vault10.key = mergefunc(keyvalue1_vault9.key, buffer9[1][i].key, NAp);
-		keyvalue1_vault10.value = mergefunc(keyvalue1_vault9.value, buffer9[1][i].value, NAp);
-		keyvalue2_vault10.key = mergefunc(keyvalue2_vault9.key, buffer9[2][i].key, NAp);
-		keyvalue2_vault10.value = mergefunc(keyvalue2_vault9.value, buffer9[2][i].value, NAp);
-		keyvalue3_vault10.key = mergefunc(keyvalue3_vault9.key, buffer9[3][i].key, NAp);
-		keyvalue3_vault10.value = mergefunc(keyvalue3_vault9.value, buffer9[3][i].value, NAp);
-		keyvalue4_vault10.key = mergefunc(keyvalue4_vault9.key, buffer9[4][i].key, NAp);
-		keyvalue4_vault10.value = mergefunc(keyvalue4_vault9.value, buffer9[4][i].value, NAp);
-		keyvalue5_vault10.key = mergefunc(keyvalue5_vault9.key, buffer9[5][i].key, NAp);
-		keyvalue5_vault10.value = mergefunc(keyvalue5_vault9.value, buffer9[5][i].value, NAp);
-		keyvalue6_vault10.key = mergefunc(keyvalue6_vault9.key, buffer9[6][i].key, NAp);
-		keyvalue6_vault10.value = mergefunc(keyvalue6_vault9.value, buffer9[6][i].value, NAp);
-		keyvalue7_vault10.key = mergefunc(keyvalue7_vault9.key, buffer9[7][i].key, NAp);
-		keyvalue7_vault10.value = mergefunc(keyvalue7_vault9.value, buffer9[7][i].value, NAp);
-		keyvalue8_vault10.key = mergefunc(keyvalue8_vault9.key, buffer9[8][i].key, NAp);
-		keyvalue8_vault10.value = mergefunc(keyvalue8_vault9.value, buffer9[8][i].value, NAp);
-		keyvalue9_vault10.key = mergefunc(keyvalue9_vault9.key, buffer9[9][i].key, NAp);
-		keyvalue9_vault10.value = mergefunc(keyvalue9_vault9.value, buffer9[9][i].value, NAp);
-		keyvalue10_vault10.key = mergefunc(keyvalue10_vault9.key, buffer9[10][i].key, NAp);
-		keyvalue10_vault10.value = mergefunc(keyvalue10_vault9.value, buffer9[10][i].value, NAp);
-		keyvalue11_vault10.key = mergefunc(keyvalue11_vault9.key, buffer9[11][i].key, NAp);
-		keyvalue11_vault10.value = mergefunc(keyvalue11_vault9.value, buffer9[11][i].value, NAp);
-		keyvalue12_vault10.key = mergefunc(keyvalue12_vault9.key, buffer9[12][i].key, NAp);
-		keyvalue12_vault10.value = mergefunc(keyvalue12_vault9.value, buffer9[12][i].value, NAp);
-		keyvalue13_vault10.key = mergefunc(keyvalue13_vault9.key, buffer9[13][i].key, NAp);
-		keyvalue13_vault10.value = mergefunc(keyvalue13_vault9.value, buffer9[13][i].value, NAp);
-		keyvalue14_vault10.key = mergefunc(keyvalue14_vault9.key, buffer9[14][i].key, NAp);
-		keyvalue14_vault10.value = mergefunc(keyvalue14_vault9.value, buffer9[14][i].value, NAp);
-		keyvalue15_vault10.key = mergefunc(keyvalue15_vault9.key, buffer9[15][i].key, NAp);
-		keyvalue15_vault10.value = mergefunc(keyvalue15_vault9.value, buffer9[15][i].value, NAp);
+		keyvalue0_vault10.key = mergefunc(keyvalue0_vault9.key, GETKV2(buffer9[0][i]).key, NAp);
+		keyvalue0_vault10.value = mergefunc(keyvalue0_vault9.value, GETKV2(buffer9[0][i]).value, NAp);
+		keyvalue1_vault10.key = mergefunc(keyvalue1_vault9.key, GETKV2(buffer9[1][i]).key, NAp);
+		keyvalue1_vault10.value = mergefunc(keyvalue1_vault9.value, GETKV2(buffer9[1][i]).value, NAp);
+		keyvalue2_vault10.key = mergefunc(keyvalue2_vault9.key, GETKV2(buffer9[2][i]).key, NAp);
+		keyvalue2_vault10.value = mergefunc(keyvalue2_vault9.value, GETKV2(buffer9[2][i]).value, NAp);
+		keyvalue3_vault10.key = mergefunc(keyvalue3_vault9.key, GETKV2(buffer9[3][i]).key, NAp);
+		keyvalue3_vault10.value = mergefunc(keyvalue3_vault9.value, GETKV2(buffer9[3][i]).value, NAp);
+		keyvalue4_vault10.key = mergefunc(keyvalue4_vault9.key, GETKV2(buffer9[4][i]).key, NAp);
+		keyvalue4_vault10.value = mergefunc(keyvalue4_vault9.value, GETKV2(buffer9[4][i]).value, NAp);
+		keyvalue5_vault10.key = mergefunc(keyvalue5_vault9.key, GETKV2(buffer9[5][i]).key, NAp);
+		keyvalue5_vault10.value = mergefunc(keyvalue5_vault9.value, GETKV2(buffer9[5][i]).value, NAp);
+		keyvalue6_vault10.key = mergefunc(keyvalue6_vault9.key, GETKV2(buffer9[6][i]).key, NAp);
+		keyvalue6_vault10.value = mergefunc(keyvalue6_vault9.value, GETKV2(buffer9[6][i]).value, NAp);
+		keyvalue7_vault10.key = mergefunc(keyvalue7_vault9.key, GETKV2(buffer9[7][i]).key, NAp);
+		keyvalue7_vault10.value = mergefunc(keyvalue7_vault9.value, GETKV2(buffer9[7][i]).value, NAp);
+		keyvalue8_vault10.key = mergefunc(keyvalue8_vault9.key, GETKV2(buffer9[8][i]).key, NAp);
+		keyvalue8_vault10.value = mergefunc(keyvalue8_vault9.value, GETKV2(buffer9[8][i]).value, NAp);
+		keyvalue9_vault10.key = mergefunc(keyvalue9_vault9.key, GETKV2(buffer9[9][i]).key, NAp);
+		keyvalue9_vault10.value = mergefunc(keyvalue9_vault9.value, GETKV2(buffer9[9][i]).value, NAp);
+		keyvalue10_vault10.key = mergefunc(keyvalue10_vault9.key, GETKV2(buffer9[10][i]).key, NAp);
+		keyvalue10_vault10.value = mergefunc(keyvalue10_vault9.value, GETKV2(buffer9[10][i]).value, NAp);
+		keyvalue11_vault10.key = mergefunc(keyvalue11_vault9.key, GETKV2(buffer9[11][i]).key, NAp);
+		keyvalue11_vault10.value = mergefunc(keyvalue11_vault9.value, GETKV2(buffer9[11][i]).value, NAp);
+		keyvalue12_vault10.key = mergefunc(keyvalue12_vault9.key, GETKV2(buffer9[12][i]).key, NAp);
+		keyvalue12_vault10.value = mergefunc(keyvalue12_vault9.value, GETKV2(buffer9[12][i]).value, NAp);
+		keyvalue13_vault10.key = mergefunc(keyvalue13_vault9.key, GETKV2(buffer9[13][i]).key, NAp);
+		keyvalue13_vault10.value = mergefunc(keyvalue13_vault9.value, GETKV2(buffer9[13][i]).value, NAp);
+		keyvalue14_vault10.key = mergefunc(keyvalue14_vault9.key, GETKV2(buffer9[14][i]).key, NAp);
+		keyvalue14_vault10.value = mergefunc(keyvalue14_vault9.value, GETKV2(buffer9[14][i]).value, NAp);
+		keyvalue15_vault10.key = mergefunc(keyvalue15_vault9.key, GETKV2(buffer9[15][i]).key, NAp);
+		keyvalue15_vault10.value = mergefunc(keyvalue15_vault9.value, GETKV2(buffer9[15][i]).value, NAp);
 	
-		keyvalue0_vault11.key = mergefunc(keyvalue0_vault10.key, buffer10[0][i].key, NAp);
-		keyvalue0_vault11.value = mergefunc(keyvalue0_vault10.value, buffer10[0][i].value, NAp);
-		keyvalue1_vault11.key = mergefunc(keyvalue1_vault10.key, buffer10[1][i].key, NAp);
-		keyvalue1_vault11.value = mergefunc(keyvalue1_vault10.value, buffer10[1][i].value, NAp);
-		keyvalue2_vault11.key = mergefunc(keyvalue2_vault10.key, buffer10[2][i].key, NAp);
-		keyvalue2_vault11.value = mergefunc(keyvalue2_vault10.value, buffer10[2][i].value, NAp);
-		keyvalue3_vault11.key = mergefunc(keyvalue3_vault10.key, buffer10[3][i].key, NAp);
-		keyvalue3_vault11.value = mergefunc(keyvalue3_vault10.value, buffer10[3][i].value, NAp);
-		keyvalue4_vault11.key = mergefunc(keyvalue4_vault10.key, buffer10[4][i].key, NAp);
-		keyvalue4_vault11.value = mergefunc(keyvalue4_vault10.value, buffer10[4][i].value, NAp);
-		keyvalue5_vault11.key = mergefunc(keyvalue5_vault10.key, buffer10[5][i].key, NAp);
-		keyvalue5_vault11.value = mergefunc(keyvalue5_vault10.value, buffer10[5][i].value, NAp);
-		keyvalue6_vault11.key = mergefunc(keyvalue6_vault10.key, buffer10[6][i].key, NAp);
-		keyvalue6_vault11.value = mergefunc(keyvalue6_vault10.value, buffer10[6][i].value, NAp);
-		keyvalue7_vault11.key = mergefunc(keyvalue7_vault10.key, buffer10[7][i].key, NAp);
-		keyvalue7_vault11.value = mergefunc(keyvalue7_vault10.value, buffer10[7][i].value, NAp);
-		keyvalue8_vault11.key = mergefunc(keyvalue8_vault10.key, buffer10[8][i].key, NAp);
-		keyvalue8_vault11.value = mergefunc(keyvalue8_vault10.value, buffer10[8][i].value, NAp);
-		keyvalue9_vault11.key = mergefunc(keyvalue9_vault10.key, buffer10[9][i].key, NAp);
-		keyvalue9_vault11.value = mergefunc(keyvalue9_vault10.value, buffer10[9][i].value, NAp);
-		keyvalue10_vault11.key = mergefunc(keyvalue10_vault10.key, buffer10[10][i].key, NAp);
-		keyvalue10_vault11.value = mergefunc(keyvalue10_vault10.value, buffer10[10][i].value, NAp);
-		keyvalue11_vault11.key = mergefunc(keyvalue11_vault10.key, buffer10[11][i].key, NAp);
-		keyvalue11_vault11.value = mergefunc(keyvalue11_vault10.value, buffer10[11][i].value, NAp);
-		keyvalue12_vault11.key = mergefunc(keyvalue12_vault10.key, buffer10[12][i].key, NAp);
-		keyvalue12_vault11.value = mergefunc(keyvalue12_vault10.value, buffer10[12][i].value, NAp);
-		keyvalue13_vault11.key = mergefunc(keyvalue13_vault10.key, buffer10[13][i].key, NAp);
-		keyvalue13_vault11.value = mergefunc(keyvalue13_vault10.value, buffer10[13][i].value, NAp);
-		keyvalue14_vault11.key = mergefunc(keyvalue14_vault10.key, buffer10[14][i].key, NAp);
-		keyvalue14_vault11.value = mergefunc(keyvalue14_vault10.value, buffer10[14][i].value, NAp);
-		keyvalue15_vault11.key = mergefunc(keyvalue15_vault10.key, buffer10[15][i].key, NAp);
-		keyvalue15_vault11.value = mergefunc(keyvalue15_vault10.value, buffer10[15][i].value, NAp);
+		keyvalue0_vault11.key = mergefunc(keyvalue0_vault10.key, GETKV2(buffer10[0][i]).key, NAp);
+		keyvalue0_vault11.value = mergefunc(keyvalue0_vault10.value, GETKV2(buffer10[0][i]).value, NAp);
+		keyvalue1_vault11.key = mergefunc(keyvalue1_vault10.key, GETKV2(buffer10[1][i]).key, NAp);
+		keyvalue1_vault11.value = mergefunc(keyvalue1_vault10.value, GETKV2(buffer10[1][i]).value, NAp);
+		keyvalue2_vault11.key = mergefunc(keyvalue2_vault10.key, GETKV2(buffer10[2][i]).key, NAp);
+		keyvalue2_vault11.value = mergefunc(keyvalue2_vault10.value, GETKV2(buffer10[2][i]).value, NAp);
+		keyvalue3_vault11.key = mergefunc(keyvalue3_vault10.key, GETKV2(buffer10[3][i]).key, NAp);
+		keyvalue3_vault11.value = mergefunc(keyvalue3_vault10.value, GETKV2(buffer10[3][i]).value, NAp);
+		keyvalue4_vault11.key = mergefunc(keyvalue4_vault10.key, GETKV2(buffer10[4][i]).key, NAp);
+		keyvalue4_vault11.value = mergefunc(keyvalue4_vault10.value, GETKV2(buffer10[4][i]).value, NAp);
+		keyvalue5_vault11.key = mergefunc(keyvalue5_vault10.key, GETKV2(buffer10[5][i]).key, NAp);
+		keyvalue5_vault11.value = mergefunc(keyvalue5_vault10.value, GETKV2(buffer10[5][i]).value, NAp);
+		keyvalue6_vault11.key = mergefunc(keyvalue6_vault10.key, GETKV2(buffer10[6][i]).key, NAp);
+		keyvalue6_vault11.value = mergefunc(keyvalue6_vault10.value, GETKV2(buffer10[6][i]).value, NAp);
+		keyvalue7_vault11.key = mergefunc(keyvalue7_vault10.key, GETKV2(buffer10[7][i]).key, NAp);
+		keyvalue7_vault11.value = mergefunc(keyvalue7_vault10.value, GETKV2(buffer10[7][i]).value, NAp);
+		keyvalue8_vault11.key = mergefunc(keyvalue8_vault10.key, GETKV2(buffer10[8][i]).key, NAp);
+		keyvalue8_vault11.value = mergefunc(keyvalue8_vault10.value, GETKV2(buffer10[8][i]).value, NAp);
+		keyvalue9_vault11.key = mergefunc(keyvalue9_vault10.key, GETKV2(buffer10[9][i]).key, NAp);
+		keyvalue9_vault11.value = mergefunc(keyvalue9_vault10.value, GETKV2(buffer10[9][i]).value, NAp);
+		keyvalue10_vault11.key = mergefunc(keyvalue10_vault10.key, GETKV2(buffer10[10][i]).key, NAp);
+		keyvalue10_vault11.value = mergefunc(keyvalue10_vault10.value, GETKV2(buffer10[10][i]).value, NAp);
+		keyvalue11_vault11.key = mergefunc(keyvalue11_vault10.key, GETKV2(buffer10[11][i]).key, NAp);
+		keyvalue11_vault11.value = mergefunc(keyvalue11_vault10.value, GETKV2(buffer10[11][i]).value, NAp);
+		keyvalue12_vault11.key = mergefunc(keyvalue12_vault10.key, GETKV2(buffer10[12][i]).key, NAp);
+		keyvalue12_vault11.value = mergefunc(keyvalue12_vault10.value, GETKV2(buffer10[12][i]).value, NAp);
+		keyvalue13_vault11.key = mergefunc(keyvalue13_vault10.key, GETKV2(buffer10[13][i]).key, NAp);
+		keyvalue13_vault11.value = mergefunc(keyvalue13_vault10.value, GETKV2(buffer10[13][i]).value, NAp);
+		keyvalue14_vault11.key = mergefunc(keyvalue14_vault10.key, GETKV2(buffer10[14][i]).key, NAp);
+		keyvalue14_vault11.value = mergefunc(keyvalue14_vault10.value, GETKV2(buffer10[14][i]).value, NAp);
+		keyvalue15_vault11.key = mergefunc(keyvalue15_vault10.key, GETKV2(buffer10[15][i]).key, NAp);
+		keyvalue15_vault11.value = mergefunc(keyvalue15_vault10.value, GETKV2(buffer10[15][i]).value, NAp);
 	
-		keyvalue0_vault12.key = mergefunc(keyvalue0_vault11.key, buffer11[0][i].key, NAp);
-		keyvalue0_vault12.value = mergefunc(keyvalue0_vault11.value, buffer11[0][i].value, NAp);
-		keyvalue1_vault12.key = mergefunc(keyvalue1_vault11.key, buffer11[1][i].key, NAp);
-		keyvalue1_vault12.value = mergefunc(keyvalue1_vault11.value, buffer11[1][i].value, NAp);
-		keyvalue2_vault12.key = mergefunc(keyvalue2_vault11.key, buffer11[2][i].key, NAp);
-		keyvalue2_vault12.value = mergefunc(keyvalue2_vault11.value, buffer11[2][i].value, NAp);
-		keyvalue3_vault12.key = mergefunc(keyvalue3_vault11.key, buffer11[3][i].key, NAp);
-		keyvalue3_vault12.value = mergefunc(keyvalue3_vault11.value, buffer11[3][i].value, NAp);
-		keyvalue4_vault12.key = mergefunc(keyvalue4_vault11.key, buffer11[4][i].key, NAp);
-		keyvalue4_vault12.value = mergefunc(keyvalue4_vault11.value, buffer11[4][i].value, NAp);
-		keyvalue5_vault12.key = mergefunc(keyvalue5_vault11.key, buffer11[5][i].key, NAp);
-		keyvalue5_vault12.value = mergefunc(keyvalue5_vault11.value, buffer11[5][i].value, NAp);
-		keyvalue6_vault12.key = mergefunc(keyvalue6_vault11.key, buffer11[6][i].key, NAp);
-		keyvalue6_vault12.value = mergefunc(keyvalue6_vault11.value, buffer11[6][i].value, NAp);
-		keyvalue7_vault12.key = mergefunc(keyvalue7_vault11.key, buffer11[7][i].key, NAp);
-		keyvalue7_vault12.value = mergefunc(keyvalue7_vault11.value, buffer11[7][i].value, NAp);
-		keyvalue8_vault12.key = mergefunc(keyvalue8_vault11.key, buffer11[8][i].key, NAp);
-		keyvalue8_vault12.value = mergefunc(keyvalue8_vault11.value, buffer11[8][i].value, NAp);
-		keyvalue9_vault12.key = mergefunc(keyvalue9_vault11.key, buffer11[9][i].key, NAp);
-		keyvalue9_vault12.value = mergefunc(keyvalue9_vault11.value, buffer11[9][i].value, NAp);
-		keyvalue10_vault12.key = mergefunc(keyvalue10_vault11.key, buffer11[10][i].key, NAp);
-		keyvalue10_vault12.value = mergefunc(keyvalue10_vault11.value, buffer11[10][i].value, NAp);
-		keyvalue11_vault12.key = mergefunc(keyvalue11_vault11.key, buffer11[11][i].key, NAp);
-		keyvalue11_vault12.value = mergefunc(keyvalue11_vault11.value, buffer11[11][i].value, NAp);
-		keyvalue12_vault12.key = mergefunc(keyvalue12_vault11.key, buffer11[12][i].key, NAp);
-		keyvalue12_vault12.value = mergefunc(keyvalue12_vault11.value, buffer11[12][i].value, NAp);
-		keyvalue13_vault12.key = mergefunc(keyvalue13_vault11.key, buffer11[13][i].key, NAp);
-		keyvalue13_vault12.value = mergefunc(keyvalue13_vault11.value, buffer11[13][i].value, NAp);
-		keyvalue14_vault12.key = mergefunc(keyvalue14_vault11.key, buffer11[14][i].key, NAp);
-		keyvalue14_vault12.value = mergefunc(keyvalue14_vault11.value, buffer11[14][i].value, NAp);
-		keyvalue15_vault12.key = mergefunc(keyvalue15_vault11.key, buffer11[15][i].key, NAp);
-		keyvalue15_vault12.value = mergefunc(keyvalue15_vault11.value, buffer11[15][i].value, NAp);
+		keyvalue0_vault12.key = mergefunc(keyvalue0_vault11.key, GETKV2(buffer11[0][i]).key, NAp);
+		keyvalue0_vault12.value = mergefunc(keyvalue0_vault11.value, GETKV2(buffer11[0][i]).value, NAp);
+		keyvalue1_vault12.key = mergefunc(keyvalue1_vault11.key, GETKV2(buffer11[1][i]).key, NAp);
+		keyvalue1_vault12.value = mergefunc(keyvalue1_vault11.value, GETKV2(buffer11[1][i]).value, NAp);
+		keyvalue2_vault12.key = mergefunc(keyvalue2_vault11.key, GETKV2(buffer11[2][i]).key, NAp);
+		keyvalue2_vault12.value = mergefunc(keyvalue2_vault11.value, GETKV2(buffer11[2][i]).value, NAp);
+		keyvalue3_vault12.key = mergefunc(keyvalue3_vault11.key, GETKV2(buffer11[3][i]).key, NAp);
+		keyvalue3_vault12.value = mergefunc(keyvalue3_vault11.value, GETKV2(buffer11[3][i]).value, NAp);
+		keyvalue4_vault12.key = mergefunc(keyvalue4_vault11.key, GETKV2(buffer11[4][i]).key, NAp);
+		keyvalue4_vault12.value = mergefunc(keyvalue4_vault11.value, GETKV2(buffer11[4][i]).value, NAp);
+		keyvalue5_vault12.key = mergefunc(keyvalue5_vault11.key, GETKV2(buffer11[5][i]).key, NAp);
+		keyvalue5_vault12.value = mergefunc(keyvalue5_vault11.value, GETKV2(buffer11[5][i]).value, NAp);
+		keyvalue6_vault12.key = mergefunc(keyvalue6_vault11.key, GETKV2(buffer11[6][i]).key, NAp);
+		keyvalue6_vault12.value = mergefunc(keyvalue6_vault11.value, GETKV2(buffer11[6][i]).value, NAp);
+		keyvalue7_vault12.key = mergefunc(keyvalue7_vault11.key, GETKV2(buffer11[7][i]).key, NAp);
+		keyvalue7_vault12.value = mergefunc(keyvalue7_vault11.value, GETKV2(buffer11[7][i]).value, NAp);
+		keyvalue8_vault12.key = mergefunc(keyvalue8_vault11.key, GETKV2(buffer11[8][i]).key, NAp);
+		keyvalue8_vault12.value = mergefunc(keyvalue8_vault11.value, GETKV2(buffer11[8][i]).value, NAp);
+		keyvalue9_vault12.key = mergefunc(keyvalue9_vault11.key, GETKV2(buffer11[9][i]).key, NAp);
+		keyvalue9_vault12.value = mergefunc(keyvalue9_vault11.value, GETKV2(buffer11[9][i]).value, NAp);
+		keyvalue10_vault12.key = mergefunc(keyvalue10_vault11.key, GETKV2(buffer11[10][i]).key, NAp);
+		keyvalue10_vault12.value = mergefunc(keyvalue10_vault11.value, GETKV2(buffer11[10][i]).value, NAp);
+		keyvalue11_vault12.key = mergefunc(keyvalue11_vault11.key, GETKV2(buffer11[11][i]).key, NAp);
+		keyvalue11_vault12.value = mergefunc(keyvalue11_vault11.value, GETKV2(buffer11[11][i]).value, NAp);
+		keyvalue12_vault12.key = mergefunc(keyvalue12_vault11.key, GETKV2(buffer11[12][i]).key, NAp);
+		keyvalue12_vault12.value = mergefunc(keyvalue12_vault11.value, GETKV2(buffer11[12][i]).value, NAp);
+		keyvalue13_vault12.key = mergefunc(keyvalue13_vault11.key, GETKV2(buffer11[13][i]).key, NAp);
+		keyvalue13_vault12.value = mergefunc(keyvalue13_vault11.value, GETKV2(buffer11[13][i]).value, NAp);
+		keyvalue14_vault12.key = mergefunc(keyvalue14_vault11.key, GETKV2(buffer11[14][i]).key, NAp);
+		keyvalue14_vault12.value = mergefunc(keyvalue14_vault11.value, GETKV2(buffer11[14][i]).value, NAp);
+		keyvalue15_vault12.key = mergefunc(keyvalue15_vault11.key, GETKV2(buffer11[15][i]).key, NAp);
+		keyvalue15_vault12.value = mergefunc(keyvalue15_vault11.value, GETKV2(buffer11[15][i]).value, NAp);
 	
-		keyvalue0_vault13.key = mergefunc(keyvalue0_vault12.key, buffer12[0][i].key, NAp);
-		keyvalue0_vault13.value = mergefunc(keyvalue0_vault12.value, buffer12[0][i].value, NAp);
-		keyvalue1_vault13.key = mergefunc(keyvalue1_vault12.key, buffer12[1][i].key, NAp);
-		keyvalue1_vault13.value = mergefunc(keyvalue1_vault12.value, buffer12[1][i].value, NAp);
-		keyvalue2_vault13.key = mergefunc(keyvalue2_vault12.key, buffer12[2][i].key, NAp);
-		keyvalue2_vault13.value = mergefunc(keyvalue2_vault12.value, buffer12[2][i].value, NAp);
-		keyvalue3_vault13.key = mergefunc(keyvalue3_vault12.key, buffer12[3][i].key, NAp);
-		keyvalue3_vault13.value = mergefunc(keyvalue3_vault12.value, buffer12[3][i].value, NAp);
-		keyvalue4_vault13.key = mergefunc(keyvalue4_vault12.key, buffer12[4][i].key, NAp);
-		keyvalue4_vault13.value = mergefunc(keyvalue4_vault12.value, buffer12[4][i].value, NAp);
-		keyvalue5_vault13.key = mergefunc(keyvalue5_vault12.key, buffer12[5][i].key, NAp);
-		keyvalue5_vault13.value = mergefunc(keyvalue5_vault12.value, buffer12[5][i].value, NAp);
-		keyvalue6_vault13.key = mergefunc(keyvalue6_vault12.key, buffer12[6][i].key, NAp);
-		keyvalue6_vault13.value = mergefunc(keyvalue6_vault12.value, buffer12[6][i].value, NAp);
-		keyvalue7_vault13.key = mergefunc(keyvalue7_vault12.key, buffer12[7][i].key, NAp);
-		keyvalue7_vault13.value = mergefunc(keyvalue7_vault12.value, buffer12[7][i].value, NAp);
-		keyvalue8_vault13.key = mergefunc(keyvalue8_vault12.key, buffer12[8][i].key, NAp);
-		keyvalue8_vault13.value = mergefunc(keyvalue8_vault12.value, buffer12[8][i].value, NAp);
-		keyvalue9_vault13.key = mergefunc(keyvalue9_vault12.key, buffer12[9][i].key, NAp);
-		keyvalue9_vault13.value = mergefunc(keyvalue9_vault12.value, buffer12[9][i].value, NAp);
-		keyvalue10_vault13.key = mergefunc(keyvalue10_vault12.key, buffer12[10][i].key, NAp);
-		keyvalue10_vault13.value = mergefunc(keyvalue10_vault12.value, buffer12[10][i].value, NAp);
-		keyvalue11_vault13.key = mergefunc(keyvalue11_vault12.key, buffer12[11][i].key, NAp);
-		keyvalue11_vault13.value = mergefunc(keyvalue11_vault12.value, buffer12[11][i].value, NAp);
-		keyvalue12_vault13.key = mergefunc(keyvalue12_vault12.key, buffer12[12][i].key, NAp);
-		keyvalue12_vault13.value = mergefunc(keyvalue12_vault12.value, buffer12[12][i].value, NAp);
-		keyvalue13_vault13.key = mergefunc(keyvalue13_vault12.key, buffer12[13][i].key, NAp);
-		keyvalue13_vault13.value = mergefunc(keyvalue13_vault12.value, buffer12[13][i].value, NAp);
-		keyvalue14_vault13.key = mergefunc(keyvalue14_vault12.key, buffer12[14][i].key, NAp);
-		keyvalue14_vault13.value = mergefunc(keyvalue14_vault12.value, buffer12[14][i].value, NAp);
-		keyvalue15_vault13.key = mergefunc(keyvalue15_vault12.key, buffer12[15][i].key, NAp);
-		keyvalue15_vault13.value = mergefunc(keyvalue15_vault12.value, buffer12[15][i].value, NAp);
+		keyvalue0_vault13.key = mergefunc(keyvalue0_vault12.key, GETKV2(buffer12[0][i]).key, NAp);
+		keyvalue0_vault13.value = mergefunc(keyvalue0_vault12.value, GETKV2(buffer12[0][i]).value, NAp);
+		keyvalue1_vault13.key = mergefunc(keyvalue1_vault12.key, GETKV2(buffer12[1][i]).key, NAp);
+		keyvalue1_vault13.value = mergefunc(keyvalue1_vault12.value, GETKV2(buffer12[1][i]).value, NAp);
+		keyvalue2_vault13.key = mergefunc(keyvalue2_vault12.key, GETKV2(buffer12[2][i]).key, NAp);
+		keyvalue2_vault13.value = mergefunc(keyvalue2_vault12.value, GETKV2(buffer12[2][i]).value, NAp);
+		keyvalue3_vault13.key = mergefunc(keyvalue3_vault12.key, GETKV2(buffer12[3][i]).key, NAp);
+		keyvalue3_vault13.value = mergefunc(keyvalue3_vault12.value, GETKV2(buffer12[3][i]).value, NAp);
+		keyvalue4_vault13.key = mergefunc(keyvalue4_vault12.key, GETKV2(buffer12[4][i]).key, NAp);
+		keyvalue4_vault13.value = mergefunc(keyvalue4_vault12.value, GETKV2(buffer12[4][i]).value, NAp);
+		keyvalue5_vault13.key = mergefunc(keyvalue5_vault12.key, GETKV2(buffer12[5][i]).key, NAp);
+		keyvalue5_vault13.value = mergefunc(keyvalue5_vault12.value, GETKV2(buffer12[5][i]).value, NAp);
+		keyvalue6_vault13.key = mergefunc(keyvalue6_vault12.key, GETKV2(buffer12[6][i]).key, NAp);
+		keyvalue6_vault13.value = mergefunc(keyvalue6_vault12.value, GETKV2(buffer12[6][i]).value, NAp);
+		keyvalue7_vault13.key = mergefunc(keyvalue7_vault12.key, GETKV2(buffer12[7][i]).key, NAp);
+		keyvalue7_vault13.value = mergefunc(keyvalue7_vault12.value, GETKV2(buffer12[7][i]).value, NAp);
+		keyvalue8_vault13.key = mergefunc(keyvalue8_vault12.key, GETKV2(buffer12[8][i]).key, NAp);
+		keyvalue8_vault13.value = mergefunc(keyvalue8_vault12.value, GETKV2(buffer12[8][i]).value, NAp);
+		keyvalue9_vault13.key = mergefunc(keyvalue9_vault12.key, GETKV2(buffer12[9][i]).key, NAp);
+		keyvalue9_vault13.value = mergefunc(keyvalue9_vault12.value, GETKV2(buffer12[9][i]).value, NAp);
+		keyvalue10_vault13.key = mergefunc(keyvalue10_vault12.key, GETKV2(buffer12[10][i]).key, NAp);
+		keyvalue10_vault13.value = mergefunc(keyvalue10_vault12.value, GETKV2(buffer12[10][i]).value, NAp);
+		keyvalue11_vault13.key = mergefunc(keyvalue11_vault12.key, GETKV2(buffer12[11][i]).key, NAp);
+		keyvalue11_vault13.value = mergefunc(keyvalue11_vault12.value, GETKV2(buffer12[11][i]).value, NAp);
+		keyvalue12_vault13.key = mergefunc(keyvalue12_vault12.key, GETKV2(buffer12[12][i]).key, NAp);
+		keyvalue12_vault13.value = mergefunc(keyvalue12_vault12.value, GETKV2(buffer12[12][i]).value, NAp);
+		keyvalue13_vault13.key = mergefunc(keyvalue13_vault12.key, GETKV2(buffer12[13][i]).key, NAp);
+		keyvalue13_vault13.value = mergefunc(keyvalue13_vault12.value, GETKV2(buffer12[13][i]).value, NAp);
+		keyvalue14_vault13.key = mergefunc(keyvalue14_vault12.key, GETKV2(buffer12[14][i]).key, NAp);
+		keyvalue14_vault13.value = mergefunc(keyvalue14_vault12.value, GETKV2(buffer12[14][i]).value, NAp);
+		keyvalue15_vault13.key = mergefunc(keyvalue15_vault12.key, GETKV2(buffer12[15][i]).key, NAp);
+		keyvalue15_vault13.value = mergefunc(keyvalue15_vault12.value, GETKV2(buffer12[15][i]).value, NAp);
 	
-		keyvalue0_vault14.key = mergefunc(keyvalue0_vault13.key, buffer13[0][i].key, NAp);
-		keyvalue0_vault14.value = mergefunc(keyvalue0_vault13.value, buffer13[0][i].value, NAp);
-		keyvalue1_vault14.key = mergefunc(keyvalue1_vault13.key, buffer13[1][i].key, NAp);
-		keyvalue1_vault14.value = mergefunc(keyvalue1_vault13.value, buffer13[1][i].value, NAp);
-		keyvalue2_vault14.key = mergefunc(keyvalue2_vault13.key, buffer13[2][i].key, NAp);
-		keyvalue2_vault14.value = mergefunc(keyvalue2_vault13.value, buffer13[2][i].value, NAp);
-		keyvalue3_vault14.key = mergefunc(keyvalue3_vault13.key, buffer13[3][i].key, NAp);
-		keyvalue3_vault14.value = mergefunc(keyvalue3_vault13.value, buffer13[3][i].value, NAp);
-		keyvalue4_vault14.key = mergefunc(keyvalue4_vault13.key, buffer13[4][i].key, NAp);
-		keyvalue4_vault14.value = mergefunc(keyvalue4_vault13.value, buffer13[4][i].value, NAp);
-		keyvalue5_vault14.key = mergefunc(keyvalue5_vault13.key, buffer13[5][i].key, NAp);
-		keyvalue5_vault14.value = mergefunc(keyvalue5_vault13.value, buffer13[5][i].value, NAp);
-		keyvalue6_vault14.key = mergefunc(keyvalue6_vault13.key, buffer13[6][i].key, NAp);
-		keyvalue6_vault14.value = mergefunc(keyvalue6_vault13.value, buffer13[6][i].value, NAp);
-		keyvalue7_vault14.key = mergefunc(keyvalue7_vault13.key, buffer13[7][i].key, NAp);
-		keyvalue7_vault14.value = mergefunc(keyvalue7_vault13.value, buffer13[7][i].value, NAp);
-		keyvalue8_vault14.key = mergefunc(keyvalue8_vault13.key, buffer13[8][i].key, NAp);
-		keyvalue8_vault14.value = mergefunc(keyvalue8_vault13.value, buffer13[8][i].value, NAp);
-		keyvalue9_vault14.key = mergefunc(keyvalue9_vault13.key, buffer13[9][i].key, NAp);
-		keyvalue9_vault14.value = mergefunc(keyvalue9_vault13.value, buffer13[9][i].value, NAp);
-		keyvalue10_vault14.key = mergefunc(keyvalue10_vault13.key, buffer13[10][i].key, NAp);
-		keyvalue10_vault14.value = mergefunc(keyvalue10_vault13.value, buffer13[10][i].value, NAp);
-		keyvalue11_vault14.key = mergefunc(keyvalue11_vault13.key, buffer13[11][i].key, NAp);
-		keyvalue11_vault14.value = mergefunc(keyvalue11_vault13.value, buffer13[11][i].value, NAp);
-		keyvalue12_vault14.key = mergefunc(keyvalue12_vault13.key, buffer13[12][i].key, NAp);
-		keyvalue12_vault14.value = mergefunc(keyvalue12_vault13.value, buffer13[12][i].value, NAp);
-		keyvalue13_vault14.key = mergefunc(keyvalue13_vault13.key, buffer13[13][i].key, NAp);
-		keyvalue13_vault14.value = mergefunc(keyvalue13_vault13.value, buffer13[13][i].value, NAp);
-		keyvalue14_vault14.key = mergefunc(keyvalue14_vault13.key, buffer13[14][i].key, NAp);
-		keyvalue14_vault14.value = mergefunc(keyvalue14_vault13.value, buffer13[14][i].value, NAp);
-		keyvalue15_vault14.key = mergefunc(keyvalue15_vault13.key, buffer13[15][i].key, NAp);
-		keyvalue15_vault14.value = mergefunc(keyvalue15_vault13.value, buffer13[15][i].value, NAp);
+		keyvalue0_vault14.key = mergefunc(keyvalue0_vault13.key, GETKV2(buffer13[0][i]).key, NAp);
+		keyvalue0_vault14.value = mergefunc(keyvalue0_vault13.value, GETKV2(buffer13[0][i]).value, NAp);
+		keyvalue1_vault14.key = mergefunc(keyvalue1_vault13.key, GETKV2(buffer13[1][i]).key, NAp);
+		keyvalue1_vault14.value = mergefunc(keyvalue1_vault13.value, GETKV2(buffer13[1][i]).value, NAp);
+		keyvalue2_vault14.key = mergefunc(keyvalue2_vault13.key, GETKV2(buffer13[2][i]).key, NAp);
+		keyvalue2_vault14.value = mergefunc(keyvalue2_vault13.value, GETKV2(buffer13[2][i]).value, NAp);
+		keyvalue3_vault14.key = mergefunc(keyvalue3_vault13.key, GETKV2(buffer13[3][i]).key, NAp);
+		keyvalue3_vault14.value = mergefunc(keyvalue3_vault13.value, GETKV2(buffer13[3][i]).value, NAp);
+		keyvalue4_vault14.key = mergefunc(keyvalue4_vault13.key, GETKV2(buffer13[4][i]).key, NAp);
+		keyvalue4_vault14.value = mergefunc(keyvalue4_vault13.value, GETKV2(buffer13[4][i]).value, NAp);
+		keyvalue5_vault14.key = mergefunc(keyvalue5_vault13.key, GETKV2(buffer13[5][i]).key, NAp);
+		keyvalue5_vault14.value = mergefunc(keyvalue5_vault13.value, GETKV2(buffer13[5][i]).value, NAp);
+		keyvalue6_vault14.key = mergefunc(keyvalue6_vault13.key, GETKV2(buffer13[6][i]).key, NAp);
+		keyvalue6_vault14.value = mergefunc(keyvalue6_vault13.value, GETKV2(buffer13[6][i]).value, NAp);
+		keyvalue7_vault14.key = mergefunc(keyvalue7_vault13.key, GETKV2(buffer13[7][i]).key, NAp);
+		keyvalue7_vault14.value = mergefunc(keyvalue7_vault13.value, GETKV2(buffer13[7][i]).value, NAp);
+		keyvalue8_vault14.key = mergefunc(keyvalue8_vault13.key, GETKV2(buffer13[8][i]).key, NAp);
+		keyvalue8_vault14.value = mergefunc(keyvalue8_vault13.value, GETKV2(buffer13[8][i]).value, NAp);
+		keyvalue9_vault14.key = mergefunc(keyvalue9_vault13.key, GETKV2(buffer13[9][i]).key, NAp);
+		keyvalue9_vault14.value = mergefunc(keyvalue9_vault13.value, GETKV2(buffer13[9][i]).value, NAp);
+		keyvalue10_vault14.key = mergefunc(keyvalue10_vault13.key, GETKV2(buffer13[10][i]).key, NAp);
+		keyvalue10_vault14.value = mergefunc(keyvalue10_vault13.value, GETKV2(buffer13[10][i]).value, NAp);
+		keyvalue11_vault14.key = mergefunc(keyvalue11_vault13.key, GETKV2(buffer13[11][i]).key, NAp);
+		keyvalue11_vault14.value = mergefunc(keyvalue11_vault13.value, GETKV2(buffer13[11][i]).value, NAp);
+		keyvalue12_vault14.key = mergefunc(keyvalue12_vault13.key, GETKV2(buffer13[12][i]).key, NAp);
+		keyvalue12_vault14.value = mergefunc(keyvalue12_vault13.value, GETKV2(buffer13[12][i]).value, NAp);
+		keyvalue13_vault14.key = mergefunc(keyvalue13_vault13.key, GETKV2(buffer13[13][i]).key, NAp);
+		keyvalue13_vault14.value = mergefunc(keyvalue13_vault13.value, GETKV2(buffer13[13][i]).value, NAp);
+		keyvalue14_vault14.key = mergefunc(keyvalue14_vault13.key, GETKV2(buffer13[14][i]).key, NAp);
+		keyvalue14_vault14.value = mergefunc(keyvalue14_vault13.value, GETKV2(buffer13[14][i]).value, NAp);
+		keyvalue15_vault14.key = mergefunc(keyvalue15_vault13.key, GETKV2(buffer13[15][i]).key, NAp);
+		keyvalue15_vault14.value = mergefunc(keyvalue15_vault13.value, GETKV2(buffer13[15][i]).value, NAp);
 	
-		keyvalue0_vault15.key = mergefunc(keyvalue0_vault14.key, buffer14[0][i].key, NAp);
-		keyvalue0_vault15.value = mergefunc(keyvalue0_vault14.value, buffer14[0][i].value, NAp);
-		keyvalue1_vault15.key = mergefunc(keyvalue1_vault14.key, buffer14[1][i].key, NAp);
-		keyvalue1_vault15.value = mergefunc(keyvalue1_vault14.value, buffer14[1][i].value, NAp);
-		keyvalue2_vault15.key = mergefunc(keyvalue2_vault14.key, buffer14[2][i].key, NAp);
-		keyvalue2_vault15.value = mergefunc(keyvalue2_vault14.value, buffer14[2][i].value, NAp);
-		keyvalue3_vault15.key = mergefunc(keyvalue3_vault14.key, buffer14[3][i].key, NAp);
-		keyvalue3_vault15.value = mergefunc(keyvalue3_vault14.value, buffer14[3][i].value, NAp);
-		keyvalue4_vault15.key = mergefunc(keyvalue4_vault14.key, buffer14[4][i].key, NAp);
-		keyvalue4_vault15.value = mergefunc(keyvalue4_vault14.value, buffer14[4][i].value, NAp);
-		keyvalue5_vault15.key = mergefunc(keyvalue5_vault14.key, buffer14[5][i].key, NAp);
-		keyvalue5_vault15.value = mergefunc(keyvalue5_vault14.value, buffer14[5][i].value, NAp);
-		keyvalue6_vault15.key = mergefunc(keyvalue6_vault14.key, buffer14[6][i].key, NAp);
-		keyvalue6_vault15.value = mergefunc(keyvalue6_vault14.value, buffer14[6][i].value, NAp);
-		keyvalue7_vault15.key = mergefunc(keyvalue7_vault14.key, buffer14[7][i].key, NAp);
-		keyvalue7_vault15.value = mergefunc(keyvalue7_vault14.value, buffer14[7][i].value, NAp);
-		keyvalue8_vault15.key = mergefunc(keyvalue8_vault14.key, buffer14[8][i].key, NAp);
-		keyvalue8_vault15.value = mergefunc(keyvalue8_vault14.value, buffer14[8][i].value, NAp);
-		keyvalue9_vault15.key = mergefunc(keyvalue9_vault14.key, buffer14[9][i].key, NAp);
-		keyvalue9_vault15.value = mergefunc(keyvalue9_vault14.value, buffer14[9][i].value, NAp);
-		keyvalue10_vault15.key = mergefunc(keyvalue10_vault14.key, buffer14[10][i].key, NAp);
-		keyvalue10_vault15.value = mergefunc(keyvalue10_vault14.value, buffer14[10][i].value, NAp);
-		keyvalue11_vault15.key = mergefunc(keyvalue11_vault14.key, buffer14[11][i].key, NAp);
-		keyvalue11_vault15.value = mergefunc(keyvalue11_vault14.value, buffer14[11][i].value, NAp);
-		keyvalue12_vault15.key = mergefunc(keyvalue12_vault14.key, buffer14[12][i].key, NAp);
-		keyvalue12_vault15.value = mergefunc(keyvalue12_vault14.value, buffer14[12][i].value, NAp);
-		keyvalue13_vault15.key = mergefunc(keyvalue13_vault14.key, buffer14[13][i].key, NAp);
-		keyvalue13_vault15.value = mergefunc(keyvalue13_vault14.value, buffer14[13][i].value, NAp);
-		keyvalue14_vault15.key = mergefunc(keyvalue14_vault14.key, buffer14[14][i].key, NAp);
-		keyvalue14_vault15.value = mergefunc(keyvalue14_vault14.value, buffer14[14][i].value, NAp);
-		keyvalue15_vault15.key = mergefunc(keyvalue15_vault14.key, buffer14[15][i].key, NAp);
-		keyvalue15_vault15.value = mergefunc(keyvalue15_vault14.value, buffer14[15][i].value, NAp);
+		keyvalue0_vault15.key = mergefunc(keyvalue0_vault14.key, GETKV2(buffer14[0][i]).key, NAp);
+		keyvalue0_vault15.value = mergefunc(keyvalue0_vault14.value, GETKV2(buffer14[0][i]).value, NAp);
+		keyvalue1_vault15.key = mergefunc(keyvalue1_vault14.key, GETKV2(buffer14[1][i]).key, NAp);
+		keyvalue1_vault15.value = mergefunc(keyvalue1_vault14.value, GETKV2(buffer14[1][i]).value, NAp);
+		keyvalue2_vault15.key = mergefunc(keyvalue2_vault14.key, GETKV2(buffer14[2][i]).key, NAp);
+		keyvalue2_vault15.value = mergefunc(keyvalue2_vault14.value, GETKV2(buffer14[2][i]).value, NAp);
+		keyvalue3_vault15.key = mergefunc(keyvalue3_vault14.key, GETKV2(buffer14[3][i]).key, NAp);
+		keyvalue3_vault15.value = mergefunc(keyvalue3_vault14.value, GETKV2(buffer14[3][i]).value, NAp);
+		keyvalue4_vault15.key = mergefunc(keyvalue4_vault14.key, GETKV2(buffer14[4][i]).key, NAp);
+		keyvalue4_vault15.value = mergefunc(keyvalue4_vault14.value, GETKV2(buffer14[4][i]).value, NAp);
+		keyvalue5_vault15.key = mergefunc(keyvalue5_vault14.key, GETKV2(buffer14[5][i]).key, NAp);
+		keyvalue5_vault15.value = mergefunc(keyvalue5_vault14.value, GETKV2(buffer14[5][i]).value, NAp);
+		keyvalue6_vault15.key = mergefunc(keyvalue6_vault14.key, GETKV2(buffer14[6][i]).key, NAp);
+		keyvalue6_vault15.value = mergefunc(keyvalue6_vault14.value, GETKV2(buffer14[6][i]).value, NAp);
+		keyvalue7_vault15.key = mergefunc(keyvalue7_vault14.key, GETKV2(buffer14[7][i]).key, NAp);
+		keyvalue7_vault15.value = mergefunc(keyvalue7_vault14.value, GETKV2(buffer14[7][i]).value, NAp);
+		keyvalue8_vault15.key = mergefunc(keyvalue8_vault14.key, GETKV2(buffer14[8][i]).key, NAp);
+		keyvalue8_vault15.value = mergefunc(keyvalue8_vault14.value, GETKV2(buffer14[8][i]).value, NAp);
+		keyvalue9_vault15.key = mergefunc(keyvalue9_vault14.key, GETKV2(buffer14[9][i]).key, NAp);
+		keyvalue9_vault15.value = mergefunc(keyvalue9_vault14.value, GETKV2(buffer14[9][i]).value, NAp);
+		keyvalue10_vault15.key = mergefunc(keyvalue10_vault14.key, GETKV2(buffer14[10][i]).key, NAp);
+		keyvalue10_vault15.value = mergefunc(keyvalue10_vault14.value, GETKV2(buffer14[10][i]).value, NAp);
+		keyvalue11_vault15.key = mergefunc(keyvalue11_vault14.key, GETKV2(buffer14[11][i]).key, NAp);
+		keyvalue11_vault15.value = mergefunc(keyvalue11_vault14.value, GETKV2(buffer14[11][i]).value, NAp);
+		keyvalue12_vault15.key = mergefunc(keyvalue12_vault14.key, GETKV2(buffer14[12][i]).key, NAp);
+		keyvalue12_vault15.value = mergefunc(keyvalue12_vault14.value, GETKV2(buffer14[12][i]).value, NAp);
+		keyvalue13_vault15.key = mergefunc(keyvalue13_vault14.key, GETKV2(buffer14[13][i]).key, NAp);
+		keyvalue13_vault15.value = mergefunc(keyvalue13_vault14.value, GETKV2(buffer14[13][i]).value, NAp);
+		keyvalue14_vault15.key = mergefunc(keyvalue14_vault14.key, GETKV2(buffer14[14][i]).key, NAp);
+		keyvalue14_vault15.value = mergefunc(keyvalue14_vault14.value, GETKV2(buffer14[14][i]).value, NAp);
+		keyvalue15_vault15.key = mergefunc(keyvalue15_vault14.key, GETKV2(buffer14[15][i]).key, NAp);
+		keyvalue15_vault15.value = mergefunc(keyvalue15_vault14.value, GETKV2(buffer14[15][i]).value, NAp);
 	
-		keyvalue0_vault16.key = mergefunc(keyvalue0_vault15.key, buffer15[0][i].key, NAp);
-		keyvalue0_vault16.value = mergefunc(keyvalue0_vault15.value, buffer15[0][i].value, NAp);
-		keyvalue1_vault16.key = mergefunc(keyvalue1_vault15.key, buffer15[1][i].key, NAp);
-		keyvalue1_vault16.value = mergefunc(keyvalue1_vault15.value, buffer15[1][i].value, NAp);
-		keyvalue2_vault16.key = mergefunc(keyvalue2_vault15.key, buffer15[2][i].key, NAp);
-		keyvalue2_vault16.value = mergefunc(keyvalue2_vault15.value, buffer15[2][i].value, NAp);
-		keyvalue3_vault16.key = mergefunc(keyvalue3_vault15.key, buffer15[3][i].key, NAp);
-		keyvalue3_vault16.value = mergefunc(keyvalue3_vault15.value, buffer15[3][i].value, NAp);
-		keyvalue4_vault16.key = mergefunc(keyvalue4_vault15.key, buffer15[4][i].key, NAp);
-		keyvalue4_vault16.value = mergefunc(keyvalue4_vault15.value, buffer15[4][i].value, NAp);
-		keyvalue5_vault16.key = mergefunc(keyvalue5_vault15.key, buffer15[5][i].key, NAp);
-		keyvalue5_vault16.value = mergefunc(keyvalue5_vault15.value, buffer15[5][i].value, NAp);
-		keyvalue6_vault16.key = mergefunc(keyvalue6_vault15.key, buffer15[6][i].key, NAp);
-		keyvalue6_vault16.value = mergefunc(keyvalue6_vault15.value, buffer15[6][i].value, NAp);
-		keyvalue7_vault16.key = mergefunc(keyvalue7_vault15.key, buffer15[7][i].key, NAp);
-		keyvalue7_vault16.value = mergefunc(keyvalue7_vault15.value, buffer15[7][i].value, NAp);
-		keyvalue8_vault16.key = mergefunc(keyvalue8_vault15.key, buffer15[8][i].key, NAp);
-		keyvalue8_vault16.value = mergefunc(keyvalue8_vault15.value, buffer15[8][i].value, NAp);
-		keyvalue9_vault16.key = mergefunc(keyvalue9_vault15.key, buffer15[9][i].key, NAp);
-		keyvalue9_vault16.value = mergefunc(keyvalue9_vault15.value, buffer15[9][i].value, NAp);
-		keyvalue10_vault16.key = mergefunc(keyvalue10_vault15.key, buffer15[10][i].key, NAp);
-		keyvalue10_vault16.value = mergefunc(keyvalue10_vault15.value, buffer15[10][i].value, NAp);
-		keyvalue11_vault16.key = mergefunc(keyvalue11_vault15.key, buffer15[11][i].key, NAp);
-		keyvalue11_vault16.value = mergefunc(keyvalue11_vault15.value, buffer15[11][i].value, NAp);
-		keyvalue12_vault16.key = mergefunc(keyvalue12_vault15.key, buffer15[12][i].key, NAp);
-		keyvalue12_vault16.value = mergefunc(keyvalue12_vault15.value, buffer15[12][i].value, NAp);
-		keyvalue13_vault16.key = mergefunc(keyvalue13_vault15.key, buffer15[13][i].key, NAp);
-		keyvalue13_vault16.value = mergefunc(keyvalue13_vault15.value, buffer15[13][i].value, NAp);
-		keyvalue14_vault16.key = mergefunc(keyvalue14_vault15.key, buffer15[14][i].key, NAp);
-		keyvalue14_vault16.value = mergefunc(keyvalue14_vault15.value, buffer15[14][i].value, NAp);
-		keyvalue15_vault16.key = mergefunc(keyvalue15_vault15.key, buffer15[15][i].key, NAp);
-		keyvalue15_vault16.value = mergefunc(keyvalue15_vault15.value, buffer15[15][i].value, NAp);
+		keyvalue0_vault16.key = mergefunc(keyvalue0_vault15.key, GETKV2(buffer15[0][i]).key, NAp);
+		keyvalue0_vault16.value = mergefunc(keyvalue0_vault15.value, GETKV2(buffer15[0][i]).value, NAp);
+		keyvalue1_vault16.key = mergefunc(keyvalue1_vault15.key, GETKV2(buffer15[1][i]).key, NAp);
+		keyvalue1_vault16.value = mergefunc(keyvalue1_vault15.value, GETKV2(buffer15[1][i]).value, NAp);
+		keyvalue2_vault16.key = mergefunc(keyvalue2_vault15.key, GETKV2(buffer15[2][i]).key, NAp);
+		keyvalue2_vault16.value = mergefunc(keyvalue2_vault15.value, GETKV2(buffer15[2][i]).value, NAp);
+		keyvalue3_vault16.key = mergefunc(keyvalue3_vault15.key, GETKV2(buffer15[3][i]).key, NAp);
+		keyvalue3_vault16.value = mergefunc(keyvalue3_vault15.value, GETKV2(buffer15[3][i]).value, NAp);
+		keyvalue4_vault16.key = mergefunc(keyvalue4_vault15.key, GETKV2(buffer15[4][i]).key, NAp);
+		keyvalue4_vault16.value = mergefunc(keyvalue4_vault15.value, GETKV2(buffer15[4][i]).value, NAp);
+		keyvalue5_vault16.key = mergefunc(keyvalue5_vault15.key, GETKV2(buffer15[5][i]).key, NAp);
+		keyvalue5_vault16.value = mergefunc(keyvalue5_vault15.value, GETKV2(buffer15[5][i]).value, NAp);
+		keyvalue6_vault16.key = mergefunc(keyvalue6_vault15.key, GETKV2(buffer15[6][i]).key, NAp);
+		keyvalue6_vault16.value = mergefunc(keyvalue6_vault15.value, GETKV2(buffer15[6][i]).value, NAp);
+		keyvalue7_vault16.key = mergefunc(keyvalue7_vault15.key, GETKV2(buffer15[7][i]).key, NAp);
+		keyvalue7_vault16.value = mergefunc(keyvalue7_vault15.value, GETKV2(buffer15[7][i]).value, NAp);
+		keyvalue8_vault16.key = mergefunc(keyvalue8_vault15.key, GETKV2(buffer15[8][i]).key, NAp);
+		keyvalue8_vault16.value = mergefunc(keyvalue8_vault15.value, GETKV2(buffer15[8][i]).value, NAp);
+		keyvalue9_vault16.key = mergefunc(keyvalue9_vault15.key, GETKV2(buffer15[9][i]).key, NAp);
+		keyvalue9_vault16.value = mergefunc(keyvalue9_vault15.value, GETKV2(buffer15[9][i]).value, NAp);
+		keyvalue10_vault16.key = mergefunc(keyvalue10_vault15.key, GETKV2(buffer15[10][i]).key, NAp);
+		keyvalue10_vault16.value = mergefunc(keyvalue10_vault15.value, GETKV2(buffer15[10][i]).value, NAp);
+		keyvalue11_vault16.key = mergefunc(keyvalue11_vault15.key, GETKV2(buffer15[11][i]).key, NAp);
+		keyvalue11_vault16.value = mergefunc(keyvalue11_vault15.value, GETKV2(buffer15[11][i]).value, NAp);
+		keyvalue12_vault16.key = mergefunc(keyvalue12_vault15.key, GETKV2(buffer15[12][i]).key, NAp);
+		keyvalue12_vault16.value = mergefunc(keyvalue12_vault15.value, GETKV2(buffer15[12][i]).value, NAp);
+		keyvalue13_vault16.key = mergefunc(keyvalue13_vault15.key, GETKV2(buffer15[13][i]).key, NAp);
+		keyvalue13_vault16.value = mergefunc(keyvalue13_vault15.value, GETKV2(buffer15[13][i]).value, NAp);
+		keyvalue14_vault16.key = mergefunc(keyvalue14_vault15.key, GETKV2(buffer15[14][i]).key, NAp);
+		keyvalue14_vault16.value = mergefunc(keyvalue14_vault15.value, GETKV2(buffer15[14][i]).value, NAp);
+		keyvalue15_vault16.key = mergefunc(keyvalue15_vault15.key, GETKV2(buffer15[15][i]).key, NAp);
+		keyvalue15_vault16.value = mergefunc(keyvalue15_vault15.value, GETKV2(buffer15[15][i]).value, NAp);
 	
-		keyvalue0_vault17.key = mergefunc(keyvalue0_vault16.key, buffer16[0][i].key, NAp);
-		keyvalue0_vault17.value = mergefunc(keyvalue0_vault16.value, buffer16[0][i].value, NAp);
-		keyvalue1_vault17.key = mergefunc(keyvalue1_vault16.key, buffer16[1][i].key, NAp);
-		keyvalue1_vault17.value = mergefunc(keyvalue1_vault16.value, buffer16[1][i].value, NAp);
-		keyvalue2_vault17.key = mergefunc(keyvalue2_vault16.key, buffer16[2][i].key, NAp);
-		keyvalue2_vault17.value = mergefunc(keyvalue2_vault16.value, buffer16[2][i].value, NAp);
-		keyvalue3_vault17.key = mergefunc(keyvalue3_vault16.key, buffer16[3][i].key, NAp);
-		keyvalue3_vault17.value = mergefunc(keyvalue3_vault16.value, buffer16[3][i].value, NAp);
-		keyvalue4_vault17.key = mergefunc(keyvalue4_vault16.key, buffer16[4][i].key, NAp);
-		keyvalue4_vault17.value = mergefunc(keyvalue4_vault16.value, buffer16[4][i].value, NAp);
-		keyvalue5_vault17.key = mergefunc(keyvalue5_vault16.key, buffer16[5][i].key, NAp);
-		keyvalue5_vault17.value = mergefunc(keyvalue5_vault16.value, buffer16[5][i].value, NAp);
-		keyvalue6_vault17.key = mergefunc(keyvalue6_vault16.key, buffer16[6][i].key, NAp);
-		keyvalue6_vault17.value = mergefunc(keyvalue6_vault16.value, buffer16[6][i].value, NAp);
-		keyvalue7_vault17.key = mergefunc(keyvalue7_vault16.key, buffer16[7][i].key, NAp);
-		keyvalue7_vault17.value = mergefunc(keyvalue7_vault16.value, buffer16[7][i].value, NAp);
-		keyvalue8_vault17.key = mergefunc(keyvalue8_vault16.key, buffer16[8][i].key, NAp);
-		keyvalue8_vault17.value = mergefunc(keyvalue8_vault16.value, buffer16[8][i].value, NAp);
-		keyvalue9_vault17.key = mergefunc(keyvalue9_vault16.key, buffer16[9][i].key, NAp);
-		keyvalue9_vault17.value = mergefunc(keyvalue9_vault16.value, buffer16[9][i].value, NAp);
-		keyvalue10_vault17.key = mergefunc(keyvalue10_vault16.key, buffer16[10][i].key, NAp);
-		keyvalue10_vault17.value = mergefunc(keyvalue10_vault16.value, buffer16[10][i].value, NAp);
-		keyvalue11_vault17.key = mergefunc(keyvalue11_vault16.key, buffer16[11][i].key, NAp);
-		keyvalue11_vault17.value = mergefunc(keyvalue11_vault16.value, buffer16[11][i].value, NAp);
-		keyvalue12_vault17.key = mergefunc(keyvalue12_vault16.key, buffer16[12][i].key, NAp);
-		keyvalue12_vault17.value = mergefunc(keyvalue12_vault16.value, buffer16[12][i].value, NAp);
-		keyvalue13_vault17.key = mergefunc(keyvalue13_vault16.key, buffer16[13][i].key, NAp);
-		keyvalue13_vault17.value = mergefunc(keyvalue13_vault16.value, buffer16[13][i].value, NAp);
-		keyvalue14_vault17.key = mergefunc(keyvalue14_vault16.key, buffer16[14][i].key, NAp);
-		keyvalue14_vault17.value = mergefunc(keyvalue14_vault16.value, buffer16[14][i].value, NAp);
-		keyvalue15_vault17.key = mergefunc(keyvalue15_vault16.key, buffer16[15][i].key, NAp);
-		keyvalue15_vault17.value = mergefunc(keyvalue15_vault16.value, buffer16[15][i].value, NAp);
+		keyvalue0_vault17.key = mergefunc(keyvalue0_vault16.key, GETKV2(buffer16[0][i]).key, NAp);
+		keyvalue0_vault17.value = mergefunc(keyvalue0_vault16.value, GETKV2(buffer16[0][i]).value, NAp);
+		keyvalue1_vault17.key = mergefunc(keyvalue1_vault16.key, GETKV2(buffer16[1][i]).key, NAp);
+		keyvalue1_vault17.value = mergefunc(keyvalue1_vault16.value, GETKV2(buffer16[1][i]).value, NAp);
+		keyvalue2_vault17.key = mergefunc(keyvalue2_vault16.key, GETKV2(buffer16[2][i]).key, NAp);
+		keyvalue2_vault17.value = mergefunc(keyvalue2_vault16.value, GETKV2(buffer16[2][i]).value, NAp);
+		keyvalue3_vault17.key = mergefunc(keyvalue3_vault16.key, GETKV2(buffer16[3][i]).key, NAp);
+		keyvalue3_vault17.value = mergefunc(keyvalue3_vault16.value, GETKV2(buffer16[3][i]).value, NAp);
+		keyvalue4_vault17.key = mergefunc(keyvalue4_vault16.key, GETKV2(buffer16[4][i]).key, NAp);
+		keyvalue4_vault17.value = mergefunc(keyvalue4_vault16.value, GETKV2(buffer16[4][i]).value, NAp);
+		keyvalue5_vault17.key = mergefunc(keyvalue5_vault16.key, GETKV2(buffer16[5][i]).key, NAp);
+		keyvalue5_vault17.value = mergefunc(keyvalue5_vault16.value, GETKV2(buffer16[5][i]).value, NAp);
+		keyvalue6_vault17.key = mergefunc(keyvalue6_vault16.key, GETKV2(buffer16[6][i]).key, NAp);
+		keyvalue6_vault17.value = mergefunc(keyvalue6_vault16.value, GETKV2(buffer16[6][i]).value, NAp);
+		keyvalue7_vault17.key = mergefunc(keyvalue7_vault16.key, GETKV2(buffer16[7][i]).key, NAp);
+		keyvalue7_vault17.value = mergefunc(keyvalue7_vault16.value, GETKV2(buffer16[7][i]).value, NAp);
+		keyvalue8_vault17.key = mergefunc(keyvalue8_vault16.key, GETKV2(buffer16[8][i]).key, NAp);
+		keyvalue8_vault17.value = mergefunc(keyvalue8_vault16.value, GETKV2(buffer16[8][i]).value, NAp);
+		keyvalue9_vault17.key = mergefunc(keyvalue9_vault16.key, GETKV2(buffer16[9][i]).key, NAp);
+		keyvalue9_vault17.value = mergefunc(keyvalue9_vault16.value, GETKV2(buffer16[9][i]).value, NAp);
+		keyvalue10_vault17.key = mergefunc(keyvalue10_vault16.key, GETKV2(buffer16[10][i]).key, NAp);
+		keyvalue10_vault17.value = mergefunc(keyvalue10_vault16.value, GETKV2(buffer16[10][i]).value, NAp);
+		keyvalue11_vault17.key = mergefunc(keyvalue11_vault16.key, GETKV2(buffer16[11][i]).key, NAp);
+		keyvalue11_vault17.value = mergefunc(keyvalue11_vault16.value, GETKV2(buffer16[11][i]).value, NAp);
+		keyvalue12_vault17.key = mergefunc(keyvalue12_vault16.key, GETKV2(buffer16[12][i]).key, NAp);
+		keyvalue12_vault17.value = mergefunc(keyvalue12_vault16.value, GETKV2(buffer16[12][i]).value, NAp);
+		keyvalue13_vault17.key = mergefunc(keyvalue13_vault16.key, GETKV2(buffer16[13][i]).key, NAp);
+		keyvalue13_vault17.value = mergefunc(keyvalue13_vault16.value, GETKV2(buffer16[13][i]).value, NAp);
+		keyvalue14_vault17.key = mergefunc(keyvalue14_vault16.key, GETKV2(buffer16[14][i]).key, NAp);
+		keyvalue14_vault17.value = mergefunc(keyvalue14_vault16.value, GETKV2(buffer16[14][i]).value, NAp);
+		keyvalue15_vault17.key = mergefunc(keyvalue15_vault16.key, GETKV2(buffer16[15][i]).key, NAp);
+		keyvalue15_vault17.value = mergefunc(keyvalue15_vault16.value, GETKV2(buffer16[15][i]).value, NAp);
 	
 		
-		tail[0][i] = keyvalue0_vault17;
-		tail[1][i] = keyvalue1_vault17;
-		tail[2][i] = keyvalue2_vault17;
-		tail[3][i] = keyvalue3_vault17;
-		tail[4][i] = keyvalue4_vault17;
-		tail[5][i] = keyvalue5_vault17;
-		tail[6][i] = keyvalue6_vault17;
-		tail[7][i] = keyvalue7_vault17;
-		tail[8][i] = keyvalue8_vault17;
-		tail[9][i] = keyvalue9_vault17;
-		tail[10][i] = keyvalue10_vault17;
-		tail[11][i] = keyvalue11_vault17;
-		tail[12][i] = keyvalue12_vault17;
-		tail[13][i] = keyvalue13_vault17;
-		tail[14][i] = keyvalue14_vault17;
-		tail[15][i] = keyvalue15_vault17;
+		tail[0][i] = GETKV2(keyvalue0_vault17);
+		tail[1][i] = GETKV2(keyvalue1_vault17);
+		tail[2][i] = GETKV2(keyvalue2_vault17);
+		tail[3][i] = GETKV2(keyvalue3_vault17);
+		tail[4][i] = GETKV2(keyvalue4_vault17);
+		tail[5][i] = GETKV2(keyvalue5_vault17);
+		tail[6][i] = GETKV2(keyvalue6_vault17);
+		tail[7][i] = GETKV2(keyvalue7_vault17);
+		tail[8][i] = GETKV2(keyvalue8_vault17);
+		tail[9][i] = GETKV2(keyvalue9_vault17);
+		tail[10][i] = GETKV2(keyvalue10_vault17);
+		tail[11][i] = GETKV2(keyvalue11_vault17);
+		tail[12][i] = GETKV2(keyvalue12_vault17);
+		tail[13][i] = GETKV2(keyvalue13_vault17);
+		tail[14][i] = GETKV2(keyvalue14_vault17);
+		tail[15][i] = GETKV2(keyvalue15_vault17);
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(tail[0][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(tail[0][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[1][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(tail[1][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[2][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(tail[2][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[3][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(tail[3][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[4][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(tail[4][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[5][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(tail[5][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[6][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(tail[6][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[7][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(tail[7][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[8][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i)<<endl; } 
-		if(tail[8][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[9][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i)<<endl; } 
-		if(tail[9][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[10][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i)<<endl; } 
-		if(tail[10][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[11][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i)<<endl; } 
-		if(tail[11][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[12][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i)<<endl; } 
-		if(tail[12][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[13][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i)<<endl; } 
-		if(tail[13][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[14][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i)<<endl; } 
-		if(tail[14][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[15][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i)<<endl; } 
-		if(tail[15][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[0][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[1][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[1][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[2][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[2][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[3][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[3][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[4][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[4][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[5][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[5][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[6][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[6][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[7][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[7][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[8][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[8][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[9][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[9][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[10][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[10][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[11][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[11][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[12][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[12][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[13][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[13][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[14][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[14][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[15][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[15][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i + 1)<<endl; } 
 	
 		#endif 
 	}
@@ -3979,7 +4161,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-synchronize2(bool_type enable, vertexdata_wtype buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronize: synchronize function called."<<endl;
@@ -3988,479 +4170,479 @@ synchronize2(bool_type enable, vertexdata_wtype buffer0[VECTOR_SIZE][BLOCKRAM_SI
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	vertexdata_wtype keyvalue0_vault0;
-	vertexdata_wtype keyvalue1_vault0;
-	vertexdata_wtype keyvalue2_vault0;
-	vertexdata_wtype keyvalue3_vault0;
-	vertexdata_wtype keyvalue4_vault0;
-	vertexdata_wtype keyvalue5_vault0;
-	vertexdata_wtype keyvalue6_vault0;
-	vertexdata_wtype keyvalue7_vault0;
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
 	
-	vertexdata_wtype keyvalue0_vault1;
-	vertexdata_wtype keyvalue1_vault1;
-	vertexdata_wtype keyvalue2_vault1;
-	vertexdata_wtype keyvalue3_vault1;
-	vertexdata_wtype keyvalue4_vault1;
-	vertexdata_wtype keyvalue5_vault1;
-	vertexdata_wtype keyvalue6_vault1;
-	vertexdata_wtype keyvalue7_vault1;
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
 	
-	vertexdata_wtype keyvalue0_vault2;
-	vertexdata_wtype keyvalue1_vault2;
-	vertexdata_wtype keyvalue2_vault2;
-	vertexdata_wtype keyvalue3_vault2;
-	vertexdata_wtype keyvalue4_vault2;
-	vertexdata_wtype keyvalue5_vault2;
-	vertexdata_wtype keyvalue6_vault2;
-	vertexdata_wtype keyvalue7_vault2;
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
 	
-	vertexdata_wtype keyvalue0_vault3;
-	vertexdata_wtype keyvalue1_vault3;
-	vertexdata_wtype keyvalue2_vault3;
-	vertexdata_wtype keyvalue3_vault3;
-	vertexdata_wtype keyvalue4_vault3;
-	vertexdata_wtype keyvalue5_vault3;
-	vertexdata_wtype keyvalue6_vault3;
-	vertexdata_wtype keyvalue7_vault3;
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
 	
-	vertexdata_wtype keyvalue0_vault4;
-	vertexdata_wtype keyvalue1_vault4;
-	vertexdata_wtype keyvalue2_vault4;
-	vertexdata_wtype keyvalue3_vault4;
-	vertexdata_wtype keyvalue4_vault4;
-	vertexdata_wtype keyvalue5_vault4;
-	vertexdata_wtype keyvalue6_vault4;
-	vertexdata_wtype keyvalue7_vault4;
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
 	
-	vertexdata_wtype keyvalue0_vault5;
-	vertexdata_wtype keyvalue1_vault5;
-	vertexdata_wtype keyvalue2_vault5;
-	vertexdata_wtype keyvalue3_vault5;
-	vertexdata_wtype keyvalue4_vault5;
-	vertexdata_wtype keyvalue5_vault5;
-	vertexdata_wtype keyvalue6_vault5;
-	vertexdata_wtype keyvalue7_vault5;
+	keyvalue_t keyvalue0_vault5;
+	keyvalue_t keyvalue1_vault5;
+	keyvalue_t keyvalue2_vault5;
+	keyvalue_t keyvalue3_vault5;
+	keyvalue_t keyvalue4_vault5;
+	keyvalue_t keyvalue5_vault5;
+	keyvalue_t keyvalue6_vault5;
+	keyvalue_t keyvalue7_vault5;
 	
-	vertexdata_wtype keyvalue0_vault6;
-	vertexdata_wtype keyvalue1_vault6;
-	vertexdata_wtype keyvalue2_vault6;
-	vertexdata_wtype keyvalue3_vault6;
-	vertexdata_wtype keyvalue4_vault6;
-	vertexdata_wtype keyvalue5_vault6;
-	vertexdata_wtype keyvalue6_vault6;
-	vertexdata_wtype keyvalue7_vault6;
+	keyvalue_t keyvalue0_vault6;
+	keyvalue_t keyvalue1_vault6;
+	keyvalue_t keyvalue2_vault6;
+	keyvalue_t keyvalue3_vault6;
+	keyvalue_t keyvalue4_vault6;
+	keyvalue_t keyvalue5_vault6;
+	keyvalue_t keyvalue6_vault6;
+	keyvalue_t keyvalue7_vault6;
 	
-	vertexdata_wtype keyvalue0_vault7;
-	vertexdata_wtype keyvalue1_vault7;
-	vertexdata_wtype keyvalue2_vault7;
-	vertexdata_wtype keyvalue3_vault7;
-	vertexdata_wtype keyvalue4_vault7;
-	vertexdata_wtype keyvalue5_vault7;
-	vertexdata_wtype keyvalue6_vault7;
-	vertexdata_wtype keyvalue7_vault7;
+	keyvalue_t keyvalue0_vault7;
+	keyvalue_t keyvalue1_vault7;
+	keyvalue_t keyvalue2_vault7;
+	keyvalue_t keyvalue3_vault7;
+	keyvalue_t keyvalue4_vault7;
+	keyvalue_t keyvalue5_vault7;
+	keyvalue_t keyvalue6_vault7;
+	keyvalue_t keyvalue7_vault7;
 	
-	vertexdata_wtype keyvalue0_vault8;
-	vertexdata_wtype keyvalue1_vault8;
-	vertexdata_wtype keyvalue2_vault8;
-	vertexdata_wtype keyvalue3_vault8;
-	vertexdata_wtype keyvalue4_vault8;
-	vertexdata_wtype keyvalue5_vault8;
-	vertexdata_wtype keyvalue6_vault8;
-	vertexdata_wtype keyvalue7_vault8;
+	keyvalue_t keyvalue0_vault8;
+	keyvalue_t keyvalue1_vault8;
+	keyvalue_t keyvalue2_vault8;
+	keyvalue_t keyvalue3_vault8;
+	keyvalue_t keyvalue4_vault8;
+	keyvalue_t keyvalue5_vault8;
+	keyvalue_t keyvalue6_vault8;
+	keyvalue_t keyvalue7_vault8;
 	
-	vertexdata_wtype keyvalue0_vault9;
-	vertexdata_wtype keyvalue1_vault9;
-	vertexdata_wtype keyvalue2_vault9;
-	vertexdata_wtype keyvalue3_vault9;
-	vertexdata_wtype keyvalue4_vault9;
-	vertexdata_wtype keyvalue5_vault9;
-	vertexdata_wtype keyvalue6_vault9;
-	vertexdata_wtype keyvalue7_vault9;
+	keyvalue_t keyvalue0_vault9;
+	keyvalue_t keyvalue1_vault9;
+	keyvalue_t keyvalue2_vault9;
+	keyvalue_t keyvalue3_vault9;
+	keyvalue_t keyvalue4_vault9;
+	keyvalue_t keyvalue5_vault9;
+	keyvalue_t keyvalue6_vault9;
+	keyvalue_t keyvalue7_vault9;
 	
-	vertexdata_wtype keyvalue0_vault10;
-	vertexdata_wtype keyvalue1_vault10;
-	vertexdata_wtype keyvalue2_vault10;
-	vertexdata_wtype keyvalue3_vault10;
-	vertexdata_wtype keyvalue4_vault10;
-	vertexdata_wtype keyvalue5_vault10;
-	vertexdata_wtype keyvalue6_vault10;
-	vertexdata_wtype keyvalue7_vault10;
+	keyvalue_t keyvalue0_vault10;
+	keyvalue_t keyvalue1_vault10;
+	keyvalue_t keyvalue2_vault10;
+	keyvalue_t keyvalue3_vault10;
+	keyvalue_t keyvalue4_vault10;
+	keyvalue_t keyvalue5_vault10;
+	keyvalue_t keyvalue6_vault10;
+	keyvalue_t keyvalue7_vault10;
 	
-	vertexdata_wtype keyvalue0_vault11;
-	vertexdata_wtype keyvalue1_vault11;
-	vertexdata_wtype keyvalue2_vault11;
-	vertexdata_wtype keyvalue3_vault11;
-	vertexdata_wtype keyvalue4_vault11;
-	vertexdata_wtype keyvalue5_vault11;
-	vertexdata_wtype keyvalue6_vault11;
-	vertexdata_wtype keyvalue7_vault11;
+	keyvalue_t keyvalue0_vault11;
+	keyvalue_t keyvalue1_vault11;
+	keyvalue_t keyvalue2_vault11;
+	keyvalue_t keyvalue3_vault11;
+	keyvalue_t keyvalue4_vault11;
+	keyvalue_t keyvalue5_vault11;
+	keyvalue_t keyvalue6_vault11;
+	keyvalue_t keyvalue7_vault11;
 	
-	vertexdata_wtype keyvalue0_vault12;
-	vertexdata_wtype keyvalue1_vault12;
-	vertexdata_wtype keyvalue2_vault12;
-	vertexdata_wtype keyvalue3_vault12;
-	vertexdata_wtype keyvalue4_vault12;
-	vertexdata_wtype keyvalue5_vault12;
-	vertexdata_wtype keyvalue6_vault12;
-	vertexdata_wtype keyvalue7_vault12;
+	keyvalue_t keyvalue0_vault12;
+	keyvalue_t keyvalue1_vault12;
+	keyvalue_t keyvalue2_vault12;
+	keyvalue_t keyvalue3_vault12;
+	keyvalue_t keyvalue4_vault12;
+	keyvalue_t keyvalue5_vault12;
+	keyvalue_t keyvalue6_vault12;
+	keyvalue_t keyvalue7_vault12;
 	
-	vertexdata_wtype keyvalue0_vault13;
-	vertexdata_wtype keyvalue1_vault13;
-	vertexdata_wtype keyvalue2_vault13;
-	vertexdata_wtype keyvalue3_vault13;
-	vertexdata_wtype keyvalue4_vault13;
-	vertexdata_wtype keyvalue5_vault13;
-	vertexdata_wtype keyvalue6_vault13;
-	vertexdata_wtype keyvalue7_vault13;
+	keyvalue_t keyvalue0_vault13;
+	keyvalue_t keyvalue1_vault13;
+	keyvalue_t keyvalue2_vault13;
+	keyvalue_t keyvalue3_vault13;
+	keyvalue_t keyvalue4_vault13;
+	keyvalue_t keyvalue5_vault13;
+	keyvalue_t keyvalue6_vault13;
+	keyvalue_t keyvalue7_vault13;
 	
-	vertexdata_wtype keyvalue0_vault14;
-	vertexdata_wtype keyvalue1_vault14;
-	vertexdata_wtype keyvalue2_vault14;
-	vertexdata_wtype keyvalue3_vault14;
-	vertexdata_wtype keyvalue4_vault14;
-	vertexdata_wtype keyvalue5_vault14;
-	vertexdata_wtype keyvalue6_vault14;
-	vertexdata_wtype keyvalue7_vault14;
+	keyvalue_t keyvalue0_vault14;
+	keyvalue_t keyvalue1_vault14;
+	keyvalue_t keyvalue2_vault14;
+	keyvalue_t keyvalue3_vault14;
+	keyvalue_t keyvalue4_vault14;
+	keyvalue_t keyvalue5_vault14;
+	keyvalue_t keyvalue6_vault14;
+	keyvalue_t keyvalue7_vault14;
 	
-	vertexdata_wtype keyvalue0_vault15;
-	vertexdata_wtype keyvalue1_vault15;
-	vertexdata_wtype keyvalue2_vault15;
-	vertexdata_wtype keyvalue3_vault15;
-	vertexdata_wtype keyvalue4_vault15;
-	vertexdata_wtype keyvalue5_vault15;
-	vertexdata_wtype keyvalue6_vault15;
-	vertexdata_wtype keyvalue7_vault15;
+	keyvalue_t keyvalue0_vault15;
+	keyvalue_t keyvalue1_vault15;
+	keyvalue_t keyvalue2_vault15;
+	keyvalue_t keyvalue3_vault15;
+	keyvalue_t keyvalue4_vault15;
+	keyvalue_t keyvalue5_vault15;
+	keyvalue_t keyvalue6_vault15;
+	keyvalue_t keyvalue7_vault15;
 	
-	vertexdata_wtype keyvalue0_vault16;
-	vertexdata_wtype keyvalue1_vault16;
-	vertexdata_wtype keyvalue2_vault16;
-	vertexdata_wtype keyvalue3_vault16;
-	vertexdata_wtype keyvalue4_vault16;
-	vertexdata_wtype keyvalue5_vault16;
-	vertexdata_wtype keyvalue6_vault16;
-	vertexdata_wtype keyvalue7_vault16;
+	keyvalue_t keyvalue0_vault16;
+	keyvalue_t keyvalue1_vault16;
+	keyvalue_t keyvalue2_vault16;
+	keyvalue_t keyvalue3_vault16;
+	keyvalue_t keyvalue4_vault16;
+	keyvalue_t keyvalue5_vault16;
+	keyvalue_t keyvalue6_vault16;
+	keyvalue_t keyvalue7_vault16;
 	
-	vertexdata_wtype keyvalue0_vault17;
-	vertexdata_wtype keyvalue1_vault17;
-	vertexdata_wtype keyvalue2_vault17;
-	vertexdata_wtype keyvalue3_vault17;
-	vertexdata_wtype keyvalue4_vault17;
-	vertexdata_wtype keyvalue5_vault17;
-	vertexdata_wtype keyvalue6_vault17;
-	vertexdata_wtype keyvalue7_vault17;
+	keyvalue_t keyvalue0_vault17;
+	keyvalue_t keyvalue1_vault17;
+	keyvalue_t keyvalue2_vault17;
+	keyvalue_t keyvalue3_vault17;
+	keyvalue_t keyvalue4_vault17;
+	keyvalue_t keyvalue5_vault17;
+	keyvalue_t keyvalue6_vault17;
+	keyvalue_t keyvalue7_vault17;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		keyvalue0_vault1 = buffer0[0][i]; 
-		keyvalue1_vault1 = buffer0[1][i]; 
-		keyvalue2_vault1 = buffer0[2][i]; 
-		keyvalue3_vault1 = buffer0[3][i]; 
-		keyvalue4_vault1 = buffer0[4][i]; 
-		keyvalue5_vault1 = buffer0[5][i]; 
-		keyvalue6_vault1 = buffer0[6][i]; 
-		keyvalue7_vault1 = buffer0[7][i]; 
+		keyvalue0_vault1 = GETKV2(buffer0[0][i]); 
+		keyvalue1_vault1 = GETKV2(buffer0[1][i]); 
+		keyvalue2_vault1 = GETKV2(buffer0[2][i]); 
+		keyvalue3_vault1 = GETKV2(buffer0[3][i]); 
+		keyvalue4_vault1 = GETKV2(buffer0[4][i]); 
+		keyvalue5_vault1 = GETKV2(buffer0[5][i]); 
+		keyvalue6_vault1 = GETKV2(buffer0[6][i]); 
+		keyvalue7_vault1 = GETKV2(buffer0[7][i]); 
 			
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, buffer1[0][i].key, NAp);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, buffer1[0][i].value, NAp);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, buffer1[1][i].key, NAp);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, buffer1[1][i].value, NAp);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, buffer1[2][i].key, NAp);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, buffer1[2][i].value, NAp);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, buffer1[3][i].key, NAp);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, buffer1[3][i].value, NAp);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, buffer1[4][i].key, NAp);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, buffer1[4][i].value, NAp);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, buffer1[5][i].key, NAp);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, buffer1[5][i].value, NAp);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, buffer1[6][i].key, NAp);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, buffer1[6][i].value, NAp);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, buffer1[7][i].key, NAp);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, buffer1[7][i].value, NAp);
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, GETKV2(buffer1[0][i]).key, NAp);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, GETKV2(buffer1[0][i]).value, NAp);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, GETKV2(buffer1[1][i]).key, NAp);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, GETKV2(buffer1[1][i]).value, NAp);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, GETKV2(buffer1[2][i]).key, NAp);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, GETKV2(buffer1[2][i]).value, NAp);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, GETKV2(buffer1[3][i]).key, NAp);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, GETKV2(buffer1[3][i]).value, NAp);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, GETKV2(buffer1[4][i]).key, NAp);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, GETKV2(buffer1[4][i]).value, NAp);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, GETKV2(buffer1[5][i]).key, NAp);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, GETKV2(buffer1[5][i]).value, NAp);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, GETKV2(buffer1[6][i]).key, NAp);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, GETKV2(buffer1[6][i]).value, NAp);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, GETKV2(buffer1[7][i]).key, NAp);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, GETKV2(buffer1[7][i]).value, NAp);
 	
-		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, buffer2[0][i].key, NAp);
-		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, buffer2[0][i].value, NAp);
-		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, buffer2[1][i].key, NAp);
-		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, buffer2[1][i].value, NAp);
-		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, buffer2[2][i].key, NAp);
-		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, buffer2[2][i].value, NAp);
-		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, buffer2[3][i].key, NAp);
-		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, buffer2[3][i].value, NAp);
-		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, buffer2[4][i].key, NAp);
-		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, buffer2[4][i].value, NAp);
-		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, buffer2[5][i].key, NAp);
-		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, buffer2[5][i].value, NAp);
-		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, buffer2[6][i].key, NAp);
-		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, buffer2[6][i].value, NAp);
-		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, buffer2[7][i].key, NAp);
-		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, buffer2[7][i].value, NAp);
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, GETKV2(buffer2[0][i]).key, NAp);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, GETKV2(buffer2[0][i]).value, NAp);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, GETKV2(buffer2[1][i]).key, NAp);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, GETKV2(buffer2[1][i]).value, NAp);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, GETKV2(buffer2[2][i]).key, NAp);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, GETKV2(buffer2[2][i]).value, NAp);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, GETKV2(buffer2[3][i]).key, NAp);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, GETKV2(buffer2[3][i]).value, NAp);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, GETKV2(buffer2[4][i]).key, NAp);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, GETKV2(buffer2[4][i]).value, NAp);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, GETKV2(buffer2[5][i]).key, NAp);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, GETKV2(buffer2[5][i]).value, NAp);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, GETKV2(buffer2[6][i]).key, NAp);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, GETKV2(buffer2[6][i]).value, NAp);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, GETKV2(buffer2[7][i]).key, NAp);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, GETKV2(buffer2[7][i]).value, NAp);
 	
-		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, buffer3[0][i].key, NAp);
-		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, buffer3[0][i].value, NAp);
-		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, buffer3[1][i].key, NAp);
-		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, buffer3[1][i].value, NAp);
-		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, buffer3[2][i].key, NAp);
-		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, buffer3[2][i].value, NAp);
-		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, buffer3[3][i].key, NAp);
-		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, buffer3[3][i].value, NAp);
-		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, buffer3[4][i].key, NAp);
-		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, buffer3[4][i].value, NAp);
-		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, buffer3[5][i].key, NAp);
-		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, buffer3[5][i].value, NAp);
-		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, buffer3[6][i].key, NAp);
-		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, buffer3[6][i].value, NAp);
-		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, buffer3[7][i].key, NAp);
-		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, buffer3[7][i].value, NAp);
+		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, GETKV2(buffer3[0][i]).key, NAp);
+		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, GETKV2(buffer3[0][i]).value, NAp);
+		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, GETKV2(buffer3[1][i]).key, NAp);
+		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, GETKV2(buffer3[1][i]).value, NAp);
+		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, GETKV2(buffer3[2][i]).key, NAp);
+		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, GETKV2(buffer3[2][i]).value, NAp);
+		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, GETKV2(buffer3[3][i]).key, NAp);
+		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, GETKV2(buffer3[3][i]).value, NAp);
+		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, GETKV2(buffer3[4][i]).key, NAp);
+		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, GETKV2(buffer3[4][i]).value, NAp);
+		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, GETKV2(buffer3[5][i]).key, NAp);
+		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, GETKV2(buffer3[5][i]).value, NAp);
+		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, GETKV2(buffer3[6][i]).key, NAp);
+		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, GETKV2(buffer3[6][i]).value, NAp);
+		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, GETKV2(buffer3[7][i]).key, NAp);
+		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, GETKV2(buffer3[7][i]).value, NAp);
 	
-		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, buffer4[0][i].key, NAp);
-		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, buffer4[0][i].value, NAp);
-		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, buffer4[1][i].key, NAp);
-		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, buffer4[1][i].value, NAp);
-		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, buffer4[2][i].key, NAp);
-		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, buffer4[2][i].value, NAp);
-		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, buffer4[3][i].key, NAp);
-		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, buffer4[3][i].value, NAp);
-		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, buffer4[4][i].key, NAp);
-		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, buffer4[4][i].value, NAp);
-		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, buffer4[5][i].key, NAp);
-		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, buffer4[5][i].value, NAp);
-		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, buffer4[6][i].key, NAp);
-		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, buffer4[6][i].value, NAp);
-		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, buffer4[7][i].key, NAp);
-		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, buffer4[7][i].value, NAp);
+		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, GETKV2(buffer4[0][i]).key, NAp);
+		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, GETKV2(buffer4[0][i]).value, NAp);
+		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, GETKV2(buffer4[1][i]).key, NAp);
+		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, GETKV2(buffer4[1][i]).value, NAp);
+		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, GETKV2(buffer4[2][i]).key, NAp);
+		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, GETKV2(buffer4[2][i]).value, NAp);
+		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, GETKV2(buffer4[3][i]).key, NAp);
+		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, GETKV2(buffer4[3][i]).value, NAp);
+		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, GETKV2(buffer4[4][i]).key, NAp);
+		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, GETKV2(buffer4[4][i]).value, NAp);
+		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, GETKV2(buffer4[5][i]).key, NAp);
+		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, GETKV2(buffer4[5][i]).value, NAp);
+		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, GETKV2(buffer4[6][i]).key, NAp);
+		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, GETKV2(buffer4[6][i]).value, NAp);
+		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, GETKV2(buffer4[7][i]).key, NAp);
+		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, GETKV2(buffer4[7][i]).value, NAp);
 	
-		keyvalue0_vault6.key = mergefunc(keyvalue0_vault5.key, buffer5[0][i].key, NAp);
-		keyvalue0_vault6.value = mergefunc(keyvalue0_vault5.value, buffer5[0][i].value, NAp);
-		keyvalue1_vault6.key = mergefunc(keyvalue1_vault5.key, buffer5[1][i].key, NAp);
-		keyvalue1_vault6.value = mergefunc(keyvalue1_vault5.value, buffer5[1][i].value, NAp);
-		keyvalue2_vault6.key = mergefunc(keyvalue2_vault5.key, buffer5[2][i].key, NAp);
-		keyvalue2_vault6.value = mergefunc(keyvalue2_vault5.value, buffer5[2][i].value, NAp);
-		keyvalue3_vault6.key = mergefunc(keyvalue3_vault5.key, buffer5[3][i].key, NAp);
-		keyvalue3_vault6.value = mergefunc(keyvalue3_vault5.value, buffer5[3][i].value, NAp);
-		keyvalue4_vault6.key = mergefunc(keyvalue4_vault5.key, buffer5[4][i].key, NAp);
-		keyvalue4_vault6.value = mergefunc(keyvalue4_vault5.value, buffer5[4][i].value, NAp);
-		keyvalue5_vault6.key = mergefunc(keyvalue5_vault5.key, buffer5[5][i].key, NAp);
-		keyvalue5_vault6.value = mergefunc(keyvalue5_vault5.value, buffer5[5][i].value, NAp);
-		keyvalue6_vault6.key = mergefunc(keyvalue6_vault5.key, buffer5[6][i].key, NAp);
-		keyvalue6_vault6.value = mergefunc(keyvalue6_vault5.value, buffer5[6][i].value, NAp);
-		keyvalue7_vault6.key = mergefunc(keyvalue7_vault5.key, buffer5[7][i].key, NAp);
-		keyvalue7_vault6.value = mergefunc(keyvalue7_vault5.value, buffer5[7][i].value, NAp);
+		keyvalue0_vault6.key = mergefunc(keyvalue0_vault5.key, GETKV2(buffer5[0][i]).key, NAp);
+		keyvalue0_vault6.value = mergefunc(keyvalue0_vault5.value, GETKV2(buffer5[0][i]).value, NAp);
+		keyvalue1_vault6.key = mergefunc(keyvalue1_vault5.key, GETKV2(buffer5[1][i]).key, NAp);
+		keyvalue1_vault6.value = mergefunc(keyvalue1_vault5.value, GETKV2(buffer5[1][i]).value, NAp);
+		keyvalue2_vault6.key = mergefunc(keyvalue2_vault5.key, GETKV2(buffer5[2][i]).key, NAp);
+		keyvalue2_vault6.value = mergefunc(keyvalue2_vault5.value, GETKV2(buffer5[2][i]).value, NAp);
+		keyvalue3_vault6.key = mergefunc(keyvalue3_vault5.key, GETKV2(buffer5[3][i]).key, NAp);
+		keyvalue3_vault6.value = mergefunc(keyvalue3_vault5.value, GETKV2(buffer5[3][i]).value, NAp);
+		keyvalue4_vault6.key = mergefunc(keyvalue4_vault5.key, GETKV2(buffer5[4][i]).key, NAp);
+		keyvalue4_vault6.value = mergefunc(keyvalue4_vault5.value, GETKV2(buffer5[4][i]).value, NAp);
+		keyvalue5_vault6.key = mergefunc(keyvalue5_vault5.key, GETKV2(buffer5[5][i]).key, NAp);
+		keyvalue5_vault6.value = mergefunc(keyvalue5_vault5.value, GETKV2(buffer5[5][i]).value, NAp);
+		keyvalue6_vault6.key = mergefunc(keyvalue6_vault5.key, GETKV2(buffer5[6][i]).key, NAp);
+		keyvalue6_vault6.value = mergefunc(keyvalue6_vault5.value, GETKV2(buffer5[6][i]).value, NAp);
+		keyvalue7_vault6.key = mergefunc(keyvalue7_vault5.key, GETKV2(buffer5[7][i]).key, NAp);
+		keyvalue7_vault6.value = mergefunc(keyvalue7_vault5.value, GETKV2(buffer5[7][i]).value, NAp);
 	
-		keyvalue0_vault7.key = mergefunc(keyvalue0_vault6.key, buffer6[0][i].key, NAp);
-		keyvalue0_vault7.value = mergefunc(keyvalue0_vault6.value, buffer6[0][i].value, NAp);
-		keyvalue1_vault7.key = mergefunc(keyvalue1_vault6.key, buffer6[1][i].key, NAp);
-		keyvalue1_vault7.value = mergefunc(keyvalue1_vault6.value, buffer6[1][i].value, NAp);
-		keyvalue2_vault7.key = mergefunc(keyvalue2_vault6.key, buffer6[2][i].key, NAp);
-		keyvalue2_vault7.value = mergefunc(keyvalue2_vault6.value, buffer6[2][i].value, NAp);
-		keyvalue3_vault7.key = mergefunc(keyvalue3_vault6.key, buffer6[3][i].key, NAp);
-		keyvalue3_vault7.value = mergefunc(keyvalue3_vault6.value, buffer6[3][i].value, NAp);
-		keyvalue4_vault7.key = mergefunc(keyvalue4_vault6.key, buffer6[4][i].key, NAp);
-		keyvalue4_vault7.value = mergefunc(keyvalue4_vault6.value, buffer6[4][i].value, NAp);
-		keyvalue5_vault7.key = mergefunc(keyvalue5_vault6.key, buffer6[5][i].key, NAp);
-		keyvalue5_vault7.value = mergefunc(keyvalue5_vault6.value, buffer6[5][i].value, NAp);
-		keyvalue6_vault7.key = mergefunc(keyvalue6_vault6.key, buffer6[6][i].key, NAp);
-		keyvalue6_vault7.value = mergefunc(keyvalue6_vault6.value, buffer6[6][i].value, NAp);
-		keyvalue7_vault7.key = mergefunc(keyvalue7_vault6.key, buffer6[7][i].key, NAp);
-		keyvalue7_vault7.value = mergefunc(keyvalue7_vault6.value, buffer6[7][i].value, NAp);
+		keyvalue0_vault7.key = mergefunc(keyvalue0_vault6.key, GETKV2(buffer6[0][i]).key, NAp);
+		keyvalue0_vault7.value = mergefunc(keyvalue0_vault6.value, GETKV2(buffer6[0][i]).value, NAp);
+		keyvalue1_vault7.key = mergefunc(keyvalue1_vault6.key, GETKV2(buffer6[1][i]).key, NAp);
+		keyvalue1_vault7.value = mergefunc(keyvalue1_vault6.value, GETKV2(buffer6[1][i]).value, NAp);
+		keyvalue2_vault7.key = mergefunc(keyvalue2_vault6.key, GETKV2(buffer6[2][i]).key, NAp);
+		keyvalue2_vault7.value = mergefunc(keyvalue2_vault6.value, GETKV2(buffer6[2][i]).value, NAp);
+		keyvalue3_vault7.key = mergefunc(keyvalue3_vault6.key, GETKV2(buffer6[3][i]).key, NAp);
+		keyvalue3_vault7.value = mergefunc(keyvalue3_vault6.value, GETKV2(buffer6[3][i]).value, NAp);
+		keyvalue4_vault7.key = mergefunc(keyvalue4_vault6.key, GETKV2(buffer6[4][i]).key, NAp);
+		keyvalue4_vault7.value = mergefunc(keyvalue4_vault6.value, GETKV2(buffer6[4][i]).value, NAp);
+		keyvalue5_vault7.key = mergefunc(keyvalue5_vault6.key, GETKV2(buffer6[5][i]).key, NAp);
+		keyvalue5_vault7.value = mergefunc(keyvalue5_vault6.value, GETKV2(buffer6[5][i]).value, NAp);
+		keyvalue6_vault7.key = mergefunc(keyvalue6_vault6.key, GETKV2(buffer6[6][i]).key, NAp);
+		keyvalue6_vault7.value = mergefunc(keyvalue6_vault6.value, GETKV2(buffer6[6][i]).value, NAp);
+		keyvalue7_vault7.key = mergefunc(keyvalue7_vault6.key, GETKV2(buffer6[7][i]).key, NAp);
+		keyvalue7_vault7.value = mergefunc(keyvalue7_vault6.value, GETKV2(buffer6[7][i]).value, NAp);
 	
-		keyvalue0_vault8.key = mergefunc(keyvalue0_vault7.key, buffer7[0][i].key, NAp);
-		keyvalue0_vault8.value = mergefunc(keyvalue0_vault7.value, buffer7[0][i].value, NAp);
-		keyvalue1_vault8.key = mergefunc(keyvalue1_vault7.key, buffer7[1][i].key, NAp);
-		keyvalue1_vault8.value = mergefunc(keyvalue1_vault7.value, buffer7[1][i].value, NAp);
-		keyvalue2_vault8.key = mergefunc(keyvalue2_vault7.key, buffer7[2][i].key, NAp);
-		keyvalue2_vault8.value = mergefunc(keyvalue2_vault7.value, buffer7[2][i].value, NAp);
-		keyvalue3_vault8.key = mergefunc(keyvalue3_vault7.key, buffer7[3][i].key, NAp);
-		keyvalue3_vault8.value = mergefunc(keyvalue3_vault7.value, buffer7[3][i].value, NAp);
-		keyvalue4_vault8.key = mergefunc(keyvalue4_vault7.key, buffer7[4][i].key, NAp);
-		keyvalue4_vault8.value = mergefunc(keyvalue4_vault7.value, buffer7[4][i].value, NAp);
-		keyvalue5_vault8.key = mergefunc(keyvalue5_vault7.key, buffer7[5][i].key, NAp);
-		keyvalue5_vault8.value = mergefunc(keyvalue5_vault7.value, buffer7[5][i].value, NAp);
-		keyvalue6_vault8.key = mergefunc(keyvalue6_vault7.key, buffer7[6][i].key, NAp);
-		keyvalue6_vault8.value = mergefunc(keyvalue6_vault7.value, buffer7[6][i].value, NAp);
-		keyvalue7_vault8.key = mergefunc(keyvalue7_vault7.key, buffer7[7][i].key, NAp);
-		keyvalue7_vault8.value = mergefunc(keyvalue7_vault7.value, buffer7[7][i].value, NAp);
+		keyvalue0_vault8.key = mergefunc(keyvalue0_vault7.key, GETKV2(buffer7[0][i]).key, NAp);
+		keyvalue0_vault8.value = mergefunc(keyvalue0_vault7.value, GETKV2(buffer7[0][i]).value, NAp);
+		keyvalue1_vault8.key = mergefunc(keyvalue1_vault7.key, GETKV2(buffer7[1][i]).key, NAp);
+		keyvalue1_vault8.value = mergefunc(keyvalue1_vault7.value, GETKV2(buffer7[1][i]).value, NAp);
+		keyvalue2_vault8.key = mergefunc(keyvalue2_vault7.key, GETKV2(buffer7[2][i]).key, NAp);
+		keyvalue2_vault8.value = mergefunc(keyvalue2_vault7.value, GETKV2(buffer7[2][i]).value, NAp);
+		keyvalue3_vault8.key = mergefunc(keyvalue3_vault7.key, GETKV2(buffer7[3][i]).key, NAp);
+		keyvalue3_vault8.value = mergefunc(keyvalue3_vault7.value, GETKV2(buffer7[3][i]).value, NAp);
+		keyvalue4_vault8.key = mergefunc(keyvalue4_vault7.key, GETKV2(buffer7[4][i]).key, NAp);
+		keyvalue4_vault8.value = mergefunc(keyvalue4_vault7.value, GETKV2(buffer7[4][i]).value, NAp);
+		keyvalue5_vault8.key = mergefunc(keyvalue5_vault7.key, GETKV2(buffer7[5][i]).key, NAp);
+		keyvalue5_vault8.value = mergefunc(keyvalue5_vault7.value, GETKV2(buffer7[5][i]).value, NAp);
+		keyvalue6_vault8.key = mergefunc(keyvalue6_vault7.key, GETKV2(buffer7[6][i]).key, NAp);
+		keyvalue6_vault8.value = mergefunc(keyvalue6_vault7.value, GETKV2(buffer7[6][i]).value, NAp);
+		keyvalue7_vault8.key = mergefunc(keyvalue7_vault7.key, GETKV2(buffer7[7][i]).key, NAp);
+		keyvalue7_vault8.value = mergefunc(keyvalue7_vault7.value, GETKV2(buffer7[7][i]).value, NAp);
 	
-		keyvalue0_vault9.key = mergefunc(keyvalue0_vault8.key, buffer8[0][i].key, NAp);
-		keyvalue0_vault9.value = mergefunc(keyvalue0_vault8.value, buffer8[0][i].value, NAp);
-		keyvalue1_vault9.key = mergefunc(keyvalue1_vault8.key, buffer8[1][i].key, NAp);
-		keyvalue1_vault9.value = mergefunc(keyvalue1_vault8.value, buffer8[1][i].value, NAp);
-		keyvalue2_vault9.key = mergefunc(keyvalue2_vault8.key, buffer8[2][i].key, NAp);
-		keyvalue2_vault9.value = mergefunc(keyvalue2_vault8.value, buffer8[2][i].value, NAp);
-		keyvalue3_vault9.key = mergefunc(keyvalue3_vault8.key, buffer8[3][i].key, NAp);
-		keyvalue3_vault9.value = mergefunc(keyvalue3_vault8.value, buffer8[3][i].value, NAp);
-		keyvalue4_vault9.key = mergefunc(keyvalue4_vault8.key, buffer8[4][i].key, NAp);
-		keyvalue4_vault9.value = mergefunc(keyvalue4_vault8.value, buffer8[4][i].value, NAp);
-		keyvalue5_vault9.key = mergefunc(keyvalue5_vault8.key, buffer8[5][i].key, NAp);
-		keyvalue5_vault9.value = mergefunc(keyvalue5_vault8.value, buffer8[5][i].value, NAp);
-		keyvalue6_vault9.key = mergefunc(keyvalue6_vault8.key, buffer8[6][i].key, NAp);
-		keyvalue6_vault9.value = mergefunc(keyvalue6_vault8.value, buffer8[6][i].value, NAp);
-		keyvalue7_vault9.key = mergefunc(keyvalue7_vault8.key, buffer8[7][i].key, NAp);
-		keyvalue7_vault9.value = mergefunc(keyvalue7_vault8.value, buffer8[7][i].value, NAp);
+		keyvalue0_vault9.key = mergefunc(keyvalue0_vault8.key, GETKV2(buffer8[0][i]).key, NAp);
+		keyvalue0_vault9.value = mergefunc(keyvalue0_vault8.value, GETKV2(buffer8[0][i]).value, NAp);
+		keyvalue1_vault9.key = mergefunc(keyvalue1_vault8.key, GETKV2(buffer8[1][i]).key, NAp);
+		keyvalue1_vault9.value = mergefunc(keyvalue1_vault8.value, GETKV2(buffer8[1][i]).value, NAp);
+		keyvalue2_vault9.key = mergefunc(keyvalue2_vault8.key, GETKV2(buffer8[2][i]).key, NAp);
+		keyvalue2_vault9.value = mergefunc(keyvalue2_vault8.value, GETKV2(buffer8[2][i]).value, NAp);
+		keyvalue3_vault9.key = mergefunc(keyvalue3_vault8.key, GETKV2(buffer8[3][i]).key, NAp);
+		keyvalue3_vault9.value = mergefunc(keyvalue3_vault8.value, GETKV2(buffer8[3][i]).value, NAp);
+		keyvalue4_vault9.key = mergefunc(keyvalue4_vault8.key, GETKV2(buffer8[4][i]).key, NAp);
+		keyvalue4_vault9.value = mergefunc(keyvalue4_vault8.value, GETKV2(buffer8[4][i]).value, NAp);
+		keyvalue5_vault9.key = mergefunc(keyvalue5_vault8.key, GETKV2(buffer8[5][i]).key, NAp);
+		keyvalue5_vault9.value = mergefunc(keyvalue5_vault8.value, GETKV2(buffer8[5][i]).value, NAp);
+		keyvalue6_vault9.key = mergefunc(keyvalue6_vault8.key, GETKV2(buffer8[6][i]).key, NAp);
+		keyvalue6_vault9.value = mergefunc(keyvalue6_vault8.value, GETKV2(buffer8[6][i]).value, NAp);
+		keyvalue7_vault9.key = mergefunc(keyvalue7_vault8.key, GETKV2(buffer8[7][i]).key, NAp);
+		keyvalue7_vault9.value = mergefunc(keyvalue7_vault8.value, GETKV2(buffer8[7][i]).value, NAp);
 	
-		keyvalue0_vault10.key = mergefunc(keyvalue0_vault9.key, buffer9[0][i].key, NAp);
-		keyvalue0_vault10.value = mergefunc(keyvalue0_vault9.value, buffer9[0][i].value, NAp);
-		keyvalue1_vault10.key = mergefunc(keyvalue1_vault9.key, buffer9[1][i].key, NAp);
-		keyvalue1_vault10.value = mergefunc(keyvalue1_vault9.value, buffer9[1][i].value, NAp);
-		keyvalue2_vault10.key = mergefunc(keyvalue2_vault9.key, buffer9[2][i].key, NAp);
-		keyvalue2_vault10.value = mergefunc(keyvalue2_vault9.value, buffer9[2][i].value, NAp);
-		keyvalue3_vault10.key = mergefunc(keyvalue3_vault9.key, buffer9[3][i].key, NAp);
-		keyvalue3_vault10.value = mergefunc(keyvalue3_vault9.value, buffer9[3][i].value, NAp);
-		keyvalue4_vault10.key = mergefunc(keyvalue4_vault9.key, buffer9[4][i].key, NAp);
-		keyvalue4_vault10.value = mergefunc(keyvalue4_vault9.value, buffer9[4][i].value, NAp);
-		keyvalue5_vault10.key = mergefunc(keyvalue5_vault9.key, buffer9[5][i].key, NAp);
-		keyvalue5_vault10.value = mergefunc(keyvalue5_vault9.value, buffer9[5][i].value, NAp);
-		keyvalue6_vault10.key = mergefunc(keyvalue6_vault9.key, buffer9[6][i].key, NAp);
-		keyvalue6_vault10.value = mergefunc(keyvalue6_vault9.value, buffer9[6][i].value, NAp);
-		keyvalue7_vault10.key = mergefunc(keyvalue7_vault9.key, buffer9[7][i].key, NAp);
-		keyvalue7_vault10.value = mergefunc(keyvalue7_vault9.value, buffer9[7][i].value, NAp);
+		keyvalue0_vault10.key = mergefunc(keyvalue0_vault9.key, GETKV2(buffer9[0][i]).key, NAp);
+		keyvalue0_vault10.value = mergefunc(keyvalue0_vault9.value, GETKV2(buffer9[0][i]).value, NAp);
+		keyvalue1_vault10.key = mergefunc(keyvalue1_vault9.key, GETKV2(buffer9[1][i]).key, NAp);
+		keyvalue1_vault10.value = mergefunc(keyvalue1_vault9.value, GETKV2(buffer9[1][i]).value, NAp);
+		keyvalue2_vault10.key = mergefunc(keyvalue2_vault9.key, GETKV2(buffer9[2][i]).key, NAp);
+		keyvalue2_vault10.value = mergefunc(keyvalue2_vault9.value, GETKV2(buffer9[2][i]).value, NAp);
+		keyvalue3_vault10.key = mergefunc(keyvalue3_vault9.key, GETKV2(buffer9[3][i]).key, NAp);
+		keyvalue3_vault10.value = mergefunc(keyvalue3_vault9.value, GETKV2(buffer9[3][i]).value, NAp);
+		keyvalue4_vault10.key = mergefunc(keyvalue4_vault9.key, GETKV2(buffer9[4][i]).key, NAp);
+		keyvalue4_vault10.value = mergefunc(keyvalue4_vault9.value, GETKV2(buffer9[4][i]).value, NAp);
+		keyvalue5_vault10.key = mergefunc(keyvalue5_vault9.key, GETKV2(buffer9[5][i]).key, NAp);
+		keyvalue5_vault10.value = mergefunc(keyvalue5_vault9.value, GETKV2(buffer9[5][i]).value, NAp);
+		keyvalue6_vault10.key = mergefunc(keyvalue6_vault9.key, GETKV2(buffer9[6][i]).key, NAp);
+		keyvalue6_vault10.value = mergefunc(keyvalue6_vault9.value, GETKV2(buffer9[6][i]).value, NAp);
+		keyvalue7_vault10.key = mergefunc(keyvalue7_vault9.key, GETKV2(buffer9[7][i]).key, NAp);
+		keyvalue7_vault10.value = mergefunc(keyvalue7_vault9.value, GETKV2(buffer9[7][i]).value, NAp);
 	
-		keyvalue0_vault11.key = mergefunc(keyvalue0_vault10.key, buffer10[0][i].key, NAp);
-		keyvalue0_vault11.value = mergefunc(keyvalue0_vault10.value, buffer10[0][i].value, NAp);
-		keyvalue1_vault11.key = mergefunc(keyvalue1_vault10.key, buffer10[1][i].key, NAp);
-		keyvalue1_vault11.value = mergefunc(keyvalue1_vault10.value, buffer10[1][i].value, NAp);
-		keyvalue2_vault11.key = mergefunc(keyvalue2_vault10.key, buffer10[2][i].key, NAp);
-		keyvalue2_vault11.value = mergefunc(keyvalue2_vault10.value, buffer10[2][i].value, NAp);
-		keyvalue3_vault11.key = mergefunc(keyvalue3_vault10.key, buffer10[3][i].key, NAp);
-		keyvalue3_vault11.value = mergefunc(keyvalue3_vault10.value, buffer10[3][i].value, NAp);
-		keyvalue4_vault11.key = mergefunc(keyvalue4_vault10.key, buffer10[4][i].key, NAp);
-		keyvalue4_vault11.value = mergefunc(keyvalue4_vault10.value, buffer10[4][i].value, NAp);
-		keyvalue5_vault11.key = mergefunc(keyvalue5_vault10.key, buffer10[5][i].key, NAp);
-		keyvalue5_vault11.value = mergefunc(keyvalue5_vault10.value, buffer10[5][i].value, NAp);
-		keyvalue6_vault11.key = mergefunc(keyvalue6_vault10.key, buffer10[6][i].key, NAp);
-		keyvalue6_vault11.value = mergefunc(keyvalue6_vault10.value, buffer10[6][i].value, NAp);
-		keyvalue7_vault11.key = mergefunc(keyvalue7_vault10.key, buffer10[7][i].key, NAp);
-		keyvalue7_vault11.value = mergefunc(keyvalue7_vault10.value, buffer10[7][i].value, NAp);
+		keyvalue0_vault11.key = mergefunc(keyvalue0_vault10.key, GETKV2(buffer10[0][i]).key, NAp);
+		keyvalue0_vault11.value = mergefunc(keyvalue0_vault10.value, GETKV2(buffer10[0][i]).value, NAp);
+		keyvalue1_vault11.key = mergefunc(keyvalue1_vault10.key, GETKV2(buffer10[1][i]).key, NAp);
+		keyvalue1_vault11.value = mergefunc(keyvalue1_vault10.value, GETKV2(buffer10[1][i]).value, NAp);
+		keyvalue2_vault11.key = mergefunc(keyvalue2_vault10.key, GETKV2(buffer10[2][i]).key, NAp);
+		keyvalue2_vault11.value = mergefunc(keyvalue2_vault10.value, GETKV2(buffer10[2][i]).value, NAp);
+		keyvalue3_vault11.key = mergefunc(keyvalue3_vault10.key, GETKV2(buffer10[3][i]).key, NAp);
+		keyvalue3_vault11.value = mergefunc(keyvalue3_vault10.value, GETKV2(buffer10[3][i]).value, NAp);
+		keyvalue4_vault11.key = mergefunc(keyvalue4_vault10.key, GETKV2(buffer10[4][i]).key, NAp);
+		keyvalue4_vault11.value = mergefunc(keyvalue4_vault10.value, GETKV2(buffer10[4][i]).value, NAp);
+		keyvalue5_vault11.key = mergefunc(keyvalue5_vault10.key, GETKV2(buffer10[5][i]).key, NAp);
+		keyvalue5_vault11.value = mergefunc(keyvalue5_vault10.value, GETKV2(buffer10[5][i]).value, NAp);
+		keyvalue6_vault11.key = mergefunc(keyvalue6_vault10.key, GETKV2(buffer10[6][i]).key, NAp);
+		keyvalue6_vault11.value = mergefunc(keyvalue6_vault10.value, GETKV2(buffer10[6][i]).value, NAp);
+		keyvalue7_vault11.key = mergefunc(keyvalue7_vault10.key, GETKV2(buffer10[7][i]).key, NAp);
+		keyvalue7_vault11.value = mergefunc(keyvalue7_vault10.value, GETKV2(buffer10[7][i]).value, NAp);
 	
-		keyvalue0_vault12.key = mergefunc(keyvalue0_vault11.key, buffer11[0][i].key, NAp);
-		keyvalue0_vault12.value = mergefunc(keyvalue0_vault11.value, buffer11[0][i].value, NAp);
-		keyvalue1_vault12.key = mergefunc(keyvalue1_vault11.key, buffer11[1][i].key, NAp);
-		keyvalue1_vault12.value = mergefunc(keyvalue1_vault11.value, buffer11[1][i].value, NAp);
-		keyvalue2_vault12.key = mergefunc(keyvalue2_vault11.key, buffer11[2][i].key, NAp);
-		keyvalue2_vault12.value = mergefunc(keyvalue2_vault11.value, buffer11[2][i].value, NAp);
-		keyvalue3_vault12.key = mergefunc(keyvalue3_vault11.key, buffer11[3][i].key, NAp);
-		keyvalue3_vault12.value = mergefunc(keyvalue3_vault11.value, buffer11[3][i].value, NAp);
-		keyvalue4_vault12.key = mergefunc(keyvalue4_vault11.key, buffer11[4][i].key, NAp);
-		keyvalue4_vault12.value = mergefunc(keyvalue4_vault11.value, buffer11[4][i].value, NAp);
-		keyvalue5_vault12.key = mergefunc(keyvalue5_vault11.key, buffer11[5][i].key, NAp);
-		keyvalue5_vault12.value = mergefunc(keyvalue5_vault11.value, buffer11[5][i].value, NAp);
-		keyvalue6_vault12.key = mergefunc(keyvalue6_vault11.key, buffer11[6][i].key, NAp);
-		keyvalue6_vault12.value = mergefunc(keyvalue6_vault11.value, buffer11[6][i].value, NAp);
-		keyvalue7_vault12.key = mergefunc(keyvalue7_vault11.key, buffer11[7][i].key, NAp);
-		keyvalue7_vault12.value = mergefunc(keyvalue7_vault11.value, buffer11[7][i].value, NAp);
+		keyvalue0_vault12.key = mergefunc(keyvalue0_vault11.key, GETKV2(buffer11[0][i]).key, NAp);
+		keyvalue0_vault12.value = mergefunc(keyvalue0_vault11.value, GETKV2(buffer11[0][i]).value, NAp);
+		keyvalue1_vault12.key = mergefunc(keyvalue1_vault11.key, GETKV2(buffer11[1][i]).key, NAp);
+		keyvalue1_vault12.value = mergefunc(keyvalue1_vault11.value, GETKV2(buffer11[1][i]).value, NAp);
+		keyvalue2_vault12.key = mergefunc(keyvalue2_vault11.key, GETKV2(buffer11[2][i]).key, NAp);
+		keyvalue2_vault12.value = mergefunc(keyvalue2_vault11.value, GETKV2(buffer11[2][i]).value, NAp);
+		keyvalue3_vault12.key = mergefunc(keyvalue3_vault11.key, GETKV2(buffer11[3][i]).key, NAp);
+		keyvalue3_vault12.value = mergefunc(keyvalue3_vault11.value, GETKV2(buffer11[3][i]).value, NAp);
+		keyvalue4_vault12.key = mergefunc(keyvalue4_vault11.key, GETKV2(buffer11[4][i]).key, NAp);
+		keyvalue4_vault12.value = mergefunc(keyvalue4_vault11.value, GETKV2(buffer11[4][i]).value, NAp);
+		keyvalue5_vault12.key = mergefunc(keyvalue5_vault11.key, GETKV2(buffer11[5][i]).key, NAp);
+		keyvalue5_vault12.value = mergefunc(keyvalue5_vault11.value, GETKV2(buffer11[5][i]).value, NAp);
+		keyvalue6_vault12.key = mergefunc(keyvalue6_vault11.key, GETKV2(buffer11[6][i]).key, NAp);
+		keyvalue6_vault12.value = mergefunc(keyvalue6_vault11.value, GETKV2(buffer11[6][i]).value, NAp);
+		keyvalue7_vault12.key = mergefunc(keyvalue7_vault11.key, GETKV2(buffer11[7][i]).key, NAp);
+		keyvalue7_vault12.value = mergefunc(keyvalue7_vault11.value, GETKV2(buffer11[7][i]).value, NAp);
 	
-		keyvalue0_vault13.key = mergefunc(keyvalue0_vault12.key, buffer12[0][i].key, NAp);
-		keyvalue0_vault13.value = mergefunc(keyvalue0_vault12.value, buffer12[0][i].value, NAp);
-		keyvalue1_vault13.key = mergefunc(keyvalue1_vault12.key, buffer12[1][i].key, NAp);
-		keyvalue1_vault13.value = mergefunc(keyvalue1_vault12.value, buffer12[1][i].value, NAp);
-		keyvalue2_vault13.key = mergefunc(keyvalue2_vault12.key, buffer12[2][i].key, NAp);
-		keyvalue2_vault13.value = mergefunc(keyvalue2_vault12.value, buffer12[2][i].value, NAp);
-		keyvalue3_vault13.key = mergefunc(keyvalue3_vault12.key, buffer12[3][i].key, NAp);
-		keyvalue3_vault13.value = mergefunc(keyvalue3_vault12.value, buffer12[3][i].value, NAp);
-		keyvalue4_vault13.key = mergefunc(keyvalue4_vault12.key, buffer12[4][i].key, NAp);
-		keyvalue4_vault13.value = mergefunc(keyvalue4_vault12.value, buffer12[4][i].value, NAp);
-		keyvalue5_vault13.key = mergefunc(keyvalue5_vault12.key, buffer12[5][i].key, NAp);
-		keyvalue5_vault13.value = mergefunc(keyvalue5_vault12.value, buffer12[5][i].value, NAp);
-		keyvalue6_vault13.key = mergefunc(keyvalue6_vault12.key, buffer12[6][i].key, NAp);
-		keyvalue6_vault13.value = mergefunc(keyvalue6_vault12.value, buffer12[6][i].value, NAp);
-		keyvalue7_vault13.key = mergefunc(keyvalue7_vault12.key, buffer12[7][i].key, NAp);
-		keyvalue7_vault13.value = mergefunc(keyvalue7_vault12.value, buffer12[7][i].value, NAp);
+		keyvalue0_vault13.key = mergefunc(keyvalue0_vault12.key, GETKV2(buffer12[0][i]).key, NAp);
+		keyvalue0_vault13.value = mergefunc(keyvalue0_vault12.value, GETKV2(buffer12[0][i]).value, NAp);
+		keyvalue1_vault13.key = mergefunc(keyvalue1_vault12.key, GETKV2(buffer12[1][i]).key, NAp);
+		keyvalue1_vault13.value = mergefunc(keyvalue1_vault12.value, GETKV2(buffer12[1][i]).value, NAp);
+		keyvalue2_vault13.key = mergefunc(keyvalue2_vault12.key, GETKV2(buffer12[2][i]).key, NAp);
+		keyvalue2_vault13.value = mergefunc(keyvalue2_vault12.value, GETKV2(buffer12[2][i]).value, NAp);
+		keyvalue3_vault13.key = mergefunc(keyvalue3_vault12.key, GETKV2(buffer12[3][i]).key, NAp);
+		keyvalue3_vault13.value = mergefunc(keyvalue3_vault12.value, GETKV2(buffer12[3][i]).value, NAp);
+		keyvalue4_vault13.key = mergefunc(keyvalue4_vault12.key, GETKV2(buffer12[4][i]).key, NAp);
+		keyvalue4_vault13.value = mergefunc(keyvalue4_vault12.value, GETKV2(buffer12[4][i]).value, NAp);
+		keyvalue5_vault13.key = mergefunc(keyvalue5_vault12.key, GETKV2(buffer12[5][i]).key, NAp);
+		keyvalue5_vault13.value = mergefunc(keyvalue5_vault12.value, GETKV2(buffer12[5][i]).value, NAp);
+		keyvalue6_vault13.key = mergefunc(keyvalue6_vault12.key, GETKV2(buffer12[6][i]).key, NAp);
+		keyvalue6_vault13.value = mergefunc(keyvalue6_vault12.value, GETKV2(buffer12[6][i]).value, NAp);
+		keyvalue7_vault13.key = mergefunc(keyvalue7_vault12.key, GETKV2(buffer12[7][i]).key, NAp);
+		keyvalue7_vault13.value = mergefunc(keyvalue7_vault12.value, GETKV2(buffer12[7][i]).value, NAp);
 	
-		keyvalue0_vault14.key = mergefunc(keyvalue0_vault13.key, buffer13[0][i].key, NAp);
-		keyvalue0_vault14.value = mergefunc(keyvalue0_vault13.value, buffer13[0][i].value, NAp);
-		keyvalue1_vault14.key = mergefunc(keyvalue1_vault13.key, buffer13[1][i].key, NAp);
-		keyvalue1_vault14.value = mergefunc(keyvalue1_vault13.value, buffer13[1][i].value, NAp);
-		keyvalue2_vault14.key = mergefunc(keyvalue2_vault13.key, buffer13[2][i].key, NAp);
-		keyvalue2_vault14.value = mergefunc(keyvalue2_vault13.value, buffer13[2][i].value, NAp);
-		keyvalue3_vault14.key = mergefunc(keyvalue3_vault13.key, buffer13[3][i].key, NAp);
-		keyvalue3_vault14.value = mergefunc(keyvalue3_vault13.value, buffer13[3][i].value, NAp);
-		keyvalue4_vault14.key = mergefunc(keyvalue4_vault13.key, buffer13[4][i].key, NAp);
-		keyvalue4_vault14.value = mergefunc(keyvalue4_vault13.value, buffer13[4][i].value, NAp);
-		keyvalue5_vault14.key = mergefunc(keyvalue5_vault13.key, buffer13[5][i].key, NAp);
-		keyvalue5_vault14.value = mergefunc(keyvalue5_vault13.value, buffer13[5][i].value, NAp);
-		keyvalue6_vault14.key = mergefunc(keyvalue6_vault13.key, buffer13[6][i].key, NAp);
-		keyvalue6_vault14.value = mergefunc(keyvalue6_vault13.value, buffer13[6][i].value, NAp);
-		keyvalue7_vault14.key = mergefunc(keyvalue7_vault13.key, buffer13[7][i].key, NAp);
-		keyvalue7_vault14.value = mergefunc(keyvalue7_vault13.value, buffer13[7][i].value, NAp);
+		keyvalue0_vault14.key = mergefunc(keyvalue0_vault13.key, GETKV2(buffer13[0][i]).key, NAp);
+		keyvalue0_vault14.value = mergefunc(keyvalue0_vault13.value, GETKV2(buffer13[0][i]).value, NAp);
+		keyvalue1_vault14.key = mergefunc(keyvalue1_vault13.key, GETKV2(buffer13[1][i]).key, NAp);
+		keyvalue1_vault14.value = mergefunc(keyvalue1_vault13.value, GETKV2(buffer13[1][i]).value, NAp);
+		keyvalue2_vault14.key = mergefunc(keyvalue2_vault13.key, GETKV2(buffer13[2][i]).key, NAp);
+		keyvalue2_vault14.value = mergefunc(keyvalue2_vault13.value, GETKV2(buffer13[2][i]).value, NAp);
+		keyvalue3_vault14.key = mergefunc(keyvalue3_vault13.key, GETKV2(buffer13[3][i]).key, NAp);
+		keyvalue3_vault14.value = mergefunc(keyvalue3_vault13.value, GETKV2(buffer13[3][i]).value, NAp);
+		keyvalue4_vault14.key = mergefunc(keyvalue4_vault13.key, GETKV2(buffer13[4][i]).key, NAp);
+		keyvalue4_vault14.value = mergefunc(keyvalue4_vault13.value, GETKV2(buffer13[4][i]).value, NAp);
+		keyvalue5_vault14.key = mergefunc(keyvalue5_vault13.key, GETKV2(buffer13[5][i]).key, NAp);
+		keyvalue5_vault14.value = mergefunc(keyvalue5_vault13.value, GETKV2(buffer13[5][i]).value, NAp);
+		keyvalue6_vault14.key = mergefunc(keyvalue6_vault13.key, GETKV2(buffer13[6][i]).key, NAp);
+		keyvalue6_vault14.value = mergefunc(keyvalue6_vault13.value, GETKV2(buffer13[6][i]).value, NAp);
+		keyvalue7_vault14.key = mergefunc(keyvalue7_vault13.key, GETKV2(buffer13[7][i]).key, NAp);
+		keyvalue7_vault14.value = mergefunc(keyvalue7_vault13.value, GETKV2(buffer13[7][i]).value, NAp);
 	
-		keyvalue0_vault15.key = mergefunc(keyvalue0_vault14.key, buffer14[0][i].key, NAp);
-		keyvalue0_vault15.value = mergefunc(keyvalue0_vault14.value, buffer14[0][i].value, NAp);
-		keyvalue1_vault15.key = mergefunc(keyvalue1_vault14.key, buffer14[1][i].key, NAp);
-		keyvalue1_vault15.value = mergefunc(keyvalue1_vault14.value, buffer14[1][i].value, NAp);
-		keyvalue2_vault15.key = mergefunc(keyvalue2_vault14.key, buffer14[2][i].key, NAp);
-		keyvalue2_vault15.value = mergefunc(keyvalue2_vault14.value, buffer14[2][i].value, NAp);
-		keyvalue3_vault15.key = mergefunc(keyvalue3_vault14.key, buffer14[3][i].key, NAp);
-		keyvalue3_vault15.value = mergefunc(keyvalue3_vault14.value, buffer14[3][i].value, NAp);
-		keyvalue4_vault15.key = mergefunc(keyvalue4_vault14.key, buffer14[4][i].key, NAp);
-		keyvalue4_vault15.value = mergefunc(keyvalue4_vault14.value, buffer14[4][i].value, NAp);
-		keyvalue5_vault15.key = mergefunc(keyvalue5_vault14.key, buffer14[5][i].key, NAp);
-		keyvalue5_vault15.value = mergefunc(keyvalue5_vault14.value, buffer14[5][i].value, NAp);
-		keyvalue6_vault15.key = mergefunc(keyvalue6_vault14.key, buffer14[6][i].key, NAp);
-		keyvalue6_vault15.value = mergefunc(keyvalue6_vault14.value, buffer14[6][i].value, NAp);
-		keyvalue7_vault15.key = mergefunc(keyvalue7_vault14.key, buffer14[7][i].key, NAp);
-		keyvalue7_vault15.value = mergefunc(keyvalue7_vault14.value, buffer14[7][i].value, NAp);
+		keyvalue0_vault15.key = mergefunc(keyvalue0_vault14.key, GETKV2(buffer14[0][i]).key, NAp);
+		keyvalue0_vault15.value = mergefunc(keyvalue0_vault14.value, GETKV2(buffer14[0][i]).value, NAp);
+		keyvalue1_vault15.key = mergefunc(keyvalue1_vault14.key, GETKV2(buffer14[1][i]).key, NAp);
+		keyvalue1_vault15.value = mergefunc(keyvalue1_vault14.value, GETKV2(buffer14[1][i]).value, NAp);
+		keyvalue2_vault15.key = mergefunc(keyvalue2_vault14.key, GETKV2(buffer14[2][i]).key, NAp);
+		keyvalue2_vault15.value = mergefunc(keyvalue2_vault14.value, GETKV2(buffer14[2][i]).value, NAp);
+		keyvalue3_vault15.key = mergefunc(keyvalue3_vault14.key, GETKV2(buffer14[3][i]).key, NAp);
+		keyvalue3_vault15.value = mergefunc(keyvalue3_vault14.value, GETKV2(buffer14[3][i]).value, NAp);
+		keyvalue4_vault15.key = mergefunc(keyvalue4_vault14.key, GETKV2(buffer14[4][i]).key, NAp);
+		keyvalue4_vault15.value = mergefunc(keyvalue4_vault14.value, GETKV2(buffer14[4][i]).value, NAp);
+		keyvalue5_vault15.key = mergefunc(keyvalue5_vault14.key, GETKV2(buffer14[5][i]).key, NAp);
+		keyvalue5_vault15.value = mergefunc(keyvalue5_vault14.value, GETKV2(buffer14[5][i]).value, NAp);
+		keyvalue6_vault15.key = mergefunc(keyvalue6_vault14.key, GETKV2(buffer14[6][i]).key, NAp);
+		keyvalue6_vault15.value = mergefunc(keyvalue6_vault14.value, GETKV2(buffer14[6][i]).value, NAp);
+		keyvalue7_vault15.key = mergefunc(keyvalue7_vault14.key, GETKV2(buffer14[7][i]).key, NAp);
+		keyvalue7_vault15.value = mergefunc(keyvalue7_vault14.value, GETKV2(buffer14[7][i]).value, NAp);
 	
-		keyvalue0_vault16.key = mergefunc(keyvalue0_vault15.key, buffer15[0][i].key, NAp);
-		keyvalue0_vault16.value = mergefunc(keyvalue0_vault15.value, buffer15[0][i].value, NAp);
-		keyvalue1_vault16.key = mergefunc(keyvalue1_vault15.key, buffer15[1][i].key, NAp);
-		keyvalue1_vault16.value = mergefunc(keyvalue1_vault15.value, buffer15[1][i].value, NAp);
-		keyvalue2_vault16.key = mergefunc(keyvalue2_vault15.key, buffer15[2][i].key, NAp);
-		keyvalue2_vault16.value = mergefunc(keyvalue2_vault15.value, buffer15[2][i].value, NAp);
-		keyvalue3_vault16.key = mergefunc(keyvalue3_vault15.key, buffer15[3][i].key, NAp);
-		keyvalue3_vault16.value = mergefunc(keyvalue3_vault15.value, buffer15[3][i].value, NAp);
-		keyvalue4_vault16.key = mergefunc(keyvalue4_vault15.key, buffer15[4][i].key, NAp);
-		keyvalue4_vault16.value = mergefunc(keyvalue4_vault15.value, buffer15[4][i].value, NAp);
-		keyvalue5_vault16.key = mergefunc(keyvalue5_vault15.key, buffer15[5][i].key, NAp);
-		keyvalue5_vault16.value = mergefunc(keyvalue5_vault15.value, buffer15[5][i].value, NAp);
-		keyvalue6_vault16.key = mergefunc(keyvalue6_vault15.key, buffer15[6][i].key, NAp);
-		keyvalue6_vault16.value = mergefunc(keyvalue6_vault15.value, buffer15[6][i].value, NAp);
-		keyvalue7_vault16.key = mergefunc(keyvalue7_vault15.key, buffer15[7][i].key, NAp);
-		keyvalue7_vault16.value = mergefunc(keyvalue7_vault15.value, buffer15[7][i].value, NAp);
+		keyvalue0_vault16.key = mergefunc(keyvalue0_vault15.key, GETKV2(buffer15[0][i]).key, NAp);
+		keyvalue0_vault16.value = mergefunc(keyvalue0_vault15.value, GETKV2(buffer15[0][i]).value, NAp);
+		keyvalue1_vault16.key = mergefunc(keyvalue1_vault15.key, GETKV2(buffer15[1][i]).key, NAp);
+		keyvalue1_vault16.value = mergefunc(keyvalue1_vault15.value, GETKV2(buffer15[1][i]).value, NAp);
+		keyvalue2_vault16.key = mergefunc(keyvalue2_vault15.key, GETKV2(buffer15[2][i]).key, NAp);
+		keyvalue2_vault16.value = mergefunc(keyvalue2_vault15.value, GETKV2(buffer15[2][i]).value, NAp);
+		keyvalue3_vault16.key = mergefunc(keyvalue3_vault15.key, GETKV2(buffer15[3][i]).key, NAp);
+		keyvalue3_vault16.value = mergefunc(keyvalue3_vault15.value, GETKV2(buffer15[3][i]).value, NAp);
+		keyvalue4_vault16.key = mergefunc(keyvalue4_vault15.key, GETKV2(buffer15[4][i]).key, NAp);
+		keyvalue4_vault16.value = mergefunc(keyvalue4_vault15.value, GETKV2(buffer15[4][i]).value, NAp);
+		keyvalue5_vault16.key = mergefunc(keyvalue5_vault15.key, GETKV2(buffer15[5][i]).key, NAp);
+		keyvalue5_vault16.value = mergefunc(keyvalue5_vault15.value, GETKV2(buffer15[5][i]).value, NAp);
+		keyvalue6_vault16.key = mergefunc(keyvalue6_vault15.key, GETKV2(buffer15[6][i]).key, NAp);
+		keyvalue6_vault16.value = mergefunc(keyvalue6_vault15.value, GETKV2(buffer15[6][i]).value, NAp);
+		keyvalue7_vault16.key = mergefunc(keyvalue7_vault15.key, GETKV2(buffer15[7][i]).key, NAp);
+		keyvalue7_vault16.value = mergefunc(keyvalue7_vault15.value, GETKV2(buffer15[7][i]).value, NAp);
 	
-		keyvalue0_vault17.key = mergefunc(keyvalue0_vault16.key, buffer16[0][i].key, NAp);
-		keyvalue0_vault17.value = mergefunc(keyvalue0_vault16.value, buffer16[0][i].value, NAp);
-		keyvalue1_vault17.key = mergefunc(keyvalue1_vault16.key, buffer16[1][i].key, NAp);
-		keyvalue1_vault17.value = mergefunc(keyvalue1_vault16.value, buffer16[1][i].value, NAp);
-		keyvalue2_vault17.key = mergefunc(keyvalue2_vault16.key, buffer16[2][i].key, NAp);
-		keyvalue2_vault17.value = mergefunc(keyvalue2_vault16.value, buffer16[2][i].value, NAp);
-		keyvalue3_vault17.key = mergefunc(keyvalue3_vault16.key, buffer16[3][i].key, NAp);
-		keyvalue3_vault17.value = mergefunc(keyvalue3_vault16.value, buffer16[3][i].value, NAp);
-		keyvalue4_vault17.key = mergefunc(keyvalue4_vault16.key, buffer16[4][i].key, NAp);
-		keyvalue4_vault17.value = mergefunc(keyvalue4_vault16.value, buffer16[4][i].value, NAp);
-		keyvalue5_vault17.key = mergefunc(keyvalue5_vault16.key, buffer16[5][i].key, NAp);
-		keyvalue5_vault17.value = mergefunc(keyvalue5_vault16.value, buffer16[5][i].value, NAp);
-		keyvalue6_vault17.key = mergefunc(keyvalue6_vault16.key, buffer16[6][i].key, NAp);
-		keyvalue6_vault17.value = mergefunc(keyvalue6_vault16.value, buffer16[6][i].value, NAp);
-		keyvalue7_vault17.key = mergefunc(keyvalue7_vault16.key, buffer16[7][i].key, NAp);
-		keyvalue7_vault17.value = mergefunc(keyvalue7_vault16.value, buffer16[7][i].value, NAp);
+		keyvalue0_vault17.key = mergefunc(keyvalue0_vault16.key, GETKV2(buffer16[0][i]).key, NAp);
+		keyvalue0_vault17.value = mergefunc(keyvalue0_vault16.value, GETKV2(buffer16[0][i]).value, NAp);
+		keyvalue1_vault17.key = mergefunc(keyvalue1_vault16.key, GETKV2(buffer16[1][i]).key, NAp);
+		keyvalue1_vault17.value = mergefunc(keyvalue1_vault16.value, GETKV2(buffer16[1][i]).value, NAp);
+		keyvalue2_vault17.key = mergefunc(keyvalue2_vault16.key, GETKV2(buffer16[2][i]).key, NAp);
+		keyvalue2_vault17.value = mergefunc(keyvalue2_vault16.value, GETKV2(buffer16[2][i]).value, NAp);
+		keyvalue3_vault17.key = mergefunc(keyvalue3_vault16.key, GETKV2(buffer16[3][i]).key, NAp);
+		keyvalue3_vault17.value = mergefunc(keyvalue3_vault16.value, GETKV2(buffer16[3][i]).value, NAp);
+		keyvalue4_vault17.key = mergefunc(keyvalue4_vault16.key, GETKV2(buffer16[4][i]).key, NAp);
+		keyvalue4_vault17.value = mergefunc(keyvalue4_vault16.value, GETKV2(buffer16[4][i]).value, NAp);
+		keyvalue5_vault17.key = mergefunc(keyvalue5_vault16.key, GETKV2(buffer16[5][i]).key, NAp);
+		keyvalue5_vault17.value = mergefunc(keyvalue5_vault16.value, GETKV2(buffer16[5][i]).value, NAp);
+		keyvalue6_vault17.key = mergefunc(keyvalue6_vault16.key, GETKV2(buffer16[6][i]).key, NAp);
+		keyvalue6_vault17.value = mergefunc(keyvalue6_vault16.value, GETKV2(buffer16[6][i]).value, NAp);
+		keyvalue7_vault17.key = mergefunc(keyvalue7_vault16.key, GETKV2(buffer16[7][i]).key, NAp);
+		keyvalue7_vault17.value = mergefunc(keyvalue7_vault16.value, GETKV2(buffer16[7][i]).value, NAp);
 	
 		
-		tail[0][i] = keyvalue0_vault17;
-		tail[1][i] = keyvalue1_vault17;
-		tail[2][i] = keyvalue2_vault17;
-		tail[3][i] = keyvalue3_vault17;
-		tail[4][i] = keyvalue4_vault17;
-		tail[5][i] = keyvalue5_vault17;
-		tail[6][i] = keyvalue6_vault17;
-		tail[7][i] = keyvalue7_vault17;
+		tail[0][i] = GETKV2(keyvalue0_vault17);
+		tail[1][i] = GETKV2(keyvalue1_vault17);
+		tail[2][i] = GETKV2(keyvalue2_vault17);
+		tail[3][i] = GETKV2(keyvalue3_vault17);
+		tail[4][i] = GETKV2(keyvalue4_vault17);
+		tail[5][i] = GETKV2(keyvalue5_vault17);
+		tail[6][i] = GETKV2(keyvalue6_vault17);
+		tail[7][i] = GETKV2(keyvalue7_vault17);
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(tail[0][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(tail[0][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[1][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(tail[1][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[2][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(tail[2][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[3][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(tail[3][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[4][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(tail[4][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[5][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(tail[5][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[6][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(tail[6][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[7][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(tail[7][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[0][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[1][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[1][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[2][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[2][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[3][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[3][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[4][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[4][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[5][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[5][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[6][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[6][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[7][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[7][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
 	
 		#endif 
 	}
@@ -4472,7 +4654,7 @@ uint32_type
 	acts::
 	#endif
 apply(bool_type enable, 
-		vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -4483,38 +4665,38 @@ apply(bool_type enable,
 	unsigned int vid[NUM_PARTITIONS][2];
 	#pragma HLS ARRAY_PARTITION variable=vid complete
 	
-	vertexdata_wtype data0;
-	vertexdata_wtype res0;
-	vertexdata_wtype data1;
-	vertexdata_wtype res1;
-	vertexdata_wtype data2;
-	vertexdata_wtype res2;
-	vertexdata_wtype data3;
-	vertexdata_wtype res3;
-	vertexdata_wtype data4;
-	vertexdata_wtype res4;
-	vertexdata_wtype data5;
-	vertexdata_wtype res5;
-	vertexdata_wtype data6;
-	vertexdata_wtype res6;
-	vertexdata_wtype data7;
-	vertexdata_wtype res7;
-	vertexdata_wtype data8;
-	vertexdata_wtype res8;
-	vertexdata_wtype data9;
-	vertexdata_wtype res9;
-	vertexdata_wtype data10;
-	vertexdata_wtype res10;
-	vertexdata_wtype data11;
-	vertexdata_wtype res11;
-	vertexdata_wtype data12;
-	vertexdata_wtype res12;
-	vertexdata_wtype data13;
-	vertexdata_wtype res13;
-	vertexdata_wtype data14;
-	vertexdata_wtype res14;
-	vertexdata_wtype data15;
-	vertexdata_wtype res15;
+	keyvalue_t data0;
+	keyvalue_t res0;
+	keyvalue_t data1;
+	keyvalue_t res1;
+	keyvalue_t data2;
+	keyvalue_t res2;
+	keyvalue_t data3;
+	keyvalue_t res3;
+	keyvalue_t data4;
+	keyvalue_t res4;
+	keyvalue_t data5;
+	keyvalue_t res5;
+	keyvalue_t data6;
+	keyvalue_t res6;
+	keyvalue_t data7;
+	keyvalue_t res7;
+	keyvalue_t data8;
+	keyvalue_t res8;
+	keyvalue_t data9;
+	keyvalue_t res9;
+	keyvalue_t data10;
+	keyvalue_t res10;
+	keyvalue_t data11;
+	keyvalue_t res11;
+	keyvalue_t data12;
+	keyvalue_t res12;
+	keyvalue_t data13;
+	keyvalue_t res13;
+	keyvalue_t data14;
+	keyvalue_t res14;
+	keyvalue_t data15;
+	keyvalue_t res15;
 	
 	uint32_type cummvmask_sp = 0;
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
@@ -4558,39 +4740,39 @@ apply(bool_type enable,
 		vid[15][1] = voffset_kvs*VECTOR_SIZE*2 + ((15*globalparams.SIZE_REDUCE) + i*2 + 1);
 		#endif 
 	
-		data0 = vbuffer[0][i];
-		data1 = vbuffer[1][i];
-		data2 = vbuffer[2][i];
-		data3 = vbuffer[3][i];
-		data4 = vbuffer[4][i];
-		data5 = vbuffer[5][i];
-		data6 = vbuffer[6][i];
-		data7 = vbuffer[7][i];
-		data8 = vbuffer[8][i];
-		data9 = vbuffer[9][i];
-		data10 = vbuffer[10][i];
-		data11 = vbuffer[11][i];
-		data12 = vbuffer[12][i];
-		data13 = vbuffer[13][i];
-		data14 = vbuffer[14][i];
-		data15 = vbuffer[15][i];
+		data0 = GETKV2(vbuffer[0][i]);
+		data1 = GETKV2(vbuffer[1][i]);
+		data2 = GETKV2(vbuffer[2][i]);
+		data3 = GETKV2(vbuffer[3][i]);
+		data4 = GETKV2(vbuffer[4][i]);
+		data5 = GETKV2(vbuffer[5][i]);
+		data6 = GETKV2(vbuffer[6][i]);
+		data7 = GETKV2(vbuffer[7][i]);
+		data8 = GETKV2(vbuffer[8][i]);
+		data9 = GETKV2(vbuffer[9][i]);
+		data10 = GETKV2(vbuffer[10][i]);
+		data11 = GETKV2(vbuffer[11][i]);
+		data12 = GETKV2(vbuffer[12][i]);
+		data13 = GETKV2(vbuffer[13][i]);
+		data14 = GETKV2(vbuffer[14][i]);
+		data15 = GETKV2(vbuffer[15][i]);
 		
-		vertexdata_wtype udata0 = synvbuffer[0][i];
-		vertexdata_wtype udata1 = synvbuffer[1][i];
-		vertexdata_wtype udata2 = synvbuffer[2][i];
-		vertexdata_wtype udata3 = synvbuffer[3][i];
-		vertexdata_wtype udata4 = synvbuffer[4][i];
-		vertexdata_wtype udata5 = synvbuffer[5][i];
-		vertexdata_wtype udata6 = synvbuffer[6][i];
-		vertexdata_wtype udata7 = synvbuffer[7][i];
-		vertexdata_wtype udata8 = synvbuffer[8][i];
-		vertexdata_wtype udata9 = synvbuffer[9][i];
-		vertexdata_wtype udata10 = synvbuffer[10][i];
-		vertexdata_wtype udata11 = synvbuffer[11][i];
-		vertexdata_wtype udata12 = synvbuffer[12][i];
-		vertexdata_wtype udata13 = synvbuffer[13][i];
-		vertexdata_wtype udata14 = synvbuffer[14][i];
-		vertexdata_wtype udata15 = synvbuffer[15][i];
+		keyvalue_t udata0 = GETKV2(synvbuffer[0][i]);
+		keyvalue_t udata1 = GETKV2(synvbuffer[1][i]);
+		keyvalue_t udata2 = GETKV2(synvbuffer[2][i]);
+		keyvalue_t udata3 = GETKV2(synvbuffer[3][i]);
+		keyvalue_t udata4 = GETKV2(synvbuffer[4][i]);
+		keyvalue_t udata5 = GETKV2(synvbuffer[5][i]);
+		keyvalue_t udata6 = GETKV2(synvbuffer[6][i]);
+		keyvalue_t udata7 = GETKV2(synvbuffer[7][i]);
+		keyvalue_t udata8 = GETKV2(synvbuffer[8][i]);
+		keyvalue_t udata9 = GETKV2(synvbuffer[9][i]);
+		keyvalue_t udata10 = GETKV2(synvbuffer[10][i]);
+		keyvalue_t udata11 = GETKV2(synvbuffer[11][i]);
+		keyvalue_t udata12 = GETKV2(synvbuffer[12][i]);
+		keyvalue_t udata13 = GETKV2(synvbuffer[13][i]);
+		keyvalue_t udata14 = GETKV2(synvbuffer[14][i]);
+		keyvalue_t udata15 = GETKV2(synvbuffer[15][i]);
 		
 		res0.key = applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res1.key = applyfunc(udata1.key, data1.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -4824,7 +5006,7 @@ uint32_type
 	acts::
 	#endif
 apply2(bool_type enable, 
-		vertexdata_wtype vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -4835,22 +5017,22 @@ apply2(bool_type enable,
 	unsigned int vid[NUM_PARTITIONS][2];
 	#pragma HLS ARRAY_PARTITION variable=vid complete
 	
-	vertexdata_wtype data0;
-	vertexdata_wtype res0;
-	vertexdata_wtype data1;
-	vertexdata_wtype res1;
-	vertexdata_wtype data2;
-	vertexdata_wtype res2;
-	vertexdata_wtype data3;
-	vertexdata_wtype res3;
-	vertexdata_wtype data4;
-	vertexdata_wtype res4;
-	vertexdata_wtype data5;
-	vertexdata_wtype res5;
-	vertexdata_wtype data6;
-	vertexdata_wtype res6;
-	vertexdata_wtype data7;
-	vertexdata_wtype res7;
+	keyvalue_t data0;
+	keyvalue_t res0;
+	keyvalue_t data1;
+	keyvalue_t res1;
+	keyvalue_t data2;
+	keyvalue_t res2;
+	keyvalue_t data3;
+	keyvalue_t res3;
+	keyvalue_t data4;
+	keyvalue_t res4;
+	keyvalue_t data5;
+	keyvalue_t res5;
+	keyvalue_t data6;
+	keyvalue_t res6;
+	keyvalue_t data7;
+	keyvalue_t res7;
 	
 	uint32_type cummvmask_sp = 0;
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
@@ -4878,23 +5060,23 @@ apply2(bool_type enable,
 		vid[7][1] = voffset_kvs*VECTOR_SIZE*2 + ((7*globalparams.SIZE_REDUCE) + i*2 + 1);
 		#endif 
 	
-		data0 = vbuffer[0][i];
-		data1 = vbuffer[1][i];
-		data2 = vbuffer[2][i];
-		data3 = vbuffer[3][i];
-		data4 = vbuffer[4][i];
-		data5 = vbuffer[5][i];
-		data6 = vbuffer[6][i];
-		data7 = vbuffer[7][i];
+		data0 = GETKV2(vbuffer[0][i]);
+		data1 = GETKV2(vbuffer[1][i]);
+		data2 = GETKV2(vbuffer[2][i]);
+		data3 = GETKV2(vbuffer[3][i]);
+		data4 = GETKV2(vbuffer[4][i]);
+		data5 = GETKV2(vbuffer[5][i]);
+		data6 = GETKV2(vbuffer[6][i]);
+		data7 = GETKV2(vbuffer[7][i]);
 		
-		vertexdata_wtype udata0 = synvbuffer[0][i];
-		vertexdata_wtype udata1 = synvbuffer[1][i];
-		vertexdata_wtype udata2 = synvbuffer[2][i];
-		vertexdata_wtype udata3 = synvbuffer[3][i];
-		vertexdata_wtype udata4 = synvbuffer[4][i];
-		vertexdata_wtype udata5 = synvbuffer[5][i];
-		vertexdata_wtype udata6 = synvbuffer[6][i];
-		vertexdata_wtype udata7 = synvbuffer[7][i];
+		keyvalue_t udata0 = GETKV2(synvbuffer[0][i]);
+		keyvalue_t udata1 = GETKV2(synvbuffer[1][i]);
+		keyvalue_t udata2 = GETKV2(synvbuffer[2][i]);
+		keyvalue_t udata3 = GETKV2(synvbuffer[3][i]);
+		keyvalue_t udata4 = GETKV2(synvbuffer[4][i]);
+		keyvalue_t udata5 = GETKV2(synvbuffer[5][i]);
+		keyvalue_t udata6 = GETKV2(synvbuffer[6][i]);
+		keyvalue_t udata7 = GETKV2(synvbuffer[7][i]);
 		
 		res0.key = applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res1.key = applyfunc(udata1.key, data1.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -5024,7 +5206,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvdata(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
@@ -5033,913 +5215,913 @@ spreadvdata(bool_type enable, vertexdata_wtype buffer0[VBUFFER_VECTOR_SIZE][BLOC
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	vertexdata_wtype keyvalue0_vault0;
-	vertexdata_wtype keyvalue1_vault0;
-	vertexdata_wtype keyvalue2_vault0;
-	vertexdata_wtype keyvalue3_vault0;
-	vertexdata_wtype keyvalue4_vault0;
-	vertexdata_wtype keyvalue5_vault0;
-	vertexdata_wtype keyvalue6_vault0;
-	vertexdata_wtype keyvalue7_vault0;
-	vertexdata_wtype keyvalue8_vault0;
-	vertexdata_wtype keyvalue9_vault0;
-	vertexdata_wtype keyvalue10_vault0;
-	vertexdata_wtype keyvalue11_vault0;
-	vertexdata_wtype keyvalue12_vault0;
-	vertexdata_wtype keyvalue13_vault0;
-	vertexdata_wtype keyvalue14_vault0;
-	vertexdata_wtype keyvalue15_vault0;
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	keyvalue_t keyvalue8_vault0;
+	keyvalue_t keyvalue9_vault0;
+	keyvalue_t keyvalue10_vault0;
+	keyvalue_t keyvalue11_vault0;
+	keyvalue_t keyvalue12_vault0;
+	keyvalue_t keyvalue13_vault0;
+	keyvalue_t keyvalue14_vault0;
+	keyvalue_t keyvalue15_vault0;
 	
-	vertexdata_wtype keyvalue0_vault1;
-	vertexdata_wtype keyvalue1_vault1;
-	vertexdata_wtype keyvalue2_vault1;
-	vertexdata_wtype keyvalue3_vault1;
-	vertexdata_wtype keyvalue4_vault1;
-	vertexdata_wtype keyvalue5_vault1;
-	vertexdata_wtype keyvalue6_vault1;
-	vertexdata_wtype keyvalue7_vault1;
-	vertexdata_wtype keyvalue8_vault1;
-	vertexdata_wtype keyvalue9_vault1;
-	vertexdata_wtype keyvalue10_vault1;
-	vertexdata_wtype keyvalue11_vault1;
-	vertexdata_wtype keyvalue12_vault1;
-	vertexdata_wtype keyvalue13_vault1;
-	vertexdata_wtype keyvalue14_vault1;
-	vertexdata_wtype keyvalue15_vault1;
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	keyvalue_t keyvalue8_vault1;
+	keyvalue_t keyvalue9_vault1;
+	keyvalue_t keyvalue10_vault1;
+	keyvalue_t keyvalue11_vault1;
+	keyvalue_t keyvalue12_vault1;
+	keyvalue_t keyvalue13_vault1;
+	keyvalue_t keyvalue14_vault1;
+	keyvalue_t keyvalue15_vault1;
 	
-	vertexdata_wtype keyvalue0_vault2;
-	vertexdata_wtype keyvalue1_vault2;
-	vertexdata_wtype keyvalue2_vault2;
-	vertexdata_wtype keyvalue3_vault2;
-	vertexdata_wtype keyvalue4_vault2;
-	vertexdata_wtype keyvalue5_vault2;
-	vertexdata_wtype keyvalue6_vault2;
-	vertexdata_wtype keyvalue7_vault2;
-	vertexdata_wtype keyvalue8_vault2;
-	vertexdata_wtype keyvalue9_vault2;
-	vertexdata_wtype keyvalue10_vault2;
-	vertexdata_wtype keyvalue11_vault2;
-	vertexdata_wtype keyvalue12_vault2;
-	vertexdata_wtype keyvalue13_vault2;
-	vertexdata_wtype keyvalue14_vault2;
-	vertexdata_wtype keyvalue15_vault2;
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	keyvalue_t keyvalue8_vault2;
+	keyvalue_t keyvalue9_vault2;
+	keyvalue_t keyvalue10_vault2;
+	keyvalue_t keyvalue11_vault2;
+	keyvalue_t keyvalue12_vault2;
+	keyvalue_t keyvalue13_vault2;
+	keyvalue_t keyvalue14_vault2;
+	keyvalue_t keyvalue15_vault2;
 	
-	vertexdata_wtype keyvalue0_vault3;
-	vertexdata_wtype keyvalue1_vault3;
-	vertexdata_wtype keyvalue2_vault3;
-	vertexdata_wtype keyvalue3_vault3;
-	vertexdata_wtype keyvalue4_vault3;
-	vertexdata_wtype keyvalue5_vault3;
-	vertexdata_wtype keyvalue6_vault3;
-	vertexdata_wtype keyvalue7_vault3;
-	vertexdata_wtype keyvalue8_vault3;
-	vertexdata_wtype keyvalue9_vault3;
-	vertexdata_wtype keyvalue10_vault3;
-	vertexdata_wtype keyvalue11_vault3;
-	vertexdata_wtype keyvalue12_vault3;
-	vertexdata_wtype keyvalue13_vault3;
-	vertexdata_wtype keyvalue14_vault3;
-	vertexdata_wtype keyvalue15_vault3;
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	keyvalue_t keyvalue8_vault3;
+	keyvalue_t keyvalue9_vault3;
+	keyvalue_t keyvalue10_vault3;
+	keyvalue_t keyvalue11_vault3;
+	keyvalue_t keyvalue12_vault3;
+	keyvalue_t keyvalue13_vault3;
+	keyvalue_t keyvalue14_vault3;
+	keyvalue_t keyvalue15_vault3;
 	
-	vertexdata_wtype keyvalue0_vault4;
-	vertexdata_wtype keyvalue1_vault4;
-	vertexdata_wtype keyvalue2_vault4;
-	vertexdata_wtype keyvalue3_vault4;
-	vertexdata_wtype keyvalue4_vault4;
-	vertexdata_wtype keyvalue5_vault4;
-	vertexdata_wtype keyvalue6_vault4;
-	vertexdata_wtype keyvalue7_vault4;
-	vertexdata_wtype keyvalue8_vault4;
-	vertexdata_wtype keyvalue9_vault4;
-	vertexdata_wtype keyvalue10_vault4;
-	vertexdata_wtype keyvalue11_vault4;
-	vertexdata_wtype keyvalue12_vault4;
-	vertexdata_wtype keyvalue13_vault4;
-	vertexdata_wtype keyvalue14_vault4;
-	vertexdata_wtype keyvalue15_vault4;
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	keyvalue_t keyvalue8_vault4;
+	keyvalue_t keyvalue9_vault4;
+	keyvalue_t keyvalue10_vault4;
+	keyvalue_t keyvalue11_vault4;
+	keyvalue_t keyvalue12_vault4;
+	keyvalue_t keyvalue13_vault4;
+	keyvalue_t keyvalue14_vault4;
+	keyvalue_t keyvalue15_vault4;
 	
-	vertexdata_wtype keyvalue0_vault5;
-	vertexdata_wtype keyvalue1_vault5;
-	vertexdata_wtype keyvalue2_vault5;
-	vertexdata_wtype keyvalue3_vault5;
-	vertexdata_wtype keyvalue4_vault5;
-	vertexdata_wtype keyvalue5_vault5;
-	vertexdata_wtype keyvalue6_vault5;
-	vertexdata_wtype keyvalue7_vault5;
-	vertexdata_wtype keyvalue8_vault5;
-	vertexdata_wtype keyvalue9_vault5;
-	vertexdata_wtype keyvalue10_vault5;
-	vertexdata_wtype keyvalue11_vault5;
-	vertexdata_wtype keyvalue12_vault5;
-	vertexdata_wtype keyvalue13_vault5;
-	vertexdata_wtype keyvalue14_vault5;
-	vertexdata_wtype keyvalue15_vault5;
+	keyvalue_t keyvalue0_vault5;
+	keyvalue_t keyvalue1_vault5;
+	keyvalue_t keyvalue2_vault5;
+	keyvalue_t keyvalue3_vault5;
+	keyvalue_t keyvalue4_vault5;
+	keyvalue_t keyvalue5_vault5;
+	keyvalue_t keyvalue6_vault5;
+	keyvalue_t keyvalue7_vault5;
+	keyvalue_t keyvalue8_vault5;
+	keyvalue_t keyvalue9_vault5;
+	keyvalue_t keyvalue10_vault5;
+	keyvalue_t keyvalue11_vault5;
+	keyvalue_t keyvalue12_vault5;
+	keyvalue_t keyvalue13_vault5;
+	keyvalue_t keyvalue14_vault5;
+	keyvalue_t keyvalue15_vault5;
 	
-	vertexdata_wtype keyvalue0_vault6;
-	vertexdata_wtype keyvalue1_vault6;
-	vertexdata_wtype keyvalue2_vault6;
-	vertexdata_wtype keyvalue3_vault6;
-	vertexdata_wtype keyvalue4_vault6;
-	vertexdata_wtype keyvalue5_vault6;
-	vertexdata_wtype keyvalue6_vault6;
-	vertexdata_wtype keyvalue7_vault6;
-	vertexdata_wtype keyvalue8_vault6;
-	vertexdata_wtype keyvalue9_vault6;
-	vertexdata_wtype keyvalue10_vault6;
-	vertexdata_wtype keyvalue11_vault6;
-	vertexdata_wtype keyvalue12_vault6;
-	vertexdata_wtype keyvalue13_vault6;
-	vertexdata_wtype keyvalue14_vault6;
-	vertexdata_wtype keyvalue15_vault6;
+	keyvalue_t keyvalue0_vault6;
+	keyvalue_t keyvalue1_vault6;
+	keyvalue_t keyvalue2_vault6;
+	keyvalue_t keyvalue3_vault6;
+	keyvalue_t keyvalue4_vault6;
+	keyvalue_t keyvalue5_vault6;
+	keyvalue_t keyvalue6_vault6;
+	keyvalue_t keyvalue7_vault6;
+	keyvalue_t keyvalue8_vault6;
+	keyvalue_t keyvalue9_vault6;
+	keyvalue_t keyvalue10_vault6;
+	keyvalue_t keyvalue11_vault6;
+	keyvalue_t keyvalue12_vault6;
+	keyvalue_t keyvalue13_vault6;
+	keyvalue_t keyvalue14_vault6;
+	keyvalue_t keyvalue15_vault6;
 	
-	vertexdata_wtype keyvalue0_vault7;
-	vertexdata_wtype keyvalue1_vault7;
-	vertexdata_wtype keyvalue2_vault7;
-	vertexdata_wtype keyvalue3_vault7;
-	vertexdata_wtype keyvalue4_vault7;
-	vertexdata_wtype keyvalue5_vault7;
-	vertexdata_wtype keyvalue6_vault7;
-	vertexdata_wtype keyvalue7_vault7;
-	vertexdata_wtype keyvalue8_vault7;
-	vertexdata_wtype keyvalue9_vault7;
-	vertexdata_wtype keyvalue10_vault7;
-	vertexdata_wtype keyvalue11_vault7;
-	vertexdata_wtype keyvalue12_vault7;
-	vertexdata_wtype keyvalue13_vault7;
-	vertexdata_wtype keyvalue14_vault7;
-	vertexdata_wtype keyvalue15_vault7;
+	keyvalue_t keyvalue0_vault7;
+	keyvalue_t keyvalue1_vault7;
+	keyvalue_t keyvalue2_vault7;
+	keyvalue_t keyvalue3_vault7;
+	keyvalue_t keyvalue4_vault7;
+	keyvalue_t keyvalue5_vault7;
+	keyvalue_t keyvalue6_vault7;
+	keyvalue_t keyvalue7_vault7;
+	keyvalue_t keyvalue8_vault7;
+	keyvalue_t keyvalue9_vault7;
+	keyvalue_t keyvalue10_vault7;
+	keyvalue_t keyvalue11_vault7;
+	keyvalue_t keyvalue12_vault7;
+	keyvalue_t keyvalue13_vault7;
+	keyvalue_t keyvalue14_vault7;
+	keyvalue_t keyvalue15_vault7;
 	
-	vertexdata_wtype keyvalue0_vault8;
-	vertexdata_wtype keyvalue1_vault8;
-	vertexdata_wtype keyvalue2_vault8;
-	vertexdata_wtype keyvalue3_vault8;
-	vertexdata_wtype keyvalue4_vault8;
-	vertexdata_wtype keyvalue5_vault8;
-	vertexdata_wtype keyvalue6_vault8;
-	vertexdata_wtype keyvalue7_vault8;
-	vertexdata_wtype keyvalue8_vault8;
-	vertexdata_wtype keyvalue9_vault8;
-	vertexdata_wtype keyvalue10_vault8;
-	vertexdata_wtype keyvalue11_vault8;
-	vertexdata_wtype keyvalue12_vault8;
-	vertexdata_wtype keyvalue13_vault8;
-	vertexdata_wtype keyvalue14_vault8;
-	vertexdata_wtype keyvalue15_vault8;
+	keyvalue_t keyvalue0_vault8;
+	keyvalue_t keyvalue1_vault8;
+	keyvalue_t keyvalue2_vault8;
+	keyvalue_t keyvalue3_vault8;
+	keyvalue_t keyvalue4_vault8;
+	keyvalue_t keyvalue5_vault8;
+	keyvalue_t keyvalue6_vault8;
+	keyvalue_t keyvalue7_vault8;
+	keyvalue_t keyvalue8_vault8;
+	keyvalue_t keyvalue9_vault8;
+	keyvalue_t keyvalue10_vault8;
+	keyvalue_t keyvalue11_vault8;
+	keyvalue_t keyvalue12_vault8;
+	keyvalue_t keyvalue13_vault8;
+	keyvalue_t keyvalue14_vault8;
+	keyvalue_t keyvalue15_vault8;
 	
-	vertexdata_wtype keyvalue0_vault9;
-	vertexdata_wtype keyvalue1_vault9;
-	vertexdata_wtype keyvalue2_vault9;
-	vertexdata_wtype keyvalue3_vault9;
-	vertexdata_wtype keyvalue4_vault9;
-	vertexdata_wtype keyvalue5_vault9;
-	vertexdata_wtype keyvalue6_vault9;
-	vertexdata_wtype keyvalue7_vault9;
-	vertexdata_wtype keyvalue8_vault9;
-	vertexdata_wtype keyvalue9_vault9;
-	vertexdata_wtype keyvalue10_vault9;
-	vertexdata_wtype keyvalue11_vault9;
-	vertexdata_wtype keyvalue12_vault9;
-	vertexdata_wtype keyvalue13_vault9;
-	vertexdata_wtype keyvalue14_vault9;
-	vertexdata_wtype keyvalue15_vault9;
+	keyvalue_t keyvalue0_vault9;
+	keyvalue_t keyvalue1_vault9;
+	keyvalue_t keyvalue2_vault9;
+	keyvalue_t keyvalue3_vault9;
+	keyvalue_t keyvalue4_vault9;
+	keyvalue_t keyvalue5_vault9;
+	keyvalue_t keyvalue6_vault9;
+	keyvalue_t keyvalue7_vault9;
+	keyvalue_t keyvalue8_vault9;
+	keyvalue_t keyvalue9_vault9;
+	keyvalue_t keyvalue10_vault9;
+	keyvalue_t keyvalue11_vault9;
+	keyvalue_t keyvalue12_vault9;
+	keyvalue_t keyvalue13_vault9;
+	keyvalue_t keyvalue14_vault9;
+	keyvalue_t keyvalue15_vault9;
 	
-	vertexdata_wtype keyvalue0_vault10;
-	vertexdata_wtype keyvalue1_vault10;
-	vertexdata_wtype keyvalue2_vault10;
-	vertexdata_wtype keyvalue3_vault10;
-	vertexdata_wtype keyvalue4_vault10;
-	vertexdata_wtype keyvalue5_vault10;
-	vertexdata_wtype keyvalue6_vault10;
-	vertexdata_wtype keyvalue7_vault10;
-	vertexdata_wtype keyvalue8_vault10;
-	vertexdata_wtype keyvalue9_vault10;
-	vertexdata_wtype keyvalue10_vault10;
-	vertexdata_wtype keyvalue11_vault10;
-	vertexdata_wtype keyvalue12_vault10;
-	vertexdata_wtype keyvalue13_vault10;
-	vertexdata_wtype keyvalue14_vault10;
-	vertexdata_wtype keyvalue15_vault10;
+	keyvalue_t keyvalue0_vault10;
+	keyvalue_t keyvalue1_vault10;
+	keyvalue_t keyvalue2_vault10;
+	keyvalue_t keyvalue3_vault10;
+	keyvalue_t keyvalue4_vault10;
+	keyvalue_t keyvalue5_vault10;
+	keyvalue_t keyvalue6_vault10;
+	keyvalue_t keyvalue7_vault10;
+	keyvalue_t keyvalue8_vault10;
+	keyvalue_t keyvalue9_vault10;
+	keyvalue_t keyvalue10_vault10;
+	keyvalue_t keyvalue11_vault10;
+	keyvalue_t keyvalue12_vault10;
+	keyvalue_t keyvalue13_vault10;
+	keyvalue_t keyvalue14_vault10;
+	keyvalue_t keyvalue15_vault10;
 	
-	vertexdata_wtype keyvalue0_vault11;
-	vertexdata_wtype keyvalue1_vault11;
-	vertexdata_wtype keyvalue2_vault11;
-	vertexdata_wtype keyvalue3_vault11;
-	vertexdata_wtype keyvalue4_vault11;
-	vertexdata_wtype keyvalue5_vault11;
-	vertexdata_wtype keyvalue6_vault11;
-	vertexdata_wtype keyvalue7_vault11;
-	vertexdata_wtype keyvalue8_vault11;
-	vertexdata_wtype keyvalue9_vault11;
-	vertexdata_wtype keyvalue10_vault11;
-	vertexdata_wtype keyvalue11_vault11;
-	vertexdata_wtype keyvalue12_vault11;
-	vertexdata_wtype keyvalue13_vault11;
-	vertexdata_wtype keyvalue14_vault11;
-	vertexdata_wtype keyvalue15_vault11;
+	keyvalue_t keyvalue0_vault11;
+	keyvalue_t keyvalue1_vault11;
+	keyvalue_t keyvalue2_vault11;
+	keyvalue_t keyvalue3_vault11;
+	keyvalue_t keyvalue4_vault11;
+	keyvalue_t keyvalue5_vault11;
+	keyvalue_t keyvalue6_vault11;
+	keyvalue_t keyvalue7_vault11;
+	keyvalue_t keyvalue8_vault11;
+	keyvalue_t keyvalue9_vault11;
+	keyvalue_t keyvalue10_vault11;
+	keyvalue_t keyvalue11_vault11;
+	keyvalue_t keyvalue12_vault11;
+	keyvalue_t keyvalue13_vault11;
+	keyvalue_t keyvalue14_vault11;
+	keyvalue_t keyvalue15_vault11;
 	
-	vertexdata_wtype keyvalue0_vault12;
-	vertexdata_wtype keyvalue1_vault12;
-	vertexdata_wtype keyvalue2_vault12;
-	vertexdata_wtype keyvalue3_vault12;
-	vertexdata_wtype keyvalue4_vault12;
-	vertexdata_wtype keyvalue5_vault12;
-	vertexdata_wtype keyvalue6_vault12;
-	vertexdata_wtype keyvalue7_vault12;
-	vertexdata_wtype keyvalue8_vault12;
-	vertexdata_wtype keyvalue9_vault12;
-	vertexdata_wtype keyvalue10_vault12;
-	vertexdata_wtype keyvalue11_vault12;
-	vertexdata_wtype keyvalue12_vault12;
-	vertexdata_wtype keyvalue13_vault12;
-	vertexdata_wtype keyvalue14_vault12;
-	vertexdata_wtype keyvalue15_vault12;
+	keyvalue_t keyvalue0_vault12;
+	keyvalue_t keyvalue1_vault12;
+	keyvalue_t keyvalue2_vault12;
+	keyvalue_t keyvalue3_vault12;
+	keyvalue_t keyvalue4_vault12;
+	keyvalue_t keyvalue5_vault12;
+	keyvalue_t keyvalue6_vault12;
+	keyvalue_t keyvalue7_vault12;
+	keyvalue_t keyvalue8_vault12;
+	keyvalue_t keyvalue9_vault12;
+	keyvalue_t keyvalue10_vault12;
+	keyvalue_t keyvalue11_vault12;
+	keyvalue_t keyvalue12_vault12;
+	keyvalue_t keyvalue13_vault12;
+	keyvalue_t keyvalue14_vault12;
+	keyvalue_t keyvalue15_vault12;
 	
-	vertexdata_wtype keyvalue0_vault13;
-	vertexdata_wtype keyvalue1_vault13;
-	vertexdata_wtype keyvalue2_vault13;
-	vertexdata_wtype keyvalue3_vault13;
-	vertexdata_wtype keyvalue4_vault13;
-	vertexdata_wtype keyvalue5_vault13;
-	vertexdata_wtype keyvalue6_vault13;
-	vertexdata_wtype keyvalue7_vault13;
-	vertexdata_wtype keyvalue8_vault13;
-	vertexdata_wtype keyvalue9_vault13;
-	vertexdata_wtype keyvalue10_vault13;
-	vertexdata_wtype keyvalue11_vault13;
-	vertexdata_wtype keyvalue12_vault13;
-	vertexdata_wtype keyvalue13_vault13;
-	vertexdata_wtype keyvalue14_vault13;
-	vertexdata_wtype keyvalue15_vault13;
+	keyvalue_t keyvalue0_vault13;
+	keyvalue_t keyvalue1_vault13;
+	keyvalue_t keyvalue2_vault13;
+	keyvalue_t keyvalue3_vault13;
+	keyvalue_t keyvalue4_vault13;
+	keyvalue_t keyvalue5_vault13;
+	keyvalue_t keyvalue6_vault13;
+	keyvalue_t keyvalue7_vault13;
+	keyvalue_t keyvalue8_vault13;
+	keyvalue_t keyvalue9_vault13;
+	keyvalue_t keyvalue10_vault13;
+	keyvalue_t keyvalue11_vault13;
+	keyvalue_t keyvalue12_vault13;
+	keyvalue_t keyvalue13_vault13;
+	keyvalue_t keyvalue14_vault13;
+	keyvalue_t keyvalue15_vault13;
 	
-	vertexdata_wtype keyvalue0_vault14;
-	vertexdata_wtype keyvalue1_vault14;
-	vertexdata_wtype keyvalue2_vault14;
-	vertexdata_wtype keyvalue3_vault14;
-	vertexdata_wtype keyvalue4_vault14;
-	vertexdata_wtype keyvalue5_vault14;
-	vertexdata_wtype keyvalue6_vault14;
-	vertexdata_wtype keyvalue7_vault14;
-	vertexdata_wtype keyvalue8_vault14;
-	vertexdata_wtype keyvalue9_vault14;
-	vertexdata_wtype keyvalue10_vault14;
-	vertexdata_wtype keyvalue11_vault14;
-	vertexdata_wtype keyvalue12_vault14;
-	vertexdata_wtype keyvalue13_vault14;
-	vertexdata_wtype keyvalue14_vault14;
-	vertexdata_wtype keyvalue15_vault14;
+	keyvalue_t keyvalue0_vault14;
+	keyvalue_t keyvalue1_vault14;
+	keyvalue_t keyvalue2_vault14;
+	keyvalue_t keyvalue3_vault14;
+	keyvalue_t keyvalue4_vault14;
+	keyvalue_t keyvalue5_vault14;
+	keyvalue_t keyvalue6_vault14;
+	keyvalue_t keyvalue7_vault14;
+	keyvalue_t keyvalue8_vault14;
+	keyvalue_t keyvalue9_vault14;
+	keyvalue_t keyvalue10_vault14;
+	keyvalue_t keyvalue11_vault14;
+	keyvalue_t keyvalue12_vault14;
+	keyvalue_t keyvalue13_vault14;
+	keyvalue_t keyvalue14_vault14;
+	keyvalue_t keyvalue15_vault14;
 	
-	vertexdata_wtype keyvalue0_vault15;
-	vertexdata_wtype keyvalue1_vault15;
-	vertexdata_wtype keyvalue2_vault15;
-	vertexdata_wtype keyvalue3_vault15;
-	vertexdata_wtype keyvalue4_vault15;
-	vertexdata_wtype keyvalue5_vault15;
-	vertexdata_wtype keyvalue6_vault15;
-	vertexdata_wtype keyvalue7_vault15;
-	vertexdata_wtype keyvalue8_vault15;
-	vertexdata_wtype keyvalue9_vault15;
-	vertexdata_wtype keyvalue10_vault15;
-	vertexdata_wtype keyvalue11_vault15;
-	vertexdata_wtype keyvalue12_vault15;
-	vertexdata_wtype keyvalue13_vault15;
-	vertexdata_wtype keyvalue14_vault15;
-	vertexdata_wtype keyvalue15_vault15;
+	keyvalue_t keyvalue0_vault15;
+	keyvalue_t keyvalue1_vault15;
+	keyvalue_t keyvalue2_vault15;
+	keyvalue_t keyvalue3_vault15;
+	keyvalue_t keyvalue4_vault15;
+	keyvalue_t keyvalue5_vault15;
+	keyvalue_t keyvalue6_vault15;
+	keyvalue_t keyvalue7_vault15;
+	keyvalue_t keyvalue8_vault15;
+	keyvalue_t keyvalue9_vault15;
+	keyvalue_t keyvalue10_vault15;
+	keyvalue_t keyvalue11_vault15;
+	keyvalue_t keyvalue12_vault15;
+	keyvalue_t keyvalue13_vault15;
+	keyvalue_t keyvalue14_vault15;
+	keyvalue_t keyvalue15_vault15;
 	
-	vertexdata_wtype keyvalue0_vault16;
-	vertexdata_wtype keyvalue1_vault16;
-	vertexdata_wtype keyvalue2_vault16;
-	vertexdata_wtype keyvalue3_vault16;
-	vertexdata_wtype keyvalue4_vault16;
-	vertexdata_wtype keyvalue5_vault16;
-	vertexdata_wtype keyvalue6_vault16;
-	vertexdata_wtype keyvalue7_vault16;
-	vertexdata_wtype keyvalue8_vault16;
-	vertexdata_wtype keyvalue9_vault16;
-	vertexdata_wtype keyvalue10_vault16;
-	vertexdata_wtype keyvalue11_vault16;
-	vertexdata_wtype keyvalue12_vault16;
-	vertexdata_wtype keyvalue13_vault16;
-	vertexdata_wtype keyvalue14_vault16;
-	vertexdata_wtype keyvalue15_vault16;
+	keyvalue_t keyvalue0_vault16;
+	keyvalue_t keyvalue1_vault16;
+	keyvalue_t keyvalue2_vault16;
+	keyvalue_t keyvalue3_vault16;
+	keyvalue_t keyvalue4_vault16;
+	keyvalue_t keyvalue5_vault16;
+	keyvalue_t keyvalue6_vault16;
+	keyvalue_t keyvalue7_vault16;
+	keyvalue_t keyvalue8_vault16;
+	keyvalue_t keyvalue9_vault16;
+	keyvalue_t keyvalue10_vault16;
+	keyvalue_t keyvalue11_vault16;
+	keyvalue_t keyvalue12_vault16;
+	keyvalue_t keyvalue13_vault16;
+	keyvalue_t keyvalue14_vault16;
+	keyvalue_t keyvalue15_vault16;
 	
-	vertexdata_wtype keyvalue0_vault17;
-	vertexdata_wtype keyvalue1_vault17;
-	vertexdata_wtype keyvalue2_vault17;
-	vertexdata_wtype keyvalue3_vault17;
-	vertexdata_wtype keyvalue4_vault17;
-	vertexdata_wtype keyvalue5_vault17;
-	vertexdata_wtype keyvalue6_vault17;
-	vertexdata_wtype keyvalue7_vault17;
-	vertexdata_wtype keyvalue8_vault17;
-	vertexdata_wtype keyvalue9_vault17;
-	vertexdata_wtype keyvalue10_vault17;
-	vertexdata_wtype keyvalue11_vault17;
-	vertexdata_wtype keyvalue12_vault17;
-	vertexdata_wtype keyvalue13_vault17;
-	vertexdata_wtype keyvalue14_vault17;
-	vertexdata_wtype keyvalue15_vault17;
+	keyvalue_t keyvalue0_vault17;
+	keyvalue_t keyvalue1_vault17;
+	keyvalue_t keyvalue2_vault17;
+	keyvalue_t keyvalue3_vault17;
+	keyvalue_t keyvalue4_vault17;
+	keyvalue_t keyvalue5_vault17;
+	keyvalue_t keyvalue6_vault17;
+	keyvalue_t keyvalue7_vault17;
+	keyvalue_t keyvalue8_vault17;
+	keyvalue_t keyvalue9_vault17;
+	keyvalue_t keyvalue10_vault17;
+	keyvalue_t keyvalue11_vault17;
+	keyvalue_t keyvalue12_vault17;
+	keyvalue_t keyvalue13_vault17;
+	keyvalue_t keyvalue14_vault17;
+	keyvalue_t keyvalue15_vault17;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		keyvalue0_vault1 = buffer0[0][i]; 
-		keyvalue1_vault1 = buffer0[1][i]; 
-		keyvalue2_vault1 = buffer0[2][i]; 
-		keyvalue3_vault1 = buffer0[3][i]; 
-		keyvalue4_vault1 = buffer0[4][i]; 
-		keyvalue5_vault1 = buffer0[5][i]; 
-		keyvalue6_vault1 = buffer0[6][i]; 
-		keyvalue7_vault1 = buffer0[7][i]; 
-		keyvalue8_vault1 = buffer0[8][i]; 
-		keyvalue9_vault1 = buffer0[9][i]; 
-		keyvalue10_vault1 = buffer0[10][i]; 
-		keyvalue11_vault1 = buffer0[11][i]; 
-		keyvalue12_vault1 = buffer0[12][i]; 
-		keyvalue13_vault1 = buffer0[13][i]; 
-		keyvalue14_vault1 = buffer0[14][i]; 
-		keyvalue15_vault1 = buffer0[15][i]; 
+		keyvalue0_vault1 = GETKV2(buffer0[0][i]); 
+		keyvalue1_vault1 = GETKV2(buffer0[1][i]); 
+		keyvalue2_vault1 = GETKV2(buffer0[2][i]); 
+		keyvalue3_vault1 = GETKV2(buffer0[3][i]); 
+		keyvalue4_vault1 = GETKV2(buffer0[4][i]); 
+		keyvalue5_vault1 = GETKV2(buffer0[5][i]); 
+		keyvalue6_vault1 = GETKV2(buffer0[6][i]); 
+		keyvalue7_vault1 = GETKV2(buffer0[7][i]); 
+		keyvalue8_vault1 = GETKV2(buffer0[8][i]); 
+		keyvalue9_vault1 = GETKV2(buffer0[9][i]); 
+		keyvalue10_vault1 = GETKV2(buffer0[10][i]); 
+		keyvalue11_vault1 = GETKV2(buffer0[11][i]); 
+		keyvalue12_vault1 = GETKV2(buffer0[12][i]); 
+		keyvalue13_vault1 = GETKV2(buffer0[13][i]); 
+		keyvalue14_vault1 = GETKV2(buffer0[14][i]); 
+		keyvalue15_vault1 = GETKV2(buffer0[15][i]); 
 			
 	
 		keyvalue0_vault2 = keyvalue0_vault1;
-		buffer1[0][i] = keyvalue0_vault1;
+		buffer1[0][i] = GETKV2(keyvalue0_vault1);
 		keyvalue1_vault2 = keyvalue1_vault1;
-		buffer1[1][i] = keyvalue1_vault1;
+		buffer1[1][i] = GETKV2(keyvalue1_vault1);
 		keyvalue2_vault2 = keyvalue2_vault1;
-		buffer1[2][i] = keyvalue2_vault1;
+		buffer1[2][i] = GETKV2(keyvalue2_vault1);
 		keyvalue3_vault2 = keyvalue3_vault1;
-		buffer1[3][i] = keyvalue3_vault1;
+		buffer1[3][i] = GETKV2(keyvalue3_vault1);
 		keyvalue4_vault2 = keyvalue4_vault1;
-		buffer1[4][i] = keyvalue4_vault1;
+		buffer1[4][i] = GETKV2(keyvalue4_vault1);
 		keyvalue5_vault2 = keyvalue5_vault1;
-		buffer1[5][i] = keyvalue5_vault1;
+		buffer1[5][i] = GETKV2(keyvalue5_vault1);
 		keyvalue6_vault2 = keyvalue6_vault1;
-		buffer1[6][i] = keyvalue6_vault1;
+		buffer1[6][i] = GETKV2(keyvalue6_vault1);
 		keyvalue7_vault2 = keyvalue7_vault1;
-		buffer1[7][i] = keyvalue7_vault1;
+		buffer1[7][i] = GETKV2(keyvalue7_vault1);
 		keyvalue8_vault2 = keyvalue8_vault1;
-		buffer1[8][i] = keyvalue8_vault1;
+		buffer1[8][i] = GETKV2(keyvalue8_vault1);
 		keyvalue9_vault2 = keyvalue9_vault1;
-		buffer1[9][i] = keyvalue9_vault1;
+		buffer1[9][i] = GETKV2(keyvalue9_vault1);
 		keyvalue10_vault2 = keyvalue10_vault1;
-		buffer1[10][i] = keyvalue10_vault1;
+		buffer1[10][i] = GETKV2(keyvalue10_vault1);
 		keyvalue11_vault2 = keyvalue11_vault1;
-		buffer1[11][i] = keyvalue11_vault1;
+		buffer1[11][i] = GETKV2(keyvalue11_vault1);
 		keyvalue12_vault2 = keyvalue12_vault1;
-		buffer1[12][i] = keyvalue12_vault1;
+		buffer1[12][i] = GETKV2(keyvalue12_vault1);
 		keyvalue13_vault2 = keyvalue13_vault1;
-		buffer1[13][i] = keyvalue13_vault1;
+		buffer1[13][i] = GETKV2(keyvalue13_vault1);
 		keyvalue14_vault2 = keyvalue14_vault1;
-		buffer1[14][i] = keyvalue14_vault1;
+		buffer1[14][i] = GETKV2(keyvalue14_vault1);
 		keyvalue15_vault2 = keyvalue15_vault1;
-		buffer1[15][i] = keyvalue15_vault1;
+		buffer1[15][i] = GETKV2(keyvalue15_vault1);
 	
 		keyvalue0_vault3 = keyvalue0_vault2;
-		buffer2[0][i] = keyvalue0_vault2;
+		buffer2[0][i] = GETKV2(keyvalue0_vault2);
 		keyvalue1_vault3 = keyvalue1_vault2;
-		buffer2[1][i] = keyvalue1_vault2;
+		buffer2[1][i] = GETKV2(keyvalue1_vault2);
 		keyvalue2_vault3 = keyvalue2_vault2;
-		buffer2[2][i] = keyvalue2_vault2;
+		buffer2[2][i] = GETKV2(keyvalue2_vault2);
 		keyvalue3_vault3 = keyvalue3_vault2;
-		buffer2[3][i] = keyvalue3_vault2;
+		buffer2[3][i] = GETKV2(keyvalue3_vault2);
 		keyvalue4_vault3 = keyvalue4_vault2;
-		buffer2[4][i] = keyvalue4_vault2;
+		buffer2[4][i] = GETKV2(keyvalue4_vault2);
 		keyvalue5_vault3 = keyvalue5_vault2;
-		buffer2[5][i] = keyvalue5_vault2;
+		buffer2[5][i] = GETKV2(keyvalue5_vault2);
 		keyvalue6_vault3 = keyvalue6_vault2;
-		buffer2[6][i] = keyvalue6_vault2;
+		buffer2[6][i] = GETKV2(keyvalue6_vault2);
 		keyvalue7_vault3 = keyvalue7_vault2;
-		buffer2[7][i] = keyvalue7_vault2;
+		buffer2[7][i] = GETKV2(keyvalue7_vault2);
 		keyvalue8_vault3 = keyvalue8_vault2;
-		buffer2[8][i] = keyvalue8_vault2;
+		buffer2[8][i] = GETKV2(keyvalue8_vault2);
 		keyvalue9_vault3 = keyvalue9_vault2;
-		buffer2[9][i] = keyvalue9_vault2;
+		buffer2[9][i] = GETKV2(keyvalue9_vault2);
 		keyvalue10_vault3 = keyvalue10_vault2;
-		buffer2[10][i] = keyvalue10_vault2;
+		buffer2[10][i] = GETKV2(keyvalue10_vault2);
 		keyvalue11_vault3 = keyvalue11_vault2;
-		buffer2[11][i] = keyvalue11_vault2;
+		buffer2[11][i] = GETKV2(keyvalue11_vault2);
 		keyvalue12_vault3 = keyvalue12_vault2;
-		buffer2[12][i] = keyvalue12_vault2;
+		buffer2[12][i] = GETKV2(keyvalue12_vault2);
 		keyvalue13_vault3 = keyvalue13_vault2;
-		buffer2[13][i] = keyvalue13_vault2;
+		buffer2[13][i] = GETKV2(keyvalue13_vault2);
 		keyvalue14_vault3 = keyvalue14_vault2;
-		buffer2[14][i] = keyvalue14_vault2;
+		buffer2[14][i] = GETKV2(keyvalue14_vault2);
 		keyvalue15_vault3 = keyvalue15_vault2;
-		buffer2[15][i] = keyvalue15_vault2;
+		buffer2[15][i] = GETKV2(keyvalue15_vault2);
 	
 		keyvalue0_vault4 = keyvalue0_vault3;
-		buffer3[0][i] = keyvalue0_vault3;
+		buffer3[0][i] = GETKV2(keyvalue0_vault3);
 		keyvalue1_vault4 = keyvalue1_vault3;
-		buffer3[1][i] = keyvalue1_vault3;
+		buffer3[1][i] = GETKV2(keyvalue1_vault3);
 		keyvalue2_vault4 = keyvalue2_vault3;
-		buffer3[2][i] = keyvalue2_vault3;
+		buffer3[2][i] = GETKV2(keyvalue2_vault3);
 		keyvalue3_vault4 = keyvalue3_vault3;
-		buffer3[3][i] = keyvalue3_vault3;
+		buffer3[3][i] = GETKV2(keyvalue3_vault3);
 		keyvalue4_vault4 = keyvalue4_vault3;
-		buffer3[4][i] = keyvalue4_vault3;
+		buffer3[4][i] = GETKV2(keyvalue4_vault3);
 		keyvalue5_vault4 = keyvalue5_vault3;
-		buffer3[5][i] = keyvalue5_vault3;
+		buffer3[5][i] = GETKV2(keyvalue5_vault3);
 		keyvalue6_vault4 = keyvalue6_vault3;
-		buffer3[6][i] = keyvalue6_vault3;
+		buffer3[6][i] = GETKV2(keyvalue6_vault3);
 		keyvalue7_vault4 = keyvalue7_vault3;
-		buffer3[7][i] = keyvalue7_vault3;
+		buffer3[7][i] = GETKV2(keyvalue7_vault3);
 		keyvalue8_vault4 = keyvalue8_vault3;
-		buffer3[8][i] = keyvalue8_vault3;
+		buffer3[8][i] = GETKV2(keyvalue8_vault3);
 		keyvalue9_vault4 = keyvalue9_vault3;
-		buffer3[9][i] = keyvalue9_vault3;
+		buffer3[9][i] = GETKV2(keyvalue9_vault3);
 		keyvalue10_vault4 = keyvalue10_vault3;
-		buffer3[10][i] = keyvalue10_vault3;
+		buffer3[10][i] = GETKV2(keyvalue10_vault3);
 		keyvalue11_vault4 = keyvalue11_vault3;
-		buffer3[11][i] = keyvalue11_vault3;
+		buffer3[11][i] = GETKV2(keyvalue11_vault3);
 		keyvalue12_vault4 = keyvalue12_vault3;
-		buffer3[12][i] = keyvalue12_vault3;
+		buffer3[12][i] = GETKV2(keyvalue12_vault3);
 		keyvalue13_vault4 = keyvalue13_vault3;
-		buffer3[13][i] = keyvalue13_vault3;
+		buffer3[13][i] = GETKV2(keyvalue13_vault3);
 		keyvalue14_vault4 = keyvalue14_vault3;
-		buffer3[14][i] = keyvalue14_vault3;
+		buffer3[14][i] = GETKV2(keyvalue14_vault3);
 		keyvalue15_vault4 = keyvalue15_vault3;
-		buffer3[15][i] = keyvalue15_vault3;
+		buffer3[15][i] = GETKV2(keyvalue15_vault3);
 	
 		keyvalue0_vault5 = keyvalue0_vault4;
-		buffer4[0][i] = keyvalue0_vault4;
+		buffer4[0][i] = GETKV2(keyvalue0_vault4);
 		keyvalue1_vault5 = keyvalue1_vault4;
-		buffer4[1][i] = keyvalue1_vault4;
+		buffer4[1][i] = GETKV2(keyvalue1_vault4);
 		keyvalue2_vault5 = keyvalue2_vault4;
-		buffer4[2][i] = keyvalue2_vault4;
+		buffer4[2][i] = GETKV2(keyvalue2_vault4);
 		keyvalue3_vault5 = keyvalue3_vault4;
-		buffer4[3][i] = keyvalue3_vault4;
+		buffer4[3][i] = GETKV2(keyvalue3_vault4);
 		keyvalue4_vault5 = keyvalue4_vault4;
-		buffer4[4][i] = keyvalue4_vault4;
+		buffer4[4][i] = GETKV2(keyvalue4_vault4);
 		keyvalue5_vault5 = keyvalue5_vault4;
-		buffer4[5][i] = keyvalue5_vault4;
+		buffer4[5][i] = GETKV2(keyvalue5_vault4);
 		keyvalue6_vault5 = keyvalue6_vault4;
-		buffer4[6][i] = keyvalue6_vault4;
+		buffer4[6][i] = GETKV2(keyvalue6_vault4);
 		keyvalue7_vault5 = keyvalue7_vault4;
-		buffer4[7][i] = keyvalue7_vault4;
+		buffer4[7][i] = GETKV2(keyvalue7_vault4);
 		keyvalue8_vault5 = keyvalue8_vault4;
-		buffer4[8][i] = keyvalue8_vault4;
+		buffer4[8][i] = GETKV2(keyvalue8_vault4);
 		keyvalue9_vault5 = keyvalue9_vault4;
-		buffer4[9][i] = keyvalue9_vault4;
+		buffer4[9][i] = GETKV2(keyvalue9_vault4);
 		keyvalue10_vault5 = keyvalue10_vault4;
-		buffer4[10][i] = keyvalue10_vault4;
+		buffer4[10][i] = GETKV2(keyvalue10_vault4);
 		keyvalue11_vault5 = keyvalue11_vault4;
-		buffer4[11][i] = keyvalue11_vault4;
+		buffer4[11][i] = GETKV2(keyvalue11_vault4);
 		keyvalue12_vault5 = keyvalue12_vault4;
-		buffer4[12][i] = keyvalue12_vault4;
+		buffer4[12][i] = GETKV2(keyvalue12_vault4);
 		keyvalue13_vault5 = keyvalue13_vault4;
-		buffer4[13][i] = keyvalue13_vault4;
+		buffer4[13][i] = GETKV2(keyvalue13_vault4);
 		keyvalue14_vault5 = keyvalue14_vault4;
-		buffer4[14][i] = keyvalue14_vault4;
+		buffer4[14][i] = GETKV2(keyvalue14_vault4);
 		keyvalue15_vault5 = keyvalue15_vault4;
-		buffer4[15][i] = keyvalue15_vault4;
+		buffer4[15][i] = GETKV2(keyvalue15_vault4);
 	
 		keyvalue0_vault6 = keyvalue0_vault5;
-		buffer5[0][i] = keyvalue0_vault5;
+		buffer5[0][i] = GETKV2(keyvalue0_vault5);
 		keyvalue1_vault6 = keyvalue1_vault5;
-		buffer5[1][i] = keyvalue1_vault5;
+		buffer5[1][i] = GETKV2(keyvalue1_vault5);
 		keyvalue2_vault6 = keyvalue2_vault5;
-		buffer5[2][i] = keyvalue2_vault5;
+		buffer5[2][i] = GETKV2(keyvalue2_vault5);
 		keyvalue3_vault6 = keyvalue3_vault5;
-		buffer5[3][i] = keyvalue3_vault5;
+		buffer5[3][i] = GETKV2(keyvalue3_vault5);
 		keyvalue4_vault6 = keyvalue4_vault5;
-		buffer5[4][i] = keyvalue4_vault5;
+		buffer5[4][i] = GETKV2(keyvalue4_vault5);
 		keyvalue5_vault6 = keyvalue5_vault5;
-		buffer5[5][i] = keyvalue5_vault5;
+		buffer5[5][i] = GETKV2(keyvalue5_vault5);
 		keyvalue6_vault6 = keyvalue6_vault5;
-		buffer5[6][i] = keyvalue6_vault5;
+		buffer5[6][i] = GETKV2(keyvalue6_vault5);
 		keyvalue7_vault6 = keyvalue7_vault5;
-		buffer5[7][i] = keyvalue7_vault5;
+		buffer5[7][i] = GETKV2(keyvalue7_vault5);
 		keyvalue8_vault6 = keyvalue8_vault5;
-		buffer5[8][i] = keyvalue8_vault5;
+		buffer5[8][i] = GETKV2(keyvalue8_vault5);
 		keyvalue9_vault6 = keyvalue9_vault5;
-		buffer5[9][i] = keyvalue9_vault5;
+		buffer5[9][i] = GETKV2(keyvalue9_vault5);
 		keyvalue10_vault6 = keyvalue10_vault5;
-		buffer5[10][i] = keyvalue10_vault5;
+		buffer5[10][i] = GETKV2(keyvalue10_vault5);
 		keyvalue11_vault6 = keyvalue11_vault5;
-		buffer5[11][i] = keyvalue11_vault5;
+		buffer5[11][i] = GETKV2(keyvalue11_vault5);
 		keyvalue12_vault6 = keyvalue12_vault5;
-		buffer5[12][i] = keyvalue12_vault5;
+		buffer5[12][i] = GETKV2(keyvalue12_vault5);
 		keyvalue13_vault6 = keyvalue13_vault5;
-		buffer5[13][i] = keyvalue13_vault5;
+		buffer5[13][i] = GETKV2(keyvalue13_vault5);
 		keyvalue14_vault6 = keyvalue14_vault5;
-		buffer5[14][i] = keyvalue14_vault5;
+		buffer5[14][i] = GETKV2(keyvalue14_vault5);
 		keyvalue15_vault6 = keyvalue15_vault5;
-		buffer5[15][i] = keyvalue15_vault5;
+		buffer5[15][i] = GETKV2(keyvalue15_vault5);
 	
 		keyvalue0_vault7 = keyvalue0_vault6;
-		buffer6[0][i] = keyvalue0_vault6;
+		buffer6[0][i] = GETKV2(keyvalue0_vault6);
 		keyvalue1_vault7 = keyvalue1_vault6;
-		buffer6[1][i] = keyvalue1_vault6;
+		buffer6[1][i] = GETKV2(keyvalue1_vault6);
 		keyvalue2_vault7 = keyvalue2_vault6;
-		buffer6[2][i] = keyvalue2_vault6;
+		buffer6[2][i] = GETKV2(keyvalue2_vault6);
 		keyvalue3_vault7 = keyvalue3_vault6;
-		buffer6[3][i] = keyvalue3_vault6;
+		buffer6[3][i] = GETKV2(keyvalue3_vault6);
 		keyvalue4_vault7 = keyvalue4_vault6;
-		buffer6[4][i] = keyvalue4_vault6;
+		buffer6[4][i] = GETKV2(keyvalue4_vault6);
 		keyvalue5_vault7 = keyvalue5_vault6;
-		buffer6[5][i] = keyvalue5_vault6;
+		buffer6[5][i] = GETKV2(keyvalue5_vault6);
 		keyvalue6_vault7 = keyvalue6_vault6;
-		buffer6[6][i] = keyvalue6_vault6;
+		buffer6[6][i] = GETKV2(keyvalue6_vault6);
 		keyvalue7_vault7 = keyvalue7_vault6;
-		buffer6[7][i] = keyvalue7_vault6;
+		buffer6[7][i] = GETKV2(keyvalue7_vault6);
 		keyvalue8_vault7 = keyvalue8_vault6;
-		buffer6[8][i] = keyvalue8_vault6;
+		buffer6[8][i] = GETKV2(keyvalue8_vault6);
 		keyvalue9_vault7 = keyvalue9_vault6;
-		buffer6[9][i] = keyvalue9_vault6;
+		buffer6[9][i] = GETKV2(keyvalue9_vault6);
 		keyvalue10_vault7 = keyvalue10_vault6;
-		buffer6[10][i] = keyvalue10_vault6;
+		buffer6[10][i] = GETKV2(keyvalue10_vault6);
 		keyvalue11_vault7 = keyvalue11_vault6;
-		buffer6[11][i] = keyvalue11_vault6;
+		buffer6[11][i] = GETKV2(keyvalue11_vault6);
 		keyvalue12_vault7 = keyvalue12_vault6;
-		buffer6[12][i] = keyvalue12_vault6;
+		buffer6[12][i] = GETKV2(keyvalue12_vault6);
 		keyvalue13_vault7 = keyvalue13_vault6;
-		buffer6[13][i] = keyvalue13_vault6;
+		buffer6[13][i] = GETKV2(keyvalue13_vault6);
 		keyvalue14_vault7 = keyvalue14_vault6;
-		buffer6[14][i] = keyvalue14_vault6;
+		buffer6[14][i] = GETKV2(keyvalue14_vault6);
 		keyvalue15_vault7 = keyvalue15_vault6;
-		buffer6[15][i] = keyvalue15_vault6;
+		buffer6[15][i] = GETKV2(keyvalue15_vault6);
 	
 		keyvalue0_vault8 = keyvalue0_vault7;
-		buffer7[0][i] = keyvalue0_vault7;
+		buffer7[0][i] = GETKV2(keyvalue0_vault7);
 		keyvalue1_vault8 = keyvalue1_vault7;
-		buffer7[1][i] = keyvalue1_vault7;
+		buffer7[1][i] = GETKV2(keyvalue1_vault7);
 		keyvalue2_vault8 = keyvalue2_vault7;
-		buffer7[2][i] = keyvalue2_vault7;
+		buffer7[2][i] = GETKV2(keyvalue2_vault7);
 		keyvalue3_vault8 = keyvalue3_vault7;
-		buffer7[3][i] = keyvalue3_vault7;
+		buffer7[3][i] = GETKV2(keyvalue3_vault7);
 		keyvalue4_vault8 = keyvalue4_vault7;
-		buffer7[4][i] = keyvalue4_vault7;
+		buffer7[4][i] = GETKV2(keyvalue4_vault7);
 		keyvalue5_vault8 = keyvalue5_vault7;
-		buffer7[5][i] = keyvalue5_vault7;
+		buffer7[5][i] = GETKV2(keyvalue5_vault7);
 		keyvalue6_vault8 = keyvalue6_vault7;
-		buffer7[6][i] = keyvalue6_vault7;
+		buffer7[6][i] = GETKV2(keyvalue6_vault7);
 		keyvalue7_vault8 = keyvalue7_vault7;
-		buffer7[7][i] = keyvalue7_vault7;
+		buffer7[7][i] = GETKV2(keyvalue7_vault7);
 		keyvalue8_vault8 = keyvalue8_vault7;
-		buffer7[8][i] = keyvalue8_vault7;
+		buffer7[8][i] = GETKV2(keyvalue8_vault7);
 		keyvalue9_vault8 = keyvalue9_vault7;
-		buffer7[9][i] = keyvalue9_vault7;
+		buffer7[9][i] = GETKV2(keyvalue9_vault7);
 		keyvalue10_vault8 = keyvalue10_vault7;
-		buffer7[10][i] = keyvalue10_vault7;
+		buffer7[10][i] = GETKV2(keyvalue10_vault7);
 		keyvalue11_vault8 = keyvalue11_vault7;
-		buffer7[11][i] = keyvalue11_vault7;
+		buffer7[11][i] = GETKV2(keyvalue11_vault7);
 		keyvalue12_vault8 = keyvalue12_vault7;
-		buffer7[12][i] = keyvalue12_vault7;
+		buffer7[12][i] = GETKV2(keyvalue12_vault7);
 		keyvalue13_vault8 = keyvalue13_vault7;
-		buffer7[13][i] = keyvalue13_vault7;
+		buffer7[13][i] = GETKV2(keyvalue13_vault7);
 		keyvalue14_vault8 = keyvalue14_vault7;
-		buffer7[14][i] = keyvalue14_vault7;
+		buffer7[14][i] = GETKV2(keyvalue14_vault7);
 		keyvalue15_vault8 = keyvalue15_vault7;
-		buffer7[15][i] = keyvalue15_vault7;
+		buffer7[15][i] = GETKV2(keyvalue15_vault7);
 	
 		keyvalue0_vault9 = keyvalue0_vault8;
-		buffer8[0][i] = keyvalue0_vault8;
+		buffer8[0][i] = GETKV2(keyvalue0_vault8);
 		keyvalue1_vault9 = keyvalue1_vault8;
-		buffer8[1][i] = keyvalue1_vault8;
+		buffer8[1][i] = GETKV2(keyvalue1_vault8);
 		keyvalue2_vault9 = keyvalue2_vault8;
-		buffer8[2][i] = keyvalue2_vault8;
+		buffer8[2][i] = GETKV2(keyvalue2_vault8);
 		keyvalue3_vault9 = keyvalue3_vault8;
-		buffer8[3][i] = keyvalue3_vault8;
+		buffer8[3][i] = GETKV2(keyvalue3_vault8);
 		keyvalue4_vault9 = keyvalue4_vault8;
-		buffer8[4][i] = keyvalue4_vault8;
+		buffer8[4][i] = GETKV2(keyvalue4_vault8);
 		keyvalue5_vault9 = keyvalue5_vault8;
-		buffer8[5][i] = keyvalue5_vault8;
+		buffer8[5][i] = GETKV2(keyvalue5_vault8);
 		keyvalue6_vault9 = keyvalue6_vault8;
-		buffer8[6][i] = keyvalue6_vault8;
+		buffer8[6][i] = GETKV2(keyvalue6_vault8);
 		keyvalue7_vault9 = keyvalue7_vault8;
-		buffer8[7][i] = keyvalue7_vault8;
+		buffer8[7][i] = GETKV2(keyvalue7_vault8);
 		keyvalue8_vault9 = keyvalue8_vault8;
-		buffer8[8][i] = keyvalue8_vault8;
+		buffer8[8][i] = GETKV2(keyvalue8_vault8);
 		keyvalue9_vault9 = keyvalue9_vault8;
-		buffer8[9][i] = keyvalue9_vault8;
+		buffer8[9][i] = GETKV2(keyvalue9_vault8);
 		keyvalue10_vault9 = keyvalue10_vault8;
-		buffer8[10][i] = keyvalue10_vault8;
+		buffer8[10][i] = GETKV2(keyvalue10_vault8);
 		keyvalue11_vault9 = keyvalue11_vault8;
-		buffer8[11][i] = keyvalue11_vault8;
+		buffer8[11][i] = GETKV2(keyvalue11_vault8);
 		keyvalue12_vault9 = keyvalue12_vault8;
-		buffer8[12][i] = keyvalue12_vault8;
+		buffer8[12][i] = GETKV2(keyvalue12_vault8);
 		keyvalue13_vault9 = keyvalue13_vault8;
-		buffer8[13][i] = keyvalue13_vault8;
+		buffer8[13][i] = GETKV2(keyvalue13_vault8);
 		keyvalue14_vault9 = keyvalue14_vault8;
-		buffer8[14][i] = keyvalue14_vault8;
+		buffer8[14][i] = GETKV2(keyvalue14_vault8);
 		keyvalue15_vault9 = keyvalue15_vault8;
-		buffer8[15][i] = keyvalue15_vault8;
+		buffer8[15][i] = GETKV2(keyvalue15_vault8);
 	
 		keyvalue0_vault10 = keyvalue0_vault9;
-		buffer9[0][i] = keyvalue0_vault9;
+		buffer9[0][i] = GETKV2(keyvalue0_vault9);
 		keyvalue1_vault10 = keyvalue1_vault9;
-		buffer9[1][i] = keyvalue1_vault9;
+		buffer9[1][i] = GETKV2(keyvalue1_vault9);
 		keyvalue2_vault10 = keyvalue2_vault9;
-		buffer9[2][i] = keyvalue2_vault9;
+		buffer9[2][i] = GETKV2(keyvalue2_vault9);
 		keyvalue3_vault10 = keyvalue3_vault9;
-		buffer9[3][i] = keyvalue3_vault9;
+		buffer9[3][i] = GETKV2(keyvalue3_vault9);
 		keyvalue4_vault10 = keyvalue4_vault9;
-		buffer9[4][i] = keyvalue4_vault9;
+		buffer9[4][i] = GETKV2(keyvalue4_vault9);
 		keyvalue5_vault10 = keyvalue5_vault9;
-		buffer9[5][i] = keyvalue5_vault9;
+		buffer9[5][i] = GETKV2(keyvalue5_vault9);
 		keyvalue6_vault10 = keyvalue6_vault9;
-		buffer9[6][i] = keyvalue6_vault9;
+		buffer9[6][i] = GETKV2(keyvalue6_vault9);
 		keyvalue7_vault10 = keyvalue7_vault9;
-		buffer9[7][i] = keyvalue7_vault9;
+		buffer9[7][i] = GETKV2(keyvalue7_vault9);
 		keyvalue8_vault10 = keyvalue8_vault9;
-		buffer9[8][i] = keyvalue8_vault9;
+		buffer9[8][i] = GETKV2(keyvalue8_vault9);
 		keyvalue9_vault10 = keyvalue9_vault9;
-		buffer9[9][i] = keyvalue9_vault9;
+		buffer9[9][i] = GETKV2(keyvalue9_vault9);
 		keyvalue10_vault10 = keyvalue10_vault9;
-		buffer9[10][i] = keyvalue10_vault9;
+		buffer9[10][i] = GETKV2(keyvalue10_vault9);
 		keyvalue11_vault10 = keyvalue11_vault9;
-		buffer9[11][i] = keyvalue11_vault9;
+		buffer9[11][i] = GETKV2(keyvalue11_vault9);
 		keyvalue12_vault10 = keyvalue12_vault9;
-		buffer9[12][i] = keyvalue12_vault9;
+		buffer9[12][i] = GETKV2(keyvalue12_vault9);
 		keyvalue13_vault10 = keyvalue13_vault9;
-		buffer9[13][i] = keyvalue13_vault9;
+		buffer9[13][i] = GETKV2(keyvalue13_vault9);
 		keyvalue14_vault10 = keyvalue14_vault9;
-		buffer9[14][i] = keyvalue14_vault9;
+		buffer9[14][i] = GETKV2(keyvalue14_vault9);
 		keyvalue15_vault10 = keyvalue15_vault9;
-		buffer9[15][i] = keyvalue15_vault9;
+		buffer9[15][i] = GETKV2(keyvalue15_vault9);
 	
 		keyvalue0_vault11 = keyvalue0_vault10;
-		buffer10[0][i] = keyvalue0_vault10;
+		buffer10[0][i] = GETKV2(keyvalue0_vault10);
 		keyvalue1_vault11 = keyvalue1_vault10;
-		buffer10[1][i] = keyvalue1_vault10;
+		buffer10[1][i] = GETKV2(keyvalue1_vault10);
 		keyvalue2_vault11 = keyvalue2_vault10;
-		buffer10[2][i] = keyvalue2_vault10;
+		buffer10[2][i] = GETKV2(keyvalue2_vault10);
 		keyvalue3_vault11 = keyvalue3_vault10;
-		buffer10[3][i] = keyvalue3_vault10;
+		buffer10[3][i] = GETKV2(keyvalue3_vault10);
 		keyvalue4_vault11 = keyvalue4_vault10;
-		buffer10[4][i] = keyvalue4_vault10;
+		buffer10[4][i] = GETKV2(keyvalue4_vault10);
 		keyvalue5_vault11 = keyvalue5_vault10;
-		buffer10[5][i] = keyvalue5_vault10;
+		buffer10[5][i] = GETKV2(keyvalue5_vault10);
 		keyvalue6_vault11 = keyvalue6_vault10;
-		buffer10[6][i] = keyvalue6_vault10;
+		buffer10[6][i] = GETKV2(keyvalue6_vault10);
 		keyvalue7_vault11 = keyvalue7_vault10;
-		buffer10[7][i] = keyvalue7_vault10;
+		buffer10[7][i] = GETKV2(keyvalue7_vault10);
 		keyvalue8_vault11 = keyvalue8_vault10;
-		buffer10[8][i] = keyvalue8_vault10;
+		buffer10[8][i] = GETKV2(keyvalue8_vault10);
 		keyvalue9_vault11 = keyvalue9_vault10;
-		buffer10[9][i] = keyvalue9_vault10;
+		buffer10[9][i] = GETKV2(keyvalue9_vault10);
 		keyvalue10_vault11 = keyvalue10_vault10;
-		buffer10[10][i] = keyvalue10_vault10;
+		buffer10[10][i] = GETKV2(keyvalue10_vault10);
 		keyvalue11_vault11 = keyvalue11_vault10;
-		buffer10[11][i] = keyvalue11_vault10;
+		buffer10[11][i] = GETKV2(keyvalue11_vault10);
 		keyvalue12_vault11 = keyvalue12_vault10;
-		buffer10[12][i] = keyvalue12_vault10;
+		buffer10[12][i] = GETKV2(keyvalue12_vault10);
 		keyvalue13_vault11 = keyvalue13_vault10;
-		buffer10[13][i] = keyvalue13_vault10;
+		buffer10[13][i] = GETKV2(keyvalue13_vault10);
 		keyvalue14_vault11 = keyvalue14_vault10;
-		buffer10[14][i] = keyvalue14_vault10;
+		buffer10[14][i] = GETKV2(keyvalue14_vault10);
 		keyvalue15_vault11 = keyvalue15_vault10;
-		buffer10[15][i] = keyvalue15_vault10;
+		buffer10[15][i] = GETKV2(keyvalue15_vault10);
 	
 		keyvalue0_vault12 = keyvalue0_vault11;
-		buffer11[0][i] = keyvalue0_vault11;
+		buffer11[0][i] = GETKV2(keyvalue0_vault11);
 		keyvalue1_vault12 = keyvalue1_vault11;
-		buffer11[1][i] = keyvalue1_vault11;
+		buffer11[1][i] = GETKV2(keyvalue1_vault11);
 		keyvalue2_vault12 = keyvalue2_vault11;
-		buffer11[2][i] = keyvalue2_vault11;
+		buffer11[2][i] = GETKV2(keyvalue2_vault11);
 		keyvalue3_vault12 = keyvalue3_vault11;
-		buffer11[3][i] = keyvalue3_vault11;
+		buffer11[3][i] = GETKV2(keyvalue3_vault11);
 		keyvalue4_vault12 = keyvalue4_vault11;
-		buffer11[4][i] = keyvalue4_vault11;
+		buffer11[4][i] = GETKV2(keyvalue4_vault11);
 		keyvalue5_vault12 = keyvalue5_vault11;
-		buffer11[5][i] = keyvalue5_vault11;
+		buffer11[5][i] = GETKV2(keyvalue5_vault11);
 		keyvalue6_vault12 = keyvalue6_vault11;
-		buffer11[6][i] = keyvalue6_vault11;
+		buffer11[6][i] = GETKV2(keyvalue6_vault11);
 		keyvalue7_vault12 = keyvalue7_vault11;
-		buffer11[7][i] = keyvalue7_vault11;
+		buffer11[7][i] = GETKV2(keyvalue7_vault11);
 		keyvalue8_vault12 = keyvalue8_vault11;
-		buffer11[8][i] = keyvalue8_vault11;
+		buffer11[8][i] = GETKV2(keyvalue8_vault11);
 		keyvalue9_vault12 = keyvalue9_vault11;
-		buffer11[9][i] = keyvalue9_vault11;
+		buffer11[9][i] = GETKV2(keyvalue9_vault11);
 		keyvalue10_vault12 = keyvalue10_vault11;
-		buffer11[10][i] = keyvalue10_vault11;
+		buffer11[10][i] = GETKV2(keyvalue10_vault11);
 		keyvalue11_vault12 = keyvalue11_vault11;
-		buffer11[11][i] = keyvalue11_vault11;
+		buffer11[11][i] = GETKV2(keyvalue11_vault11);
 		keyvalue12_vault12 = keyvalue12_vault11;
-		buffer11[12][i] = keyvalue12_vault11;
+		buffer11[12][i] = GETKV2(keyvalue12_vault11);
 		keyvalue13_vault12 = keyvalue13_vault11;
-		buffer11[13][i] = keyvalue13_vault11;
+		buffer11[13][i] = GETKV2(keyvalue13_vault11);
 		keyvalue14_vault12 = keyvalue14_vault11;
-		buffer11[14][i] = keyvalue14_vault11;
+		buffer11[14][i] = GETKV2(keyvalue14_vault11);
 		keyvalue15_vault12 = keyvalue15_vault11;
-		buffer11[15][i] = keyvalue15_vault11;
+		buffer11[15][i] = GETKV2(keyvalue15_vault11);
 	
 		keyvalue0_vault13 = keyvalue0_vault12;
-		buffer12[0][i] = keyvalue0_vault12;
+		buffer12[0][i] = GETKV2(keyvalue0_vault12);
 		keyvalue1_vault13 = keyvalue1_vault12;
-		buffer12[1][i] = keyvalue1_vault12;
+		buffer12[1][i] = GETKV2(keyvalue1_vault12);
 		keyvalue2_vault13 = keyvalue2_vault12;
-		buffer12[2][i] = keyvalue2_vault12;
+		buffer12[2][i] = GETKV2(keyvalue2_vault12);
 		keyvalue3_vault13 = keyvalue3_vault12;
-		buffer12[3][i] = keyvalue3_vault12;
+		buffer12[3][i] = GETKV2(keyvalue3_vault12);
 		keyvalue4_vault13 = keyvalue4_vault12;
-		buffer12[4][i] = keyvalue4_vault12;
+		buffer12[4][i] = GETKV2(keyvalue4_vault12);
 		keyvalue5_vault13 = keyvalue5_vault12;
-		buffer12[5][i] = keyvalue5_vault12;
+		buffer12[5][i] = GETKV2(keyvalue5_vault12);
 		keyvalue6_vault13 = keyvalue6_vault12;
-		buffer12[6][i] = keyvalue6_vault12;
+		buffer12[6][i] = GETKV2(keyvalue6_vault12);
 		keyvalue7_vault13 = keyvalue7_vault12;
-		buffer12[7][i] = keyvalue7_vault12;
+		buffer12[7][i] = GETKV2(keyvalue7_vault12);
 		keyvalue8_vault13 = keyvalue8_vault12;
-		buffer12[8][i] = keyvalue8_vault12;
+		buffer12[8][i] = GETKV2(keyvalue8_vault12);
 		keyvalue9_vault13 = keyvalue9_vault12;
-		buffer12[9][i] = keyvalue9_vault12;
+		buffer12[9][i] = GETKV2(keyvalue9_vault12);
 		keyvalue10_vault13 = keyvalue10_vault12;
-		buffer12[10][i] = keyvalue10_vault12;
+		buffer12[10][i] = GETKV2(keyvalue10_vault12);
 		keyvalue11_vault13 = keyvalue11_vault12;
-		buffer12[11][i] = keyvalue11_vault12;
+		buffer12[11][i] = GETKV2(keyvalue11_vault12);
 		keyvalue12_vault13 = keyvalue12_vault12;
-		buffer12[12][i] = keyvalue12_vault12;
+		buffer12[12][i] = GETKV2(keyvalue12_vault12);
 		keyvalue13_vault13 = keyvalue13_vault12;
-		buffer12[13][i] = keyvalue13_vault12;
+		buffer12[13][i] = GETKV2(keyvalue13_vault12);
 		keyvalue14_vault13 = keyvalue14_vault12;
-		buffer12[14][i] = keyvalue14_vault12;
+		buffer12[14][i] = GETKV2(keyvalue14_vault12);
 		keyvalue15_vault13 = keyvalue15_vault12;
-		buffer12[15][i] = keyvalue15_vault12;
+		buffer12[15][i] = GETKV2(keyvalue15_vault12);
 	
 		keyvalue0_vault14 = keyvalue0_vault13;
-		buffer13[0][i] = keyvalue0_vault13;
+		buffer13[0][i] = GETKV2(keyvalue0_vault13);
 		keyvalue1_vault14 = keyvalue1_vault13;
-		buffer13[1][i] = keyvalue1_vault13;
+		buffer13[1][i] = GETKV2(keyvalue1_vault13);
 		keyvalue2_vault14 = keyvalue2_vault13;
-		buffer13[2][i] = keyvalue2_vault13;
+		buffer13[2][i] = GETKV2(keyvalue2_vault13);
 		keyvalue3_vault14 = keyvalue3_vault13;
-		buffer13[3][i] = keyvalue3_vault13;
+		buffer13[3][i] = GETKV2(keyvalue3_vault13);
 		keyvalue4_vault14 = keyvalue4_vault13;
-		buffer13[4][i] = keyvalue4_vault13;
+		buffer13[4][i] = GETKV2(keyvalue4_vault13);
 		keyvalue5_vault14 = keyvalue5_vault13;
-		buffer13[5][i] = keyvalue5_vault13;
+		buffer13[5][i] = GETKV2(keyvalue5_vault13);
 		keyvalue6_vault14 = keyvalue6_vault13;
-		buffer13[6][i] = keyvalue6_vault13;
+		buffer13[6][i] = GETKV2(keyvalue6_vault13);
 		keyvalue7_vault14 = keyvalue7_vault13;
-		buffer13[7][i] = keyvalue7_vault13;
+		buffer13[7][i] = GETKV2(keyvalue7_vault13);
 		keyvalue8_vault14 = keyvalue8_vault13;
-		buffer13[8][i] = keyvalue8_vault13;
+		buffer13[8][i] = GETKV2(keyvalue8_vault13);
 		keyvalue9_vault14 = keyvalue9_vault13;
-		buffer13[9][i] = keyvalue9_vault13;
+		buffer13[9][i] = GETKV2(keyvalue9_vault13);
 		keyvalue10_vault14 = keyvalue10_vault13;
-		buffer13[10][i] = keyvalue10_vault13;
+		buffer13[10][i] = GETKV2(keyvalue10_vault13);
 		keyvalue11_vault14 = keyvalue11_vault13;
-		buffer13[11][i] = keyvalue11_vault13;
+		buffer13[11][i] = GETKV2(keyvalue11_vault13);
 		keyvalue12_vault14 = keyvalue12_vault13;
-		buffer13[12][i] = keyvalue12_vault13;
+		buffer13[12][i] = GETKV2(keyvalue12_vault13);
 		keyvalue13_vault14 = keyvalue13_vault13;
-		buffer13[13][i] = keyvalue13_vault13;
+		buffer13[13][i] = GETKV2(keyvalue13_vault13);
 		keyvalue14_vault14 = keyvalue14_vault13;
-		buffer13[14][i] = keyvalue14_vault13;
+		buffer13[14][i] = GETKV2(keyvalue14_vault13);
 		keyvalue15_vault14 = keyvalue15_vault13;
-		buffer13[15][i] = keyvalue15_vault13;
+		buffer13[15][i] = GETKV2(keyvalue15_vault13);
 	
 		keyvalue0_vault15 = keyvalue0_vault14;
-		buffer14[0][i] = keyvalue0_vault14;
+		buffer14[0][i] = GETKV2(keyvalue0_vault14);
 		keyvalue1_vault15 = keyvalue1_vault14;
-		buffer14[1][i] = keyvalue1_vault14;
+		buffer14[1][i] = GETKV2(keyvalue1_vault14);
 		keyvalue2_vault15 = keyvalue2_vault14;
-		buffer14[2][i] = keyvalue2_vault14;
+		buffer14[2][i] = GETKV2(keyvalue2_vault14);
 		keyvalue3_vault15 = keyvalue3_vault14;
-		buffer14[3][i] = keyvalue3_vault14;
+		buffer14[3][i] = GETKV2(keyvalue3_vault14);
 		keyvalue4_vault15 = keyvalue4_vault14;
-		buffer14[4][i] = keyvalue4_vault14;
+		buffer14[4][i] = GETKV2(keyvalue4_vault14);
 		keyvalue5_vault15 = keyvalue5_vault14;
-		buffer14[5][i] = keyvalue5_vault14;
+		buffer14[5][i] = GETKV2(keyvalue5_vault14);
 		keyvalue6_vault15 = keyvalue6_vault14;
-		buffer14[6][i] = keyvalue6_vault14;
+		buffer14[6][i] = GETKV2(keyvalue6_vault14);
 		keyvalue7_vault15 = keyvalue7_vault14;
-		buffer14[7][i] = keyvalue7_vault14;
+		buffer14[7][i] = GETKV2(keyvalue7_vault14);
 		keyvalue8_vault15 = keyvalue8_vault14;
-		buffer14[8][i] = keyvalue8_vault14;
+		buffer14[8][i] = GETKV2(keyvalue8_vault14);
 		keyvalue9_vault15 = keyvalue9_vault14;
-		buffer14[9][i] = keyvalue9_vault14;
+		buffer14[9][i] = GETKV2(keyvalue9_vault14);
 		keyvalue10_vault15 = keyvalue10_vault14;
-		buffer14[10][i] = keyvalue10_vault14;
+		buffer14[10][i] = GETKV2(keyvalue10_vault14);
 		keyvalue11_vault15 = keyvalue11_vault14;
-		buffer14[11][i] = keyvalue11_vault14;
+		buffer14[11][i] = GETKV2(keyvalue11_vault14);
 		keyvalue12_vault15 = keyvalue12_vault14;
-		buffer14[12][i] = keyvalue12_vault14;
+		buffer14[12][i] = GETKV2(keyvalue12_vault14);
 		keyvalue13_vault15 = keyvalue13_vault14;
-		buffer14[13][i] = keyvalue13_vault14;
+		buffer14[13][i] = GETKV2(keyvalue13_vault14);
 		keyvalue14_vault15 = keyvalue14_vault14;
-		buffer14[14][i] = keyvalue14_vault14;
+		buffer14[14][i] = GETKV2(keyvalue14_vault14);
 		keyvalue15_vault15 = keyvalue15_vault14;
-		buffer14[15][i] = keyvalue15_vault14;
+		buffer14[15][i] = GETKV2(keyvalue15_vault14);
 	
 		keyvalue0_vault16 = keyvalue0_vault15;
-		buffer15[0][i] = keyvalue0_vault15;
+		buffer15[0][i] = GETKV2(keyvalue0_vault15);
 		keyvalue1_vault16 = keyvalue1_vault15;
-		buffer15[1][i] = keyvalue1_vault15;
+		buffer15[1][i] = GETKV2(keyvalue1_vault15);
 		keyvalue2_vault16 = keyvalue2_vault15;
-		buffer15[2][i] = keyvalue2_vault15;
+		buffer15[2][i] = GETKV2(keyvalue2_vault15);
 		keyvalue3_vault16 = keyvalue3_vault15;
-		buffer15[3][i] = keyvalue3_vault15;
+		buffer15[3][i] = GETKV2(keyvalue3_vault15);
 		keyvalue4_vault16 = keyvalue4_vault15;
-		buffer15[4][i] = keyvalue4_vault15;
+		buffer15[4][i] = GETKV2(keyvalue4_vault15);
 		keyvalue5_vault16 = keyvalue5_vault15;
-		buffer15[5][i] = keyvalue5_vault15;
+		buffer15[5][i] = GETKV2(keyvalue5_vault15);
 		keyvalue6_vault16 = keyvalue6_vault15;
-		buffer15[6][i] = keyvalue6_vault15;
+		buffer15[6][i] = GETKV2(keyvalue6_vault15);
 		keyvalue7_vault16 = keyvalue7_vault15;
-		buffer15[7][i] = keyvalue7_vault15;
+		buffer15[7][i] = GETKV2(keyvalue7_vault15);
 		keyvalue8_vault16 = keyvalue8_vault15;
-		buffer15[8][i] = keyvalue8_vault15;
+		buffer15[8][i] = GETKV2(keyvalue8_vault15);
 		keyvalue9_vault16 = keyvalue9_vault15;
-		buffer15[9][i] = keyvalue9_vault15;
+		buffer15[9][i] = GETKV2(keyvalue9_vault15);
 		keyvalue10_vault16 = keyvalue10_vault15;
-		buffer15[10][i] = keyvalue10_vault15;
+		buffer15[10][i] = GETKV2(keyvalue10_vault15);
 		keyvalue11_vault16 = keyvalue11_vault15;
-		buffer15[11][i] = keyvalue11_vault15;
+		buffer15[11][i] = GETKV2(keyvalue11_vault15);
 		keyvalue12_vault16 = keyvalue12_vault15;
-		buffer15[12][i] = keyvalue12_vault15;
+		buffer15[12][i] = GETKV2(keyvalue12_vault15);
 		keyvalue13_vault16 = keyvalue13_vault15;
-		buffer15[13][i] = keyvalue13_vault15;
+		buffer15[13][i] = GETKV2(keyvalue13_vault15);
 		keyvalue14_vault16 = keyvalue14_vault15;
-		buffer15[14][i] = keyvalue14_vault15;
+		buffer15[14][i] = GETKV2(keyvalue14_vault15);
 		keyvalue15_vault16 = keyvalue15_vault15;
-		buffer15[15][i] = keyvalue15_vault15;
+		buffer15[15][i] = GETKV2(keyvalue15_vault15);
 	
 		keyvalue0_vault17 = keyvalue0_vault16;
-		buffer16[0][i] = keyvalue0_vault16;
+		buffer16[0][i] = GETKV2(keyvalue0_vault16);
 		keyvalue1_vault17 = keyvalue1_vault16;
-		buffer16[1][i] = keyvalue1_vault16;
+		buffer16[1][i] = GETKV2(keyvalue1_vault16);
 		keyvalue2_vault17 = keyvalue2_vault16;
-		buffer16[2][i] = keyvalue2_vault16;
+		buffer16[2][i] = GETKV2(keyvalue2_vault16);
 		keyvalue3_vault17 = keyvalue3_vault16;
-		buffer16[3][i] = keyvalue3_vault16;
+		buffer16[3][i] = GETKV2(keyvalue3_vault16);
 		keyvalue4_vault17 = keyvalue4_vault16;
-		buffer16[4][i] = keyvalue4_vault16;
+		buffer16[4][i] = GETKV2(keyvalue4_vault16);
 		keyvalue5_vault17 = keyvalue5_vault16;
-		buffer16[5][i] = keyvalue5_vault16;
+		buffer16[5][i] = GETKV2(keyvalue5_vault16);
 		keyvalue6_vault17 = keyvalue6_vault16;
-		buffer16[6][i] = keyvalue6_vault16;
+		buffer16[6][i] = GETKV2(keyvalue6_vault16);
 		keyvalue7_vault17 = keyvalue7_vault16;
-		buffer16[7][i] = keyvalue7_vault16;
+		buffer16[7][i] = GETKV2(keyvalue7_vault16);
 		keyvalue8_vault17 = keyvalue8_vault16;
-		buffer16[8][i] = keyvalue8_vault16;
+		buffer16[8][i] = GETKV2(keyvalue8_vault16);
 		keyvalue9_vault17 = keyvalue9_vault16;
-		buffer16[9][i] = keyvalue9_vault16;
+		buffer16[9][i] = GETKV2(keyvalue9_vault16);
 		keyvalue10_vault17 = keyvalue10_vault16;
-		buffer16[10][i] = keyvalue10_vault16;
+		buffer16[10][i] = GETKV2(keyvalue10_vault16);
 		keyvalue11_vault17 = keyvalue11_vault16;
-		buffer16[11][i] = keyvalue11_vault16;
+		buffer16[11][i] = GETKV2(keyvalue11_vault16);
 		keyvalue12_vault17 = keyvalue12_vault16;
-		buffer16[12][i] = keyvalue12_vault16;
+		buffer16[12][i] = GETKV2(keyvalue12_vault16);
 		keyvalue13_vault17 = keyvalue13_vault16;
-		buffer16[13][i] = keyvalue13_vault16;
+		buffer16[13][i] = GETKV2(keyvalue13_vault16);
 		keyvalue14_vault17 = keyvalue14_vault16;
-		buffer16[14][i] = keyvalue14_vault16;
+		buffer16[14][i] = GETKV2(keyvalue14_vault16);
 		keyvalue15_vault17 = keyvalue15_vault16;
-		buffer16[15][i] = keyvalue15_vault16;
+		buffer16[15][i] = GETKV2(keyvalue15_vault16);
 	
 		
-		tail[0][i] = keyvalue0_vault17;
-		tail[1][i] = keyvalue1_vault17;
-		tail[2][i] = keyvalue2_vault17;
-		tail[3][i] = keyvalue3_vault17;
-		tail[4][i] = keyvalue4_vault17;
-		tail[5][i] = keyvalue5_vault17;
-		tail[6][i] = keyvalue6_vault17;
-		tail[7][i] = keyvalue7_vault17;
-		tail[8][i] = keyvalue8_vault17;
-		tail[9][i] = keyvalue9_vault17;
-		tail[10][i] = keyvalue10_vault17;
-		tail[11][i] = keyvalue11_vault17;
-		tail[12][i] = keyvalue12_vault17;
-		tail[13][i] = keyvalue13_vault17;
-		tail[14][i] = keyvalue14_vault17;
-		tail[15][i] = keyvalue15_vault17;
+		tail[0][i] = GETKV2(keyvalue0_vault17);
+		tail[1][i] = GETKV2(keyvalue1_vault17);
+		tail[2][i] = GETKV2(keyvalue2_vault17);
+		tail[3][i] = GETKV2(keyvalue3_vault17);
+		tail[4][i] = GETKV2(keyvalue4_vault17);
+		tail[5][i] = GETKV2(keyvalue5_vault17);
+		tail[6][i] = GETKV2(keyvalue6_vault17);
+		tail[7][i] = GETKV2(keyvalue7_vault17);
+		tail[8][i] = GETKV2(keyvalue8_vault17);
+		tail[9][i] = GETKV2(keyvalue9_vault17);
+		tail[10][i] = GETKV2(keyvalue10_vault17);
+		tail[11][i] = GETKV2(keyvalue11_vault17);
+		tail[12][i] = GETKV2(keyvalue12_vault17);
+		tail[13][i] = GETKV2(keyvalue13_vault17);
+		tail[14][i] = GETKV2(keyvalue14_vault17);
+		tail[15][i] = GETKV2(keyvalue15_vault17);
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(tail[0][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(tail[0][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[1][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(tail[1][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[2][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(tail[2][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[3][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(tail[3][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[4][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(tail[4][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[5][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(tail[5][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[6][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(tail[6][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[7][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(tail[7][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[8][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i)<<endl; } 
-		if(tail[8][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[9][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i)<<endl; } 
-		if(tail[9][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[10][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i)<<endl; } 
-		if(tail[10][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[11][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i)<<endl; } 
-		if(tail[11][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[12][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i)<<endl; } 
-		if(tail[12][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[13][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i)<<endl; } 
-		if(tail[13][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[14][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i)<<endl; } 
-		if(tail[14][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[15][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i)<<endl; } 
-		if(tail[15][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[0][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[1][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[1][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[2][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[2][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[3][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[3][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[4][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[4][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[5][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[5][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[6][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[6][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[7][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[7][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[8][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[8][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(8*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[9][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[9][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(9*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[10][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[10][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(10*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[11][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[11][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(11*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[12][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[12][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(12*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[13][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[13][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(13*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[14][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[14][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(14*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[15][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[15][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(15*REDUCESZ + 2*i + 1)<<endl; } 
 	
 		#endif 
 	}
@@ -5949,7 +6131,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvdata2(bool_type enable, vertexdata_wtype buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],vertexdata_wtype buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
@@ -5958,481 +6140,481 @@ spreadvdata2(bool_type enable, vertexdata_wtype buffer0[VECTOR_SIZE][BLOCKRAM_SI
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	vertexdata_wtype keyvalue0_vault0;
-	vertexdata_wtype keyvalue1_vault0;
-	vertexdata_wtype keyvalue2_vault0;
-	vertexdata_wtype keyvalue3_vault0;
-	vertexdata_wtype keyvalue4_vault0;
-	vertexdata_wtype keyvalue5_vault0;
-	vertexdata_wtype keyvalue6_vault0;
-	vertexdata_wtype keyvalue7_vault0;
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
 	
-	vertexdata_wtype keyvalue0_vault1;
-	vertexdata_wtype keyvalue1_vault1;
-	vertexdata_wtype keyvalue2_vault1;
-	vertexdata_wtype keyvalue3_vault1;
-	vertexdata_wtype keyvalue4_vault1;
-	vertexdata_wtype keyvalue5_vault1;
-	vertexdata_wtype keyvalue6_vault1;
-	vertexdata_wtype keyvalue7_vault1;
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
 	
-	vertexdata_wtype keyvalue0_vault2;
-	vertexdata_wtype keyvalue1_vault2;
-	vertexdata_wtype keyvalue2_vault2;
-	vertexdata_wtype keyvalue3_vault2;
-	vertexdata_wtype keyvalue4_vault2;
-	vertexdata_wtype keyvalue5_vault2;
-	vertexdata_wtype keyvalue6_vault2;
-	vertexdata_wtype keyvalue7_vault2;
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
 	
-	vertexdata_wtype keyvalue0_vault3;
-	vertexdata_wtype keyvalue1_vault3;
-	vertexdata_wtype keyvalue2_vault3;
-	vertexdata_wtype keyvalue3_vault3;
-	vertexdata_wtype keyvalue4_vault3;
-	vertexdata_wtype keyvalue5_vault3;
-	vertexdata_wtype keyvalue6_vault3;
-	vertexdata_wtype keyvalue7_vault3;
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
 	
-	vertexdata_wtype keyvalue0_vault4;
-	vertexdata_wtype keyvalue1_vault4;
-	vertexdata_wtype keyvalue2_vault4;
-	vertexdata_wtype keyvalue3_vault4;
-	vertexdata_wtype keyvalue4_vault4;
-	vertexdata_wtype keyvalue5_vault4;
-	vertexdata_wtype keyvalue6_vault4;
-	vertexdata_wtype keyvalue7_vault4;
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
 	
-	vertexdata_wtype keyvalue0_vault5;
-	vertexdata_wtype keyvalue1_vault5;
-	vertexdata_wtype keyvalue2_vault5;
-	vertexdata_wtype keyvalue3_vault5;
-	vertexdata_wtype keyvalue4_vault5;
-	vertexdata_wtype keyvalue5_vault5;
-	vertexdata_wtype keyvalue6_vault5;
-	vertexdata_wtype keyvalue7_vault5;
+	keyvalue_t keyvalue0_vault5;
+	keyvalue_t keyvalue1_vault5;
+	keyvalue_t keyvalue2_vault5;
+	keyvalue_t keyvalue3_vault5;
+	keyvalue_t keyvalue4_vault5;
+	keyvalue_t keyvalue5_vault5;
+	keyvalue_t keyvalue6_vault5;
+	keyvalue_t keyvalue7_vault5;
 	
-	vertexdata_wtype keyvalue0_vault6;
-	vertexdata_wtype keyvalue1_vault6;
-	vertexdata_wtype keyvalue2_vault6;
-	vertexdata_wtype keyvalue3_vault6;
-	vertexdata_wtype keyvalue4_vault6;
-	vertexdata_wtype keyvalue5_vault6;
-	vertexdata_wtype keyvalue6_vault6;
-	vertexdata_wtype keyvalue7_vault6;
+	keyvalue_t keyvalue0_vault6;
+	keyvalue_t keyvalue1_vault6;
+	keyvalue_t keyvalue2_vault6;
+	keyvalue_t keyvalue3_vault6;
+	keyvalue_t keyvalue4_vault6;
+	keyvalue_t keyvalue5_vault6;
+	keyvalue_t keyvalue6_vault6;
+	keyvalue_t keyvalue7_vault6;
 	
-	vertexdata_wtype keyvalue0_vault7;
-	vertexdata_wtype keyvalue1_vault7;
-	vertexdata_wtype keyvalue2_vault7;
-	vertexdata_wtype keyvalue3_vault7;
-	vertexdata_wtype keyvalue4_vault7;
-	vertexdata_wtype keyvalue5_vault7;
-	vertexdata_wtype keyvalue6_vault7;
-	vertexdata_wtype keyvalue7_vault7;
+	keyvalue_t keyvalue0_vault7;
+	keyvalue_t keyvalue1_vault7;
+	keyvalue_t keyvalue2_vault7;
+	keyvalue_t keyvalue3_vault7;
+	keyvalue_t keyvalue4_vault7;
+	keyvalue_t keyvalue5_vault7;
+	keyvalue_t keyvalue6_vault7;
+	keyvalue_t keyvalue7_vault7;
 	
-	vertexdata_wtype keyvalue0_vault8;
-	vertexdata_wtype keyvalue1_vault8;
-	vertexdata_wtype keyvalue2_vault8;
-	vertexdata_wtype keyvalue3_vault8;
-	vertexdata_wtype keyvalue4_vault8;
-	vertexdata_wtype keyvalue5_vault8;
-	vertexdata_wtype keyvalue6_vault8;
-	vertexdata_wtype keyvalue7_vault8;
+	keyvalue_t keyvalue0_vault8;
+	keyvalue_t keyvalue1_vault8;
+	keyvalue_t keyvalue2_vault8;
+	keyvalue_t keyvalue3_vault8;
+	keyvalue_t keyvalue4_vault8;
+	keyvalue_t keyvalue5_vault8;
+	keyvalue_t keyvalue6_vault8;
+	keyvalue_t keyvalue7_vault8;
 	
-	vertexdata_wtype keyvalue0_vault9;
-	vertexdata_wtype keyvalue1_vault9;
-	vertexdata_wtype keyvalue2_vault9;
-	vertexdata_wtype keyvalue3_vault9;
-	vertexdata_wtype keyvalue4_vault9;
-	vertexdata_wtype keyvalue5_vault9;
-	vertexdata_wtype keyvalue6_vault9;
-	vertexdata_wtype keyvalue7_vault9;
+	keyvalue_t keyvalue0_vault9;
+	keyvalue_t keyvalue1_vault9;
+	keyvalue_t keyvalue2_vault9;
+	keyvalue_t keyvalue3_vault9;
+	keyvalue_t keyvalue4_vault9;
+	keyvalue_t keyvalue5_vault9;
+	keyvalue_t keyvalue6_vault9;
+	keyvalue_t keyvalue7_vault9;
 	
-	vertexdata_wtype keyvalue0_vault10;
-	vertexdata_wtype keyvalue1_vault10;
-	vertexdata_wtype keyvalue2_vault10;
-	vertexdata_wtype keyvalue3_vault10;
-	vertexdata_wtype keyvalue4_vault10;
-	vertexdata_wtype keyvalue5_vault10;
-	vertexdata_wtype keyvalue6_vault10;
-	vertexdata_wtype keyvalue7_vault10;
+	keyvalue_t keyvalue0_vault10;
+	keyvalue_t keyvalue1_vault10;
+	keyvalue_t keyvalue2_vault10;
+	keyvalue_t keyvalue3_vault10;
+	keyvalue_t keyvalue4_vault10;
+	keyvalue_t keyvalue5_vault10;
+	keyvalue_t keyvalue6_vault10;
+	keyvalue_t keyvalue7_vault10;
 	
-	vertexdata_wtype keyvalue0_vault11;
-	vertexdata_wtype keyvalue1_vault11;
-	vertexdata_wtype keyvalue2_vault11;
-	vertexdata_wtype keyvalue3_vault11;
-	vertexdata_wtype keyvalue4_vault11;
-	vertexdata_wtype keyvalue5_vault11;
-	vertexdata_wtype keyvalue6_vault11;
-	vertexdata_wtype keyvalue7_vault11;
+	keyvalue_t keyvalue0_vault11;
+	keyvalue_t keyvalue1_vault11;
+	keyvalue_t keyvalue2_vault11;
+	keyvalue_t keyvalue3_vault11;
+	keyvalue_t keyvalue4_vault11;
+	keyvalue_t keyvalue5_vault11;
+	keyvalue_t keyvalue6_vault11;
+	keyvalue_t keyvalue7_vault11;
 	
-	vertexdata_wtype keyvalue0_vault12;
-	vertexdata_wtype keyvalue1_vault12;
-	vertexdata_wtype keyvalue2_vault12;
-	vertexdata_wtype keyvalue3_vault12;
-	vertexdata_wtype keyvalue4_vault12;
-	vertexdata_wtype keyvalue5_vault12;
-	vertexdata_wtype keyvalue6_vault12;
-	vertexdata_wtype keyvalue7_vault12;
+	keyvalue_t keyvalue0_vault12;
+	keyvalue_t keyvalue1_vault12;
+	keyvalue_t keyvalue2_vault12;
+	keyvalue_t keyvalue3_vault12;
+	keyvalue_t keyvalue4_vault12;
+	keyvalue_t keyvalue5_vault12;
+	keyvalue_t keyvalue6_vault12;
+	keyvalue_t keyvalue7_vault12;
 	
-	vertexdata_wtype keyvalue0_vault13;
-	vertexdata_wtype keyvalue1_vault13;
-	vertexdata_wtype keyvalue2_vault13;
-	vertexdata_wtype keyvalue3_vault13;
-	vertexdata_wtype keyvalue4_vault13;
-	vertexdata_wtype keyvalue5_vault13;
-	vertexdata_wtype keyvalue6_vault13;
-	vertexdata_wtype keyvalue7_vault13;
+	keyvalue_t keyvalue0_vault13;
+	keyvalue_t keyvalue1_vault13;
+	keyvalue_t keyvalue2_vault13;
+	keyvalue_t keyvalue3_vault13;
+	keyvalue_t keyvalue4_vault13;
+	keyvalue_t keyvalue5_vault13;
+	keyvalue_t keyvalue6_vault13;
+	keyvalue_t keyvalue7_vault13;
 	
-	vertexdata_wtype keyvalue0_vault14;
-	vertexdata_wtype keyvalue1_vault14;
-	vertexdata_wtype keyvalue2_vault14;
-	vertexdata_wtype keyvalue3_vault14;
-	vertexdata_wtype keyvalue4_vault14;
-	vertexdata_wtype keyvalue5_vault14;
-	vertexdata_wtype keyvalue6_vault14;
-	vertexdata_wtype keyvalue7_vault14;
+	keyvalue_t keyvalue0_vault14;
+	keyvalue_t keyvalue1_vault14;
+	keyvalue_t keyvalue2_vault14;
+	keyvalue_t keyvalue3_vault14;
+	keyvalue_t keyvalue4_vault14;
+	keyvalue_t keyvalue5_vault14;
+	keyvalue_t keyvalue6_vault14;
+	keyvalue_t keyvalue7_vault14;
 	
-	vertexdata_wtype keyvalue0_vault15;
-	vertexdata_wtype keyvalue1_vault15;
-	vertexdata_wtype keyvalue2_vault15;
-	vertexdata_wtype keyvalue3_vault15;
-	vertexdata_wtype keyvalue4_vault15;
-	vertexdata_wtype keyvalue5_vault15;
-	vertexdata_wtype keyvalue6_vault15;
-	vertexdata_wtype keyvalue7_vault15;
+	keyvalue_t keyvalue0_vault15;
+	keyvalue_t keyvalue1_vault15;
+	keyvalue_t keyvalue2_vault15;
+	keyvalue_t keyvalue3_vault15;
+	keyvalue_t keyvalue4_vault15;
+	keyvalue_t keyvalue5_vault15;
+	keyvalue_t keyvalue6_vault15;
+	keyvalue_t keyvalue7_vault15;
 	
-	vertexdata_wtype keyvalue0_vault16;
-	vertexdata_wtype keyvalue1_vault16;
-	vertexdata_wtype keyvalue2_vault16;
-	vertexdata_wtype keyvalue3_vault16;
-	vertexdata_wtype keyvalue4_vault16;
-	vertexdata_wtype keyvalue5_vault16;
-	vertexdata_wtype keyvalue6_vault16;
-	vertexdata_wtype keyvalue7_vault16;
+	keyvalue_t keyvalue0_vault16;
+	keyvalue_t keyvalue1_vault16;
+	keyvalue_t keyvalue2_vault16;
+	keyvalue_t keyvalue3_vault16;
+	keyvalue_t keyvalue4_vault16;
+	keyvalue_t keyvalue5_vault16;
+	keyvalue_t keyvalue6_vault16;
+	keyvalue_t keyvalue7_vault16;
 	
-	vertexdata_wtype keyvalue0_vault17;
-	vertexdata_wtype keyvalue1_vault17;
-	vertexdata_wtype keyvalue2_vault17;
-	vertexdata_wtype keyvalue3_vault17;
-	vertexdata_wtype keyvalue4_vault17;
-	vertexdata_wtype keyvalue5_vault17;
-	vertexdata_wtype keyvalue6_vault17;
-	vertexdata_wtype keyvalue7_vault17;
+	keyvalue_t keyvalue0_vault17;
+	keyvalue_t keyvalue1_vault17;
+	keyvalue_t keyvalue2_vault17;
+	keyvalue_t keyvalue3_vault17;
+	keyvalue_t keyvalue4_vault17;
+	keyvalue_t keyvalue5_vault17;
+	keyvalue_t keyvalue6_vault17;
+	keyvalue_t keyvalue7_vault17;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		keyvalue0_vault1 = buffer0[0][i]; 
-		keyvalue1_vault1 = buffer0[1][i]; 
-		keyvalue2_vault1 = buffer0[2][i]; 
-		keyvalue3_vault1 = buffer0[3][i]; 
-		keyvalue4_vault1 = buffer0[4][i]; 
-		keyvalue5_vault1 = buffer0[5][i]; 
-		keyvalue6_vault1 = buffer0[6][i]; 
-		keyvalue7_vault1 = buffer0[7][i]; 
+		keyvalue0_vault1 = GETKV2(buffer0[0][i]); 
+		keyvalue1_vault1 = GETKV2(buffer0[1][i]); 
+		keyvalue2_vault1 = GETKV2(buffer0[2][i]); 
+		keyvalue3_vault1 = GETKV2(buffer0[3][i]); 
+		keyvalue4_vault1 = GETKV2(buffer0[4][i]); 
+		keyvalue5_vault1 = GETKV2(buffer0[5][i]); 
+		keyvalue6_vault1 = GETKV2(buffer0[6][i]); 
+		keyvalue7_vault1 = GETKV2(buffer0[7][i]); 
 			
 	
 		keyvalue0_vault2 = keyvalue0_vault1;
-		buffer1[0][i] = keyvalue0_vault1;
+		buffer1[0][i] = GETKV2(keyvalue0_vault1);
 		keyvalue1_vault2 = keyvalue1_vault1;
-		buffer1[1][i] = keyvalue1_vault1;
+		buffer1[1][i] = GETKV2(keyvalue1_vault1);
 		keyvalue2_vault2 = keyvalue2_vault1;
-		buffer1[2][i] = keyvalue2_vault1;
+		buffer1[2][i] = GETKV2(keyvalue2_vault1);
 		keyvalue3_vault2 = keyvalue3_vault1;
-		buffer1[3][i] = keyvalue3_vault1;
+		buffer1[3][i] = GETKV2(keyvalue3_vault1);
 		keyvalue4_vault2 = keyvalue4_vault1;
-		buffer1[4][i] = keyvalue4_vault1;
+		buffer1[4][i] = GETKV2(keyvalue4_vault1);
 		keyvalue5_vault2 = keyvalue5_vault1;
-		buffer1[5][i] = keyvalue5_vault1;
+		buffer1[5][i] = GETKV2(keyvalue5_vault1);
 		keyvalue6_vault2 = keyvalue6_vault1;
-		buffer1[6][i] = keyvalue6_vault1;
+		buffer1[6][i] = GETKV2(keyvalue6_vault1);
 		keyvalue7_vault2 = keyvalue7_vault1;
-		buffer1[7][i] = keyvalue7_vault1;
+		buffer1[7][i] = GETKV2(keyvalue7_vault1);
 	
 		keyvalue0_vault3 = keyvalue0_vault2;
-		buffer2[0][i] = keyvalue0_vault2;
+		buffer2[0][i] = GETKV2(keyvalue0_vault2);
 		keyvalue1_vault3 = keyvalue1_vault2;
-		buffer2[1][i] = keyvalue1_vault2;
+		buffer2[1][i] = GETKV2(keyvalue1_vault2);
 		keyvalue2_vault3 = keyvalue2_vault2;
-		buffer2[2][i] = keyvalue2_vault2;
+		buffer2[2][i] = GETKV2(keyvalue2_vault2);
 		keyvalue3_vault3 = keyvalue3_vault2;
-		buffer2[3][i] = keyvalue3_vault2;
+		buffer2[3][i] = GETKV2(keyvalue3_vault2);
 		keyvalue4_vault3 = keyvalue4_vault2;
-		buffer2[4][i] = keyvalue4_vault2;
+		buffer2[4][i] = GETKV2(keyvalue4_vault2);
 		keyvalue5_vault3 = keyvalue5_vault2;
-		buffer2[5][i] = keyvalue5_vault2;
+		buffer2[5][i] = GETKV2(keyvalue5_vault2);
 		keyvalue6_vault3 = keyvalue6_vault2;
-		buffer2[6][i] = keyvalue6_vault2;
+		buffer2[6][i] = GETKV2(keyvalue6_vault2);
 		keyvalue7_vault3 = keyvalue7_vault2;
-		buffer2[7][i] = keyvalue7_vault2;
+		buffer2[7][i] = GETKV2(keyvalue7_vault2);
 	
 		keyvalue0_vault4 = keyvalue0_vault3;
-		buffer3[0][i] = keyvalue0_vault3;
+		buffer3[0][i] = GETKV2(keyvalue0_vault3);
 		keyvalue1_vault4 = keyvalue1_vault3;
-		buffer3[1][i] = keyvalue1_vault3;
+		buffer3[1][i] = GETKV2(keyvalue1_vault3);
 		keyvalue2_vault4 = keyvalue2_vault3;
-		buffer3[2][i] = keyvalue2_vault3;
+		buffer3[2][i] = GETKV2(keyvalue2_vault3);
 		keyvalue3_vault4 = keyvalue3_vault3;
-		buffer3[3][i] = keyvalue3_vault3;
+		buffer3[3][i] = GETKV2(keyvalue3_vault3);
 		keyvalue4_vault4 = keyvalue4_vault3;
-		buffer3[4][i] = keyvalue4_vault3;
+		buffer3[4][i] = GETKV2(keyvalue4_vault3);
 		keyvalue5_vault4 = keyvalue5_vault3;
-		buffer3[5][i] = keyvalue5_vault3;
+		buffer3[5][i] = GETKV2(keyvalue5_vault3);
 		keyvalue6_vault4 = keyvalue6_vault3;
-		buffer3[6][i] = keyvalue6_vault3;
+		buffer3[6][i] = GETKV2(keyvalue6_vault3);
 		keyvalue7_vault4 = keyvalue7_vault3;
-		buffer3[7][i] = keyvalue7_vault3;
+		buffer3[7][i] = GETKV2(keyvalue7_vault3);
 	
 		keyvalue0_vault5 = keyvalue0_vault4;
-		buffer4[0][i] = keyvalue0_vault4;
+		buffer4[0][i] = GETKV2(keyvalue0_vault4);
 		keyvalue1_vault5 = keyvalue1_vault4;
-		buffer4[1][i] = keyvalue1_vault4;
+		buffer4[1][i] = GETKV2(keyvalue1_vault4);
 		keyvalue2_vault5 = keyvalue2_vault4;
-		buffer4[2][i] = keyvalue2_vault4;
+		buffer4[2][i] = GETKV2(keyvalue2_vault4);
 		keyvalue3_vault5 = keyvalue3_vault4;
-		buffer4[3][i] = keyvalue3_vault4;
+		buffer4[3][i] = GETKV2(keyvalue3_vault4);
 		keyvalue4_vault5 = keyvalue4_vault4;
-		buffer4[4][i] = keyvalue4_vault4;
+		buffer4[4][i] = GETKV2(keyvalue4_vault4);
 		keyvalue5_vault5 = keyvalue5_vault4;
-		buffer4[5][i] = keyvalue5_vault4;
+		buffer4[5][i] = GETKV2(keyvalue5_vault4);
 		keyvalue6_vault5 = keyvalue6_vault4;
-		buffer4[6][i] = keyvalue6_vault4;
+		buffer4[6][i] = GETKV2(keyvalue6_vault4);
 		keyvalue7_vault5 = keyvalue7_vault4;
-		buffer4[7][i] = keyvalue7_vault4;
+		buffer4[7][i] = GETKV2(keyvalue7_vault4);
 	
 		keyvalue0_vault6 = keyvalue0_vault5;
-		buffer5[0][i] = keyvalue0_vault5;
+		buffer5[0][i] = GETKV2(keyvalue0_vault5);
 		keyvalue1_vault6 = keyvalue1_vault5;
-		buffer5[1][i] = keyvalue1_vault5;
+		buffer5[1][i] = GETKV2(keyvalue1_vault5);
 		keyvalue2_vault6 = keyvalue2_vault5;
-		buffer5[2][i] = keyvalue2_vault5;
+		buffer5[2][i] = GETKV2(keyvalue2_vault5);
 		keyvalue3_vault6 = keyvalue3_vault5;
-		buffer5[3][i] = keyvalue3_vault5;
+		buffer5[3][i] = GETKV2(keyvalue3_vault5);
 		keyvalue4_vault6 = keyvalue4_vault5;
-		buffer5[4][i] = keyvalue4_vault5;
+		buffer5[4][i] = GETKV2(keyvalue4_vault5);
 		keyvalue5_vault6 = keyvalue5_vault5;
-		buffer5[5][i] = keyvalue5_vault5;
+		buffer5[5][i] = GETKV2(keyvalue5_vault5);
 		keyvalue6_vault6 = keyvalue6_vault5;
-		buffer5[6][i] = keyvalue6_vault5;
+		buffer5[6][i] = GETKV2(keyvalue6_vault5);
 		keyvalue7_vault6 = keyvalue7_vault5;
-		buffer5[7][i] = keyvalue7_vault5;
+		buffer5[7][i] = GETKV2(keyvalue7_vault5);
 	
 		keyvalue0_vault7 = keyvalue0_vault6;
-		buffer6[0][i] = keyvalue0_vault6;
+		buffer6[0][i] = GETKV2(keyvalue0_vault6);
 		keyvalue1_vault7 = keyvalue1_vault6;
-		buffer6[1][i] = keyvalue1_vault6;
+		buffer6[1][i] = GETKV2(keyvalue1_vault6);
 		keyvalue2_vault7 = keyvalue2_vault6;
-		buffer6[2][i] = keyvalue2_vault6;
+		buffer6[2][i] = GETKV2(keyvalue2_vault6);
 		keyvalue3_vault7 = keyvalue3_vault6;
-		buffer6[3][i] = keyvalue3_vault6;
+		buffer6[3][i] = GETKV2(keyvalue3_vault6);
 		keyvalue4_vault7 = keyvalue4_vault6;
-		buffer6[4][i] = keyvalue4_vault6;
+		buffer6[4][i] = GETKV2(keyvalue4_vault6);
 		keyvalue5_vault7 = keyvalue5_vault6;
-		buffer6[5][i] = keyvalue5_vault6;
+		buffer6[5][i] = GETKV2(keyvalue5_vault6);
 		keyvalue6_vault7 = keyvalue6_vault6;
-		buffer6[6][i] = keyvalue6_vault6;
+		buffer6[6][i] = GETKV2(keyvalue6_vault6);
 		keyvalue7_vault7 = keyvalue7_vault6;
-		buffer6[7][i] = keyvalue7_vault6;
+		buffer6[7][i] = GETKV2(keyvalue7_vault6);
 	
 		keyvalue0_vault8 = keyvalue0_vault7;
-		buffer7[0][i] = keyvalue0_vault7;
+		buffer7[0][i] = GETKV2(keyvalue0_vault7);
 		keyvalue1_vault8 = keyvalue1_vault7;
-		buffer7[1][i] = keyvalue1_vault7;
+		buffer7[1][i] = GETKV2(keyvalue1_vault7);
 		keyvalue2_vault8 = keyvalue2_vault7;
-		buffer7[2][i] = keyvalue2_vault7;
+		buffer7[2][i] = GETKV2(keyvalue2_vault7);
 		keyvalue3_vault8 = keyvalue3_vault7;
-		buffer7[3][i] = keyvalue3_vault7;
+		buffer7[3][i] = GETKV2(keyvalue3_vault7);
 		keyvalue4_vault8 = keyvalue4_vault7;
-		buffer7[4][i] = keyvalue4_vault7;
+		buffer7[4][i] = GETKV2(keyvalue4_vault7);
 		keyvalue5_vault8 = keyvalue5_vault7;
-		buffer7[5][i] = keyvalue5_vault7;
+		buffer7[5][i] = GETKV2(keyvalue5_vault7);
 		keyvalue6_vault8 = keyvalue6_vault7;
-		buffer7[6][i] = keyvalue6_vault7;
+		buffer7[6][i] = GETKV2(keyvalue6_vault7);
 		keyvalue7_vault8 = keyvalue7_vault7;
-		buffer7[7][i] = keyvalue7_vault7;
+		buffer7[7][i] = GETKV2(keyvalue7_vault7);
 	
 		keyvalue0_vault9 = keyvalue0_vault8;
-		buffer8[0][i] = keyvalue0_vault8;
+		buffer8[0][i] = GETKV2(keyvalue0_vault8);
 		keyvalue1_vault9 = keyvalue1_vault8;
-		buffer8[1][i] = keyvalue1_vault8;
+		buffer8[1][i] = GETKV2(keyvalue1_vault8);
 		keyvalue2_vault9 = keyvalue2_vault8;
-		buffer8[2][i] = keyvalue2_vault8;
+		buffer8[2][i] = GETKV2(keyvalue2_vault8);
 		keyvalue3_vault9 = keyvalue3_vault8;
-		buffer8[3][i] = keyvalue3_vault8;
+		buffer8[3][i] = GETKV2(keyvalue3_vault8);
 		keyvalue4_vault9 = keyvalue4_vault8;
-		buffer8[4][i] = keyvalue4_vault8;
+		buffer8[4][i] = GETKV2(keyvalue4_vault8);
 		keyvalue5_vault9 = keyvalue5_vault8;
-		buffer8[5][i] = keyvalue5_vault8;
+		buffer8[5][i] = GETKV2(keyvalue5_vault8);
 		keyvalue6_vault9 = keyvalue6_vault8;
-		buffer8[6][i] = keyvalue6_vault8;
+		buffer8[6][i] = GETKV2(keyvalue6_vault8);
 		keyvalue7_vault9 = keyvalue7_vault8;
-		buffer8[7][i] = keyvalue7_vault8;
+		buffer8[7][i] = GETKV2(keyvalue7_vault8);
 	
 		keyvalue0_vault10 = keyvalue0_vault9;
-		buffer9[0][i] = keyvalue0_vault9;
+		buffer9[0][i] = GETKV2(keyvalue0_vault9);
 		keyvalue1_vault10 = keyvalue1_vault9;
-		buffer9[1][i] = keyvalue1_vault9;
+		buffer9[1][i] = GETKV2(keyvalue1_vault9);
 		keyvalue2_vault10 = keyvalue2_vault9;
-		buffer9[2][i] = keyvalue2_vault9;
+		buffer9[2][i] = GETKV2(keyvalue2_vault9);
 		keyvalue3_vault10 = keyvalue3_vault9;
-		buffer9[3][i] = keyvalue3_vault9;
+		buffer9[3][i] = GETKV2(keyvalue3_vault9);
 		keyvalue4_vault10 = keyvalue4_vault9;
-		buffer9[4][i] = keyvalue4_vault9;
+		buffer9[4][i] = GETKV2(keyvalue4_vault9);
 		keyvalue5_vault10 = keyvalue5_vault9;
-		buffer9[5][i] = keyvalue5_vault9;
+		buffer9[5][i] = GETKV2(keyvalue5_vault9);
 		keyvalue6_vault10 = keyvalue6_vault9;
-		buffer9[6][i] = keyvalue6_vault9;
+		buffer9[6][i] = GETKV2(keyvalue6_vault9);
 		keyvalue7_vault10 = keyvalue7_vault9;
-		buffer9[7][i] = keyvalue7_vault9;
+		buffer9[7][i] = GETKV2(keyvalue7_vault9);
 	
 		keyvalue0_vault11 = keyvalue0_vault10;
-		buffer10[0][i] = keyvalue0_vault10;
+		buffer10[0][i] = GETKV2(keyvalue0_vault10);
 		keyvalue1_vault11 = keyvalue1_vault10;
-		buffer10[1][i] = keyvalue1_vault10;
+		buffer10[1][i] = GETKV2(keyvalue1_vault10);
 		keyvalue2_vault11 = keyvalue2_vault10;
-		buffer10[2][i] = keyvalue2_vault10;
+		buffer10[2][i] = GETKV2(keyvalue2_vault10);
 		keyvalue3_vault11 = keyvalue3_vault10;
-		buffer10[3][i] = keyvalue3_vault10;
+		buffer10[3][i] = GETKV2(keyvalue3_vault10);
 		keyvalue4_vault11 = keyvalue4_vault10;
-		buffer10[4][i] = keyvalue4_vault10;
+		buffer10[4][i] = GETKV2(keyvalue4_vault10);
 		keyvalue5_vault11 = keyvalue5_vault10;
-		buffer10[5][i] = keyvalue5_vault10;
+		buffer10[5][i] = GETKV2(keyvalue5_vault10);
 		keyvalue6_vault11 = keyvalue6_vault10;
-		buffer10[6][i] = keyvalue6_vault10;
+		buffer10[6][i] = GETKV2(keyvalue6_vault10);
 		keyvalue7_vault11 = keyvalue7_vault10;
-		buffer10[7][i] = keyvalue7_vault10;
+		buffer10[7][i] = GETKV2(keyvalue7_vault10);
 	
 		keyvalue0_vault12 = keyvalue0_vault11;
-		buffer11[0][i] = keyvalue0_vault11;
+		buffer11[0][i] = GETKV2(keyvalue0_vault11);
 		keyvalue1_vault12 = keyvalue1_vault11;
-		buffer11[1][i] = keyvalue1_vault11;
+		buffer11[1][i] = GETKV2(keyvalue1_vault11);
 		keyvalue2_vault12 = keyvalue2_vault11;
-		buffer11[2][i] = keyvalue2_vault11;
+		buffer11[2][i] = GETKV2(keyvalue2_vault11);
 		keyvalue3_vault12 = keyvalue3_vault11;
-		buffer11[3][i] = keyvalue3_vault11;
+		buffer11[3][i] = GETKV2(keyvalue3_vault11);
 		keyvalue4_vault12 = keyvalue4_vault11;
-		buffer11[4][i] = keyvalue4_vault11;
+		buffer11[4][i] = GETKV2(keyvalue4_vault11);
 		keyvalue5_vault12 = keyvalue5_vault11;
-		buffer11[5][i] = keyvalue5_vault11;
+		buffer11[5][i] = GETKV2(keyvalue5_vault11);
 		keyvalue6_vault12 = keyvalue6_vault11;
-		buffer11[6][i] = keyvalue6_vault11;
+		buffer11[6][i] = GETKV2(keyvalue6_vault11);
 		keyvalue7_vault12 = keyvalue7_vault11;
-		buffer11[7][i] = keyvalue7_vault11;
+		buffer11[7][i] = GETKV2(keyvalue7_vault11);
 	
 		keyvalue0_vault13 = keyvalue0_vault12;
-		buffer12[0][i] = keyvalue0_vault12;
+		buffer12[0][i] = GETKV2(keyvalue0_vault12);
 		keyvalue1_vault13 = keyvalue1_vault12;
-		buffer12[1][i] = keyvalue1_vault12;
+		buffer12[1][i] = GETKV2(keyvalue1_vault12);
 		keyvalue2_vault13 = keyvalue2_vault12;
-		buffer12[2][i] = keyvalue2_vault12;
+		buffer12[2][i] = GETKV2(keyvalue2_vault12);
 		keyvalue3_vault13 = keyvalue3_vault12;
-		buffer12[3][i] = keyvalue3_vault12;
+		buffer12[3][i] = GETKV2(keyvalue3_vault12);
 		keyvalue4_vault13 = keyvalue4_vault12;
-		buffer12[4][i] = keyvalue4_vault12;
+		buffer12[4][i] = GETKV2(keyvalue4_vault12);
 		keyvalue5_vault13 = keyvalue5_vault12;
-		buffer12[5][i] = keyvalue5_vault12;
+		buffer12[5][i] = GETKV2(keyvalue5_vault12);
 		keyvalue6_vault13 = keyvalue6_vault12;
-		buffer12[6][i] = keyvalue6_vault12;
+		buffer12[6][i] = GETKV2(keyvalue6_vault12);
 		keyvalue7_vault13 = keyvalue7_vault12;
-		buffer12[7][i] = keyvalue7_vault12;
+		buffer12[7][i] = GETKV2(keyvalue7_vault12);
 	
 		keyvalue0_vault14 = keyvalue0_vault13;
-		buffer13[0][i] = keyvalue0_vault13;
+		buffer13[0][i] = GETKV2(keyvalue0_vault13);
 		keyvalue1_vault14 = keyvalue1_vault13;
-		buffer13[1][i] = keyvalue1_vault13;
+		buffer13[1][i] = GETKV2(keyvalue1_vault13);
 		keyvalue2_vault14 = keyvalue2_vault13;
-		buffer13[2][i] = keyvalue2_vault13;
+		buffer13[2][i] = GETKV2(keyvalue2_vault13);
 		keyvalue3_vault14 = keyvalue3_vault13;
-		buffer13[3][i] = keyvalue3_vault13;
+		buffer13[3][i] = GETKV2(keyvalue3_vault13);
 		keyvalue4_vault14 = keyvalue4_vault13;
-		buffer13[4][i] = keyvalue4_vault13;
+		buffer13[4][i] = GETKV2(keyvalue4_vault13);
 		keyvalue5_vault14 = keyvalue5_vault13;
-		buffer13[5][i] = keyvalue5_vault13;
+		buffer13[5][i] = GETKV2(keyvalue5_vault13);
 		keyvalue6_vault14 = keyvalue6_vault13;
-		buffer13[6][i] = keyvalue6_vault13;
+		buffer13[6][i] = GETKV2(keyvalue6_vault13);
 		keyvalue7_vault14 = keyvalue7_vault13;
-		buffer13[7][i] = keyvalue7_vault13;
+		buffer13[7][i] = GETKV2(keyvalue7_vault13);
 	
 		keyvalue0_vault15 = keyvalue0_vault14;
-		buffer14[0][i] = keyvalue0_vault14;
+		buffer14[0][i] = GETKV2(keyvalue0_vault14);
 		keyvalue1_vault15 = keyvalue1_vault14;
-		buffer14[1][i] = keyvalue1_vault14;
+		buffer14[1][i] = GETKV2(keyvalue1_vault14);
 		keyvalue2_vault15 = keyvalue2_vault14;
-		buffer14[2][i] = keyvalue2_vault14;
+		buffer14[2][i] = GETKV2(keyvalue2_vault14);
 		keyvalue3_vault15 = keyvalue3_vault14;
-		buffer14[3][i] = keyvalue3_vault14;
+		buffer14[3][i] = GETKV2(keyvalue3_vault14);
 		keyvalue4_vault15 = keyvalue4_vault14;
-		buffer14[4][i] = keyvalue4_vault14;
+		buffer14[4][i] = GETKV2(keyvalue4_vault14);
 		keyvalue5_vault15 = keyvalue5_vault14;
-		buffer14[5][i] = keyvalue5_vault14;
+		buffer14[5][i] = GETKV2(keyvalue5_vault14);
 		keyvalue6_vault15 = keyvalue6_vault14;
-		buffer14[6][i] = keyvalue6_vault14;
+		buffer14[6][i] = GETKV2(keyvalue6_vault14);
 		keyvalue7_vault15 = keyvalue7_vault14;
-		buffer14[7][i] = keyvalue7_vault14;
+		buffer14[7][i] = GETKV2(keyvalue7_vault14);
 	
 		keyvalue0_vault16 = keyvalue0_vault15;
-		buffer15[0][i] = keyvalue0_vault15;
+		buffer15[0][i] = GETKV2(keyvalue0_vault15);
 		keyvalue1_vault16 = keyvalue1_vault15;
-		buffer15[1][i] = keyvalue1_vault15;
+		buffer15[1][i] = GETKV2(keyvalue1_vault15);
 		keyvalue2_vault16 = keyvalue2_vault15;
-		buffer15[2][i] = keyvalue2_vault15;
+		buffer15[2][i] = GETKV2(keyvalue2_vault15);
 		keyvalue3_vault16 = keyvalue3_vault15;
-		buffer15[3][i] = keyvalue3_vault15;
+		buffer15[3][i] = GETKV2(keyvalue3_vault15);
 		keyvalue4_vault16 = keyvalue4_vault15;
-		buffer15[4][i] = keyvalue4_vault15;
+		buffer15[4][i] = GETKV2(keyvalue4_vault15);
 		keyvalue5_vault16 = keyvalue5_vault15;
-		buffer15[5][i] = keyvalue5_vault15;
+		buffer15[5][i] = GETKV2(keyvalue5_vault15);
 		keyvalue6_vault16 = keyvalue6_vault15;
-		buffer15[6][i] = keyvalue6_vault15;
+		buffer15[6][i] = GETKV2(keyvalue6_vault15);
 		keyvalue7_vault16 = keyvalue7_vault15;
-		buffer15[7][i] = keyvalue7_vault15;
+		buffer15[7][i] = GETKV2(keyvalue7_vault15);
 	
 		keyvalue0_vault17 = keyvalue0_vault16;
-		buffer16[0][i] = keyvalue0_vault16;
+		buffer16[0][i] = GETKV2(keyvalue0_vault16);
 		keyvalue1_vault17 = keyvalue1_vault16;
-		buffer16[1][i] = keyvalue1_vault16;
+		buffer16[1][i] = GETKV2(keyvalue1_vault16);
 		keyvalue2_vault17 = keyvalue2_vault16;
-		buffer16[2][i] = keyvalue2_vault16;
+		buffer16[2][i] = GETKV2(keyvalue2_vault16);
 		keyvalue3_vault17 = keyvalue3_vault16;
-		buffer16[3][i] = keyvalue3_vault16;
+		buffer16[3][i] = GETKV2(keyvalue3_vault16);
 		keyvalue4_vault17 = keyvalue4_vault16;
-		buffer16[4][i] = keyvalue4_vault16;
+		buffer16[4][i] = GETKV2(keyvalue4_vault16);
 		keyvalue5_vault17 = keyvalue5_vault16;
-		buffer16[5][i] = keyvalue5_vault16;
+		buffer16[5][i] = GETKV2(keyvalue5_vault16);
 		keyvalue6_vault17 = keyvalue6_vault16;
-		buffer16[6][i] = keyvalue6_vault16;
+		buffer16[6][i] = GETKV2(keyvalue6_vault16);
 		keyvalue7_vault17 = keyvalue7_vault16;
-		buffer16[7][i] = keyvalue7_vault16;
+		buffer16[7][i] = GETKV2(keyvalue7_vault16);
 	
 		
-		tail[0][i] = keyvalue0_vault17;
-		tail[1][i] = keyvalue1_vault17;
-		tail[2][i] = keyvalue2_vault17;
-		tail[3][i] = keyvalue3_vault17;
-		tail[4][i] = keyvalue4_vault17;
-		tail[5][i] = keyvalue5_vault17;
-		tail[6][i] = keyvalue6_vault17;
-		tail[7][i] = keyvalue7_vault17;
+		tail[0][i] = GETKV2(keyvalue0_vault17);
+		tail[1][i] = GETKV2(keyvalue1_vault17);
+		tail[2][i] = GETKV2(keyvalue2_vault17);
+		tail[3][i] = GETKV2(keyvalue3_vault17);
+		tail[4][i] = GETKV2(keyvalue4_vault17);
+		tail[5][i] = GETKV2(keyvalue5_vault17);
+		tail[6][i] = GETKV2(keyvalue6_vault17);
+		tail[7][i] = GETKV2(keyvalue7_vault17);
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(tail[0][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(tail[0][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[1][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(tail[1][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[2][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(tail[2][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[3][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(tail[3][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[4][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(tail[4][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[5][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(tail[5][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[6][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(tail[6][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(tail[7][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(tail[7][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[0][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[1][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[1][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[2][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[2][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[3][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[3][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[4][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[4][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[5][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[5][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[6][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[6][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[7][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[7][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
 	
 		#endif 
 	}
@@ -6561,7 +6743,7 @@ bool_type
 	#ifdef SW 
 	acts::
 	#endif 
-fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	bool_type validfetch = ON;
 	if(mode == PROCESSMODE){
@@ -6576,7 +6758,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[NUM_PARTITIONS], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], 
+commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[NUM_PARTITIONS], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], 
 		batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == REDUCEMODE){
 		reduceandbuffer(enable1, buffer, localcapsule, vbuffer, sweepparams, globalparams);
@@ -6774,7 +6956,7 @@ void
 	acts::
 	#endif
 actit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
@@ -6861,7 +7043,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
@@ -6997,7 +7179,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
+partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -7085,7 +7267,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
+reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -7120,7 +7302,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){
 	if(en_process == ON){ processit(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams); } 
 	if(en_partition == ON){ partitionit(kvdram, sourcebuffer, vbuffer, vmask, globalparams); } 
@@ -7135,7 +7317,7 @@ void
 	acts::
 	#endif 
 dispatch_reduce(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
-keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE], 
+keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE], 
 		uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -7144,10 +7326,10 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vb
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	vertexdata_wtype synvbuffer_head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t synvbuffer_head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer_head
 	
-	vertexdata_wtype synvbuffer_tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t synvbuffer_tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer_tail
 	
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
@@ -7567,112 +7749,112 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	
 	keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer0
-	vertexdata_wtype vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0_1
 	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer1
-	vertexdata_wtype vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1_1
 	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer2
-	vertexdata_wtype vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2_1
 	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer3
-	vertexdata_wtype vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3_1
 	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer4
-	vertexdata_wtype vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4_1
 	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer5
-	vertexdata_wtype vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5_1
 	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer6
-	vertexdata_wtype vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6_1
 	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer7
-	vertexdata_wtype vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7_1
 	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer8
-	vertexdata_wtype vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8_1
 	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer9
-	vertexdata_wtype vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9_1
 	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer10
-	vertexdata_wtype vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10_1
 	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer11
-	vertexdata_wtype vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11_1
 	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer12
-	vertexdata_wtype vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12_1
 	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer13
-	vertexdata_wtype vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13_1
 	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer14
-	vertexdata_wtype vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14_1
 	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer15
-	vertexdata_wtype vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15_1
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
@@ -7968,7 +8150,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -8132,91 +8314,91 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
 	#endif
 	
-	vertexdata_wtype synvbuffer_head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t synvbuffer_head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer_head
 	
-	vertexdata_wtype synvbuffer_tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t synvbuffer_tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer_tail
 	
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	
-	vertexdata_wtype vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0
 	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
 	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
 	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
 	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12
 	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13
 	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14
 	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
@@ -8613,91 +8795,91 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
 	#endif
 	
-	vertexdata_wtype synvbuffer_head[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t synvbuffer_head[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer_head
 	
-	vertexdata_wtype synvbuffer_tail[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t synvbuffer_tail[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = synvbuffer_tail
 	
 	travstate_t rtravstate[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	
-	vertexdata_wtype vbuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0
 	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
 	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
 	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
 	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12
 	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13
 	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14
 	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
-	vertexdata_wtype vbuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
@@ -8981,7 +9163,7 @@ topkernel(uint512_dt * kvdram){
 	
 	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
-	vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer
 	uintNUMPby2_type vmask[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask

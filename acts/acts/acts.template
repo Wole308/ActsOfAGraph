@@ -150,8 +150,6 @@ GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
-	// res.key = data.range(15, 0);
-	// res.value = data.range(31, 16);
 	res.key = data.range(21, 0);
 	res.value = data.range(31, 22);
 	#else 
@@ -168,8 +166,6 @@ GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
-	// res.range(15, 0) = data.key;
-	// res.range(31, 16) = data.value;
 	res.range(21, 0) = data.key;
 	res.range(31, 22) = data.value;
 	#else
@@ -178,6 +174,47 @@ GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
+keyvalue_t 
+	#ifdef SW 
+	acts::
+	#endif 
+GETKV2(keyvalue_vbuffer_t data){
+	#pragma HLS INLINE
+	keyvalue_t res;
+	#ifdef _WIDEWORD
+	res.key = data.range(15, 0); //
+	res.value = data.range(31, 16);
+	// res.key = data.range(31, 0);
+	// res.value = data.range(63, 32);
+	#else 
+	res.key = data.key;
+	res.value = data.value;	
+	// res.key = data.data; // CRITICAL REMOVEME.
+	// res.value = data.data;	
+	#endif 
+	return res;
+}
+keyvalue_vbuffer_t 
+	#ifdef SW 
+	acts::
+	#endif 
+GETKV2(keyvalue_t data){
+	#pragma HLS INLINE
+	keyvalue_vbuffer_t res;
+	#ifdef _WIDEWORD
+	res.range(15, 0) = data.key; //
+	res.range(31, 16) = data.value;
+	// res.range(31, 0) = data.key;
+	// res.range(63, 32) = data.value;
+	#else
+	res.key = data.key;
+	res.value = data.value;	
+	// res.data = data.key; // CRITICAL REMOVEME.
+	// res.data = data.value;	
+	#endif 
+	return res;
+}
+
 uint32_type 
 	#ifdef SW 
 	acts::
@@ -858,7 +895,31 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue{{v}};
+		{%endfor%}
+		
 		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		#endif 
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer[begincol + {{v}}][bufferoffset_kvs + i] = GETKV2(mykeyvalue{{v}});
+		{%endfor%}
+		
+		
+		
+		
+	
+		/* #ifdef _WIDEWORD
 		{%for v in context['VECTOR_SIZE_seq']%}
 		buffer[begincol + {{v}}][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
 		buffer[begincol + {{v}}][bufferoffset_kvs + i].value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
@@ -868,7 +929,8 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 		buffer[begincol + {{v}}][bufferoffset_kvs + i].key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
 		buffer[begincol + {{v}}][bufferoffset_kvs + i].value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -891,10 +953,32 @@ savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  APPLYVERTEXBUFFERSZ / 2;
 	
-	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	SAVEVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue{{v}} = GETKV2(buffer[begincol + {{v}}][bufferoffset_kvs + i]);
+		{%endfor%}
+	
 		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = mykeyvalue{{v}}.key; 
+		kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = mykeyvalue{{v}}.value; 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[dramoffset_kvs + i].data[{{v}}].key = mykeyvalue{{v}}.key;
+		kvdram[dramoffset_kvs + i].data[{{v}}].value = mykeyvalue{{v}}.value;
+		{%endfor%}
+		#endif 
+	
+	
+	
+	
+	
+	
+	
+		/* #ifdef _WIDEWORD
 		{%for v in context['VECTOR_SIZE_seq']%}
 		kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = buffer[begincol + {{v}}][bufferoffset_kvs + i].key; 
 		kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = buffer[begincol + {{v}}][bufferoffset_kvs + i].value; 
@@ -904,7 +988,8 @@ savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 		kvdram[dramoffset_kvs + i].data[{{v}}].key = buffer[begincol + {{v}}][bufferoffset_kvs + i].key;
 		kvdram[dramoffset_kvs + i].data[{{v}}].value = buffer[begincol + {{v}}][bufferoffset_kvs + i].value;
 		{%endfor%}
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
 		#endif
@@ -927,10 +1012,47 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
-	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue1{{v}};
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue2{{v}};
+		{%endfor%}
+		
 		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue1{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue1{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue2{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue2{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue1{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue1{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue2{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue2{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		#endif 
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer1[begincol + {{v}}][buffer1offset_kvs + i] = GETKV2(mykeyvalue1{{v}});
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer2[begincol + {{v}}][buffer2offset_kvs + i] = GETKV2(mykeyvalue2{{v}});
+		{%endfor%}
+		
+	
+	
+	
+		/* #ifdef _WIDEWORD
 		{%for v in context['VECTOR_SIZE_seq']%}
 		buffer1[begincol + {{v}}][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
 		buffer1[begincol + {{v}}][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
@@ -948,7 +1070,8 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 		buffer2[begincol + {{v}}][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
 		buffer2[begincol + {{v}}][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -971,10 +1094,52 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
-	READKEYVALUES4_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
+	
+		// {%for v in context['VECTOR_SIZE_seq']%}
+		// buffer1[{{v}}][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		// buffer1[{{v}}][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		// {%endfor%}
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue1{{v}};
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue2{{v}};
+		{%endfor%}
+		
 		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue1{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue1{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue2{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue2{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue1{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue1{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue2{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue2{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		#endif 
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer1[{{v}}][buffer1offset_kvs + i] = GETKV2(mykeyvalue1{{v}});
+		{%endfor%}
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer2[{{v}}][buffer2offset_kvs + i] = GETKV2(mykeyvalue2{{v}});
+		{%endfor%}
+		
+		
+	
+		/* #ifdef _WIDEWORD
 		{%for v in context['VECTOR_SIZE_seq']%}
 		buffer1[{{v}}][buffer1offset_kvs + i].key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
 		buffer1[{{v}}][buffer1offset_kvs + i].value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
@@ -992,7 +1157,8 @@ readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 		buffer2[{{v}}][buffer2offset_kvs + i].key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
 		buffer2[{{v}}][buffer2offset_kvs + i].value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
-		#endif 
+		#endif  */
+		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -1262,16 +1428,8 @@ getv(keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned in
 	actsutilityobj->checkoutofbounds("getv.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 	#endif 
 	
-	if(loc % 2 == 0){ data = vbuffer[col][row].key; } 
-	else { data = vbuffer[col][row].value; }
-	
-	// if(col < NUM_PARTITIONS/2){
-		// if(loc % 2 == 0){ data = vbuffer[col][row].key; } 
-		// else { data = vbuffer[col][row].value; }
-	// } else {
-		// if(loc % 2 == 0){ data = vbuffer2[col - (NUM_PARTITIONS/2)][row].key; } 
-		// else { data = vbuffer2[col - (NUM_PARTITIONS/2)][row].value; }
-	// }
+	if(loc % 2 == 0){ data = GETKV2(vbuffer[col][row]).key; } 
+	else { data = GETKV2(vbuffer[col][row]).value; }
 	return data;
 }
 
@@ -1297,7 +1455,7 @@ getvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t
 	} else {
 		row = 0;
 		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"getv: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
+		cout<<"getvmask: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
 		exit(EXIT_FAILURE);
 		#endif 
 	}
@@ -1400,7 +1558,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 			actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 			#endif
 			
-			if(en == ON && mask == 1){
+			/* if(en == ON && mask == 1){
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 				if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
@@ -1416,12 +1574,42 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 				buffer[{{v}}][2*i + n].key = INVALIDDATA; 
 				buffer[{{v}}][2*i + n].value = INVALIDDATA; 
 				{%endfor%}	
-			}
+			} 
 			
 			if(n==0){
 				buffer[0][2*i].key = INVALIDDATA;
 				buffer[0][2*i].value = INVALIDDATA;
 			}
+			*/
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(en == ON && mask == 1){
+				if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+				// for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			}
+			#endif 
+			
+			if(en == ON && mask == 1){
+				{%for v in context['VECTOR_SIZE_seq']%}
+				mykeyvalue{{v}}.key = E[0][{{v}}]; 
+				mykeyvalue{{v}}.value = res; 
+				{%endfor%}
+			} else {
+				{%for v in context['VECTOR_SIZE_seq']%}
+				mykeyvalue{{v}}.key = INVALIDDATA; 
+				mykeyvalue{{v}}.value = INVALIDDATA; 
+				{%endfor%}	
+			}
+			
+			if(n==0){
+				mykeyvalue00.key = INVALIDDATA;
+				mykeyvalue00.value = INVALIDDATA;
+			}
+			
+			{%for v in context['VECTOR_SIZE_seq']%}
+			buffer[{{v}}][2*i + n] = GETKV(mykeyvalue{{v}});
+			{%endfor%}
 			
 			#ifdef _DEBUGMODE_STATS
 			actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE);
@@ -1502,39 +1690,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 		#endif
 		
-		// {%for v in context['VECTOR_SIZE_seq']%}
-		// keyvalue_buffer_t mykeyvalue0{{v}} = GETKV(E[0][{{v}}], res);
-		// {%endfor%}
-		// {%for v in context['VECTOR_SIZE_seq']%}
-		// keyvalue_buffer_t mykeyvalue1{{v}} = GETKV(E[1][{{v}}], res);
-		// {%endfor%}
-		
-		/* if(en == ON && mask == 1){
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			#endif
-			
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i].key = E[0][{{v}}]; 
-			buffer[{{v}}][2*i].value = res; 
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i + 1].key = E[1][{{v}}]; 
-			buffer[{{v}}][2*i + 1].value = res; 
-			{%endfor%}
-		} else {
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i].key = INVALIDDATA; 
-			buffer[{{v}}][2*i].value = INVALIDDATA; 
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i + 1].key = INVALIDDATA; 
-			buffer[{{v}}][2*i + 1].value = INVALIDDATA; 
-			{%endfor%}
-		} */
-		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		if(en == ON && mask == 1){
 			if(false){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
@@ -1542,48 +1697,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
 		}
 		#endif
-		
-		/* if(en == ON && mask == 1){
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i].key = mykeyvalue0{{v}}.key; 
-			buffer[{{v}}][2*i].value = mykeyvalue0{{v}}.value; 
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i + 1].key = mykeyvalue1{{v}}.key; 
-			buffer[{{v}}][2*i + 1].value = mykeyvalue1{{v}}.value; 
-			{%endfor%}
-		} else {
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i].key = INVALIDDATA; 
-			buffer[{{v}}][2*i].value = INVALIDDATA; 
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i + 1].key = INVALIDDATA; 
-			buffer[{{v}}][2*i + 1].value = INVALIDDATA; 
-			{%endfor%}
-		} */
-		/* if(en == ON && mask == 1){
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i] = mykeyvalue0{{v}};
-			buffer[{{v}}][2*i + 1] = 
-			
-			buffer[{{v}}][2*i].key = mykeyvalue0{{v}}.key; 
-			buffer[{{v}}][2*i].value = mykeyvalue0{{v}}.value; 
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i + 1].key = mykeyvalue1{{v}}.key; 
-			buffer[{{v}}][2*i + 1].value = mykeyvalue1{{v}}.value; 
-			{%endfor%}
-		} else {
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i].key = INVALIDDATA; 
-			buffer[{{v}}][2*i].value = INVALIDDATA; 
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i + 1].key = INVALIDDATA; 
-			buffer[{{v}}][2*i + 1].value = INVALIDDATA; 
-			{%endfor%}
-		} */
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t mykeyvalue0{{v}};
@@ -1801,22 +1914,23 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
 	else { destbuffer[destoffset + rowindex].value = 1; }
 	#else
-	keyvalue_vbuffer_t vprop;
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ vprop = destbuffer[destoffset + rowindex]; }
+	// keyvalue_vbuffer_t vprop;
+	keyvalue_t myvprop;
+	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ myvprop = GETKV2(destbuffer[destoffset + rowindex]); }
 	
 	value_t temp;
-	if(colindex == 0){ temp = vprop.key; }
-	else { temp = vprop.value; }
+	if(colindex == 0){ temp = myvprop.key; }
+	else { temp = myvprop.value; }
 	
 	value_t rettemp = reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reducevector:: rettemp: "<<rettemp<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	if(colindex == 0){ vprop.key = rettemp; }
-	else { vprop.value = rettemp; }
+	if(colindex == 0){ myvprop.key = rettemp; }
+	else { myvprop.value = rettemp; }
 	
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ destbuffer[destoffset + rowindex] = vprop; }
+	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ destbuffer[destoffset + rowindex] = GETKV2(myvprop); }
 	#endif 
 	
 	#ifdef _DEBUGMODE_STATS
@@ -1946,7 +2060,7 @@ synchronize(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
 	{%for v in context['NUM_PARTITIONS_seq']%}
-	keyvalue_vbuffer_t keyvalue{{v}}_vault{{i}};
+	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
 	
@@ -1954,25 +2068,25 @@ synchronize(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		keyvalue{{v}}_vault1 = buffer0[{{v}}][i]; 
+		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
 		{%if(i>0)%}
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, buffer{{i}}[{{v}}][i].key, NAp);
-		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, buffer{{i}}[{{v}}][i].value, NAp);
+		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, NAp);
+		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, NAp);
 		{%endfor%}	
 		{%endif%}
 		{%endfor%}
 		
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		tail[{{v}}][i] = keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}};
+		tail[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}});
 		{%endfor%}
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		if(tail[{{v}}][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(tail[{{v}}][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}	
 		#endif 
 	}
@@ -1993,7 +2107,7 @@ synchronize2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyv
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
 	{%for v in context['VECTOR_SIZE_seq']%}
-	keyvalue_vbuffer_t keyvalue{{v}}_vault{{i}};
+	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
 	
@@ -2001,25 +2115,25 @@ synchronize2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyv
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault1 = buffer0[{{v}}][i]; 
+		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
 		{%if(i>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, buffer{{i}}[{{v}}][i].key, NAp);
-		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, buffer{{i}}[{{v}}][i].value, NAp);
+		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, NAp);
+		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, NAp);
 		{%endfor%}	
 		{%endif%}
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tail[{{v}}][i] = keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}};
+		tail[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}});
 		{%endfor%}
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(tail[{{v}}][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(tail[{{v}}][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}	
 		#endif 
 	}
@@ -2043,8 +2157,8 @@ apply(bool_type enable,
 	#pragma HLS ARRAY_PARTITION variable=vid complete
 	
 	{%for v in context['NUM_PARTITIONS_seq']%}
-	keyvalue_vbuffer_t data{{v}};
-	keyvalue_vbuffer_t res{{v}};
+	keyvalue_t data{{v}};
+	keyvalue_t res{{v}};
 	{%endfor%}
 	
 	uint32_type cummvmask_sp = 0;
@@ -2062,11 +2176,11 @@ apply(bool_type enable,
 		#endif 
 	
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		data{{v}} = vbuffer[{{v}}][i];
+		data{{v}} = GETKV2(vbuffer[{{v}}][i]);
 		{%endfor%}
 		
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		keyvalue_vbuffer_t udata{{v}} = synvbuffer[{{v}}][i];
+		keyvalue_t udata{{v}} = GETKV2(synvbuffer[{{v}}][i]);
 		{%endfor%}
 		
 		{%for v in context['NUM_PARTITIONS_seq']%}
@@ -2131,8 +2245,8 @@ apply2(bool_type enable,
 	#pragma HLS ARRAY_PARTITION variable=vid complete
 	
 	{%for v in context['VECTOR_SIZE_seq']%}
-	keyvalue_vbuffer_t data{{v}};
-	keyvalue_vbuffer_t res{{v}};
+	keyvalue_t data{{v}};
+	keyvalue_t res{{v}};
 	{%endfor%}
 	
 	uint32_type cummvmask_sp = 0;
@@ -2150,11 +2264,11 @@ apply2(bool_type enable,
 		#endif 
 	
 		{%for v in context['VECTOR_SIZE_seq']%}
-		data{{v}} = vbuffer[{{v}}][i];
+		data{{v}} = GETKV2(vbuffer[{{v}}][i]);
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_vbuffer_t udata{{v}} = synvbuffer[{{v}}][i];
+		keyvalue_t udata{{v}} = GETKV2(synvbuffer[{{v}}][i]);
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -2218,7 +2332,7 @@ spreadvdata(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
 	{%for v in context['NUM_PARTITIONS_seq']%}
-	keyvalue_vbuffer_t keyvalue{{v}}_vault{{i}};
+	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
 	
@@ -2226,25 +2340,25 @@ spreadvdata(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		keyvalue{{v}}_vault1 = buffer0[{{v}}][i]; 
+		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
 		{%if(i>0)%}
 		{%for v in context['NUM_PARTITIONS_seq']%}
 		keyvalue{{v}}_vault{{i+1}} = keyvalue{{v}}_vault{{i}};
-		buffer{{i}}[{{v}}][i] = keyvalue{{v}}_vault{{i}};
+		buffer{{i}}[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{i}});
 		{%endfor%}
 		{%endif%}	
 		{%endfor%}
 		
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		tail[{{v}}][i] = keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}};
+		tail[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}});
 		{%endfor%}	
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['NUM_PARTITIONS_seq']%}
-		if(tail[{{v}}][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(tail[{{v}}][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}	
 		#endif 
 	}
@@ -2265,7 +2379,7 @@ spreadvdata2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyv
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
 	{%for v in context['VECTOR_SIZE_seq']%}
-	keyvalue_vbuffer_t keyvalue{{v}}_vault{{i}};
+	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
 	
@@ -2273,25 +2387,25 @@ spreadvdata2(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyv
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault1 = buffer0[{{v}}][i]; 
+		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
 		{%if(i>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue{{v}}_vault{{i+1}} = keyvalue{{v}}_vault{{i}};
-		buffer{{i}}[{{v}}][i] = keyvalue{{v}}_vault{{i}};
+		buffer{{i}}[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{i}});
 		{%endfor%}
 		{%endif%}	
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tail[{{v}}][i] = keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}};
+		tail[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}});
 		{%endfor%}	
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(tail[{{v}}][i].key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(tail[{{v}}][i].value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(tail[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}	
 		#endif 
 	}

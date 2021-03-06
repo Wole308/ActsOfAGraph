@@ -70,11 +70,11 @@ typedef struct {
 #ifdef _WIDEWORD
 typedef ap_uint<32> keyvalue_buffer_t;
 #else 
-typedef keyvalue_t keyvalue_buffer_t;
-// typedef struct {
-	// unsigned int key;
-	// unsigned int value;
-// } keyvalue_buffer_t;
+// typedef keyvalue_t keyvalue_buffer_t;
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue_buffer_t;
 #endif 
 /* typedef struct {
 	#ifdef _WIDEWORD
@@ -104,7 +104,20 @@ typedef keyvalue_t keyvalue_buffer_t;
 	#endif 
 } keyvalue_t; */
 
-typedef keyvalue_t keyvalue_vbuffer_t; //
+// typedef keyvalue_t keyvalue_vbuffer_t; //
+#ifdef _WIDEWORD
+typedef ap_uint<32> keyvalue_vbuffer_t; // 
+// typedef ap_uint<64> keyvalue_vbuffer_t;
+#else 
+// typedef keyvalue_t keyvalue_buffer_t;
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+	// unsigned long key; // CRITICAL REMOVEME.
+	// unsigned long value;
+	// unsigned long data;
+} keyvalue_vbuffer_t;
+#endif 
 
 typedef struct {
 	unsigned int currentLOP;

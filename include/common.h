@@ -345,7 +345,7 @@ typedef struct {
 } keyvalue16_type; */
 typedef keyvalue_t keyvalue16_type;
 
-// typedef keyvalue_t vertexdata_wtype;
+// typedef keyvalue_t keyvalue_vbuffer_t;
 
 typedef struct {
 	unsigned int key;

@@ -62,6 +62,8 @@ public:
 	// functions (converters)
 	keyvalue_t GETKV(keyvalue_buffer_t data);
 	keyvalue_buffer_t GETKV(keyvalue_t data);
+	keyvalue_t GETKV2(keyvalue_vbuffer_t data);
+	keyvalue_vbuffer_t GETKV2(keyvalue_t data);
 	uint32_type convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index);
 	
 	// functions (acts utilities)
