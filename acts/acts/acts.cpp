@@ -648,11 +648,6 @@ getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP,
 	}
 	#endif
 	
-	// #ifdef ENABLE_PERFECTACCURACY
-		// #ifdef _DEBUGMODE_CHECKS2
-		// if(partition >= NUM_PARTITIONS){ cout<<"acts::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; exit(EXIT_FAILURE); }
-		// #endif
-	// #endif 
 	#ifndef ENABLE_PERFECTACCURACY
 		if(partition >= NUM_PARTITIONS){ partition = (((1 << NUM_PARTITIONS_POW) - 1) & (partition >> (1 - 1))); } // FIXME. REMOVEME. PERFECTIONTEST.
 	#endif
@@ -699,7 +694,8 @@ void
 	#endif 
 resetkeysandvalues(keyvalue_dram_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){
-		buffer[i].key = resetval; buffer[i].value = resetval; 
+		buffer[i].key = resetval; 
+		buffer[i].value = resetval; 
 	}
 	return;
 }
@@ -2000,7 +1996,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 	return validfetch;
 }
 #endif
-// #ifdef KOKOOOOOOO_XXX_HWSYNIIEQUALS2
 bool_type 
 	#ifdef SW 
 	acts::
@@ -2008,7 +2003,7 @@ bool_type
 readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return OFF; }
-	analysis_type analysis_srcbuffersz = WORKBUFFER_SIZE / 2;
+	analysis_type analysis_loop = BLOCKRAM_SIZE / 2;
 	
 	value_t E[2][VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
@@ -2017,7 +2012,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	unsigned int validbound = reducebuffersz * FETFACTOR * VECTOR2_SIZE;
 	
-	travstate.i_kvs = travstate.i_kvs / 2; // edges is singlevaluetype
+	travstate.i_kvs = travstate.i_kvs / 2;
 	travstate.end_kvs = travstate.end_kvs / 2;
 	loffset_kvs = loffset_kvs / 2;
 	size_kvs = size_kvs / 2;
@@ -2026,7 +2021,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, vertexdata_wtype vbuffer[V
 	
 	buffer_type chunk_size = getchunksize_kvs(size_kvs, travstate, 0);
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
 
 		#ifdef _WIDEWORD

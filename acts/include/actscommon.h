@@ -55,7 +55,7 @@ typedef struct {
 	#endif 
 } keyvalue_capsule_t;
 
-typedef struct {
+/* typedef struct {
 	#ifdef _WIDEWORD
 	ap_uint<16> key;
 	ap_uint<16> value; // CRITICAL REMOVEME.
@@ -65,7 +65,18 @@ typedef struct {
 	unsigned int key;
 	unsigned int value;
 	#endif 
+} keyvalue_buffer_t; */
+
+typedef struct {
+	unsigned long data; // CRITICAL REMOVEME
 } keyvalue_buffer_t;
+
+/* struct __attribute__((packed)) keyvalue_buffer_t{
+	ap_uint<24> key;
+	ap_uint<8> value;
+	// ap_uint<16> key;
+	// ap_uint<16> value;
+}; */
 
 typedef struct {
 	#ifdef _WIDEWORD
