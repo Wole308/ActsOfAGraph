@@ -3764,7 +3764,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronize: synchronize function called."<<endl;
@@ -4609,7 +4609,7 @@ uint32_type
 	acts::
 	#endif
 apply2(bool_type enable, 
-		keyvalue_vbuffer_t vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 		unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -5734,7 +5734,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
@@ -6565,14 +6565,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = KVDATA_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -6585,8 +6585,8 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -7371,113 +7371,113 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	
 	keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer0
-	keyvalue_vbuffer_t vbuffer0_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer0_1
+	keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer0
 	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer1
-	keyvalue_vbuffer_t vbuffer1_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer1_1
+	keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer1
 	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer2
-	keyvalue_vbuffer_t vbuffer2_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer2_1
+	keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer2
 	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer3
-	keyvalue_vbuffer_t vbuffer3_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer3_1
+	keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer3
 	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer4
-	keyvalue_vbuffer_t vbuffer4_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer4_1
+	keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer4
 	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer5
-	keyvalue_vbuffer_t vbuffer5_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer5_1
+	keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer5
 	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer6
-	keyvalue_vbuffer_t vbuffer6_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer6_1
+	keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer6
 	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer7
-	keyvalue_vbuffer_t vbuffer7_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer7_1
+	keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer7
 	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer8
-	keyvalue_vbuffer_t vbuffer8_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer8_1
+	keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer8
 	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer9
-	keyvalue_vbuffer_t vbuffer9_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer9_1
+	keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer9
 	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer10
-	keyvalue_vbuffer_t vbuffer10_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer10_1
+	keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer10
 	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer11
-	keyvalue_vbuffer_t vbuffer11_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer11_1
+	keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer11
 	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer12
-	keyvalue_vbuffer_t vbuffer12_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer12_1
+	keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer12
 	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer13
-	keyvalue_vbuffer_t vbuffer13_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer13_1
+	keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer13
 	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer14
-	keyvalue_vbuffer_t vbuffer14_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer14_1
+	keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer14
 	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer15
-	keyvalue_vbuffer_t vbuffer15_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer15_1
+	keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer15
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
 	uint32_type vmask_p15[BLOCKRAM_SIZE];
@@ -7575,82 +7575,82 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 0... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram0, sourcebuffer0, vbuffer0_1, vmask0, vmask_p0, NAp, NAp, globalparams[0]);
+			dispatch(ON, OFF, OFF, kvdram0, sourcebuffer0, vbuffer0, vmask0, vmask_p0, NAp, NAp, globalparams[0]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 1... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram1, sourcebuffer1, vbuffer1_1, vmask1, vmask_p1, NAp, NAp, globalparams[1]);
+			dispatch(ON, OFF, OFF, kvdram1, sourcebuffer1, vbuffer1, vmask1, vmask_p1, NAp, NAp, globalparams[1]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 2... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram2, sourcebuffer2, vbuffer2_1, vmask2, vmask_p2, NAp, NAp, globalparams[2]);
+			dispatch(ON, OFF, OFF, kvdram2, sourcebuffer2, vbuffer2, vmask2, vmask_p2, NAp, NAp, globalparams[2]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 3... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram3, sourcebuffer3, vbuffer3_1, vmask3, vmask_p3, NAp, NAp, globalparams[3]);
+			dispatch(ON, OFF, OFF, kvdram3, sourcebuffer3, vbuffer3, vmask3, vmask_p3, NAp, NAp, globalparams[3]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 4... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram4, sourcebuffer4, vbuffer4_1, vmask4, vmask_p4, NAp, NAp, globalparams[4]);
+			dispatch(ON, OFF, OFF, kvdram4, sourcebuffer4, vbuffer4, vmask4, vmask_p4, NAp, NAp, globalparams[4]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 5... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram5, sourcebuffer5, vbuffer5_1, vmask5, vmask_p5, NAp, NAp, globalparams[5]);
+			dispatch(ON, OFF, OFF, kvdram5, sourcebuffer5, vbuffer5, vmask5, vmask_p5, NAp, NAp, globalparams[5]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 6... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram6, sourcebuffer6, vbuffer6_1, vmask6, vmask_p6, NAp, NAp, globalparams[6]);
+			dispatch(ON, OFF, OFF, kvdram6, sourcebuffer6, vbuffer6, vmask6, vmask_p6, NAp, NAp, globalparams[6]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 7... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram7, sourcebuffer7, vbuffer7_1, vmask7, vmask_p7, NAp, NAp, globalparams[7]);
+			dispatch(ON, OFF, OFF, kvdram7, sourcebuffer7, vbuffer7, vmask7, vmask_p7, NAp, NAp, globalparams[7]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 8... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram8, sourcebuffer8, vbuffer8_1, vmask8, vmask_p8, NAp, NAp, globalparams[8]);
+			dispatch(ON, OFF, OFF, kvdram8, sourcebuffer8, vbuffer8, vmask8, vmask_p8, NAp, NAp, globalparams[8]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 9... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram9, sourcebuffer9, vbuffer9_1, vmask9, vmask_p9, NAp, NAp, globalparams[9]);
+			dispatch(ON, OFF, OFF, kvdram9, sourcebuffer9, vbuffer9, vmask9, vmask_p9, NAp, NAp, globalparams[9]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 10... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram10, sourcebuffer10, vbuffer10_1, vmask10, vmask_p10, NAp, NAp, globalparams[10]);
+			dispatch(ON, OFF, OFF, kvdram10, sourcebuffer10, vbuffer10, vmask10, vmask_p10, NAp, NAp, globalparams[10]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 11... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram11, sourcebuffer11, vbuffer11_1, vmask11, vmask_p11, NAp, NAp, globalparams[11]);
+			dispatch(ON, OFF, OFF, kvdram11, sourcebuffer11, vbuffer11, vmask11, vmask_p11, NAp, NAp, globalparams[11]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 12... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram12, sourcebuffer12, vbuffer12_1, vmask12, vmask_p12, NAp, NAp, globalparams[12]);
+			dispatch(ON, OFF, OFF, kvdram12, sourcebuffer12, vbuffer12, vmask12, vmask_p12, NAp, NAp, globalparams[12]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 13... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram13, sourcebuffer13, vbuffer13_1, vmask13, vmask_p13, NAp, NAp, globalparams[13]);
+			dispatch(ON, OFF, OFF, kvdram13, sourcebuffer13, vbuffer13, vmask13, vmask_p13, NAp, NAp, globalparams[13]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 14... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram14, sourcebuffer14, vbuffer14_1, vmask14, vmask_p14, NAp, NAp, globalparams[14]);
+			dispatch(ON, OFF, OFF, kvdram14, sourcebuffer14, vbuffer14, vmask14, vmask_p14, NAp, NAp, globalparams[14]);
  
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: processing instance 15... "<<endl;
 			#endif
-			dispatch(ON, OFF, OFF, kvdram15, sourcebuffer15, vbuffer15_1, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
+			dispatch(ON, OFF, OFF, kvdram15, sourcebuffer15, vbuffer15, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
 		}
 		#endif 
 		
@@ -7660,67 +7660,67 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 0... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram0, sourcebuffer0, vbuffer0_1, vmask0, vmask_p0, NAp, NAp, globalparams[0]);
+			dispatch(OFF, ON, OFF, kvdram0, sourcebuffer0, vbuffer0, vmask0, vmask_p0, NAp, NAp, globalparams[0]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 1... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram1, sourcebuffer1, vbuffer1_1, vmask1, vmask_p1, NAp, NAp, globalparams[1]);
+			dispatch(OFF, ON, OFF, kvdram1, sourcebuffer1, vbuffer1, vmask1, vmask_p1, NAp, NAp, globalparams[1]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 2... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram2, sourcebuffer2, vbuffer2_1, vmask2, vmask_p2, NAp, NAp, globalparams[2]);
+			dispatch(OFF, ON, OFF, kvdram2, sourcebuffer2, vbuffer2, vmask2, vmask_p2, NAp, NAp, globalparams[2]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 3... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram3, sourcebuffer3, vbuffer3_1, vmask3, vmask_p3, NAp, NAp, globalparams[3]);
+			dispatch(OFF, ON, OFF, kvdram3, sourcebuffer3, vbuffer3, vmask3, vmask_p3, NAp, NAp, globalparams[3]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 4... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram4, sourcebuffer4, vbuffer4_1, vmask4, vmask_p4, NAp, NAp, globalparams[4]);
+			dispatch(OFF, ON, OFF, kvdram4, sourcebuffer4, vbuffer4, vmask4, vmask_p4, NAp, NAp, globalparams[4]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 5... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram5, sourcebuffer5, vbuffer5_1, vmask5, vmask_p5, NAp, NAp, globalparams[5]);
+			dispatch(OFF, ON, OFF, kvdram5, sourcebuffer5, vbuffer5, vmask5, vmask_p5, NAp, NAp, globalparams[5]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 6... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram6, sourcebuffer6, vbuffer6_1, vmask6, vmask_p6, NAp, NAp, globalparams[6]);
+			dispatch(OFF, ON, OFF, kvdram6, sourcebuffer6, vbuffer6, vmask6, vmask_p6, NAp, NAp, globalparams[6]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 7... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram7, sourcebuffer7, vbuffer7_1, vmask7, vmask_p7, NAp, NAp, globalparams[7]);
+			dispatch(OFF, ON, OFF, kvdram7, sourcebuffer7, vbuffer7, vmask7, vmask_p7, NAp, NAp, globalparams[7]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 8... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram8, sourcebuffer8, vbuffer8_1, vmask8, vmask_p8, NAp, NAp, globalparams[8]);
+			dispatch(OFF, ON, OFF, kvdram8, sourcebuffer8, vbuffer8, vmask8, vmask_p8, NAp, NAp, globalparams[8]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 9... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram9, sourcebuffer9, vbuffer9_1, vmask9, vmask_p9, NAp, NAp, globalparams[9]);
+			dispatch(OFF, ON, OFF, kvdram9, sourcebuffer9, vbuffer9, vmask9, vmask_p9, NAp, NAp, globalparams[9]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 10... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram10, sourcebuffer10, vbuffer10_1, vmask10, vmask_p10, NAp, NAp, globalparams[10]);
+			dispatch(OFF, ON, OFF, kvdram10, sourcebuffer10, vbuffer10, vmask10, vmask_p10, NAp, NAp, globalparams[10]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 11... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram11, sourcebuffer11, vbuffer11_1, vmask11, vmask_p11, NAp, NAp, globalparams[11]);
+			dispatch(OFF, ON, OFF, kvdram11, sourcebuffer11, vbuffer11, vmask11, vmask_p11, NAp, NAp, globalparams[11]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 12... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram12, sourcebuffer12, vbuffer12_1, vmask12, vmask_p12, NAp, NAp, globalparams[12]);
+			dispatch(OFF, ON, OFF, kvdram12, sourcebuffer12, vbuffer12, vmask12, vmask_p12, NAp, NAp, globalparams[12]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 13... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram13, sourcebuffer13, vbuffer13_1, vmask13, vmask_p13, NAp, NAp, globalparams[13]);
+			dispatch(OFF, ON, OFF, kvdram13, sourcebuffer13, vbuffer13, vmask13, vmask_p13, NAp, NAp, globalparams[13]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 14... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram14, sourcebuffer14, vbuffer14_1, vmask14, vmask_p14, NAp, NAp, globalparams[14]);
+			dispatch(OFF, ON, OFF, kvdram14, sourcebuffer14, vbuffer14, vmask14, vmask_p14, NAp, NAp, globalparams[14]);
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"topkernel: partitioning instance 15... "<<endl;
 			#endif
-			dispatch(OFF, ON, OFF, kvdram15, sourcebuffer15, vbuffer15_1, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
+			dispatch(OFF, ON, OFF, kvdram15, sourcebuffer15, vbuffer15, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
 		}
 		#endif
 		
@@ -7731,7 +7731,7 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			cout<<"topkernel: reducing instances 0-16... "<<endl;
 			#endif
 			dispatch_reduce(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
-sourcebuffer0, vbuffer0_1, vmask0, vmask_p0,sourcebuffer1, vbuffer1_1, vmask1, vmask_p1,sourcebuffer2, vbuffer2_1, vmask2, vmask_p2,sourcebuffer3, vbuffer3_1, vmask3, vmask_p3,sourcebuffer4, vbuffer4_1, vmask4, vmask_p4,sourcebuffer5, vbuffer5_1, vmask5, vmask_p5,sourcebuffer6, vbuffer6_1, vmask6, vmask_p6,sourcebuffer7, vbuffer7_1, vmask7, vmask_p7,sourcebuffer8, vbuffer8_1, vmask8, vmask_p8,sourcebuffer9, vbuffer9_1, vmask9, vmask_p9,sourcebuffer10, vbuffer10_1, vmask10, vmask_p10,sourcebuffer11, vbuffer11_1, vmask11, vmask_p11,sourcebuffer12, vbuffer12_1, vmask12, vmask_p12,sourcebuffer13, vbuffer13_1, vmask13, vmask_p13,sourcebuffer14, vbuffer14_1, vmask14, vmask_p14,sourcebuffer15, vbuffer15_1, vmask15, vmask_p15, 
+sourcebuffer0, vbuffer0, vmask0, vmask_p0,sourcebuffer1, vbuffer1, vmask1, vmask_p1,sourcebuffer2, vbuffer2, vmask2, vmask_p2,sourcebuffer3, vbuffer3, vmask3, vmask_p3,sourcebuffer4, vbuffer4, vmask4, vmask_p4,sourcebuffer5, vbuffer5, vmask5, vmask_p5,sourcebuffer6, vbuffer6, vmask6, vmask_p6,sourcebuffer7, vbuffer7, vmask7, vmask_p7,sourcebuffer8, vbuffer8, vmask8, vmask_p8,sourcebuffer9, vbuffer9, vmask9, vmask_p9,sourcebuffer10, vbuffer10, vmask10, vmask_p10,sourcebuffer11, vbuffer11, vmask11, vmask_p11,sourcebuffer12, vbuffer12, vmask12, vmask_p12,sourcebuffer13, vbuffer13, vmask13, vmask_p13,sourcebuffer14, vbuffer14, vmask14, vmask_p14,sourcebuffer15, vbuffer15, vmask15, vmask_p15, 
 							vmask_p, globalparams);
 		}
 		#endif 
@@ -7824,7 +7824,6 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
-// #ifdef KOKOOOOOOO // NONOPTIMIZED, CORRECT OUTPUT
 extern "C" {
 void 
 	#ifdef SW 
@@ -8021,939 +8020,6 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer15
-	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask15
-	uint32_type vmask_p15[BLOCKRAM_SIZE];
-	
-	globalparams_t globalparams[NUMCOMPUTEUNITS];
-	#pragma HLS ARRAY_PARTITION variable=globalparams complete
-	uint32_type vmask_p[BLOCKRAM_SIZE];
-	
-	analysis_type analysis_loop1 = 1;
-	analysis_type analysis_treedepth = TREE_DEPTH;
-	#ifdef _DEBUGMODE_STATS
-	actsutilityobj->clearglobalvars();
-	#endif
-
-	globalparams[0] = getglobalparams(kvdram0);
-	globalparams[1] = globalparams[0];
-	globalparams[2] = globalparams[0];
-	globalparams[3] = globalparams[0];
-	globalparams[4] = globalparams[0];
-	globalparams[5] = globalparams[0];
-	globalparams[6] = globalparams[0];
-	globalparams[7] = globalparams[0];
-	globalparams[8] = globalparams[0];
-	globalparams[9] = globalparams[0];
-	globalparams[10] = globalparams[0];
-	globalparams[11] = globalparams[0];
-	globalparams[12] = globalparams[0];
-	globalparams[13] = globalparams[0];
-	globalparams[14] = globalparams[0];
-	globalparams[15] = globalparams[0];
-	globalparams_t _globalparams = globalparams[0];
-	unsigned int sourcestatsmarker = 0;
-	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ 
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
-		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
-	}
-	
-	unsigned int GraphIter = 777;
-	unsigned int vreadoffset = 0;
-	unsigned int vmaskreadoffset = 0;
-	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2;
-	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512;
-	
-	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
-	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
-
-	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
-
-	TOPKERNELSYNC_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = ON;
-		unsigned int ntravszs = 0;
-		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
-		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
-		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
-		rtravstate[3] = gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker);
-		rtravstate[4] = gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker);
-		rtravstate[5] = gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker);
-		rtravstate[6] = gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker);
-		rtravstate[7] = gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker);
-		rtravstate[8] = gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker);
-		rtravstate[9] = gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker);
-		rtravstate[10] = gettravstate(ON, kvdram10, globalparams[10], currentLOP, sourcestatsmarker);
-		rtravstate[11] = gettravstate(ON, kvdram11, globalparams[11], currentLOP, sourcestatsmarker);
-		rtravstate[12] = gettravstate(ON, kvdram12, globalparams[12], currentLOP, sourcestatsmarker);
-		rtravstate[13] = gettravstate(ON, kvdram13, globalparams[13], currentLOP, sourcestatsmarker);
-		rtravstate[14] = gettravstate(ON, kvdram14, globalparams[14], currentLOP, sourcestatsmarker);
-		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
-		
-		// read vertices
-		readvdata(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0, 0, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer0, 8, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer1, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer2, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer3, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer3, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer4, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer4, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer5, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer5, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer6, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer6, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer7, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer7, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer8, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer8, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer9, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer9, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer10, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer10, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer11, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer11, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer12, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer12, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer13, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer13, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer14, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer14, 8, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15, 0, 0,  reducebuffersz, _globalparams);
-		readvdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15, 8, 0,  reducebuffersz, _globalparams);
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		resetvmask(vmask0);
-		resetvmask(vmask1);
-		resetvmask(vmask2);
-		resetvmask(vmask3);
-		resetvmask(vmask4);
-		resetvmask(vmask5);
-		resetvmask(vmask6);
-		resetvmask(vmask7);
-		resetvmask(vmask8);
-		resetvmask(vmask9);
-		resetvmask(vmask10);
-		resetvmask(vmask11);
-		resetvmask(vmask12);
-		resetvmask(vmask13);
-		resetvmask(vmask14);
-		resetvmask(vmask15);
-		#endif
-		
-		// synchronize
-		synchronize(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15, synvbuffer_tail, _globalparams);
-		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, voffset_kvs, _globalparams);
-		spreadvdata(enablereduce, synvbuffer_tail, vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
-		#endif
-		
-		// save mask 
-		#ifdef _WIDEWORD
- // CRITICAL REMOVEME.
-		kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
- // CRITICAL REMOVEME.
-		kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].range(31, 0) = vmask_p[source_partition];
-		#else
-		kvdram0[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram1[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram2[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram3[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram4[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram5[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram6[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram7[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram8[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram9[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram10[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram11[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram12[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram13[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram14[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		kvdram15[_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition].data[0].key = vmask_p[source_partition];
-		#endif 
-		
-		// writeback vertices
-		savevdata(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer0, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer1, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer2, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer3, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer4, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer5, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer6, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer7, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer8, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer8, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer9, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer9, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer10, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer10, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer11, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer11, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer12, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer12, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer13, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer13, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer14, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer14, 8, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15, 0, 0, reducebuffersz, _globalparams);
-		savevdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15, 8, 0, reducebuffersz, _globalparams);
-	
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	
-		savevmasks(enablereduce, kvdram0, vmask0, vbuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram1, vmask1, vbuffer1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram2, vmask2, vbuffer2, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram3, vmask3, vbuffer3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram4, vmask4, vbuffer4, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram5, vmask5, vbuffer5, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram6, vmask6, vbuffer6, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram7, vmask7, vbuffer7, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram8, vmask8, vbuffer8, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram9, vmask9, vbuffer9, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram10, vmask10, vbuffer10, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram11, vmask11, vbuffer11, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram12, vmask12, vbuffer12, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram13, vmask13, vbuffer13, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram14, vmask14, vbuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		savevmasks(enablereduce, kvdram15, vmask15, vbuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset, vmaskbuffersz_kvs, _globalparams);
-	
-		#endif 
-		
-		sourcestatsmarker += 1;
-		vreadoffset += reducebuffersz * 2;
-		vmaskreadoffset += vmaskbuffersz_kvs;
-	}
-	
-	#if defined(_DEBUGMODE_KERNELPRINTS3) && not defined (ALLVERTEXISACTIVE_ALGORITHM)
-	cout<<"active partitions: ";
-	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}
-	cout<<""<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->printglobalvars();
-	#endif 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
-	actsutilityobj->clearglobalvars();
-	#endif
-	#ifdef _DEBUGMODE_STATS
-	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
-	actsutilityobj->globalstats_setactvvsseen(0);
-	#endif 
-	return;
-}
-}
-// #endif 
-/* #ifdef KOKOOOOOOO // OPTIMIZED, INCORRECT OUTPUT. FIXME. 
-extern "C" {
-void 
-	#ifdef SW 
-	acts:: 
-	#endif
-topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){
- 
-#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0		
- 
-#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1		
- 
-#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2		
- 
-#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3		
- 
-#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4		
- 
-#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5		
- 
-#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6		
- 
-#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7		
- 
-#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8		
- 
-#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9		
- 
-#pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10		
- 
-#pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11		
- 
-#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12		
- 
-#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13		
- 
-#pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14		
- 
-#pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15		
-
- 
-#pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
- 
-#pragma HLS DATA_PACK variable = kvdram0
- 
-#pragma HLS DATA_PACK variable = kvdram1
- 
-#pragma HLS DATA_PACK variable = kvdram2
- 
-#pragma HLS DATA_PACK variable = kvdram3
- 
-#pragma HLS DATA_PACK variable = kvdram4
- 
-#pragma HLS DATA_PACK variable = kvdram5
- 
-#pragma HLS DATA_PACK variable = kvdram6
- 
-#pragma HLS DATA_PACK variable = kvdram7
- 
-#pragma HLS DATA_PACK variable = kvdram8
- 
-#pragma HLS DATA_PACK variable = kvdram9
- 
-#pragma HLS DATA_PACK variable = kvdram10
- 
-#pragma HLS DATA_PACK variable = kvdram11
- 
-#pragma HLS DATA_PACK variable = kvdram12
- 
-#pragma HLS DATA_PACK variable = kvdram13
- 
-#pragma HLS DATA_PACK variable = kvdram14
- 
-#pragma HLS DATA_PACK variable = kvdram15
-
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
-	#endif
-	
-	keyvalue_vbuffer_t synvbuffer_head[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_head
-	
-	keyvalue_vbuffer_t synvbuffer_tail[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_tail
-	
-	travstate_t rtravstate[NUMCOMPUTEUNITS];
-	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
-	
-	keyvalue_vbuffer_t vbuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer0
-	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask0
-	uint32_type vmask_p0[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer1
-	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask1
-	uint32_type vmask_p1[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer2
-	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask2
-	uint32_type vmask_p2[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer3
-	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask3
-	uint32_type vmask_p3[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer4
-	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask4
-	uint32_type vmask_p4[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer5
-	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask5
-	uint32_type vmask_p5[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer6
-	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask6
-	uint32_type vmask_p6[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer7
-	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask7
-	uint32_type vmask_p7[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer8
-	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask8
-	uint32_type vmask_p8[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer9
-	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask9
-	uint32_type vmask_p9[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer10
-	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask10
-	uint32_type vmask_p10[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer11
-	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask11
-	uint32_type vmask_p11[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer12
-	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask12
-	uint32_type vmask_p12[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer13
-	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask13
-	uint32_type vmask_p13[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer14
-	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask14
-	uint32_type vmask_p14[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer15
-	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask15
-	uint32_type vmask_p15[BLOCKRAM_SIZE];
-	
-	globalparams_t globalparams[NUMCOMPUTEUNITS];
-	#pragma HLS ARRAY_PARTITION variable=globalparams complete
-	uint32_type vmask_p[BLOCKRAM_SIZE];
-	
-	analysis_type analysis_loop1 = 1;
-	analysis_type analysis_treedepth = TREE_DEPTH;
-	#ifdef _DEBUGMODE_STATS
-	actsutilityobj->clearglobalvars();
-	#endif
-
-	globalparams[0] = getglobalparams(kvdram0);
-	globalparams[1] = globalparams[0];
-	globalparams[2] = globalparams[0];
-	globalparams[3] = globalparams[0];
-	globalparams[4] = globalparams[0];
-	globalparams[5] = globalparams[0];
-	globalparams[6] = globalparams[0];
-	globalparams[7] = globalparams[0];
-	globalparams[8] = globalparams[0];
-	globalparams[9] = globalparams[0];
-	globalparams[10] = globalparams[0];
-	globalparams[11] = globalparams[0];
-	globalparams[12] = globalparams[0];
-	globalparams[13] = globalparams[0];
-	globalparams[14] = globalparams[0];
-	globalparams[15] = globalparams[0];
-	globalparams_t _globalparams = globalparams[0];
-	unsigned int sourcestatsmarker = 0;
-	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ 
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
-		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
-	}
-	
-	unsigned int vreadoffset_kvs = 0;
-	unsigned int vmaskreadoffset_kvs = 0;
-	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2; // 512
-	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512; // 32
-	
-	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
-	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
-
-	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
-
-	TOPKERNELSYNC_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
-	
-		bool_type enablereduce = ON;
-		unsigned int ntravszs = 0;
-		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
-		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
-		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
-		rtravstate[3] = gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker);
-		rtravstate[4] = gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker);
-		rtravstate[5] = gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker);
-		rtravstate[6] = gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker);
-		rtravstate[7] = gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker);
-		rtravstate[8] = gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker);
-		rtravstate[9] = gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker);
-		rtravstate[10] = gettravstate(ON, kvdram10, globalparams[10], currentLOP, sourcestatsmarker);
-		rtravstate[11] = gettravstate(ON, kvdram11, globalparams[11], currentLOP, sourcestatsmarker);
-		rtravstate[12] = gettravstate(ON, kvdram12, globalparams[12], currentLOP, sourcestatsmarker);
-		rtravstate[13] = gettravstate(ON, kvdram13, globalparams[13], currentLOP, sourcestatsmarker);
-		rtravstate[14] = gettravstate(ON, kvdram14, globalparams[14], currentLOP, sourcestatsmarker);
-		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-	
-		uint32_type vmask_p__source_partition = 0;
-		
-		TOPKERNELSYNC_MAINLOOP1B: for(batch_type it=0; it<2; it+=1){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-			#endif
-			
-			batch_type voffset_kvs = (source_partition * reducebuffersz * FETFACTOR) + (it * reducebuffersz);
-			
-			// read vertices
-	
-			readvdata(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, synvbuffer_head, 0, reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer8, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer9, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer10, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer11, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer12, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer13, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer14, 0, 0,  reducebuffersz, _globalparams);
-	
-			readvdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer15, 0, 0,  reducebuffersz, _globalparams);
-			#ifndef ALLVERTEXISACTIVE_ALGORITHM
-			resetvmask(vmask0);
-			resetvmask(vmask1);
-			resetvmask(vmask2);
-			resetvmask(vmask3);
-			resetvmask(vmask4);
-			resetvmask(vmask5);
-			resetvmask(vmask6);
-			resetvmask(vmask7);
-			resetvmask(vmask8);
-			resetvmask(vmask9);
-			resetvmask(vmask10);
-			resetvmask(vmask11);
-			resetvmask(vmask12);
-			resetvmask(vmask13);
-			resetvmask(vmask14);
-			resetvmask(vmask15);
-			#endif
-			
-			// synchronize
-			synchronize2(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15, synvbuffer_tail, _globalparams);
-			vmask_p__source_partition = apply2(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, voffset_kvs, _globalparams);
-			if(enablereduce == ON){ vmask_p[source_partition] = vmask_p[source_partition] | vmask_p__source_partition; }
-			spreadvdata2(enablereduce, synvbuffer_tail, vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
-			#ifndef ALLVERTEXISACTIVE_ALGORITHM
-			spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
-			#endif
-			
-			// writeback vertices
-	
-			savevdata(enablereduce, kvdram0, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram2, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram4, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram5, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram6, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram7, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram8, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer8, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram9, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer9, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram10, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer10, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram11, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer11, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram12, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer12, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram13, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer13, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer14, 0, 0, reducebuffersz, _globalparams);
-	
-			savevdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer15, 0, 0, reducebuffersz, _globalparams);
-	
-			#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	
-			savevmasks(enablereduce, kvdram0, vmask0, vbuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram1, vmask1, vbuffer1, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram2, vmask2, vbuffer2, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram3, vmask3, vbuffer3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram4, vmask4, vbuffer4, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram5, vmask5, vbuffer5, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram6, vmask6, vbuffer6, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram7, vmask7, vbuffer7, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram8, vmask8, vbuffer8, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram9, vmask9, vbuffer9, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram10, vmask10, vbuffer10, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram11, vmask11, vbuffer11, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram12, vmask12, vbuffer12, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram13, vmask13, vbuffer13, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram14, vmask14, vbuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			savevmasks(enablereduce, kvdram15, vmask15, vbuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
-	
-			#endif 
-			
-			vreadoffset_kvs += (reducebuffersz * 2) / 2;
-			vmaskreadoffset_kvs += vmaskbuffersz_kvs / 2;
-		}
-		
-		// save mask
-		savevmaskp(kvdram0, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram1, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram2, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram3, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram4, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram5, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram6, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram7, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram8, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram9, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram10, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram11, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram12, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram13, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram14, source_partition, vmask_p[source_partition], _globalparams);
-		savevmaskp(kvdram15, source_partition, vmask_p[source_partition], _globalparams);
-		sourcestatsmarker += 1;
-	}
-	
-	#if defined(_DEBUGMODE_KERNELPRINTS3) && not defined (ALLVERTEXISACTIVE_ALGORITHM)
-	cout<<"active partitions: ";
-	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}
-	cout<<""<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->printglobalvars();
-	#endif 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
-	actsutilityobj->clearglobalvars();
-	#endif
-	#ifdef _DEBUGMODE_STATS
-	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
-	actsutilityobj->globalstats_setactvvsseen(0);
-	#endif 
-	return;
-}
-}
-#endif */
-#ifdef KOKOOOOOOO
-extern "C" {
-void 
-	#ifdef SW 
-	acts:: 
-	#endif
-topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){
- 
-#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0		
- 
-#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1		
- 
-#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2		
- 
-#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3		
- 
-#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4		
- 
-#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5		
- 
-#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6		
- 
-#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7		
- 
-#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8		
- 
-#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9		
- 
-#pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10		
- 
-#pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11		
- 
-#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12		
- 
-#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13		
- 
-#pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14		
- 
-#pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15		
-
- 
-#pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
- 
-#pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
- 
-#pragma HLS DATA_PACK variable = kvdram0
- 
-#pragma HLS DATA_PACK variable = kvdram1
- 
-#pragma HLS DATA_PACK variable = kvdram2
- 
-#pragma HLS DATA_PACK variable = kvdram3
- 
-#pragma HLS DATA_PACK variable = kvdram4
- 
-#pragma HLS DATA_PACK variable = kvdram5
- 
-#pragma HLS DATA_PACK variable = kvdram6
- 
-#pragma HLS DATA_PACK variable = kvdram7
- 
-#pragma HLS DATA_PACK variable = kvdram8
- 
-#pragma HLS DATA_PACK variable = kvdram9
- 
-#pragma HLS DATA_PACK variable = kvdram10
- 
-#pragma HLS DATA_PACK variable = kvdram11
- 
-#pragma HLS DATA_PACK variable = kvdram12
- 
-#pragma HLS DATA_PACK variable = kvdram13
- 
-#pragma HLS DATA_PACK variable = kvdram14
- 
-#pragma HLS DATA_PACK variable = kvdram15
-
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
-	#endif
-	
-	keyvalue_vbuffer_t synvbuffer_head[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_head
-	
-	keyvalue_vbuffer_t synvbuffer_tail[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = synvbuffer_tail
-	
-	travstate_t rtravstate[NUMCOMPUTEUNITS];
-	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
-	
-	keyvalue_vbuffer_t vbuffer0[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer0
-	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask0
-	uint32_type vmask_p0[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer1
-	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask1
-	uint32_type vmask_p1[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer2
-	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask2
-	uint32_type vmask_p2[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer3
-	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask3
-	uint32_type vmask_p3[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer4
-	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask4
-	uint32_type vmask_p4[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer5
-	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask5
-	uint32_type vmask_p5[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer6
-	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask6
-	uint32_type vmask_p6[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer7
-	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask7
-	uint32_type vmask_p7[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer8
-	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask8
-	uint32_type vmask_p8[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer9
-	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask9
-	uint32_type vmask_p9[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer10
-	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask10
-	uint32_type vmask_p10[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer11
-	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask11
-	uint32_type vmask_p11[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer12
-	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask12
-	uint32_type vmask_p12[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer13
-	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask13
-	uint32_type vmask_p13[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = vbuffer14
-	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask14
-	uint32_type vmask_p14[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
@@ -9216,7 +8282,6 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	return;
 }
 }
-#endif 
 
 extern "C" {
 void 

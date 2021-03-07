@@ -149,17 +149,17 @@ public:
 	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
 	
 	void synchronize(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	void synchronize2(bool_type enable, keyvalue_vbuffer_t head[VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
+	void synchronize2(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
 	
 	uint32_type apply(bool_type enable, 
 			keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
 			batch_type voffset_kvs, globalparams_t globalparams);
 	uint32_type apply2(bool_type enable, 
-		keyvalue_vbuffer_t vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-		unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams);
+			keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+			unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams);
 		
 	void spreadvdata(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	void spreadvdata2(bool_type enable, keyvalue_vbuffer_t head[VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
+	void spreadvdata2(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
 	
 	void spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams);
 	
