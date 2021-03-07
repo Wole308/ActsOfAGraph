@@ -46,76 +46,28 @@ typedef unsigned int visitstate_type;
 typedef struct {
 	#ifdef _WIDEWORD
 	ap_uint<16> key;
-	ap_uint<16> value; // CRITICAL NEWCHANGE.
-	// unsigned int key;
-	// unsigned int value;
+	ap_uint<16> value;
 	#else 
 	unsigned int key;
 	unsigned int value;
 	#endif 
 } keyvalue_capsule_t;
 
-/* typedef struct {
-	#ifdef _WIDEWORD
-	ap_uint<16> key;
-	ap_uint<16> value; // CRITICAL REMOVEME.
-	// unsigned int key;
-	// unsigned int value;
-	#else 
-	unsigned int key;
-	unsigned int value;
-	#endif 
-} keyvalue_buffer_t; */
-
 #ifdef _WIDEWORD
 typedef ap_uint<32> keyvalue_buffer_t;
-#else 
-// typedef keyvalue_t keyvalue_buffer_t;
+#else
 typedef struct {
 	unsigned int key;
 	unsigned int value;
 } keyvalue_buffer_t;
 #endif 
-/* typedef struct {
-	#ifdef _WIDEWORD
-	ap_uint<32> data;
-	#else 
-	unsigned int key;
-	unsigned int value;
-	#endif 
-} keyvalue_buffer_t; */
 
-/* struct __attribute__((packed)) keyvalue_buffer_t{
-	ap_uint<24> key;
-	ap_uint<8> value;
-	// ap_uint<16> key;
-	// ap_uint<16> value;
-}; */
-
-/* typedef struct {
-	#ifdef _WIDEWORD
-	// ap_uint<16> key;
-	// ap_uint<16> value;
-	unsigned int key; // CRITICAL REMOVEME.
-	unsigned int value;
-	#else 
-	unsigned int key;
-	unsigned int value;
-	#endif 
-} keyvalue_t; */
-
-// typedef keyvalue_t keyvalue_vbuffer_t; //
 #ifdef _WIDEWORD
-typedef ap_uint<32> keyvalue_vbuffer_t; // 
-// typedef ap_uint<64> keyvalue_vbuffer_t;
-#else 
-// typedef keyvalue_t keyvalue_buffer_t;
+typedef ap_uint<32> keyvalue_vbuffer_t;
+#else
 typedef struct {
 	unsigned int key;
 	unsigned int value;
-	// unsigned long key; // CRITICAL REMOVEME.
-	// unsigned long value;
-	// unsigned long data;
 } keyvalue_vbuffer_t;
 #endif 
 
