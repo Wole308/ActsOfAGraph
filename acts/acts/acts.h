@@ -41,6 +41,8 @@ using namespace std;
 // #define AUTOMATEMODEON //
 // #define VERTEXCOLORING // JUST-FOR-TEST
 
+// #define SELECTIVEREAD // FIXME. work in progress...
+
 class acts {
 public:
 	acts();
@@ -126,7 +128,7 @@ public:
 
 	value_t getvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
 	
-	bool_type readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+	int readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 			batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams);
 
 	// functions (partition)
@@ -154,7 +156,7 @@ public:
 			batch_type voffset_kvs, globalparams_t globalparams);
 	uint32_type apply2(bool_type enable, 
 		keyvalue_vbuffer_t vbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-		batch_type voffset_kvs, globalparams_t globalparams);
+		unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams);
 		
 	void spreadvdata(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
 	void spreadvdata2(bool_type enable, keyvalue_vbuffer_t head[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer0[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
@@ -164,7 +166,7 @@ public:
 	// acts
 	void resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[NUM_PARTITIONS]);
 
-	bool_type fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+	int fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 			batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 	void commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_t globalcapsule[NUM_PARTITIONS], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], 
