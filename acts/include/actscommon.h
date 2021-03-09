@@ -23,6 +23,8 @@
 #include "../../include/common.h"
 using namespace std;
 
+// #define _DEBUGMODE_KERNELPRINTS_TRACE //
+
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;

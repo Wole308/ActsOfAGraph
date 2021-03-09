@@ -1,5 +1,5 @@
-#ifndef ACTS_H
-#define ACTS_H
+#ifndef ACTS_PROCESS_H
+#define ACTS_PROCESS_H
 #include <string>
 #include <string.h>
 #include <iostream>
@@ -34,8 +34,6 @@ using namespace std;
 
 #define VBUFFER_VECTOR_SIZE NUM_PARTITIONS
 
-// #define _DEBUGMODE_KERNELPRINTS_TRACE //
-
 #define SHIFTSYNCHRONIZE
 
 // #define AUTOMATEMODEON //
@@ -43,10 +41,10 @@ using namespace std;
 
 // #define SELECTIVEREAD // FIXME. work in progress...
 
-class acts {
+class acts_process {
 public:
-	acts();
-	~acts();
+	acts_process();
+	~acts_process();
 	
 	// functions (basic)
 	unsigned int amin(unsigned int val1, unsigned int val2);
@@ -68,7 +66,7 @@ public:
 	keyvalue_vbuffer_t GETKV2(keyvalue_t data);
 	uint32_type convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index);
 	
-	// functions (acts utilities)
+	// functions (acts_process utilities)
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 	batch_type getrangeforeachllop(globalparams_t globalparams);
 	buffer_type getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
@@ -79,7 +77,6 @@ public:
 	globalparams_t getglobalparams(uint512_dt * kvdram);
 	sweepparams_t getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
 	travstate_t gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
-	void savevmaskp(uint512_dt * kvdram, unsigned int offset_kvs, uint32_type vmask_p, globalparams_t globalparams);
 	partition_type getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow);
 
 	// functions (resets)
@@ -143,27 +140,7 @@ public:
 
 	void reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams);
 	
-	// synchronize
-	value_t applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
-	
-	value_t mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
-	
-	void synchronize(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	void synchronize2(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	
-	uint32_type apply(bool_type enable, 
-			keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-			batch_type voffset_kvs, globalparams_t globalparams);
-	uint32_type apply2(bool_type enable, 
-			keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
-			unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams);
-		
-	void spreadvdata(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	void spreadvdata2(bool_type enable, keyvalue_vbuffer_t head[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams);
-	
-	void spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams);
-	
-	// acts
+	// acts_process
 	void resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[NUM_PARTITIONS]);
 
 	int fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
@@ -191,24 +168,10 @@ public:
 	void dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams);
 	
-	#ifdef NACTS_IN_1COMPUTEUNIT
-	void dispatch_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
-			{%for i in context['COMPUTEUNITS_seq']%}keyvalue_buffer_t sourcebuffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer{{i}}_1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE], uint32_type vmask_p{{i}}[BLOCKRAM_SIZE],{%endfor%} 
-			uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]);
-
-	void topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
-	#endif 
-	
-	#ifdef NACTS_IN_NCOMPUTEUNITS
 	void dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams);
 
-	void topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
-	
 	void topkernel(uint512_dt * kvdram);
 	
-	void mainkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%}); // NB: for CPU test only
-	#endif 
-
 private:
 	#ifndef FPGA_IMPL
 	actsutility * actsutilityobj;
