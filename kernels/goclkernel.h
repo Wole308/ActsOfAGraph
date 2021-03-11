@@ -16,7 +16,9 @@ public:
 	~goclkernel();
 
 	#ifdef FPGA_IMPL
-	void runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);			
+	void runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
+
+	// void runapp_process(std::string binaryFile[2], cl::CommandQueue q, cl::Context context, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	#endif 
 private:
 	utility * utilityobj;

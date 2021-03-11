@@ -908,7 +908,7 @@ do
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 									make cleanall
 									make all_nk TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-									XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernelproc.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+									XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernelproc.sw_emu.xilinx_u280_xdma_201910_1.xclbin xclbin/topkernelsync.sw_emu.xilinx_u280_xdma_201910_1.xclbin
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

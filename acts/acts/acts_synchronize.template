@@ -109,7 +109,7 @@ keyvalue_t
 	#endif 
 GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
-	keyvalue_t res;
+	keyvalue_t res; 
 	#ifdef _WIDEWORD
 	res.key = data.range(21, 0);
 	res.value = data.range(31, 22);
@@ -134,6 +134,30 @@ GETKV(keyvalue_t data){
 	res.value = data.value;	
 	#endif 
 	return res;
+}
+keyy_t 
+	#ifdef SW 
+	acts_synchronize::
+	#endif 
+GETK(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(21, 0);
+	#else
+	return data;
+	#endif
+}
+value_t 
+	#ifdef SW 
+	acts_synchronize::
+	#endif 
+GETV(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(9, 0);
+	#else
+	return data;
+	#endif
 }
 keyvalue_t 
 	#ifdef SW 
@@ -166,6 +190,30 @@ GETKV2(keyvalue_t data){
 	res.value = data.value;
 	#endif 
 	return res;
+}
+keyy_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETK2(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(15, 0);
+	#else
+	return data;
+	#endif
+}
+value_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETV2(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(15, 0);
+	#else
+	return data;
+	#endif
 }
 uint32_type 
 	#ifdef SW 
@@ -680,7 +728,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	cout<<"^&^&&&&&&& readandsynchronize: readandsynchronize function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
 	
@@ -698,7 +746,8 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	{%endfor%}	
 	{%endfor%}
 	
-	for (buffer_type i=0; i<reducebuffersz; i++){
+	// for (buffer_type i=0; i<16; i++){
+	for (buffer_type i=0; i<reducebuffersz; i++){ // CRITICAL REMOVEME.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -741,14 +790,24 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%for v in context['VECTOR_SIZE_seq']%}
 		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
+		
+		/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		{%for v in context['VECTOR_SIZE_seq']%}
+		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		{%endfor%}
+		#endif */
+		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<", GETKV2(res[{{v}}][i]).key: "<<GETKV2(res[{{v}}][i]).key<<", GETK2(0xFFFFFFFF): "<<GETK2(0xFFFFFFFF)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<", GETKV2(res[{{v}}][i]).value: "<<GETKV2(res[{{v}}][i]).value<<", GETV2(0xFFFFFFFF): "<<GETV2(0xFFFFFFFF)<<endl; } 
 		{%endfor%}
 		#endif
+		
+		
 	}
-	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
+	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -778,7 +837,8 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	{%endfor%}	
 	{%endfor%}
 	
-	for (buffer_type i=0; i<reducebuffersz; i++){
+	for (buffer_type i=0; i<16; i++){ // CRITICAL REMOVEME.
+	// for (buffer_type i=0; i<reducebuffersz; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -821,10 +881,17 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%for v in context['VECTOR_SIZE_seq']%}
 		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKV2(res[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(res[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		{%endfor%}
+		#endif */
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		{%for v in context['VECTOR_SIZE_seq']%}
+		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<", GETKV2(res[{{v}}][i]).key: "<<GETKV2(res[{{v}}][i]).key<<", GETK2(0xFFFFFFFF): "<<GETK2(0xFFFFFFFF)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<", GETKV2(res[{{v}}][i]).value: "<<GETKV2(res[{{v}}][i]).value<<", GETV2(0xFFFFFFFF): "<<GETV2(0xFFFFFFFF)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -836,6 +903,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
+	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -890,8 +958,8 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -919,8 +987,8 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 		
 		#ifdef INCORRECTAPPLY
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < 0xFFFFFFFF){ vmask[i].data[colindex + {{v}}].key = 1; } else { vmask[i].data[colindex + {{v}}].key = 0; }
-		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < 0xFFFFFFFF){ vmask[i].data[colindex + {{v}}].value = 1; } else { vmask[i].data[colindex + {{v}}].value = 0; }
+		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < GETK2(0xFFFFFFFF)){ vmask[i].data[colindex + {{v}}].key = 1; } else { vmask[i].data[colindex + {{v}}].key = 0; }
+		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < GETV2(0xFFFFFFFF)){ vmask[i].data[colindex + {{v}}].value = 1; } else { vmask[i].data[colindex + {{v}}].value = 0; }
 		{%endfor%}	
 		#else
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -935,15 +1003,15 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[{{v}}][0]<<" & vid2: "<<vid[{{v}}][1]<<"): res{{v}}.key: "<<res{{v}}.key<<", res{{v}}.value: "<<res{{v}}.value<<": udata{{v}}.key: "<<udata{{v}}.key<<", udata{{v}}.value: "<<udata{{v}}.value<<", data{{v}}.key: "<<data{{v}}.key<<", data{{v}}.value: "<<data{{v}}.value<<endl; }
-		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < 0xFFFFFFFF){ cout<<"apply: vid[{{v}}][0]: "<<vid[{{v}}][0]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].key: "<<vmask[i].data[colindex + {{v}}].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < 0xFFFFFFFF){ cout<<"apply: vid[{{v}}][1]: "<<vid[{{v}}][1]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].value: "<<vmask[i].data[colindex + {{v}}].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < GETK2(0xFFFFFFFF)){ cout<<"apply: vid[{{v}}][0]: "<<vid[{{v}}][0]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].key: "<<vmask[i].data[colindex + {{v}}].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < GETV2(0xFFFFFFFF)){ cout<<"apply: vid[{{v}}][1]: "<<vid[{{v}}][1]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].value: "<<vmask[i].data[colindex + {{v}}].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		{%endfor%}
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		#ifdef INCORRECTAPPLY
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
-		if(res{{v}}.value != udata{{v}}.value || res{{v}}.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < GETK2(0xFFFFFFFF)){ actsutilityobj->globalstats_countactvvsseen(1); }
+		if(res{{v}}.value != udata{{v}}.value || res{{v}}.key < GETV2(0xFFFFFFFF)){ actsutilityobj->globalstats_countactvvsseen(1); }
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -992,8 +1060,8 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUF
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(buffer3[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(buffer3[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(buffer3[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(buffer3[{{v}}][i]).value < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 	}
@@ -1090,8 +1158,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		

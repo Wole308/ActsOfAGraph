@@ -203,15 +203,11 @@ GETKV2(keyvalue_vbuffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
-	res.key = data.range(15, 0); //
+	res.key = data.range(15, 0); 
 	res.value = data.range(31, 16);
-	// res.key = data.range(31, 0);
-	// res.value = data.range(63, 32);
 	#else 
 	res.key = data.key;
 	res.value = data.value;	
-	// res.key = data.data; // CRITICAL REMOVEME.
-	// res.value = data.data;	
 	#endif 
 	return res;
 }
@@ -223,17 +219,37 @@ GETKV2(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_vbuffer_t res;
 	#ifdef _WIDEWORD
-	res.range(15, 0) = data.key; //
+	res.range(15, 0) = data.key; 
 	res.range(31, 16) = data.value;
-	// res.range(31, 0) = data.key;
-	// res.range(63, 32) = data.value;
 	#else
 	res.key = data.key;
-	res.value = data.value;	
-	// res.data = data.key; // CRITICAL REMOVEME.
-	// res.data = data.value;	
+	res.value = data.value;
 	#endif 
 	return res;
+}
+keyy_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETK2(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(15, 0);
+	#else
+	return data;
+	#endif
+}
+value_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETV2(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(15, 0);
+	#else
+	return data;
+	#endif
 }
 uint32_type 
 	#ifdef SW 

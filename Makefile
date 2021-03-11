@@ -195,8 +195,8 @@ CP = cp -rf
 all: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 
 .PHONY: all_nk clean cleanall docs emconfig
-all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) emconfig
-# all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINERS_SYNC) emconfig
+# all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) emconfig
+all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINERS_SYNC) emconfig
 
 # builds
 .PHONY: all clean cleanall docs emconfig

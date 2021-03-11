@@ -44,8 +44,12 @@ public:
 	// functions (converters)
 	keyvalue_t GETKV(keyvalue_buffer_t data);
 	keyvalue_buffer_t GETKV(keyvalue_t data);
+	keyy_t GETK(uint32_type data);
+	value_t GETV(uint32_type data);
 	keyvalue_t GETKV2(keyvalue_vbuffer_t data);
 	keyvalue_vbuffer_t GETKV2(keyvalue_t data);
+	keyy_t GETK2(uint32_type data);
+	value_t GETV2(uint32_type data);
 	uint32_type convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index);
 	keyy_t GETKEYENTRY(uint512_dt data, unsigned int v);
 	value_t GETVALUEENTRY(uint512_dt data, unsigned int v);
