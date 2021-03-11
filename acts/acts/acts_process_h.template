@@ -69,6 +69,8 @@ public:
 	keyy_t GETK2(uint32_type data);
 	value_t GETV2(uint32_type data);
 	uint32_type convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index);
+	keyy_t GETKEYENTRY(uint512_dt data, unsigned int v);
+	value_t GETVALUEENTRY(uint512_dt data, unsigned int v);
 	
 	// functions (acts_process utilities)
 	batch_type getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);

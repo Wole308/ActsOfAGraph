@@ -326,6 +326,30 @@ convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	#endif
 	return res;
 }
+keyy_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETKEYENTRY(uint512_dt data, unsigned int v){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
+	#else 
+	return data.data[vindex].key;	
+	#endif
+}
+value_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETVALUEENTRY(uint512_dt data, unsigned int v){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(32 * (((v * 2) + 1) + 1) - 1, (v * 2 + 1) * 32);
+	#else 
+	return data.data[vindex].value;	
+	#endif
+}
 
 // functions (acts_process utilities)
 batch_type
@@ -3506,11 +3530,12 @@ topkernelproc(uint512_dt * kvdram){
 	actsutilityobj->printparameters();
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	#ifdef _WIDEWORD
-	cout<<">>> (((((((((((((((((((((((((((((((((((((((( Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
-	#else
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
-	#endif
+	// #ifdef _WIDEWORD
+	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<(unsigned int)(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	// #else
+	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	// #endif
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	// return; // CRITICAL REMOVEME.
 	

@@ -728,7 +728,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"^&^&&&&&&& readandsynchronize: readandsynchronize function called."<<endl;
+	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
 	
@@ -746,8 +746,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	{%endfor%}	
 	{%endfor%}
 	
-	// for (buffer_type i=0; i<16; i++){
-	for (buffer_type i=0; i<reducebuffersz; i++){ // CRITICAL REMOVEME.
+	for (buffer_type i=0; i<reducebuffersz; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -790,24 +789,14 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%for v in context['VECTOR_SIZE_seq']%}
 		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
-		
-		/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
-		#endif */
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
-		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<", GETKV2(res[{{v}}][i]).key: "<<GETKV2(res[{{v}}][i]).key<<", GETK2(0xFFFFFFFF): "<<GETK2(0xFFFFFFFF)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<", GETKV2(res[{{v}}][i]).value: "<<GETKV2(res[{{v}}][i]).value<<", GETV2(0xFFFFFFFF): "<<GETV2(0xFFFFFFFF)<<endl; } 
-		{%endfor%}
 		#endif
-		
-		
 	}
-	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -837,8 +826,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	{%endfor%}	
 	{%endfor%}
 	
-	for (buffer_type i=0; i<16; i++){ // CRITICAL REMOVEME.
-	// for (buffer_type i=0; i<reducebuffersz; i++){
+	for (buffer_type i=0; i<reducebuffersz; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -881,17 +869,10 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%for v in context['VECTOR_SIZE_seq']%}
 		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
-		/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
-		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
-		{%endfor%}
-		#endif */
-		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<", GETKV2(res[{{v}}][i]).key: "<<GETKV2(res[{{v}}][i]).key<<", GETK2(0xFFFFFFFF): "<<GETK2(0xFFFFFFFF)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<", GETKV2(res[{{v}}][i]).value: "<<GETKV2(res[{{v}}][i]).value<<", GETV2(0xFFFFFFFF): "<<GETV2(0xFFFFFFFF)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -903,7 +884,6 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
 	}
-	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -1240,11 +1220,12 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 {%endfor%}
 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	#ifdef _WIDEWORD
-	cout<<">>> (((((((((((((((((((((((((((((((((((((((( Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
-	#else
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
-	#endif
+	// #ifdef _WIDEWORD
+	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	// #else
+	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	// #endif
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
 	keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
