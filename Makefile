@@ -30,6 +30,8 @@ ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
 # COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 # ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 
+# $(RELREF) 
+
 TARGETS := hw
 TARGET := $(TARGETS)
 DEVICE := $(DEVICES)
@@ -43,7 +45,9 @@ DSA = xilinx_u280_xdma_201910_1
 BUILD_DIR := ./_x.$(TARGET).$(DSA)
 
 BUILD_DIR_topkernel = $(BUILD_DIR)/topkernel
-BUILD_DIR_topkernel1_topkernel2 = $(BUILD_DIR)/topkernel1_topkernel2
+BUILD_DIR_topkernelproc = $(BUILD_DIR)/topkernelproc
+BUILD_DIR_topkernelsync = $(BUILD_DIR)/topkernelsync
+BUILD_DIR_topkernelprocandsync = $(BUILD_DIR)/topkernelprocandsync
 
 CXX := $(XILINX_SDX)/bin/xcpp
 XOCC := $(XILINX_SDX)/bin/xocc
@@ -57,36 +61,44 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-KERNEL_TOP += acts/acts/acts.cpp
-KERNEL_TOP += acts/acts/acts_process.cpp
-KERNEL_TOP += acts/acts/acts_synchronize.cpp
-KERNEL_TOP += acts/actsutility/actsutility.cpp
+KERNEL_TOP += $(RELREF)acts/acts/acts.cpp
+KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
-HOST_TOP += examples/hostprocess.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_process.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
-HOST_SRCS += src/algorithm/algorithm.cpp
-HOST_SRCS += examples/helperfunctions/loadgraph.cpp
-HOST_SRCS += examples/helperfunctions/setupkernel.cpp
-HOST_SRCS += examples/helperfunctions/evalparams.cpp
-HOST_SRCS += examples/pagerank/pagerank.cpp
-HOST_SRCS += examples/bfs/bfs.cpp
-HOST_SRCS += examples/sssp/sssp.cpp
-HOST_SRCS += examples/test/test.cpp
-HOST_SRCS += src/graphs/graph.cpp
-HOST_SRCS += src/stats/stats.cpp
-HOST_SRCS += src/utility/utility.cpp
-HOST_SRCS += src/dataset/dataset.cpp
-HOST_SRCS += kernels/kernel.cpp
-HOST_SRCS += kernels/swkernel.cpp
-HOST_SRCS += kernels/goclkernel.cpp
-HOST_SRCS += src/graphs/creategraphs.cpp
-HOST_SRCS += src/graphs/mysort.cpp
-HOST_SRCS += acts/sortreduce/sr.cpp
+KERNEL_TOP_SYNC += $(RELREF)acts/acts/acts_synchronize.cpp
+KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp
+
+KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/acts_process.cpp
+KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/acts_synchronize.cpp
+KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/actsutility/actsutility.cpp
+
+HOST_TOP += $(RELREF)examples/hostprocess.cpp
+
+HOST_SRCS += $(RELREF)src/algorithm/algorithm.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/setupkernel.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/evalparams.cpp
+HOST_SRCS += $(RELREF)examples/pagerank/pagerank.cpp
+HOST_SRCS += $(RELREF)examples/bfs/bfs.cpp
+HOST_SRCS += $(RELREF)examples/sssp/sssp.cpp
+HOST_SRCS += $(RELREF)examples/test/test.cpp
+HOST_SRCS += $(RELREF)src/graphs/graph.cpp
+HOST_SRCS += $(RELREF)src/stats/stats.cpp
+HOST_SRCS += $(RELREF)src/utility/utility.cpp
+HOST_SRCS += $(RELREF)src/dataset/dataset.cpp
+HOST_SRCS += $(RELREF)kernels/kernel.cpp
+HOST_SRCS += $(RELREF)kernels/swkernel.cpp
+HOST_SRCS += $(RELREF)kernels/goclkernel.cpp
+HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
+HOST_SRCS += $(RELREF)src/graphs/mysort.cpp
+HOST_SRCS += $(RELREF)acts/sortreduce/sr.cpp
 
 # sort-reduce files
-SORTREDUCE_INCLUDE=sortreduce-master/include/
-SORTREDUCE_LIB=sortreduce-master/obj/
-GRAPH_SRC=sortreduce-master/examples/graph/src/
+SORTREDUCE_INCLUDE=$(RELREF)sortreduce-master/include/
+SORTREDUCE_LIB=$(RELREF)sortreduce-master/obj/
+GRAPH_SRC=$(RELREF)sortreduce-master/examples/graph/src/
 GRAPH_CPP=$(wildcard $(GRAPH_SRC)/*.cpp)
 SRFLAGS=-DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t'
 
@@ -99,56 +111,55 @@ CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
 # Kernel linker flags (***choice between CREBTREE or AWS***)
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS += --sp topkernel_2.m_axi_gmem0:HBM[1] 
-LDCLFLAGS += --sp topkernel_3.m_axi_gmem0:HBM[2] 
-LDCLFLAGS += --sp topkernel_4.m_axi_gmem0:HBM[3]
-LDCLFLAGS += --sp topkernel_5.m_axi_gmem0:HBM[4]
-LDCLFLAGS += --sp topkernel_6.m_axi_gmem0:HBM[5]
-LDCLFLAGS += --sp topkernel_7.m_axi_gmem0:HBM[6]
-LDCLFLAGS += --sp topkernel_8.m_axi_gmem0:HBM[7]
-LDCLFLAGS += --sp topkernel_9.m_axi_gmem0:HBM[8]
-LDCLFLAGS += --sp topkernel_10.m_axi_gmem0:HBM[9]
-LDCLFLAGS += --sp topkernel_11.m_axi_gmem0:HBM[10]
-LDCLFLAGS += --sp topkernel_12.m_axi_gmem0:HBM[11]
-LDCLFLAGS += --sp topkernel_13.m_axi_gmem0:HBM[12]
-LDCLFLAGS += --sp topkernel_14.m_axi_gmem0:HBM[13]
-LDCLFLAGS += --sp topkernel_15.m_axi_gmem0:HBM[14]
-LDCLFLAGS += --sp topkernel_16.m_axi_gmem0:HBM[15]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem0:HBM[0] 
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem1:HBM[1] 
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem2:HBM[2] 
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem3:HBM[3]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem4:HBM[4]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem5:HBM[5]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem6:HBM[6]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem7:HBM[7]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem8:HBM[8]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem9:HBM[9]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem10:HBM[10]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem11:HBM[11]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem12:HBM[12]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem13:HBM[13]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem14:HBM[14]
-# LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem15:HBM[15]
+LDCLFLAGS += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS += --sp topkernelproc_2.m_axi_gmem0:HBM[1] 
+LDCLFLAGS += --sp topkernelproc_3.m_axi_gmem0:HBM[2] 
+LDCLFLAGS += --sp topkernelproc_4.m_axi_gmem0:HBM[3]
+LDCLFLAGS += --sp topkernelproc_5.m_axi_gmem0:HBM[4]
+LDCLFLAGS += --sp topkernelproc_6.m_axi_gmem0:HBM[5]
+LDCLFLAGS += --sp topkernelproc_7.m_axi_gmem0:HBM[6]
+LDCLFLAGS += --sp topkernelproc_8.m_axi_gmem0:HBM[7]
+LDCLFLAGS += --sp topkernelproc_9.m_axi_gmem0:HBM[8]
+LDCLFLAGS += --sp topkernelproc_10.m_axi_gmem0:HBM[9]
+LDCLFLAGS += --sp topkernelproc_11.m_axi_gmem0:HBM[10]
+LDCLFLAGS += --sp topkernelproc_12.m_axi_gmem0:HBM[11]
+LDCLFLAGS += --sp topkernelproc_13.m_axi_gmem0:HBM[12]
+LDCLFLAGS += --sp topkernelproc_14.m_axi_gmem0:HBM[13]
+LDCLFLAGS += --sp topkernelproc_15.m_axi_gmem0:HBM[14]
+LDCLFLAGS += --sp topkernelproc_16.m_axi_gmem0:HBM[15]
 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem2:HBM[2] 
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem3:HBM[3]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem4:HBM[4]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem2:HBM[2] 
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem3:HBM[3]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem4:HBM[4]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem5:HBM[5]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem6:HBM[6]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem7:HBM[7]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem8:HBM[8]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem9:HBM[9]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem10:HBM[10]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem11:HBM[11]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem12:HBM[12]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem13:HBM[13]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem14:HBM[14]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem15:HBM[15]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:DDR[0] 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:DDR[1] 
@@ -168,13 +179,34 @@ EMCONFIG_DIR = $(XCLBIN)/$(DSA)
 BINARY_CONTAINERS += $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin
 BINARY_CONTAINER_topkernel_OBJS += $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo
 
-BINARY_CONTAINER_topkernel1topkernel2_OBJS += $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo
-BINARY_CONTAINER_topkernel1topkernel2_OBJS += $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo
+BINARY_CONTAINERS_PROC += $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINER_topkernelproc_OBJS += $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo
+
+BINARY_CONTAINERS_SYNC += $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINER_topkernelsync_OBJS += $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo
+
+BINARY_CONTAINERS_PROCANDSYNC += $(XCLBIN)/topkernelnk.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINER_topkernelprocandsync_OBJS += $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo
+BINARY_CONTAINER_topkernelprocandsync_OBJS += $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo
 
 CP = cp -rf
 
+# executions
 .PHONY: all clean cleanall docs emconfig
 all: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
+
+.PHONY: all_nk clean cleanall docs emconfig
+all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINERS_SYNC) emconfig
+
+# builds
+.PHONY: all clean cleanall docs emconfig
+all_proc: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) emconfig
+
+.PHONY: all clean cleanall docs emconfig
+all_sync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_SYNC) emconfig
+
+.PHONY: all clean cleanall docs emconfig
+all_procandsync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC) emconfig
 
 .PHONY: exe
 exe: $(EXECUTABLE)
@@ -182,31 +214,45 @@ exe: $(EXECUTABLE)
 .PHONY: build
 build: $(BINARY_CONTAINERS)
 
-# Building kernel
+# Building kernel (N compute units in 1 kernel)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:16 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
 	
-# Building kernel
-# $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
+# Building kernel (proc)
+$(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -c -k topkernelproc -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROC)
+$(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS) --nk topkernelproc:16 -o'$@' $(+)
+	
+# Building kernel (sync)
+$(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo: $(KERNEL_TOP_SYNC)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelsync) -c -k topkernelsync -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_SYNC)
+$(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelsync) -l $(LDCLFLAGS) --nk topkernelsync:1 -o'$@' $(+)	
+	
+# Building kernel (proc & sync in 1 kernel)
+# $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROCANDSYNC)
 	# mkdir -p $(XCLBIN)
-	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel1_topkernel2) -c -k topkernel -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
-# $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo: $(KERNEL_TOP)
+	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelprocandsync) -c -k topkernelproc -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROCANDSYNC)
+# $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROCANDSYNC)
 	# mkdir -p $(XCLBIN)
-	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel1_topkernel2) -c -k topkernelsync -I'$(<D)' -I'acts/actsutility/' -o'$@' $(KERNEL_TOP)
-# $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel1topkernel2_OBJS)
-	# mkdir -p $(XCLBIN)
-	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel1_topkernel2) -l $(LDCLFLAGS) --nk topkernel:16 --nk topkernelsync:1 -o'$@' $(+)
+	# $(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelprocandsync) -c -k topkernelsync -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROCANDSYNC)
+$(XCLBIN)/topkernelprocandsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS) --nk topkernelproc:16 --nk topkernelsync:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
-	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
-# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
-	# /opt/Xilinx/SDx/2019.1.op2552052/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
-
+	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+	
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:
 	emconfigutil --platform $(DEVICE) --od $(EMCONFIG_DIR)

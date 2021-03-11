@@ -62,6 +62,8 @@ public:
 	// functions (converters)
 	keyvalue_t GETKV(keyvalue_buffer_t data);
 	keyvalue_buffer_t GETKV(keyvalue_t data);
+	keyy_t GETK(uint32_type data);
+	value_t GETV(uint32_type data);
 	keyvalue_t GETKV2(keyvalue_vbuffer_t data);
 	keyvalue_vbuffer_t GETKV2(keyvalue_t data);
 	uint32_type convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index);
@@ -170,7 +172,7 @@ public:
 	
 	void dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams);
 
-	void topkernel(uint512_dt * kvdram);
+	void topkernelproc(uint512_dt * kvdram);
 	
 private:
 	#ifndef FPGA_IMPL

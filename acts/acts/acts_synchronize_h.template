@@ -94,7 +94,7 @@ public:
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 			globalparams_t globalparams);
 
-	void topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
+	void topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
 
 private:
 	#ifndef FPGA_IMPL

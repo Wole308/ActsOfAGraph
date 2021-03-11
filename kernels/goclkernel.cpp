@@ -106,33 +106,32 @@ void goclkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourced
 	double kernel_time_in_sec = 0, result = 0;
     std::chrono::duration<double> kernel_time(0);
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"goclkernel::launchkernel:: Launching "<<NUMACTIVEKERNELS<<" active Kernels..."<<endl;
+	cout<<"goclkernel::launchkernel:: Launching "<<TOTALNUMKERNELS<<" Kernels..."<<endl;
 	#endif
 	
 	unsigned int bufferid = 0;
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
-
-	for(unsigned int i=0; i<NUMACTIVEKERNELS; i++){
-		//Setting the k_vadd Arguments
-		#ifdef MULTIACTSINSTANCES
-		for(unsigned int j=0; j<TOTALNUMBUFFERS; j++){
-			OCL_CHECK(err, err = krnls[i].setArg(j, buffer_kvsourcedram[j])); 
-		}
-		#else 
-		OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[bufferid++]));
-		#endif 
-		
-		//Invoking the kernel
+	
+	// Setting the k_vadd Arguments
+	#ifdef NACTS_IN_NCOMPUTEUNITS
+	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){ OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[i])); }
+	#else
+	for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
+	#endif 
+	
+	// Invoking the kernel
+	for(unsigned int i=0; i<1; i++){ // TOTALNUMKERNELS
+		cout<<"goclkernel::launchkernel:: Kernel "<<i<<" Launched"<<endl;
 		std::vector<cl::Event> waitList;
-        waitList.push_back(write_event[i]);
+		waitList.push_back(write_event[0]);
 		OCL_CHECK(err,
-                  err = q.enqueueNDRangeKernel(
-                      krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
+				  err = q.enqueueNDRangeKernel(
+					  krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
 		set_callback2(kernel_events[i], "ooo_queue");
 	}
-    q.finish();
+	q.finish();
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
@@ -194,14 +193,13 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 	cout<<"goclkernel::loadOCLstructures:: inputdata_size_bytes: "<<inputdata_size_bytes<<endl;
 	
 	read_events.resize((2 * TOTALNUMBUFFERS));
-	kernel_events.resize((2 * NUMACTIVEKERNELS));
+	kernel_events.resize((2 * TOTALNUMKERNELS));
 	write_event.resize(TOTALNUMBUFFERS);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"goclkernel::loadOCLstructures: printing OCL parameters..."<<endl;
 	cout<<"TOTALNUMKERNELS: "<<TOTALNUMKERNELS<<endl;
 	cout<<"TOTALNUMBUFFERS: "<<TOTALNUMBUFFERS<<endl;
-	cout<<"NUMACTIVEKERNELS: "<<NUMACTIVEKERNELS<<endl;
 	#endif 
 	
 	// OPENCL HOST CODE AREA START
@@ -232,11 +230,18 @@ void goclkernel::loadOCLstructures(std::string _binaryFile, uint512_vec_dt * vdr
 	OCL_CHECK(err, cl::Program program(context, devices, bins, NULL, &err));
 	
     // Creating Kernel object using Compute unit names
-	std::string krnl_name = "topkernel";
+	#ifdef NACTS_IN_NCOMPUTEUNITS
+	std::string krnl_name = "topkernelproc";
+	#else 
+	std::string krnl_name = "topkernel";	
+	#endif
 	for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ 
 			std::string cu_id = std::to_string((i+1));
-			std::string krnl_name_full =
-				krnl_name + ":{" + "topkernel_" + cu_id + "}"; 
+			#ifdef NACTS_IN_NCOMPUTEUNITS
+			std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
+			#else 
+			std::string krnl_name_full = krnl_name + ":{" + "topkernel_" + cu_id + "}"; 
+			#endif 
 
 			printf("Creating a kernel [%s] for CU(%d)\n",
 				   krnl_name_full.c_str(),

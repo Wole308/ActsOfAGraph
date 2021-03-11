@@ -15,14 +15,15 @@ public:
 	goclkernel(stats * _statsobj);
 	~goclkernel();
 
-	#define TOTALNUMKERNELS 1
-	// #define TOTALNUMKERNELS NUMCOMPUTEUNITS //
+	#ifdef NACTS_IN_NCOMPUTEUNITS
+		#define TOTALNUMKERNELS NUMCOMPUTEUNITS
+	#else 
+		#define TOTALNUMKERNELS 1
+	#endif
 
 	// #define TOTALNUMBUFFERS 1
 	#define TOTALNUMBUFFERS NUMCOMPUTEUNITS //
-
-	#define NUMACTIVEKERNELS TOTALNUMKERNELS 
-
+	
 	#ifdef FPGA_IMPL 
 	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
 	

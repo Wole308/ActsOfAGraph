@@ -171,6 +171,30 @@ GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
+keyy_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETK(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(21, 0);
+	#else
+	return data;
+	#endif
+}
+value_t 
+	#ifdef SW 
+	acts_process::
+	#endif 
+GETV(uint32_type data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(9, 0);
+	#else
+	return data;
+	#endif
+}
 keyvalue_t 
 	#ifdef SW 
 	acts_process::
@@ -490,7 +514,7 @@ getglobalparams(uint512_dt * kvdram){
 	
 	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key;
 	#endif  
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalparameters("acts_process::getglobalparams:: printing global parameters", globalparams);
 	#endif
 	return globalparams;
@@ -514,6 +538,7 @@ getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type sou
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_lc avg=analysis_lc	
 		div = div / NUM_PARTITIONS;
 	}
+	
 	sweepparams.upperlimit = globalparams.ACTSPARAMS_DESTVOFFSET + (source_partition * sourceskipsize * div); // POW_BATCHRANGE
 	sweepparams.upperpartition = (sweepparams.upperlimit - globalparams.ACTSPARAMS_DESTVOFFSET) >> (globalparams.POW_BATCHRANGE - (NUM_PARTITIONS_POW * currentLOP)); //
 
@@ -562,7 +587,7 @@ getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP,
 	partition_type partition;
 	keyvalue_t thiskeyvalue = GETKV(keyvalue);
 	
-	if(thiskeyvalue.value == INVALIDDATA){ partition = thiskeyvalue.key; } 
+	if(thiskeyvalue.value == GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	
 	#ifdef _DEBUGMODE_CHECKS2
@@ -1578,7 +1603,7 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		bool_type valid{{v}} = ON;
-		if(mykeyvalue{{v}}.key != INVALIDDATA && mykeyvalue{{v}}.value != INVALIDDATA){ valid{{v}} = ON; } else { valid{{v}} = OFF; }
+		if(mykeyvalue{{v}}.key != GETK(INVALIDDATA) && mykeyvalue{{v}}.value != GETV(INVALIDDATA)){ valid{{v}} = ON; } else { valid{{v}} = OFF; }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -1691,15 +1716,14 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
 	keyvalue_t mykeyvalue = GETKV(kvdata);
-		
-	// keyvalue_buffer_t mykeyvalue = kvdata;
+	
 	vertex_t loc = mykeyvalue.key - upperlimit;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ cout<<"REDUCE SEEN @ reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
+	if(mykeyvalue.key != GETK(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ cout<<"REDUCE SEEN @ reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
 	#endif 
 	
-	if(loc >= globalparams.SIZE_REDUCE && mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ 
+	if(loc >= globalparams.SIZE_REDUCE && mykeyvalue.key != GETK(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ 
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
 		#endif 
@@ -1709,13 +1733,12 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	vertex_t colindex = loc % 2;
 	
 	#ifdef VERTEXCOLORING
-	if(mykeyvalue.key == INVALIDDATA || mykeyvalue.value == INVALIDDATA){ rowindex = 0; colindex = 0; }
+	if(mykeyvalue.key == GETV(INVALIDDATA) || mykeyvalue.value == GETV(INVALIDDATA)){ rowindex = 0; colindex = 0; }
 	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
 	else { destbuffer[destoffset + rowindex].value = 1; }
 	#else
-	// keyvalue_vbuffer_t vprop;
 	keyvalue_t myvprop;
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ myvprop = GETKV2(destbuffer[destoffset + rowindex]); }
+	if(mykeyvalue.key != GETV(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ myvprop = GETKV2(destbuffer[destoffset + rowindex]); }
 	
 	value_t temp;
 	if(colindex == 0){ temp = myvprop.key; }
@@ -1723,18 +1746,18 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	
 	value_t rettemp = reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ cout<<"REDUCEFUNC RESULT @ reducevector:: rettemp: "<<rettemp<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
+	if(mykeyvalue.key != GETV(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ cout<<"REDUCEFUNC RESULT @ reducevector:: rettemp: "<<rettemp<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
 	if(colindex == 0){ myvprop.key = rettemp; }
 	else { myvprop.value = rettemp; }
 	
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ destbuffer[destoffset + rowindex] = GETKV2(myvprop); }
+	if(mykeyvalue.key != GETV(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ destbuffer[destoffset + rowindex] = GETKV2(myvprop); }
 	#endif 
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);
-	if(mykeyvalue.key != INVALIDDATA && mykeyvalue.value != INVALIDDATA){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	if(mykeyvalue.key != GETV(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 	#endif
 	return;
 }
@@ -1880,7 +1903,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
-	mydummykv.value = INVALIDDATA;
+	mydummykv.value = GETV(INVALIDDATA);
 	keyvalue_buffer_t dummykv = GETKV(mydummykv);
 	
 	value_t tempbufferDcapsule[NUM_PARTITIONS];
@@ -1914,11 +1937,11 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 			if(k < tempcutoffs[6+n]){ kvA6[0] = buffer_setof1[6+n][k]; kvA6[1] = buffer_setof1[6+n][k+1]; kvA6[2] = buffer_setof1[6+n][k+2]; kvA6[3] = buffer_setof1[6+n][k+3]; } 
 			else { kvA6[0] = dummykv; kvA6[1] = dummykv; kvA6[2] = dummykv; kvA6[3] = dummykv; }
 		
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			for(unsigned int m=0; m<4; m++){ cout<<"kvA0["<<m<<"].key: "<<kvA0[m].key<<", kvA0["<<m<<"].value: "<<kvA0[m].value<<endl; }
-			for(unsigned int m=0; m<4; m++){ cout<<"kvA2["<<m<<"].key: "<<kvA2[m].key<<", kvA2["<<m<<"].value: "<<kvA2[m].value<<endl; }
-			for(unsigned int m=0; m<4; m++){ cout<<"kvA4["<<m<<"].key: "<<kvA4[m].key<<", kvA4["<<m<<"].value: "<<kvA4[m].value<<endl; }
-			for(unsigned int m=0; m<4; m++){ cout<<"kvA6["<<m<<"].key: "<<kvA6[m].key<<", kvA6["<<m<<"].value: "<<kvA6[m].value<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS 
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA0["<<m<<"].key: "<<GETKV(kvA0[m]).key<<", kvA0["<<m<<"].value: "<<GETKV(kvA0[m]).value<<endl; }
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA2["<<m<<"].key: "<<GETKV(kvA2[m]).key<<", kvA2["<<m<<"].value: "<<GETKV(kvA2[m]).value<<endl; }
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA4["<<m<<"].key: "<<GETKV(kvA4[m]).key<<", kvA4["<<m<<"].value: "<<GETKV(kvA4[m]).value<<endl; }
+			for(unsigned int m=0; m<4; m++){ cout<<"kvA6["<<m<<"].key: "<<GETKV(kvA6[m]).key<<", kvA6["<<m<<"].value: "<<GETKV(kvA6[m]).value<<endl; }
 			#endif
 			
 			#if defined(_DEBUGMODE_CHECKS2) && defined(_DEBUGMODE_PARTITIONCHECKS)
@@ -1949,7 +1972,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 				buffer_setof8[4][yoffset0] = kvA0[0]; buffer_setof8[5][yoffset0] = kvA0[1]; buffer_setof8[6][yoffset0] = kvA0[2]; buffer_setof8[7][yoffset0] = kvA0[3]; 
 			}
 			// if(!((kvA0[0].value == INVALIDDATA) && (kvA0[1].value == INVALIDDATA) && (kvA0[2].value == INVALIDDATA) && (kvA0[3].value == INVALIDDATA))){ tempbufferDcapsule[pA0] += 4; }
-			if(GETKV(kvA0[0]).value != INVALIDDATA){ tempbufferDcapsule[pA0] += 4; } // ERROR CHECKPOINT.
+			if(GETKV(kvA0[0]).value != GETV(INVALIDDATA)){ tempbufferDcapsule[pA0] += 4; } // ERROR CHECKPOINT.
 			
 			buffer_type _posD0 = capsule_so8[pA2].key + tempbufferDcapsule[pA2];
 			unsigned int yoffset1 = _posD0 / 8;
@@ -1966,7 +1989,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 				buffer_setof8[4][yoffset1] = kvA2[0]; buffer_setof8[5][yoffset1] = kvA2[1]; buffer_setof8[6][yoffset1] = kvA2[2]; buffer_setof8[7][yoffset1] = kvA2[3]; 
 			}
 			// if(!((kvA2[0].value == INVALIDDATA) && (kvA2[1].value == INVALIDDATA) && (kvA2[2].value == INVALIDDATA) && (kvA2[3].value == INVALIDDATA))){ tempbufferDcapsule[pA2] += 4; }
-			if(GETKV(kvA2[0]).value != INVALIDDATA){ tempbufferDcapsule[pA2] += 4; } // ERROR CHECKPOINT.
+			if(GETKV(kvA2[0]).value != GETV(INVALIDDATA)){ tempbufferDcapsule[pA2] += 4; } // ERROR CHECKPOINT.
 			
 			buffer_type __posD0 = capsule_so8[pA4].key + tempbufferDcapsule[pA4];
 			unsigned int yoffset2 = __posD0 / 8;
@@ -1983,7 +2006,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 				buffer_setof8[4][yoffset2] = kvA4[0]; buffer_setof8[5][yoffset2] = kvA4[1]; buffer_setof8[6][yoffset2] = kvA4[2]; buffer_setof8[7][yoffset2] = kvA4[3]; 
 			}
 			// if(!((kvA4[0].value == INVALIDDATA) && (kvA4[1].value == INVALIDDATA) && (kvA4[2].value == INVALIDDATA) && (kvA4[3].value == INVALIDDATA))){ tempbufferDcapsule[pA4] += 4; }
-			if(GETKV(kvA4[0]).value != INVALIDDATA){ tempbufferDcapsule[pA4] += 4; } // ERROR CHECKPOINT.
+			if(GETKV(kvA4[0]).value != GETV(INVALIDDATA)){ tempbufferDcapsule[pA4] += 4; } // ERROR CHECKPOINT.
 			
 			buffer_type ___posD0 = capsule_so8[pA6].key + tempbufferDcapsule[pA6];
 			unsigned int yoffset3 = ___posD0 / 8;
@@ -2000,18 +2023,19 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 				buffer_setof8[4][yoffset3] = kvA6[0]; buffer_setof8[5][yoffset3] = kvA6[1]; buffer_setof8[6][yoffset3] = kvA6[2]; buffer_setof8[7][yoffset3] = kvA6[3]; 
 			}
 			// if(!((kvA6[0].value == INVALIDDATA) && (kvA6[1].value == INVALIDDATA) && (kvA6[2].value == INVALIDDATA) && (kvA6[3].value == INVALIDDATA))){ tempbufferDcapsule[pA6] += 4; }
-			if(GETKV(kvA6[0]).value != INVALIDDATA){ tempbufferDcapsule[pA6] += 4; } // ERROR CHECKPOINT.
+			if(GETKV(kvA6[0]).value != GETV(INVALIDDATA)){ tempbufferDcapsule[pA6] += 4; } // ERROR CHECKPOINT.
 		}
 	}
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].value = tempbufferDcapsule[p]; 
 	}
+	
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		keyvalue_t mydummykv;
 		mydummykv.key = p;
-		mydummykv.value = INVALIDDATA;
+		mydummykv.value = GETV(INVALIDDATA);
 		keyvalue_buffer_t dummykv = GETKV(mydummykv);
 		if(capsule_so8[p].value % 8 == 4){
 			unsigned int yoffset = (capsule_so8[p].key + capsule_so8[p].value) / VECTOR_SIZE;
@@ -2465,7 +2489,7 @@ void
 	#ifdef SW 
 	acts_process:: 
 	#endif
-topkernel(uint512_dt * kvdram){
+topkernelproc(uint512_dt * kvdram){
 #pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0			
 		
 #pragma HLS INTERFACE s_axilite port = kvdram bundle = control
@@ -2505,7 +2529,7 @@ topkernel(uint512_dt * kvdram){
 	#ifdef PROCESSMODULE
 	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"topkernel: processing instance ... "<<endl;
+		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
 	}
@@ -2515,7 +2539,7 @@ topkernel(uint512_dt * kvdram){
 	#ifdef PARTITIONMODULE
 	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"topkernel: partitioning instance ... "<<endl;
+		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_p, NAp, NAp, globalparams);
 	}
@@ -2525,7 +2549,7 @@ topkernel(uint512_dt * kvdram){
 	#ifdef REDUCEMODULE
 	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"topkernel: reducing instance ... "<<endl;
+		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams);
 	}

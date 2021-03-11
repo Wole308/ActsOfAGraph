@@ -37,6 +37,9 @@ else
 	echo "no env specified. specify crabtree, aws or gunrock"
 fi
 
+NCOMPUTEUNITS_IN_1KERNELS=$OFF
+NCOMPUTEUNITS_IN_NKERNELS=$ON
+
 KERNELTYPE="ACTSMODEL_LW"
 
 XWARE="" 
@@ -156,9 +159,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -900,10 +903,21 @@ do
 						then
 							if [ $CRABTREE == $ON ]
 							then
-								echo "crabtree setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								then
+									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
+									make cleanall
+									make all_nk TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+									XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernelproc.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								then
+									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+									make cleanall
+									make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+									XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+								else
+									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+								fi
 							elif [ $AWS == $ON ]
 							then
 								echo "aws setup specified."
