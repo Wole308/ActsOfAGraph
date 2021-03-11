@@ -102,10 +102,22 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
-	cl_int err;
+void goclkernel::runapp(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
+	cout<<"goclkernel::runapp: TOTALNUMKERNELS: "<<TOTALNUMKERNELS<<", TOTALNUMBUFFERS: "<<TOTALNUMBUFFERS<<", inputdata_size_bytes: "<<PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)<<endl;
+
+	////////////////////////////////
+	// cl_int err;
+	// vector<cl::Event> read_events;
+	// vector<cl::Event> kernel_events;
+	// vector<cl::Event> write_event;
+	////////////////////////////////
+	
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
 
+	read_events.resize((2 * TOTALNUMBUFFERS));
+	kernel_events.resize((2 * TOTALNUMKERNELS));
+	write_event.resize(TOTALNUMBUFFERS);
+	
 	// create context and command queue for selected device
 	cout<<"goclkernel:: creating context and command queue for selected device..."<<endl;
     auto devices = xcl::get_xil_devices();
@@ -122,27 +134,12 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
     std::string device_name = device.getInfo<CL_DEVICE_NAME>();
     std::cout << "Found Device=" << device_name.c_str() << std::endl;
 
-	// ACTS (process)
 	// The code block below is in braces because the cl objects
     // are automatically released once the block ends
 	{
-		cout<<"--------------- goclkernel[actssync]:: running ACTS PROCESS... ---------------"<<endl;
-		
-		vector<cl::Event> read_events;
-		vector<cl::Event> kernel_events;
-		vector<cl::Event> write_event;
-		read_events.resize((2 * NUMSUBCPUTHREADS));
-		kernel_events.resize((2 * NUMSUBCPUTHREADS));
-		write_event.resize(NUMSUBCPUTHREADS);
-		
-		cl_int err;
-		cl_mem_ext_ptr_t inoutBufExt[NUMSUBCPUTHREADS];
-		cl::Buffer buffer_kvsourcedram[NUMSUBCPUTHREADS];
-		cl::Kernel krnls[NUMSUBCPUTHREADS];
-		
 		// create binary
 		cout<<"goclkernel:: creating binary from file..."<<endl;
-		auto fileBuf = xcl::read_binary_file(binaryFile[0]);
+		auto fileBuf = xcl::read_binary_file(binaryFile);
 		cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
 		devices.resize(1);
 		
@@ -152,10 +149,18 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// create kernels
 		cout<<"goclkernel:: creating kernel object..."<<endl;
+		#ifdef NACTS_IN_NCOMPUTEUNITS
 		std::string krnl_name = "topkernelproc";
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		#else 
+		std::string krnl_name = "topkernel";	
+		#endif
+		for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ 
 				std::string cu_id = std::to_string((i+1));
+				#ifdef NACTS_IN_NCOMPUTEUNITS
 				std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
+				#else 
+				std::string krnl_name_full = krnl_name + ":{" + "topkernel_" + cu_id + "}"; 
+				#endif 
 
 				printf("Creating a kernel [%s] for CU(%d)\n",
 					   krnl_name_full.c_str(),
@@ -168,14 +173,14 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		// create buffers
 		cout<<"goclkernel:: creating OCL buffers..."<<endl;
 		unsigned int counter = 0;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
-			inoutBufExt[i].obj = kvsourcedram[i];
+			inoutBufExt[i].obj = kvsourcedram[counter++];
 			inoutBufExt[i].param = 0;
 			inoutBufExt[i].flags = bank[i];
 		}
 		
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			cout<<"creating buffer for ACTS: "<<i<<endl;
 			OCL_CHECK(err,
 			  buffer_kvsourcedram[i] =
@@ -189,7 +194,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// migrate workload
 		cout<<"goclkernel:: migrating workload to FPGA..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			OCL_CHECK(err,
 				err = q.enqueueMigrateMemObjects(
 					  {buffer_kvsourcedram[i]},
@@ -201,12 +206,16 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// set the kernel arguments
 		cout<<"goclkernel:: setting kernel arguments..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[i])); } 
+		#ifdef NACTS_IN_NCOMPUTEUNITS
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){ OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[i])); }
+		#else
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
+		#endif 
 		
 		// Invoking the kernel
 		cout<<"goclkernel:: launching the kernel..."<<endl;
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<1; i++){ // TOTALNUMKERNELS
 			cout<<"goclkernel::runapp:: Kernel "<<i<<" Launched"<<endl;
 			std::vector<cl::Event> waitList;
 			waitList.push_back(write_event[0]);
@@ -219,7 +228,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// migrate workload
 		cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			OCL_CHECK(err,
 				  err = q.enqueueMigrateMemObjects(
 					  {buffer_kvsourcedram[i]},
@@ -238,40 +247,52 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 	}
 	
-	// ACTS (synchronize)
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	cout<<"clReleaseCommandQueue"<<endl;
+	// clReleaseCommandQueue(world.command_queue);
+	// cout<<"clReleaseContext"<<endl;
+	// clReleaseContext(world.context);
+	// cout<<"clReleaseDevice"<<endl;
+	// clReleaseDevice(world.device_id); 
+	// cout<<"clReleaseKernel"<<endl;
+	// clReleaseKernel(kernel);
+	cout<<"clReleaseProgram"<<endl;
+	// cl::ReleaseProgram(program);
+	cout<<"test::finish: released and destroyed all OCL structures"<<endl;
+	
+	// xcl_release_world()
+	
+	release(program);
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	// The code block below is in braces because the cl objects
     // are automatically released once the block ends
 	{
-		cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE... ---------------"<<endl;
-		
-		vector<cl::Event> read_events;
-		vector<cl::Event> kernel_events;
-		vector<cl::Event> write_event;
-		read_events.resize((2 * NUMSUBCPUTHREADS));
-		kernel_events.resize((2 * NUMSUBCPUTHREADS));
-		write_event.resize(NUMSUBCPUTHREADS);
-		
-		cl_int err;
-		cl_mem_ext_ptr_t inoutBufExt[NUMSUBCPUTHREADS];
-		cl::Buffer buffer_kvsourcedram[NUMSUBCPUTHREADS];
-		cl::Kernel krnls[1];
-		
 		// create binary
 		cout<<"goclkernel[actssync]:: creating binary from file..."<<endl;
-		auto fileBuf = xcl::read_binary_file(binaryFile[1]);
+		auto fileBuf = xcl::read_binary_file(binaryFile);
 		cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
 		// devices.resize(1);
 		
 		// create program
 		cout<<"goclkernel[actssync]:: creating program object..."<<endl;
+		// OCL_CHECK(err, cl::Program program(context, devices, bins, NULL, &err));
 		OCL_CHECK(err, cl::Program program(context, devices, bins));
 		
 		// create kernels
 		cout<<"goclkernel[actssync]:: creating kernel object..."<<endl;
-		std::string krnl_name = "topkernelsync";	
-		for(unsigned int i=0; i<1; i++){ 
+		#ifdef NACTS_IN_NCOMPUTEUNITS
+		std::string krnl_name = "topkernelproc";
+		#else 
+		std::string krnl_name = "topkernel";	
+		#endif
+		for(unsigned int i=0; i<TOTALNUMKERNELS; i++){ 
 				std::string cu_id = std::to_string((i+1));
-				std::string krnl_name_full = krnl_name + ":{" + "topkernelsync_" + cu_id + "}"; 
+				#ifdef NACTS_IN_NCOMPUTEUNITS
+				std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
+				#else 
+				std::string krnl_name_full = krnl_name + ":{" + "topkernel_" + cu_id + "}"; 
+				#endif 
 
 				printf("Creating a kernel [%s] for CU(%d)\n",
 					   krnl_name_full.c_str(),
@@ -284,14 +305,14 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		// create buffers
 		cout<<"goclkernel[actssync]:: creating OCL buffers..."<<endl;
 		unsigned int counter = 0;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
 			inoutBufExt[i].obj = kvsourcedram[counter++];
 			inoutBufExt[i].param = 0;
 			inoutBufExt[i].flags = bank[i];
 		}
 		
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			cout<<"creating buffer for ACTS: "<<i<<endl;
 			OCL_CHECK(err,
 			  buffer_kvsourcedram[i] =
@@ -305,7 +326,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// migrate workload
 		cout<<"goclkernel[actssync]:: migrating workload to FPGA..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			OCL_CHECK(err,
 				err = q.enqueueMigrateMemObjects(
 					  {buffer_kvsourcedram[i]},
@@ -317,12 +338,16 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// set the kernel arguments
 		cout<<"goclkernel[actssync]:: setting kernel arguments..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
+		#ifdef NACTS_IN_NCOMPUTEUNITS
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){ OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[i])); }
+		#else
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
+		#endif 
 		
 		// Invoking the kernel
 		cout<<"goclkernel[actssync]:: launching the kernel..."<<endl;
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-		for(unsigned int i=0; i<1; i++){
+		for(unsigned int i=0; i<1; i++){ // TOTALNUMKERNELS
 			cout<<"goclkernel[actssync]::runapp:: Kernel "<<i<<" Launched"<<endl;
 			std::vector<cl::Event> waitList;
 			waitList.push_back(write_event[0]);
@@ -335,7 +360,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		
 		// migrate workload
 		cout<<"goclkernel[actssync]:: migrating workload back to HOST..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int i=0; i<TOTALNUMBUFFERS; i++){
 			OCL_CHECK(err,
 				  err = q.enqueueMigrateMemObjects(
 					  {buffer_kvsourcedram[i]},
@@ -356,6 +381,10 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 	return;
 }
 #endif 
+
+
+
+
 
 
 

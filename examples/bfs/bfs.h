@@ -13,7 +13,7 @@
 
 class bfs {
 public:
-	bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
+	bfs(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile1, std::string _binaryFile2);
 	~bfs();
 	void finish();
 	
@@ -36,7 +36,7 @@ private:
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 	uint512_vec_dt * vdram;
 	
-	std::string binaryFile;
+	std::string binaryFile[2];
 };
 #endif
 

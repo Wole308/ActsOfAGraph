@@ -748,6 +748,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%endfor%}
 		#endif
 	}
+	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -1170,8 +1171,12 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endfor%}
 
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _WIDEWORD
+	cout<<">>> (((((((((((((((((((((((((((((((((((((((( Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	#else
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	#endif
 	#endif
 	
 	keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];

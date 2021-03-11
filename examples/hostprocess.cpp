@@ -21,15 +21,17 @@ using namespace std;
 int main(int argc, char** argv){
 	cout<<"Hostprocess:: Graph Analytics Started..."<<endl;
 	
-	std::string binaryFile;
+	std::string binaryFile1;
+	std::string binaryFile2;
 	dataset * datasetobj = new dataset();
 	utility * utilityobj = new utility();
 	#ifdef FPGA_IMPL
-	if (argc != 2) {
+	if (argc != 3) { // 2,3
         std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
         return EXIT_FAILURE;
     }
-    binaryFile = argv[1];
+    binaryFile1 = argv[1];
+	binaryFile2 = argv[2];
 	#endif
 	utilityobj->printallparameters();
 	// exit(EXIT_SUCCESS);
@@ -44,27 +46,17 @@ int main(int argc, char** argv){
 	std::chrono::steady_clock::time_point begintime_overallexecution = std::chrono::steady_clock::now();
 	#endif
 	
-	#ifdef TESTKERNEL
-	test * testobj = new test(binaryFile);
-	testobj->run();
-	exit(EXIT_SUCCESS);
-	#endif
-	
-	#if (defined(PR_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile);	
+	#ifdef PR_ALGORITHM
+	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);	
 	pagerankobj->run();
 	#endif
-	#if (defined(BFS_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile);
+	#ifdef BFS_ALGORITHM
+	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);
 	bfsobj->run();
 	#endif
-	#if (defined(SSSP_ALGORITHM) & not defined(ADVANCE_ALGORITHM))
-	sssp * ssspobj = new sssp(NAp, datasetobj->getdatasetid(), binaryFile);
+	#ifdef SSSP_ALGORITHM
+	sssp * ssspobj = new sssp(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);
 	ssspobj->run();
-	#endif
-	#if (defined(ADVANCE_ALGORITHM))
-	advance_op * advanceobj = new advance_op(NAp, datasetobj->getdatasetid(), binaryFile);
-	advanceobj->run();
 	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS3

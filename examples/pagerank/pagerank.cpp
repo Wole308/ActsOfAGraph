@@ -23,7 +23,7 @@
 #include "pagerank.h"
 using namespace std;
 
-pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile){
+pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile1, std::string _binaryFile2){
 	algorithm * thisalgorithmobj = new algorithm();
 	graphobj = new graph(thisalgorithmobj, datasetid, 1, true, true, true);
 	statsobj = new stats(graphobj);
@@ -42,7 +42,8 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges[i] = new edge2_type[MAXKVDATA_BATCHSIZE]; }
 	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	
-	binaryFile = _binaryFile;
+	binaryFile[0] = _binaryFile1;
+	binaryFile[1] = _binaryFile2;
 	
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();

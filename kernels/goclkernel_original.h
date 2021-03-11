@@ -15,8 +15,17 @@ public:
 	goclkernel(stats * _statsobj);
 	~goclkernel();
 
+	#ifdef NACTS_IN_NCOMPUTEUNITS
+		#define TOTALNUMKERNELS NUMCOMPUTEUNITS
+	#else 
+		#define TOTALNUMKERNELS 1
+	#endif
+
+	// #define TOTALNUMBUFFERS 1
+	#define TOTALNUMBUFFERS NUMCOMPUTEUNITS //
+	
 	#ifdef FPGA_IMPL
-	void runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);			
+	void runapp(std::string _binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);			
 	#endif 
 private:
 	utility * utilityobj;

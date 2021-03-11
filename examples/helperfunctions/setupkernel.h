@@ -19,7 +19,7 @@ public:
 	setupkernel(stats * _statsobj);
 	~setupkernel();
 
-	void runapp(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
+	void runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	
 	#ifdef GRAFBOOST_SETUP 
 	void loadSRstructures();

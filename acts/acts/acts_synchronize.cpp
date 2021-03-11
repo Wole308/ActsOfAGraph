@@ -1326,6 +1326,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 		if(GETKV2(res[7][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
 		#endif
 	}
+	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -2845,8 +2846,12 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
  
 #pragma HLS DATA_PACK variable = kvdram15
 
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _WIDEWORD
+	cout<<">>> (((((((((((((((((((((((((((((((((((((((( Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+	#else
+	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+	#endif
 	#endif
 	
 	keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];

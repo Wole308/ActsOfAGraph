@@ -13,7 +13,7 @@
 
 class pagerank {
 public:
-	pagerank(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile);
+	pagerank(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile1, std::string _binaryFile2);
 	~pagerank();
 	void finish();
 	
@@ -34,7 +34,7 @@ private:
 	uint512_vec_dt * vdram;
 	edge2_type * edges[NUMSUBCPUTHREADS];
 	
-	std::string binaryFile;
+	std::string binaryFile[2];
 };
 #endif
 

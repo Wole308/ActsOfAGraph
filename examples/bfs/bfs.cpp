@@ -30,7 +30,7 @@
 using namespace std;
 #define PROCESSACTIVEVERTICESTEST
 
-bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile){
+bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile1, std::string _binaryFile2){
 	algorithm * thisalgorithmobj = new algorithm();
 	graphobj = new graph(thisalgorithmobj, datasetid, 1, true, true, true);
 	statsobj = new stats(graphobj);
@@ -52,7 +52,8 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 		edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
 	}
 	
-	binaryFile = _binaryFile;
+	binaryFile[0] = _binaryFile1;
+	binaryFile[1] = _binaryFile2;
 	
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();
