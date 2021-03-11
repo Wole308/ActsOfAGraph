@@ -35,6 +35,8 @@ private:
 	edge2_type * edgedatabuffer;
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 	uint512_vec_dt * vdram;
+	
+	std::string binaryFile;
 };
 #endif
 

@@ -47,6 +47,8 @@ public:
 	keyvalue_t GETKV2(keyvalue_vbuffer_t data);
 	keyvalue_vbuffer_t GETKV2(keyvalue_t data);
 	uint32_type convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index);
+	keyy_t GETKEYENTRY(uint512_dt data, unsigned int v);
+	value_t GETVALUEENTRY(uint512_dt data, unsigned int v);
 	
 	// functions (acts_synchronize utilities)
 	batch_type get_num_source_partitions(step_type currentLOP);

@@ -16,9 +16,7 @@ public:
 	~swkernel();
 	
 	#ifdef SW 
-	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
-	
-	void finishOCL();
+	void runapp(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	#endif 
 private:
 	utility * utilityobj;

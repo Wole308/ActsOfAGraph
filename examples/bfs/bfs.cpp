@@ -30,7 +30,7 @@
 using namespace std;
 #define PROCESSACTIVEVERTICESTEST
 
-bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
+bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	graphobj = new graph(thisalgorithmobj, datasetid, 1, true, true, true);
 	statsobj = new stats(graphobj);
@@ -52,19 +52,17 @@ bfs::bfs(unsigned int algorithmid, unsigned int datasetid, std::string binaryFil
 		edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
 	}
 	
-	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, vdram, kvbuffer);
-	#endif
+	binaryFile = _binaryFile;
+	
+	#ifdef GRAFBOOST_SETUP 
+	setupkernelobj->loadSRstructures();
+	#endif 
 }
 bfs::~bfs(){
 	cout<<"bfs::~bfs:: finish destroying memory structures... "<<endl;
 	delete [] kvbuffer;
 }
-void bfs::finish(){
-	#ifdef FPGA_IMPL
-	setupkernelobj->finishOCL();
-	#endif
-}
+void bfs::finish(){}
 
 runsummary_t bfs::run(){
 	long double totaltime_ms = 0;
@@ -146,7 +144,7 @@ void bfs::experiements(unsigned int evalid, unsigned int start, unsigned int siz
 		
 		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 		cout<<endl<< TIMINGRESULTSCOLOR <<">>> bfs::run: bfs started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-		setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
+		setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);
 		utilityobj->stopTIME(">>> bfs::finished:. Time Elapsed: ", begintime, NAp);
 		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 		

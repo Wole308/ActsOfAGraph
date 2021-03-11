@@ -143,15 +143,11 @@ GETKV2(keyvalue_vbuffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
-	res.key = data.range(15, 0); //
+	res.key = data.range(15, 0); 
 	res.value = data.range(31, 16);
-	// res.key = data.range(31, 0);
-	// res.value = data.range(63, 32);
 	#else 
 	res.key = data.key;
 	res.value = data.value;	
-	// res.key = data.data; // CRITICAL REMOVEME.
-	// res.value = data.data;	
 	#endif 
 	return res;
 }
@@ -163,15 +159,11 @@ GETKV2(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_vbuffer_t res;
 	#ifdef _WIDEWORD
-	res.range(15, 0) = data.key; //
+	res.range(15, 0) = data.key; 
 	res.range(31, 16) = data.value;
-	// res.range(31, 0) = data.key;
-	// res.range(63, 32) = data.value;
 	#else
 	res.key = data.key;
-	res.value = data.value;	
-	// res.data = data.key; // CRITICAL REMOVEME.
-	// res.data = data.value;	
+	res.value = data.value;
 	#endif 
 	return res;
 }
@@ -249,6 +241,30 @@ convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	WRITETO_UINT(&res, 31, 1, vmask[index].data[15].value);
 	#endif
 	return res;
+}
+keyy_t 
+	#ifdef SW 
+	acts_synchronize::
+	#endif 
+GETKEYENTRY(uint512_dt data, unsigned int v){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
+	#else 
+	return data.data[vindex].key;	
+	#endif
+}
+value_t 
+	#ifdef SW 
+	acts_synchronize::
+	#endif 
+GETVALUEENTRY(uint512_dt data, unsigned int v){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(32 * (((v * 2) + 1) + 1) - 1, (v * 2 + 1) * 32);
+	#else 
+	return data.data[vindex].value;	
+	#endif
 }
 
 // functions (acts_synchronize utilities)
@@ -2474,22 +2490,22 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,uint51
 		#endif 
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
-		if(kvdram3[vbuffer_offset_kvs + i].data[0].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[0].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[1].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[1].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[2].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[2].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[3].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[3].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[4].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[4].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[5].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[5].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[6].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[6].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[7].key < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(kvdram3[vbuffer_offset_kvs + i].data[7].value < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 0) < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 0) < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 1) < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 1) < 0xFFFFFFFF){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 2) < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 2) < 0xFFFFFFFF){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 3) < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 3) < 0xFFFFFFFF){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 4) < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 4) < 0xFFFFFFFF){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 5) < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 5) < 0xFFFFFFFF){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 6) < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 6) < 0xFFFFFFFF){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 7) < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 7) < 0xFFFFFFFF){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
 		#endif
 		
 		// combined with prepare vmask operation

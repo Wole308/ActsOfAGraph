@@ -514,7 +514,7 @@ getglobalparams(uint512_dt * kvdram){
 	
 	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key;
 	#endif  
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("acts_process::getglobalparams:: printing global parameters", globalparams);
 	#endif
 	return globalparams;

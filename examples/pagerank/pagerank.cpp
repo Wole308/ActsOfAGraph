@@ -23,7 +23,7 @@
 #include "pagerank.h"
 using namespace std;
 
-pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string binaryFile){
+pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile){
 	algorithm * thisalgorithmobj = new algorithm();
 	graphobj = new graph(thisalgorithmobj, datasetid, 1, true, true, true);
 	statsobj = new stats(graphobj);
@@ -42,9 +42,8 @@ pagerank::pagerank(unsigned int algorithmid, unsigned int datasetid, std::string
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges[i] = new edge2_type[MAXKVDATA_BATCHSIZE]; }
 	edgedatabuffer = new edge2_type[PADDEDEDGES_BATCHSIZE];
 	
-	#ifdef FPGA_IMPL
-	setupkernelobj->loadOCLstructures(binaryFile, vdram, kvbuffer);
-	#endif
+	binaryFile = _binaryFile;
+	
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();
 	#endif 
@@ -53,11 +52,7 @@ pagerank::~pagerank(){
 	cout<<"pagerank::~pagerank:: finish destroying memory structures... "<<endl;
 	delete [] kvbuffer;
 }
-void pagerank::finish(){
-	#ifdef FPGA_IMPL
-	setupkernelobj->finishOCL();
-	#endif
-}
+void pagerank::finish(){}
 
 runsummary_t pagerank::run(){
 	long double totaltime_ms = 0;
@@ -100,7 +95,7 @@ runsummary_t pagerank::run(){
 	// run pagerank
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> pagerank::run: pagerank started."<< RESET <<endl;
-	setupkernelobj->launchkernel((uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, 0);
+	setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);
 	utilityobj->stopTIME(">>> pagerank::finished:. Time Elapsed: ", begintime, NAp);
 	totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	

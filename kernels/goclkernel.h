@@ -24,37 +24,26 @@ public:
 	// #define TOTALNUMBUFFERS 1
 	#define TOTALNUMBUFFERS NUMCOMPUTEUNITS //
 	
-	#ifdef FPGA_IMPL 
-	void launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag);
-	
-	void writetokernel(unsigned int flag, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS],  unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]);
-	
-	void readfromkernel(unsigned int flag, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int hostbeginoffset[NUMSUBCPUTHREADS], unsigned int beginoffset[NUMSUBCPUTHREADS], unsigned int size[NUMSUBCPUTHREADS]);			
-	
-	void loadOCLstructures(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);			
-	void finishOCL();
+	#ifdef FPGA_IMPL
+	void runapp(std::string _binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);			
 	#endif 
 private:
 	utility * utilityobj;
-	std::string binaryFile;
+	// std::string binaryFile;
 	
 	size_t inputvdata_size_bytes;
 	size_t inputdata_size_bytes;
 	stats * statsobj;
 	
 	#ifdef FPGA_IMPL 
-	cl_mem_ext_ptr_t inoutBufExt[TOTALNUMBUFFERS];
-
-    cl::Buffer buffer_kvsourcedram[TOTALNUMBUFFERS];
-	
-	cl::Kernel krnls[TOTALNUMKERNELS];
-	
 	cl::CommandQueue q;
 	cl_int err;
-	
 	vector<cl::Event> read_events;
 	vector<cl::Event> kernel_events;
 	vector<cl::Event> write_event;
+	cl_mem_ext_ptr_t inoutBufExt[TOTALNUMBUFFERS];
+    cl::Buffer buffer_kvsourcedram[TOTALNUMBUFFERS];
+	cl::Kernel krnls[TOTALNUMKERNELS];
 	#endif 
 };
 #endif

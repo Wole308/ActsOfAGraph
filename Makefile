@@ -88,7 +88,6 @@ HOST_SRCS += $(RELREF)src/graphs/graph.cpp
 HOST_SRCS += $(RELREF)src/stats/stats.cpp
 HOST_SRCS += $(RELREF)src/utility/utility.cpp
 HOST_SRCS += $(RELREF)src/dataset/dataset.cpp
-HOST_SRCS += $(RELREF)kernels/kernel.cpp
 HOST_SRCS += $(RELREF)kernels/swkernel.cpp
 HOST_SRCS += $(RELREF)kernels/goclkernel.cpp
 HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
@@ -196,7 +195,8 @@ CP = cp -rf
 all: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 
 .PHONY: all_nk clean cleanall docs emconfig
-all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINERS_SYNC) emconfig
+all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) emconfig
+# all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINERS_SYNC) emconfig
 
 # builds
 .PHONY: all clean cleanall docs emconfig

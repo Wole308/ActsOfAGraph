@@ -29,7 +29,7 @@ swkernel::swkernel(stats * _statsobj){
 swkernel::~swkernel(){} 
 
 #ifdef SW
-void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
+void swkernel::runapp(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
@@ -37,7 +37,7 @@ void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedra
 	#ifdef NACTS_IN_NCOMPUTEUNITS
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>> swkernel::launchkernel: Iteration: "<<GraphIter<<endl;
+		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernel((uint512_dt *)kvsourcedram[i]); }
 		
@@ -209,10 +209,6 @@ void swkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedra
 	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 	#endif
-	return;
-}
-
-void swkernel::finishOCL(){
 	return;
 }
 #endif 

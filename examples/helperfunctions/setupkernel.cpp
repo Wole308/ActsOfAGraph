@@ -8,11 +8,12 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include "../../kernels/swkernel.h"
+#include "../../kernels/goclkernel.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
-#include "../../kernels/kernel.h"
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -20,10 +21,14 @@
 using namespace std;
 
 setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
+	#ifdef FPGA_IMPL
+	kernelobj = new goclkernel(_statsobj);
+	#else 
+	kernelobj = new swkernel(_statsobj);
+	#endif
+	
 	utilityobj = new utility();
 	graphobj = _graphobj;
-	algorithmobj = new algorithm();
-	kernelobj = new kernel(_statsobj);
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif
@@ -31,19 +36,13 @@ setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 }
 setupkernel::setupkernel(stats * _statsobj){
 	utilityobj = new utility();
-	algorithmobj = new algorithm();
-	kernelobj = new kernel(_statsobj);
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif 
 }
 setupkernel::~setupkernel(){} 
 
-void setupkernel::launchkernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){ // for INMEMORYGP PR
-	launchmykernel(vdram, kvsourcedram, flag);
-	return;
-}
-void setupkernel::launchmykernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], unsigned int flag){
+void setupkernel::runapp(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef GRAFBOOST_SETUP
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -51,7 +50,7 @@ void setupkernel::launchmykernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsour
 	#endif 
 
 	#ifdef ACTGRAPH_SETUP
-	kernelobj->launchkernel(vdram, kvsourcedram, flag);
+	kernelobj->runapp(binaryFile, vdram, kvsourcedram);
 	#endif 
 	#ifdef GRAFBOOST_SETUP
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i]); }
@@ -66,22 +65,6 @@ void setupkernel::launchmykernel(uint512_vec_dt * vdram, uint512_vec_dt * kvsour
 	return;
 }
 
-unsigned int setupkernel::getflag(unsigned int globaliteration_idx){
-	#ifdef FPGA_IMPL
-	int flag = globaliteration_idx % NUMFLAGS;
-	#else 
-	int flag = 0;
-	#endif 
-	return flag;
-}
-#ifdef FPGA_IMPL 
-void setupkernel::loadOCLstructures(std::string binaryFile, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
-	kernelobj->loadOCLstructures(binaryFile, vdram, kvsourcedram);
-}
-void setupkernel::finishOCL(){
-	kernelobj->finishOCL();
-}
-#endif 
 #ifdef GRAFBOOST_SETUP 
 #ifdef PR_ALGORITHM
 inline uint32_t vertex_update(uint32_t a, uint32_t b) {
