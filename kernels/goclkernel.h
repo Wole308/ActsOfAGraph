@@ -10,6 +10,8 @@
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
+#define NUMACTSSYNCBUFFERS (NUMSUBCPUTHREADS + 1)
+
 class goclkernel {
 public:
 	goclkernel(stats * _statsobj);

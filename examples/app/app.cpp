@@ -76,7 +76,7 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 4; // 3,12
+	unsigned int NumGraphIters = 1; // 3,12
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;
@@ -101,9 +101,11 @@ runsummary_t app::run(){
 	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BFS, globalparams);
 	
 	// vertex data
+	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE, globalparams);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE, globalparams); }
+	loadgraphobj->setrootvid((value_t *)vdram, activevertices, globalparams);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices, globalparams); }
-	
+
 	// active vertices & masks
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(activevertices, (keyy_t *)&kvbuffer[i], &container, globalparams); }
 	globalparams = loadgraphobj->generatevmaskdata(activevertices, kvbuffer, globalparams);

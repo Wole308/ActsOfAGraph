@@ -23,7 +23,7 @@
 #include "../../include/common.h"
 using namespace std;
 
-// #define _DEBUGMODE_KERNELPRINTS_TRACE //
+#define _DEBUGMODE_KERNELPRINTS_TRACE //
 
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
@@ -47,8 +47,10 @@ typedef unsigned int visitstate_type;
 
 typedef struct {
 	#ifdef _WIDEWORD
-	ap_uint<16> key;
+	ap_uint<16> key; // CRITICAL REMOVEME.
 	ap_uint<16> value;
+	// ap_uint<12> key;
+	// ap_uint<12> value;
 	#else 
 	unsigned int key;
 	unsigned int value;
@@ -222,11 +224,7 @@ typedef struct {
 #define VERTICESDATASZ_KVS (VERTICESDATASZ / VECTOR_SIZE)
 
 // active vertices workload area
-#ifdef ALLVERTEXISACTIVE_ALGORITHM
 #define ACTIVEVERTICESSZ 0
-#else 
-#define ACTIVEVERTICESSZ 0 // (KVDATA_RANGE / NUMINTSINKEYVALUETYPE)
-#endif 
 #define ACTIVEVERTICESSZ_KVS (ACTIVEVERTICESSZ / VECTOR_SIZE)
 
 #define VERTICESDATAMASKSZ (BATCH_RANGE / 32)
@@ -241,12 +239,12 @@ typedef struct {
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ
 #define PADDEDKVSOURCEDRAMSZ_KVS (PADDEDKVSOURCEDRAMSZ / VECTOR_SIZE)
 
-#define VDRAMSZ KVSOURCEDRAMSZ // (MESSAGES_AREASZ + VERTICESWORKLOAD_AREASZ + ACTIVEVERTICESWORKLOAD_AREASZ)	
+#define VDRAMSZ KVSOURCEDRAMSZ
 #define PADDEDVDRAMSZ VDRAMSZ
 #define PADDEDVDRAMSZ_KVS (PADDEDVDRAMSZ / VECTOR_SIZE)
 
 // base addresses
-#define BASEOFFSET_MESSAGESDATA 0 //
+#define BASEOFFSET_MESSAGESDATA 0 
 #define BASEOFFSET_MESSAGESDATA_KVS (BASEOFFSET_MESSAGESDATA / VECTOR_SIZE) 
 
 // others

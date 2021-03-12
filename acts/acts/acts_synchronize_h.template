@@ -25,7 +25,7 @@ using namespace std;
 
 #define VBUFFER_VECTOR_SIZE NUM_PARTITIONS
 
-#define INCORRECTAPPLY // CRITICAL REMOVEME. CAUSEOFERROR
+// #define INCORRECTAPPLY // CRITICAL REMOVEME. CAUSEOFERROR
 
 class acts_synchronize {
 public:
@@ -99,8 +99,14 @@ public:
 			uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 			globalparams_t globalparams);
+			
+	void spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i in context['4_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
+			keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
+			uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
+			globalparams_t globalparams);
 
-	void topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%});
+	void topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
 
 private:
 	#ifndef FPGA_IMPL

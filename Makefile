@@ -65,10 +65,10 @@ KERNEL_TOP += $(RELREF)acts/acts/acts.cpp
 KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_process.cpp
-# KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_SYNC += $(RELREF)acts/acts/acts_synchronize.cpp
-# KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp
+KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/acts_process.cpp
 KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/acts_synchronize.cpp
@@ -157,6 +157,7 @@ LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem12:HBM[12]
 LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem13:HBM[13]
 LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem14:HBM[14]
 LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem15:HBM[15]
+LDCLFLAGS += --sp topkernelsync_1.m_axi_gmem16:HBM[16]
 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:DDR[0] 
 # LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:DDR[1] 

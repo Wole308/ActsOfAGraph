@@ -163,9 +163,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -1123,19 +1123,39 @@ do
 							sleep 120
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] # syn
 						then
-							make cleanall
-							rm -rf xclbin
-							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+							then
+								make cleanall
+								rm -rf xclbin
+								make all_nk DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
 							
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
+								echo "sleeping for 2 minuites before continuing ...."
+								sleep 120
+								
+								if test -f "host"; then
+									cp xclbin/topkernelproc.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+								fi
+								echo "sleeping for 2 minuites before continuing ...."
+								sleep 120
+							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+							then
+								make cleanall
+								rm -rf xclbin
+								make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
 							
-							if test -f "host"; then
-								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+								echo "sleeping for 2 minuites before continuing ...."
+								sleep 120
+								
+								if test -f "host"; then
+									cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+								fi
+								echo "sleeping for 2 minuites before continuing ...."
+								sleep 120
+							else
+								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # syn
 						then
 							make cleanall
