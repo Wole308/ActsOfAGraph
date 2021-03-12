@@ -193,7 +193,7 @@ GETKV2(keyvalue_t data){
 }
 keyy_t 
 	#ifdef SW 
-	acts_process::
+	acts_synchronize::
 	#endif 
 GETK2(uint32_type data){
 	#pragma HLS INLINE
@@ -205,7 +205,7 @@ GETK2(uint32_type data){
 }
 value_t 
 	#ifdef SW 
-	acts_process::
+	acts_synchronize::
 	#endif 
 GETV2(uint32_type data){
 	#pragma HLS INLINE
@@ -243,7 +243,7 @@ GETKEYENTRY(uint512_dt data, unsigned int v){
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
 	#else 
-	return data.data[vindex].key;	
+	return data.data[v].key;	
 	#endif
 }
 value_t 
@@ -255,7 +255,7 @@ GETVALUEENTRY(uint512_dt data, unsigned int v){
 	#ifdef _WIDEWORD
 	return data.range(32 * (((v * 2) + 1) + 1) - 1, (v * 2 + 1) * 32);
 	#else 
-	return data.data[vindex].value;	
+	return data.data[v].value;	
 	#endif
 }
 
@@ -891,7 +891,7 @@ uint32_type
 	#ifdef SW 
 	acts_synchronize::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	if(enable1 == OFF || enable2 == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronizeandapply: synchronize and apply function called."<<endl;
@@ -900,7 +900,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	{%for i in context['5_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq']%}
 	{%for v in context['VECTOR_SIZE_seq']%}
 	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
@@ -923,7 +923,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
-		{%for i in context['4_seq']%}
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 		{%if(i>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, NAp);
@@ -933,7 +933,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 		{%endfor%}
 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
+		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMSUBCPUTHREADS_DIV_4']}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
@@ -952,7 +952,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['4_
 		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t data{{v}} = keyvalue{{v}}_vault{{3+1}};
+		keyvalue_t data{{v}} = keyvalue{{v}}_vault{{context['NUMSUBCPUTHREADS_DIV_4']}};
 		{%endfor%}
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t udata{{v}} = GETKV2(refbuffer[{{v}}][i]);
@@ -1008,7 +1008,7 @@ void
 	#ifdef SW 
 	acts_synchronize::
 	#endif
-spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
+spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], {%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -1018,7 +1018,7 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUF
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
-	{%for i in context['5_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq']%}
 	{%for v in context['VECTOR_SIZE_seq']%}
 	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
@@ -1031,7 +1031,7 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUF
 		keyvalue{{v}}_vault0 = GETKV2(source[{{v}}][i]); 
 		{%endfor%}
 			
-		{%for i in context['4_seq']%}
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 		{%for v in context['VECTOR_SIZE_seq']%}
 		buffer{{i}}[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{i}});
 		keyvalue{{v}}_vault{{i+1}} = keyvalue{{v}}_vault{{i}};
@@ -1052,7 +1052,7 @@ void
 	#ifdef SW 
 	acts_synchronize::
 	#endif
-spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['4_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
+spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
 	#pragma HLS INLINE OFF //
 	if(enable1 == OFF || enable2 == OFF || enable3 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -1060,7 +1060,7 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2
 	#endif 
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	
-	{%for i in context['6_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4__PLUS2_seq']%}
 	uintNUMPby2_type vmask_vault{{i}};
 	{%endfor%}
 	
@@ -1069,7 +1069,7 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2
 	#pragma HLS PIPELINE II=1
 		vmask_vault1 = vmask[i]; 
 			
-		{%for i in context['5_seq']%}
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq']%}
 		{%if(i>0)%}
 		vmask_vault{{i+1}} = vmask_vault{{i}};
 		vmask{{i-1}}[i] = vmask_vault{{i}};
@@ -1206,25 +1206,20 @@ void
 	#endif
 topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_dt * kvdram{{i}}{%endfor%}){
 {%for i in context['COMPUTEUNITS_seq']%} 
-#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}		
+#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
 
-{%for i in context['COMPUTEUNITS_seq']%} 
+{%for i in context['COMPUTEUNITS_seq']%}
 #pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
 {%endfor%}
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-{%for i in context['COMPUTEUNITS_seq']%} 
+{%for i in context['COMPUTEUNITS_seq']%}
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endfor%}
 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	// #ifdef _WIDEWORD
-	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
-	// #else
-	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
-	// #endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -1235,7 +1230,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	
 	//
-	{%for i in context['4_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 	keyvalue_vbuffer_t vbuffer{{i}}_level1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer{{i}}_level1
 	{%endfor%}
@@ -1245,7 +1240,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	#pragma HLS array_partition variable = vbuffer{{i}}_level2
 	{%endfor%}
 	
-	{%for i in context['4_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 	keyvalue_vbuffer_t vbuffer{{i}}_level3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer{{i}}_level3
 	{%endfor%}
@@ -1256,7 +1251,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	#pragma HLS DATA_PACK variable = vmask{{i}}_level2
 	{%endfor%}
 	
-	{%for i in context['4_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 	uintNUMPby2_type vmask{{i}}_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask{{i}}_level3
 	{%endfor%}
@@ -1266,7 +1261,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	uint32_type vmaskptemp{{i}}_level2[2];
 	{%endfor%}
 	
-	{%for i in context['4_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 	uint32_type vmaskptemp{{i}}_level3[2];
 	{%endfor%}
 	
@@ -1354,93 +1349,71 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 		
 		// R_and_I1
 		enablereducepp0 = enablereduce;
-		readandsynchronize(enablereduce, ON, kvdram0, kvdram1, kvdram2, kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, refbuffer, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram4, kvdram5, kvdram6, kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram8, kvdram9, kvdram10, kvdram11, vbuffer2_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram12, kvdram13, kvdram14, kvdram15, vbuffer3_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
+		{%if(i==0)%}
+		readandsynchronize(enablereduce, ON, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, refbuffer, _globalparams);
+		{%else%}
+		readandsynchronize(enablereduce, ON, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		{%endif%}
+		{%endfor%}
 		#ifdef SUP1 // I3 - pp1
-		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3, vbuffer1_level3, vbuffer2_level3, vbuffer3_level3, _globalparams);
-		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3, vmask1_level3, vmask2_level3, vmask3_level3, _globalparams); 
-		if(enablereducepp1 == ON && pp1en_spreadvmask == ON){ 
-			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
-			vmaskptemp1_level3[0] = vmaskptemp0_level2[0]; vmaskptemp1_level3[1] = vmaskptemp0_level2[1]; 
-			vmaskptemp2_level3[0] = vmaskptemp0_level2[0]; vmaskptemp2_level3[1] = vmaskptemp0_level2[1]; 
-			vmaskptemp3_level3[0] = vmaskptemp0_level2[0]; vmaskptemp3_level3[1] = vmaskptemp0_level2[1]; 
+		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, {%for j in context['NUMSUBCPUTHREADS_DIV_4_seq']%}vbuffer{{j}}_level3,{%endfor%} _globalparams);
+		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, {%for j in context['NUMSUBCPUTHREADS_DIV_4_seq']%}vmask{{j}}_level3,{%endfor%} _globalparams); 
+		if(enablereducepp1 == ON && pp1en_spreadvmask == ON){
+			{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
+			vmaskptemp{{i}}_level3[0] = vmaskptemp0_level2[0]; vmaskptemp{{i}}_level3[1] = vmaskptemp0_level2[1]; 
+			{%endfor%}
 		}
 		#endif
 		
 		// I2
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1, vbuffer1_level1, vbuffer2_level1, vbuffer3_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, {%for j in context['NUMSUBCPUTHREADS_DIV_4_seq']%}vbuffer{{j}}_level1,{%endfor%} vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
 		SWITCHcount += 1;
 		#ifdef SUP1 // S_and_I4
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram0, kvdram1, kvdram2, kvdram3, 
-			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
-			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp0_level3,
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
+		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}
+			vbuffer{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
+			source_partition, vmaskptemp{{i}}_level3,
 			_globalparams);
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram4, kvdram5, kvdram6, kvdram7, 
-			vbuffer1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
-			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp1_level3,
-			_globalparams);
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram8, kvdram9, kvdram10, kvdram11, 
-			vbuffer2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
-			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp2_level3,
-			_globalparams);
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram12, kvdram13, kvdram14, kvdram15, 
-			vbuffer3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
-			vmask3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp3_level3,
-			_globalparams);
+		{%endfor%}
 		if(pp1en_spreadandwrite == ON){ vreadoffsetpp1_kvs += reducebuffersz * NUMSYNCPIPELINES; }
 		if(pp1en_spreadandwrite == ON){ MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; }} //+++
 		#endif
 		
 		// I3
-		spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3, vbuffer1_level3, vbuffer2_level3, vbuffer3_level3, _globalparams);
-		spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3, vmask1_level3, vmask2_level3, vmask3_level3, _globalparams); 
+		spreadvdata(enablereduce, ON, vbuffer0_level2, {%for j in context['NUMSUBCPUTHREADS_DIV_4_seq']%}vbuffer{{j}}_level3,{%endfor%} _globalparams);
+		spreadvmask(enablereduce, ON, ON, vmask0_level2, {%for j in context['NUMSUBCPUTHREADS_DIV_4_seq']%}vmask{{j}}_level3,{%endfor%} _globalparams); 
 		if(enablereduce == ON){ 
-			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
-			vmaskptemp1_level3[0] = vmaskptemp0_level2[0]; vmaskptemp1_level3[1] = vmaskptemp0_level2[1]; 
-			vmaskptemp2_level3[0] = vmaskptemp0_level2[0]; vmaskptemp2_level3[1] = vmaskptemp0_level2[1]; 
-			vmaskptemp3_level3[0] = vmaskptemp0_level2[0]; vmaskptemp3_level3[1] = vmaskptemp0_level2[1]; 
+			{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
+			vmaskptemp{{i}}_level3[0] = vmaskptemp0_level2[0]; vmaskptemp{{i}}_level3[1] = vmaskptemp0_level2[1]; 
+			{%endfor%}
 		}
 		#ifdef SUP1 // // R_and_I1
 		enablereducepp1 = enablereducepp0;
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram0, kvdram1, kvdram2, kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, refbuffer, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram4, kvdram5, kvdram6, kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram8, kvdram9, kvdram10, kvdram11, vbuffer2_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram12, kvdram13, kvdram14, kvdram15, vbuffer3_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
+		{%if(i==0)%}
+		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, refbuffer, _globalparams);
+		{%else%}
+		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		{%endif%}
+		{%endfor%}
 		#endif 
 		
 		// S_and_I4
-		spreadandwrite(enablereduce, ON, kvdram0, kvdram1, kvdram2, kvdram3, 
-			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
-			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp0_level3,
+		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
+		spreadandwrite(enablereduce, ON, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}	
+			vbuffer{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
+			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
+			source_partition, vmaskptemp{{i}}_level3,
 			_globalparams);
-		spreadandwrite(enablereduce, ON, kvdram4, kvdram5, kvdram6, kvdram7, 
-			vbuffer1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
-			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp1_level3,
-			_globalparams);
-		spreadandwrite(enablereduce, ON, kvdram8, kvdram9, kvdram10, kvdram11, 
-			vbuffer2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
-			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp2_level3,
-			_globalparams);
-		spreadandwrite(enablereduce, ON, kvdram12, kvdram13, kvdram14, kvdram15, 
-			vbuffer3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
-			vmask3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			source_partition, vmaskptemp3_level3,
-			_globalparams);
+		{%endfor%}
 		vreadoffsetpp0_kvs += reducebuffersz * NUMSYNCPIPELINES; //+++
 		MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; } //+++
 		#ifdef SUP1 // I2 - pp1
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereducepp1, pp1en_syncandapply, vbuffer0_level1, vbuffer1_level1, vbuffer2_level1, vbuffer3_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp1_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereducepp1, pp1en_syncandapply, {%for j in context['NUMSUBCPUTHREADS_DIV_4_seq']%}vbuffer{{j}}_level1,{%endfor%} vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp1_kvs, _globalparams);
 		if(enablereducepp1 == ON && pp1en_syncandapply == ON){ SWITCHcount += 1; }
 		#endif
 	}
@@ -1463,6 +1436,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	return;
 }
 }
+
 
 
 

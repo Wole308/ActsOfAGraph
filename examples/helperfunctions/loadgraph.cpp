@@ -19,6 +19,13 @@
 #include "loadgraph.h"
 using namespace std;
 
+// order of base addresses
+// messages area {messages}
+// edges area {edges, vertex ptrs} 
+// vertices area {vertices data}
+// actvvs area {active vertices, active vertices mask}
+// workspace area {stats, kvdram, kvdram workspace}
+
 loadgraph::loadgraph(graph * _graphobj, stats * _statsobj){
 	utilityobj = new utility();
 	graphobj = _graphobj;
@@ -373,9 +380,6 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 	#endif
 	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.SIZE_VERTICESPARTITIONMASK / VECTOR_SIZE);
 	globalparams.SIZE_KVSTATSDRAM = KVSTATSDRAMSZ;
-	
-	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
-	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.BASEOFFSETKVS_KVDRAM + KVDRAMSZ_KVS;
 
 	unsigned int _BASEOFFSET_STATSDRAM = globalparams.BASEOFFSETKVS_STATSDRAM * VECTOR_SIZE; 
 	unsigned int _BASEOFFSET_EDGESDATA = globalparams.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE;
@@ -464,8 +468,11 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 		#endif
 	}
 		
-	globalparams.SIZE_KVDRAM = maxdramsz + 64;
+	globalparams.SIZE_KVDRAM = maxdramsz + 64; // CHECKME. FIXME.
 	globalparams.SIZE_KVDRAMWORKSPACE = globalparams.SIZE_KVDRAM; // maxdramsz;
+	
+	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.BASEOFFSETKVS_KVDRAM + (globalparams.SIZE_KVDRAM / VECTOR_SIZE); // KVDRAMSZ_KVS;
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i=0; i<1; i++){

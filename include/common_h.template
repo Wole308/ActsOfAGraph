@@ -178,14 +178,8 @@
 
 ////////////////
 
-#define UNITKVDATA_BATCHSIZE 10000000
-#define MAXKVDATA_BATCHSIZE (UNITKVDATA_BATCHSIZE * (16 / NUMSUBCPUTHREADS))
-#define MAXKVDATA_BATCHSIZE_KVS (MAXKVDATA_BATCHSIZE / VECTOR_SIZE)
-#define KVDATA_BATCHSIZE MAXKVDATA_BATCHSIZE
-#define KVDATA_BATCHSIZE_KVS (KVDATA_BATCHSIZE / VECTOR_SIZE)
-#define EDGES_BATCHSIZE (MAXKVDATA_BATCHSIZE * NUMSUBCPUTHREADS)
-#define EDGES_BATCHSIZE_KVS (EDGES_BATCHSIZE / VECTOR_SIZE)
-#define PADDEDEDGES_BATCHSIZE (EDGES_BATCHSIZE + 1000000)
+#define MODEL_BATCHSIZE 10000000
+#define MODEL_BATCHSIZE_KVS (MODEL_BATCHSIZE / VECTOR_SIZE)
 
 ////////////////
 
@@ -361,20 +355,7 @@ typedef struct {
 	#endif 
 } keyvalue1_type;
 
-/* typedef struct {
-	#ifdef _WIDEWORD
-	// ap_uint<16> key;
-	// ap_uint<16> value;
-	unsigned int key;
-	unsigned int value;
-	#else 
-	unsigned int key;
-	unsigned int value;
-	#endif 
-} keyvalue16_type; */
 typedef keyvalue_t keyvalue16_type;
-
-// typedef keyvalue_t keyvalue_vbuffer_t;
 
 typedef struct {
 	unsigned int key;

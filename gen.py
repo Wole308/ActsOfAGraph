@@ -312,6 +312,22 @@ for i in range (1,(context['NUMCOMPUTEUNITS'])):
 context['NUMSUBCPUTHREADS_seq'] = []
 for i in range (0,(context['NUMSUBCPUTHREADS'])):
 		context['NUMSUBCPUTHREADS_seq'].append(i)
+        
+# SYNC 
+context['NUMSUBCPUTHREADS_DIV_4'] = context['NUMSUBCPUTHREADS'] / 4
+context['NUMSUBCPUTHREADS_DIV_4_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS_DIV_4'])):
+		context['NUMSUBCPUTHREADS_DIV_4_seq'].append(i)
+        
+context['NUMSUBCPUTHREADS_DIV_4__PLUS1'] = context['NUMSUBCPUTHREADS_DIV_4'] + 1
+context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS_DIV_4__PLUS1'])):
+		context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq'].append(i)
+        
+context['NUMSUBCPUTHREADS_DIV_4__PLUS2'] = context['NUMSUBCPUTHREADS_DIV_4'] + 2
+context['NUMSUBCPUTHREADS_DIV_4__PLUS2_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS_DIV_4__PLUS2'])):
+		context['NUMSUBCPUTHREADS_DIV_4__PLUS2_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)

@@ -10,9 +10,7 @@
 #include "../src/algorithm/algorithm.h"
 #include "../src/graphs/graph.h"
 #include "../examples/test/test.h"
-#include "../examples/pagerank/pagerank.h"
-#include "../examples/bfs/bfs.h"
-#include "../examples/sssp/sssp.h"
+#include "../examples/app/app.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/dataset/dataset.h"
 #include "../include/common.h"
@@ -46,18 +44,8 @@ int main(int argc, char** argv){
 	std::chrono::steady_clock::time_point begintime_overallexecution = std::chrono::steady_clock::now();
 	#endif
 	
-	#ifdef PR_ALGORITHM
-	pagerank * pagerankobj = new pagerank(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);	
-	pagerankobj->run();
-	#endif
-	#ifdef BFS_ALGORITHM
-	bfs * bfsobj = new bfs(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);
-	bfsobj->run();
-	#endif
-	#ifdef SSSP_ALGORITHM
-	sssp * ssspobj = new sssp(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);
-	ssspobj->run();
-	#endif
+	app * appobj = new app(NAp, datasetobj->getdatasetid(), binaryFile1, binaryFile2);	
+	appobj->run();
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	std::cout << "TEST FINISHED" << std::endl; 

@@ -193,7 +193,7 @@ GETKV2(keyvalue_t data){
 }
 keyy_t 
 	#ifdef SW 
-	acts_process::
+	acts_synchronize::
 	#endif 
 GETK2(uint32_type data){
 	#pragma HLS INLINE
@@ -205,7 +205,7 @@ GETK2(uint32_type data){
 }
 value_t 
 	#ifdef SW 
-	acts_process::
+	acts_synchronize::
 	#endif 
 GETV2(uint32_type data){
 	#pragma HLS INLINE
@@ -299,7 +299,7 @@ GETKEYENTRY(uint512_dt data, unsigned int v){
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
 	#else 
-	return data.data[vindex].key;	
+	return data.data[v].key;	
 	#endif
 }
 value_t 
@@ -311,7 +311,7 @@ GETVALUEENTRY(uint512_dt data, unsigned int v){
 	#ifdef _WIDEWORD
 	return data.range(32 * (((v * 2) + 1) + 1) - 1, (v * 2 + 1) * 32);
 	#else 
-	return data.data[vindex].value;	
+	return data.data[v].value;	
 	#endif
 }
 
@@ -2794,112 +2794,75 @@ void
 	#endif
 topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){
  
-#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0		
+#pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
  
-#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1		
+#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
  
-#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2		
+#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
  
-#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3		
+#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
  
-#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4		
+#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
  
-#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5		
+#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
  
-#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6		
+#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
  
-#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7		
+#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
  
-#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8		
+#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
  
-#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9		
+#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
  
-#pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10		
+#pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
  
-#pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11		
+#pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11
  
-#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12		
+#pragma HLS INTERFACE m_axi port = kvdram12 offset = slave bundle = gmem12
  
-#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13		
+#pragma HLS INTERFACE m_axi port = kvdram13 offset = slave bundle = gmem13
  
-#pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14		
+#pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14
  
-#pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15		
+#pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15
 
- 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram10 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram11 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram12 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram13 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
- 
 #pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
- 
 #pragma HLS DATA_PACK variable = kvdram0
- 
 #pragma HLS DATA_PACK variable = kvdram1
- 
 #pragma HLS DATA_PACK variable = kvdram2
- 
 #pragma HLS DATA_PACK variable = kvdram3
- 
 #pragma HLS DATA_PACK variable = kvdram4
- 
 #pragma HLS DATA_PACK variable = kvdram5
- 
 #pragma HLS DATA_PACK variable = kvdram6
- 
 #pragma HLS DATA_PACK variable = kvdram7
- 
 #pragma HLS DATA_PACK variable = kvdram8
- 
 #pragma HLS DATA_PACK variable = kvdram9
- 
 #pragma HLS DATA_PACK variable = kvdram10
- 
 #pragma HLS DATA_PACK variable = kvdram11
- 
 #pragma HLS DATA_PACK variable = kvdram12
- 
 #pragma HLS DATA_PACK variable = kvdram13
- 
 #pragma HLS DATA_PACK variable = kvdram14
- 
 #pragma HLS DATA_PACK variable = kvdram15
 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	// #ifdef _WIDEWORD
-	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<(unsigned int)(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
-	// #else
-	// cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
-	// #endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -3058,14 +3021,14 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		
 		// R_and_I1
 		enablereducepp0 = enablereduce;
-		readandsynchronize(enablereduce, ON, kvdram0, kvdram1, kvdram2, kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, refbuffer, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram4, kvdram5, kvdram6, kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram8, kvdram9, kvdram10, kvdram11, vbuffer2_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram12, kvdram13, kvdram14, kvdram15, vbuffer3_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readandsynchronize(enablereduce, ON, kvdram0,kvdram1,kvdram2,kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, refbuffer, _globalparams);
+		readandsynchronize(enablereduce, ON, kvdram4,kvdram5,kvdram6,kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readandsynchronize(enablereduce, ON, kvdram8,kvdram9,kvdram10,kvdram11, vbuffer2_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readandsynchronize(enablereduce, ON, kvdram12,kvdram13,kvdram14,kvdram15, vbuffer3_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
 		#ifdef SUP1 // I3 - pp1
-		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3, vbuffer1_level3, vbuffer2_level3, vbuffer3_level3, _globalparams);
-		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3, vmask1_level3, vmask2_level3, vmask3_level3, _globalparams); 
-		if(enablereducepp1 == ON && pp1en_spreadvmask == ON){ 
+		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3,vbuffer1_level3,vbuffer2_level3,vbuffer3_level3, _globalparams);
+		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3,vmask1_level3,vmask2_level3,vmask3_level3, _globalparams); 
+		if(enablereducepp1 == ON && pp1en_spreadvmask == ON){
 			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
 			vmaskptemp1_level3[0] = vmaskptemp0_level2[0]; vmaskptemp1_level3[1] = vmaskptemp0_level2[1]; 
 			vmaskptemp2_level3[0] = vmaskptemp0_level2[0]; vmaskptemp2_level3[1] = vmaskptemp0_level2[1]; 
@@ -3075,26 +3038,22 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		
 		// I2
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1, vbuffer1_level1, vbuffer2_level1, vbuffer3_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1,vbuffer1_level1,vbuffer2_level1,vbuffer3_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
 		SWITCHcount += 1;
 		#ifdef SUP1 // S_and_I4
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram0, kvdram1, kvdram2, kvdram3, 
-			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram0,kvdram1,kvdram2,kvdram3,			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp0_level3,
 			_globalparams);
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram4, kvdram5, kvdram6, kvdram7, 
-			vbuffer1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram4,kvdram5,kvdram6,kvdram7,			vbuffer1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp1_level3,
 			_globalparams);
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram8, kvdram9, kvdram10, kvdram11, 
-			vbuffer2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram8,kvdram9,kvdram10,kvdram11,			vbuffer2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp2_level3,
 			_globalparams);
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram12, kvdram13, kvdram14, kvdram15, 
-			vbuffer3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, kvdram12,kvdram13,kvdram14,kvdram15,			vbuffer3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp3_level3,
 			_globalparams);
@@ -3103,8 +3062,8 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		#endif
 		
 		// I3
-		spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3, vbuffer1_level3, vbuffer2_level3, vbuffer3_level3, _globalparams);
-		spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3, vmask1_level3, vmask2_level3, vmask3_level3, _globalparams); 
+		spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3,vbuffer1_level3,vbuffer2_level3,vbuffer3_level3, _globalparams);
+		spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3,vmask1_level3,vmask2_level3,vmask3_level3, _globalparams); 
 		if(enablereduce == ON){ 
 			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
 			vmaskptemp1_level3[0] = vmaskptemp0_level2[0]; vmaskptemp1_level3[1] = vmaskptemp0_level2[1]; 
@@ -3113,29 +3072,29 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		}
 		#ifdef SUP1 // // R_and_I1
 		enablereducepp1 = enablereducepp0;
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram0, kvdram1, kvdram2, kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, refbuffer, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram4, kvdram5, kvdram6, kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram8, kvdram9, kvdram10, kvdram11, vbuffer2_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram12, kvdram13, kvdram14, kvdram15, vbuffer3_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram0,kvdram1,kvdram2,kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, refbuffer, _globalparams);
+		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram4,kvdram5,kvdram6,kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram8,kvdram9,kvdram10,kvdram11, vbuffer2_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram12,kvdram13,kvdram14,kvdram15, vbuffer3_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 		#endif 
 		
 		// S_and_I4
-		spreadandwrite(enablereduce, ON, kvdram0, kvdram1, kvdram2, kvdram3, 
+		spreadandwrite(enablereduce, ON, kvdram0,kvdram1,kvdram2,kvdram3,	
 			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp0_level3,
 			_globalparams);
-		spreadandwrite(enablereduce, ON, kvdram4, kvdram5, kvdram6, kvdram7, 
+		spreadandwrite(enablereduce, ON, kvdram4,kvdram5,kvdram6,kvdram7,	
 			vbuffer1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp1_level3,
 			_globalparams);
-		spreadandwrite(enablereduce, ON, kvdram8, kvdram9, kvdram10, kvdram11, 
+		spreadandwrite(enablereduce, ON, kvdram8,kvdram9,kvdram10,kvdram11,	
 			vbuffer2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp2_level3,
 			_globalparams);
-		spreadandwrite(enablereduce, ON, kvdram12, kvdram13, kvdram14, kvdram15, 
+		spreadandwrite(enablereduce, ON, kvdram12,kvdram13,kvdram14,kvdram15,	
 			vbuffer3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp3_level3,
@@ -3144,7 +3103,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; } //+++
 		#ifdef SUP1 // I2 - pp1
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereducepp1, pp1en_syncandapply, vbuffer0_level1, vbuffer1_level1, vbuffer2_level1, vbuffer3_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp1_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereducepp1, pp1en_syncandapply, vbuffer0_level1,vbuffer1_level1,vbuffer2_level1,vbuffer3_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp1_kvs, _globalparams);
 		if(enablereducepp1 == ON && pp1en_syncandapply == ON){ SWITCHcount += 1; }
 		#endif
 	}
@@ -3167,6 +3126,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	return;
 }
 }
+
 
 
 

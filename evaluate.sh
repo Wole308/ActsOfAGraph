@@ -134,6 +134,10 @@ NUMTHREADS_EQ10=10
 NUMTHREADS_EQ12=12
 NUMTHREADS_EQ14=14
 NUMTHREADS_EQ16=16
+NUMTHREADS_EQ20=20
+NUMTHREADS_EQ24=24
+NUMTHREADS_EQ28=28
+NUMTHREADS_EQ32=32
 
 _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
@@ -159,9 +163,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -583,7 +587,11 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ4
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		for numsubcputhreads in $NUMTHREADS_EQ16
+		for numsubcputhreads in $NUMTHREADS_EQ16 #
+		# for numsubcputhreads in $NUMTHREADS_EQ20
+		# for numsubcputhreads in $NUMTHREADS_EQ24
+		# for numsubcputhreads in $NUMTHREADS_EQ28
+		# for numsubcputhreads in $NUMTHREADS_EQ32
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)

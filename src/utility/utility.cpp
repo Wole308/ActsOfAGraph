@@ -52,26 +52,12 @@ void utility::printallparameters(){
 	std::cout<<"host:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
 	std::cout<<"host:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
 	std::cout<<"host:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
-	// std::cout<<"host:: NUMUTILITYTHREADS: "<<NUMUTILITYTHREADS<<std::endl;
 	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
 	std::cout<<"host:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
-
-	std::cout<<"host:: UNITKVDATA_BATCHSIZE: "<<UNITKVDATA_BATCHSIZE<<std::endl;
-	// std::cout<<"host:: MAXKVDATA_BATCHSIZE_KVS: "<<MAXKVDATA_BATCHSIZE_KVS<<std::endl;
-	
-	std::cout<<"host:: MAXKVDATA_BATCHSIZE: "<<MAXKVDATA_BATCHSIZE<<std::endl;
-	std::cout<<"host:: MAXKVDATA_BATCHSIZE_KVS: "<<MAXKVDATA_BATCHSIZE_KVS<<std::endl;
-	std::cout<<"host:: KVDATA_BATCHSIZE: "<<KVDATA_BATCHSIZE<<std::endl;
-	std::cout<<"host:: KVDATA_BATCHSIZE_KVS: "<<KVDATA_BATCHSIZE_KVS<<std::endl;
-	std::cout<<"host:: EDGES_BATCHSIZE: "<<EDGES_BATCHSIZE<<std::endl;
-	std::cout<<"host:: EDGES_BATCHSIZE_KVS: "<<EDGES_BATCHSIZE_KVS<<std::endl;
-	std::cout<<"host:: PADDEDEDGES_BATCHSIZE: "<<PADDEDEDGES_BATCHSIZE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"host:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
 	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
-	std::cout<<"host:: EDGESSZ: "<<EDGESSZ<<std::endl; 
-	
 	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
@@ -86,12 +72,6 @@ void utility::printallparameters(){
 	std::cout<<"host:: sizeof(edge_t): "<<sizeof(edge_t)<<" bytes ("<<(sizeof(edge_t) * 8)<<" bits)"<<std::endl;
 	
 	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
-	std::cout<<"host:: KVDRAMSZ: "<<KVDRAMSZ<<std::endl;
-	std::cout<<"host:: KVDRAMSZ_KVS: "<<KVDRAMSZ_KVS<<std::endl;
-	std::cout<<"host:: KVDRAMWORKSPACESZ: "<<KVDRAMWORKSPACESZ<<std::endl;
-	std::cout<<"host:: KVDRAMWORKSPACESZ_KVS: "<<KVDRAMWORKSPACESZ_KVS<<std::endl;
-	std::cout<<"host:: EDGESSZ: "<<EDGESSZ<<std::endl;
-	std::cout<<"host:: EDGESSZ_KVS: "<<EDGESSZ_KVS<<std::endl;
 	std::cout<<"host:: VERTEXPTRSSZ: "<<VERTEXPTRSSZ<<std::endl;
 	std::cout<<"host:: VERTEXPTRSSZ_KVS: "<<VERTEXPTRSSZ_KVS<<std::endl;
 	std::cout<<"host:: VERTICESDATASZ: "<<VERTICESDATASZ<<std::endl;
@@ -100,26 +80,6 @@ void utility::printallparameters(){
 	// >>>
 	std::cout<<">> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA: "<<BASEOFFSET_MESSAGESDATA<<std::endl;
 	std::cout<<">> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA_KVS: "<<BASEOFFSET_MESSAGESDATA_KVS<<std::endl;
-	
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_EDGESDATA: "<<BASEOFFSET_EDGESDATA<<std::endl; 
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_EDGESDATA_KVS: "<<BASEOFFSET_EDGESDATA_KVS<<std::endl; 
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTEXPTR: "<<BASEOFFSET_VERTEXPTR<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTEXPTR_KVS: "<<BASEOFFSET_VERTEXPTR_KVS<<std::endl;
-	
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATA: "<<BASEOFFSET_VERTICESDATA<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATA_KVS: "<<BASEOFFSET_VERTICESDATA_KVS<<std::endl;
-	
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_ACTIVEVERTICES: "<<BASEOFFSET_ACTIVEVERTICES<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_ACTIVEVERTICES_KVS: "<<BASEOFFSET_ACTIVEVERTICES_KVS<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATAMASK: "<<BASEOFFSET_VERTICESDATAMASK<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_VERTICESDATAMASK_KVS: "<<BASEOFFSET_VERTICESDATAMASK_KVS<<std::endl;
-	
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAM: "<<BASEOFFSET_KVDRAM<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAM_KVS: "<<BASEOFFSET_KVDRAM_KVS<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAMWORKSPACE: "<<BASEOFFSET_KVDRAMWORKSPACE<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_KVDRAMWORKSPACE_KVS: "<<BASEOFFSET_KVDRAMWORKSPACE_KVS<<std::endl;	
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_STATSDRAM: "<<BASEOFFSET_STATSDRAM<<std::endl;
-	std::cout<<">> host[baseoffsets]:: BASEOFFSET_STATSDRAM_KVS: "<<BASEOFFSET_STATSDRAM_KVS<<std::endl;
 	
 	std::cout<<">> host[baseoffsets]:: KVSOURCEDRAMSZ: "<<KVSOURCEDRAMSZ<<std::endl;	
 	std::cout<<">> host[baseoffsets]:: KVSOURCEDRAMSZ_KVS: "<<KVSOURCEDRAMSZ_KVS<<std::endl;	
@@ -132,42 +92,25 @@ void utility::printallparameters(){
 	
 	// >>>
 	std::cout<<">> host[sizes]:: MESSAGESDRAMSZ (keyvalues): "<<MESSAGESDRAMSZ<<" keyvalues"<<std::endl;
-	
-	std::cout<<">> host[sizes]:: EDGESSZ (keyvalues): "<<EDGESSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTEXPTRSSZ (keyvalues): "<<VERTEXPTRSSZ<<" keyvalues"<<std::endl;
-	
 	std::cout<<">> host[sizes]:: VERTICESDATASZ (keyvalues): "<<VERTICESDATASZ<<" keyvalues"<<std::endl;
-	
 	std::cout<<">> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): "<<ACTIVEVERTICESSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): "<<VERTICESDATAMASKSZ<<" keyvalues"<<std::endl;
-	
-	std::cout<<">> host[sizes]:: KVDRAMSZ (keyvalues): "<<KVDRAMSZ<<" keyvalues"<<std::endl;
-	std::cout<<">> host[sizes]:: KVDRAMWORKSPACESZ (keyvalues): "<<KVDRAMWORKSPACESZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: KVSTATSDRAMSZ (keyvalues): "<<KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
-	
 	std::cout<<">> host[sizes]:: PADDEDVDRAMSZ (keyvalues): "<<PADDEDVDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<<std::endl;
 	
 	// >>>
 	std::cout<<">> host[bytes]:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	
-	std::cout<<">> host[bytes]:: KVDRAMSZ (bytes): "<<KVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host[bytes]:: KVDRAMWORKSPACESZ (bytes): "<<KVDRAMWORKSPACESZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	
-	std::cout<<">> host[bytes]:: EDGESSZ (bytes): "<<EDGESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	
 	std::cout<<">> host[bytes]:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	
 	std::cout<<">> host[bytes]:: ACTIVEVERTICESSZ (bytes): "<<ACTIVEVERTICESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: VERTICESDATAMASKSZ (bytes): "<<VERTICESDATAMASKSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	
 	std::cout<<">> host[bytes]:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
-	std::cout<<"host:: KVDRAMPADDING: "<<KVDRAMPADDING<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<std::endl;
 	std::cout<<"host:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<std::endl;
 	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
@@ -345,9 +288,9 @@ void utility::printstructuresbeforekernelrun(string message, uint512_vec_dt * kv
 		cout<<"MESSAGES_ALGORITHMINFO_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key<<endl;
 		cout<<"MESSAGES_SIZE_RUN: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl;
 		
-		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS]), 16);
-		printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		printkeyvalues("utility::printstructuresbeforekernelrun:: edges", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS]), 16);
+		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS]), 16);
+		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		// printkeyvalues("utility::printstructuresbeforekernelrun:: edges", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS]), 16);
 		// printkeyvalues("utility::printstructuresbeforekernelrun:: vertex ptrs", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTEXPTR_KVS]), 16);
 		// printkeyvalues("utility::printstructuresbeforekernelrun:: vertex datas", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTICESDATA_KVS]), 16);
 		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvstatsdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
@@ -370,9 +313,9 @@ void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvs
 		cout<<"MESSAGES_ALGORITHMINFO_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key<<endl;
 		cout<<"MESSAGES_SIZE_RUN: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl;
 		
-		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS]), 16);
-		printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		printkeyvalues("utility::printstructuresafterkernelrun:: edges", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS]), 16);
+		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS]), 16);
+		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
+		// printkeyvalues("utility::printstructuresafterkernelrun:: edges", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS]), 16);
 		// printkeyvalues("utility::printstructuresafterkernelrun:: vertex ptrs", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTEXPTR_KVS]), 16);
 		// printkeyvalues("utility::printstructuresafterkernelrun:: vertex datas", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTICESDATA_KVS]), 16);
 		// printkeyvalues("utility::printstructuresafterkernelrun:: kvstatsdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);

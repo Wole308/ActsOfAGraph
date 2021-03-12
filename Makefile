@@ -65,10 +65,10 @@ KERNEL_TOP += $(RELREF)acts/acts/acts.cpp
 KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_process.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
+# KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_SYNC += $(RELREF)acts/acts/acts_synchronize.cpp
-KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp
+# KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/acts_process.cpp
 KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/acts_synchronize.cpp
@@ -80,9 +80,7 @@ HOST_SRCS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/evalparams.cpp
-HOST_SRCS += $(RELREF)examples/pagerank/pagerank.cpp
-HOST_SRCS += $(RELREF)examples/bfs/bfs.cpp
-HOST_SRCS += $(RELREF)examples/sssp/sssp.cpp
+HOST_SRCS += $(RELREF)examples/app/app.cpp
 HOST_SRCS += $(RELREF)examples/test/test.cpp
 HOST_SRCS += $(RELREF)src/graphs/graph.cpp
 HOST_SRCS += $(RELREF)src/stats/stats.cpp
@@ -314,7 +312,7 @@ demo_acts_nthreads: clean build_acts_nthreads run_nthreads
 demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 			
 build_acts_nthreads:
-	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
+	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
 
 run_nthreads:
 	./acts_nthreads
@@ -328,7 +326,7 @@ demo_grafboost_nthreads_debug: clean build_grafboost_nthreads run_grafboost_nthr
 
 build_grafboost_nthreads: $(SORTREDUCE_LIB)/libsortreduce.a
 	mkdir -p obj
-	g++ -o ./sr_nthreads $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_SRCS) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
+	g++ -o ./sr_nthreads $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -g
 
 run_grafboost_nthreads:
 	./sr_nthreads
