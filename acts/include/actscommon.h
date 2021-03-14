@@ -24,6 +24,7 @@
 using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_TRACE //
+// #define _DEBUGMODE_SMARTMASKING_TRACE
 
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
