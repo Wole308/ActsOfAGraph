@@ -23,7 +23,7 @@
 #include "../../include/common.h"
 using namespace std;
 
-#define _DEBUGMODE_KERNELPRINTS_TRACE //
+// #define _DEBUGMODE_KERNELPRINTS_TRACE //
 
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
@@ -49,8 +49,6 @@ typedef struct {
 	#ifdef _WIDEWORD
 	ap_uint<16> key; // CRITICAL REMOVEME.
 	ap_uint<16> value;
-	// ap_uint<12> key;
-	// ap_uint<12> value;
 	#else 
 	unsigned int key;
 	unsigned int value;
@@ -235,11 +233,6 @@ typedef struct {
 #define KVSTATSDRAMSZ_KVS KVSTATSDRAMSZ
 
 #define KVSOURCEDRAMSZ ((1 << 28) / 8) // max HBM capacity (256MB)
-// #define KVSOURCEDRAMSZ ((1 << 25) / 8)// CRITICAL REMOVEME.
-// #define KVSOURCEDRAMSZ ((1 << 27) / 8)// CRITICAL REMOVEME.
-
-
-
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ
 #define PADDEDKVSOURCEDRAMSZ_KVS (PADDEDKVSOURCEDRAMSZ / VECTOR_SIZE)

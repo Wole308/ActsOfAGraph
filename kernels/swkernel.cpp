@@ -92,10 +92,6 @@ void swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512
 			#endif 
 			(uint512_dt *)vdram
 		);
-		
-		unsigned int baseoffset_kvs = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
-			utilityobj->printkeyvalues("swkernel::runapp", (keyvalue_t *)&kvsourcedram[0][baseoffset_kvs + 0], 12);
-			exit(EXIT_SUCCESS);
 	}
 	#endif
 	

@@ -164,9 +164,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -586,9 +586,9 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
 		# for numsubcputhreads in $NUMTHREADS_EQ4
-		for numsubcputhreads in $NUMTHREADS_EQ12
+		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		# for numsubcputhreads in $NUMTHREADS_EQ16 #
+		for numsubcputhreads in $NUMTHREADS_EQ16 #
 		# for numsubcputhreads in $NUMTHREADS_EQ18 #
 		# for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
