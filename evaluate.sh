@@ -134,6 +134,7 @@ NUMTHREADS_EQ10=10
 NUMTHREADS_EQ12=12
 NUMTHREADS_EQ14=14
 NUMTHREADS_EQ16=16
+NUMTHREADS_EQ18=18
 NUMTHREADS_EQ20=20
 NUMTHREADS_EQ24=24
 NUMTHREADS_EQ28=28
@@ -585,9 +586,10 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
 		# for numsubcputhreads in $NUMTHREADS_EQ4
-		# for numsubcputhreads in $NUMTHREADS_EQ12
+		for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		for numsubcputhreads in $NUMTHREADS_EQ16 #
+		# for numsubcputhreads in $NUMTHREADS_EQ16 #
+		# for numsubcputhreads in $NUMTHREADS_EQ18 #
 		# for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
@@ -624,13 +626,15 @@ do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						KERNELBACKUP_DIR="${ROOTDIR}/synkernels"
-						KERNELBACKUP_NAME="goldenkernel${ALGORITHMABBRV}${numsubcputhreads}"
-						BACKUPDIR_KERNELXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.xclbin"
-						BACKUPDIR_KERNELAWSXCLBIN="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}.awsxclbin"
+						BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
+						BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
+						BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
+						
+						BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}.awsxclbin"
+						BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}.awsxclbin"
+						BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}.awsxclbin"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/results"
-						# RESULT_NAME="result_${SETUP_NAME}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 						RESULT_NAME="result_${SETUP_NAME}"
 						PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 						
@@ -638,180 +642,96 @@ do
 						then	
 							DATASET=""
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_bips98_606.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_bips98_606.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_bips98_606.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_bips98_606.out"
 						elif [ $dataset == $ORKUT_3M_106M ]  
 						then	
 							DATASET="_ORKUT_3M_106M"
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_orkut.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_orkut.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_orkut.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_orkut.out"
 						elif [ $dataset == $HOLLYWOOD_1M_57M ]  
 						then	
 							DATASET="_HOLLYWOOD_1M_57M"
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_hollywood.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_hollywood.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_hollywood.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_hollywood.out"
 						elif [ $dataset == $INDOCHINA_7M_194M ]  
 						then	
 							DATASET="_INDOCHINA_7M_194M"
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_indochina.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_indochina.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_indochina.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_indochina.out"
 						elif [ $dataset == $KRON21_2M_91M ]  
 						then
 							DATASET="_KRON21_2M_91M"
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron21.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron21.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron21.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron21.out"
 						elif [ $dataset == $RGG_17M_132M ]  
 						then	
 							DATASET="_RGG_17M_132M"
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_rgg.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_rgg.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_rgg.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_rgg.out"
 						elif [ $dataset == $ROADNET_2M_3M ]  
 						then	
 							DATASET="_ROADNET_2M_3M"
 							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/roadNet-CA/roadNet-CA.mtx"
-							KERNEL_NAME="${KERNELBACKUP_NAME}_roadnet.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_roadnet.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_roadnet.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_roadnet.out"
 						elif [ $dataset == $FLICKR_1M_10M ]  
 						then	
 							DATASET="_FLICKR_1M_10M"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_flickr.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_flickr.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_flickr.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_flickr.out"
 						
 						elif [ $dataset == $TWITTER_67M ]  
 						then	
 							DATASET="_TWITTER_67M"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_twitter26.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_twitter26.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_twitter26.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_twitter26.out"
 						elif [ $dataset == $MOLIERE2016_33M ]  
 						then	
 							DATASET="_MOLIERE2016_33M"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_moliere33.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_moliere33.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_moliere33.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_moliere33.out"
 						elif [ $dataset == $LARGEDATASET_67M ]  
 						then	
 							DATASET="_LARGEDATASET_67M"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron26.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron26.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron26.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron26.out"			
+							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"		
 						elif [ $dataset == $LARGEDATASET_268M ]
 						then
 							DATASET="_LARGEDATASET_268M"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron28.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron28.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron28.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron28.out"
 						elif [ $dataset == $LARGEDATASET_1B ]
 						then
 							DATASET="_LARGEDATASET_1B"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron30.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron30.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron30.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron30.out"
 						elif [ $dataset == $LARGEDATASET_4B ]
 						then
 							DATASET="_LARGEDATASET_4B"
 							datasetpath=""
-							KERNEL_NAME="${KERNELBACKUP_NAME}_kron32.xclbin"
-							KERNEL_NAME_AWS="${KERNELBACKUP_NAME}_kron32.awsxclbin"
-							
 							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron32.out"
 							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
-							BACKUPDIR_HOST="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32"
-							BACKUPDIR_KERNELXO="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.xo"
-							BACKUPDIR_NOHUP="${KERNELBACKUP_DIR}/${KERNELBACKUP_NAME}_kron32.out"
 						else 
 							DATASET=""
 							datasetpath=""
 							RESULTDIR_RESULT=""
-							KERNEL_NAME=""
 						fi
 						
 						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
 
+						# ================================================ PAGERANK ================================================
 						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
 						then
 							make cleanall
@@ -819,49 +739,6 @@ do
 							make demo_acts_nthreads
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
 							# make demo_acts_nthreads_debug
-						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
-						then
-							make cleanall
-							if [ $CRABTREE == $ON ]
-							then
-								echo "crabtree setup specified."
-								make host
-								./host $BACKUPDIR_KERNELXCLBIN
-								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
-								sudo su
-								make host
-								source /opt/xilinx/xrt/setup.sh 
-								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								./host $BACKUPDIR_KERNELAWSXCLBIN
-								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
-							wait 
-							if test -f "profile_summary.csv"; then
-								echo "profile_summary.csv exist"
-								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
-						then
-							if [ $CRABTREE == $ON ]
-							then
-								echo "crabtree setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
 						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
 						then
 							make cleanall
@@ -874,6 +751,7 @@ do
 							/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
 							# make cleanall
 							
+						# ================================================ BFS ================================================
 						elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs 
 						then
 							make cleanall
@@ -881,60 +759,6 @@ do
 							make demo_acts_nthreads
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
 							# make demo_acts_nthreads_debug
-						elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-						then
-							make cleanall
-							if [ $CRABTREE == $ON ]
-							then
-								echo "crabtree setup specified."
-								make host
-								./host $BACKUPDIR_KERNELXCLBIN
-								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
-								sudo su
-								make host
-								source /opt/xilinx/xrt/setup.sh 
-								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								./host $BACKUPDIR_KERNELAWSXCLBIN
-								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
-							wait 
-							if test -f "profile_summary.csv"; then
-								echo "profile_summary.csv exist"
-								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi	
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-						then
-							if [ $CRABTREE == $ON ]
-							then
-								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
-								then
-									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
-									make cleanall
-									make all_nk TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-									XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernelproc.sw_emu.xilinx_u280_xdma_201910_1.xclbin xclbin/topkernelsync.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-								then
-									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
-									make cleanall
-									make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-									XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-								else
-									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
-								fi
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
 						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall
@@ -946,7 +770,8 @@ do
 						then
 							echo 'SW__GUNROCK_SETUP__BFS_ALGORITHM called.'
 							/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
-							
+
+						# ================================================ SSSP ================================================
 						elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp 
 						then
 							make cleanall
@@ -954,49 +779,6 @@ do
 							make demo_acts_nthreads
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
 							# make demo_acts_nthreads_debug
-						elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							make cleanall
-							if [ $CRABTREE == $ON ]
-							then
-								echo "crabtree setup specified."
-								make host
-								./host $BACKUPDIR_KERNELXCLBIN
-								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
-								sudo su
-								make host
-								source /opt/xilinx/xrt/setup.sh 
-								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								./host $BACKUPDIR_KERNELAWSXCLBIN
-								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
-							wait 
-							if test -f "profile_summary.csv"; then
-								echo "profile_summary.csv exist"
-								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi	
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							if [ $CRABTREE == $ON ]
-							then
-								echo "crabtree setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
 						elif [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
@@ -1010,21 +792,25 @@ do
 							echo 'SW__GUNROCK_SETUP__SSSP_ALGORITHM called.'
 							/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
 							
-						elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc 
-						then
-							make cleanall
-							# make build_acts_nthreads
-							# make demo_acts_nthreads
-							make demo_acts_nthreads > $RESULTDIR_RESULT
-						elif [ $setup == $HW__ACTGRAPH_SETUP__BC_ALGORITHM ]
+						# ================================================ SYNTHESIS AND SIMULATIONS ================================================
+						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
 							if [ $CRABTREE == $ON ]
 							then
-								echo "crabtree setup specified."
-								make host
-								./host $BACKUPDIR_KERNELXCLBIN
-								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								then
+									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
+									make host
+									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
+								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								then
+									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+									make host
+									./host $BACKUPDIR_KERNELXCLBIN
+								else
+									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+								fi
 							elif [ $AWS == $ON ]
 							then
 								echo "aws setup specified."
@@ -1032,8 +818,8 @@ do
 								make host
 								source /opt/xilinx/xrt/setup.sh 
 								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								./host $BACKUPDIR_KERNELAWSXCLBIN
-								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+								./host $BACKUPDIR_AWSKERNELXCLBIN
+								# ./host $BACKUPDIR_AWSKERNELXCLBIN > $RESULTDIR_RESULT
 							else
 								echo "no setup specified. specify crabtree or aws"
 							fi
@@ -1041,99 +827,55 @@ do
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
 								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi
-						elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
-						then
-							make cleanall
-							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads
-							make demo_grafboost_nthreads > $RESULTDIR_RESULT
-						elif [ $setup == $SW__GUNROCK_SETUP__BC_ALGORITHM ]
-						then
-							# make cleanall
-							echo 'SW__GUNROCK_SETUP__BC_ALGORITHM called.'
+							fi	
 							
-						elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance 
+						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
-							make cleanall
-							# make build_acts_nthreads
-							make demo_acts_nthreads
-							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug
-						elif [ $setup == $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-						then
-							make cleanall
 							if [ $CRABTREE == $ON ]
 							then
-								echo "crabtree setup specified."
-								make host
-								./host $BACKUPDIR_KERNELXCLBIN
-								# ./host $BACKUPDIR_KERNELXCLBIN > $RESULTDIR_RESULT
+								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								then
+									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
+									make cleanall
+									make all_nk TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+									cp xclbin/topkernelproc.sw_emu.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN1
+									cp xclbin/topkernelsync.sw_emu.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN2
+									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
+								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								then
+									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+									make cleanall
+									make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+									cp xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_AWSKERNELXCLBIN
+									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_AWSKERNELXCLBIN
+								else
+									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+								fi
 							elif [ $AWS == $ON ]
 							then
 								echo "aws setup specified."
-								sudo su
-								make host
-								source /opt/xilinx/xrt/setup.sh 
-								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								./host $BACKUPDIR_KERNELAWSXCLBIN
-								# ./host $BACKUPDIR_KERNELAWSXCLBIN > $RESULTDIR_RESULT
+								make cleanall
+								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
+								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
 							else
 								echo "no setup specified. specify crabtree or aws"
 							fi
-							wait 
-							if test -f "profile_summary.csv"; then
-								echo "profile_summary.csv exist"
-								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-						then
-							make cleanall
-							make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-							XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
-						elif [ $setup == $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM ] 
-						then
-							make cleanall
-							# make build_grafboost_nthreads
-							make demo_grafboost_nthreads
-							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
-							# make demo_grafboost_nthreads_debug
-						elif [ $setup == $SW__GUNROCK_SETUP__ADVANCE_ALGORITHM ] 
-						then
-							# make cleanall
-							echo 'SW__GUNROCK_SETUP__ADVANCE_ALGORITHM called.'
 						
-						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
-						then
-							make cleanall
-							rm -rf xclbin
-							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
-							
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							if test -f "host"; then
-								# cp host $BACKUPDIR_HOST
-								# cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo $BACKUPDIR_KERNELXO
-								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
-								# cp nohupsyn.out $BACKUPDIR_NOHUP
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] # syn
+						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 							then
 								make cleanall
 								rm -rf xclbin
-								make all_nk DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+								make all_proc DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
 							
 								echo "sleeping for 2 minuites before continuing ...."
 								sleep 120
 								
 								if test -f "host"; then
-									cp xclbin/topkernelproc.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+									cp xclbin/topkernelproc.hw.xilinx_u280_xdma_201910_1.xclbin "synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
+									# cp xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin "synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
+									# cp xclbin/topkernelproc.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
 									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 								fi
 								echo "sleeping for 2 minuites before continuing ...."
@@ -1156,42 +898,8 @@ do
 							else
 								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 							fi
-						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # syn
-						then
-							make cleanall
-							rm -rf xclbin
-							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
-							
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							if test -f "host"; then
-								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-						then
-							make cleanall
-							rm -rf xclbin
-							make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
-							# make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
-							
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							if test -f "host"; then
-								# cp host $BACKUPDIR_HOST
-								# cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xo $BACKUPDIR_KERNELXO
-								cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
-								# cp nohupsyn.out $BACKUPDIR_NOHUP
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-							fi
-							# echo "sleeping for 2 minuites before continuing ...."
-							# sleep 120
-							
-						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
+						
+						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							source /opt/xilinx/xrt/setup.sh 
 							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
@@ -1206,47 +914,8 @@ do
 							sleep 120
 							
 							if test -f "host"; then
-								# cp host $BACKUPDIR_HOST
-								# cp kernel.xo $BACKUPDIR_KERNELXO
-								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-								cp nohupsyn.out $BACKUPDIR_NOHUP
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-							source /opt/xilinx/xrt/setup.sh 
-							cd /home/centos/src/project_data/aws-fpga
-							./createawsxclbin.sh
-							echo "sleeping for 60 minuites before continuing ...."
-							sleep 3600
-							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
-							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
-							
-						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-						then
-							source /opt/xilinx/xrt/setup.sh 
-							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-							
-							make cleanall
-							rm -rf xclbin
-							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
-							
-							cp -rf xclbin/topkernel.hw.xilinx_aws_vu9p_f1.xclbin kernel.xclbin
-							
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							if test -f "host"; then
-								# cp host $BACKUPDIR_HOST
-								# cp kernel.xo $BACKUPDIR_KERNELXO
-								
 								# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-								# cp nohupsyn.out $BACKUPDIR_NOHUP
-								
 								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-								cp nohupsyn.out $BACKUPDIR_NOHUP
 								
 								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 							fi
@@ -1259,57 +928,10 @@ do
 							./createawsxclbin.sh
 							echo "sleeping for 60 minuites before continuing ...."
 							sleep 3600
-							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
+							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
 							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
 							
-						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							source /opt/xilinx/xrt/setup.sh 
-							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-							
-							make cleanall
-							rm -rf xclbin
-							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
-							
-							cp -rf xclbin/topkernel.hw.xilinx_aws_vu9p_f1.xclbin kernel.xclbin
-							
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							if test -f "host"; then
-								# cp host $BACKUPDIR_HOST
-								# cp kernel.xo $BACKUPDIR_KERNELXO
-								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-								cp nohupsyn.out $BACKUPDIR_NOHUP
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
-							
-							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-							source /opt/xilinx/xrt/setup.sh 
-							cd /home/centos/src/project_data/aws-fpga
-							./createawsxclbin.sh
-							echo "sleeping for 60 minuites before continuing ...."
-							sleep 3600
-							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_KERNELAWSXCLBIN
-							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
-							
-						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ]
-						then
-							make cleanall
-							# open X2go
-							# open terminal
-							# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
-							
-						elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ]
-						then
-							make cleanall
-							# open X2go
-							# open terminal
-							# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
-							
-						elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
+						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
 						then
 							make cleanall
 							# open X2go

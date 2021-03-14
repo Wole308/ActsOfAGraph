@@ -1040,8 +1040,8 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUF
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(buffer3[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(buffer3[{{v}}][i]).value < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(GETKV2(buffer{{context['NUMSUBCPUTHREADS_DIV_4']-1}}[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETKV2(buffer{{context['NUMSUBCPUTHREADS_DIV_4']-1}}[{{v}}][i]).value < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 	}
@@ -1354,7 +1354,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
 
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -1414,7 +1414,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	{%for i in context['1_seq']%}
 	vmaskptemp{{i}}_level2[0] = 0; vmaskptemp{{i}}_level2[1] = 0;
 	{%endfor%}
-	{%for i in context['4_seq']%}
+	{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 	vmaskptemp{{i}}_level3[0] = 0; vmaskptemp{{i}}_level3[1] = 0;
 	{%endfor%}
 
@@ -1461,6 +1461,44 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
+	/* #ifdef _WIDEWORD
+	unsigned int baseoffset0_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].range(31, 0);
+	unsigned int baseoffset1_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].range(31, 0);
+	unsigned int baseoffset2_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].range(31, 0);
+	unsigned int baseoffset3_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].range(31, 0);
+	#else 
+	unsigned int baseoffset0_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
+	unsigned int baseoffset1_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].data[0].key;
+	unsigned int baseoffset2_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;	
+	unsigned int baseoffset3_kvs = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;	
+	#endif 
+	
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram0[baseoffset0_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram0[baseoffset1_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram0[baseoffset2_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram0[baseoffset3_kvs + 0], 12);
+	
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram1[baseoffset0_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram1[baseoffset1_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram1[baseoffset2_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram1[baseoffset3_kvs + 0], 12);
+	
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram2[baseoffset0_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram2[baseoffset1_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram2[baseoffset2_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram2[baseoffset3_kvs + 0], 12);
+	
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram3[baseoffset0_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram3[baseoffset1_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram3[baseoffset2_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram3[baseoffset3_kvs + 0], 12);
+	
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram4[baseoffset0_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram4[baseoffset1_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram5[baseoffset2_kvs + 0], 12);
+	actsutilityobj->printkeyvalues("acts_synchronize::", (keyvalue_t *)&kvdram5[baseoffset3_kvs + 0], 12);
+			exit(EXIT_SUCCESS); */
+	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
@@ -1471,6 +1509,8 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 		{%endfor%}
 		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
+		
+		// cout<<"---------------- topkernelsync:: ntravszs: "<<ntravszs<<", enablereduce: "<<enablereduce<<endl;
 	
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 
@@ -1478,7 +1518,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 		#endif
 	
 		source_partition = iterationidx / 2;
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
 		#endif
 		

@@ -41,10 +41,11 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }				
+	vdram = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
-	#endif
 	vdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	#endif
 
 	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
 		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
@@ -82,22 +83,18 @@ runsummary_t app::run(){
 	globalparams_t globalparams;
 
 	activevertices.push_back(1);
-	// activevertices.push_back(2);
-	// for(unsigned int i=0; i<2; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100; i++){ activevertices.push_back(i); } //
-	// for(unsigned int i=0; i<500; i++){ activevertices.push_back(i); } 
-	// for(unsigned int i=0; i<2048; i++){ activevertices.push_back(i); } 
-	// for(unsigned int i=0; i<4096; i++){ activevertices.push_back(i); } 
-	// for(unsigned int i=0; i<10000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<100000; i++){ activevertices.push_back(i); } //
-	// for(unsigned int i=0; i<1000000; i++){ activevertices.push_back(i); } 
-	// for(unsigned int i=0; i<2000000; i++){ activevertices.push_back(i); }
-	// for(unsigned int i=0; i<4000000; i++){ activevertices.push_back(i); }
 
 	// load workload information
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
+	globalparams.BASEOFFSETKVS_EDGESDATA = 0;
+	globalparams.BASEOFFSETKVS_VERTEXPTR = 0;
+	globalparams.BASEOFFSETKVS_VERTICESDATA = 0;
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = 0;
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = 0;
+	globalparams.BASEOFFSETKVS_STATSDRAM = 0;
+	globalparams.BASEOFFSETKVS_KVDRAM = 0;
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = 0;
 	
-	// edges & vptrs
 	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BFS, globalparams);
 	
 	// vertex data

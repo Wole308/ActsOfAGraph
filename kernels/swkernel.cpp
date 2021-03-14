@@ -92,88 +92,63 @@ void swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512
 			#endif 
 			(uint512_dt *)vdram
 		);
+		
+		unsigned int baseoffset_kvs = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
+			utilityobj->printkeyvalues("swkernel::runapp", (keyvalue_t *)&kvsourcedram[0][baseoffset_kvs + 0], 12);
+			exit(EXIT_SUCCESS);
 	}
 	#endif
 	
 	#ifdef NACTS_IN_1COMPUTEUNIT
 	kernelobjs[0]->topkernel(
-		#if NUMCOMPUTEUNITS==1
 		(uint512_dt *)kvsourcedram[0]
-		#endif 
-		
-		#if NUMCOMPUTEUNITS==2
-		(uint512_dt *)kvsourcedram[0],
-		(uint512_dt *)kvsourcedram[1]
+		,(uint512_dt *)kvsourcedram[1]
+		#if NUMCOMPUTEUNITS>2
+		,(uint512_dt *)kvsourcedram[2]
+		,(uint512_dt *)kvsourcedram[3]
+		#if NUMCOMPUTEUNITS>4
+		,(uint512_dt *)kvsourcedram[4]
+		,(uint512_dt *)kvsourcedram[5]
+		,(uint512_dt *)kvsourcedram[6]
+		,(uint512_dt *)kvsourcedram[7]
+		#if NUMCOMPUTEUNITS>8
+		,(uint512_dt *)kvsourcedram[8]
+		,(uint512_dt *)kvsourcedram[9]
+		,(uint512_dt *)kvsourcedram[10]
+		,(uint512_dt *)kvsourcedram[11]
+		#if NUMCOMPUTEUNITS>12
+		,(uint512_dt *)kvsourcedram[12]
+		,(uint512_dt *)kvsourcedram[13]
+		,(uint512_dt *)kvsourcedram[14]
+		,(uint512_dt *)kvsourcedram[15]
+		#if NUMCOMPUTEUNITS>16
+		,(uint512_dt *)kvsourcedram[16]
+		,(uint512_dt *)kvsourcedram[17]
+		,(uint512_dt *)kvsourcedram[18]
+		,(uint512_dt *)kvsourcedram[19]
+		#if NUMCOMPUTEUNITS>20
+		,(uint512_dt *)kvsourcedram[20]
+		,(uint512_dt *)kvsourcedram[21]
+		,(uint512_dt *)kvsourcedram[22]
+		,(uint512_dt *)kvsourcedram[23]
+		#if NUMCOMPUTEUNITS>24
+		,(uint512_dt *)kvsourcedram[24]
+		,(uint512_dt *)kvsourcedram[25]
+		,(uint512_dt *)kvsourcedram[26]
+		,(uint512_dt *)kvsourcedram[27]
+		#if NUMCOMPUTEUNITS>28
+		,(uint512_dt *)kvsourcedram[28]
+		,(uint512_dt *)kvsourcedram[29]
+		,(uint512_dt *)kvsourcedram[30]
+		,(uint512_dt *)kvsourcedram[31]
 		#endif
-		
-		#if NUMCOMPUTEUNITS==4
-		(uint512_dt *)kvsourcedram[0],
-		(uint512_dt *)kvsourcedram[1],
-		(uint512_dt *)kvsourcedram[2],
-		(uint512_dt *)kvsourcedram[3]
 		#endif
-		
-		#if NUMCOMPUTEUNITS==8
-		(uint512_dt *)kvsourcedram[0],
-		(uint512_dt *)kvsourcedram[1],
-		(uint512_dt *)kvsourcedram[2],
-		(uint512_dt *)kvsourcedram[3],
-		(uint512_dt *)kvsourcedram[4],
-		(uint512_dt *)kvsourcedram[5],
-		(uint512_dt *)kvsourcedram[6],
-		(uint512_dt *)kvsourcedram[7]
 		#endif
-		
-		#if NUMCOMPUTEUNITS==12
-		(uint512_dt *)kvsourcedram[0],
-		(uint512_dt *)kvsourcedram[1],
-		(uint512_dt *)kvsourcedram[2],
-		(uint512_dt *)kvsourcedram[3],
-		(uint512_dt *)kvsourcedram[4],
-		(uint512_dt *)kvsourcedram[5],
-		(uint512_dt *)kvsourcedram[6],
-		(uint512_dt *)kvsourcedram[7],
-		(uint512_dt *)kvsourcedram[8],
-		(uint512_dt *)kvsourcedram[9],
-		(uint512_dt *)kvsourcedram[10],
-		(uint512_dt *)kvsourcedram[11]
 		#endif
-		
-		#if NUMCOMPUTEUNITS==14
-		(uint512_dt *)kvsourcedram[0],
-		(uint512_dt *)kvsourcedram[1],
-		(uint512_dt *)kvsourcedram[2],
-		(uint512_dt *)kvsourcedram[3],
-		(uint512_dt *)kvsourcedram[4],
-		(uint512_dt *)kvsourcedram[5],
-		(uint512_dt *)kvsourcedram[6],
-		(uint512_dt *)kvsourcedram[7],
-		(uint512_dt *)kvsourcedram[8],
-		(uint512_dt *)kvsourcedram[9],
-		(uint512_dt *)kvsourcedram[10],
-		(uint512_dt *)kvsourcedram[11],
-		(uint512_dt *)kvsourcedram[12],
-		(uint512_dt *)kvsourcedram[13]
-		#endif 
-		
-		#if NUMCOMPUTEUNITS==16
-		(uint512_dt *)kvsourcedram[0],
-		(uint512_dt *)kvsourcedram[1],
-		(uint512_dt *)kvsourcedram[2],
-		(uint512_dt *)kvsourcedram[3],
-		(uint512_dt *)kvsourcedram[4],
-		(uint512_dt *)kvsourcedram[5],
-		(uint512_dt *)kvsourcedram[6],
-		(uint512_dt *)kvsourcedram[7],
-		(uint512_dt *)kvsourcedram[8],
-		(uint512_dt *)kvsourcedram[9],
-		(uint512_dt *)kvsourcedram[10],
-		(uint512_dt *)kvsourcedram[11],
-		(uint512_dt *)kvsourcedram[12],
-		(uint512_dt *)kvsourcedram[13],
-		(uint512_dt *)kvsourcedram[14],
-		(uint512_dt *)kvsourcedram[15]
-		#endif 
+		#endif
+		#endif
+		#endif
+		#endif
 	);
 	#endif 
 	
