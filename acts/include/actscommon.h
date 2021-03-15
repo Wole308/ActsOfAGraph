@@ -23,8 +23,31 @@
 #include "../../include/common.h"
 using namespace std;
 
-// #define _DEBUGMODE_KERNELPRINTS_TRACE //
-// #define _DEBUGMODE_SMARTMASKING_TRACE
+// #define _DEBUGMODE_KERNELPRINTS_TRACE
+// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+
+// #define _DEBUGMODE_SUBPMASKING_TRACE
+
+#define PROCESSMODULE
+#define PARTITIONMODULE
+#define REDUCEMODULE //
+#define SYNCHRONIZEMODULE //
+
+#define PROCESSMODE 0
+#define PARTITIONMODE 1
+#define REDUCEMODE 2
+
+#define VBUFFER_VECTOR_SIZE NUM_PARTITIONS
+
+// #define SHIFTSYNCHRONIZE
+
+#define AUTOMATEMODEON //
+
+// #define VERTEXCOLORING // JUST-FOR-TEST
+
+// #define SUBPMASK // FIXME. work in progress...
+#define SUBPMASKFACTOR_POW 6
+#define SUBPMASKFACTOR 64
 
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;

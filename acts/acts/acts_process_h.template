@@ -22,7 +22,7 @@
 #endif
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
-
+/* 
 #define PROCESSMODULE
 #define PARTITIONMODULE
 #define REDUCEMODULE //
@@ -39,8 +39,9 @@ using namespace std;
 // #define AUTOMATEMODEON //
 // #define VERTEXCOLORING // JUST-FOR-TEST
 
-// #define SELECTIVEREAD // FIXME. work in progress...
-#define SELECTIVEREADFACTOR 64
+// #define SUBPMASK // FIXME. work in progress...
+#define SUBPMASKFACTOR_POW 6
+#define SUBPMASKFACTOR 64 */
 
 class acts_process {
 public:

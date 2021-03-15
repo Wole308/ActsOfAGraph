@@ -588,9 +588,9 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ4
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		for numsubcputhreads in $NUMTHREADS_EQ16 #
+		# for numsubcputhreads in $NUMTHREADS_EQ16 #
 		# for numsubcputhreads in $NUMTHREADS_EQ18 #
-		# for numsubcputhreads in $NUMTHREADS_EQ20
+		for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
 		# for numsubcputhreads in $NUMTHREADS_EQ32
@@ -604,9 +604,9 @@ do
 				### >>> LOOP3: datasets
 				
 				# for dataset in $NODATASET
-				# for dataset in $HOLLYWOOD_1M_57M
+				for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $KRON21_2M_91M #
-				for dataset in $ORKUT_3M_106M #
+				# for dataset in $ORKUT_3M_106M #
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M
@@ -756,9 +756,9 @@ do
 						then
 							make cleanall
 							# make build_acts_nthreads
-							make demo_acts_nthreads
+							# make demo_acts_nthreads
 							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug
+							make demo_acts_nthreads_debug
 						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
 						then
 							make cleanall

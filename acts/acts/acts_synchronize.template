@@ -26,7 +26,7 @@ using namespace std;
 
 // CRITICAL FIXME. having made keyvalue_buffer_t & keyvalue_vbuffer_t arbitrary precision, fix INVALIDDATA
 
-#define NUMSYNCPIPELINES 2
+#define NUMSYNCPIPELINES 1 // 2
 #if NUMSYNCPIPELINES==1
 #define SUP0
 #endif 
@@ -790,7 +790,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
 	
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
@@ -869,7 +869,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%for v in context['VECTOR_SIZE_seq']%}
 		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
@@ -893,7 +893,7 @@ uint32_type
 	#endif
 synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	if(enable1 == OFF || enable2 == OFF){ return 0; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	#ifdef _DEBUGMODE_KERNELPRINTS // _DEBUGMODE_KERNELPRINTS_TRACE //
 	cout<<"synchronizeandapply: synchronize and apply function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
@@ -944,7 +944,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		#endif
 		
 		// apply
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		#ifdef _DEBUGMODE_CHECKS2
 		{%for v in context['VECTOR_SIZE_seq']%}
 		vid[{{v}}][0] = voffset_kvs*VECTOR_SIZE*2 + (({{v}}*globalparams.SIZE_REDUCE) + i*2);
 		vid[{{v}}][1] = voffset_kvs*VECTOR_SIZE*2 + (({{v}}*globalparams.SIZE_REDUCE) + i*2 + 1);
@@ -980,11 +980,11 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		uint32_type mask = convertvmasktouint32(vmask, i);
 		cummvmask_sp = cummvmask_sp | mask;
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[{{v}}][0]<<" & vid2: "<<vid[{{v}}][1]<<"): res{{v}}.key: "<<res{{v}}.key<<", res{{v}}.value: "<<res{{v}}.value<<": udata{{v}}.key: "<<udata{{v}}.key<<", udata{{v}}.value: "<<udata{{v}}.value<<", data{{v}}.key: "<<data{{v}}.key<<", data{{v}}.value: "<<data{{v}}.value<<endl; }
-		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < GETK2(0xFFFFFFFF)){ cout<<"apply: vid[{{v}}][0]: "<<vid[{{v}}][0]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].key: "<<vmask[i].data[colindex + {{v}}].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
-		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < GETV2(0xFFFFFFFF)){ cout<<"apply: vid[{{v}}][1]: "<<vid[{{v}}][1]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].value: "<<vmask[i].data[colindex + {{v}}].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(false){ cout<<"SYNC AND APPLY FUNC SEEN @ (vid1: "<<vid[{{v}}][0]<<" & vid2: "<<vid[{{v}}][1]<<"): res{{v}}.key: "<<res{{v}}.key<<", res{{v}}.value: "<<res{{v}}.value<<": udata{{v}}.key: "<<udata{{v}}.key<<", udata{{v}}.value: "<<udata{{v}}.value<<", data{{v}}.key: "<<data{{v}}.key<<", data{{v}}.value: "<<data{{v}}.value<<endl; }
+		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < GETK2(0xFFFFFFFF)){ cout<<"synchronizeandapply: vid[{{v}}][0]: "<<vid[{{v}}][0]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].key: "<<vmask[i].data[colindex + {{v}}].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < GETV2(0xFFFFFFFF)){ cout<<"synchronizeandapply: vid[{{v}}][1]: "<<vid[{{v}}][1]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].value: "<<vmask[i].data[colindex + {{v}}].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		{%endfor%}
 		#endif
 		#ifdef _DEBUGMODE_STATS
@@ -1038,7 +1038,7 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VBUF
 		{%endfor%}	
 		{%endfor%}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKV2(buffer{{context['NUMSUBCPUTHREADS_DIV_4']-1}}[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(buffer{{context['NUMSUBCPUTHREADS_DIV_4']-1}}[{{v}}][i]).value < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
@@ -1091,7 +1091,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 	#pragma HLS function_instantiate variable=source
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"spreadvdata: spread (vdata) function called."<<endl;
+	cout<<"spreadandwrite: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCEBUFFERSZ;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -1136,7 +1136,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 		{%endfor%}
 		#endif 
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
@@ -1255,7 +1255,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 		{%endfor%}
 		#endif 
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE //
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
 		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
@@ -1425,6 +1425,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	{%endif%}
 	{%endfor%}
 	globalparams_t _globalparams = globalparams[0];
+	
 	unsigned int sourcestatsmarker = 0;
 	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ 
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
@@ -1461,13 +1462,22 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
+	//////////////////////////////////////////////////////////////////
+	// unsigned int totalnumpartitionsb4last = 256; 
+	// for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+		// cout<<"topkernelproc: stats["<<k<<"]: "<<kvdram0[_globalparams.BASEOFFSETKVS_STATSDRAM + 17 + k].data[0].value<<". "<<endl;
+	// }
+	// exit(EXIT_SUCCESS);
+	//////////////////////////////////////////////////////////////////
+	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
 		enablereduce = ON;
-		unsigned int ntravszs = 0;
+		unsigned int ntravszs = 0; // CRITICAL REMOVEME.
 		{%for i in context['COMPUTEUNITS_seq']%}
 		rtravstate[{{i}}] = gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
+		// cout<<"topkernelsync: ------------ sourcestatsmarker: "<<sourcestatsmarker<<", rtravstate[{{i}}].size_kvs: "<<rtravstate[{{i}}].size_kvs<<endl;
 		{%endfor%}
 		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }

@@ -77,7 +77,7 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 3; // 3,12
+	unsigned int NumGraphIters = 16; // 3,12
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;
@@ -139,6 +139,7 @@ void app::experiements(unsigned int evalid, unsigned int start, unsigned int siz
 			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.SIZE_KVDRAM);
 		}
 
+		cout<<"app::experiements: loading messages..."<<endl;
 		globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, BFS, globalparams);
 		loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, evalid);
 		

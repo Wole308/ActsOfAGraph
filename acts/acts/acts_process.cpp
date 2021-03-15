@@ -1885,10 +1885,12 @@ loadvmasks_subp(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUM
 	tempvmask_sp.data[15].key = 0;
 	tempvmask_sp.data[15].value = 0;
 	
+	unsigned int count = 0;
+	
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
-		#ifdef SELECTIVEREAD
+		#ifdef SUBPMASK
 		tempvmask_sp.data[0].key = tempvmask_sp.data[0].key | vmask[i].data[0].key;
 		tempvmask_sp.data[0].value = tempvmask_sp.data[0].value | vmask[i].data[0].value;
 		tempvmask_sp.data[1].key = tempvmask_sp.data[1].key | vmask[i].data[1].key;
@@ -1922,56 +1924,71 @@ loadvmasks_subp(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUM
 		tempvmask_sp.data[15].key = tempvmask_sp.data[15].key | vmask[i].data[15].key;
 		tempvmask_sp.data[15].value = tempvmask_sp.data[15].value | vmask[i].data[15].value;
 		
-		if(i%SELECTIVEREADFACTOR == 0){
-			vmask_subp[i/SELECTIVEREADFACTOR].data[0].key = tempvmask_sp.data[0].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[0].value = tempvmask_sp.data[0].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[0].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[0].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[0].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[0].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[1].key = tempvmask_sp.data[1].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[1].value = tempvmask_sp.data[1].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[1].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[1].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[1].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[1].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[2].key = tempvmask_sp.data[2].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[2].value = tempvmask_sp.data[2].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[2].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[2].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[2].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[2].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[3].key = tempvmask_sp.data[3].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[3].value = tempvmask_sp.data[3].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[3].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[3].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[3].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[3].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[4].key = tempvmask_sp.data[4].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[4].value = tempvmask_sp.data[4].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[4].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[4].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[4].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[4].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[5].key = tempvmask_sp.data[5].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[5].value = tempvmask_sp.data[5].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[5].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[5].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[5].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[5].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[6].key = tempvmask_sp.data[6].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[6].value = tempvmask_sp.data[6].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[6].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[6].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[6].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[6].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[7].key = tempvmask_sp.data[7].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[7].value = tempvmask_sp.data[7].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[7].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[7].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[7].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[7].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[8].key = tempvmask_sp.data[8].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[8].value = tempvmask_sp.data[8].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[8].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[8].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[8].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[8].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[9].key = tempvmask_sp.data[9].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[9].value = tempvmask_sp.data[9].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[9].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[9].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[9].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[9].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[10].key = tempvmask_sp.data[10].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[10].value = tempvmask_sp.data[10].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[10].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[10].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[10].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[10].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[11].key = tempvmask_sp.data[11].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[11].value = tempvmask_sp.data[11].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[11].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[11].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[11].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[11].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[12].key = tempvmask_sp.data[12].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[12].value = tempvmask_sp.data[12].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[12].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[12].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[12].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[12].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[13].key = tempvmask_sp.data[13].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[13].value = tempvmask_sp.data[13].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[13].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[13].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[13].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[13].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[14].key = tempvmask_sp.data[14].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[14].value = tempvmask_sp.data[14].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[14].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[14].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[14].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[14].value<<endl;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[15].key = tempvmask_sp.data[15].key;
-			vmask_subp[i/SELECTIVEREADFACTOR].data[15].value = tempvmask_sp.data[15].value;
-			// cout<<"vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[15].key: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[15].key<<", vmask_subp["<<i/SELECTIVEREADFACTOR<<"].data[15].value: "<<vmask_subp[i/SELECTIVEREADFACTOR].data[15].value<<endl;
-	
+		if(i%SUBPMASKFACTOR == SUBPMASKFACTOR-1){
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[0].key = tempvmask_sp.data[0].key;
+			vmask_subp[count].data[0].value = tempvmask_sp.data[0].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[0].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[0].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[0].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[0].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[1].key = tempvmask_sp.data[1].key;
+			vmask_subp[count].data[1].value = tempvmask_sp.data[1].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[1].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[1].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[1].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[1].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[2].key = tempvmask_sp.data[2].key;
+			vmask_subp[count].data[2].value = tempvmask_sp.data[2].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[2].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[2].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[2].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[2].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[3].key = tempvmask_sp.data[3].key;
+			vmask_subp[count].data[3].value = tempvmask_sp.data[3].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[3].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[3].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[3].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[3].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[4].key = tempvmask_sp.data[4].key;
+			vmask_subp[count].data[4].value = tempvmask_sp.data[4].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[4].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[4].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[4].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[4].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[5].key = tempvmask_sp.data[5].key;
+			vmask_subp[count].data[5].value = tempvmask_sp.data[5].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[5].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[5].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[5].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[5].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[6].key = tempvmask_sp.data[6].key;
+			vmask_subp[count].data[6].value = tempvmask_sp.data[6].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[6].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[6].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[6].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[6].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[7].key = tempvmask_sp.data[7].key;
+			vmask_subp[count].data[7].value = tempvmask_sp.data[7].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[7].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[7].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[7].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[7].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[8].key = tempvmask_sp.data[8].key;
+			vmask_subp[count].data[8].value = tempvmask_sp.data[8].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[8].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[8].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[8].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[8].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[9].key = tempvmask_sp.data[9].key;
+			vmask_subp[count].data[9].value = tempvmask_sp.data[9].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[9].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[9].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[9].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[9].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[10].key = tempvmask_sp.data[10].key;
+			vmask_subp[count].data[10].value = tempvmask_sp.data[10].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[10].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[10].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[10].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[10].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[11].key = tempvmask_sp.data[11].key;
+			vmask_subp[count].data[11].value = tempvmask_sp.data[11].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[11].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[11].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[11].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[11].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[12].key = tempvmask_sp.data[12].key;
+			vmask_subp[count].data[12].value = tempvmask_sp.data[12].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[12].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[12].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[12].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[12].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[13].key = tempvmask_sp.data[13].key;
+			vmask_subp[count].data[13].value = tempvmask_sp.data[13].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[13].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[13].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[13].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[13].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[14].key = tempvmask_sp.data[14].key;
+			vmask_subp[count].data[14].value = tempvmask_sp.data[14].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[14].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[14].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[14].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[14].value<<endl;
+ // CRITICAL REMOVEME.
+			vmask_subp[count].data[15].key = tempvmask_sp.data[15].key;
+			vmask_subp[count].data[15].value = tempvmask_sp.data[15].value;
+			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[15].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[15].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[15].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[15].value<<endl;
 			
 			tempvmask_sp.data[0].key = 0;
 			tempvmask_sp.data[0].value = 0;
@@ -2005,7 +2022,8 @@ loadvmasks_subp(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUM
 			tempvmask_sp.data[14].value = 0;
 			tempvmask_sp.data[15].key = 0;
 			tempvmask_sp.data[15].value = 0;
-	
+			
+			count += 1;
 		}
 		#endif
 	}
@@ -2371,9 +2389,30 @@ getvmask_subp(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalpar
 	#pragma HLS INLINE
 	value_t data = 0;
 
-	unsigned int col = loc / (REDUCESZ/SELECTIVEREADFACTOR); // CRITICAL AUTOMATEME.
-	unsigned int row = loc % (REDUCESZ/SELECTIVEREADFACTOR);
+	#ifdef AUTOMATEMODEON
+	unsigned int col = loc >> (globalparams.POW_REDUCE - SUBPMASKFACTOR_POW);
+	unsigned int row;
+	if(globalparams.POW_REDUCE == 11){ // AUTOMATEME. VHLS CHECKME.
+		row = loc % (1 << (11-SUBPMASKFACTOR_POW));
+	} else if(globalparams.POW_REDUCE == 10){
+		row = loc % (1 << (10-SUBPMASKFACTOR_POW));
+	} else if(globalparams.POW_REDUCE == 9){
+		row = loc % (1 << (9-SUBPMASKFACTOR_POW));
+	} else if(globalparams.POW_REDUCE == 8){
+		row = loc % (1 << (8-SUBPMASKFACTOR_POW));
+	} else {
+		row = 0;
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"getvmask: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
 	row = row / 2;
+	#else 
+	unsigned int col = loc / (REDUCESZ/SUBPMASKFACTOR); // CRITICAL AUTOMATEME.
+	unsigned int row = loc % (REDUCESZ/SUBPMASKFACTOR);
+	row = row / 2;
+	#endif
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("getvmask_subp.col", col, NUM_PARTITIONS, loc, NAp, NAp);
@@ -2394,8 +2433,8 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return -1; }
 	analysis_type analysis_loop = BLOCKRAM_SIZE / 2;
-	analysis_type analysis_loop1 = SELECTIVEREADFACTOR;
-	analysis_type analysis_loop2 = 16384 / SELECTIVEREADFACTOR;
+	analysis_type analysis_loop1 = SUBPMASKFACTOR;
+	analysis_type analysis_loop2 = 16384 / SUBPMASKFACTOR;
 	
 	value_t E[2][VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
@@ -2493,7 +2532,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 		#endif
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		if(en == ON && mask == 1){
 			if(true){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
@@ -2612,21 +2651,56 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif 
 	}
 	
+	unsigned int found = 0;
 	unsigned int found1 = 0;
 	int nextactivei = -1;
 	int subpidx = -1;
+	// unsigned int numVsperpartition = (1 << (globalparams.POW_BATCHRANGE-(NUM_PARTITIONS_POW * (globalparams.ACTSPARAMS_TREEDEPTH-1)))); //  16384;
+	unsigned int numVsperpartition_POW = globalparams.POW_BATCHRANGE - (NUM_PARTITIONS_POW * (globalparams.ACTSPARAMS_TREEDEPTH-1));
+	unsigned int numVsperpartition = (1 << numVsperpartition_POW);
+	// partition = (last >> numVsperpartition_POW);
+	// cout<<"readandprocess:: numVsperpartition: "<<numVsperpartition<<",numVsperpartition_POW: "<<numVsperpartition_POW<<endl;
+	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"readandprocess:: lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<""<<endl;
 	#endif
 	
-	#ifdef SELECTIVEREAD
+	#ifdef SUBPMASK_XXX
 	// if(sweepparams.source_partition == 0){
-		
+	for(nextactivei=lvid_eob; nextactivei<numVsperpartition; nextactivei++){
+		unsigned int mask = getvmask(vmask, nextactivei, globalparams);
+		if(mask == 1){ 
+		// cout<<"next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
+		found = 1; break; } // break; }
+		// if(mask == 1){ cout<<"next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; found = 1; exit(EXIT_SUCCESS);; }
+		// else { cout<<"inactive: "<<nextactivei<<endl; }
+	}
+	// if(found == 0){ cout<<"none found"<<endl; }
+	
+	if(nextactivei - lvid_eob >= 1024){
+		#ifdef _WIDEWORD
+		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (nextactivei/VECTOR2_SIZE)].range(31, 0);
+		#else 
+		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (nextactivei/VECTOR2_SIZE)].data[0].key;
+		#endif 
+		nextbeginvptr_kvs = nextbeginvptr / VECTOR_SIZE;
+		returnmessage = nextbeginvptr_kvs;
+		// cout<<"readandprocess: vptrbaseoffset_kvs="<<vptrbaseoffset_kvs<<", voffset_kvs="<<voffset_kvs<<", nextactivei="<<nextactivei<<endl;
+		// cout<<"readandprocess: (nextactivei="<<nextactivei<<", lvid_eob="<<lvid_eob<<", nextbeginvptr="<<nextbeginvptr<<", nextbeginvptr_kvs="<<nextbeginvptr_kvs<<", returnmessage="<<returnmessage<<") gap more than 1024 found. skipping some..."<<endl;
+		// exit(EXIT_SUCCESS);
+	} else {
+		returnmessage = -1;
+	}
+	// }
+	#endif
+	
+	#ifdef SUBPMASK
+	// if(sweepparams.source_partition == 0){
 	// fine grained search
-	unsigned int fac = (lvid_eob + (SELECTIVEREADFACTOR - 1)) / SELECTIVEREADFACTOR;
-	unsigned int last = fac * SELECTIVEREADFACTOR;
-	if(last > 16384){ last = 16384; }
+	unsigned int fac = (lvid_eob + (SUBPMASKFACTOR - 1)) / SUBPMASKFACTOR;
+	unsigned int last = fac * SUBPMASKFACTOR;
+	if(last > numVsperpartition){ last = numVsperpartition; }
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"readandprocess: fine grained scan: scanning vmask from srcvid:"<<lvid_eob<<" to srcvid:"<<last<<endl;
 	#endif 
@@ -2634,6 +2708,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
 	#pragma HLS PIPELINE II=1
 		unsigned int mask = getvmask(vmask, nextactivei, globalparams);
+		// unsigned int mask = 0; // CRITICAL REMOVEME.
 		if(mask == 1){ 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"[fine grained scan]:next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
@@ -2647,19 +2722,20 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#endif 
 	
 	// coarsed grained search
-	if(found1 == 0 && nextactivei+SELECTIVEREADFACTOR < 16384){
+	if(found1 == 0 && nextactivei+SUBPMASKFACTOR < numVsperpartition){
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"readandprocess: coarse grained scan: scanning vmask_subp from "<<last / SELECTIVEREADFACTOR<<" to "<<16384/SELECTIVEREADFACTOR<<endl;
+		cout<<"readandprocess: coarse grained scan: scanning vmask_subp from "<<last / SUBPMASKFACTOR<<" to "<<numVsperpartition/SUBPMASKFACTOR<<endl;
 		#endif 
 		
 		unsigned int found2 = 0;
-		for(subpidx=last/SELECTIVEREADFACTOR; subpidx<16384/SELECTIVEREADFACTOR; subpidx++){ // CRITICAL AUTOMATEME.
+		// for(subpidx=last/SUBPMASKFACTOR; subpidx<numVsperpartition/SUBPMASKFACTOR; subpidx++){ // CRITICAL AUTOMATEME.
+		for(subpidx=(last >> SUBPMASKFACTOR_POW); subpidx<(numVsperpartition >> SUBPMASKFACTOR_POW); subpidx++){ // CRITICAL AUTOMATEME.
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop2 avg=analysis_loop2	
 		#pragma HLS PIPELINE II=1
 			unsigned int mask_subp = getvmask_subp(vmask_subp, subpidx, globalparams);
 			if(mask_subp == 1){
 				#ifdef _DEBUGMODE_KERNELPRINTS2
-				cout<<"[coarse grained scan]next active: "<<subpidx<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<", currentsubpidx: "<<last / SELECTIVEREADFACTOR<<")"<<endl; 
+				cout<<"[coarse grained scan]next active: "<<subpidx<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<", currentsubpidx: "<<last / SUBPMASKFACTOR<<")"<<endl; 
 				#endif 
 				found2 = 1;
 				break; 
@@ -2670,9 +2746,9 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif 
 
 		#ifdef _WIDEWORD
-		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SELECTIVEREADFACTOR)/VECTOR2_SIZE)].range(31, 0);
+		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SUBPMASKFACTOR)/VECTOR2_SIZE)].range(31, 0);
 		#else 
-		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SELECTIVEREADFACTOR)/VECTOR2_SIZE)].data[0].key;
+		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SUBPMASKFACTOR)/VECTOR2_SIZE)].data[0].key;
 		#endif 
 		nextbeginvptr_kvs = nextbeginvptr / VECTOR_SIZE;
 		returnmessage = nextbeginvptr_kvs;
@@ -3027,7 +3103,7 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	
 	vertex_t loc = mykeyvalue.key - upperlimit;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(mykeyvalue.key != GETK(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ cout<<"REDUCE SEEN @ reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
 	#endif 
 	
@@ -3443,12 +3519,12 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		#endif
 		
 			ptravstatepp0.i_kvs = offset_kvs;
-			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_SMARTMASKING_TRACE)
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_SUBPMASKING_TRACE)
 			actsutilityobj->print6("### actit:: offset0_kvs", "size0_kvs", "begin_kvs", "end_kvs", "skip", "itercount", ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);
 			#endif
 		pp0message = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
 		if(mode == PROCESSMODE && pp0message != -1){ offset_kvs = pp0message; 
-			#ifdef _DEBUGMODE_SMARTMASKING_TRACE
+			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 			cout<<"actit(pp0): offset_kvs changed to "<<offset_kvs<<"."<<endl;
 			#endif 
 			} else { offset_kvs+=WORKBUFFER_SIZE; } // NEWCHANGE. FIXME?
@@ -3464,12 +3540,12 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
 			ptravstatepp1.i_kvs = offset_kvs;
-			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_SMARTMASKING_TRACE)
+			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_SUBPMASKING_TRACE)
 			actsutilityobj->print6("### actit:: offset1_kvs", "size1_kvs", "begin_kvs", "end_kvs", "skip", "itercount", ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);
 			#endif
 		pp1message = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams);
 		if(mode == PROCESSMODE && pp1message != -1){ offset_kvs = pp1message; 
-			#ifdef _DEBUGMODE_SMARTMASKING_TRACE
+			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 			cout<<"actit(pp1): offset_kvs changed to "<<offset_kvs<<"."<<endl;
 			#endif 
 			} else { offset_kvs+=WORKBUFFER_SIZE; } // NEWCHANGE. FIXME?
@@ -3543,7 +3619,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 		#endif
 		
 		loadvmasks(ON, kvdram, vmask, vbuffer, globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparams); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
-		#ifdef SELECTIVEREAD
+		#ifdef SUBPMASK
 		loadvmasks_subp(ON, vmask, vmask_subp, vmaskbuffersz_kvs, globalparams);
 		#endif 
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
@@ -3608,7 +3684,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 			resetenv, flush);
 			
 		// CRITICAL REMOVEME.
-		#ifdef _DEBUGMODE_SMARTMASKING_TRACE
+		#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 		if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){// && lastvalidlvid != INVALIDDATA){
 			/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){ 
 				for(unsigned int j=0; j<NUM_PARTITIONS; j++){ 
@@ -3897,18 +3973,13 @@ topkernelproc(uint512_dt * kvdram){
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
 	}
 	#endif 
-	
+
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif 
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	
-	#ifdef SELECTIVEREAD_XXX
-	cout<<"----------------------------------- topkernelproc: END OF topkernelproc."<<endl;
-	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
-	#endif 
 	return;
 }
 }

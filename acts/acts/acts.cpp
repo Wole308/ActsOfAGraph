@@ -2841,7 +2841,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-synchronize(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronize: synchronize function called."<<endl;
@@ -3155,6 +3155,74 @@ synchronize(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BL
 	keyvalue_t keyvalue13_vault17;
 	keyvalue_t keyvalue14_vault17;
 	keyvalue_t keyvalue15_vault17;
+	
+	keyvalue_t keyvalue0_vault18;
+	keyvalue_t keyvalue1_vault18;
+	keyvalue_t keyvalue2_vault18;
+	keyvalue_t keyvalue3_vault18;
+	keyvalue_t keyvalue4_vault18;
+	keyvalue_t keyvalue5_vault18;
+	keyvalue_t keyvalue6_vault18;
+	keyvalue_t keyvalue7_vault18;
+	keyvalue_t keyvalue8_vault18;
+	keyvalue_t keyvalue9_vault18;
+	keyvalue_t keyvalue10_vault18;
+	keyvalue_t keyvalue11_vault18;
+	keyvalue_t keyvalue12_vault18;
+	keyvalue_t keyvalue13_vault18;
+	keyvalue_t keyvalue14_vault18;
+	keyvalue_t keyvalue15_vault18;
+	
+	keyvalue_t keyvalue0_vault19;
+	keyvalue_t keyvalue1_vault19;
+	keyvalue_t keyvalue2_vault19;
+	keyvalue_t keyvalue3_vault19;
+	keyvalue_t keyvalue4_vault19;
+	keyvalue_t keyvalue5_vault19;
+	keyvalue_t keyvalue6_vault19;
+	keyvalue_t keyvalue7_vault19;
+	keyvalue_t keyvalue8_vault19;
+	keyvalue_t keyvalue9_vault19;
+	keyvalue_t keyvalue10_vault19;
+	keyvalue_t keyvalue11_vault19;
+	keyvalue_t keyvalue12_vault19;
+	keyvalue_t keyvalue13_vault19;
+	keyvalue_t keyvalue14_vault19;
+	keyvalue_t keyvalue15_vault19;
+	
+	keyvalue_t keyvalue0_vault20;
+	keyvalue_t keyvalue1_vault20;
+	keyvalue_t keyvalue2_vault20;
+	keyvalue_t keyvalue3_vault20;
+	keyvalue_t keyvalue4_vault20;
+	keyvalue_t keyvalue5_vault20;
+	keyvalue_t keyvalue6_vault20;
+	keyvalue_t keyvalue7_vault20;
+	keyvalue_t keyvalue8_vault20;
+	keyvalue_t keyvalue9_vault20;
+	keyvalue_t keyvalue10_vault20;
+	keyvalue_t keyvalue11_vault20;
+	keyvalue_t keyvalue12_vault20;
+	keyvalue_t keyvalue13_vault20;
+	keyvalue_t keyvalue14_vault20;
+	keyvalue_t keyvalue15_vault20;
+	
+	keyvalue_t keyvalue0_vault21;
+	keyvalue_t keyvalue1_vault21;
+	keyvalue_t keyvalue2_vault21;
+	keyvalue_t keyvalue3_vault21;
+	keyvalue_t keyvalue4_vault21;
+	keyvalue_t keyvalue5_vault21;
+	keyvalue_t keyvalue6_vault21;
+	keyvalue_t keyvalue7_vault21;
+	keyvalue_t keyvalue8_vault21;
+	keyvalue_t keyvalue9_vault21;
+	keyvalue_t keyvalue10_vault21;
+	keyvalue_t keyvalue11_vault21;
+	keyvalue_t keyvalue12_vault21;
+	keyvalue_t keyvalue13_vault21;
+	keyvalue_t keyvalue14_vault21;
+	keyvalue_t keyvalue15_vault21;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -3705,23 +3773,155 @@ synchronize(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BL
 		keyvalue15_vault17.key = mergefunc(keyvalue15_vault16.key, GETKV2(buffer16[15][i]).key, NAp);
 		keyvalue15_vault17.value = mergefunc(keyvalue15_vault16.value, GETKV2(buffer16[15][i]).value, NAp);
 	
+		keyvalue0_vault18.key = mergefunc(keyvalue0_vault17.key, GETKV2(buffer17[0][i]).key, NAp);
+		keyvalue0_vault18.value = mergefunc(keyvalue0_vault17.value, GETKV2(buffer17[0][i]).value, NAp);
+		keyvalue1_vault18.key = mergefunc(keyvalue1_vault17.key, GETKV2(buffer17[1][i]).key, NAp);
+		keyvalue1_vault18.value = mergefunc(keyvalue1_vault17.value, GETKV2(buffer17[1][i]).value, NAp);
+		keyvalue2_vault18.key = mergefunc(keyvalue2_vault17.key, GETKV2(buffer17[2][i]).key, NAp);
+		keyvalue2_vault18.value = mergefunc(keyvalue2_vault17.value, GETKV2(buffer17[2][i]).value, NAp);
+		keyvalue3_vault18.key = mergefunc(keyvalue3_vault17.key, GETKV2(buffer17[3][i]).key, NAp);
+		keyvalue3_vault18.value = mergefunc(keyvalue3_vault17.value, GETKV2(buffer17[3][i]).value, NAp);
+		keyvalue4_vault18.key = mergefunc(keyvalue4_vault17.key, GETKV2(buffer17[4][i]).key, NAp);
+		keyvalue4_vault18.value = mergefunc(keyvalue4_vault17.value, GETKV2(buffer17[4][i]).value, NAp);
+		keyvalue5_vault18.key = mergefunc(keyvalue5_vault17.key, GETKV2(buffer17[5][i]).key, NAp);
+		keyvalue5_vault18.value = mergefunc(keyvalue5_vault17.value, GETKV2(buffer17[5][i]).value, NAp);
+		keyvalue6_vault18.key = mergefunc(keyvalue6_vault17.key, GETKV2(buffer17[6][i]).key, NAp);
+		keyvalue6_vault18.value = mergefunc(keyvalue6_vault17.value, GETKV2(buffer17[6][i]).value, NAp);
+		keyvalue7_vault18.key = mergefunc(keyvalue7_vault17.key, GETKV2(buffer17[7][i]).key, NAp);
+		keyvalue7_vault18.value = mergefunc(keyvalue7_vault17.value, GETKV2(buffer17[7][i]).value, NAp);
+		keyvalue8_vault18.key = mergefunc(keyvalue8_vault17.key, GETKV2(buffer17[8][i]).key, NAp);
+		keyvalue8_vault18.value = mergefunc(keyvalue8_vault17.value, GETKV2(buffer17[8][i]).value, NAp);
+		keyvalue9_vault18.key = mergefunc(keyvalue9_vault17.key, GETKV2(buffer17[9][i]).key, NAp);
+		keyvalue9_vault18.value = mergefunc(keyvalue9_vault17.value, GETKV2(buffer17[9][i]).value, NAp);
+		keyvalue10_vault18.key = mergefunc(keyvalue10_vault17.key, GETKV2(buffer17[10][i]).key, NAp);
+		keyvalue10_vault18.value = mergefunc(keyvalue10_vault17.value, GETKV2(buffer17[10][i]).value, NAp);
+		keyvalue11_vault18.key = mergefunc(keyvalue11_vault17.key, GETKV2(buffer17[11][i]).key, NAp);
+		keyvalue11_vault18.value = mergefunc(keyvalue11_vault17.value, GETKV2(buffer17[11][i]).value, NAp);
+		keyvalue12_vault18.key = mergefunc(keyvalue12_vault17.key, GETKV2(buffer17[12][i]).key, NAp);
+		keyvalue12_vault18.value = mergefunc(keyvalue12_vault17.value, GETKV2(buffer17[12][i]).value, NAp);
+		keyvalue13_vault18.key = mergefunc(keyvalue13_vault17.key, GETKV2(buffer17[13][i]).key, NAp);
+		keyvalue13_vault18.value = mergefunc(keyvalue13_vault17.value, GETKV2(buffer17[13][i]).value, NAp);
+		keyvalue14_vault18.key = mergefunc(keyvalue14_vault17.key, GETKV2(buffer17[14][i]).key, NAp);
+		keyvalue14_vault18.value = mergefunc(keyvalue14_vault17.value, GETKV2(buffer17[14][i]).value, NAp);
+		keyvalue15_vault18.key = mergefunc(keyvalue15_vault17.key, GETKV2(buffer17[15][i]).key, NAp);
+		keyvalue15_vault18.value = mergefunc(keyvalue15_vault17.value, GETKV2(buffer17[15][i]).value, NAp);
+	
+		keyvalue0_vault19.key = mergefunc(keyvalue0_vault18.key, GETKV2(buffer18[0][i]).key, NAp);
+		keyvalue0_vault19.value = mergefunc(keyvalue0_vault18.value, GETKV2(buffer18[0][i]).value, NAp);
+		keyvalue1_vault19.key = mergefunc(keyvalue1_vault18.key, GETKV2(buffer18[1][i]).key, NAp);
+		keyvalue1_vault19.value = mergefunc(keyvalue1_vault18.value, GETKV2(buffer18[1][i]).value, NAp);
+		keyvalue2_vault19.key = mergefunc(keyvalue2_vault18.key, GETKV2(buffer18[2][i]).key, NAp);
+		keyvalue2_vault19.value = mergefunc(keyvalue2_vault18.value, GETKV2(buffer18[2][i]).value, NAp);
+		keyvalue3_vault19.key = mergefunc(keyvalue3_vault18.key, GETKV2(buffer18[3][i]).key, NAp);
+		keyvalue3_vault19.value = mergefunc(keyvalue3_vault18.value, GETKV2(buffer18[3][i]).value, NAp);
+		keyvalue4_vault19.key = mergefunc(keyvalue4_vault18.key, GETKV2(buffer18[4][i]).key, NAp);
+		keyvalue4_vault19.value = mergefunc(keyvalue4_vault18.value, GETKV2(buffer18[4][i]).value, NAp);
+		keyvalue5_vault19.key = mergefunc(keyvalue5_vault18.key, GETKV2(buffer18[5][i]).key, NAp);
+		keyvalue5_vault19.value = mergefunc(keyvalue5_vault18.value, GETKV2(buffer18[5][i]).value, NAp);
+		keyvalue6_vault19.key = mergefunc(keyvalue6_vault18.key, GETKV2(buffer18[6][i]).key, NAp);
+		keyvalue6_vault19.value = mergefunc(keyvalue6_vault18.value, GETKV2(buffer18[6][i]).value, NAp);
+		keyvalue7_vault19.key = mergefunc(keyvalue7_vault18.key, GETKV2(buffer18[7][i]).key, NAp);
+		keyvalue7_vault19.value = mergefunc(keyvalue7_vault18.value, GETKV2(buffer18[7][i]).value, NAp);
+		keyvalue8_vault19.key = mergefunc(keyvalue8_vault18.key, GETKV2(buffer18[8][i]).key, NAp);
+		keyvalue8_vault19.value = mergefunc(keyvalue8_vault18.value, GETKV2(buffer18[8][i]).value, NAp);
+		keyvalue9_vault19.key = mergefunc(keyvalue9_vault18.key, GETKV2(buffer18[9][i]).key, NAp);
+		keyvalue9_vault19.value = mergefunc(keyvalue9_vault18.value, GETKV2(buffer18[9][i]).value, NAp);
+		keyvalue10_vault19.key = mergefunc(keyvalue10_vault18.key, GETKV2(buffer18[10][i]).key, NAp);
+		keyvalue10_vault19.value = mergefunc(keyvalue10_vault18.value, GETKV2(buffer18[10][i]).value, NAp);
+		keyvalue11_vault19.key = mergefunc(keyvalue11_vault18.key, GETKV2(buffer18[11][i]).key, NAp);
+		keyvalue11_vault19.value = mergefunc(keyvalue11_vault18.value, GETKV2(buffer18[11][i]).value, NAp);
+		keyvalue12_vault19.key = mergefunc(keyvalue12_vault18.key, GETKV2(buffer18[12][i]).key, NAp);
+		keyvalue12_vault19.value = mergefunc(keyvalue12_vault18.value, GETKV2(buffer18[12][i]).value, NAp);
+		keyvalue13_vault19.key = mergefunc(keyvalue13_vault18.key, GETKV2(buffer18[13][i]).key, NAp);
+		keyvalue13_vault19.value = mergefunc(keyvalue13_vault18.value, GETKV2(buffer18[13][i]).value, NAp);
+		keyvalue14_vault19.key = mergefunc(keyvalue14_vault18.key, GETKV2(buffer18[14][i]).key, NAp);
+		keyvalue14_vault19.value = mergefunc(keyvalue14_vault18.value, GETKV2(buffer18[14][i]).value, NAp);
+		keyvalue15_vault19.key = mergefunc(keyvalue15_vault18.key, GETKV2(buffer18[15][i]).key, NAp);
+		keyvalue15_vault19.value = mergefunc(keyvalue15_vault18.value, GETKV2(buffer18[15][i]).value, NAp);
+	
+		keyvalue0_vault20.key = mergefunc(keyvalue0_vault19.key, GETKV2(buffer19[0][i]).key, NAp);
+		keyvalue0_vault20.value = mergefunc(keyvalue0_vault19.value, GETKV2(buffer19[0][i]).value, NAp);
+		keyvalue1_vault20.key = mergefunc(keyvalue1_vault19.key, GETKV2(buffer19[1][i]).key, NAp);
+		keyvalue1_vault20.value = mergefunc(keyvalue1_vault19.value, GETKV2(buffer19[1][i]).value, NAp);
+		keyvalue2_vault20.key = mergefunc(keyvalue2_vault19.key, GETKV2(buffer19[2][i]).key, NAp);
+		keyvalue2_vault20.value = mergefunc(keyvalue2_vault19.value, GETKV2(buffer19[2][i]).value, NAp);
+		keyvalue3_vault20.key = mergefunc(keyvalue3_vault19.key, GETKV2(buffer19[3][i]).key, NAp);
+		keyvalue3_vault20.value = mergefunc(keyvalue3_vault19.value, GETKV2(buffer19[3][i]).value, NAp);
+		keyvalue4_vault20.key = mergefunc(keyvalue4_vault19.key, GETKV2(buffer19[4][i]).key, NAp);
+		keyvalue4_vault20.value = mergefunc(keyvalue4_vault19.value, GETKV2(buffer19[4][i]).value, NAp);
+		keyvalue5_vault20.key = mergefunc(keyvalue5_vault19.key, GETKV2(buffer19[5][i]).key, NAp);
+		keyvalue5_vault20.value = mergefunc(keyvalue5_vault19.value, GETKV2(buffer19[5][i]).value, NAp);
+		keyvalue6_vault20.key = mergefunc(keyvalue6_vault19.key, GETKV2(buffer19[6][i]).key, NAp);
+		keyvalue6_vault20.value = mergefunc(keyvalue6_vault19.value, GETKV2(buffer19[6][i]).value, NAp);
+		keyvalue7_vault20.key = mergefunc(keyvalue7_vault19.key, GETKV2(buffer19[7][i]).key, NAp);
+		keyvalue7_vault20.value = mergefunc(keyvalue7_vault19.value, GETKV2(buffer19[7][i]).value, NAp);
+		keyvalue8_vault20.key = mergefunc(keyvalue8_vault19.key, GETKV2(buffer19[8][i]).key, NAp);
+		keyvalue8_vault20.value = mergefunc(keyvalue8_vault19.value, GETKV2(buffer19[8][i]).value, NAp);
+		keyvalue9_vault20.key = mergefunc(keyvalue9_vault19.key, GETKV2(buffer19[9][i]).key, NAp);
+		keyvalue9_vault20.value = mergefunc(keyvalue9_vault19.value, GETKV2(buffer19[9][i]).value, NAp);
+		keyvalue10_vault20.key = mergefunc(keyvalue10_vault19.key, GETKV2(buffer19[10][i]).key, NAp);
+		keyvalue10_vault20.value = mergefunc(keyvalue10_vault19.value, GETKV2(buffer19[10][i]).value, NAp);
+		keyvalue11_vault20.key = mergefunc(keyvalue11_vault19.key, GETKV2(buffer19[11][i]).key, NAp);
+		keyvalue11_vault20.value = mergefunc(keyvalue11_vault19.value, GETKV2(buffer19[11][i]).value, NAp);
+		keyvalue12_vault20.key = mergefunc(keyvalue12_vault19.key, GETKV2(buffer19[12][i]).key, NAp);
+		keyvalue12_vault20.value = mergefunc(keyvalue12_vault19.value, GETKV2(buffer19[12][i]).value, NAp);
+		keyvalue13_vault20.key = mergefunc(keyvalue13_vault19.key, GETKV2(buffer19[13][i]).key, NAp);
+		keyvalue13_vault20.value = mergefunc(keyvalue13_vault19.value, GETKV2(buffer19[13][i]).value, NAp);
+		keyvalue14_vault20.key = mergefunc(keyvalue14_vault19.key, GETKV2(buffer19[14][i]).key, NAp);
+		keyvalue14_vault20.value = mergefunc(keyvalue14_vault19.value, GETKV2(buffer19[14][i]).value, NAp);
+		keyvalue15_vault20.key = mergefunc(keyvalue15_vault19.key, GETKV2(buffer19[15][i]).key, NAp);
+		keyvalue15_vault20.value = mergefunc(keyvalue15_vault19.value, GETKV2(buffer19[15][i]).value, NAp);
+	
+		keyvalue0_vault21.key = mergefunc(keyvalue0_vault20.key, GETKV2(buffer20[0][i]).key, NAp);
+		keyvalue0_vault21.value = mergefunc(keyvalue0_vault20.value, GETKV2(buffer20[0][i]).value, NAp);
+		keyvalue1_vault21.key = mergefunc(keyvalue1_vault20.key, GETKV2(buffer20[1][i]).key, NAp);
+		keyvalue1_vault21.value = mergefunc(keyvalue1_vault20.value, GETKV2(buffer20[1][i]).value, NAp);
+		keyvalue2_vault21.key = mergefunc(keyvalue2_vault20.key, GETKV2(buffer20[2][i]).key, NAp);
+		keyvalue2_vault21.value = mergefunc(keyvalue2_vault20.value, GETKV2(buffer20[2][i]).value, NAp);
+		keyvalue3_vault21.key = mergefunc(keyvalue3_vault20.key, GETKV2(buffer20[3][i]).key, NAp);
+		keyvalue3_vault21.value = mergefunc(keyvalue3_vault20.value, GETKV2(buffer20[3][i]).value, NAp);
+		keyvalue4_vault21.key = mergefunc(keyvalue4_vault20.key, GETKV2(buffer20[4][i]).key, NAp);
+		keyvalue4_vault21.value = mergefunc(keyvalue4_vault20.value, GETKV2(buffer20[4][i]).value, NAp);
+		keyvalue5_vault21.key = mergefunc(keyvalue5_vault20.key, GETKV2(buffer20[5][i]).key, NAp);
+		keyvalue5_vault21.value = mergefunc(keyvalue5_vault20.value, GETKV2(buffer20[5][i]).value, NAp);
+		keyvalue6_vault21.key = mergefunc(keyvalue6_vault20.key, GETKV2(buffer20[6][i]).key, NAp);
+		keyvalue6_vault21.value = mergefunc(keyvalue6_vault20.value, GETKV2(buffer20[6][i]).value, NAp);
+		keyvalue7_vault21.key = mergefunc(keyvalue7_vault20.key, GETKV2(buffer20[7][i]).key, NAp);
+		keyvalue7_vault21.value = mergefunc(keyvalue7_vault20.value, GETKV2(buffer20[7][i]).value, NAp);
+		keyvalue8_vault21.key = mergefunc(keyvalue8_vault20.key, GETKV2(buffer20[8][i]).key, NAp);
+		keyvalue8_vault21.value = mergefunc(keyvalue8_vault20.value, GETKV2(buffer20[8][i]).value, NAp);
+		keyvalue9_vault21.key = mergefunc(keyvalue9_vault20.key, GETKV2(buffer20[9][i]).key, NAp);
+		keyvalue9_vault21.value = mergefunc(keyvalue9_vault20.value, GETKV2(buffer20[9][i]).value, NAp);
+		keyvalue10_vault21.key = mergefunc(keyvalue10_vault20.key, GETKV2(buffer20[10][i]).key, NAp);
+		keyvalue10_vault21.value = mergefunc(keyvalue10_vault20.value, GETKV2(buffer20[10][i]).value, NAp);
+		keyvalue11_vault21.key = mergefunc(keyvalue11_vault20.key, GETKV2(buffer20[11][i]).key, NAp);
+		keyvalue11_vault21.value = mergefunc(keyvalue11_vault20.value, GETKV2(buffer20[11][i]).value, NAp);
+		keyvalue12_vault21.key = mergefunc(keyvalue12_vault20.key, GETKV2(buffer20[12][i]).key, NAp);
+		keyvalue12_vault21.value = mergefunc(keyvalue12_vault20.value, GETKV2(buffer20[12][i]).value, NAp);
+		keyvalue13_vault21.key = mergefunc(keyvalue13_vault20.key, GETKV2(buffer20[13][i]).key, NAp);
+		keyvalue13_vault21.value = mergefunc(keyvalue13_vault20.value, GETKV2(buffer20[13][i]).value, NAp);
+		keyvalue14_vault21.key = mergefunc(keyvalue14_vault20.key, GETKV2(buffer20[14][i]).key, NAp);
+		keyvalue14_vault21.value = mergefunc(keyvalue14_vault20.value, GETKV2(buffer20[14][i]).value, NAp);
+		keyvalue15_vault21.key = mergefunc(keyvalue15_vault20.key, GETKV2(buffer20[15][i]).key, NAp);
+		keyvalue15_vault21.value = mergefunc(keyvalue15_vault20.value, GETKV2(buffer20[15][i]).value, NAp);
+	
 		
-		tail[0][i] = GETKV2(keyvalue0_vault17);
-		tail[1][i] = GETKV2(keyvalue1_vault17);
-		tail[2][i] = GETKV2(keyvalue2_vault17);
-		tail[3][i] = GETKV2(keyvalue3_vault17);
-		tail[4][i] = GETKV2(keyvalue4_vault17);
-		tail[5][i] = GETKV2(keyvalue5_vault17);
-		tail[6][i] = GETKV2(keyvalue6_vault17);
-		tail[7][i] = GETKV2(keyvalue7_vault17);
-		tail[8][i] = GETKV2(keyvalue8_vault17);
-		tail[9][i] = GETKV2(keyvalue9_vault17);
-		tail[10][i] = GETKV2(keyvalue10_vault17);
-		tail[11][i] = GETKV2(keyvalue11_vault17);
-		tail[12][i] = GETKV2(keyvalue12_vault17);
-		tail[13][i] = GETKV2(keyvalue13_vault17);
-		tail[14][i] = GETKV2(keyvalue14_vault17);
-		tail[15][i] = GETKV2(keyvalue15_vault17);
+		tail[0][i] = GETKV2(keyvalue0_vault21);
+		tail[1][i] = GETKV2(keyvalue1_vault21);
+		tail[2][i] = GETKV2(keyvalue2_vault21);
+		tail[3][i] = GETKV2(keyvalue3_vault21);
+		tail[4][i] = GETKV2(keyvalue4_vault21);
+		tail[5][i] = GETKV2(keyvalue5_vault21);
+		tail[6][i] = GETKV2(keyvalue6_vault21);
+		tail[7][i] = GETKV2(keyvalue7_vault21);
+		tail[8][i] = GETKV2(keyvalue8_vault21);
+		tail[9][i] = GETKV2(keyvalue9_vault21);
+		tail[10][i] = GETKV2(keyvalue10_vault21);
+		tail[11][i] = GETKV2(keyvalue11_vault21);
+		tail[12][i] = GETKV2(keyvalue12_vault21);
+		tail[13][i] = GETKV2(keyvalue13_vault21);
+		tail[14][i] = GETKV2(keyvalue14_vault21);
+		tail[15][i] = GETKV2(keyvalue15_vault21);
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(tail[0][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
@@ -3764,7 +3964,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"synchronize: synchronize function called."<<endl;
@@ -3934,6 +4134,42 @@ synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][B
 	keyvalue_t keyvalue5_vault17;
 	keyvalue_t keyvalue6_vault17;
 	keyvalue_t keyvalue7_vault17;
+	
+	keyvalue_t keyvalue0_vault18;
+	keyvalue_t keyvalue1_vault18;
+	keyvalue_t keyvalue2_vault18;
+	keyvalue_t keyvalue3_vault18;
+	keyvalue_t keyvalue4_vault18;
+	keyvalue_t keyvalue5_vault18;
+	keyvalue_t keyvalue6_vault18;
+	keyvalue_t keyvalue7_vault18;
+	
+	keyvalue_t keyvalue0_vault19;
+	keyvalue_t keyvalue1_vault19;
+	keyvalue_t keyvalue2_vault19;
+	keyvalue_t keyvalue3_vault19;
+	keyvalue_t keyvalue4_vault19;
+	keyvalue_t keyvalue5_vault19;
+	keyvalue_t keyvalue6_vault19;
+	keyvalue_t keyvalue7_vault19;
+	
+	keyvalue_t keyvalue0_vault20;
+	keyvalue_t keyvalue1_vault20;
+	keyvalue_t keyvalue2_vault20;
+	keyvalue_t keyvalue3_vault20;
+	keyvalue_t keyvalue4_vault20;
+	keyvalue_t keyvalue5_vault20;
+	keyvalue_t keyvalue6_vault20;
+	keyvalue_t keyvalue7_vault20;
+	
+	keyvalue_t keyvalue0_vault21;
+	keyvalue_t keyvalue1_vault21;
+	keyvalue_t keyvalue2_vault21;
+	keyvalue_t keyvalue3_vault21;
+	keyvalue_t keyvalue4_vault21;
+	keyvalue_t keyvalue5_vault21;
+	keyvalue_t keyvalue6_vault21;
+	keyvalue_t keyvalue7_vault21;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){
@@ -4220,15 +4456,83 @@ synchronize2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][B
 		keyvalue7_vault17.key = mergefunc(keyvalue7_vault16.key, GETKV2(buffer16[7][i]).key, NAp);
 		keyvalue7_vault17.value = mergefunc(keyvalue7_vault16.value, GETKV2(buffer16[7][i]).value, NAp);
 	
+		keyvalue0_vault18.key = mergefunc(keyvalue0_vault17.key, GETKV2(buffer17[0][i]).key, NAp);
+		keyvalue0_vault18.value = mergefunc(keyvalue0_vault17.value, GETKV2(buffer17[0][i]).value, NAp);
+		keyvalue1_vault18.key = mergefunc(keyvalue1_vault17.key, GETKV2(buffer17[1][i]).key, NAp);
+		keyvalue1_vault18.value = mergefunc(keyvalue1_vault17.value, GETKV2(buffer17[1][i]).value, NAp);
+		keyvalue2_vault18.key = mergefunc(keyvalue2_vault17.key, GETKV2(buffer17[2][i]).key, NAp);
+		keyvalue2_vault18.value = mergefunc(keyvalue2_vault17.value, GETKV2(buffer17[2][i]).value, NAp);
+		keyvalue3_vault18.key = mergefunc(keyvalue3_vault17.key, GETKV2(buffer17[3][i]).key, NAp);
+		keyvalue3_vault18.value = mergefunc(keyvalue3_vault17.value, GETKV2(buffer17[3][i]).value, NAp);
+		keyvalue4_vault18.key = mergefunc(keyvalue4_vault17.key, GETKV2(buffer17[4][i]).key, NAp);
+		keyvalue4_vault18.value = mergefunc(keyvalue4_vault17.value, GETKV2(buffer17[4][i]).value, NAp);
+		keyvalue5_vault18.key = mergefunc(keyvalue5_vault17.key, GETKV2(buffer17[5][i]).key, NAp);
+		keyvalue5_vault18.value = mergefunc(keyvalue5_vault17.value, GETKV2(buffer17[5][i]).value, NAp);
+		keyvalue6_vault18.key = mergefunc(keyvalue6_vault17.key, GETKV2(buffer17[6][i]).key, NAp);
+		keyvalue6_vault18.value = mergefunc(keyvalue6_vault17.value, GETKV2(buffer17[6][i]).value, NAp);
+		keyvalue7_vault18.key = mergefunc(keyvalue7_vault17.key, GETKV2(buffer17[7][i]).key, NAp);
+		keyvalue7_vault18.value = mergefunc(keyvalue7_vault17.value, GETKV2(buffer17[7][i]).value, NAp);
+	
+		keyvalue0_vault19.key = mergefunc(keyvalue0_vault18.key, GETKV2(buffer18[0][i]).key, NAp);
+		keyvalue0_vault19.value = mergefunc(keyvalue0_vault18.value, GETKV2(buffer18[0][i]).value, NAp);
+		keyvalue1_vault19.key = mergefunc(keyvalue1_vault18.key, GETKV2(buffer18[1][i]).key, NAp);
+		keyvalue1_vault19.value = mergefunc(keyvalue1_vault18.value, GETKV2(buffer18[1][i]).value, NAp);
+		keyvalue2_vault19.key = mergefunc(keyvalue2_vault18.key, GETKV2(buffer18[2][i]).key, NAp);
+		keyvalue2_vault19.value = mergefunc(keyvalue2_vault18.value, GETKV2(buffer18[2][i]).value, NAp);
+		keyvalue3_vault19.key = mergefunc(keyvalue3_vault18.key, GETKV2(buffer18[3][i]).key, NAp);
+		keyvalue3_vault19.value = mergefunc(keyvalue3_vault18.value, GETKV2(buffer18[3][i]).value, NAp);
+		keyvalue4_vault19.key = mergefunc(keyvalue4_vault18.key, GETKV2(buffer18[4][i]).key, NAp);
+		keyvalue4_vault19.value = mergefunc(keyvalue4_vault18.value, GETKV2(buffer18[4][i]).value, NAp);
+		keyvalue5_vault19.key = mergefunc(keyvalue5_vault18.key, GETKV2(buffer18[5][i]).key, NAp);
+		keyvalue5_vault19.value = mergefunc(keyvalue5_vault18.value, GETKV2(buffer18[5][i]).value, NAp);
+		keyvalue6_vault19.key = mergefunc(keyvalue6_vault18.key, GETKV2(buffer18[6][i]).key, NAp);
+		keyvalue6_vault19.value = mergefunc(keyvalue6_vault18.value, GETKV2(buffer18[6][i]).value, NAp);
+		keyvalue7_vault19.key = mergefunc(keyvalue7_vault18.key, GETKV2(buffer18[7][i]).key, NAp);
+		keyvalue7_vault19.value = mergefunc(keyvalue7_vault18.value, GETKV2(buffer18[7][i]).value, NAp);
+	
+		keyvalue0_vault20.key = mergefunc(keyvalue0_vault19.key, GETKV2(buffer19[0][i]).key, NAp);
+		keyvalue0_vault20.value = mergefunc(keyvalue0_vault19.value, GETKV2(buffer19[0][i]).value, NAp);
+		keyvalue1_vault20.key = mergefunc(keyvalue1_vault19.key, GETKV2(buffer19[1][i]).key, NAp);
+		keyvalue1_vault20.value = mergefunc(keyvalue1_vault19.value, GETKV2(buffer19[1][i]).value, NAp);
+		keyvalue2_vault20.key = mergefunc(keyvalue2_vault19.key, GETKV2(buffer19[2][i]).key, NAp);
+		keyvalue2_vault20.value = mergefunc(keyvalue2_vault19.value, GETKV2(buffer19[2][i]).value, NAp);
+		keyvalue3_vault20.key = mergefunc(keyvalue3_vault19.key, GETKV2(buffer19[3][i]).key, NAp);
+		keyvalue3_vault20.value = mergefunc(keyvalue3_vault19.value, GETKV2(buffer19[3][i]).value, NAp);
+		keyvalue4_vault20.key = mergefunc(keyvalue4_vault19.key, GETKV2(buffer19[4][i]).key, NAp);
+		keyvalue4_vault20.value = mergefunc(keyvalue4_vault19.value, GETKV2(buffer19[4][i]).value, NAp);
+		keyvalue5_vault20.key = mergefunc(keyvalue5_vault19.key, GETKV2(buffer19[5][i]).key, NAp);
+		keyvalue5_vault20.value = mergefunc(keyvalue5_vault19.value, GETKV2(buffer19[5][i]).value, NAp);
+		keyvalue6_vault20.key = mergefunc(keyvalue6_vault19.key, GETKV2(buffer19[6][i]).key, NAp);
+		keyvalue6_vault20.value = mergefunc(keyvalue6_vault19.value, GETKV2(buffer19[6][i]).value, NAp);
+		keyvalue7_vault20.key = mergefunc(keyvalue7_vault19.key, GETKV2(buffer19[7][i]).key, NAp);
+		keyvalue7_vault20.value = mergefunc(keyvalue7_vault19.value, GETKV2(buffer19[7][i]).value, NAp);
+	
+		keyvalue0_vault21.key = mergefunc(keyvalue0_vault20.key, GETKV2(buffer20[0][i]).key, NAp);
+		keyvalue0_vault21.value = mergefunc(keyvalue0_vault20.value, GETKV2(buffer20[0][i]).value, NAp);
+		keyvalue1_vault21.key = mergefunc(keyvalue1_vault20.key, GETKV2(buffer20[1][i]).key, NAp);
+		keyvalue1_vault21.value = mergefunc(keyvalue1_vault20.value, GETKV2(buffer20[1][i]).value, NAp);
+		keyvalue2_vault21.key = mergefunc(keyvalue2_vault20.key, GETKV2(buffer20[2][i]).key, NAp);
+		keyvalue2_vault21.value = mergefunc(keyvalue2_vault20.value, GETKV2(buffer20[2][i]).value, NAp);
+		keyvalue3_vault21.key = mergefunc(keyvalue3_vault20.key, GETKV2(buffer20[3][i]).key, NAp);
+		keyvalue3_vault21.value = mergefunc(keyvalue3_vault20.value, GETKV2(buffer20[3][i]).value, NAp);
+		keyvalue4_vault21.key = mergefunc(keyvalue4_vault20.key, GETKV2(buffer20[4][i]).key, NAp);
+		keyvalue4_vault21.value = mergefunc(keyvalue4_vault20.value, GETKV2(buffer20[4][i]).value, NAp);
+		keyvalue5_vault21.key = mergefunc(keyvalue5_vault20.key, GETKV2(buffer20[5][i]).key, NAp);
+		keyvalue5_vault21.value = mergefunc(keyvalue5_vault20.value, GETKV2(buffer20[5][i]).value, NAp);
+		keyvalue6_vault21.key = mergefunc(keyvalue6_vault20.key, GETKV2(buffer20[6][i]).key, NAp);
+		keyvalue6_vault21.value = mergefunc(keyvalue6_vault20.value, GETKV2(buffer20[6][i]).value, NAp);
+		keyvalue7_vault21.key = mergefunc(keyvalue7_vault20.key, GETKV2(buffer20[7][i]).key, NAp);
+		keyvalue7_vault21.value = mergefunc(keyvalue7_vault20.value, GETKV2(buffer20[7][i]).value, NAp);
+	
 		
-		tail[0][i] = GETKV2(keyvalue0_vault17);
-		tail[1][i] = GETKV2(keyvalue1_vault17);
-		tail[2][i] = GETKV2(keyvalue2_vault17);
-		tail[3][i] = GETKV2(keyvalue3_vault17);
-		tail[4][i] = GETKV2(keyvalue4_vault17);
-		tail[5][i] = GETKV2(keyvalue5_vault17);
-		tail[6][i] = GETKV2(keyvalue6_vault17);
-		tail[7][i] = GETKV2(keyvalue7_vault17);
+		tail[0][i] = GETKV2(keyvalue0_vault21);
+		tail[1][i] = GETKV2(keyvalue1_vault21);
+		tail[2][i] = GETKV2(keyvalue2_vault21);
+		tail[3][i] = GETKV2(keyvalue3_vault21);
+		tail[4][i] = GETKV2(keyvalue4_vault21);
+		tail[5][i] = GETKV2(keyvalue5_vault21);
+		tail[6][i] = GETKV2(keyvalue6_vault21);
+		tail[7][i] = GETKV2(keyvalue7_vault21);
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(tail[0][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
@@ -4809,7 +5113,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvdata(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
@@ -5123,6 +5427,74 @@ spreadvdata(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BL
 	keyvalue_t keyvalue13_vault17;
 	keyvalue_t keyvalue14_vault17;
 	keyvalue_t keyvalue15_vault17;
+	
+	keyvalue_t keyvalue0_vault18;
+	keyvalue_t keyvalue1_vault18;
+	keyvalue_t keyvalue2_vault18;
+	keyvalue_t keyvalue3_vault18;
+	keyvalue_t keyvalue4_vault18;
+	keyvalue_t keyvalue5_vault18;
+	keyvalue_t keyvalue6_vault18;
+	keyvalue_t keyvalue7_vault18;
+	keyvalue_t keyvalue8_vault18;
+	keyvalue_t keyvalue9_vault18;
+	keyvalue_t keyvalue10_vault18;
+	keyvalue_t keyvalue11_vault18;
+	keyvalue_t keyvalue12_vault18;
+	keyvalue_t keyvalue13_vault18;
+	keyvalue_t keyvalue14_vault18;
+	keyvalue_t keyvalue15_vault18;
+	
+	keyvalue_t keyvalue0_vault19;
+	keyvalue_t keyvalue1_vault19;
+	keyvalue_t keyvalue2_vault19;
+	keyvalue_t keyvalue3_vault19;
+	keyvalue_t keyvalue4_vault19;
+	keyvalue_t keyvalue5_vault19;
+	keyvalue_t keyvalue6_vault19;
+	keyvalue_t keyvalue7_vault19;
+	keyvalue_t keyvalue8_vault19;
+	keyvalue_t keyvalue9_vault19;
+	keyvalue_t keyvalue10_vault19;
+	keyvalue_t keyvalue11_vault19;
+	keyvalue_t keyvalue12_vault19;
+	keyvalue_t keyvalue13_vault19;
+	keyvalue_t keyvalue14_vault19;
+	keyvalue_t keyvalue15_vault19;
+	
+	keyvalue_t keyvalue0_vault20;
+	keyvalue_t keyvalue1_vault20;
+	keyvalue_t keyvalue2_vault20;
+	keyvalue_t keyvalue3_vault20;
+	keyvalue_t keyvalue4_vault20;
+	keyvalue_t keyvalue5_vault20;
+	keyvalue_t keyvalue6_vault20;
+	keyvalue_t keyvalue7_vault20;
+	keyvalue_t keyvalue8_vault20;
+	keyvalue_t keyvalue9_vault20;
+	keyvalue_t keyvalue10_vault20;
+	keyvalue_t keyvalue11_vault20;
+	keyvalue_t keyvalue12_vault20;
+	keyvalue_t keyvalue13_vault20;
+	keyvalue_t keyvalue14_vault20;
+	keyvalue_t keyvalue15_vault20;
+	
+	keyvalue_t keyvalue0_vault21;
+	keyvalue_t keyvalue1_vault21;
+	keyvalue_t keyvalue2_vault21;
+	keyvalue_t keyvalue3_vault21;
+	keyvalue_t keyvalue4_vault21;
+	keyvalue_t keyvalue5_vault21;
+	keyvalue_t keyvalue6_vault21;
+	keyvalue_t keyvalue7_vault21;
+	keyvalue_t keyvalue8_vault21;
+	keyvalue_t keyvalue9_vault21;
+	keyvalue_t keyvalue10_vault21;
+	keyvalue_t keyvalue11_vault21;
+	keyvalue_t keyvalue12_vault21;
+	keyvalue_t keyvalue13_vault21;
+	keyvalue_t keyvalue14_vault21;
+	keyvalue_t keyvalue15_vault21;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -5674,23 +6046,155 @@ spreadvdata(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BL
 		keyvalue15_vault17 = keyvalue15_vault16;
 		buffer16[15][i] = GETKV2(keyvalue15_vault16);
 	
+		keyvalue0_vault18 = keyvalue0_vault17;
+		buffer17[0][i] = GETKV2(keyvalue0_vault17);
+		keyvalue1_vault18 = keyvalue1_vault17;
+		buffer17[1][i] = GETKV2(keyvalue1_vault17);
+		keyvalue2_vault18 = keyvalue2_vault17;
+		buffer17[2][i] = GETKV2(keyvalue2_vault17);
+		keyvalue3_vault18 = keyvalue3_vault17;
+		buffer17[3][i] = GETKV2(keyvalue3_vault17);
+		keyvalue4_vault18 = keyvalue4_vault17;
+		buffer17[4][i] = GETKV2(keyvalue4_vault17);
+		keyvalue5_vault18 = keyvalue5_vault17;
+		buffer17[5][i] = GETKV2(keyvalue5_vault17);
+		keyvalue6_vault18 = keyvalue6_vault17;
+		buffer17[6][i] = GETKV2(keyvalue6_vault17);
+		keyvalue7_vault18 = keyvalue7_vault17;
+		buffer17[7][i] = GETKV2(keyvalue7_vault17);
+		keyvalue8_vault18 = keyvalue8_vault17;
+		buffer17[8][i] = GETKV2(keyvalue8_vault17);
+		keyvalue9_vault18 = keyvalue9_vault17;
+		buffer17[9][i] = GETKV2(keyvalue9_vault17);
+		keyvalue10_vault18 = keyvalue10_vault17;
+		buffer17[10][i] = GETKV2(keyvalue10_vault17);
+		keyvalue11_vault18 = keyvalue11_vault17;
+		buffer17[11][i] = GETKV2(keyvalue11_vault17);
+		keyvalue12_vault18 = keyvalue12_vault17;
+		buffer17[12][i] = GETKV2(keyvalue12_vault17);
+		keyvalue13_vault18 = keyvalue13_vault17;
+		buffer17[13][i] = GETKV2(keyvalue13_vault17);
+		keyvalue14_vault18 = keyvalue14_vault17;
+		buffer17[14][i] = GETKV2(keyvalue14_vault17);
+		keyvalue15_vault18 = keyvalue15_vault17;
+		buffer17[15][i] = GETKV2(keyvalue15_vault17);
+	
+		keyvalue0_vault19 = keyvalue0_vault18;
+		buffer18[0][i] = GETKV2(keyvalue0_vault18);
+		keyvalue1_vault19 = keyvalue1_vault18;
+		buffer18[1][i] = GETKV2(keyvalue1_vault18);
+		keyvalue2_vault19 = keyvalue2_vault18;
+		buffer18[2][i] = GETKV2(keyvalue2_vault18);
+		keyvalue3_vault19 = keyvalue3_vault18;
+		buffer18[3][i] = GETKV2(keyvalue3_vault18);
+		keyvalue4_vault19 = keyvalue4_vault18;
+		buffer18[4][i] = GETKV2(keyvalue4_vault18);
+		keyvalue5_vault19 = keyvalue5_vault18;
+		buffer18[5][i] = GETKV2(keyvalue5_vault18);
+		keyvalue6_vault19 = keyvalue6_vault18;
+		buffer18[6][i] = GETKV2(keyvalue6_vault18);
+		keyvalue7_vault19 = keyvalue7_vault18;
+		buffer18[7][i] = GETKV2(keyvalue7_vault18);
+		keyvalue8_vault19 = keyvalue8_vault18;
+		buffer18[8][i] = GETKV2(keyvalue8_vault18);
+		keyvalue9_vault19 = keyvalue9_vault18;
+		buffer18[9][i] = GETKV2(keyvalue9_vault18);
+		keyvalue10_vault19 = keyvalue10_vault18;
+		buffer18[10][i] = GETKV2(keyvalue10_vault18);
+		keyvalue11_vault19 = keyvalue11_vault18;
+		buffer18[11][i] = GETKV2(keyvalue11_vault18);
+		keyvalue12_vault19 = keyvalue12_vault18;
+		buffer18[12][i] = GETKV2(keyvalue12_vault18);
+		keyvalue13_vault19 = keyvalue13_vault18;
+		buffer18[13][i] = GETKV2(keyvalue13_vault18);
+		keyvalue14_vault19 = keyvalue14_vault18;
+		buffer18[14][i] = GETKV2(keyvalue14_vault18);
+		keyvalue15_vault19 = keyvalue15_vault18;
+		buffer18[15][i] = GETKV2(keyvalue15_vault18);
+	
+		keyvalue0_vault20 = keyvalue0_vault19;
+		buffer19[0][i] = GETKV2(keyvalue0_vault19);
+		keyvalue1_vault20 = keyvalue1_vault19;
+		buffer19[1][i] = GETKV2(keyvalue1_vault19);
+		keyvalue2_vault20 = keyvalue2_vault19;
+		buffer19[2][i] = GETKV2(keyvalue2_vault19);
+		keyvalue3_vault20 = keyvalue3_vault19;
+		buffer19[3][i] = GETKV2(keyvalue3_vault19);
+		keyvalue4_vault20 = keyvalue4_vault19;
+		buffer19[4][i] = GETKV2(keyvalue4_vault19);
+		keyvalue5_vault20 = keyvalue5_vault19;
+		buffer19[5][i] = GETKV2(keyvalue5_vault19);
+		keyvalue6_vault20 = keyvalue6_vault19;
+		buffer19[6][i] = GETKV2(keyvalue6_vault19);
+		keyvalue7_vault20 = keyvalue7_vault19;
+		buffer19[7][i] = GETKV2(keyvalue7_vault19);
+		keyvalue8_vault20 = keyvalue8_vault19;
+		buffer19[8][i] = GETKV2(keyvalue8_vault19);
+		keyvalue9_vault20 = keyvalue9_vault19;
+		buffer19[9][i] = GETKV2(keyvalue9_vault19);
+		keyvalue10_vault20 = keyvalue10_vault19;
+		buffer19[10][i] = GETKV2(keyvalue10_vault19);
+		keyvalue11_vault20 = keyvalue11_vault19;
+		buffer19[11][i] = GETKV2(keyvalue11_vault19);
+		keyvalue12_vault20 = keyvalue12_vault19;
+		buffer19[12][i] = GETKV2(keyvalue12_vault19);
+		keyvalue13_vault20 = keyvalue13_vault19;
+		buffer19[13][i] = GETKV2(keyvalue13_vault19);
+		keyvalue14_vault20 = keyvalue14_vault19;
+		buffer19[14][i] = GETKV2(keyvalue14_vault19);
+		keyvalue15_vault20 = keyvalue15_vault19;
+		buffer19[15][i] = GETKV2(keyvalue15_vault19);
+	
+		keyvalue0_vault21 = keyvalue0_vault20;
+		buffer20[0][i] = GETKV2(keyvalue0_vault20);
+		keyvalue1_vault21 = keyvalue1_vault20;
+		buffer20[1][i] = GETKV2(keyvalue1_vault20);
+		keyvalue2_vault21 = keyvalue2_vault20;
+		buffer20[2][i] = GETKV2(keyvalue2_vault20);
+		keyvalue3_vault21 = keyvalue3_vault20;
+		buffer20[3][i] = GETKV2(keyvalue3_vault20);
+		keyvalue4_vault21 = keyvalue4_vault20;
+		buffer20[4][i] = GETKV2(keyvalue4_vault20);
+		keyvalue5_vault21 = keyvalue5_vault20;
+		buffer20[5][i] = GETKV2(keyvalue5_vault20);
+		keyvalue6_vault21 = keyvalue6_vault20;
+		buffer20[6][i] = GETKV2(keyvalue6_vault20);
+		keyvalue7_vault21 = keyvalue7_vault20;
+		buffer20[7][i] = GETKV2(keyvalue7_vault20);
+		keyvalue8_vault21 = keyvalue8_vault20;
+		buffer20[8][i] = GETKV2(keyvalue8_vault20);
+		keyvalue9_vault21 = keyvalue9_vault20;
+		buffer20[9][i] = GETKV2(keyvalue9_vault20);
+		keyvalue10_vault21 = keyvalue10_vault20;
+		buffer20[10][i] = GETKV2(keyvalue10_vault20);
+		keyvalue11_vault21 = keyvalue11_vault20;
+		buffer20[11][i] = GETKV2(keyvalue11_vault20);
+		keyvalue12_vault21 = keyvalue12_vault20;
+		buffer20[12][i] = GETKV2(keyvalue12_vault20);
+		keyvalue13_vault21 = keyvalue13_vault20;
+		buffer20[13][i] = GETKV2(keyvalue13_vault20);
+		keyvalue14_vault21 = keyvalue14_vault20;
+		buffer20[14][i] = GETKV2(keyvalue14_vault20);
+		keyvalue15_vault21 = keyvalue15_vault20;
+		buffer20[15][i] = GETKV2(keyvalue15_vault20);
+	
 		
-		tail[0][i] = GETKV2(keyvalue0_vault17);
-		tail[1][i] = GETKV2(keyvalue1_vault17);
-		tail[2][i] = GETKV2(keyvalue2_vault17);
-		tail[3][i] = GETKV2(keyvalue3_vault17);
-		tail[4][i] = GETKV2(keyvalue4_vault17);
-		tail[5][i] = GETKV2(keyvalue5_vault17);
-		tail[6][i] = GETKV2(keyvalue6_vault17);
-		tail[7][i] = GETKV2(keyvalue7_vault17);
-		tail[8][i] = GETKV2(keyvalue8_vault17);
-		tail[9][i] = GETKV2(keyvalue9_vault17);
-		tail[10][i] = GETKV2(keyvalue10_vault17);
-		tail[11][i] = GETKV2(keyvalue11_vault17);
-		tail[12][i] = GETKV2(keyvalue12_vault17);
-		tail[13][i] = GETKV2(keyvalue13_vault17);
-		tail[14][i] = GETKV2(keyvalue14_vault17);
-		tail[15][i] = GETKV2(keyvalue15_vault17);
+		tail[0][i] = GETKV2(keyvalue0_vault21);
+		tail[1][i] = GETKV2(keyvalue1_vault21);
+		tail[2][i] = GETKV2(keyvalue2_vault21);
+		tail[3][i] = GETKV2(keyvalue3_vault21);
+		tail[4][i] = GETKV2(keyvalue4_vault21);
+		tail[5][i] = GETKV2(keyvalue5_vault21);
+		tail[6][i] = GETKV2(keyvalue6_vault21);
+		tail[7][i] = GETKV2(keyvalue7_vault21);
+		tail[8][i] = GETKV2(keyvalue8_vault21);
+		tail[9][i] = GETKV2(keyvalue9_vault21);
+		tail[10][i] = GETKV2(keyvalue10_vault21);
+		tail[11][i] = GETKV2(keyvalue11_vault21);
+		tail[12][i] = GETKV2(keyvalue12_vault21);
+		tail[13][i] = GETKV2(keyvalue13_vault21);
+		tail[14][i] = GETKV2(keyvalue14_vault21);
+		tail[15][i] = GETKV2(keyvalue15_vault21);
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
@@ -5734,7 +6238,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t tail[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
@@ -5904,6 +6408,42 @@ spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][B
 	keyvalue_t keyvalue5_vault17;
 	keyvalue_t keyvalue6_vault17;
 	keyvalue_t keyvalue7_vault17;
+	
+	keyvalue_t keyvalue0_vault18;
+	keyvalue_t keyvalue1_vault18;
+	keyvalue_t keyvalue2_vault18;
+	keyvalue_t keyvalue3_vault18;
+	keyvalue_t keyvalue4_vault18;
+	keyvalue_t keyvalue5_vault18;
+	keyvalue_t keyvalue6_vault18;
+	keyvalue_t keyvalue7_vault18;
+	
+	keyvalue_t keyvalue0_vault19;
+	keyvalue_t keyvalue1_vault19;
+	keyvalue_t keyvalue2_vault19;
+	keyvalue_t keyvalue3_vault19;
+	keyvalue_t keyvalue4_vault19;
+	keyvalue_t keyvalue5_vault19;
+	keyvalue_t keyvalue6_vault19;
+	keyvalue_t keyvalue7_vault19;
+	
+	keyvalue_t keyvalue0_vault20;
+	keyvalue_t keyvalue1_vault20;
+	keyvalue_t keyvalue2_vault20;
+	keyvalue_t keyvalue3_vault20;
+	keyvalue_t keyvalue4_vault20;
+	keyvalue_t keyvalue5_vault20;
+	keyvalue_t keyvalue6_vault20;
+	keyvalue_t keyvalue7_vault20;
+	
+	keyvalue_t keyvalue0_vault21;
+	keyvalue_t keyvalue1_vault21;
+	keyvalue_t keyvalue2_vault21;
+	keyvalue_t keyvalue3_vault21;
+	keyvalue_t keyvalue4_vault21;
+	keyvalue_t keyvalue5_vault21;
+	keyvalue_t keyvalue6_vault21;
+	keyvalue_t keyvalue7_vault21;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -6191,15 +6731,83 @@ spreadvdata2(bool_type enable, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][B
 		keyvalue7_vault17 = keyvalue7_vault16;
 		buffer16[7][i] = GETKV2(keyvalue7_vault16);
 	
+		keyvalue0_vault18 = keyvalue0_vault17;
+		buffer17[0][i] = GETKV2(keyvalue0_vault17);
+		keyvalue1_vault18 = keyvalue1_vault17;
+		buffer17[1][i] = GETKV2(keyvalue1_vault17);
+		keyvalue2_vault18 = keyvalue2_vault17;
+		buffer17[2][i] = GETKV2(keyvalue2_vault17);
+		keyvalue3_vault18 = keyvalue3_vault17;
+		buffer17[3][i] = GETKV2(keyvalue3_vault17);
+		keyvalue4_vault18 = keyvalue4_vault17;
+		buffer17[4][i] = GETKV2(keyvalue4_vault17);
+		keyvalue5_vault18 = keyvalue5_vault17;
+		buffer17[5][i] = GETKV2(keyvalue5_vault17);
+		keyvalue6_vault18 = keyvalue6_vault17;
+		buffer17[6][i] = GETKV2(keyvalue6_vault17);
+		keyvalue7_vault18 = keyvalue7_vault17;
+		buffer17[7][i] = GETKV2(keyvalue7_vault17);
+	
+		keyvalue0_vault19 = keyvalue0_vault18;
+		buffer18[0][i] = GETKV2(keyvalue0_vault18);
+		keyvalue1_vault19 = keyvalue1_vault18;
+		buffer18[1][i] = GETKV2(keyvalue1_vault18);
+		keyvalue2_vault19 = keyvalue2_vault18;
+		buffer18[2][i] = GETKV2(keyvalue2_vault18);
+		keyvalue3_vault19 = keyvalue3_vault18;
+		buffer18[3][i] = GETKV2(keyvalue3_vault18);
+		keyvalue4_vault19 = keyvalue4_vault18;
+		buffer18[4][i] = GETKV2(keyvalue4_vault18);
+		keyvalue5_vault19 = keyvalue5_vault18;
+		buffer18[5][i] = GETKV2(keyvalue5_vault18);
+		keyvalue6_vault19 = keyvalue6_vault18;
+		buffer18[6][i] = GETKV2(keyvalue6_vault18);
+		keyvalue7_vault19 = keyvalue7_vault18;
+		buffer18[7][i] = GETKV2(keyvalue7_vault18);
+	
+		keyvalue0_vault20 = keyvalue0_vault19;
+		buffer19[0][i] = GETKV2(keyvalue0_vault19);
+		keyvalue1_vault20 = keyvalue1_vault19;
+		buffer19[1][i] = GETKV2(keyvalue1_vault19);
+		keyvalue2_vault20 = keyvalue2_vault19;
+		buffer19[2][i] = GETKV2(keyvalue2_vault19);
+		keyvalue3_vault20 = keyvalue3_vault19;
+		buffer19[3][i] = GETKV2(keyvalue3_vault19);
+		keyvalue4_vault20 = keyvalue4_vault19;
+		buffer19[4][i] = GETKV2(keyvalue4_vault19);
+		keyvalue5_vault20 = keyvalue5_vault19;
+		buffer19[5][i] = GETKV2(keyvalue5_vault19);
+		keyvalue6_vault20 = keyvalue6_vault19;
+		buffer19[6][i] = GETKV2(keyvalue6_vault19);
+		keyvalue7_vault20 = keyvalue7_vault19;
+		buffer19[7][i] = GETKV2(keyvalue7_vault19);
+	
+		keyvalue0_vault21 = keyvalue0_vault20;
+		buffer20[0][i] = GETKV2(keyvalue0_vault20);
+		keyvalue1_vault21 = keyvalue1_vault20;
+		buffer20[1][i] = GETKV2(keyvalue1_vault20);
+		keyvalue2_vault21 = keyvalue2_vault20;
+		buffer20[2][i] = GETKV2(keyvalue2_vault20);
+		keyvalue3_vault21 = keyvalue3_vault20;
+		buffer20[3][i] = GETKV2(keyvalue3_vault20);
+		keyvalue4_vault21 = keyvalue4_vault20;
+		buffer20[4][i] = GETKV2(keyvalue4_vault20);
+		keyvalue5_vault21 = keyvalue5_vault20;
+		buffer20[5][i] = GETKV2(keyvalue5_vault20);
+		keyvalue6_vault21 = keyvalue6_vault20;
+		buffer20[6][i] = GETKV2(keyvalue6_vault20);
+		keyvalue7_vault21 = keyvalue7_vault20;
+		buffer20[7][i] = GETKV2(keyvalue7_vault20);
+	
 		
-		tail[0][i] = GETKV2(keyvalue0_vault17);
-		tail[1][i] = GETKV2(keyvalue1_vault17);
-		tail[2][i] = GETKV2(keyvalue2_vault17);
-		tail[3][i] = GETKV2(keyvalue3_vault17);
-		tail[4][i] = GETKV2(keyvalue4_vault17);
-		tail[5][i] = GETKV2(keyvalue5_vault17);
-		tail[6][i] = GETKV2(keyvalue6_vault17);
-		tail[7][i] = GETKV2(keyvalue7_vault17);
+		tail[0][i] = GETKV2(keyvalue0_vault21);
+		tail[1][i] = GETKV2(keyvalue1_vault21);
+		tail[2][i] = GETKV2(keyvalue2_vault21);
+		tail[3][i] = GETKV2(keyvalue3_vault21);
+		tail[4][i] = GETKV2(keyvalue4_vault21);
+		tail[5][i] = GETKV2(keyvalue5_vault21);
+		tail[6][i] = GETKV2(keyvalue6_vault21);
+		tail[7][i] = GETKV2(keyvalue7_vault21);
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(GETKV2(tail[0][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
@@ -6228,7 +6836,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE],uintNUMPby2_type vmask4[BLOCKRAM_SIZE],uintNUMPby2_type vmask5[BLOCKRAM_SIZE],uintNUMPby2_type vmask6[BLOCKRAM_SIZE],uintNUMPby2_type vmask7[BLOCKRAM_SIZE],uintNUMPby2_type vmask8[BLOCKRAM_SIZE],uintNUMPby2_type vmask9[BLOCKRAM_SIZE],uintNUMPby2_type vmask10[BLOCKRAM_SIZE],uintNUMPby2_type vmask11[BLOCKRAM_SIZE],uintNUMPby2_type vmask12[BLOCKRAM_SIZE],uintNUMPby2_type vmask13[BLOCKRAM_SIZE],uintNUMPby2_type vmask14[BLOCKRAM_SIZE],uintNUMPby2_type vmask15[BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE],uintNUMPby2_type vmask4[BLOCKRAM_SIZE],uintNUMPby2_type vmask5[BLOCKRAM_SIZE],uintNUMPby2_type vmask6[BLOCKRAM_SIZE],uintNUMPby2_type vmask7[BLOCKRAM_SIZE],uintNUMPby2_type vmask8[BLOCKRAM_SIZE],uintNUMPby2_type vmask9[BLOCKRAM_SIZE],uintNUMPby2_type vmask10[BLOCKRAM_SIZE],uintNUMPby2_type vmask11[BLOCKRAM_SIZE],uintNUMPby2_type vmask12[BLOCKRAM_SIZE],uintNUMPby2_type vmask13[BLOCKRAM_SIZE],uintNUMPby2_type vmask14[BLOCKRAM_SIZE],uintNUMPby2_type vmask15[BLOCKRAM_SIZE],uintNUMPby2_type vmask16[BLOCKRAM_SIZE],uintNUMPby2_type vmask17[BLOCKRAM_SIZE],uintNUMPby2_type vmask18[BLOCKRAM_SIZE],uintNUMPby2_type vmask19[BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvmask: spread (vmask) function called."<<endl;
@@ -6253,6 +6861,10 @@ spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2
 	uintNUMPby2_type vmask_vault15;
 	uintNUMPby2_type vmask_vault16;
 	uintNUMPby2_type vmask_vault17;
+	uintNUMPby2_type vmask_vault18;
+	uintNUMPby2_type vmask_vault19;
+	uintNUMPby2_type vmask_vault20;
+	uintNUMPby2_type vmask_vault21;
 	
 	for (buffer_type i=0; i<BLOCKRAM_SIZE; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -6307,6 +6919,18 @@ spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2
 	
 		vmask_vault17 = vmask_vault16;
 		vmask15[i] = vmask_vault16;
+	
+		vmask_vault18 = vmask_vault17;
+		vmask16[i] = vmask_vault17;
+	
+		vmask_vault19 = vmask_vault18;
+		vmask17[i] = vmask_vault18;
+	
+		vmask_vault20 = vmask_vault19;
+		vmask18[i] = vmask_vault19;
+	
+		vmask_vault21 = vmask_vault20;
+		vmask19[i] = vmask_vault20;
 	
 	}
 	return;
@@ -6938,8 +7562,8 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduce(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, 
-keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE], 
+dispatch_reduce(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,uint512_dt * kvdram16,uint512_dt * kvdram17,uint512_dt * kvdram18,uint512_dt * kvdram19, 
+keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask16[BLOCKRAM_SIZE], uint32_type vmask_p16[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer17[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask17[BLOCKRAM_SIZE], uint32_type vmask_p17[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer18[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask18[BLOCKRAM_SIZE], uint32_type vmask_p18[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer19[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask19[BLOCKRAM_SIZE], uint32_type vmask_p19[BLOCKRAM_SIZE], 
 		uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -7001,6 +7625,10 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t 
 		rtravstate[13] = gettravstate(ON, kvdram13, globalparams[13], currentLOP, sourcestatsmarker);
 		rtravstate[14] = gettravstate(ON, kvdram14, globalparams[14], currentLOP, sourcestatsmarker);
 		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
+		rtravstate[16] = gettravstate(ON, kvdram16, globalparams[16], currentLOP, sourcestatsmarker);
+		rtravstate[17] = gettravstate(ON, kvdram17, globalparams[17], currentLOP, sourcestatsmarker);
+		rtravstate[18] = gettravstate(ON, kvdram18, globalparams[18], currentLOP, sourcestatsmarker);
+		rtravstate[19] = gettravstate(ON, kvdram19, globalparams[19], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
@@ -7038,6 +7666,14 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t 
 		readvdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer14, 8, 0,  reducebuffersz, _globalparams);
 		readvdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15, 0, 0,  reducebuffersz, _globalparams);
 		readvdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15, 8, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram16, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer16, 0, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram16, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer16, 8, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram17, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer17, 0, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram17, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer17, 8, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram18, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer18, 0, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram18, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer18, 8, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram19, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer19, 0, 0,  reducebuffersz, _globalparams);
+		readvdata(enablereduce, kvdram19, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer19, 8, 0,  reducebuffersz, _globalparams);
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 		resetvmask(vmask0);
 		resetvmask(vmask1);
@@ -7055,6 +7691,10 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t 
 		resetvmask(vmask13);
 		resetvmask(vmask14);
 		resetvmask(vmask15);
+		resetvmask(vmask16);
+		resetvmask(vmask17);
+		resetvmask(vmask18);
+		resetvmask(vmask19);
 		#endif 
 		
 		// reduce
@@ -7090,18 +7730,26 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t 
 		dispatch(OFF, OFF, enablereduce, kvdram14, sourcebuffer14, vbuffer14, vmask14, vmask_p14, sourcestatsmarker, source_partition, _globalparams);
  
 		dispatch(OFF, OFF, enablereduce, kvdram15, sourcebuffer15, vbuffer15, vmask15, vmask_p15, sourcestatsmarker, source_partition, _globalparams);
+ 
+		dispatch(OFF, OFF, enablereduce, kvdram16, sourcebuffer16, vbuffer16, vmask16, vmask_p16, sourcestatsmarker, source_partition, _globalparams);
+ 
+		dispatch(OFF, OFF, enablereduce, kvdram17, sourcebuffer17, vbuffer17, vmask17, vmask_p17, sourcestatsmarker, source_partition, _globalparams);
+ 
+		dispatch(OFF, OFF, enablereduce, kvdram18, sourcebuffer18, vbuffer18, vmask18, vmask_p18, sourcestatsmarker, source_partition, _globalparams);
+ 
+		dispatch(OFF, OFF, enablereduce, kvdram19, sourcebuffer19, vbuffer19, vmask19, vmask_p19, sourcestatsmarker, source_partition, _globalparams);
 		
 		// synchronize 
 		#ifdef SYNCHRONIZEMODULE
 		#ifdef SHIFTSYNCHRONIZE
-		synchronize(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15, synvbuffer_tail, _globalparams);
+		synchronize(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15,vbuffer16,vbuffer17,vbuffer18,vbuffer19, synvbuffer_tail, _globalparams);
 		vmask_p[source_partition] = apply(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, voffset_kvs, _globalparams);
-		spreadvdata(enablereduce, synvbuffer_tail, vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
+		spreadvdata(enablereduce, synvbuffer_tail, vbuffer19,vbuffer18,vbuffer17,vbuffer16,vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
+		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15,vmask16,vmask17,vmask18,vmask19, _globalparams);
 		#endif 
 		#else 
-		vmask_p[source_partition] = synchronize(enablereduce, synvbuffer_head, vbuffer0, vmask0,vbuffer1, vmask1,vbuffer2, vmask2,vbuffer3, vmask3,vbuffer4, vmask4,vbuffer5, vmask5,vbuffer6, vmask6,vbuffer7, vmask7,vbuffer8, vmask8,vbuffer9, vmask9,vbuffer10, vmask10,vbuffer11, vmask11,vbuffer12, vmask12,vbuffer13, vmask13,vbuffer14, vmask14,vbuffer15, vmask15, _globalparams); 	
+		vmask_p[source_partition] = synchronize(enablereduce, synvbuffer_head, vbuffer0, vmask0,vbuffer1, vmask1,vbuffer2, vmask2,vbuffer3, vmask3,vbuffer4, vmask4,vbuffer5, vmask5,vbuffer6, vmask6,vbuffer7, vmask7,vbuffer8, vmask8,vbuffer9, vmask9,vbuffer10, vmask10,vbuffer11, vmask11,vbuffer12, vmask12,vbuffer13, vmask13,vbuffer14, vmask14,vbuffer15, vmask15,vbuffer16, vmask16,vbuffer17, vmask17,vbuffer18, vmask18,vbuffer19, vmask19, _globalparams); 	
 		#endif
 		#endif
 		
@@ -7138,6 +7786,14 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t 
 		savevdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer14, 8, 0, reducebuffersz, _globalparams);
 		savevdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer15, 0, 0, reducebuffersz, _globalparams);
 		savevdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer15, 8, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram16, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer16, 0, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram16, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer16, 8, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram17, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer17, 0, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram17, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer17, 8, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram18, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer18, 0, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram18, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer18, 8, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram19, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset, vbuffer19, 0, 0, reducebuffersz, _globalparams);
+		savevdata(enablereduce, kvdram19, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset + reducebuffersz, vbuffer19, 8, 0, reducebuffersz, _globalparams);
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
  // CRITICAL FIXME.
 		savevmasks(enablereduce, kvdram0, vmask0, vbuffer0, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
@@ -7171,6 +7827,14 @@ keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t 
 		savevmasks(enablereduce, kvdram14, vmask14, vbuffer14, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
  // CRITICAL FIXME.
 		savevmasks(enablereduce, kvdram15, vmask15, vbuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+ // CRITICAL FIXME.
+		savevmasks(enablereduce, kvdram16, vmask16, vbuffer16, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+ // CRITICAL FIXME.
+		savevmasks(enablereduce, kvdram17, vmask17, vbuffer17, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+ // CRITICAL FIXME.
+		savevmasks(enablereduce, kvdram18, vmask18, vbuffer18, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+ // CRITICAL FIXME.
+		savevmasks(enablereduce, kvdram19, vmask19, vbuffer19, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
 		#endif 
 		
 		sourcestatsmarker += 1;
@@ -7189,7 +7853,7 @@ void
 	#ifdef SW 
 	acts:: 
 	#endif
-topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){ 
+topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,uint512_dt * kvdram16,uint512_dt * kvdram17,uint512_dt * kvdram18,uint512_dt * kvdram19){ 
 	
  
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0 // max_read_burst_length=64 max_write_burst_length=64			
@@ -7223,6 +7887,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 #pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14 // max_read_burst_length=64 max_write_burst_length=64			
  
 #pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15 // max_read_burst_length=64 max_write_burst_length=64			
+ 
+#pragma HLS INTERFACE m_axi port = kvdram16 offset = slave bundle = gmem16 // max_read_burst_length=64 max_write_burst_length=64			
+ 
+#pragma HLS INTERFACE m_axi port = kvdram17 offset = slave bundle = gmem17 // max_read_burst_length=64 max_write_burst_length=64			
+ 
+#pragma HLS INTERFACE m_axi port = kvdram18 offset = slave bundle = gmem18 // max_read_burst_length=64 max_write_burst_length=64			
+ 
+#pragma HLS INTERFACE m_axi port = kvdram19 offset = slave bundle = gmem19 // max_read_burst_length=64 max_write_burst_length=64			
 		
  
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
@@ -7256,6 +7928,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 #pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
  
 #pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram16 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram17 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram18 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram19 bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
@@ -7291,6 +7971,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 #pragma HLS DATA_PACK variable = kvdram14
  
 #pragma HLS DATA_PACK variable = kvdram15
+ 
+#pragma HLS DATA_PACK variable = kvdram16
+ 
+#pragma HLS DATA_PACK variable = kvdram17
+ 
+#pragma HLS DATA_PACK variable = kvdram18
+ 
+#pragma HLS DATA_PACK variable = kvdram19
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -7330,6 +8018,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	cout<<">>> Light weight ACTS 14 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<(unsigned int)(kvdram14[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
   
 	cout<<">>> Light weight ACTS 15 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<(unsigned int)(kvdram15[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 16 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<(unsigned int)(kvdram16[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 17 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<(unsigned int)(kvdram17[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 18 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<(unsigned int)(kvdram18[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
+  
+	cout<<">>> Light weight ACTS 19 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<(unsigned int)(kvdram19[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0))<<endl; 
 	#else
   
 	cout<<">>> Light weight ACTS 0 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
@@ -7363,6 +8059,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	cout<<">>> Light weight ACTS 14 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram14[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
   
 	cout<<">>> Light weight ACTS 15 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram15[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 16 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram16[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 17 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram17[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 18 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram18[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
+  
+	cout<<">>> Light weight ACTS 19 (NACTS_IN_1COMPUTEUNIT) Launched... size: "<<kvdram19[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl; 
 	#endif
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -7481,6 +8185,34 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
 	uint32_type vmask_p15[BLOCKRAM_SIZE];
+	keyvalue_buffer_t sourcebuffer16[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer16
+	keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer16
+	uintNUMPby2_type vmask16[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask16
+	uint32_type vmask_p16[BLOCKRAM_SIZE];
+	keyvalue_buffer_t sourcebuffer17[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer17
+	keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer17
+	uintNUMPby2_type vmask17[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask17
+	uint32_type vmask_p17[BLOCKRAM_SIZE];
+	keyvalue_buffer_t sourcebuffer18[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer18
+	keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer18
+	uintNUMPby2_type vmask18[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask18
+	uint32_type vmask_p18[BLOCKRAM_SIZE];
+	keyvalue_buffer_t sourcebuffer19[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer19
+	keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer19
+	uintNUMPby2_type vmask19[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask19
+	uint32_type vmask_p19[BLOCKRAM_SIZE];
 	globalparams_t globalparams[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=globalparams complete
 	uint32_type vmask_p[BLOCKRAM_SIZE];
@@ -7517,6 +8249,14 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	globalparams[14] = globalparams[0];
  
 	globalparams[15] = globalparams[0];
+ 
+	globalparams[16] = globalparams[0];
+ 
+	globalparams[17] = globalparams[0];
+ 
+	globalparams[18] = globalparams[0];
+ 
+	globalparams[19] = globalparams[0];
 
 	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ vmask_p[k] = 0; }
 	vmask_p[0] = 0x00000001; // just for test. assuming rootvid=1
@@ -7547,6 +8287,10 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			vmask_p13[k] = vmask_p[k]; 
 			vmask_p14[k] = vmask_p[k]; 
 			vmask_p15[k] = vmask_p[k]; 
+			vmask_p16[k] = vmask_p[k]; 
+			vmask_p17[k] = vmask_p[k]; 
+			vmask_p18[k] = vmask_p[k]; 
+			vmask_p19[k] = vmask_p[k]; 
 		} 
 		
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
@@ -7566,6 +8310,10 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 		resetkvdramstats(kvdram13, globalparams[0]);
 		resetkvdramstats(kvdram14, globalparams[0]);
 		resetkvdramstats(kvdram15, globalparams[0]);
+		resetkvdramstats(kvdram16, globalparams[0]);
+		resetkvdramstats(kvdram17, globalparams[0]);
+		resetkvdramstats(kvdram18, globalparams[0]);
+		resetkvdramstats(kvdram19, globalparams[0]);
 		#endif 
 		
 		// process & partition
@@ -7651,6 +8399,26 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			cout<<"topkernel: processing instance 15... "<<endl;
 			#endif
 			dispatch(ON, OFF, OFF, kvdram15, sourcebuffer15, vbuffer15, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
+ 
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: processing instance 16... "<<endl;
+			#endif
+			dispatch(ON, OFF, OFF, kvdram16, sourcebuffer16, vbuffer16, vmask16, vmask_p16, NAp, NAp, globalparams[16]);
+ 
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: processing instance 17... "<<endl;
+			#endif
+			dispatch(ON, OFF, OFF, kvdram17, sourcebuffer17, vbuffer17, vmask17, vmask_p17, NAp, NAp, globalparams[17]);
+ 
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: processing instance 18... "<<endl;
+			#endif
+			dispatch(ON, OFF, OFF, kvdram18, sourcebuffer18, vbuffer18, vmask18, vmask_p18, NAp, NAp, globalparams[18]);
+ 
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: processing instance 19... "<<endl;
+			#endif
+			dispatch(ON, OFF, OFF, kvdram19, sourcebuffer19, vbuffer19, vmask19, vmask_p19, NAp, NAp, globalparams[19]);
 		}
 		#endif 
 		
@@ -7721,6 +8489,22 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 			cout<<"topkernel: partitioning instance 15... "<<endl;
 			#endif
 			dispatch(OFF, ON, OFF, kvdram15, sourcebuffer15, vbuffer15, vmask15, vmask_p15, NAp, NAp, globalparams[15]);
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: partitioning instance 16... "<<endl;
+			#endif
+			dispatch(OFF, ON, OFF, kvdram16, sourcebuffer16, vbuffer16, vmask16, vmask_p16, NAp, NAp, globalparams[16]);
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: partitioning instance 17... "<<endl;
+			#endif
+			dispatch(OFF, ON, OFF, kvdram17, sourcebuffer17, vbuffer17, vmask17, vmask_p17, NAp, NAp, globalparams[17]);
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: partitioning instance 18... "<<endl;
+			#endif
+			dispatch(OFF, ON, OFF, kvdram18, sourcebuffer18, vbuffer18, vmask18, vmask_p18, NAp, NAp, globalparams[18]);
+			#ifdef _DEBUGMODE_KERNELPRINTS2
+			cout<<"topkernel: partitioning instance 19... "<<endl;
+			#endif
+			dispatch(OFF, ON, OFF, kvdram19, sourcebuffer19, vbuffer19, vmask19, vmask_p19, NAp, NAp, globalparams[19]);
 		}
 		#endif
 		
@@ -7728,10 +8512,10 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 		#ifdef REDUCEMODULE
 		if(globalparams[0].ENABLE_APPLYUPDATESCOMMAND == ON){ 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			cout<<"topkernel: reducing instances 0-16... "<<endl;
+			cout<<"topkernel: reducing instances 0-20... "<<endl;
 			#endif
-			dispatch_reduce(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15, 
-sourcebuffer0, vbuffer0, vmask0, vmask_p0,sourcebuffer1, vbuffer1, vmask1, vmask_p1,sourcebuffer2, vbuffer2, vmask2, vmask_p2,sourcebuffer3, vbuffer3, vmask3, vmask_p3,sourcebuffer4, vbuffer4, vmask4, vmask_p4,sourcebuffer5, vbuffer5, vmask5, vmask_p5,sourcebuffer6, vbuffer6, vmask6, vmask_p6,sourcebuffer7, vbuffer7, vmask7, vmask_p7,sourcebuffer8, vbuffer8, vmask8, vmask_p8,sourcebuffer9, vbuffer9, vmask9, vmask_p9,sourcebuffer10, vbuffer10, vmask10, vmask_p10,sourcebuffer11, vbuffer11, vmask11, vmask_p11,sourcebuffer12, vbuffer12, vmask12, vmask_p12,sourcebuffer13, vbuffer13, vmask13, vmask_p13,sourcebuffer14, vbuffer14, vmask14, vmask_p14,sourcebuffer15, vbuffer15, vmask15, vmask_p15, 
+			dispatch_reduce(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdram16,kvdram17,kvdram18,kvdram19, 
+sourcebuffer0, vbuffer0, vmask0, vmask_p0,sourcebuffer1, vbuffer1, vmask1, vmask_p1,sourcebuffer2, vbuffer2, vmask2, vmask_p2,sourcebuffer3, vbuffer3, vmask3, vmask_p3,sourcebuffer4, vbuffer4, vmask4, vmask_p4,sourcebuffer5, vbuffer5, vmask5, vmask_p5,sourcebuffer6, vbuffer6, vmask6, vmask_p6,sourcebuffer7, vbuffer7, vmask7, vmask_p7,sourcebuffer8, vbuffer8, vmask8, vmask_p8,sourcebuffer9, vbuffer9, vmask9, vmask_p9,sourcebuffer10, vbuffer10, vmask10, vmask_p10,sourcebuffer11, vbuffer11, vmask11, vmask_p11,sourcebuffer12, vbuffer12, vmask12, vmask_p12,sourcebuffer13, vbuffer13, vmask13, vmask_p13,sourcebuffer14, vbuffer14, vmask14, vmask_p14,sourcebuffer15, vbuffer15, vmask15, vmask_p15,sourcebuffer16, vbuffer16, vmask16, vmask_p16,sourcebuffer17, vbuffer17, vmask17, vmask_p17,sourcebuffer18, vbuffer18, vmask18, vmask_p18,sourcebuffer19, vbuffer19, vmask19, vmask_p19, 
 							vmask_p, globalparams);
 		}
 		#endif 
@@ -7829,7 +8613,7 @@ void
 	#ifdef SW 
 	acts:: 
 	#endif
-topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){
+topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,uint512_dt * kvdram16,uint512_dt * kvdram17,uint512_dt * kvdram18,uint512_dt * kvdram19){
  
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0		
  
@@ -7862,6 +8646,14 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 #pragma HLS INTERFACE m_axi port = kvdram14 offset = slave bundle = gmem14		
  
 #pragma HLS INTERFACE m_axi port = kvdram15 offset = slave bundle = gmem15		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram16 offset = slave bundle = gmem16		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram17 offset = slave bundle = gmem17		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram18 offset = slave bundle = gmem18		
+ 
+#pragma HLS INTERFACE m_axi port = kvdram19 offset = slave bundle = gmem19		
 
  
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
@@ -7895,6 +8687,14 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 #pragma HLS INTERFACE s_axilite port = kvdram14 bundle = control
  
 #pragma HLS INTERFACE s_axilite port = kvdram15 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram16 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram17 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram18 bundle = control
+ 
+#pragma HLS INTERFACE s_axilite port = kvdram19 bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
@@ -7930,6 +8730,14 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 #pragma HLS DATA_PACK variable = kvdram14
  
 #pragma HLS DATA_PACK variable = kvdram15
+ 
+#pragma HLS DATA_PACK variable = kvdram16
+ 
+#pragma HLS DATA_PACK variable = kvdram17
+ 
+#pragma HLS DATA_PACK variable = kvdram18
+ 
+#pragma HLS DATA_PACK variable = kvdram19
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<">>> Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... "<<endl; 
@@ -8024,6 +8832,26 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
 	uint32_type vmask_p15[BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer16
+	uintNUMPby2_type vmask16[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask16
+	uint32_type vmask_p16[BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer17
+	uintNUMPby2_type vmask17[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask17
+	uint32_type vmask_p17[BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer18
+	uintNUMPby2_type vmask18[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask18
+	uint32_type vmask_p18[BLOCKRAM_SIZE];
+	keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer19
+	uintNUMPby2_type vmask19[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask19
+	uint32_type vmask_p19[BLOCKRAM_SIZE];
 	
 	globalparams_t globalparams[NUMCOMPUTEUNITS];
 	#pragma HLS ARRAY_PARTITION variable=globalparams complete
@@ -8055,6 +8883,10 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	globalparams[13] = globalparams[0];
 	globalparams[14] = globalparams[0];
 	globalparams[15] = globalparams[0];
+	globalparams[16] = globalparams[0];
+	globalparams[17] = globalparams[0];
+	globalparams[18] = globalparams[0];
+	globalparams[19] = globalparams[0];
 	globalparams_t _globalparams = globalparams[0];
 	unsigned int sourcestatsmarker = 0;
 	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ 
@@ -8093,6 +8925,10 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		rtravstate[13] = gettravstate(ON, kvdram13, globalparams[13], currentLOP, sourcestatsmarker);
 		rtravstate[14] = gettravstate(ON, kvdram14, globalparams[14], currentLOP, sourcestatsmarker);
 		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
+		rtravstate[16] = gettravstate(ON, kvdram16, globalparams[16], currentLOP, sourcestatsmarker);
+		rtravstate[17] = gettravstate(ON, kvdram17, globalparams[17], currentLOP, sourcestatsmarker);
+		rtravstate[18] = gettravstate(ON, kvdram18, globalparams[18], currentLOP, sourcestatsmarker);
+		rtravstate[19] = gettravstate(ON, kvdram19, globalparams[19], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMCOMPUTEUNITS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
@@ -8113,6 +8949,10 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		resetvmask(vmask13);
 		resetvmask(vmask14);
 		resetvmask(vmask15);
+		resetvmask(vmask16);
+		resetvmask(vmask17);
+		resetvmask(vmask18);
+		resetvmask(vmask19);
 		#endif
 	
 		uint32_type vmask_p__source_partition = 0;
@@ -8159,11 +8999,19 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 			readvdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer14, 0, 0,  reducebuffersz, _globalparams);
 	
 			readvdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer15, 0, 0,  reducebuffersz, _globalparams);
+	
+			readvdata(enablereduce, kvdram16, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer16, 0, 0,  reducebuffersz, _globalparams);
+	
+			readvdata(enablereduce, kvdram17, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer17, 0, 0,  reducebuffersz, _globalparams);
+	
+			readvdata(enablereduce, kvdram18, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer18, 0, 0,  reducebuffersz, _globalparams);
+	
+			readvdata(enablereduce, kvdram19, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer19, 0, 0,  reducebuffersz, _globalparams);
 			
 			// synchronize
-			synchronize2(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15, synvbuffer_tail, _globalparams);
+			synchronize2(enablereduce, synvbuffer_head, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11,vbuffer12,vbuffer13,vbuffer14,vbuffer15,vbuffer16,vbuffer17,vbuffer18,vbuffer19, synvbuffer_tail, _globalparams);
 			vmask_p_temp[it] = apply2(enablereduce, synvbuffer_tail, synvbuffer_head, vmask0, it*VECTOR_SIZE, voffset_kvs, _globalparams);
-			spreadvdata2(enablereduce, synvbuffer_tail, vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
+			spreadvdata2(enablereduce, synvbuffer_tail, vbuffer19,vbuffer18,vbuffer17,vbuffer16,vbuffer15,vbuffer14,vbuffer13,vbuffer12,vbuffer11,vbuffer10,vbuffer9,vbuffer8,vbuffer7,vbuffer6,vbuffer5,vbuffer4,vbuffer3,vbuffer2,vbuffer1,vbuffer0, synvbuffer_head, _globalparams);  // CRITICAL FIXME. vbuffers should be reversed in order to help sdaccel linker
 			
 			// writeback vertices
 	
@@ -8198,13 +9046,21 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 			savevdata(enablereduce, kvdram14, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer14, 0, 0, reducebuffersz, _globalparams);
 	
 			savevdata(enablereduce, kvdram15, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer15, 0, 0, reducebuffersz, _globalparams);
+	
+			savevdata(enablereduce, kvdram16, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer16, 0, 0, reducebuffersz, _globalparams);
+	
+			savevdata(enablereduce, kvdram17, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer17, 0, 0, reducebuffersz, _globalparams);
+	
+			savevdata(enablereduce, kvdram18, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer18, 0, 0, reducebuffersz, _globalparams);
+	
+			savevdata(enablereduce, kvdram19, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer19, 0, 0, reducebuffersz, _globalparams);
 			
 			vreadoffset_kvs += (reducebuffersz * 2) / 2;
 		}
 		
 		// save mask
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15, _globalparams);
+		spreadvmask(enablereduce, vmask0, vmask0,vmask1,vmask2,vmask3,vmask4,vmask5,vmask6,vmask7,vmask8,vmask9,vmask10,vmask11,vmask12,vmask13,vmask14,vmask15,vmask16,vmask17,vmask18,vmask19, _globalparams);
 		#endif
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	
@@ -8240,6 +9096,14 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	
 		savevmasks(enablereduce, kvdram15, vmask15, vbuffer15, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
 	
+		savevmasks(enablereduce, kvdram16, vmask16, vbuffer16, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram17, vmask17, vbuffer17, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram18, vmask18, vbuffer18, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
+		savevmasks(enablereduce, kvdram19, vmask19, vbuffer19, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs, _globalparams);
+	
 		#endif
 			
 		vmask_p[source_partition] = vmask_p_temp[0] | vmask_p_temp[1]; // CRITICAL FIXME. INCORRECT.
@@ -8259,6 +9123,10 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		savevmaskp(kvdram13, source_partition, vmask_p[source_partition], _globalparams);
 		savevmaskp(kvdram14, source_partition, vmask_p[source_partition], _globalparams);
 		savevmaskp(kvdram15, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram16, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram17, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram18, source_partition, vmask_p[source_partition], _globalparams);
+		savevmaskp(kvdram19, source_partition, vmask_p[source_partition], _globalparams);
 		
 		vmaskreadoffset_kvs += vmaskbuffersz_kvs;
 		sourcestatsmarker += 1;
@@ -8368,7 +9236,7 @@ void
 	#ifdef SW 
 	acts:: 
 	#endif
-mainkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15){ // NB: for CPU test only
+mainkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,uint512_dt * kvdram16,uint512_dt * kvdram17,uint512_dt * kvdram18,uint512_dt * kvdram19){ // NB: for CPU test only
 	globalparams_t globalparams = getglobalparams(kvdram0);
 	RUNITERATIONS_LOOP: for(unsigned int GraphIter=0; GraphIter<globalparams.ALGORITHMINFO_GRAPHITERATIONID; GraphIter++){
 		topkernel(kvdram0);
@@ -8387,8 +9255,12 @@ mainkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint51
 		topkernel(kvdram13);
 		topkernel(kvdram14);
 		topkernel(kvdram15);
+		topkernel(kvdram16);
+		topkernel(kvdram17);
+		topkernel(kvdram18);
+		topkernel(kvdram19);
 		
-		topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15);
+		topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdram16,kvdram17,kvdram18,kvdram19);
 	}
 	return;
 }
