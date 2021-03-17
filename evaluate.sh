@@ -12,8 +12,8 @@ set -e # Courtesy : Jinja 2.0
 ON=1
 OFF=0
 
-CRABTREE=$ON
-AWS=$OFF
+CRABTREE=$OFF
+AWS=$ON
 GUNROCK=$OFF
 
 if [ $CRABTREE == $ON ]
@@ -21,6 +21,8 @@ then
 	echo "crabtree env specified."
 	ROOTDIR="/home/oj2zf/Documents/ActsOfAGraph"
 	ENV="CRABTREE"
+	DSA_NAME=xilinx_u280_xdma_201910_1
+	DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
 elif [ $AWS == $ON ]
 then
 	echo "aws env specified."
@@ -28,6 +30,8 @@ then
 	source /opt/xilinx/xrt/setup.sh 
 	source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
 	ENV="AWS"
+	DSA_NAME=xilinx_aws_vu9p_f1
+	DEVICEPATH=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm
 elif [ $AWS == $ON ]
 then
 	echo "gunrock env specified."
@@ -72,27 +76,13 @@ SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM=13
 SW__GRAFBOOST_SETUP__SSSP_ALGORITHM=14
 SW__GUNROCK_SETUP__SSSP_ALGORITHM=15
 
-SW__ACTGRAPH_SETUP__BC_ALGORITHM=16
-HW__ACTGRAPH_SETUP__BC_ALGORITHM=17
-SWEMU__ACTGRAPH_SETUP__BC_ALGORITHM=18
-SW__GRAFBOOST_SETUP__BC_ALGORITHM=19
-SW__GUNROCK_SETUP__BC_ALGORITHM=20
-
-SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=21
-HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=22
-SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=23
-SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM=24
-SW__GUNROCK_SETUP__ADVANCE_ALGORITHM=25
-
 CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=26
 CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=27
 CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=28
-CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=29
 
 AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=30
 AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=31
 AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=32
-AWSHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM=33
 
 HW__ACTGRAPH_SETUP__PR_VHLS=34
 HW__ACTGRAPH_SETUP__BFS_VHLS=35
@@ -164,9 +154,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -181,19 +171,6 @@ do
 	# for setup in $HW__ACTGRAPH_SETUP__SSSP_VHLS
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	
-	# for setup in $SW__ACTGRAPH_SETUP__BC_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BC_ALGORITHM
-	# for setup in $SW__GRAFBOOST_SETUP__BC_ALGORITHM
-	# for setup in $SW__GUNROCK_SETUP__BC_ALGORITHM
-	
-	# for setup in $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
-	# for setup in $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM
-	# for setup in $SW__GUNROCK_SETUP__ADVANCE_ALGORITHM
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
-	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
@@ -352,96 +329,6 @@ do
 			ALGORITHMABBRV="sssp"
 			SETUP_NAME="gunrock_sssp_sw"
 			
-		elif [ $setup == $SW__ACTGRAPH_SETUP__BC_ALGORITHM ] # bc
-		then
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BC_ALGORITHM"
-			ALGORITHMABBRV="bc"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bc_sw"
-			else 
-				SETUP_NAME="actgraph_bc_sw"
-			fi	
-		elif [ $setup == $HW__ACTGRAPH_SETUP__BC_ALGORITHM ]
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BC_ALGORITHM"
-			ALGORITHMABBRV="bc"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bc_hw"
-			else 
-				SETUP_NAME="actgraph_bc_hw"
-			fi
-		elif [ $setup == $SW__GRAFBOOST_SETUP__BC_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="BC_ALGORITHM" 
-			ALGORITHMABBRV="bc"
-			SETUP_NAME="grafboost_bc_sw"
-		elif [ $setup == $SW__GUNROCK_SETUP__BC_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GUNROCK_SETUP" 
-			ALGORITHM="BC_ALGORITHM" 
-			ALGORITHMABBRV="bc"
-			SETUP_NAME="gunrock_bc_sw"
-		
-		elif [ $setup == $SW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ] # advance
-		then 
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			ALGORITHMABBRV="adv"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_adv_sw"
-			else 
-				SETUP_NAME="actgraph_adv_sw"
-			fi
-		elif [ $setup == $HW__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM" 
-			ALGORITHMABBRV="adv"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_adv_hw"
-			else 
-				SETUP_NAME="actgraph_adv_hw"
-			fi
-		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-		then
-			XWARE="SWEMU" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			ALGORITHMABBRV="adv"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_adv_swemu"
-			else 
-				SETUP_NAME="actgraph_adv_swemu"
-			fi
-		elif [ $setup == $SW__GRAFBOOST_SETUP__ADVANCE_ALGORITHM ] # advance
-		then 
-			XWARE="SW" 
-			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			ALGORITHMABBRV="adv"
-			SETUP_NAME="sortreduce_adv_sw"
-		elif [ $setup == $SW__GUNROCK_SETUP__ADVANCE_ALGORITHM ] # advance
-		then 
-			XWARE="SW" 
-			SETUP="GUNROCK_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			ALGORITHMABBRV="adv"
-			SETUP_NAME="gunrock_adv_sw"
-			
 		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
 		then
 			XWARE="HW" 
@@ -477,18 +364,6 @@ do
 				SETUP_NAME="actgraphlw_sssp_hw"
 			else 
 				SETUP_NAME="actgraph_sssp_hw"
-			fi
-		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__ADVANCE_ALGORITHM ]
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="ADVANCE_ALGORITHM"
-			ALGORITHMABBRV="adv"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_adv_hw"
-			else 
-				SETUP_NAME="actgraph_adv_hw"
 			fi
 			
 		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
@@ -585,28 +460,26 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		# for numsubcputhreads in $NUMTHREADS_EQ4
+		for numsubcputhreads in $NUMTHREADS_EQ4
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
 		# for numsubcputhreads in $NUMTHREADS_EQ16 #
 		# for numsubcputhreads in $NUMTHREADS_EQ18 #
-		for numsubcputhreads in $NUMTHREADS_EQ20
+		# for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
 		# for numsubcputhreads in $NUMTHREADS_EQ32
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
-			# for locke in $_NOLOCKE
 			for locke in $_LOCKE
-			# for locke in $_LOCKE $_NOLOCKE
 			do
 				### >>> LOOP3: datasets
 				
 				# for dataset in $NODATASET
-				for dataset in $HOLLYWOOD_1M_57M
+				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $KRON21_2M_91M #
-				# for dataset in $ORKUT_3M_106M #
+				for dataset in $ORKUT_3M_106M #
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M
@@ -831,34 +704,24 @@ do
 							
 						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
-							if [ $CRABTREE == $ON ]
+							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 							then
-								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
-								then
-									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
-									make cleanall
-									make all_nk TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-									cp xclbin/topkernelproc.sw_emu.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN1
-									cp xclbin/topkernelsync.sw_emu.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN2
-									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
-								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-								then
-									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
-									make cleanall
-									make all TARGET=sw_emu DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
-									cp xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_AWSKERNELXCLBIN
-									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_AWSKERNELXCLBIN
-								else
-									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
-								fi
-							elif [ $AWS == $ON ]
-							then
-								echo "aws setup specified."
+								echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 								make cleanall
-								make all TARGET=sw_emu DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm		
-								XCL_EMULATION_MODE=sw_emu ./host xclbin/topkernel.sw_emu.xilinx_u280_xdma_201910_1.xclbin
+								# make host 
+								make all_nk TARGET=sw_emu DEVICE=$DEVICEPATH 
+								cp xclbin/topkernelproc.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+								cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+								XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
+							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+							then
+								echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+								make cleanall
+								make all TARGET=sw_emu DEVICE=$DEVICEPATH 
+								cp xclbin/topkernel.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_AWSKERNELXCLBIN
+								XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_AWSKERNELXCLBIN
 							else
-								echo "no setup specified. specify crabtree or aws"
+								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 							fi
 						
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
@@ -867,15 +730,16 @@ do
 							then
 								make cleanall
 								rm -rf xclbin
-								make all_proc DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+								# make all_nk DEVICE=$DEVICEPATH > nohupsyn.out 
+								# make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
+								make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
 							
 								echo "sleeping for 2 minuites before continuing ...."
 								sleep 120
 								
 								if test -f "host"; then
-									cp xclbin/topkernelproc.hw.xilinx_u280_xdma_201910_1.xclbin "synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
-									# cp xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin "synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
-									# cp xclbin/topkernelproc.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+									# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+									cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
 									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 								fi
 								echo "sleeping for 2 minuites before continuing ...."
@@ -884,13 +748,13 @@ do
 							then
 								make cleanall
 								rm -rf xclbin
-								make all DEVICE=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm > nohupsyn.out 
+								make all DEVICE=$DEVICEPATH > nohupsyn.out 
 							
 								echo "sleeping for 2 minuites before continuing ...."
 								sleep 120
 								
 								if test -f "host"; then
-									cp xclbin/topkernel.hw.xilinx_u280_xdma_201910_1.xclbin $BACKUPDIR_KERNELXCLBIN
+									cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 								fi
 								echo "sleeping for 2 minuites before continuing ...."
@@ -906,17 +770,37 @@ do
 							
 							make cleanall
 							rm -rf xclbin
-							make all DEVICE=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm > nohupsyn.out
 							
-							cp -rf xclbin/topkernel.hw.xilinx_aws_vu9p_f1.xclbin kernel.xclbin
-							
+							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+							then
+								# make all_nk DEVICE=$DEVICEPATH > nohupsyn.out 
+								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
+								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
+								# cp -rf xclbin/topkernelsync.hw.${DSA_NAME}.xclbin kernel.xclbin
+							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+							then
+								make all DEVICE=$DEVICEPATH > nohupsyn.out
+								cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
+							else
+								echo "not specified (7)."
+							fi
+								
 							echo "sleeping for 2 minuites before continuing ...."
 							sleep 120
 							
 							if test -f "host"; then
-								# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-								cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-								
+								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								then
+									cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN1
+									# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN2
+								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								then
+									make all DEVICE=$DEVICEPATH > nohupsyn.out
+									cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
+								else
+									echo "not specified (7)."
+								fi
 								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 							fi
 							echo "sleeping for 2 minuites before continuing ...."
@@ -928,8 +812,18 @@ do
 							./createawsxclbin.sh
 							echo "sleeping for 60 minuites before continuing ...."
 							sleep 3600
-							cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
-							cd /home/centos/src/project_data/oj2zf/ActsOfAGraph
+							
+							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+							then
+								cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN1
+								# cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN2
+							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+							then
+								make all DEVICE=$DEVICEPATH > nohupsyn.out
+								cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
+							else
+								echo "not specified (7)."
+							fi
 							
 						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
 						then

@@ -6,8 +6,8 @@
 #include "../include/common.h"
 #include "../src/stats/stats.h"
 #include "../acts/acts/acts.h"
-#include "../acts/acts/acts_process.h"
-#include "../acts/acts/acts_synchronize.h"
+#include "../acts/acts/actsproc.h"
+#include "../acts/acts/actssync.h"
 #include "../src/utility/utility.h"
 
 class swkernel {
@@ -23,8 +23,8 @@ private:
 	stats * statsobj;
 	#ifdef SW
 	acts * kernelobjs[NUMSUBCPUTHREADS];
-	acts_process * kernelobjs_process[NUMSUBCPUTHREADS];
-	acts_synchronize * kernelobjs_synchronize;
+	actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
+	actssync * kernelobjs_synchronize;
 	#endif 
 	std::thread mykernelthread[NUMSUBCPUTHREADS];
 };

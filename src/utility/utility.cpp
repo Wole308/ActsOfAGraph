@@ -47,6 +47,11 @@ utility::utility(){}
 utility::~utility(){} 
 
 void utility::printallparameters(){
+	#ifdef USEHBMMEMORY
+	std::cout<<"host:: USEHBMMEMORY DEFINED"<<std::endl;
+	#else 
+	std::cout<<"host:: USEDDRAMMEMORY DEFINED"<<std::endl;	
+	#endif
 	std::cout<<"host:: NUMDRAMBANKS: "<<NUMDRAMBANKS<<std::endl;
 	std::cout<<"host:: NUMWORKERS: "<<NUMWORKERS<<std::endl;
 	std::cout<<"host:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;

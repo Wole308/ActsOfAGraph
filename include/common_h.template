@@ -9,20 +9,22 @@
 
 #define {{context['XWARE']}} // SWEMU, HW, SW
 #define {{context['SETUP']}} // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define {{context['ALGORITHM']}} // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, BC_ALGORITHM, ADVANCE_ALGORITHM
+#define {{context['ALGORITHM']}} // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define {{context['DATASET']}} 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
 #define {{context['PLATFORM']}} // AWS_PLATFORM, CRABTREE_PLATFORM
-#ifdef ADVANCE_ALGORITHM
-#define PR_ALGORITHM
-#endif 
 
-#define ACTSMODEL_LW
 #ifdef GRAFBOOST_SETUP
 #define SORTREDUCEMODEL
 #endif 
+
+{%if(context['NUMSUBCPUTHREADS'] > 4)%}
+#define USEHBMMEMORY
+{%else%}
+#define USEDDRAMMEMORY
+{%endif%}
 
 #define {{context['LOCKE']}}
 #define _SINGLEKERNEL
@@ -115,6 +117,7 @@
 #define BETWEENNESSCENTRALITY 555
 
 ////////////////
+
 #define NUMSUBCPUTHREADS {{context['NUMSUBCPUTHREADS']}}
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 

@@ -54,6 +54,9 @@ globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graph
 	#endif 
 	globalparams.BASEOFFSETKVS_EDGESDATA = BASEOFFSET_MESSAGESDATA_KVS + MESSAGESDRAMSZ; 
 	unsigned int _BASEOFFSET_EDGESDATA = globalparams.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE; 
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadedges_rowblockwise.BASEOFFSETKVS_EDGESDATA", globalparams.BASEOFFSETKVS_EDGESDATA, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_EDGESDATA: "<<globalparams.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_EDGESDATA: "<<globalparams.BASEOFFSETKVS_EDGESDATA<<"]"<<endl;
@@ -149,6 +152,9 @@ globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graph
 	globalparams.SIZE_VERTEXPTRS = KVDATA_RANGE;
 	globalparams.SIZE_EDGES = container->edgessize[0] + 1000; 
 	unsigned int _BASEOFFSET_VERTEXPTR = globalparams.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadedges_rowblockwise.BASEOFFSETKVS_VERTEXPTR", globalparams.BASEOFFSETKVS_VERTEXPTR, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"[globalparams.BASEOFFSET_VERTEXPTR: "<<globalparams.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_VERTEXPTR: "<<globalparams.BASEOFFSETKVS_VERTEXPTR<<"]"<<endl;
@@ -216,6 +222,9 @@ globalparams_t loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t 
 	globalparams.BASEOFFSETKVS_VERTICESDATA = globalparams.BASEOFFSETKVS_VERTEXPTR + ((globalparams.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
 	globalparams.SIZE_VERTICESDATA = KVDATA_RANGE; // CRITICAL FIXME? incorrect?
 	unsigned int _BASEOFFSET_VERTICESDATA = globalparams.BASEOFFSETKVS_VERTICESDATA * VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadvertexdata.BASEOFFSETKVS_VERTICESDATA", globalparams.BASEOFFSETKVS_VERTICESDATA, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_VERTICESDATA: "<<globalparams.BASEOFFSETKVS_VERTICESDATA * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_VERTICESDATA: "<<globalparams.BASEOFFSETKVS_VERTICESDATA<<"]"<<endl;
@@ -250,6 +259,9 @@ globalparams_t loadgraph::loadactvvertices(vector<vertex_t> &activevertices, key
 	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.BASEOFFSETKVS_VERTICESDATA + ((globalparams.SIZE_VERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.SIZE_ACTIVEVERTICES = ACTIVEVERTICESSZ;
 	unsigned int _BASEOFFSET_ACTIVEVERTICES = globalparams.BASEOFFSETKVS_ACTIVEVERTICES * VECTOR_SIZE;
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadactvvertices.BASEOFFSETKVS_ACTIVEVERTICES", globalparams.BASEOFFSETKVS_ACTIVEVERTICES, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_ACTIVEVERTICES: "<<globalparams.BASEOFFSETKVS_ACTIVEVERTICES * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_ACTIVEVERTICES: "<<globalparams.BASEOFFSETKVS_ACTIVEVERTICES<<"]"<<endl;
@@ -306,8 +318,7 @@ void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue
 	utilityobj->printkeyvalues("savevmasks.vmask", vmask, NUM_PARTITIONS, 4);
 	utilityobj->printkeyvalues("savevmasks.tempbuffer", tempbuffer, 8, 4);
 	utilityobj->printkeyvalues("savevmasks.kvbuffer[0]", (keyvalue_t *)&kvbuffer[offset_kvs], 4);
-	#endif 
-	// exit(EXIT_SUCCESS);
+	#endif
 	return;
 }
 globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], globalparams_t globalparams){ 
@@ -322,6 +333,10 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 	
 	unsigned int _BASEOFFSET_VERTICESDATAMASK_KVS = globalparams.BASEOFFSETKVS_VERTICESDATAMASK;
 	unsigned int _BASEOFFSET_VERTICESPARTITIONMASK_KVS = globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK;
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("generatevmaskdata.BASEOFFSETKVS_VERTICESDATAMASK", globalparams.BASEOFFSETKVS_VERTICESDATAMASK, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	utilityobj->checkoutofbounds("generatevmaskdata.BASEOFFSETKVS_VERTICESPARTITIONMASK", globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK<<"]"<<endl;
@@ -384,6 +399,9 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 	unsigned int _BASEOFFSET_STATSDRAM = globalparams.BASEOFFSETKVS_STATSDRAM * VECTOR_SIZE; 
 	unsigned int _BASEOFFSET_EDGESDATA = globalparams.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE;
 	
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadoffsetmarkers.BASEOFFSETKVS_STATSDRAM", globalparams.BASEOFFSETKVS_STATSDRAM, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"[globalparams.BASEOFFSET_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM<<"]"<<endl;
@@ -473,6 +491,10 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 	
 	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.BASEOFFSETKVS_KVDRAM + (globalparams.SIZE_KVDRAM / VECTOR_SIZE); // KVDRAMSZ_KVS;
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadoffsetmarkers.BASEOFFSETKVS_KVDRAM", globalparams.BASEOFFSETKVS_KVDRAM, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	utilityobj->checkoutofbounds("loadoffsetmarkers.BASEOFFSETKVS_KVDRAMWORKSPACE", globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i=0; i<1; i++){
@@ -528,12 +550,15 @@ globalparams_t loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * 
 	cout<<"[globalparams.SIZE_KVDRAM: "<<globalparams.SIZE_KVDRAM<<"]"<<endl;
 	cout<<"[globalparams.SIZE_KVDRAMWORKSPACE: "<<globalparams.SIZE_KVDRAMWORKSPACE<<"]"<<endl;
 	
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<< RESET <<std::endl;
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<(PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t))<<" bytes"<< RESET <<std::endl;
+	
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): "<<((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE)<<" keyvalues"<< RESET <<std::endl;
-	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<(((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (max="<<(256 * 1024 * 1024)<<" bytes)"<< RESET <<std::endl;
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<(((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(256 * 1024 * 1024)<<" bytes)"<< RESET <<std::endl;
 	#endif 
 	
-	#if defined(_DEBUGMODE_CHECKS3) && not defined(IGNOREHBMMAXCAPACITY)
-	utilityobj->checkoutofbounds("loadgraph::loadmessages", (globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + KVDRAMWORKSPACESZ, PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadgraph::loadmessages", (globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE, PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif
 	
 	unsigned int totalkvstatssize = 0;

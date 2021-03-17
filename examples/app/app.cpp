@@ -28,7 +28,6 @@
 #include "../include/examplescommon.h"
 #include "app.h"
 using namespace std;
-#define PROCESSACTIVEVERTICESTEST
 
 app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFile1, std::string _binaryFile2){
 	algorithm * thisalgorithmobj = new algorithm();
@@ -77,7 +76,7 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 16; // 3,12
+	unsigned int NumGraphIters = 4; // 3,12
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;
@@ -94,6 +93,16 @@ runsummary_t app::run(){
 	globalparams.BASEOFFSETKVS_STATSDRAM = 0;
 	globalparams.BASEOFFSETKVS_KVDRAM = 0;
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = 0;
+	
+	globalparams.SIZE_MESSAGESDRAM = 0;
+	globalparams.SIZE_EDGES = 0;
+	globalparams.SIZE_VERTEXPTRS = 0;
+	globalparams.SIZE_VERTICESDATA = 0;
+	globalparams.SIZE_ACTIVEVERTICES = 0;
+	globalparams.SIZE_VERTICESDATAMASK = 0;
+	globalparams.SIZE_KVSTATSDRAM = 0;
+	globalparams.SIZE_KVDRAM = 0;
+	globalparams.SIZE_KVDRAMWORKSPACE = 0;
 	
 	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BFS, globalparams);
 	

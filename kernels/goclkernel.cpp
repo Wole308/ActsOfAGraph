@@ -23,6 +23,11 @@ using namespace std;
 #define MAX_HBM_BANKCOUNT 32
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
 
+#define ENABLE_ACTSPROC
+#define ENABLE_ACTSSYNC
+
+#define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
+
 goclkernel::goclkernel(stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
@@ -104,56 +109,45 @@ void set_callback2(cl::Event event, const char *queue_name){
 
 void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
-	cl_int err;
 	
-	// create context and command queue for selected device
-	cout<<"goclkernel:: creating context and command queue for selected device..."<<endl;
+	cl_int err;
     auto devices = xcl::get_xil_devices();
     auto device = devices[0];
 
+    //Creating Context and Command Queue for selected Device
     OCL_CHECK(err, cl::Context context(device, NULL, NULL, NULL, &err));
-    OCL_CHECK(err,
-              cl::CommandQueue q(context,
-                                 device,
-                                 CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE |
-                                     CL_QUEUE_PROFILING_ENABLE,
-                                 &err));
-
+    OCL_CHECK(
+        err,
+        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
     std::string device_name = device.getInfo<CL_DEVICE_NAME>();
     std::cout << "Found Device=" << device_name.c_str() << std::endl;
 
+    int vector_length = LENGTH;
+    bool match = true;
+	
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<<"goclkernel::runapp: Iteration "<<GraphIter<<endl;
 		
+		#ifdef ENABLE_ACTSPROC
 		// ACTS (process)
 		{
 			cout<<"--------------- goclkernel[actssync]:: running ACTS PROCESS... ---------------"<<endl;
-			
-			vector<cl::Event> read_events(32);
-			vector<cl::Event> kernel_events(32);
-			vector<cl::Event> write_event(32);
 			
 			cl_int err;
 			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
 			std::vector<cl::Buffer> buffer_kvsourcedram(32);
 			std::vector<cl::Kernel> krnls(32);
 			
-			// create binary
 			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel:: creating binary from file..."<<endl;
+			printf("INFO: loading vmul kernel\n");
 			#endif
 			auto fileBuf = xcl::read_binary_file(binaryFile[0]);
-			cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
+			cl::Program::Binaries vmul_bins{{fileBuf.data(), fileBuf.size()}};
 			devices.resize(1);
+			OCL_CHECK(err,
+					  cl::Program program(context, devices, vmul_bins, NULL, &err));
 			
-			// create program
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel:: creating program object..."<<endl;
-			#endif
-			OCL_CHECK(err, cl::Program program(context, devices, bins, NULL, &err));
-			
-			// create kernels
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: creating kernel object..."<<endl;
 			#endif
@@ -171,249 +165,138 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 					OCL_CHECK(err,
 							  krnls[i] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 			}
-			
-			// create buffers
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: creating OCL buffers..."<<endl;
 			#endif
-			unsigned int counter = 0;
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				#ifdef _DEBUGMODE_HOSTPRINTS3
-				cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
-				#endif
-				inoutBufExt[i].obj = kvsourcedram[i];
-				inoutBufExt[i].param = 0;
-				inoutBufExt[i].flags = bank[i];
-			}
-			
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				#ifdef _DEBUGMODE_HOSTPRINTS3
-				cout<<"creating buffer for ACTS: "<<i<<endl;
-				#endif
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // NUMSUBCPUTHREADS
 				OCL_CHECK(err,
 				  buffer_kvsourcedram[i] =
 					  cl::Buffer(context,
-								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-								 inputdata_size_bytes,
-								 &inoutBufExt[i],
+								 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
+								 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
+								 kvsourcedram[i],
 								 &err));
 			}
-			
-			// set the kernel arguments
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: setting kernel arguments..."<<endl;
 			#endif
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[i])); } 
-			
-			// migrate workload
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = krnls[i].setArg(0, buffer_kvsourcedram[i])); }
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: migrating workload to FPGA..."<<endl;
 			#endif
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				OCL_CHECK(err,
-					err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  0,
-						  NULL,
-						  &write_event[i]
-						  ));
-				set_callback2(write_event[i], "ooo_queue");
-				OCL_CHECK(err, err = write_event[i].wait());
-			}
-			OCL_CHECK(err, err = q.finish());
-			
-			// Invoking the kernel
+			OCL_CHECK(err,
+					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3]}, 		
+													   0));
+
+			// This function will execute the kernel on the FPGA
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: launching the kernel..."<<endl;
-			#endif
-			std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				#ifdef _DEBUGMODE_HOSTPRINTS3
-				cout<<"goclkernel::runapp:: Kernel "<<i<<" Launched"<<endl;
-				#endif
-				std::vector<cl::Event> waitList;
-				waitList.push_back(write_event[i]);
-				OCL_CHECK(err,
-						  err = q.enqueueNDRangeKernel(
-							  krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
-				set_callback2(kernel_events[i], "ooo_queue");
-				OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
-			}
-			// q.finish();
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = kernel_events[i].wait()); }
-			OCL_CHECK(err, err = q.finish());
-			
-			// migrate workload
+			#endif 
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = q.enqueueTask(krnls[i])); }
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
 			#endif
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  CL_MIGRATE_MEM_OBJECT_HOST,
-						  NULL,
-						  &read_events[i]
-						  ));	
-				set_callback2(read_events[i], "ooo_queue");
-				OCL_CHECK(err, err = read_events[i].wait());
-			}
+			OCL_CHECK(err,
+					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3]}, 
+													   CL_MIGRATE_MEM_OBJECT_HOST));
 			OCL_CHECK(err, err = q.finish());
-			
-			// release kernel arguments
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel:: releasing kernel arguments..."<<endl;
-			#endif 
-			OCL_CHECK(err, err = q.finish());
-			long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-			std::cout <<">>> total time elapsed(kerneltimeelapsed_ms): "<<kerneltimeelapsed_ms<<" ms" <<std::endl;
-			statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 		}
+		#endif 
 		
+		#ifdef ENABLE_ACTSSYNC
 		// ACTS (synchronize)
 		{
 			cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE... ---------------"<<endl;
-			
-			vector<cl::Event> read_events(32);
-			vector<cl::Event> kernel_events(32);
-			vector<cl::Event> write_event(32);
-			
+
 			cl_int err;
 			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
 			std::vector<cl::Buffer> buffer_kvsourcedram(32);
 			std::vector<cl::Kernel> krnls(1);
 			
-			// create binary
 			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel[actssync]:: creating binary from file..."<<endl;
+			printf("INFO: loading vmul kernel\n");
 			#endif
 			auto fileBuf = xcl::read_binary_file(binaryFile[1]);
-			cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
-			// devices.resize(1);
-			
-			// create program
+			cl::Program::Binaries vmul_bins{{fileBuf.data(), fileBuf.size()}};
+			devices.resize(1);
+			OCL_CHECK(err,
+					  cl::Program program(context, devices, vmul_bins, NULL, &err));
+					  
 			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel[actssync]:: creating program object..."<<endl;
+			cout<<"goclkernel:: creating kernel object..."<<endl;
 			#endif
-			OCL_CHECK(err, cl::Program program(context, devices, bins));
-			
-			// create kernels
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel[actssync]:: creating kernel object..."<<endl;
-			#endif
-			std::string krnl_name = "topkernelsync";	
+			std::string krnl_name = "topkernelsync";
 			for(unsigned int i=0; i<1; i++){ 
 					std::string cu_id = std::to_string((i+1));
 					std::string krnl_name_full = krnl_name + ":{" + "topkernelsync_" + cu_id + "}"; 
 
+					#ifdef _DEBUGMODE_HOSTPRINTS3
 					printf("Creating a kernel [%s] for CU(%d)\n",
 						   krnl_name_full.c_str(),
 						   (i+1));
+					#endif
 
 					OCL_CHECK(err,
 							  krnls[i] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 			}
-			
-			// create buffers
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: creating OCL buffers..."<<endl;
 			#endif
-			unsigned int counter = 0;
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				#ifdef _DEBUGMODE_HOSTPRINTS3
-				cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
-				#endif
-				inoutBufExt[i].obj = kvsourcedram[i];
-				inoutBufExt[i].param = 0;
-				inoutBufExt[i].flags = bank[i];
-			}
-			inoutBufExt[NUMSUBCPUTHREADS].obj = vdram;
-			inoutBufExt[NUMSUBCPUTHREADS].param = 0;
-			inoutBufExt[NUMSUBCPUTHREADS].flags = bank[NUMSUBCPUTHREADS];
-			
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS + 1; i++){
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS + 1; i++){ 
 				#ifdef _DEBUGMODE_HOSTPRINTS3
 				cout<<"creating buffer for ACTS: "<<i<<endl;
 				#endif
-				OCL_CHECK(err,
-				  buffer_kvsourcedram[i] =
-					  cl::Buffer(context,
-								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-								 inputdata_size_bytes,
-								 &inoutBufExt[i],
+				if(i<NUMSUBCPUTHREADS){
+					OCL_CHECK(err,
+					  buffer_kvsourcedram[i] =
+						  cl::Buffer(context,
+								 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
+								 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
+								 kvsourcedram[i],
 								 &err));
+				} else {
+					OCL_CHECK(err,
+					  buffer_kvsourcedram[i] =
+						  cl::Buffer(context,
+								 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
+								 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
+								 vdram,
+								 &err));
+				}
 			}
-			
-			// set the kernel arguments
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: setting kernel arguments..."<<endl;
 			#endif
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS + 1; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
-				
-			// migrate workload
+			
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: migrating workload to FPGA..."<<endl;
 			#endif
-			for(unsigned int i=0; i<(NUMSUBCPUTHREADS + 1); i++){
-				OCL_CHECK(err,
-					err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  0,
-						  NULL,
-						  &write_event[i]
-						  ));
-				set_callback2(write_event[i], "ooo_queue");
-				OCL_CHECK(err, err = write_event[i].wait());
-			}
-			OCL_CHECK(err, err = q.finish());
-			
-			// Invoking the kernel
+			OCL_CHECK(err,
+					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, // {d_a, d_b, d_c, d_d, d_temp},		
+								0));
+
+			// This function will execute the kernel on the FPGA
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: launching the kernel..."<<endl;
 			#endif
-			std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-			for(unsigned int i=0; i<1; i++){
-				#ifdef _DEBUGMODE_HOSTPRINTS3
-				cout<<"goclkernel[actssync]::runapp:: Kernel "<<i<<" Launched"<<endl;
-				#endif
-				std::vector<cl::Event> waitList;
-				waitList.push_back(write_event[i]);
-				OCL_CHECK(err,
-						  err = q.enqueueNDRangeKernel(
-							  krnls[i], 0, 1, 1, &waitList, &kernel_events[i]));
-				set_callback2(kernel_events[i], "ooo_queue");
-			}
-			OCL_CHECK(err, err = kernel_events[0].wait());
-			OCL_CHECK(err, err = q.finish());
-			
-			// migrate workload
+			OCL_CHECK(err, err = q.enqueueTask(krnls[0]));
+
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: migrating workload back to HOST..."<<endl;
 			#endif
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS + 1; i++){
-				OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects(
-						  {buffer_kvsourcedram[i]},
-						  CL_MIGRATE_MEM_OBJECT_HOST,
-						  NULL,
-						  &read_events[i]
-						  ));	
-				set_callback2(read_events[i], "ooo_queue");
-				OCL_CHECK(err, err = read_events[i].wait());
-			}
+			OCL_CHECK(err,
+					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, // {d_d},
+													   CL_MIGRATE_MEM_OBJECT_HOST));
 			OCL_CHECK(err, err = q.finish());
-			
-			// release kernel arguments
-			#ifdef _DEBUGMODE_HOSTPRINTS3
-			cout<<"goclkernel[actssync]:: releasing kernel arguments..."<<endl;
-			#endif
-			OCL_CHECK(err, err = q.finish());
-			long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-			std::cout <<">>> total time elapsed(kerneltimeelapsed_ms): "<<kerneltimeelapsed_ms<<" ms" <<std::endl;
-			statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
 		}
+		#endif
 	}
 	return;
 }

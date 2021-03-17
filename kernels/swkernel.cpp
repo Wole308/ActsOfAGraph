@@ -9,8 +9,8 @@
 #include <mutex>
 #include <thread>
 #include "../acts/acts/acts.h"
-#include "../acts/acts/acts_process.h"
-#include "../acts/acts/acts_synchronize.h"
+#include "../acts/acts/actsproc.h"
+#include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -22,8 +22,8 @@ swkernel::swkernel(stats * _statsobj){
 	statsobj = _statsobj;
 	#ifdef SW 
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs[i] = new acts(); }
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new acts_process(); }
-	kernelobjs_synchronize = new acts_synchronize();
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
+	kernelobjs_synchronize = new actssync();
 	#endif 
 }
 swkernel::~swkernel(){} 
