@@ -1,24 +1,21 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define SWEMU // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
-#define AWS_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
+#define CRABTREE_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
 
 #ifdef GRAFBOOST_SETUP
 #define SORTREDUCEMODEL
 #endif 
 
-#define USEDDRAMMEMORY
+#define USEHBMMEMORY
 
 #define LOCKE
 #define _SINGLEKERNEL
@@ -86,7 +83,7 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 4
+#define NUMSUBCPUTHREADS 20
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -96,7 +93,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 4
+#define NUMCOMPUTEUNITS 20
 #define NUMINTSINKEYVALUETYPE 2
 
 #define NUMDRAMBANKS 4

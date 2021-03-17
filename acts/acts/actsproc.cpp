@@ -3472,14 +3472,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3492,8 +3492,8 @@ keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-buffer_type pp0cutoffs[VECTOR_SIZE];
-buffer_type pp1cutoffs[VECTOR_SIZE];
+static buffer_type pp0cutoffs[VECTOR_SIZE];
+static buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3527,7 +3527,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 			cout<<"actit(pp0): offset_kvs changed to "<<offset_kvs<<"."<<endl;
 			#endif 
-			} else { offset_kvs+=WORKBUFFER_SIZE; } // NEWCHANGE. FIXME?
+			} else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#ifdef PUP1
 		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
@@ -3548,7 +3548,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 			cout<<"actit(pp1): offset_kvs changed to "<<offset_kvs<<"."<<endl;
 			#endif 
-			} else { offset_kvs+=WORKBUFFER_SIZE; } // NEWCHANGE. FIXME?
+			} else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif
 		
 		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalparams); 

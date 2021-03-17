@@ -12,8 +12,8 @@ set -e # Courtesy : Jinja 2.0
 ON=1
 OFF=0
 
-CRABTREE=$OFF
-AWS=$ON
+CRABTREE=$ON
+AWS=$OFF
 GUNROCK=$OFF
 
 if [ $CRABTREE == $ON ]
@@ -154,9 +154,9 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -460,12 +460,12 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		for numsubcputhreads in $NUMTHREADS_EQ4
+		# for numsubcputhreads in $NUMTHREADS_EQ4 #
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		# for numsubcputhreads in $NUMTHREADS_EQ16 #
-		# for numsubcputhreads in $NUMTHREADS_EQ18 #
-		# for numsubcputhreads in $NUMTHREADS_EQ20
+		# for numsubcputhreads in $NUMTHREADS_EQ16
+		# for numsubcputhreads in $NUMTHREADS_EQ18
+		for numsubcputhreads in $NUMTHREADS_EQ20 #
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
 		# for numsubcputhreads in $NUMTHREADS_EQ32
@@ -499,13 +499,13 @@ do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
-						BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
-						BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}.xclbin"
+						BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
+						BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
+						BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
 						
-						BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}.awsxclbin"
-						BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}.awsxclbin"
-						BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}.awsxclbin"
+						BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
+						BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
+						BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/results"
 						RESULT_NAME="result_${SETUP_NAME}"
@@ -687,12 +687,21 @@ do
 							elif [ $AWS == $ON ]
 							then
 								echo "aws setup specified."
-								sudo su
+								# sudo su
 								make host
-								source /opt/xilinx/xrt/setup.sh 
-								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								./host $BACKUPDIR_AWSKERNELXCLBIN
+								# source /opt/xilinx/xrt/setup.sh 
+								# source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								# ./host $BACKUPDIR_AWSKERNELXCLBIN
 								# ./host $BACKUPDIR_AWSKERNELXCLBIN > $RESULTDIR_RESULT
+								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								then
+									./host $BACKUPDIR_AWSKERNELXCLBIN1 $BACKUPDIR_AWSKERNELXCLBIN2
+								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								then
+									./host $BACKUPDIR_AWSKERNELXCLBIN
+								else
+									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+								fi
 							else
 								echo "no setup specified. specify crabtree or aws"
 							fi
@@ -731,15 +740,15 @@ do
 								make cleanall
 								rm -rf xclbin
 								# make all_nk DEVICE=$DEVICEPATH > nohupsyn.out 
-								# make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
-								make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
+								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
 							
 								echo "sleeping for 2 minuites before continuing ...."
 								sleep 120
 								
 								if test -f "host"; then
-									# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-									cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+									# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
 									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 								fi
 								echo "sleeping for 2 minuites before continuing ...."
@@ -819,7 +828,6 @@ do
 								# cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN2
 							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 							then
-								make all DEVICE=$DEVICEPATH > nohupsyn.out
 								cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
 							else
 								echo "not specified (7)."

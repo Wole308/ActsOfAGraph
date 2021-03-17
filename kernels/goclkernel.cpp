@@ -132,7 +132,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		#ifdef ENABLE_ACTSPROC
 		// ACTS (process)
 		{
-			cout<<"--------------- goclkernel[actssync]:: running ACTS PROCESS... ---------------"<<endl;
+			cout<<"--------------- goclkernel[actssync]:: running ACTS PROCESS (Iteration "<<GraphIter<<")... ---------------"<<endl;
 			
 			cl_int err;
 			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
@@ -151,7 +151,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: creating kernel object..."<<endl;
 			#endif
-			std::string krnl_name = "topkernelproc";
+			std::string krnl_name = "topkernelproc"; //
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 					std::string cu_id = std::to_string((i+1));
 					std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
@@ -169,7 +169,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: creating OCL buffers..."<<endl;
 			#endif
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // NUMSUBCPUTHREADS
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 				OCL_CHECK(err,
 				  buffer_kvsourcedram[i] =
 					  cl::Buffer(context,
@@ -187,22 +187,34 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: migrating workload to FPGA..."<<endl;
 			#endif
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3]}, 		
-													   0));
-
+			#if NUMCOMPUTEUNITS==4
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3]}, 0));
+			#endif 
+			#if NUMCOMPUTEUNITS==20
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],
+																buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 
+																	buffer_kvsourcedram[16], buffer_kvsourcedram[17], buffer_kvsourcedram[18], buffer_kvsourcedram[19]},
+																		0));
+			#endif
+			
 			// This function will execute the kernel on the FPGA
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: launching the kernel..."<<endl;
-			#endif 
+			#endif
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ OCL_CHECK(err, err = q.enqueueTask(krnls[i])); }
 
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
 			#endif
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3]}, 
-													   CL_MIGRATE_MEM_OBJECT_HOST));
+			#if NUMCOMPUTEUNITS==4
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3]}, CL_MIGRATE_MEM_OBJECT_HOST));		
+			#endif 
+			#if NUMCOMPUTEUNITS==20
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],
+																buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 
+																	buffer_kvsourcedram[16], buffer_kvsourcedram[17], buffer_kvsourcedram[18], buffer_kvsourcedram[19]},
+																		CL_MIGRATE_MEM_OBJECT_HOST));
+			#endif 
 			OCL_CHECK(err, err = q.finish());
 		}
 		#endif 
@@ -210,7 +222,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		#ifdef ENABLE_ACTSSYNC
 		// ACTS (synchronize)
 		{
-			cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE... ---------------"<<endl;
+			cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<") ---------------"<<endl;
 
 			cl_int err;
 			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
@@ -278,10 +290,17 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: migrating workload to FPGA..."<<endl;
 			#endif
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, // {d_a, d_b, d_c, d_d, d_temp},		
-								0));
-
+			#if NUMCOMPUTEUNITS==4
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, 0));
+			#endif
+			#if NUMCOMPUTEUNITS==20
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],
+																buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 
+																	buffer_kvsourcedram[16], buffer_kvsourcedram[17], buffer_kvsourcedram[18], buffer_kvsourcedram[19], 
+																		buffer_kvsourcedram[20]},
+																			0));
+			#endif
+																		
 			// This function will execute the kernel on the FPGA
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: launching the kernel..."<<endl;
@@ -291,9 +310,16 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			#ifdef _DEBUGMODE_HOSTPRINTS3
 			cout<<"goclkernel[actssync]:: migrating workload back to HOST..."<<endl;
 			#endif
-			OCL_CHECK(err,
-					  err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, // {d_d},
-													   CL_MIGRATE_MEM_OBJECT_HOST));
+			#if NUMCOMPUTEUNITS==4
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, CL_MIGRATE_MEM_OBJECT_HOST));
+			#endif
+			#if NUMCOMPUTEUNITS==20
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],
+																buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 
+																	buffer_kvsourcedram[16], buffer_kvsourcedram[17], buffer_kvsourcedram[18], buffer_kvsourcedram[19], 
+																		buffer_kvsourcedram[20]},
+																			CL_MIGRATE_MEM_OBJECT_HOST));
+			#endif
 			OCL_CHECK(err, err = q.finish());
 		}
 		#endif

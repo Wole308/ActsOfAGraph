@@ -2340,7 +2340,7 @@ actit(bool_type enable, unsigned int mode,
 			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 			cout<<"actit(pp0): offset_kvs changed to "<<offset_kvs<<"."<<endl;
 			#endif 
-			} else { offset_kvs+=WORKBUFFER_SIZE; } // NEWCHANGE. FIXME?
+			} else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#ifdef PUP1
 		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
@@ -2361,7 +2361,7 @@ actit(bool_type enable, unsigned int mode,
 			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
 			cout<<"actit(pp1): offset_kvs changed to "<<offset_kvs<<"."<<endl;
 			#endif 
-			} else { offset_kvs+=WORKBUFFER_SIZE; } // NEWCHANGE. FIXME?
+			} else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif
 		
 		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalparams); 
