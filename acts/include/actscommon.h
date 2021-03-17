@@ -42,7 +42,7 @@ using namespace std;
 
 // #define VERTEXCOLORING // JUST-FOR-TEST
 
-// #define SUBPMASK // FIXME. work in progress...
+#define SUBPMASK // FIXME. work in progress...
 #define SUBPMASKFACTOR_POW 6
 #define SUBPMASKFACTOR 64
 
@@ -219,6 +219,11 @@ typedef struct {
 	unsigned int globaloffset;
 	unsigned int localoffset;
 } offset_t;
+
+typedef struct {
+	int chunksize_kvs;
+	int nextoffset_kvs;
+} fetchmessage_t;
 
 // buffer parameters
 #define BLOCKRAM_SIZE 512

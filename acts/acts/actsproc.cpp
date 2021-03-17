@@ -863,14 +863,21 @@ resetkvdramstats(uint512_dt * kvdram, globalparams_t globalparams){
 }
 
 // functions (accessors)
-void //
+fetchmessage_t //
 	#ifdef SW 
 	actsproc::
 	#endif 
 readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
-	if(enable == OFF){ return; }
+	fetchmessage_t fetchmessage;
+	fetchmessage.chunksize_kvs = -1;
+	fetchmessage.nextoffset_kvs = -1;
+	if(enable == OFF){ return fetchmessage; }
+	
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	buffer_type chunk_size = getchunksize_kvs(size_kvs, travstate, 0);
+	
+	fetchmessage.chunksize_kvs = chunk_size;
+	fetchmessage.nextoffset_kvs = NAp;
 	
 	READKEYVALUES1_LOOP: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -936,7 +943,7 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"readkeyvalues:: keyvalues read: offset_kvs: "<<offset_kvs<<", size_kvs: "<<size_kvs<<", chunk_size: "<<chunk_size<<endl;
 	#endif
-	return;
+	return fetchmessage;
 }
 
 void 
@@ -963,7 +970,7 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, BLOCKRAM_SIZE + 1, p, NAp, NAp);
 		actsutilityobj->checkoutofbounds("savekeyvalues 25", ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE), globalparams.SIZE_KVDRAM + 1, p, NAp, NAp);
 		#endif
-		if(realsize_kvs > 0){ // CRITICAL NEWCHANGE.
+		if(realsize_kvs > 0){
 			SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 			#pragma HLS PIPELINE II=1
@@ -2425,13 +2432,17 @@ getvmask_subp(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalpar
 	return data;
 }
 
-int 
+fetchmessage_t 
 	#ifdef SW 
 	actsproc::
 	#endif 
 readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	if(enable == OFF){ return -1; }
+	fetchmessage_t fetchmessage;
+	fetchmessage.chunksize_kvs = -1;
+	fetchmessage.nextoffset_kvs = -1;
+	if(enable == OFF){ return fetchmessage; }
+	
 	analysis_type analysis_loop = BLOCKRAM_SIZE / 2;
 	analysis_type analysis_loop1 = SUBPMASKFACTOR;
 	analysis_type analysis_loop2 = 16384 / SUBPMASKFACTOR;
@@ -2439,14 +2450,14 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	value_t E[2][VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
 	bool_type en = ON;
-	int returnmessage = -1;
+	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	unsigned int validbound = reducebuffersz * FETFACTOR * VECTOR2_SIZE;
 	
 	travstate.i_kvs = travstate.i_kvs / 2;
 	travstate.end_kvs = travstate.end_kvs / 2;
 	loffset_kvs = loffset_kvs / 2;
-	size_kvs = size_kvs / 2;
+	buffer_type edgessize_kvs = size_kvs / 2;
 	
 	batch_type offset_kvs = goffset_kvs + loffset_kvs;
 	
@@ -2462,7 +2473,18 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	keyy_t nextbeginvptr;
 	keyy_t nextbeginvptr_kvs;
 	
-	buffer_type chunk_size = getchunksize_kvs(size_kvs, travstate, 0);
+	fetchmessage.chunksize_kvs = edgessize_kvs;
+	fetchmessage.nextoffset_kvs = -1;
+	buffer_type loadcount = 0;
+	
+	unsigned int found = 0;
+	unsigned int found1 = 0;
+	int nextactivei = -1;
+	int subpidx = -1;
+	unsigned int numVsperpartition_POW = globalparams.POW_BATCHRANGE - (NUM_PARTITIONS_POW * (globalparams.ACTSPARAMS_TREEDEPTH-1));
+	unsigned int numVsperpartition = (1 << numVsperpartition_POW);
+	
+	buffer_type chunk_size = getchunksize_kvs(edgessize_kvs, travstate, 0);
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
@@ -2628,22 +2650,23 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		mykeyvalue00.key = INVALIDDATA;
 		mykeyvalue00.value = INVALIDDATA;
 		
-		buffer[0][2*i] = GETKV(mykeyvalue00);
-		buffer[0][2*i + 1] = GETKV(mykeyvalue10);
-		buffer[1][2*i] = GETKV(mykeyvalue01);
-		buffer[1][2*i + 1] = GETKV(mykeyvalue11);
-		buffer[2][2*i] = GETKV(mykeyvalue02);
-		buffer[2][2*i + 1] = GETKV(mykeyvalue12);
-		buffer[3][2*i] = GETKV(mykeyvalue03);
-		buffer[3][2*i + 1] = GETKV(mykeyvalue13);
-		buffer[4][2*i] = GETKV(mykeyvalue04);
-		buffer[4][2*i + 1] = GETKV(mykeyvalue14);
-		buffer[5][2*i] = GETKV(mykeyvalue05);
-		buffer[5][2*i + 1] = GETKV(mykeyvalue15);
-		buffer[6][2*i] = GETKV(mykeyvalue06);
-		buffer[6][2*i + 1] = GETKV(mykeyvalue16);
-		buffer[7][2*i] = GETKV(mykeyvalue07);
-		buffer[7][2*i + 1] = GETKV(mykeyvalue17);
+		buffer[0][loadcount] = GETKV(mykeyvalue00);
+		buffer[0][loadcount + 1] = GETKV(mykeyvalue10);
+		buffer[1][loadcount] = GETKV(mykeyvalue01);
+		buffer[1][loadcount + 1] = GETKV(mykeyvalue11);
+		buffer[2][loadcount] = GETKV(mykeyvalue02);
+		buffer[2][loadcount + 1] = GETKV(mykeyvalue12);
+		buffer[3][loadcount] = GETKV(mykeyvalue03);
+		buffer[3][loadcount + 1] = GETKV(mykeyvalue13);
+		buffer[4][loadcount] = GETKV(mykeyvalue04);
+		buffer[4][loadcount + 1] = GETKV(mykeyvalue14);
+		buffer[5][loadcount] = GETKV(mykeyvalue05);
+		buffer[5][loadcount + 1] = GETKV(mykeyvalue15);
+		buffer[6][loadcount] = GETKV(mykeyvalue06);
+		buffer[6][loadcount + 1] = GETKV(mykeyvalue16);
+		buffer[7][loadcount] = GETKV(mykeyvalue07);
+		buffer[7][loadcount + 1] = GETKV(mykeyvalue17);
+		if(en == ON && mask == 1){ loadcount += 2; } // CRITICAL NEWCHANGE. VHLS CHECKME.
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE*2);
@@ -2651,21 +2674,9 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif 
 	}
 	
-	unsigned int found = 0;
-	unsigned int found1 = 0;
-	int nextactivei = -1;
-	int subpidx = -1;
-	// unsigned int numVsperpartition = (1 << (globalparams.POW_BATCHRANGE-(NUM_PARTITIONS_POW * (globalparams.ACTSPARAMS_TREEDEPTH-1)))); //  16384;
-	unsigned int numVsperpartition_POW = globalparams.POW_BATCHRANGE - (NUM_PARTITIONS_POW * (globalparams.ACTSPARAMS_TREEDEPTH-1));
-	unsigned int numVsperpartition = (1 << numVsperpartition_POW);
-	// partition = (last >> numVsperpartition_POW);
-	// cout<<"readandprocess:: numVsperpartition: "<<numVsperpartition<<",numVsperpartition_POW: "<<numVsperpartition_POW<<endl;
-	// exit(EXIT_SUCCESS);
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"readandprocess:: lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<""<<endl;
 	#endif
-	
 	#ifdef SUBPMASK_XXX
 	// if(sweepparams.source_partition == 0){
 	for(nextactivei=lvid_eob; nextactivei<numVsperpartition; nextactivei++){
@@ -2685,18 +2696,18 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (nextactivei/VECTOR2_SIZE)].data[0].key;
 		#endif 
 		nextbeginvptr_kvs = nextbeginvptr / VECTOR_SIZE;
-		returnmessage = nextbeginvptr_kvs;
+		// returnmessage = nextbeginvptr_kvs;
+		fetchmessage.nextoffset_kvs = nextbeginvptr_kvs;
 		// cout<<"readandprocess: vptrbaseoffset_kvs="<<vptrbaseoffset_kvs<<", voffset_kvs="<<voffset_kvs<<", nextactivei="<<nextactivei<<endl;
 		// cout<<"readandprocess: (nextactivei="<<nextactivei<<", lvid_eob="<<lvid_eob<<", nextbeginvptr="<<nextbeginvptr<<", nextbeginvptr_kvs="<<nextbeginvptr_kvs<<", returnmessage="<<returnmessage<<") gap more than 1024 found. skipping some..."<<endl;
 		// exit(EXIT_SUCCESS);
 	} else {
-		returnmessage = -1;
+		// returnmessage = -1;
+		fetchmessage.nextoffset_kvs = -1;
 	}
 	// }
 	#endif
-	
 	#ifdef SUBPMASK
-	// if(sweepparams.source_partition == 0){
 	// fine grained search
 	unsigned int fac = (lvid_eob + (SUBPMASKFACTOR - 1)) / SUBPMASKFACTOR;
 	unsigned int last = fac * SUBPMASKFACTOR;
@@ -2706,9 +2717,8 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#endif 
 	READANDPROCESS_SCANFORNEXT_LOOP1: for(nextactivei=lvid_eob; nextactivei<last; nextactivei++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
-	#pragma HLS PIPELINE II=1
+	#pragma HLS PIPELINE II=2
 		unsigned int mask = getvmask(vmask, nextactivei, globalparams);
-		// unsigned int mask = 0; // CRITICAL REMOVEME.
 		if(mask == 1){ 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"[fine grained scan]:next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
@@ -2728,10 +2738,9 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif 
 		
 		unsigned int found2 = 0;
-		// for(subpidx=last/SUBPMASKFACTOR; subpidx<numVsperpartition/SUBPMASKFACTOR; subpidx++){ // CRITICAL AUTOMATEME.
 		READANDPROCESS_SCANFORNEXT_LOOP2: for(subpidx=(last >> SUBPMASKFACTOR_POW); subpidx<(numVsperpartition >> SUBPMASKFACTOR_POW); subpidx++){ // CRITICAL AUTOMATEME.
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop2 avg=analysis_loop2	
-		#pragma HLS PIPELINE II=1
+		#pragma HLS PIPELINE II=2
 			unsigned int mask_subp = getvmask_subp(vmask_subp, subpidx, globalparams);
 			if(mask_subp == 1){
 				#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -2751,33 +2760,33 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SUBPMASKFACTOR)/VECTOR2_SIZE)].data[0].key;
 		#endif 
 		nextbeginvptr_kvs = nextbeginvptr / VECTOR_SIZE;
-		returnmessage = nextbeginvptr_kvs;
+		fetchmessage.nextoffset_kvs = nextbeginvptr_kvs;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS2
 		cout<<"readandprocess:after coarse grained scan: (subpidx:"<<subpidx<<", nextbeginvptr_kvs:"<<nextbeginvptr_kvs<<endl;
 		#endif
-		// exit(EXIT_SUCCESS);
 	}
-	// }
 	#endif
-	return returnmessage;
+	
+	fetchmessage.chunksize_kvs = loadcount;
+	return fetchmessage;
 }
 
 // functions (partition)
-buffer_type 
+void 
 	#ifdef SW 
 	actsproc::
 	#endif
-preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, travstate_t travstate, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
-	if(enable1 == OFF && enable2 == OFF){ return 0; }
-	analysis_type analysis_srcbuffersz = WORKBUFFER_SIZE;
+preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+	if(enable1 == OFF && enable2 == OFF){ return; }
+	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
 	
 	value_t emptyslot[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=emptyslot complete
 	resetvalues(emptyslot, VECTOR_SIZE, 0);
 	
-	buffer_type chunk_size = getchunksize_kvs(WORKBUFFER_SIZE, travstate, 0);
+	buffer_type chunk_size = size_kvs;
 	unsigned int upperlimit = sweepparams.upperlimit;
 	unsigned int upperpartition = sweepparams.upperpartition;
 	
@@ -2801,7 +2810,7 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 	}
 	
 	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
 	#pragma HLS PIPELINE II=2
 		keyvalue_buffer_t keyvalue0 = sourcebuffer[0][i];
 		keyvalue_buffer_t keyvalue1 = sourcebuffer[1][i];
@@ -3034,14 +3043,14 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 	
 	for(vector_type v=0; v<VECTOR_SIZE; v++){ cutoffs[v] = emptyslot[v]; }
 	
-	localcapsule[0][0].value += (SRCBUFFER_SIZE - emptyslot[0]);
-	localcapsule[1][0].value += (SRCBUFFER_SIZE - emptyslot[1]);
-	localcapsule[2][0].value += (SRCBUFFER_SIZE - emptyslot[2]);
-	localcapsule[3][0].value += (SRCBUFFER_SIZE - emptyslot[3]);
-	localcapsule[4][0].value += (SRCBUFFER_SIZE - emptyslot[4]);
-	localcapsule[5][0].value += (SRCBUFFER_SIZE - emptyslot[5]);
-	localcapsule[6][0].value += (SRCBUFFER_SIZE - emptyslot[6]);
-	localcapsule[7][0].value += (SRCBUFFER_SIZE - emptyslot[7]);
+	localcapsule[0][0].value += (SRCBUFFER_SIZE - emptyslot[0]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[1][0].value += (SRCBUFFER_SIZE - emptyslot[1]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[2][0].value += (SRCBUFFER_SIZE - emptyslot[2]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[3][0].value += (SRCBUFFER_SIZE - emptyslot[3]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[4][0].value += (SRCBUFFER_SIZE - emptyslot[4]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[5][0].value += (SRCBUFFER_SIZE - emptyslot[5]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[6][0].value += (SRCBUFFER_SIZE - emptyslot[6]); //?????????????????????? FIXME. MAKE OBSOLETE?
+	localcapsule[7][0].value += (SRCBUFFER_SIZE - emptyslot[7]); //?????????????????????? FIXME. MAKE OBSOLETE?
 	
 	localcapsule[0][0].key = 0;
 	localcapsule[1][0].key = 0;
@@ -3062,9 +3071,10 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 	}
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("preparekeyvalues.localcapsule[0].2", (keyvalue_t *)localcapsule[0], NUM_PARTITIONS);
+	actsutilityobj->printkeyvalues("[after]preparekeyvalues.localcapsule[0].2", (keyvalue_t *)localcapsule[0], NUM_PARTITIONS);
+	actsutilityobj->printvalues("preparekeyvalues:cutoffs", cutoffs, VECTOR_SIZE);
 	#endif
-	return SRCBUFFER_SIZE;
+	return;
 }
 
 // functions (reduce)
@@ -3248,19 +3258,19 @@ resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS], key
 	return;
 }
 
-int 
+fetchmessage_t 
 	#ifdef SW 
 	actsproc::
 	#endif 
 fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	int message = -1;
+	fetchmessage_t fetchmessage;
 	if(mode == PROCESSMODE){
-		message = readandprocess(enable, kvdram, vbuffer, vmask, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+		fetchmessage = readandprocess(enable, kvdram, vbuffer, vmask, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 	} else {
-		readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
+		fetchmessage = readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
 	}
-	return message;
+	return fetchmessage; 
 }
 
 void 
@@ -3283,8 +3293,8 @@ void
 	#endif
 actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[NUM_PARTITIONS],
-							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoff, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
-	analysis_type analysis_srcbuffersz = SRCBUFFER_SIZE;
+							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
+	analysis_type analysis_loop1 = SRCBUFFER_SIZE / 4;
 	if(enable1 == OFF){ return; }
 	
 	unsigned int upperlimit = sweepparams.upperlimit;
@@ -3303,7 +3313,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	#pragma HLS ARRAY_PARTITION variable=tempcutoffs complete
 
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
-	// #pragma HLS PIPELINE II=1
+	#pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;
 		capsule_so8[p].value = capsule_so1[0][p].value + capsule_so1[1][p].value 
 									+ capsule_so1[2][p].value + capsule_so1[3][p].value 
@@ -3312,6 +3322,15 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	}
 	calculateoffsets(capsule_so8, NUM_PARTITIONS);
 	resetvalues(capsule_so8, NUM_PARTITIONS, 0);
+	
+	buffer_type maxcutoff = 0;
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ 
+	#pragma HLS PIPELINE II=1
+		if(cutoffs[v] > maxcutoff){ maxcutoff = cutoffs[v]; }
+	}
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkfordivisibleby(ON, "actspipeline:maxcutoff", maxcutoff, 4);
+	#endif
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -3331,8 +3350,8 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	}
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
-		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){
-		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_srcbuffersz avg=analysis_srcbuffersz	
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){ // CRITICAL NEWCHANGE. VHLS CHECKME. SRCBUFFER_SIZE
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#pragma HLS PIPELINE II=4
 		
 			#ifdef _DEBUGMODE_KERNELPRINTS
@@ -3472,14 +3491,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3492,13 +3511,15 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
-	int pp0message = -1;
-	int pp1message = -1;
+	fetchmessage_t fetchmessagepp0;
+	fetchmessage_t fetchmessagepp1;
+	fetchmessagepp0.chunksize_kvs = -1; fetchmessagepp0.nextoffset_kvs = -1;
+	fetchmessagepp1.chunksize_kvs = -1; fetchmessagepp1.nextoffset_kvs = -1;
 	
 	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so8); } else { itercount = 64; } // FIXME. '64' is just some number greater than 2
 	if(flush == ON){ flushsz = 1*SRCBUFFER_SIZE; } else { flushsz = 0; }
@@ -3518,42 +3539,28 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
 		#endif
 		
-			ptravstatepp0.i_kvs = offset_kvs;
-			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_SUBPMASKING_TRACE)
-			actsutilityobj->print6("### actit:: offset0_kvs", "size0_kvs", "begin_kvs", "end_kvs", "skip", "itercount", ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);
-			#endif
-		pp0message = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
-		if(mode == PROCESSMODE && pp0message != -1){ offset_kvs = pp0message; 
-			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
-			cout<<"actit(pp0): offset_kvs changed to "<<offset_kvs<<"."<<endl;
-			#endif 
-			} else { offset_kvs+=WORKBUFFER_SIZE; } 
+		ptravstatepp0.i_kvs = offset_kvs;
+		fetchmessagepp0 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
+		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#ifdef PUP1
-		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, pp1cutoffs, (itercount-2)+1, globalparams);
+		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
 		
-		preparekeyvalues(ON, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, ptravstatepp0, WORKBUFFER_SIZE, pp0cutoffs, globalparams);
+		preparekeyvalues(ON, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
 		#ifdef PUP1
 		commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalparams); 
 		#endif 
 		
-		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, WORKBUFFER_SIZE, pp0cutoffs, itercount, globalparams);
+		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
-			ptravstatepp1.i_kvs = offset_kvs;
-			#if defined(_DEBUGMODE_KERNELPRINTS) || defined(_DEBUGMODE_SUBPMASKING_TRACE)
-			actsutilityobj->print6("### actit:: offset1_kvs", "size1_kvs", "begin_kvs", "end_kvs", "skip", "itercount", ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstate.begin_kvs, ptravstate.end_kvs, WORKBUFFER_SIZE, itercount);
-			#endif
-		pp1message = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams);
-		if(mode == PROCESSMODE && pp1message != -1){ offset_kvs = pp1message; 
-			#ifdef _DEBUGMODE_SUBPMASKING_TRACE
-			cout<<"actit(pp1): offset_kvs changed to "<<offset_kvs<<"."<<endl;
-			#endif 
-			} else { offset_kvs+=WORKBUFFER_SIZE; } 
+		ptravstatepp1.i_kvs = offset_kvs;
+		fetchmessagepp1 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams);
+		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif
 		
 		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalparams); 
 		#ifdef PUP1
-		preparekeyvalues(pp1partitionen, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, ptravstatepp1, WORKBUFFER_SIZE, pp1cutoffs, globalparams);
+		preparekeyvalues(pp1partitionen, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
 		#endif
 		
 		itercount += NUMPARTITIONUPDATESPIPELINES;
@@ -3922,7 +3929,7 @@ topkernelproc(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -3962,7 +3969,7 @@ topkernelproc(uint512_dt * kvdram){
 		#endif
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
 	}
-	#endif 
+	#endif
 	
 	// reduce & partition
 	#ifdef REDUCEMODULE
