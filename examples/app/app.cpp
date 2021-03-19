@@ -76,12 +76,16 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 4; // 3,12
+	unsigned int NumGraphIters = 24; // 3,12
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;
 
 	activevertices.push_back(1);
+	
+	// unsigned int BLOP = ((1 << NUM_PARTITIONS_POW) << (TREE_DEPTH-1));
+		// cout<<"app:: BLOP: "<<BLOP<<endl;
+		// exit(EXIT_SUCCESS);
 
 	// load workload information
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;

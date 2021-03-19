@@ -782,20 +782,6 @@ resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval)
 	}
 	return;
 }
-void 
-	#ifdef SW 
-	actsproc::
-	#endif 
-resetvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
-	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		vmask[i].data[{{p}}].key = 0;
-		vmask[i].data[{{p}}].value = 0;
-		{%endfor%}
-		
-	}
-	return;
-}
 void
 	#ifdef SW 
 	actsproc::
@@ -2278,7 +2264,7 @@ actit(bool_type enable, unsigned int mode,
 
 // dispatch
 void
-	#ifdef SW 
+	#ifdef SW
 	actsproc::
 	#endif 
 processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){

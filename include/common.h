@@ -5,7 +5,7 @@
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
-#define _KRON21_2M_91M 
+#define _HOLLYWOOD_1M_57M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 

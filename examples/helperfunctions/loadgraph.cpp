@@ -207,7 +207,9 @@ globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graph
 	
 	unsigned int maxvptr = 0;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"container->edgessize["<<i<<"] (last vptr): "<<container->edgessize[i]<<endl;
+		#endif 
 		if(maxvptr < counts[i]){ maxvptr = counts[i]; }
 	}
 	cout<<"maxvptr: "<<maxvptr<<endl;

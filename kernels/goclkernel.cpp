@@ -375,6 +375,18 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			// std::cout <<">>> SUMMARY: kernel (sync) average time elapsed for Iteration "<<GraphIter<<": "<<avs_sync[GraphIter]<<" ms"<<std::endl;
 		}
 		#endif
+		
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
+		unsigned int totalactvvp = 0;
+		cout<<"active partitions after iteration "<<GraphIter<<": ";
+		for(unsigned int i=0; i<256; i++){
+			unsigned int gmask = kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
+			totalactvvp += gmask;
+			if(gmask > 0){ cout<<i<<", "; }
+		}
+		cout<<""<<endl;
+		if(totalactvvp == 0){ cout<<"goclkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
 	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<totaltime<<" ms"<< RESET << std::endl;
 	return;

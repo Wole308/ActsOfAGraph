@@ -851,48 +851,6 @@ resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval)
 	}
 	return;
 }
-void 
-	#ifdef SW 
-	actsproc::
-	#endif 
-resetvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
-	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
-		vmask[i].data[0].key = 0;
-		vmask[i].data[0].value = 0;
-		vmask[i].data[1].key = 0;
-		vmask[i].data[1].value = 0;
-		vmask[i].data[2].key = 0;
-		vmask[i].data[2].value = 0;
-		vmask[i].data[3].key = 0;
-		vmask[i].data[3].value = 0;
-		vmask[i].data[4].key = 0;
-		vmask[i].data[4].value = 0;
-		vmask[i].data[5].key = 0;
-		vmask[i].data[5].value = 0;
-		vmask[i].data[6].key = 0;
-		vmask[i].data[6].value = 0;
-		vmask[i].data[7].key = 0;
-		vmask[i].data[7].value = 0;
-		vmask[i].data[8].key = 0;
-		vmask[i].data[8].value = 0;
-		vmask[i].data[9].key = 0;
-		vmask[i].data[9].value = 0;
-		vmask[i].data[10].key = 0;
-		vmask[i].data[10].value = 0;
-		vmask[i].data[11].key = 0;
-		vmask[i].data[11].value = 0;
-		vmask[i].data[12].key = 0;
-		vmask[i].data[12].value = 0;
-		vmask[i].data[13].key = 0;
-		vmask[i].data[13].value = 0;
-		vmask[i].data[14].key = 0;
-		vmask[i].data[14].value = 0;
-		vmask[i].data[15].key = 0;
-		vmask[i].data[15].value = 0;
-		
-	}
-	return;
-}
 void
 	#ifdef SW 
 	actsproc::
@@ -3304,7 +3262,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 
 // dispatch
 void
-	#ifdef SW 
+	#ifdef SW
 	actsproc::
 	#endif 
 processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){

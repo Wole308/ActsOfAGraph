@@ -76,7 +76,6 @@ public:
 	void resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval);
 	void resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
 	void resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
-	void resetvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE]);
 	void resetkvdramstats(uint512_dt * kvdram, globalparams_t globalparams);
 	
 	// functions (accessors)

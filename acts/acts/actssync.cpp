@@ -24,7 +24,7 @@
 #include "actssync.h"
 using namespace std;
 
-#define NUMSYNCPIPELINES 2 // 2 // CRITICAL FIXME. CORRECTME.
+#define NUMSYNCPIPELINES 1 // 2 // CRITICAL FIXME. CORRECTME.
 #if NUMSYNCPIPELINES==1
 #define SUP0
 #endif 
@@ -499,7 +499,7 @@ savevmaskp(bool_type enable1, bool_type enable2, uint512_dt * kvdram, unsigned i
 }
 
 // functions (resets)
-void 
+/* void 
 	#ifdef SW 
 	actssync::
 	#endif 
@@ -541,6 +541,27 @@ resetvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
 		vmask[i].data[15].key = 0;
 		vmask[i].data[15].value = 0;
 		
+	}
+	return;
+} */
+void
+	#ifdef SW 
+	actssync::
+	#endif 
+resetkvdramstats(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,uint512_dt * kvdram16,uint512_dt * kvdram17,uint512_dt * kvdram18,uint512_dt * kvdram19, unsigned int size, globalparams_t globalparams){
+	#pragma HLS INLINE 
+	RESETKVSTATS_LOOP1: for(unsigned int i=0; i<size; i++){
+		#ifdef _WIDEWORD
+		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].range(31, 0) = 0;
+		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].range(31, 0) = 0;
+		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].range(31, 0) = 0;
+		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].range(31, 0) = 0;
+		#else
+		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key = 0;
+		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key = 0;
+		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key = 0;
+		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key = 0;
+		#endif 
 	}
 	return;
 }
@@ -3100,7 +3121,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 
 	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
 	
-	unsigned int total_num_iterations = num_source_partitions*2;
+	unsigned int total_num_iterations = num_source_partitions * 2;
 	batch_type source_partition;
 	
 	bool_type enablereduce = ON;
@@ -3117,11 +3138,13 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
+	resetkvdramstats(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdram16,kvdram17,kvdram18,kvdram19, num_source_partitions, _globalparams);
+	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
 		enablereduce = ON;
-		unsigned int ntravszs = 0; // CRITICAL REMOVEME.
+		unsigned int ntravszs = 0;
 		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
 		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
 		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
@@ -3180,27 +3203,22 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1,vbuffer1_level1,vbuffer2_level1,vbuffer3_level1,vbuffer4_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
 		SWITCHcount += 1;
 		#ifdef SUP1 // S_and_I4
- // NEWCHANGE.
 		spreadandwrite(enablereducepp1, pp1en_spreadandwrite,  kvdram0,kvdram1,kvdram2,kvdram3,			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp0_level3,
 			_globalparams);
- // NEWCHANGE.
 		spreadandwrite(enablereducepp1, pp1en_spreadandwrite,  kvdram4,kvdram5,kvdram6,kvdram7,			vbuffer1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp1_level3,
 			_globalparams);
- // NEWCHANGE.
 		spreadandwrite(enablereducepp1, pp1en_spreadandwrite,  kvdram8,kvdram9,kvdram10,kvdram11,			vbuffer2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp2_level3,
 			_globalparams);
- // NEWCHANGE.
 		spreadandwrite(enablereducepp1, pp1en_spreadandwrite,  kvdram12,kvdram13,kvdram14,kvdram15,			vbuffer3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask3_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp3_level3,
 			_globalparams);
- // NEWCHANGE.
 		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, vdram, kvdram16,kvdram17,kvdram18,kvdram19,			vbuffer4_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask4_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp4_level3,
@@ -3256,7 +3274,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 			vmask4_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			source_partition, vmaskptemp4_level3,
 			_globalparams);
-		vreadoffsetpp0_kvs += reducebuffersz * NUMSYNCPIPELINES; //+++
+		vreadoffsetpp0_kvs += reducebuffersz * NUMSYNCPIPELINES;
 		MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; } 
 		#ifdef SUP1 // I2 - pp1
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
@@ -3283,6 +3301,9 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	return;
 }
 }
+
+
+
 
 
 

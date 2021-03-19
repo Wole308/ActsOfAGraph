@@ -92,6 +92,18 @@ void swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512
 			#endif 
 			(uint512_dt *)vdram
 		);
+		
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
+		unsigned int totalactvvp = 0;
+		cout<<"active partitions after iteration "<<GraphIter<<": ";
+		for(unsigned int i=0; i<256; i++){
+			unsigned int gmask = kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
+			totalactvvp += gmask;
+			if(gmask > 0){ cout<<i<<", "; }
+		}
+		cout<<""<<endl;
+		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
 	#endif
 	
