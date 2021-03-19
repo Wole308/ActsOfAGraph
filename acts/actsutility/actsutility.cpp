@@ -245,8 +245,6 @@ void actsutility::printparameters(){
 	cout<<"acts::printparameters:: BLOCKRAM_SIZE * VECTOR_SIZE: "<<BLOCKRAM_SIZE * VECTOR_SIZE<<endl;
 	cout<<"acts::printparameters:: BLOCKRAM_SIZE * NUMSUBWORKERS (total dest_kvs memory): "<<(BLOCKRAM_SIZE * NUMSUBWORKERS)<<endl;
 	cout<<"acts::printparameters:: BLOCKRAM_SIZE * VECTOR_SIZE * NUMSUBWORKERS (total dest memory): "<<(BLOCKRAM_SIZE * VECTOR_SIZE * NUMSUBWORKERS)<<endl;
-	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
-	cout<<"acts::printparameters:: APPLYVERTEXBUFFERSZ_KVS: "<<APPLYVERTEXBUFFERSZ_KVS<<endl;
 	cout<<"acts::printparameters:: BLOCKRAM_SIZE: "<<BLOCKRAM_SIZE<<endl;
 	cout<<"acts::printparameters:: BLOCKRAM_SIZE (KV): "<<BLOCKRAM_SIZE * VECTOR_SIZE<<endl;
 	cout<<"acts::printparameters:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<endl;

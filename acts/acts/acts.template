@@ -935,7 +935,7 @@ void
 	#endif 
 savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  APPLYVERTEXBUFFERSZ / 2;
+	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
 	SAVEVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -3015,7 +3015,7 @@ topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_d
 	#endif
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"acts::topkernel:: APPLYVERTEXBUFFERSZ: "<<APPLYVERTEXBUFFERSZ<<endl;
+	cout<<"acts::topkernel:: REDUCESZ: "<<REDUCESZ<<endl;
 	#endif
 	
 	{%for i in context['COMPUTEUNITS_seq']%}

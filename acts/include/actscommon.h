@@ -38,10 +38,6 @@ using namespace std;
 
 #define VBUFFER_VECTOR_SIZE NUM_PARTITIONS
 
-#define AUTOMATEMODEON //
-
-// #define VERTEXCOLORING // JUST-FOR-TEST
-
 #define SUBPMASK // FIXME. work in progress...
 #define SUBPMASKFACTOR_POW 6
 #define SUBPMASKFACTOR 64
@@ -92,6 +88,12 @@ typedef struct {
 	unsigned int key;
 	unsigned int value;
 } keyvalue_vbuffer_t;
+#endif 
+
+#ifdef _WIDEWORD
+typedef ap_uint<32> vtxbuffer_type;
+#else
+typedef unsigned int vtxbuffer_type;
 #endif 
 
 typedef struct {

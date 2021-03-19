@@ -24,6 +24,8 @@
 #include "actsproc.h"
 using namespace std;
 
+// CRITICAL FIXME. having made keyvalue_buffer_t & keyvalue_vbuffer_t arbitrary precision, fix INVALIDDATA
+
 #define NUMPARTITIONUPDATESPIPELINES 2 
 #if NUMPARTITIONUPDATESPIPELINES==1
 #define PUP0
@@ -40,6 +42,8 @@ actsproc::~actsproc(){}
 #ifdef SWEMU
 actsutility * actsutilityobj = new actsutility();
 #endif
+
+// NOTE: ACTS NOT automated for all datasets. see CRITICAL AUTOMATEME. (dataset dependent).
 
 // functions (basic)
 unsigned int
@@ -229,6 +233,25 @@ GETV2(uint32_type data){
 	return data;
 	#endif
 }
+uint32_type 
+	#ifdef SW 
+	actsproc::
+	#endif 
+convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
+	uint32_type res;
+	#ifdef _WIDEWORD
+	{%for v in context['16_seq']%}
+	res.range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[index].data[{{v}}].key;
+	res.range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[index].data[{{v}}].value;
+	{%endfor%}
+	#else 
+	{%for v in context['16_seq']%}
+	WRITETO_UINT(&res, {{v*2}}, 1, vmask[index].data[{{v}}].key);
+	WRITETO_UINT(&res, {{v*2+1}}, 1, vmask[index].data[{{v}}].value);
+	{%endfor%}
+	#endif
+	return res;
+}
 keyy_t 
 	#ifdef SW 
 	actsproc::
@@ -252,133 +275,6 @@ GETVALUEENTRY(uint512_dt data, unsigned int v){
 	#else 
 	return data.data[v].value;	
 	#endif
-}
-value_t 
-	#ifdef SW 
-	actsproc::
-	#endif 
-GETVTXDATA(keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	value_t data = 0;
-	
-	#ifdef COMPLETEAUTOMATION
-	unsigned int col = loc >> globalparams.POW_REDUCE;
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){
-		row = loc % (1 << 11);
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << 10);
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << 9);
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << 8);
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXDATA: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	row = row / 2;
-	#else 
-	unsigned int col = loc / REDUCESZ; 
-	unsigned int row = loc % REDUCESZ;
-	row = row / 2;
-	#endif 
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("GETVTXDATA.col", col, NUM_PARTITIONS, loc, NAp, NAp); 
-	actsutilityobj->checkoutofbounds("GETVTXDATA.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-	#endif 
-	
-	if(loc % 2 == 0){ data = GETKV2(vbuffer[col][row]).key; } 
-	else { data = GETKV2(vbuffer[col][row]).value; }
-	return data;
-}
-value_t 
-	#ifdef SW 
-	actsproc::
-	#endif 
-GETVTXMASK(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	value_t data = 0;
-	
-	#ifdef COMPLETEAUTOMATION
-	unsigned int col = loc >> globalparams.POW_REDUCE;
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){ 
-		row = loc % (1 << 11);
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << 10);
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << 9);
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << 8);
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXMASK: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	row = row / 2;
-	#else 
-	unsigned int col = loc / REDUCESZ;
-	unsigned int row = loc % REDUCESZ;
-	row = row / 2;
-	#endif
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("GETVTXMASK.col", col, NUM_PARTITIONS, loc, NAp, NAp);
-	actsutilityobj->checkoutofbounds("GETVTXMASK.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-	#endif 
-	
-	if(loc % 2 == 0){ data = vmask[row].data[col].key; } 
-	else { data = vmask[row].data[col].value; }
-	return data;
-}
-value_t 
-	#ifdef SW 
-	actsproc::
-	#endif 
-GETVTXMASK_SUBP(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	value_t data = 0;
-
-	#ifdef COMPLETEAUTOMATION
-	unsigned int col = loc >> (globalparams.POW_REDUCE - SUBPMASKFACTOR_POW);
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){ 
-		row = loc % (1 << (11-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << (10-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << (9-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << (8-SUBPMASKFACTOR_POW));
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXMASK_SUBP: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	row = row / 2;
-	#else 
-	unsigned int col = loc / (REDUCESZ/SUBPMASKFACTOR); 
-	unsigned int row = loc % (REDUCESZ/SUBPMASKFACTOR);
-	row = row / 2;
-	#endif
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.col", col, NUM_PARTITIONS, loc, NAp, NAp);
-	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-	#endif 
-	
-	if(loc % 2 == 0){ data = vmask[row].data[col].key; } 
-	else { data = vmask[row].data[col].value; }
-
-	return data;
 }
 
 // functions (actsproc utilities)
@@ -1076,7 +972,7 @@ void
 	#endif 
 savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  REDUCESZ / 2;
+	analysis_type analysis_loopcount =  APPLYVERTEXBUFFERSZ / 2;
 	
 	SAVEVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1360,6 +1256,75 @@ loadvmasks_subp(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUM
 	return;
 }
 
+void 
+	#ifdef SW 
+	actsproc::
+	#endif 
+savevmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	
+	buffer_type transfsize = size_kvs * 16;
+	
+	SAVEVMASKS_LOOP1: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		{%for v in context['NUM_PARTITIONS_seq']%}
+		bitsbuffer[i].range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[i].data[{{v}}].key;
+		bitsbuffer[i].range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[i].data[{{v}}].value;
+		{%endfor%}
+		#else 
+		{%for v in context['NUM_PARTITIONS_seq']%}
+		WRITETO_UINT(&bitsbuffer[i], {{v*2}}, 1, vmask[i].data[{{v}}].key);
+		WRITETO_UINT(&bitsbuffer[i], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
+		{%endfor%}
+		#endif
+	}
+	
+	buffer_type index = 0;
+	SAVEVMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
+	#pragma HLS PIPELINE II=8	
+		#ifdef _WIDEWORD
+		{%for v in context['16_seq']%}
+		tempbuffer[{{v}}][i] = bitsbuffer[index + {{v}}];
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		tempbuffer[{{v}}][i].key = bitsbuffer[index + {{2*v}}];
+		tempbuffer[{{v}}][i].value = bitsbuffer[index + {{2*v}} + 1];
+		{%endfor%}
+		#endif 
+		
+		index += VECTOR_SIZE * 2;
+	}
+	
+	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
+	#pragma HLS PIPELINE II=1
+	
+		#ifdef _WIDEWORD
+		{%for v in context['8_seq']%}
+		kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = tempbuffer[{{2*v}}][i]; 
+		kvdram[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = tempbuffer[{{2*v+1}}][i]; 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[offset_kvs + i].data[{{v}}].key = tempbuffer[{{v}}][i].key;
+		kvdram[offset_kvs + i].data[{{v}}].value = tempbuffer[{{v}}][i].value; 
+		{%endfor%}
+		#endif 
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
 void //
 	#ifdef SW 
 	actsproc::
@@ -1448,6 +1413,136 @@ processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	res = udata + edgew;
 	#endif
 	return res;
+}
+
+value_t 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getv(keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+	#pragma HLS INLINE
+	value_t data = 0;
+	
+	#ifdef AUTOMATEMODEON
+	unsigned int col = loc >> globalparams.POW_REDUCE;
+	unsigned int row;
+	if(globalparams.POW_REDUCE == 11){ // AUTOMATEME. VHLS CHECKME.
+		row = loc % (1 << 11);
+	} else if(globalparams.POW_REDUCE == 10){
+		row = loc % (1 << 10);
+	} else if(globalparams.POW_REDUCE == 9){
+		row = loc % (1 << 9);
+	} else if(globalparams.POW_REDUCE == 8){
+		row = loc % (1 << 8);
+	} else {
+		row = 0;
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"getv: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	row = row / 2;
+	#else 
+	unsigned int col = loc / REDUCESZ; 
+	unsigned int row = loc % REDUCESZ;
+	row = row / 2;
+	#endif 
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("getv.col", col, NUM_PARTITIONS, loc, NAp, NAp); // AUTOMATEME.
+	actsutilityobj->checkoutofbounds("getv.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
+	#endif 
+	
+	if(loc % 2 == 0){ data = GETKV2(vbuffer[col][row]).key; } 
+	else { data = GETKV2(vbuffer[col][row]).value; }
+	return data;
+}
+
+value_t 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+	#pragma HLS INLINE
+	value_t data = 0;
+	
+	#ifdef AUTOMATEMODEON
+	unsigned int col = loc >> globalparams.POW_REDUCE;
+	unsigned int row;
+	if(globalparams.POW_REDUCE == 11){ // AUTOMATEME. VHLS CHECKME.
+		row = loc % (1 << 11);
+	} else if(globalparams.POW_REDUCE == 10){
+		row = loc % (1 << 10);
+	} else if(globalparams.POW_REDUCE == 9){
+		row = loc % (1 << 9);
+	} else if(globalparams.POW_REDUCE == 8){
+		row = loc % (1 << 8);
+	} else {
+		row = 0;
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"getvmask: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	row = row / 2;
+	#else 
+	unsigned int col = loc / REDUCESZ;
+	unsigned int row = loc % REDUCESZ;
+	row = row / 2;
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("getvmask.col", col, NUM_PARTITIONS, loc, NAp, NAp);
+	actsutilityobj->checkoutofbounds("getvmask.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
+	#endif 
+	
+	if(loc % 2 == 0){ data = vmask[row].data[col].key; } 
+	else { data = vmask[row].data[col].value; }
+	return data;
+}
+
+value_t 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getvmask_subp(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+	#pragma HLS INLINE
+	value_t data = 0;
+
+	#ifdef AUTOMATEMODEON
+	unsigned int col = loc >> (globalparams.POW_REDUCE - SUBPMASKFACTOR_POW);
+	unsigned int row;
+	if(globalparams.POW_REDUCE == 11){ // AUTOMATEME. VHLS CHECKME.
+		row = loc % (1 << (11-SUBPMASKFACTOR_POW));
+	} else if(globalparams.POW_REDUCE == 10){
+		row = loc % (1 << (10-SUBPMASKFACTOR_POW));
+	} else if(globalparams.POW_REDUCE == 9){
+		row = loc % (1 << (9-SUBPMASKFACTOR_POW));
+	} else if(globalparams.POW_REDUCE == 8){
+		row = loc % (1 << (8-SUBPMASKFACTOR_POW));
+	} else {
+		row = 0;
+		#ifdef _DEBUGMODE_CHECKS2
+		cout<<"getvmask: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	row = row / 2;
+	#else 
+	unsigned int col = loc / (REDUCESZ/SUBPMASKFACTOR); // CRITICAL AUTOMATEME.
+	unsigned int row = loc % (REDUCESZ/SUBPMASKFACTOR);
+	row = row / 2;
+	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("getvmask_subp.col", col, NUM_PARTITIONS, loc, NAp, NAp);
+	actsutilityobj->checkoutofbounds("getvmask_subp.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
+	#endif 
+	
+	if(loc % 2 == 0){ data = vmask[row].data[col].key; } 
+	else { data = vmask[row].data[col].value; }
+
+	return data;
 }
 
 fetchmessage_t 
@@ -1541,11 +1636,11 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		actsutilityobj->checkoutofbounds("readandprocess.1", lvid, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid, travstate.i2, NAp);
 		#endif
 		
-		value_t udata = GETVTXDATA(vbuffer, lvid, globalparams);
+		value_t udata = getv(vbuffer, lvid, globalparams);
 		#ifdef ALLVERTEXISACTIVE_ALGORITHM
 		unsigned int mask = 1;
 		#else
-		unsigned int mask = GETVTXMASK(vmask, lvid, globalparams);
+		unsigned int mask = getvmask(vmask, lvid, globalparams);
 		#endif
 		value_t res  = processfunc(udata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 		
@@ -1612,7 +1707,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#ifdef SUBPMASK_XXX
 	// if(sweepparams.source_partition == 0){
 	for(nextactivei=lvid_eob; nextactivei<numVsperpartition; nextactivei++){
-		unsigned int mask = GETVTXMASK(vmask, nextactivei, globalparams);
+		unsigned int mask = getvmask(vmask, nextactivei, globalparams);
 		if(mask == 1){ 
 		// cout<<"next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
 		found = 1; break; } // break; }
@@ -1650,7 +1745,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	READANDPROCESS_SCANFORNEXT_LOOP1: for(nextactivei=lvid_eob; nextactivei<last; nextactivei++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
 	#pragma HLS PIPELINE II=2
-		unsigned int mask = GETVTXMASK(vmask, nextactivei, globalparams);
+		unsigned int mask = getvmask(vmask, nextactivei, globalparams);
 		if(mask == 1){ 
 			#ifdef _DEBUGMODE_KERNELPRINTS2
 			cout<<"[fine grained scan]:next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
@@ -1670,10 +1765,10 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif 
 		
 		unsigned int found2 = 0;
-		READANDPROCESS_SCANFORNEXT_LOOP2: for(subpidx=(last >> SUBPMASKFACTOR_POW); subpidx<(numVsperpartition >> SUBPMASKFACTOR_POW); subpidx++){ 
+		READANDPROCESS_SCANFORNEXT_LOOP2: for(subpidx=(last >> SUBPMASKFACTOR_POW); subpidx<(numVsperpartition >> SUBPMASKFACTOR_POW); subpidx++){ // CRITICAL AUTOMATEME.
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop2 avg=analysis_loop2	
 		#pragma HLS PIPELINE II=2
-			unsigned int mask_subp = GETVTXMASK_SUBP(vmask_subp, subpidx, globalparams);
+			unsigned int mask_subp = getvmask_subp(vmask_subp, subpidx, globalparams);
 			if(mask_subp == 1){
 				#ifdef _DEBUGMODE_KERNELPRINTS2
 				cout<<"[coarse grained scan]next active: "<<subpidx<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<", currentsubpidx: "<<last / SUBPMASKFACTOR<<")"<<endl; 
@@ -1848,7 +1943,11 @@ void
 	actsproc::
 	#endif
 reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+	#ifdef VERTEXCOLORING
+	#pragma HLS PIPELINE II=2
+	#else 
 	#pragma HLS PIPELINE II=3	
+	#endif 
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
 	keyvalue_t mykeyvalue = GETKV(kvdata);
@@ -1868,6 +1967,11 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	vertex_t rowindex = loc / 2;
 	vertex_t colindex = loc % 2;
 	
+	#ifdef VERTEXCOLORING
+	if(mykeyvalue.key == GETV(INVALIDDATA) || mykeyvalue.value == GETV(INVALIDDATA)){ rowindex = 0; colindex = 0; }
+	if(colindex == 0){ destbuffer[destoffset + rowindex].key = 1; }
+	else { destbuffer[destoffset + rowindex].value = 1; }
+	#else
 	keyvalue_t myvprop;
 	if(mykeyvalue.key != GETV(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ myvprop = GETKV2(destbuffer[destoffset + rowindex]); }
 	
@@ -1884,6 +1988,7 @@ reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SI
 	else { myvprop.value = rettemp; }
 	
 	if(mykeyvalue.key != GETV(INVALIDDATA) && mykeyvalue.value != GETV(INVALIDDATA)){ destbuffer[destoffset + rowindex] = GETKV2(myvprop); }
+	#endif 
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);
@@ -2397,6 +2502,20 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 			kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
 			globalparams, sweepparams, etravstate, globalparams.BASEOFFSETKVS_EDGESDATA, globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush);
+			
+		// CRITICAL REMOVEME.
+		#ifdef _DEBUGMODE_SUBPMASKING_TRACE
+		if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){// && lastvalidlvid != INVALIDDATA){
+			/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){ 
+				for(unsigned int j=0; j<NUM_PARTITIONS; j++){ 
+					cout<<vmask[i].data[j].key<<", "<<vmask[i].data[j].value<<", "; 
+				}
+				cout<<endl;
+			} */
+			// exit(EXIT_SUCCESS);
+		}
+		cout<<"--------------"<<endl;
+		#endif 
 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->printglobalvars();

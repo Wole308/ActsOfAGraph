@@ -372,7 +372,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			
 			avs_sync[GraphIter] = 0; // kerneltimelapse_ms[0]; // FIXME. unwanted latency
 			totaltime += avs_sync[GraphIter];
-			std::cout <<">>> SUMMARY: kernel (sync) average time elapsed for Iteration "<<GraphIter<<": "<<avs_sync[GraphIter]<<" ms"<<std::endl;
+			// std::cout <<">>> SUMMARY: kernel (sync) average time elapsed for Iteration "<<GraphIter<<": "<<avs_sync[GraphIter]<<" ms"<<std::endl;
 		}
 		#endif
 	}

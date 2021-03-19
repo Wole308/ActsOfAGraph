@@ -14,6 +14,10 @@
 #endif
 using namespace std;
 
+#define UNVISITED 0
+#define VISITED_IN_CURRENT_ITERATION 1
+#define VISITED_IN_PAST_ITERATION 3
+
 class utility {
 public:
 	utility();
@@ -92,7 +96,6 @@ public:
 	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
 
 	void collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum);
-	unsigned int runbfs_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters);
 	unsigned int runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters);
 	
 	#ifdef FPGA_IMPL

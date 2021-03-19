@@ -76,7 +76,7 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 8; // 3,12
+	unsigned int NumGraphIters = 4; // 3,12
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;
@@ -107,22 +107,29 @@ runsummary_t app::run(){
 	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BFS, globalparams);
 	
 	// vertex data
+	cout<<"app::loadvertexdata:: loading vertex datas... "<<endl;
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE, globalparams);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE, globalparams); }
+	cout<<"app::setrootvid:: setting root vid(s)... "<<endl;
 	loadgraphobj->setrootvid((value_t *)vdram, activevertices, globalparams);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices, globalparams); }
 
 	// active vertices & masks
+	cout<<"app::loadactvvertices:: loading active vertices... "<<endl;
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(activevertices, (keyy_t *)&kvbuffer[i], &container, globalparams); }
+	cout<<"app::generatevmaskdata:: generating vmask... "<<endl;
 	globalparams = loadgraphobj->generatevmaskdata(activevertices, kvbuffer, globalparams);
 	
 	// workspace info 
+	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
 	globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container, globalparams); 
 	
 	// messages
+	cout<<"app::loadoffsetmarkers:: loading messages... "<<endl;
 	globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BFS, globalparams);
 	
 	// others
+	cout<<"app::loadoffsetmarkers:: setting custom values... "<<endl;
 	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	

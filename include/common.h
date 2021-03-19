@@ -1,14 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
-#define _ORKUT_3M_106M 
+#define _KRON21_2M_91M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -32,7 +29,6 @@
 #endif
 
 #define ACTS
-// #define TESTKERNEL_ACTSMAX //
 
 ////////////////
 
@@ -48,11 +44,7 @@
 	#define DISPATCHTYPE_SYNC
 #endif
 
-/* #if defined(_HOLLYWOOD_1M_57M) || defined(_ROADNET_2M_3M) || defined(_FLICKR_1M_10M)		
-#define GRAPHISUNDIRECTED
-#else 
 // #define GRAPHISUNDIRECTED
-#endif */
 
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
@@ -110,7 +102,7 @@
 #define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
-#define KVDATA_RANGE_POW 22
+#define KVDATA_RANGE_POW 21
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
@@ -133,10 +125,6 @@
 // tree-depth:sramsz constraint
 /** ACTS constraints equation! (NUM_PARTITIONS_POWx = KVDATA_RANGE_POW - SRAMSZ_POW) */
 #define TREE_DEPTH (((BATCH_RANGE_POW - SRAMSZ_POW) + (NUM_PARTITIONS_POW - 1)) / NUM_PARTITIONS_POW)
-
-#define APPLYVERTEXBUFFERSZ_POW (BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW))
-#define APPLYVERTEXBUFFERSZ (1 << APPLYVERTEXBUFFERSZ_POW) // 1024
-#define APPLYVERTEXBUFFERSZ_KVS (APPLYVERTEXBUFFERSZ / VECTOR_SIZE) 
 
 #define REDUCESZ_POW (BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW))
 #define REDUCESZ (1 << REDUCESZ_POW) // 1024
@@ -285,17 +273,8 @@ struct _bitData {
 // #define INFINITI (0xFFFFFFFF) // FIXME. is this better?
 
 #define NAp 666
-// #define INVALIDDATA 123456789
 #define INVALIDDATA 0x0FFFFFFF // CRITICAL REMOVEME.
 #define UNUSEDDATA 987654321
-
-// inmemory BFS definitions // NB: don't change these (see acts.reduce_bfs)
-#define UNVISITED 0
-#define VISITED_IN_CURRENT_ITERATION 1
-#define VISITED_IN_PAST_ITERATION 3
-
-#define INACTIVEINNEXTITERATION 0
-#define ACTIVEINNEXTITERATION 1
 
 #define ONE 1
 #define TWO 2 // CRITICAL REMOVEME.
