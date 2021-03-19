@@ -76,7 +76,7 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 24; // 3,12
+	unsigned int NumGraphIters = 8; // 3,12
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;

@@ -96,7 +96,7 @@ void swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
 		unsigned int totalactvvp = 0;
-		cout<<"active partitions after iteration "<<GraphIter<<": ";
+		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
 		for(unsigned int i=0; i<256; i++){
 			unsigned int gmask = kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
 			totalactvvp += gmask;
