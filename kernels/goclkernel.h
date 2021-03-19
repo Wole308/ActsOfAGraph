@@ -10,12 +10,14 @@
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
-#define NUMACTSSYNCBUFFERS (NUMSUBCPUTHREADS + 1)
+// #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
 
 class goclkernel {
 public:
 	goclkernel(stats * _statsobj);
 	~goclkernel();
+	
+	long double getaveragetimeelapsed(long double kerneltimelapse[NUMSUBCPUTHREADS]);
 
 	#ifdef FPGA_IMPL
 	void runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	

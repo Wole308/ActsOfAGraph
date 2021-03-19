@@ -154,12 +154,12 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
@@ -739,20 +739,24 @@ do
 							then
 								make cleanall
 								rm -rf xclbin
-								# make all_nk DEVICE=$DEVICEPATH > nohupsyn.out 
 								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
-								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
-							
-								echo "sleeping for 2 minuites before continuing ...."
-								sleep 120
-								
 								if test -f "host"; then
 									cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-									# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
+									echo "kernel.xclbin saved"
 								fi
 								echo "sleeping for 2 minuites before continuing ...."
 								sleep 120
+								
+								# make cleanall
+								# rm -rf xclbin
+								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								# if test -f "host"; then
+									# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									# echo "kernel.xclbin saved"
+								# fi
+								# echo "sleeping for 2 minuites before continuing ...."
+								# sleep 120
+								
 							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 							then
 								make cleanall
