@@ -32,7 +32,7 @@ then
 	ENV="AWS"
 	DSA_NAME=xilinx_aws_vu9p_f1
 	DEVICEPATH=/home/centos/src/project_data/aws-fpga/SDAccel/aws_platform/xilinx_aws-vu9p-f1-04261818_dynamic_5_0/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm
-elif [ $AWS == $ON ]
+elif [ $GUNROCK == $ON ]
 then
 	echo "gunrock env specified."
 	ROOTDIR="/net/bigtemp/oj2zf/gunrock_wole"
@@ -145,7 +145,7 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -154,7 +154,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -173,6 +173,8 @@ do
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	
 	do 
@@ -604,68 +606,35 @@ do
 						
 						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
 
-						# ================================================ PAGERANK ================================================
-						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
+						# ================================================ SW RUNS ================================================
+						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
 							# make build_acts_nthreads
-							make demo_acts_nthreads
-							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug
-						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
+							make demo_acts_nthreads #> $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
 							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads
 							make demo_grafboost_nthreads > $RESULTDIR_RESULT
-						elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+						elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
 						then
 							echo 'SW__GUNROCK_SETUP__PR_ALGORITHM called.'
-							/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
-							# make cleanall
-							
-						# ================================================ BFS ================================================
-						elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs 
-						then
-							make cleanall
-							# make build_acts_nthreads
-							# make demo_acts_nthreads
-							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							make demo_acts_nthreads_debug
-						elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
-						then
-							make cleanall
-							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads_debug
-							# make demo_grafboost_nthreads
-							make demo_grafboost_nthreads > $RESULTDIR_RESULT
-						elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
-						then
-							echo 'SW__GUNROCK_SETUP__BFS_ALGORITHM called.'
-							/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
-
-						# ================================================ SSSP ================================================
-						elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp 
-						then
-							make cleanall
-							# make build_acts_nthreads
-							make demo_acts_nthreads
-							# make demo_acts_nthreads > $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug
-						elif [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
-						then
-							make cleanall
-							# make build_grafboost_nthreads
-							# make demo_grafboost_nthreads_debug
-							make demo_grafboost_nthreads
-							# make demo_grafboost_nthreads > $RESULTDIR_RESULT
-						elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
-						then
-							# make cleanall
-							echo 'SW__GUNROCK_SETUP__SSSP_ALGORITHM called.'
-							/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected > $RESULTDIR_RESULT
-							
-						# ================================================ SYNTHESIS AND SIMULATIONS ================================================
+							if [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+							then 
+								/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+							elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
+							then
+								/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+							elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+							then
+								/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+							else
+								echo "..."
+							fi
+						
+						# ================================================ HW (FPGA) RUNS ================================================
 						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
@@ -675,12 +644,12 @@ do
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 									make host
-									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
+									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT 
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
 									make host
-									./host $BACKUPDIR_KERNELXCLBIN
+									./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
 								else
 									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 								fi
@@ -691,8 +660,6 @@ do
 								make host
 								# source /opt/xilinx/xrt/setup.sh 
 								# source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-								# ./host $BACKUPDIR_AWSKERNELXCLBIN
-								# ./host $BACKUPDIR_AWSKERNELXCLBIN > $RESULTDIR_RESULT
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 								then
 									./host $BACKUPDIR_AWSKERNELXCLBIN1 $BACKUPDIR_AWSKERNELXCLBIN2
@@ -708,9 +675,10 @@ do
 							wait 
 							if test -f "profile_summary.csv"; then
 								echo "profile_summary.csv exist"
-								cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
+								# cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
 							fi	
 							
+						# ================================================ SIMULATIONS ================================================
 						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
@@ -733,29 +701,30 @@ do
 								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 							fi
 						
+						# ================================================ SYNTHESIS (CRABTREE) ================================================
 						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 							then
 								make cleanall
 								rm -rf xclbin
-								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
-								if test -f "host"; then
-									cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-									echo "kernel.xclbin saved"
-								fi
-								echo "sleeping for 2 minuites before continuing ...."
-								sleep 120
-								
-								# make cleanall
-								# rm -rf xclbin
-								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								# make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
 								# if test -f "host"; then
-									# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 									# echo "kernel.xclbin saved"
 								# fi
-								# echo "sleeping for 2 minuites before continuing ...."
-								# sleep 120
+								echo "sleeping for 20 seconds before continuing ...."
+								sleep 20
+								
+								make cleanall
+								rm -rf xclbin
+								make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								if test -f "host"; then
+									cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									echo "kernel.xclbin saved"
+								fi
+								echo "sleeping for 20 seconds before continuing ...."
+								sleep 20
 								
 							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 							then
@@ -763,19 +732,20 @@ do
 								rm -rf xclbin
 								make all DEVICE=$DEVICEPATH > nohupsyn.out 
 							
-								echo "sleeping for 2 minuites before continuing ...."
-								sleep 120
+								echo "sleeping for 20 seconds before continuing ...."
+								sleep 20
 								
 								if test -f "host"; then
 									cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 								fi
-								echo "sleeping for 2 minuites before continuing ...."
-								sleep 120
+								echo "sleeping for 20 seconds before continuing ...."
+								sleep 20
 							else
 								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 							fi
 						
+						# ================================================ SYNTHESIS (AWS) ================================================
 						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 						then
 							source /opt/xilinx/xrt/setup.sh 
@@ -799,8 +769,8 @@ do
 								echo "not specified (7)."
 							fi
 								
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
+							echo "sleeping for 20 seconds before continuing ...."
+							sleep 20
 							
 							if test -f "host"; then
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
@@ -816,8 +786,8 @@ do
 								fi
 								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
 							fi
-							echo "sleeping for 2 minuites before continuing ...."
-							sleep 120
+							echo "sleeping for 20 seconds before continuing ...."
+							sleep 20
 							
 							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
 							source /opt/xilinx/xrt/setup.sh 

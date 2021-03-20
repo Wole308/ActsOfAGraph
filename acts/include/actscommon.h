@@ -38,10 +38,6 @@ using namespace std;
 
 #define VBUFFER_VECTOR_SIZE NUM_PARTITIONS
 
-#define SUBPMASK // FIXME. work in progress...
-#define SUBPMASKFACTOR_POW 6
-#define SUBPMASKFACTOR 64
-
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;

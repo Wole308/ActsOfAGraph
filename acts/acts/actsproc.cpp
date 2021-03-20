@@ -261,7 +261,7 @@ GETVTXDATA(keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsig
 	#pragma HLS INLINE
 	value_t data = 0;
 	
-	#ifdef COMPLETEAUTOMATION
+	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
 	unsigned int col = loc >> globalparams.POW_REDUCE;
 	unsigned int row;
 	if(globalparams.POW_REDUCE == 11){
@@ -303,7 +303,7 @@ GETVTXMASK(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams
 	#pragma HLS INLINE
 	value_t data = 0;
 	
-	#ifdef COMPLETEAUTOMATION
+	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
 	unsigned int col = loc >> globalparams.POW_REDUCE;
 	unsigned int row;
 	if(globalparams.POW_REDUCE == 11){ 
@@ -345,7 +345,7 @@ GETVTXMASK_SUBP(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalp
 	#pragma HLS INLINE
 	value_t data = 0;
 
-	#ifdef COMPLETEAUTOMATION
+	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
 	unsigned int col = loc >> (globalparams.POW_REDUCE - SUBPMASKFACTOR_POW);
 	unsigned int row;
 	if(globalparams.POW_REDUCE == 11){ 
@@ -1355,261 +1355,6 @@ savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyv
 	return;
 }
 
-void 
-	#ifdef SW 
-	actsproc::
-	#endif 
-readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type buffer1offset_kvs, keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-		
-	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue10;
-		keyvalue_t mykeyvalue11;
-		keyvalue_t mykeyvalue12;
-		keyvalue_t mykeyvalue13;
-		keyvalue_t mykeyvalue14;
-		keyvalue_t mykeyvalue15;
-		keyvalue_t mykeyvalue16;
-		keyvalue_t mykeyvalue17;
-		keyvalue_t mykeyvalue20;
-		keyvalue_t mykeyvalue21;
-		keyvalue_t mykeyvalue22;
-		keyvalue_t mykeyvalue23;
-		keyvalue_t mykeyvalue24;
-		keyvalue_t mykeyvalue25;
-		keyvalue_t mykeyvalue26;
-		keyvalue_t mykeyvalue27;
-		
-		#ifdef _WIDEWORD
-		mykeyvalue10.key = kvdram[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue10.value = kvdram[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue11.key = kvdram[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue11.value = kvdram[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue12.key = kvdram[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue12.value = kvdram[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue13.key = kvdram[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue13.value = kvdram[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue14.key = kvdram[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue14.value = kvdram[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue15.key = kvdram[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue15.value = kvdram[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue16.key = kvdram[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue16.value = kvdram[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue17.key = kvdram[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue17.value = kvdram[dramoffset_kvs + i].range(511, 480); 
-		mykeyvalue20.key = kvdram[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue20.value = kvdram[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue21.key = kvdram[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue21.value = kvdram[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue22.key = kvdram[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue22.value = kvdram[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue23.key = kvdram[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue23.value = kvdram[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue24.key = kvdram[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue24.value = kvdram[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue25.key = kvdram[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue25.value = kvdram[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue26.key = kvdram[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue26.value = kvdram[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue27.key = kvdram[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue27.value = kvdram[dramoffset_kvs + i].range(511, 480); 
-		#else 
-		mykeyvalue10.key = kvdram[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue10.value = kvdram[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue11.key = kvdram[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue11.value = kvdram[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue12.key = kvdram[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue12.value = kvdram[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue13.key = kvdram[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue13.value = kvdram[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue14.key = kvdram[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue14.value = kvdram[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue15.key = kvdram[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue15.value = kvdram[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue16.key = kvdram[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue16.value = kvdram[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue17.key = kvdram[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue17.value = kvdram[dramoffset_kvs + i].data[7].value; 
-		mykeyvalue20.key = kvdram[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue20.value = kvdram[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue21.key = kvdram[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue21.value = kvdram[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue22.key = kvdram[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue22.value = kvdram[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue23.key = kvdram[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue23.value = kvdram[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue24.key = kvdram[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue24.value = kvdram[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue25.key = kvdram[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue25.value = kvdram[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue26.key = kvdram[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue26.value = kvdram[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue27.key = kvdram[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue27.value = kvdram[dramoffset_kvs + i].data[7].value; 
-		#endif 
-		
-		buffer1[begincol + 0][buffer1offset_kvs + i] = GETKV2(mykeyvalue10);
-		buffer1[begincol + 1][buffer1offset_kvs + i] = GETKV2(mykeyvalue11);
-		buffer1[begincol + 2][buffer1offset_kvs + i] = GETKV2(mykeyvalue12);
-		buffer1[begincol + 3][buffer1offset_kvs + i] = GETKV2(mykeyvalue13);
-		buffer1[begincol + 4][buffer1offset_kvs + i] = GETKV2(mykeyvalue14);
-		buffer1[begincol + 5][buffer1offset_kvs + i] = GETKV2(mykeyvalue15);
-		buffer1[begincol + 6][buffer1offset_kvs + i] = GETKV2(mykeyvalue16);
-		buffer1[begincol + 7][buffer1offset_kvs + i] = GETKV2(mykeyvalue17);
-		buffer2[begincol + 0][buffer2offset_kvs + i] = GETKV2(mykeyvalue20);
-		buffer2[begincol + 1][buffer2offset_kvs + i] = GETKV2(mykeyvalue21);
-		buffer2[begincol + 2][buffer2offset_kvs + i] = GETKV2(mykeyvalue22);
-		buffer2[begincol + 3][buffer2offset_kvs + i] = GETKV2(mykeyvalue23);
-		buffer2[begincol + 4][buffer2offset_kvs + i] = GETKV2(mykeyvalue24);
-		buffer2[begincol + 5][buffer2offset_kvs + i] = GETKV2(mykeyvalue25);
-		buffer2[begincol + 6][buffer2offset_kvs + i] = GETKV2(mykeyvalue26);
-		buffer2[begincol + 7][buffer2offset_kvs + i] = GETKV2(mykeyvalue27);
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	#endif
-	return;
-}
-
-void 
-	#ifdef SW 
-	actsproc::
-	#endif 
-readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer1[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer1offset_kvs, keyvalue_vbuffer_t buffer2[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type buffer2offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-		
-	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-	
-		keyvalue_t mykeyvalue10;
-		keyvalue_t mykeyvalue11;
-		keyvalue_t mykeyvalue12;
-		keyvalue_t mykeyvalue13;
-		keyvalue_t mykeyvalue14;
-		keyvalue_t mykeyvalue15;
-		keyvalue_t mykeyvalue16;
-		keyvalue_t mykeyvalue17;
-		keyvalue_t mykeyvalue20;
-		keyvalue_t mykeyvalue21;
-		keyvalue_t mykeyvalue22;
-		keyvalue_t mykeyvalue23;
-		keyvalue_t mykeyvalue24;
-		keyvalue_t mykeyvalue25;
-		keyvalue_t mykeyvalue26;
-		keyvalue_t mykeyvalue27;
-		
-		#ifdef _WIDEWORD
-		mykeyvalue10.key = kvdram[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue10.value = kvdram[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue11.key = kvdram[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue11.value = kvdram[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue12.key = kvdram[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue12.value = kvdram[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue13.key = kvdram[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue13.value = kvdram[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue14.key = kvdram[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue14.value = kvdram[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue15.key = kvdram[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue15.value = kvdram[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue16.key = kvdram[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue16.value = kvdram[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue17.key = kvdram[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue17.value = kvdram[dramoffset_kvs + i].range(511, 480); 
-		mykeyvalue20.key = kvdram[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue20.value = kvdram[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue21.key = kvdram[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue21.value = kvdram[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue22.key = kvdram[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue22.value = kvdram[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue23.key = kvdram[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue23.value = kvdram[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue24.key = kvdram[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue24.value = kvdram[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue25.key = kvdram[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue25.value = kvdram[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue26.key = kvdram[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue26.value = kvdram[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue27.key = kvdram[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue27.value = kvdram[dramoffset_kvs + i].range(511, 480); 
-		#else 
-		mykeyvalue10.key = kvdram[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue10.value = kvdram[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue11.key = kvdram[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue11.value = kvdram[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue12.key = kvdram[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue12.value = kvdram[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue13.key = kvdram[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue13.value = kvdram[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue14.key = kvdram[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue14.value = kvdram[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue15.key = kvdram[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue15.value = kvdram[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue16.key = kvdram[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue16.value = kvdram[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue17.key = kvdram[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue17.value = kvdram[dramoffset_kvs + i].data[7].value; 
-		mykeyvalue20.key = kvdram[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue20.value = kvdram[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue21.key = kvdram[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue21.value = kvdram[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue22.key = kvdram[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue22.value = kvdram[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue23.key = kvdram[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue23.value = kvdram[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue24.key = kvdram[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue24.value = kvdram[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue25.key = kvdram[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue25.value = kvdram[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue26.key = kvdram[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue26.value = kvdram[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue27.key = kvdram[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue27.value = kvdram[dramoffset_kvs + i].data[7].value; 
-		#endif 
-		
-		buffer1[0][buffer1offset_kvs + i] = GETKV2(mykeyvalue10);
-		buffer1[1][buffer1offset_kvs + i] = GETKV2(mykeyvalue11);
-		buffer1[2][buffer1offset_kvs + i] = GETKV2(mykeyvalue12);
-		buffer1[3][buffer1offset_kvs + i] = GETKV2(mykeyvalue13);
-		buffer1[4][buffer1offset_kvs + i] = GETKV2(mykeyvalue14);
-		buffer1[5][buffer1offset_kvs + i] = GETKV2(mykeyvalue15);
-		buffer1[6][buffer1offset_kvs + i] = GETKV2(mykeyvalue16);
-		buffer1[7][buffer1offset_kvs + i] = GETKV2(mykeyvalue17);
-		buffer2[0][buffer2offset_kvs + i] = GETKV2(mykeyvalue20);
-		buffer2[1][buffer2offset_kvs + i] = GETKV2(mykeyvalue21);
-		buffer2[2][buffer2offset_kvs + i] = GETKV2(mykeyvalue22);
-		buffer2[3][buffer2offset_kvs + i] = GETKV2(mykeyvalue23);
-		buffer2[4][buffer2offset_kvs + i] = GETKV2(mykeyvalue24);
-		buffer2[5][buffer2offset_kvs + i] = GETKV2(mykeyvalue25);
-		buffer2[6][buffer2offset_kvs + i] = GETKV2(mykeyvalue26);
-		buffer2[7][buffer2offset_kvs + i] = GETKV2(mykeyvalue27);
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	#endif
-	return;
-}
-
 void //
 	#ifdef SW 
 	actsproc::
@@ -2379,6 +2124,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"readandprocess:: lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<""<<endl;
 	#endif
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	#ifdef SUBPMASK_XXX
 	// if(sweepparams.source_partition == 0){
 	for(nextactivei=lvid_eob; nextactivei<numVsperpartition; nextactivei++){
@@ -2469,6 +2215,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif
 	}
 	#endif
+	#endif 
 	
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
@@ -3183,14 +2930,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3203,8 +2950,8 @@ keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-buffer_type pp0cutoffs[VECTOR_SIZE];
-buffer_type pp1cutoffs[VECTOR_SIZE];
+static buffer_type pp0cutoffs[VECTOR_SIZE];
+static buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3314,12 +3061,14 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 		avtravstate.i_kvs = voffset_kvs;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print4("### processit:: voffset", "vbegin", "vend", "vskip", voffset_kvs * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
+		actsutilityobj->print5("### processit:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
 		
 		loadvmasks(ON, kvdram, vmask, vbuffer, globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparams); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
 		#ifdef SUBPMASK
 		loadvmasks_subp(ON, vmask, vmask_subp, vmaskbuffersz_kvs, globalparams);
+		#endif 
 		#endif 
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
@@ -3623,7 +3372,9 @@ topkernelproc(uint512_dt * kvdram){
 	
 	globalparams_t globalparams = getglobalparams(kvdram);
 	
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	loadvmask_p(kvdram, vmask_p, globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE);
+	#endif 
 	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	resetkvdramstats(kvdram, globalparams);
@@ -3665,6 +3416,8 @@ topkernelproc(uint512_dt * kvdram){
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
+	
+	exit(EXIT_SUCCESS);
 	return;
 }
 }

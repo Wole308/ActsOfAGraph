@@ -18,7 +18,6 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	void experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices, globalparams_t globalparams);				
 	
 	void verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams);
 	

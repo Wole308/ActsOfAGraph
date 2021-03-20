@@ -29,7 +29,7 @@ swkernel::swkernel(stats * _statsobj){
 swkernel::~swkernel(){} 
 
 #ifdef SW
-void swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
@@ -161,10 +161,10 @@ void swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512
 	#endif 
 	
 	#ifdef _DEBUGMODE_TIMERS3
-	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
+	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(total_time_elapsed);
 	#endif
-	return;
+	return total_time_elapsed;
 }
 #endif 
 

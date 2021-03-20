@@ -731,17 +731,15 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	vector<value_t> rootactvvs;
 	vector<value_t> activevertices;
 	for(unsigned int i=0; i<srcvids.size(); i++){ rootactvvs.push_back(srcvids[i]); }
-	unsigned int edges1_count = 0;
+	unsigned int total_edges_processed = 0;
 	unsigned int actvvsdstv1_sum = 0;
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"utility::runsssp_sw: number of active vertices for iteration 0: "<<activevertices.size()<<endl;
 	#endif
-	// labels[rootactvvs[0]] = 0;
 	for(unsigned int i=0; i<rootactvvs.size(); i++){ labels[rootactvvs[i]] = 0; }
 	unsigned int ew = 1;
 	
 	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
-		edges1_count = 0;
 		actvvsdstv1_sum = 0;
 	
 		for(unsigned int i=0; i<rootactvvs.size(); i++){
@@ -749,7 +747,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 			edge_t vptr_begin = vertexptrbuffer[vid];
 			edge_t vptr_end = vertexptrbuffer[vid+1];
 			edge_t edges_size = vptr_end - vptr_begin;
-			if(vptr_end < vptr_begin){ continue; } // FIXME.
+			if(vptr_end < vptr_begin){ continue; }
 			// cout<<"utility::runsssp_sw: edges_size: "<<edges_size<<endl;
 			
 			for(unsigned int k=0; k<edges_size; k++){
@@ -758,7 +756,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 				checkoutofbounds("utility::runsssp_sw.vptr_begin + k", vptr_begin + k, 91042010, vid, vptr_begin, vptr_end);
 				#endif
 				
-				unsigned int res = labels[vid] + ew; // CRITICAL REMOVEME.
+				unsigned int res = labels[vid] + ew;
 				if(res < labels[dstvid]){
 					#ifdef _DEBUGMODE_KERNELPRINTS
 					cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
@@ -778,9 +776,10 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 						actvvsdstv1_sum += dstvid; 
 					}
 				}
+				
+				total_edges_processed += 1;
 			}
 		}
-		// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<activevertices.size()<<" (actvvsdstv1_sum: "<<actvvsdstv1_sum<<")"<<endl;
@@ -797,8 +796,12 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 			if(visitedlabels[i] == VISITED_IN_CURRENT_ITERATION){ visitedlabels[i] = UNVISITED;  }
 		}
 	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"utility::runsssp_sw: total edges processed: "<<total_edges_processed<<endl;
+	#endif 
 	delete labels;
-	return actvvsdstv1_sum;
+	return total_edges_processed; // actvvsdstv1_sum;
 }
 
 

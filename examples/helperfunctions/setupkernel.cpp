@@ -42,27 +42,14 @@ setupkernel::setupkernel(stats * _statsobj){
 }
 setupkernel::~setupkernel(){} 
 
-void setupkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
-	#ifdef GRAFBOOST_SETUP
-	#ifdef _DEBUGMODE_TIMERS3
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	#endif
-	#endif 
-
+long double setupkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef ACTGRAPH_SETUP
-	kernelobj->runapp(binaryFile, vdram, kvsourcedram);
+	long double total_time_elapsed = kernelobj->runapp(binaryFile, vdram, kvsourcedram);
 	#endif 
 	#ifdef GRAFBOOST_SETUP
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i]); }
 	#endif
-	
-	#ifdef GRAFBOOST_SETUP
-	#ifdef _DEBUGMODE_TIMERS3
-	long double kerneltimeelapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(kerneltimeelapsed_ms);
-	#endif
-	#endif 
-	return;
+	return total_time_elapsed;
 }
 
 #ifdef GRAFBOOST_SETUP 

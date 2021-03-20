@@ -118,8 +118,8 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
-	long double totaltime = 0;
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
+	long double total_time_elapsed = 0;
 	long double avs_proc[32];
 	long double avs_sync[32];
 
@@ -251,7 +251,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			OCL_CHECK(err, err = q.finish());
 			
 			avs_proc[GraphIter] = getaveragetimeelapsed(kerneltimelapse_ms);
-			totaltime += avs_proc[GraphIter];
+			total_time_elapsed += avs_proc[GraphIter];
 			std::cout <<">>> SUMMARY: kernel (proc) average time elapsed for Iteration "<<GraphIter<<": "<<avs_proc[GraphIter]<<" ms"<<std::endl;
 		}
 		#endif 
@@ -371,7 +371,7 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 			OCL_CHECK(err, err = q.finish());
 			
 			avs_sync[GraphIter] = 0; // kerneltimelapse_ms[0]; // FIXME. unwanted latency
-			totaltime += avs_sync[GraphIter];
+			total_time_elapsed += avs_sync[GraphIter];
 			// std::cout <<">>> SUMMARY: kernel (sync) average time elapsed for Iteration "<<GraphIter<<": "<<avs_sync[GraphIter]<<" ms"<<std::endl;
 		}
 		#endif
@@ -388,8 +388,8 @@ void goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint5
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"goclkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
-	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<totaltime<<" ms"<< RESET << std::endl;
-	return;
+	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<total_time_elapsed<<" ms"<< RESET << std::endl;
+	return total_time_elapsed;
 }
 #endif 
 

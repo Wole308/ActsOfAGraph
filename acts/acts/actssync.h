@@ -23,6 +23,8 @@
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
+#define ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
+
 class actssync {
 public:
 	actssync();

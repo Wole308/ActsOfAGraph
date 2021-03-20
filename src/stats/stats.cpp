@@ -54,7 +54,7 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	long double totaltime_OverallProcessing_ms = totaltime_SSDtransfers_ms + totaltime_OCLtransfers_ms + totaltime_Kernel_ms;
 
 	cout<<">>> stats::summary Total number of kvReads in bank [0]: "<<graphobj->gettotalkeyvaluesread(0)<<endl; 
-	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total number of kvReads for all threads: "<<gettotalkeyvaluesread()<< RESET <<endl;
+	cout <<">>> stats::summary Total number of kvReads for all threads: "<<gettotalkeyvaluesread() <<endl;
 	
 	cout <<">>> stats::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms << " milliseconds"  <<endl;
 	cout <<">>> stats::summary Total time spent (SSD access): "<< totaltime_SSDtransfers_ms / 1000 << " seconds"  <<endl;
@@ -65,8 +65,8 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	cout <<">>> stats::summary Total time spent (Kernel Pre Process execution): "<< time_KernelPre_ms << " milliseconds"  <<endl;
 	cout <<">>> stats::summary Total time spent (Kernel Pre Process execution): "<< time_KernelPre_ms / 1000 << " seconds"  <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Kernel execution): "<< time_Kernel_ms << " milliseconds" << RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Kernel execution): "<< time_Kernel_ms / 1000 << " seconds" << RESET <<endl;
+	cout <<">>> stats::summary Total time spent (Kernel execution): "<< time_Kernel_ms << " milliseconds" <<endl;
+	cout <<">>> stats::summary Total time spent (Kernel execution): "<< time_Kernel_ms / 1000 << " seconds" <<endl;
 	
 	cout <<">>> stats::summary Total time spent (Kernel Post Process execution): "<< time_KernelPost_ms << " milliseconds"  <<endl;
 	cout <<">>> stats::summary Total time spent (Kernel Post Process execution): "<< time_KernelPost_ms / 1000 << " seconds"  <<endl;
@@ -74,8 +74,8 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	cout <<">>> stats::summary Total time spent (Overall Kernel execution): "<< totaltime_Kernel_ms << " milliseconds"  <<endl;
 	cout <<">>> stats::summary Total time spent (Overall Kernel execution): "<< totaltime_Kernel_ms / 1000 << " seconds"  <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Overall processing): "<<totaltime_ms<< " milliseconds" << RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> stats::summary Total time spent (Overall processing): "<<totaltime_ms / 1000<< " seconds" << RESET <<endl;
+	cout <<">>> stats::summary Total time spent (Overall processing): "<<totaltime_ms<< " milliseconds" <<endl;
+	cout <<">>> stats::summary Total time spent (Overall processing): "<<totaltime_ms / 1000<< " seconds" <<endl;
 	
 	totaltime_overallexcludingOCLandSSDtransfers_ms -= (totaltime_SSDtransfers_ms + totaltime_OCLtransfers_ms);
 	cout <<">>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): "<<totaltime_overallexcludingOCLandSSDtransfers_ms<< " milliseconds"  <<endl;
@@ -90,7 +90,7 @@ runsummary_t stats::timingandsummary(unsigned int graph_iterationidx, long doubl
 	cout <<">>> stats::summary Throughput (Overall processing): "<<(((unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_OverallProcessing_ms / 1000)) / 1000000) * sizeof(keyvalue_t)<<" MB/s" <<endl;
 	
 	cout <<">>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<(unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)<<" keyvalues per second" <<endl;
-	cout <<">>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<((unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)) / 1000000<<" million keyvalues per second" <<endl;
+	cout <<">>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): "<<((unsigned long)gettotalkeyvaluesread() / (long double)(totaltime_overallexcludingOCLandSSDtransfers_ms / 1000)) / 1000000<<" million keyvalues per second" <<endl;			
 	cout<<endl;
 	
 	graphobj->printdataset();

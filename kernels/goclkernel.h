@@ -20,7 +20,7 @@ public:
 	long double getaveragetimeelapsed(long double kerneltimelapse[NUMSUBCPUTHREADS]);
 
 	#ifdef FPGA_IMPL
-	void runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
+	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
 
 	void runapp_process(std::string binaryFile, auto devices, cl::Context context, cl::CommandQueue q, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	void runapp_synchronize(std::string binaryFile, auto devices, cl::Context context, cl::CommandQueue q, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);

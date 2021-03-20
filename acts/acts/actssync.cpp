@@ -499,51 +499,6 @@ savevmaskp(bool_type enable1, bool_type enable2, uint512_dt * kvdram, unsigned i
 }
 
 // functions (resets)
-/* void 
-	#ifdef SW 
-	actssync::
-	#endif 
-resetvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
-	#pragma HLS function_instantiate variable=vmask
-	#pragma HLS INLINE OFF //
-	if(enable == OFF){ return; }
-	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
-		vmask[i].data[0].key = 0;
-		vmask[i].data[0].value = 0;
-		vmask[i].data[1].key = 0;
-		vmask[i].data[1].value = 0;
-		vmask[i].data[2].key = 0;
-		vmask[i].data[2].value = 0;
-		vmask[i].data[3].key = 0;
-		vmask[i].data[3].value = 0;
-		vmask[i].data[4].key = 0;
-		vmask[i].data[4].value = 0;
-		vmask[i].data[5].key = 0;
-		vmask[i].data[5].value = 0;
-		vmask[i].data[6].key = 0;
-		vmask[i].data[6].value = 0;
-		vmask[i].data[7].key = 0;
-		vmask[i].data[7].value = 0;
-		vmask[i].data[8].key = 0;
-		vmask[i].data[8].value = 0;
-		vmask[i].data[9].key = 0;
-		vmask[i].data[9].value = 0;
-		vmask[i].data[10].key = 0;
-		vmask[i].data[10].value = 0;
-		vmask[i].data[11].key = 0;
-		vmask[i].data[11].value = 0;
-		vmask[i].data[12].key = 0;
-		vmask[i].data[12].value = 0;
-		vmask[i].data[13].key = 0;
-		vmask[i].data[13].value = 0;
-		vmask[i].data[14].key = 0;
-		vmask[i].data[14].value = 0;
-		vmask[i].data[15].key = 0;
-		vmask[i].data[15].value = 0;
-		
-	}
-	return;
-} */
 void
 	#ifdef SW 
 	actssync::
@@ -899,15 +854,31 @@ value_t
 	#endif 
 applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
+	
+	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
+	if(GraphAlgo == PAGERANK){
+		temp = vtemp + res;
+	} else if(GraphAlgo == BFS){
+		// temp = amin(vtemp, GraphIter);
+		temp = amin(vtemp, res);
+	} else if(GraphAlgo == SSSP){
+		temp = amin(vtemp, res);
+	} else {
+		temp = NAp;
+	}
+	#endif
+	
+	#ifndef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;
 	#endif
 	#ifdef BFS_ALGORITHM
-	// temp = amin(vtemp, GraphIter); // BFS
+	// temp = amin(vtemp, GraphIter);
 	temp = amin(vtemp, res);
 	#endif
 	#ifdef SSSP_ALGORITHM
 	temp = amin(vtemp, res);
+	#endif
 	#endif
 	return temp;
 }
@@ -916,17 +887,32 @@ value_t
 	#ifdef SW 
 	actssync::
 	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){ //????
 	value_t res = 0;
+	
+	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
+	if(GraphAlgo == PAGERANK){
+		res = value1 + value2;
+	} else if(GraphAlgo == BFS){
+		res = amin(value1, value2);
+	} else if(GraphAlgo == SSSP){
+		res = amin(value1, value2);
+	} else {
+		res = NAp;
+	}
+	#endif
+	
+	#ifndef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 	#ifdef PR_ALGORITHM
 	res = value1 + value2;
 	#endif 
 	#ifdef BFS_ALGORITHM
-	res = amin(value1, value2); // BFS
+	res = amin(value1, value2);
 	#endif 
 	#ifdef SSSP_ALGORITHM
 	res = amin(value1, value2);
 	#endif
+	#endif 
 	return res;
 }
 
@@ -1110,22 +1096,22 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 		mykeyvalue17.key = kvdram1[dramoffset_kvs + i].data[7].key; 
 		mykeyvalue17.value = kvdram1[dramoffset_kvs + i].data[7].value; 
 		#endif
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, NAp);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, NAp);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, NAp);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, NAp);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, NAp);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, NAp);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, NAp);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, NAp);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, NAp);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, NAp);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, NAp);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, NAp);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, NAp);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, NAp);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, NAp);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, NAp);
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 		
@@ -1164,22 +1150,22 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 		mykeyvalue27.key = kvdram2[dramoffset_kvs + i].data[7].key; 
 		mykeyvalue27.value = kvdram2[dramoffset_kvs + i].data[7].value; 
 		#endif
-		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, NAp);
-		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, NAp);
-		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, NAp);
-		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, NAp);
-		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, NAp);
-		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, NAp);
-		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, NAp);
-		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, NAp);
-		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, NAp);
-		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, NAp);
-		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, NAp);
-		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, NAp);
-		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, NAp);
-		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, NAp);
-		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, NAp);
-		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, NAp);
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 		
@@ -1218,22 +1204,22 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 		mykeyvalue37.key = kvdram3[dramoffset_kvs + i].data[7].key; 
 		mykeyvalue37.value = kvdram3[dramoffset_kvs + i].data[7].value; 
 		#endif
-		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, mykeyvalue30.key, NAp);
-		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, mykeyvalue30.value, NAp);
-		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, mykeyvalue31.key, NAp);
-		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, mykeyvalue31.value, NAp);
-		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, mykeyvalue32.key, NAp);
-		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, mykeyvalue32.value, NAp);
-		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, mykeyvalue33.key, NAp);
-		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, mykeyvalue33.value, NAp);
-		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, mykeyvalue34.key, NAp);
-		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, mykeyvalue34.value, NAp);
-		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, mykeyvalue35.key, NAp);
-		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, mykeyvalue35.value, NAp);
-		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, mykeyvalue36.key, NAp);
-		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, mykeyvalue36.value, NAp);
-		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, mykeyvalue37.key, NAp);
-		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, mykeyvalue37.value, NAp);
+		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, mykeyvalue30.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, mykeyvalue30.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, mykeyvalue31.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, mykeyvalue31.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, mykeyvalue32.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, mykeyvalue32.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, mykeyvalue33.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, mykeyvalue33.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, mykeyvalue34.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, mykeyvalue34.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, mykeyvalue35.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, mykeyvalue35.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, mykeyvalue36.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, mykeyvalue36.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, mykeyvalue37.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, mykeyvalue37.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 
@@ -1363,73 +1349,73 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 		keyvalue6_vault1 = GETKV2(buffer0[6][i]); 
 		keyvalue7_vault1 = GETKV2(buffer0[7][i]); 
 			
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, GETKV2(buffer1[0][i]).key, NAp);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, GETKV2(buffer1[0][i]).value, NAp);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, GETKV2(buffer1[1][i]).key, NAp);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, GETKV2(buffer1[1][i]).value, NAp);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, GETKV2(buffer1[2][i]).key, NAp);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, GETKV2(buffer1[2][i]).value, NAp);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, GETKV2(buffer1[3][i]).key, NAp);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, GETKV2(buffer1[3][i]).value, NAp);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, GETKV2(buffer1[4][i]).key, NAp);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, GETKV2(buffer1[4][i]).value, NAp);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, GETKV2(buffer1[5][i]).key, NAp);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, GETKV2(buffer1[5][i]).value, NAp);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, GETKV2(buffer1[6][i]).key, NAp);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, GETKV2(buffer1[6][i]).value, NAp);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, GETKV2(buffer1[7][i]).key, NAp);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, GETKV2(buffer1[7][i]).value, NAp);
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, GETKV2(buffer1[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, GETKV2(buffer1[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, GETKV2(buffer1[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, GETKV2(buffer1[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, GETKV2(buffer1[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, GETKV2(buffer1[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, GETKV2(buffer1[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, GETKV2(buffer1[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, GETKV2(buffer1[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, GETKV2(buffer1[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, GETKV2(buffer1[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, GETKV2(buffer1[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, GETKV2(buffer1[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, GETKV2(buffer1[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, GETKV2(buffer1[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, GETKV2(buffer1[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
-		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, GETKV2(buffer2[0][i]).key, NAp);
-		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, GETKV2(buffer2[0][i]).value, NAp);
-		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, GETKV2(buffer2[1][i]).key, NAp);
-		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, GETKV2(buffer2[1][i]).value, NAp);
-		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, GETKV2(buffer2[2][i]).key, NAp);
-		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, GETKV2(buffer2[2][i]).value, NAp);
-		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, GETKV2(buffer2[3][i]).key, NAp);
-		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, GETKV2(buffer2[3][i]).value, NAp);
-		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, GETKV2(buffer2[4][i]).key, NAp);
-		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, GETKV2(buffer2[4][i]).value, NAp);
-		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, GETKV2(buffer2[5][i]).key, NAp);
-		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, GETKV2(buffer2[5][i]).value, NAp);
-		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, GETKV2(buffer2[6][i]).key, NAp);
-		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, GETKV2(buffer2[6][i]).value, NAp);
-		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, GETKV2(buffer2[7][i]).key, NAp);
-		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, GETKV2(buffer2[7][i]).value, NAp);
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, GETKV2(buffer2[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, GETKV2(buffer2[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, GETKV2(buffer2[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, GETKV2(buffer2[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, GETKV2(buffer2[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, GETKV2(buffer2[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, GETKV2(buffer2[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, GETKV2(buffer2[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, GETKV2(buffer2[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, GETKV2(buffer2[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, GETKV2(buffer2[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, GETKV2(buffer2[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, GETKV2(buffer2[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, GETKV2(buffer2[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, GETKV2(buffer2[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, GETKV2(buffer2[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
-		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, GETKV2(buffer3[0][i]).key, NAp);
-		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, GETKV2(buffer3[0][i]).value, NAp);
-		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, GETKV2(buffer3[1][i]).key, NAp);
-		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, GETKV2(buffer3[1][i]).value, NAp);
-		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, GETKV2(buffer3[2][i]).key, NAp);
-		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, GETKV2(buffer3[2][i]).value, NAp);
-		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, GETKV2(buffer3[3][i]).key, NAp);
-		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, GETKV2(buffer3[3][i]).value, NAp);
-		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, GETKV2(buffer3[4][i]).key, NAp);
-		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, GETKV2(buffer3[4][i]).value, NAp);
-		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, GETKV2(buffer3[5][i]).key, NAp);
-		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, GETKV2(buffer3[5][i]).value, NAp);
-		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, GETKV2(buffer3[6][i]).key, NAp);
-		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, GETKV2(buffer3[6][i]).value, NAp);
-		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, GETKV2(buffer3[7][i]).key, NAp);
-		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, GETKV2(buffer3[7][i]).value, NAp);
+		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, GETKV2(buffer3[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, GETKV2(buffer3[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, GETKV2(buffer3[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, GETKV2(buffer3[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, GETKV2(buffer3[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, GETKV2(buffer3[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, GETKV2(buffer3[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, GETKV2(buffer3[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, GETKV2(buffer3[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, GETKV2(buffer3[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, GETKV2(buffer3[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, GETKV2(buffer3[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, GETKV2(buffer3[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, GETKV2(buffer3[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, GETKV2(buffer3[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, GETKV2(buffer3[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
-		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, GETKV2(buffer4[0][i]).key, NAp);
-		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, GETKV2(buffer4[0][i]).value, NAp);
-		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, GETKV2(buffer4[1][i]).key, NAp);
-		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, GETKV2(buffer4[1][i]).value, NAp);
-		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, GETKV2(buffer4[2][i]).key, NAp);
-		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, GETKV2(buffer4[2][i]).value, NAp);
-		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, GETKV2(buffer4[3][i]).key, NAp);
-		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, GETKV2(buffer4[3][i]).value, NAp);
-		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, GETKV2(buffer4[4][i]).key, NAp);
-		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, GETKV2(buffer4[4][i]).value, NAp);
-		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, GETKV2(buffer4[5][i]).key, NAp);
-		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, GETKV2(buffer4[5][i]).value, NAp);
-		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, GETKV2(buffer4[6][i]).key, NAp);
-		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, GETKV2(buffer4[6][i]).value, NAp);
-		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, GETKV2(buffer4[7][i]).key, NAp);
-		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, GETKV2(buffer4[7][i]).value, NAp);
+		keyvalue0_vault5.key = mergefunc(keyvalue0_vault4.key, GETKV2(buffer4[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault5.value = mergefunc(keyvalue0_vault4.value, GETKV2(buffer4[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault5.key = mergefunc(keyvalue1_vault4.key, GETKV2(buffer4[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault5.value = mergefunc(keyvalue1_vault4.value, GETKV2(buffer4[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault5.key = mergefunc(keyvalue2_vault4.key, GETKV2(buffer4[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault5.value = mergefunc(keyvalue2_vault4.value, GETKV2(buffer4[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault5.key = mergefunc(keyvalue3_vault4.key, GETKV2(buffer4[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault5.value = mergefunc(keyvalue3_vault4.value, GETKV2(buffer4[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault5.key = mergefunc(keyvalue4_vault4.key, GETKV2(buffer4[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault5.value = mergefunc(keyvalue4_vault4.value, GETKV2(buffer4[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault5.key = mergefunc(keyvalue5_vault4.key, GETKV2(buffer4[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault5.value = mergefunc(keyvalue5_vault4.value, GETKV2(buffer4[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault5.key = mergefunc(keyvalue6_vault4.key, GETKV2(buffer4[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault5.value = mergefunc(keyvalue6_vault4.value, GETKV2(buffer4[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault5.key = mergefunc(keyvalue7_vault4.key, GETKV2(buffer4[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault5.value = mergefunc(keyvalue7_vault4.value, GETKV2(buffer4[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 
 		res[0][i] = GETKV2(keyvalue0_vault5);
@@ -1825,7 +1811,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,uint51
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
-	if(enable1 == OFF || enable2 == OFF){ return; }
+	// if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadandwrite: spread (vdata) function called."<<endl;
 	#endif 
@@ -1885,6 +1871,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,uint51
 	keyvalue_t keyvalue6_vault4;
 	keyvalue_t keyvalue7_vault4;
 	
+	
+	if(enable1 == ON && enable2 == ON){
 	
 	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -2327,8 +2315,12 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,uint51
 		#endif
 	}
 	
+	}
+	
 	// savevmaskp
-	uint32_type vmask_p = vmask_p_temp[0] | vmask_p_temp[1];
+	// uint32_type vmask_p = vmask_p_temp[0] | vmask_p_temp[1];
+	uint32_type vmask_p = 0;
+	if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
 	#ifdef _WIDEWORD
 	kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].range(31, 0) = vmask_p;
 	kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].range(31, 0) = vmask_p;
@@ -2339,7 +2331,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,uint51
 	kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].data[0].key = vmask_p;
 	kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].data[0].key = vmask_p;
 	kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].data[0].key = vmask_p;
-	#endif 
+	#endif
 	return;
 }
 
@@ -2352,7 +2344,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, uint512
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
-	if(enable1 == OFF || enable2 == OFF){ return; }
+	// if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
 	#endif 
@@ -2412,6 +2404,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, uint512
 	keyvalue_t keyvalue6_vault4;
 	keyvalue_t keyvalue7_vault4;
 	
+	
+	if(enable1 == ON && enable2 == ON){
 	
 	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -2891,8 +2885,11 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, uint512
 		#endif
 	}
 	
+	}
+	
 	// savevmaskp
-	uint32_type vmask_p = vmask_p_temp[0] | vmask_p_temp[1];
+	uint32_type vmask_p = 0;
+	if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
 	#ifdef _WIDEWORD
 	kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].range(31, 0) = vmask_p;
 	kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].range(31, 0) = vmask_p;
@@ -3138,7 +3135,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
-	resetkvdramstats(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdram16,kvdram17,kvdram18,kvdram19, num_source_partitions, _globalparams);
+	// resetkvdramstats(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdram16,kvdram17,kvdram18,kvdram19, num_source_partitions, _globalparams); // CRITICAL VHLS CHECKPOINT. DROPPING FREQUENCY
 	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1

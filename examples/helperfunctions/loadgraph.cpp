@@ -48,7 +48,7 @@ unsigned int loadgraph::getglobalpartition(keyvalue_t keyvalue, vertex_t upperli
 	return partition;
 }
 
-globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphAlgo, globalparams_t globalparams){
+globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, globalparams_t globalparams){			
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"loadgraph::loadedges_rowblockwise:: loading edges (rowwise)... "<<endl;
 	#endif 

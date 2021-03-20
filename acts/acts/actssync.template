@@ -443,23 +443,6 @@ savevmaskp(bool_type enable1, bool_type enable2, uint512_dt * kvdram, unsigned i
 }
 
 // functions (resets)
-/* void 
-	#ifdef SW 
-	actssync::
-	#endif 
-resetvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
-	#pragma HLS function_instantiate variable=vmask
-	#pragma HLS INLINE OFF //
-	if(enable == OFF){ return; }
-	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
-		{%for p in context['NUM_PARTITIONS_seq']%}
-		vmask[i].data[{{p}}].key = 0;
-		vmask[i].data[{{p}}].value = 0;
-		{%endfor%}
-		
-	}
-	return;
-} */
 void
 	#ifdef SW 
 	actssync::
@@ -645,15 +628,31 @@ value_t
 	#endif 
 applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
+	
+	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
+	if(GraphAlgo == PAGERANK){
+		temp = vtemp + res;
+	} else if(GraphAlgo == BFS){
+		// temp = amin(vtemp, GraphIter);
+		temp = amin(vtemp, res);
+	} else if(GraphAlgo == SSSP){
+		temp = amin(vtemp, res);
+	} else {
+		temp = NAp;
+	}
+	#endif
+	
+	#ifndef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 	#ifdef PR_ALGORITHM
 	temp = vtemp + res;
 	#endif
 	#ifdef BFS_ALGORITHM
-	// temp = amin(vtemp, GraphIter); // BFS
+	// temp = amin(vtemp, GraphIter);
 	temp = amin(vtemp, res);
 	#endif
 	#ifdef SSSP_ALGORITHM
 	temp = amin(vtemp, res);
+	#endif
 	#endif
 	return temp;
 }
@@ -662,17 +661,32 @@ value_t
 	#ifdef SW 
 	actssync::
 	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){ //????
 	value_t res = 0;
+	
+	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
+	if(GraphAlgo == PAGERANK){
+		res = value1 + value2;
+	} else if(GraphAlgo == BFS){
+		res = amin(value1, value2);
+	} else if(GraphAlgo == SSSP){
+		res = amin(value1, value2);
+	} else {
+		res = NAp;
+	}
+	#endif
+	
+	#ifndef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 	#ifdef PR_ALGORITHM
 	res = value1 + value2;
 	#endif 
 	#ifdef BFS_ALGORITHM
-	res = amin(value1, value2); // BFS
+	res = amin(value1, value2);
 	#endif 
 	#ifdef SSSP_ALGORITHM
 	res = amin(value1, value2);
 	#endif
+	#endif 
 	return res;
 }
 
@@ -735,8 +749,8 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%endfor%}
 		#endif
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, mykeyvalue{{i}}{{v}}.key, NAp);
-		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, mykeyvalue{{i}}{{v}}.value, NAp);
+		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, mykeyvalue{{i}}{{v}}.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, mykeyvalue{{i}}{{v}}.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}	
 		
 		{%endif%}
@@ -795,8 +809,8 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 		{%if(i>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, NAp);
-		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, NAp);
+		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}	
 		{%endif%}
 		{%endfor%}
@@ -944,7 +958,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
-	if(enable1 == OFF || enable2 == OFF){ return; }
+	// if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadandwrite: spread (vdata) function called."<<endl;
 	#endif 
@@ -964,6 +978,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
+	
+	if(enable1 == ON && enable2 == ON){
 	
 	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1039,8 +1055,12 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 		#endif
 	}
 	
+	}
+	
 	// savevmaskp
-	uint32_type vmask_p = vmask_p_temp[0] | vmask_p_temp[1];
+	// uint32_type vmask_p = vmask_p_temp[0] | vmask_p_temp[1];
+	uint32_type vmask_p = 0;
+	if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
 	#ifdef _WIDEWORD
 	{%for i in context['4_seq']%}
 	kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].range(31, 0) = vmask_p;
@@ -1049,7 +1069,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, {%for i in context['4_seq']
 	{%for i in context['4_seq']%}
 	kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].data[0].key = vmask_p;
 	{%endfor%}
-	#endif 
+	#endif
 	return;
 }
 
@@ -1063,7 +1083,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
-	if(enable1 == OFF || enable2 == OFF){ return; }
+	// if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvdata: spread (vdata) function called."<<endl;
 	#endif 
@@ -1083,6 +1103,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
+	
+	if(enable1 == ON && enable2 == ON){
 	
 	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1171,8 +1193,11 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 		#endif
 	}
 	
+	}
+	
 	// savevmaskp
-	uint32_type vmask_p = vmask_p_temp[0] | vmask_p_temp[1];
+	uint32_type vmask_p = 0;
+	if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
 	#ifdef _WIDEWORD
 	{%for i in context['4_seq']%}
 	kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs].range(31, 0) = vmask_p;
@@ -1317,7 +1342,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
-	resetkvdramstats({%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} num_source_partitions, _globalparams);
+	// resetkvdramstats({%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} num_source_partitions, _globalparams); // CRITICAL VHLS CHECKPOINT. DROPPING FREQUENCY
 	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1

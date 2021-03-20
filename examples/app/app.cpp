@@ -66,8 +66,8 @@ app::~app(){
 void app::finish(){}
 
 runsummary_t app::run(){
-	long double totaltime_ms = 0;
 	cout<<"app::run:: app algorithm started. "<<endl;
+	long double totaltime_ms = 0;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
 	vertexdatabuffer = graphobj->generateverticesdata();
@@ -76,16 +76,16 @@ runsummary_t app::run(){
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 	
 	// set root vid
-	unsigned int NumGraphIters = 8; // 3,12
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int NumGraphIters = 1;
+	#else 
+	unsigned int NumGraphIters = 32; // 3,12
+	#endif 
 	container_t container;
 	vector<value_t> activevertices;
 	globalparams_t globalparams;
 
 	activevertices.push_back(1);
-	
-	// unsigned int BLOP = ((1 << NUM_PARTITIONS_POW) << (TREE_DEPTH-1));
-		// cout<<"app:: BLOP: "<<BLOP<<endl;
-		// exit(EXIT_SUCCESS);
 
 	// load workload information
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
@@ -108,7 +108,7 @@ runsummary_t app::run(){
 	globalparams.SIZE_KVDRAM = 0;
 	globalparams.SIZE_KVDRAMWORKSPACE = 0;
 	
-	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, BFS, globalparams);
+	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, globalparams);
 	
 	// vertex data
 	cout<<"app::loadvertexdata:: loading vertex datas... "<<endl;
@@ -129,54 +129,51 @@ runsummary_t app::run(){
 	globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container, globalparams); 
 	
 	// messages
-	cout<<"app::loadoffsetmarkers:: loading messages... "<<endl;
-	globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BFS, globalparams);
+	cout<<"app::loadmessages:: loading messages... "<<endl;
+	globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, 
+		#ifdef PR_ALGORITHM 
+		PAGERANK,
+		#endif 
+		#ifdef BFS_ALGORITHM  
+		BFS,
+		#endif 
+		#ifdef SSSP_ALGORITHM 
+		SSSP,
+		#endif
+		globalparams);
 	
 	// others
-	cout<<"app::loadoffsetmarkers:: setting custom values... "<<endl;
-	loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, 0);
+	cout<<"app::appendkeyvaluecount:: appending value count... "<<endl;
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
-	// experiements
-	experiements(0, NumGraphIters, 1, NumGraphIters, &container, activevertices, globalparams); // full run
-	// experiements(0, 0, NumGraphIters, NumGraphIters, &container, activevertices, globalparams); // N full runs
-	// experiements(2, 0, NumGraphIters, NumGraphIters, &container, activevertices, globalparams); // N full runs, isolating partition & reduce phases
-
+	// cout<<"app::loadmessages: loading messages..."<<endl;
+	// globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BFS, globalparams);
+	
+	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAM], globalparams.SIZE_KVDRAM);
+		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.SIZE_KVDRAM);
+	}
+	
+	// test SW run
+	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	
+	// run
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);
+	
+	cout<<">>> app::run: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> app::run: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
+	
+	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	verifyresults(kvbuffer[0], globalparams);
+	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
-}
-void app::experiements(unsigned int evalid, unsigned int start, unsigned int size, unsigned int NumGraphIters, container_t * container, vector<value_t> & activevertices, globalparams_t globalparams){
-	unsigned int swnum_its = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	for(unsigned int num_its=start; num_its<start+size; num_its++){
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app evaluation "<<num_its<<" started. (NumGraphIters: "<<NumGraphIters<<", num active vertices: "<<activevertices.size()<<")"<< RESET <<endl;
-
-		cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAM], globalparams.SIZE_KVDRAM);
-			utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.SIZE_KVDRAM);
-		}
-
-		cout<<"app::experiements: loading messages..."<<endl;
-		globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, container, num_its, BFS, globalparams);
-		loadgraphobj->setcustomeval(vdram, (uint512_vec_dt **)kvbuffer, evalid);
-		
-		std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-		cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-		setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);
-		utilityobj->stopTIME(">>> app::finished:. Time Elapsed: ", begintime, NAp);
-		long double totaltime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-		
-		utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	
-		statsobj->timingandsummary(num_its, totaltime_ms);
-		if(num_its > swnum_its){ break; } 
-	}
-	
-	verifyresults(kvbuffer[0], globalparams);
-	return;
 }
 
 void app::verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams){
