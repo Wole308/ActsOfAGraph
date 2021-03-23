@@ -6,6 +6,7 @@
 #include <fstream>
 #include <CL/cl_ext_xilinx.h>
 #endif 
+#include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -21,9 +22,10 @@ public:
 
 	#ifdef FPGA_IMPL
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
-
-	void runapp_process(std::string binaryFile, auto devices, cl::Context context, cl::CommandQueue q, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
-	void runapp_synchronize(std::string binaryFile, auto devices, cl::Context context, cl::CommandQueue q, uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
+	long double runapp1(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
+	long double runapp2(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
+	
+	unsigned int ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter);
 	#endif 
 private:
 	utility * utilityobj;
@@ -31,6 +33,9 @@ private:
 	size_t inputvdata_size_bytes;
 	size_t inputdata_size_bytes;
 	stats * statsobj;
+	
+	actssync * kernelobjs_synchronize;
+	uint512_vec_dt * tempkvsourcedram;
 };
 #endif
 

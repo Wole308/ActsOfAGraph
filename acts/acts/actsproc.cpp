@@ -2930,14 +2930,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -2950,8 +2950,8 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3356,7 +3356,7 @@ topkernelproc(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -3383,7 +3383,7 @@ topkernelproc(uint512_dt * kvdram){
 	// process & partition
 	#ifdef PROCESSMODULE
 	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
@@ -3393,7 +3393,7 @@ topkernelproc(uint512_dt * kvdram){
 	// partition
 	#ifdef PARTITIONMODULE
 	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
@@ -3403,7 +3403,7 @@ topkernelproc(uint512_dt * kvdram){
 	// reduce & partition
 	#ifdef REDUCEMODULE
 	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
@@ -3416,8 +3416,6 @@ topkernelproc(uint512_dt * kvdram){
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	
-	exit(EXIT_SUCCESS);
 	return;
 }
 }

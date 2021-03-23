@@ -79,7 +79,7 @@ runsummary_t app::run(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 32; // 3,12
+	unsigned int NumGraphIters = 2; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> activevertices;
@@ -146,18 +146,18 @@ runsummary_t app::run(){
 	cout<<"app::appendkeyvaluecount:: appending value count... "<<endl;
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
-	// cout<<"app::loadmessages: loading messages..."<<endl;
-	// globalparams = loadgraphobj->loadmessages(vdram, kvbuffer, &container, NumGraphIters, BFS, globalparams);
-	
 	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAM], globalparams.SIZE_KVDRAM);
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.SIZE_KVDRAM);
 	}
 	
-	// test SW run
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int total_edges_processed = graphobj->get_num_edges();
+	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	
+	#endif 
+
 	// run
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);

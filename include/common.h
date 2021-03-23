@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define SWEMU // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
+#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -55,7 +58,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-#define _DEBUGMODE_KERNELPRINTS2 //
+// #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -78,7 +81,7 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 20
+#define NUMSUBCPUTHREADS 32
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -88,7 +91,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 20
+#define NUMCOMPUTEUNITS 32
 #define NUMINTSINKEYVALUETYPE 2
 
 #define NUMDRAMBANKS 4

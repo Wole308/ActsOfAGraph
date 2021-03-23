@@ -127,25 +127,25 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
 
 LDCLFLAGS_HBM_PROC += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_2.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_3.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_4.m_axi_gmem0:HBM[3]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_5.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_6.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_7.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_8.m_axi_gmem0:HBM[7]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_9.m_axi_gmem0:HBM[8]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_10.m_axi_gmem0:HBM[9]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_11.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_12.m_axi_gmem0:HBM[11]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_13.m_axi_gmem0:HBM[12]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_14.m_axi_gmem0:HBM[13]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_15.m_axi_gmem0:HBM[14]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_16.m_axi_gmem0:HBM[15]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_17.m_axi_gmem0:HBM[16]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_18.m_axi_gmem0:HBM[17]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_19.m_axi_gmem0:HBM[18]
-LDCLFLAGS_HBM_PROC += --sp topkernelproc_20.m_axi_gmem0:HBM[19]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_2.m_axi_gmem0:HBM[1] 
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_3.m_axi_gmem0:HBM[2] 
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_4.m_axi_gmem0:HBM[3]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_5.m_axi_gmem0:HBM[4]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_6.m_axi_gmem0:HBM[5]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_7.m_axi_gmem0:HBM[6]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_8.m_axi_gmem0:HBM[7]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_9.m_axi_gmem0:HBM[8]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_10.m_axi_gmem0:HBM[9]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_11.m_axi_gmem0:HBM[10]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_12.m_axi_gmem0:HBM[11]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_13.m_axi_gmem0:HBM[12]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_14.m_axi_gmem0:HBM[13]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_15.m_axi_gmem0:HBM[14]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_16.m_axi_gmem0:HBM[15]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_17.m_axi_gmem0:HBM[16]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_18.m_axi_gmem0:HBM[17]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_19.m_axi_gmem0:HBM[18]
+# LDCLFLAGS_HBM_PROC += --sp topkernelproc_20.m_axi_gmem0:HBM[19]
 
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem1:HBM[1] 
@@ -257,7 +257,7 @@ $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC) $(KERNEL_UTILITY
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -c -k topkernelproc -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
 $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS_PROC) --nk topkernelproc:20 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS_PROC) --nk topkernelproc:1 -o'$@' $(+)
 	
 # Building kernel (sync)
 $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo: $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY)
@@ -274,7 +274,7 @@ $(XCLBIN)/topkernelprocandsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topke
 
 # Building Host (***choice between CREBTREE or AWS***)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
-	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(KERNEL_TOP_SYNC) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
 	# /opt/Xilinx/SDx/2019.1.op2552052/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 

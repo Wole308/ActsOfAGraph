@@ -145,7 +145,7 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -156,7 +156,7 @@ do
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -467,10 +467,10 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ14
 		# for numsubcputhreads in $NUMTHREADS_EQ16
 		# for numsubcputhreads in $NUMTHREADS_EQ18
-		for numsubcputhreads in $NUMTHREADS_EQ20 #
+		# for numsubcputhreads in $NUMTHREADS_EQ20 #
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
-		# for numsubcputhreads in $NUMTHREADS_EQ32
+		for numsubcputhreads in $NUMTHREADS_EQ32
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -503,11 +503,11 @@ do
 					do
 						BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
 						BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
-						BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
+						BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}.xclbin"
 						
 						BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
 						BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
-						BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
+						BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}.awsxclbin"
 						
 						RESULTSBACKUP_DIR="${ROOTDIR}/results"
 						RESULT_NAME="result_${SETUP_NAME}"
@@ -611,8 +611,8 @@ do
 						then
 							make cleanall
 							# make build_acts_nthreads
-							make demo_acts_nthreads #> $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+							# make demo_acts_nthreads #> $RESULTDIR_RESULT
+							make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
@@ -644,7 +644,7 @@ do
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 									make host
-									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT 
+									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string.h>
 #include <mutex>
+#include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -31,6 +32,7 @@ using namespace std;
 goclkernel::goclkernel(stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
+	kernelobjs_synchronize = new actssync(); //////
 }
 goclkernel::~goclkernel(){} 
 
@@ -118,7 +120,15 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){	
+	#if NUMCOMPUTEUNITS>20
+	return runapp2(binaryFile, vdram, kvsourcedram);
+	#else 
+	return runapp1(binaryFile, vdram, kvsourcedram);	
+	#endif
+}
+
+long double goclkernel::runapp1(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
 	long double total_time_elapsed = 0;
 	long double avs_proc[32];
 	long double avs_sync[32];
@@ -145,7 +155,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-		cout<<"goclkernel::runapp: Iteration "<<GraphIter<<endl;
+		cout<<"goclkernel::runapp1: Iteration "<<GraphIter<<endl;
 		#endif 
 		
 		#ifdef ENABLE_ACTSPROC
@@ -376,22 +386,238 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		}
 		#endif
 		
-		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
-		unsigned int totalactvvp = 0;
-		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
-		for(unsigned int i=0; i<256; i++){
-			unsigned int gmask = kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
-			totalactvvp += gmask;
-			if(gmask > 0){ cout<<i<<", "; }
+		// unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		// unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
+		// unsigned int totalactvvp = 0;
+		// cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
+		// for(unsigned int i=0; i<256; i++){
+			// unsigned int gmask = kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
+			// totalactvvp += gmask;
+			// if(gmask > 0){ cout<<i<<", "; }
+		// }
+		// cout<<""<<endl;
+		// if(totalactvvp == 0){ cout<<"goclkernel::runapp1: no more active vertices to process. exiting... "<<endl; break; }
+		if(ExitCheck(kvsourcedram[0], GraphIter) == 1){ cout<<"goclkernel::runapp2: no more active vertices to process. exiting... "<<endl; break; }
+	}
+	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<total_time_elapsed<<" ms"<< RESET << std::endl;
+	return total_time_elapsed;
+}
+
+long double goclkernel::runapp2(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){		
+	long double total_time_elapsed = 0;
+	long double avs_proc[32];
+	long double avs_sync[32];
+	
+	// Create tempkvbuffer
+	tempkvsourcedram = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+
+	cl_int err;
+    auto devices = xcl::get_xil_devices();
+    auto device = devices[0];
+
+    //Creating Context and Command Queue for selected Device
+    OCL_CHECK(err, cl::Context context(device, NULL, NULL, NULL, &err));
+    OCL_CHECK(
+        err,
+        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
+    std::string device_name = device.getInfo<CL_DEVICE_NAME>();
+    std::cout << "Found Device=" << device_name.c_str() << std::endl;
+	
+	auto fileBuf_proc = xcl::read_binary_file(binaryFile[0]);
+	auto fileBuf_sync = xcl::read_binary_file(binaryFile[1]);
+
+    int vector_length = LENGTH;
+    bool match = true;
+	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	
+	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
+	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
+		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+		cout<<"goclkernel::runapp2: Iteration "<<GraphIter<<endl;
+		#endif 
+		
+		#ifdef ENABLE_ACTSPROC
+		{
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"--------------- goclkernel[actssync]:: running ACTS PROCESS (Iteration "<<GraphIter<<")... ---------------"<<endl;
+			#endif 
+			
+			cl_int err;
+			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
+			cl::Buffer buffer_kvsourcedram;
+			cl::Kernel krnls;
+			
+			cl::Event kernel_events;
+			
+			long double kerneltimelapse_ms[NUMSUBCPUTHREADS];
+			
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			printf("INFO: loading vmul kernel\n");
+			#endif
+			cl::Program::Binaries vmul_bins{{fileBuf_proc.data(), fileBuf_proc.size()}};
+			devices.resize(1);
+			OCL_CHECK(err,
+					  cl::Program program(context, devices, vmul_bins, NULL, &err));
+			
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"goclkernel:: creating kernel object..."<<endl;
+			#endif
+			std::string krnl_name = "topkernelproc"; //
+			std::string cu_id = std::to_string((1));
+					std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
+
+					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+					printf("Creating a kernel [%s] for CU(%d)\n",
+						   krnl_name_full.c_str(),
+						   (1));
+					#endif
+
+					OCL_CHECK(err,
+							  krnls = cl::Kernel(program, krnl_name_full.c_str(), &err));
+
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"goclkernel:: creating OCL buffers..."<<endl;
+			#endif
+			OCL_CHECK(err,
+				  buffer_kvsourcedram =
+					  cl::Buffer(context,
+								 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
+								 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
+								 tempkvsourcedram,
+								 &err));
+
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"goclkernel:: setting kernel arguments..."<<endl;
+			#endif
+			OCL_CHECK(err, err = krnls.setArg(0, buffer_kvsourcedram));
+			
+			for(unsigned int inst=0; inst<NUMSUBCPUTHREADS; inst++){
+				// populate tempkvsourcedram
+				for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){
+					for(unsigned int v=0; v<VECTOR_SIZE; v++){
+						tempkvsourcedram[i].data[v] = kvsourcedram[inst][i].data[v];
+					}
+				}
+				
+				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+				cout<<"goclkernel:: migrating workload to FPGA..."<<endl;
+				#endif
+				OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram}, 0));
+				
+				// This function will execute the kernel on the FPGA
+				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+				cout<<"goclkernel:: launching the kernel..."<<endl;
+				#endif
+				std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	  
+				OCL_CHECK(err, err = q.enqueueTask(krnls, NULL, &kernel_events)); 
+				OCL_CHECK(err, err = kernel_events.wait());
+				long double kerneltimelapse_microsec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();
+				kerneltimelapse_ms[inst] = kerneltimelapse_microsec / 1000;
+				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+				std::cout <<">>> kernel (proc) "<<inst<<" time elapsed: "<<kerneltimelapse_ms[inst]<<" ms, "<<kerneltimelapse_microsec<<" microsecs, "<<std::endl;
+				#endif
+
+				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+				cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
+				#endif
+				OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram}, CL_MIGRATE_MEM_OBJECT_HOST));	
+				OCL_CHECK(err, err = q.finish());
+				
+				// populate kvsourcedram
+				for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){
+					for(unsigned int v=0; v<VECTOR_SIZE; v++){
+						kvsourcedram[inst][i].data[v] = tempkvsourcedram[i].data[v];
+					}
+				}
+			}
+			
+			avs_proc[GraphIter] = getaveragetimeelapsed(kerneltimelapse_ms);
+			total_time_elapsed += avs_proc[GraphIter];
+			std::cout <<">>> SUMMARY: kernel (proc) average time elapsed for Iteration "<<GraphIter<<": "<<avs_proc[GraphIter]<<" ms"<<std::endl;
 		}
-		cout<<""<<endl;
-		if(totalactvvp == 0){ cout<<"goclkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+		#endif 
+		
+		#ifdef ENABLE_ACTSSYNC
+		{
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<") ---------------"<<endl;
+			#endif 
+			
+			kernelobjs_synchronize->topkernelsync_sw(
+				(uint512_dt *)kvsourcedram[0],
+				(uint512_dt *)kvsourcedram[1],
+				#if NUMCOMPUTEUNITS>2
+				(uint512_dt *)kvsourcedram[2],
+				(uint512_dt *)kvsourcedram[3],
+				#if NUMCOMPUTEUNITS>4
+				(uint512_dt *)kvsourcedram[4],
+				(uint512_dt *)kvsourcedram[5],
+				(uint512_dt *)kvsourcedram[6],
+				(uint512_dt *)kvsourcedram[7],
+				#if NUMCOMPUTEUNITS>8
+				(uint512_dt *)kvsourcedram[8],
+				(uint512_dt *)kvsourcedram[9],
+				(uint512_dt *)kvsourcedram[10],
+				(uint512_dt *)kvsourcedram[11],
+				#if NUMCOMPUTEUNITS>12
+				(uint512_dt *)kvsourcedram[12],
+				(uint512_dt *)kvsourcedram[13],
+				(uint512_dt *)kvsourcedram[14],
+				(uint512_dt *)kvsourcedram[15],
+				#if NUMCOMPUTEUNITS>16
+				(uint512_dt *)kvsourcedram[16],
+				(uint512_dt *)kvsourcedram[17],
+				(uint512_dt *)kvsourcedram[18],
+				(uint512_dt *)kvsourcedram[19],
+				#if NUMCOMPUTEUNITS>20
+				(uint512_dt *)kvsourcedram[20],
+				(uint512_dt *)kvsourcedram[21],
+				(uint512_dt *)kvsourcedram[22],
+				(uint512_dt *)kvsourcedram[23],
+				#if NUMCOMPUTEUNITS>24
+				(uint512_dt *)kvsourcedram[24],
+				(uint512_dt *)kvsourcedram[25],
+				(uint512_dt *)kvsourcedram[26],
+				(uint512_dt *)kvsourcedram[27],
+				#if NUMCOMPUTEUNITS>28
+				(uint512_dt *)kvsourcedram[28],
+				(uint512_dt *)kvsourcedram[29],
+				(uint512_dt *)kvsourcedram[30],
+				(uint512_dt *)kvsourcedram[31],
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif 
+				(uint512_dt *)vdram
+			);
+		}
+		#endif
+		
+		if(ExitCheck(kvsourcedram[0], GraphIter) == 1){ cout<<"goclkernel::runapp2: no more active vertices to process. exiting... "<<endl; break; }
 	}
 	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<total_time_elapsed<<" ms"<< RESET << std::endl;
 	return total_time_elapsed;
 }
 #endif 
+
+unsigned int goclkernel::ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter){
+	unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+	unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
+	unsigned int totalactvvp = 0;
+	cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
+	for(unsigned int i=0; i<256; i++){
+		unsigned int gmask = kvsourcedram[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
+		totalactvvp += gmask;
+		if(gmask > 0){ cout<<i<<", "; }
+	}
+	cout<<""<<endl;
+	if(totalactvvp == 0){ return 1; } 
+	else { return 0; }
+}
 
 
 

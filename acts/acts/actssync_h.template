@@ -30,6 +30,7 @@ public:
 	actssync();
 	~actssync();
 	
+	#ifdef SW 
 	// functions (basic)
 	unsigned int amin(unsigned int val1, unsigned int val2);
 	unsigned int aplus(unsigned int val1, unsigned int val2);
@@ -99,8 +100,10 @@ public:
 			uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 			globalparams_t globalparams);
+	#endif 
 
 	void topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
+	void topkernelsync_sw({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
 
 private:
 	#ifndef FPGA_IMPL

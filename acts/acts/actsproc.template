@@ -2494,7 +2494,7 @@ topkernelproc(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -2521,7 +2521,7 @@ topkernelproc(uint512_dt * kvdram){
 	// process & partition
 	#ifdef PROCESSMODULE
 	if(globalparams.ENABLE_PROCESSCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
 		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
@@ -2531,7 +2531,7 @@ topkernelproc(uint512_dt * kvdram){
 	// partition
 	#ifdef PARTITIONMODULE
 	if(globalparams.ENABLE_PARTITIONCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
@@ -2541,7 +2541,7 @@ topkernelproc(uint512_dt * kvdram){
 	// reduce & partition
 	#ifdef REDUCEMODULE
 	if(globalparams.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS2
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
@@ -2554,8 +2554,6 @@ topkernelproc(uint512_dt * kvdram){
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
-	
-	exit(EXIT_SUCCESS);
 	return;
 }
 }

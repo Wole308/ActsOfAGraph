@@ -38,8 +38,18 @@ actssync::actssync(){ actsutilityobj = new actsutility(); }
 actssync::~actssync(){}
 #endif
 #ifdef SWEMU
+actssync::actssync(){}
+actssync::~actssync(){}
 actsutility * actsutilityobj = new actsutility();
 #endif
+
+/* #ifdef SW
+actssync::actssync(){ actsutilityobj = new actsutility(); }
+actssync::~actssync(){}
+#endif
+#ifdef SWEMU
+actsutility * actsutilityobj = new actsutility();
+#endif */
 
 // functions (basic)
 unsigned int
@@ -1211,12 +1221,15 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 }
 
 // top
+{%for i in context['2_seq']%}
 extern "C" {
 void
-	#ifdef SW 
-	actssync:: 
-	#endif
-topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+	{%if(i==0)%}
+	topkernelsync
+	{%else%}
+	actssync::topkernelsync_sw
+	{%endif%}
+({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
 {%for i in context['COMPUTEUNITS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
@@ -1234,7 +1247,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
 
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -1342,8 +1355,6 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
-	// resetkvdramstats({%for i in context['COMPUTEUNITS_seq']%}kvdram{{i}},{%endfor%} num_source_partitions, _globalparams); // CRITICAL VHLS CHECKPOINT. DROPPING FREQUENCY
-	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
@@ -1448,8 +1459,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{
 	return;
 }
 }
-
-
+{%endfor%}
 
 
 
