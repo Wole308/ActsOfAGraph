@@ -18,9 +18,9 @@
 #ifndef FPGA_IMPL
 #include "../../src/utility/utility.h"
 #endif 
-#ifndef HW
+// #ifndef HW
 #include "../../acts/actsutility/actsutility.h"
-#endif 
+// #endif 
 #include "actssync.h"
 using namespace std;
 
@@ -37,19 +37,12 @@ using namespace std;
 actssync::actssync(){ actsutilityobj = new actsutility(); }
 actssync::~actssync(){}
 #endif
-#ifdef SWEMU
+
+#ifdef FPGA_IMPL
 actssync::actssync(){}
 actssync::~actssync(){}
 actsutility * actsutilityobj = new actsutility();
-#endif
-
-/* #ifdef SW
-actssync::actssync(){ actsutilityobj = new actsutility(); }
-actssync::~actssync(){}
-#endif
-#ifdef SWEMU
-actsutility * actsutilityobj = new actsutility();
-#endif */
+#endif 
 
 // functions (basic)
 unsigned int
@@ -1535,7 +1528,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 		#endif
 		
 		// apply
-		#ifdef _DEBUGMODE_CHECKS2
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 // _DEBUGMODE_CHECKS2
 		vid[0][0] = voffset_kvs*VECTOR_SIZE*2 + ((0*globalparams.SIZE_REDUCE) + i*2);
 		vid[0][1] = voffset_kvs*VECTOR_SIZE*2 + ((0*globalparams.SIZE_REDUCE) + i*2 + 1);
 		vid[1][0] = voffset_kvs*VECTOR_SIZE*2 + ((1*globalparams.SIZE_REDUCE) + i*2);
@@ -1552,6 +1545,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 		vid[6][1] = voffset_kvs*VECTOR_SIZE*2 + ((6*globalparams.SIZE_REDUCE) + i*2 + 1);
 		vid[7][0] = voffset_kvs*VECTOR_SIZE*2 + ((7*globalparams.SIZE_REDUCE) + i*2);
 		vid[7][1] = voffset_kvs*VECTOR_SIZE*2 + ((7*globalparams.SIZE_REDUCE) + i*2 + 1);
+	
 		#endif 
 		
 		keyvalue_t data0 = keyvalue0_vault8;

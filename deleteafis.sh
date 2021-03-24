@@ -82,6 +82,37 @@ set -e
 # aws ec2 delete-fpga-image --fpga-image-id afi-01cebcc20fadf2fff
 # aws ec2 delete-fpga-image --fpga-image-id afi-052243e2c23149cf4
 
+# aws ec2 delete-fpga-image --fpga-image-id afi-0d77502fddf16b3a2
+# aws ec2 delete-fpga-image --fpga-image-id afi-042fc883b53da2229
+# aws ec2 delete-fpga-image --fpga-image-id afi-012cbf5ff7d792341
+# aws ec2 delete-fpga-image --fpga-image-id afi-03de04896fbccf809
+# aws ec2 delete-fpga-image --fpga-image-id afi-0b0aa16f5b8fb2901
+# aws ec2 delete-fpga-image --fpga-image-id afi-00b6cf41cc4e794c6
+# aws ec2 delete-fpga-image --fpga-image-id afi-0495c39b3802aa48e
+# aws ec2 delete-fpga-image --fpga-image-id afi-07bcc8d8ef62fa480
+# aws ec2 delete-fpga-image --fpga-image-id afi-006a11e9a4b05486e
+# aws ec2 delete-fpga-image --fpga-image-id afi-098990c7f9e73ee3a
+# aws ec2 delete-fpga-image --fpga-image-id afi-0ba621ad6962cc334
+# aws ec2 delete-fpga-image --fpga-image-id afi-0b2ad5c822870bcbd
+# aws ec2 delete-fpga-image --fpga-image-id afi-095ec81e6afe3a191
+# aws ec2 delete-fpga-image --fpga-image-id afi-0781622b101030409
+# aws ec2 delete-fpga-image --fpga-image-id afi-099b11eb177a63705
+# aws ec2 delete-fpga-image --fpga-image-id afi-0d498a82597fed2a2
+# aws ec2 delete-fpga-image --fpga-image-id afi-07e43a6eb1c29e38d
+# aws ec2 delete-fpga-image --fpga-image-id afi-08b70ac24f3280c83
+# aws ec2 delete-fpga-image --fpga-image-id afi-024d995130862ce25
+# aws ec2 delete-fpga-image --fpga-image-id afi-0490f8b38aae08624
+# aws ec2 delete-fpga-image --fpga-image-id afi-0919d8ac50a089e16
+# aws ec2 delete-fpga-image --fpga-image-id afi-02f46116e915c46b8
+# aws ec2 delete-fpga-image --fpga-image-id afi-0f74f03da984c8b25
+# aws ec2 delete-fpga-image --fpga-image-id afi-0a31e1dac6e55189d
+# aws ec2 delete-fpga-image --fpga-image-id afi-0548f1ec38547bff6
+# aws ec2 delete-fpga-image --fpga-image-id afi-0db62e4563e094cf0
+# aws ec2 delete-fpga-image --fpga-image-id afi-091ddfe05562a3fc5
+# aws ec2 delete-fpga-image --fpga-image-id afi-0264a05d17b5bbdcd
+# aws ec2 delete-fpga-image --fpga-image-id afi-0264a05d17b5bbdcd
+# aws ec2 delete-fpga-image --fpga-image-id afi-0264a05d17b5bbdcd
+
 echo 'finished: successfully finished all processing'
 
 

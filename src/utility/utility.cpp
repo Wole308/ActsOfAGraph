@@ -543,7 +543,7 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		skipspacing[p] = (B * C) + 128; 
 		
 		#ifdef ALLVERTEXISACTIVE_ALGORITHM
-		skipspacing[p] = skipspacing[p] * 2; // CRITICAL REMOVEME.
+		skipspacing[p] = 0; // skipspacing[p] * 2; // CRITICAL REMOVEME.
 		#else 
 		skipspacing[p] = 0; // CRITICAL REMOVEME
 		#endif 

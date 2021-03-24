@@ -2551,7 +2551,7 @@ void
 	actsproc::
 	#endif
 reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
-	#pragma HLS PIPELINE II=3	
+	#pragma HLS PIPELINE II=3 // CRITICAL NEWCHANGE.	
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
 	keyvalue_t mykeyvalue = GETKV(kvdata);
@@ -3037,8 +3037,8 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 	step_type tempcurrentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
 	batch_type tempnum_source_partitions = get_num_source_partitions(tempcurrentLOP);
 	
-	avtravstate.begin_kvs = 0;
-	avtravstate.end_kvs = avtravstate.begin_kvs + globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE; avtravstate.size_kvs = globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
+	avtravstate.begin_kvs = 0; // CRITICAL NEWCHANGE.
+	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
 	readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams); 
 	resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	
@@ -3316,6 +3316,9 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print3("### dispatch_reduce:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
 		#endif
+		
+		// batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR; // CRITICAL NEWCHANGE.
+		// if(voffset_kvs >= (globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE)){ continue; }
 		
 		enablereduce = ON;
 		travstate_t rtravstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);

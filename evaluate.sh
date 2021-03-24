@@ -12,8 +12,8 @@ set -e # Courtesy : Jinja 2.0
 ON=1
 OFF=0
 
-CRABTREE=$ON
-AWS=$OFF
+CRABTREE=$OFF
+AWS=$ON
 GUNROCK=$OFF
 
 if [ $CRABTREE == $ON ]
@@ -146,7 +146,7 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 do 
 	### >>> LOOP1: hardware types
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM
@@ -156,7 +156,7 @@ do
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
@@ -470,7 +470,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ20 #
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
-		for numsubcputhreads in $NUMTHREADS_EQ32
+		for numsubcputhreads in $NUMTHREADS_EQ32 #
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -708,23 +708,23 @@ do
 							then
 								make cleanall
 								rm -rf xclbin
-								# make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
-								# if test -f "host"; then
-									# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-									# echo "kernel.xclbin saved"
-								# fi
-								echo "sleeping for 20 seconds before continuing ...."
-								sleep 20
-								
-								make cleanall
-								rm -rf xclbin
-								make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
 								if test -f "host"; then
-									cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 									echo "kernel.xclbin saved"
 								fi
 								echo "sleeping for 20 seconds before continuing ...."
 								sleep 20
+								
+								# make cleanall
+								# rm -rf xclbin
+								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+								# if test -f "host"; then
+									# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									# echo "kernel.xclbin saved"
+								# fi
+								# echo "sleeping for 20 seconds before continuing ...."
+								# sleep 20
 								
 							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 							then

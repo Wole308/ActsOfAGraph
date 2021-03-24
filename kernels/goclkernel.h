@@ -11,7 +11,7 @@
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
-// #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
+#define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
 
 class goclkernel {
 public:
@@ -36,6 +36,7 @@ private:
 	
 	actssync * kernelobjs_synchronize;
 	uint512_vec_dt * tempkvsourcedram;
+	uint512_vec_dt * tempkvsourcedrams[NUMSUBCPUTHREADS];
 };
 #endif
 
