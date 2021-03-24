@@ -461,7 +461,7 @@ FILE ** graph::getnvmeFd_vertexptrs_w(){ return nvmeFd_vertexptrs_w; }
 int graph::getnvmeFd_activevertexids_r2(){ return nvmeFd_activevertexids_r2; } 
 int graph::getnvmeFd_activevertexids_w2(){ return nvmeFd_activevertexids_w2; }
 FILE * graph::getnvmeFd_activevertexids_w(){ return nvmeFd_activevertexids_w; }
-int graph::getnvmeFd_vertexisactive_r2(){ return nvmeFd_vertexisactive_r2; } 
+int graph::getnvmeFd_vertexisactive_r2(){ return nvmeFd_vertexisactive_r2; }
 int graph::getnvmeFd_vertexisactive_w2(){ return nvmeFd_vertexisactive_w2; }
 
 edge_t * graph::loadvertexptrsfromfile(int col){ 

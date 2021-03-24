@@ -39,13 +39,9 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 		
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); 
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
 		
-		
-		// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
-		}
-		
-		kernelobjs_synchronize->topkernelsync(
+		kernelobjs_synchronize->topkernelsync_sw(
 			(uint512_dt *)kvsourcedram[0],
 			(uint512_dt *)kvsourcedram[1],
 			#if NUMCOMPUTEUNITS>2

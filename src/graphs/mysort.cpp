@@ -12,6 +12,12 @@
 #include "../../include/host_common.h"
 #include "mysort.h"
 
+#ifdef AWS_PLATFORM
+string datasetRootDir_4sort = "/oj2zf/";
+#else
+string datasetRootDir_4sort = "/localtmp/oj2zf/";
+#endif
+
 // #define SORT_BLOCK_SIZE (1024*1024)
 #define SORT_BLOCK_SIZE (1024*128) // CRITICAL REMOVEME....................................................
 
@@ -144,7 +150,7 @@ void mysort::start() {
 	
 	// check before sorting
 	#ifdef KOOOKOOOO
-	string icur_in_filename_str = "/localtmp/oj2zf/dataset/" + graphtopname + "/" + graphtopname + "_1by1/" + graphtopname + "_dup_0_0.edges"; /////////
+	string icur_in_filename_str = datasetRootDir_4sort + "dataset/" + graphtopname + "/" + graphtopname + "_1by1/" + graphtopname + "_dup_0_0.edges"; /////////
 	printf( "[before sorting] Checking final file, %s\n", icur_in_filename_str );
 	FILE* ifchin = fopen(icur_in_filename_str.c_str(), "rb");
 	uint32_t ilast[2] = {0,0};
@@ -171,8 +177,8 @@ void mysort::start() {
 	string graphtopname = graphobj->getdataset().graphtopname;
 	string path_edges;
 	uint32_t block_count = 0;
-	if ( slev == 0 ) { 
-		path_edges = "/localtmp/oj2zf/dataset/" + graphtopname + "/" + graphtopname + "_1by1/" + graphtopname + "_dup_0_0.edges";
+	if ( slev == 0 ) {
+		path_edges = datasetRootDir_4sort + "dataset/" + graphtopname + "/" + graphtopname + "_1by1/" + graphtopname + "_dup_0_0.edges";
 		// FILE * pFile = fopen (path_edges.c_str(), "w"); // NEWCHANGE.
 		/* if (pFile!=NULL){
 			// fputs ("fopen example", pFile);
@@ -191,8 +197,8 @@ void mysort::start() {
 		
 		uint32_t* block = (uint32_t*)malloc(sizeof(uint32_t)*2*SORT_BLOCK_SIZE);
 
-		string edgesoutpath = "/localtmp/oj2zf/dataset/" + graphtopname + "/tmpfiles/temp_0.dat";
-		// string edgesoutpath = "/localtmp/oj2zf/dataset/flickr/tmpfiles/temp_0.dat";
+		string edgesoutpath = datasetRootDir_4sort + "dataset/" + graphtopname + "/tmpfiles/temp_0.dat";
+		// string edgesoutpath = datasetRootDir_4sort + "dataset/flickr/tmpfiles/temp_0.dat";
 		// std::ofstream ofs; ofs.open(edgesoutpath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs.close();	//////////
 		FILE* fout = fopen(edgesoutpath.c_str(), "wb");
 		
@@ -223,7 +229,7 @@ void mysort::start() {
 	if ( slev > 0 ) init_stage = slev - 1;
 	uint32_t merge_block_count = 1<<init_stage;
 	for (int sort_stage = init_stage; ; sort_stage++) {
-		string cur_in_filename_str = "/localtmp/oj2zf/dataset/" + graphtopname + "/tmpfiles/temp_%d.dat";
+		string cur_in_filename_str = datasetRootDir_4sort + "dataset/" + graphtopname + "/tmpfiles/temp_%d.dat";
 		sprintf(cur_in_filename, cur_in_filename_str.c_str(), sort_stage);
 		FILE* fin1 = fopen(cur_in_filename, "rb");
 		FILE* fin2 = fopen(cur_in_filename, "rb");
@@ -245,7 +251,7 @@ void mysort::start() {
 			block_count = bcnt;
 		}
 
-		string cur_out_filename_str = "/localtmp/oj2zf/dataset/" + graphtopname + "/tmpfiles/temp_%d.dat";
+		string cur_out_filename_str = datasetRootDir_4sort + "dataset/" + graphtopname + "/tmpfiles/temp_%d.dat";
 		sprintf(cur_out_filename, cur_out_filename_str.c_str(), sort_stage+1);
 		printf("Sorting stage %d! %s -- %ld\n", sort_stage, cur_in_filename, block_count);
 		FILE* fout =fopen(cur_out_filename,"wb");
@@ -329,7 +335,7 @@ void mysort::start() {
 	printf ( "Checked %ld samples\n", count );
 	
 	cout<<"mysort:: copying back file..."<<endl;
-	// path_edges = "/localtmp/oj2zf/dataset/" + graphtopname + "/" + graphtopname + "_1by1/" + graphtopname + "_dup_0_0.edgessss";
+	// path_edges = datasetRootDir_4sort + "dataset/" + graphtopname + "/" + graphtopname + "_1by1/" + graphtopname + "_dup_0_0.edgessss";
 	copyFile(cur_out_filename, path_edges.c_str());
 	cout<<"mysort:: sort successful."<<endl;
 }

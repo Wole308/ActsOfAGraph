@@ -1214,13 +1214,12 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 }
 
 // top
-{%for i in context['2_seq']%}
+{%for i in context['1_seq']%} // CRITICAL FIXME.
 extern "C" {
-void
 	{%if(i==0)%}
-	topkernelsync
+	void actssync::topkernelsync_sw
 	{%else%}
-	actssync::topkernelsync_sw
+	void topkernelsync
 	{%endif%}
 ({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
 {%for i in context['COMPUTEUNITS_seq']%} 
@@ -1453,9 +1452,6 @@ void
 }
 }
 {%endfor%}
-
-
-
 
 
 

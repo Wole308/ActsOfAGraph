@@ -30,7 +30,7 @@ public:
 	actssync();
 	~actssync();
 	
-	#ifdef SW 
+	#ifdef SW  // CRITICAL REMOVEME.
 	// functions (basic)
 	unsigned int amin(unsigned int val1, unsigned int val2);
 	unsigned int aplus(unsigned int val1, unsigned int val2);

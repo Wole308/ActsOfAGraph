@@ -79,7 +79,7 @@ runsummary_t app::run(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 6; // 3,12,32
+	unsigned int NumGraphIters = 1; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> activevertices;

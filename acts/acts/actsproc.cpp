@@ -1683,67 +1683,51 @@ loadvmasks_subp(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUM
 		tempvmask_sp.data[15].value = tempvmask_sp.data[15].value | vmask[i].data[15].value;
 		
 		if(i%SUBPMASKFACTOR == SUBPMASKFACTOR-1){
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[0].key = tempvmask_sp.data[0].key;
 			vmask_subp[count].data[0].value = tempvmask_sp.data[0].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[0].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[0].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[0].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[0].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[1].key = tempvmask_sp.data[1].key;
 			vmask_subp[count].data[1].value = tempvmask_sp.data[1].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[1].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[1].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[1].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[1].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[2].key = tempvmask_sp.data[2].key;
 			vmask_subp[count].data[2].value = tempvmask_sp.data[2].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[2].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[2].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[2].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[2].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[3].key = tempvmask_sp.data[3].key;
 			vmask_subp[count].data[3].value = tempvmask_sp.data[3].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[3].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[3].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[3].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[3].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[4].key = tempvmask_sp.data[4].key;
 			vmask_subp[count].data[4].value = tempvmask_sp.data[4].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[4].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[4].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[4].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[4].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[5].key = tempvmask_sp.data[5].key;
 			vmask_subp[count].data[5].value = tempvmask_sp.data[5].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[5].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[5].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[5].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[5].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[6].key = tempvmask_sp.data[6].key;
 			vmask_subp[count].data[6].value = tempvmask_sp.data[6].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[6].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[6].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[6].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[6].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[7].key = tempvmask_sp.data[7].key;
 			vmask_subp[count].data[7].value = tempvmask_sp.data[7].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[7].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[7].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[7].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[7].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[8].key = tempvmask_sp.data[8].key;
 			vmask_subp[count].data[8].value = tempvmask_sp.data[8].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[8].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[8].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[8].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[8].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[9].key = tempvmask_sp.data[9].key;
 			vmask_subp[count].data[9].value = tempvmask_sp.data[9].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[9].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[9].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[9].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[9].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[10].key = tempvmask_sp.data[10].key;
 			vmask_subp[count].data[10].value = tempvmask_sp.data[10].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[10].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[10].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[10].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[10].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[11].key = tempvmask_sp.data[11].key;
 			vmask_subp[count].data[11].value = tempvmask_sp.data[11].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[11].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[11].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[11].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[11].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[12].key = tempvmask_sp.data[12].key;
 			vmask_subp[count].data[12].value = tempvmask_sp.data[12].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[12].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[12].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[12].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[12].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[13].key = tempvmask_sp.data[13].key;
 			vmask_subp[count].data[13].value = tempvmask_sp.data[13].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[13].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[13].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[13].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[13].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[14].key = tempvmask_sp.data[14].key;
 			vmask_subp[count].data[14].value = tempvmask_sp.data[14].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[14].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[14].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[14].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[14].value<<endl;
- // CRITICAL REMOVEME.
 			vmask_subp[count].data[15].key = tempvmask_sp.data[15].key;
 			vmask_subp[count].data[15].value = tempvmask_sp.data[15].value;
 			// cout<<"vmask_subp["<<i/SUBPMASKFACTOR<<"].data[15].key: "<<vmask_subp[i/SUBPMASKFACTOR].data[15].key<<", vmask_subp["<<i/SUBPMASKFACTOR<<"].data[15].value: "<<vmask_subp[i/SUBPMASKFACTOR].data[15].value<<endl;
@@ -1785,7 +1769,6 @@ loadvmasks_subp(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUM
 		}
 		#endif
 	}
-	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return;
 }
 
@@ -2789,7 +2772,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	}
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
-		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){ // CRITICAL NEWCHANGE. VHLS CHECKME. SRCBUFFER_SIZE
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#pragma HLS PIPELINE II=4
 		
@@ -2930,14 +2913,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -2950,8 +2933,8 @@ keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-buffer_type pp0cutoffs[VECTOR_SIZE];
-buffer_type pp1cutoffs[VECTOR_SIZE];
+static buffer_type pp0cutoffs[VECTOR_SIZE];
+static buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3037,7 +3020,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 	step_type tempcurrentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
 	batch_type tempnum_source_partitions = get_num_source_partitions(tempcurrentLOP);
 	
-	avtravstate.begin_kvs = 0; // CRITICAL NEWCHANGE.
+	avtravstate.begin_kvs = 0;
 	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
 	readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams); 
 	resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);

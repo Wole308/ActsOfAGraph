@@ -25,8 +25,10 @@ public:
 	long double runapp1(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
 	long double runapp2(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
 	
-	unsigned int ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter);
+	// unsigned int ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter);
 	#endif 
+	unsigned int ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter);
+	
 private:
 	utility * utilityobj;
 	
@@ -37,6 +39,7 @@ private:
 	actssync * kernelobjs_synchronize;
 	uint512_vec_dt * tempkvsourcedram;
 	uint512_vec_dt * tempkvsourcedrams[NUMSUBCPUTHREADS];
+	uint512_vec_dt * tempvdram;
 };
 #endif
 

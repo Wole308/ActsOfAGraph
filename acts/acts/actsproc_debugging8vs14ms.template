@@ -862,6 +862,36 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 	actsutilityobj->scankeyvalues("savekeyvalues::buffer", (keyvalue_t *)buffer, localcapsule, NUM_PARTITIONS, globalparams.SIZE_BATCHRANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	#endif
 	
+	////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[0].key + globalcapsule[0].value) / VECTOR_SIZE);
+	buffer_type bramoffset_kvs = localcapsule[0].key / VECTOR_SIZE;
+	SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<512; i++){
+	// #pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue{{v}} = GETKV(buffer[{{v}}][bramoffset_kvs + i]);
+		{%endfor%}
+		
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = mykeyvalue{{v}}.key; 
+		kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = mykeyvalue{{v}}.value; 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[dramoffset_kvs + i].data[{{v}}].key = mykeyvalue{{v}}.key; 
+		kvdram[dramoffset_kvs + i].data[{{v}}].value = mykeyvalue{{v}}.value; 
+		{%endfor%}
+		#endif 
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
+		#endif
+	}
+	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }
+	///////////////////////////////////////////////////////////////////
+	
+	#ifdef KOKOOOOOOO // CRITICAL REMOVEME.
 	analysis_type analysis_destpartitionsz = BLOCKRAM_SIZE / NUM_PARTITIONS;
 	SAVEPARTITIONS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
@@ -903,6 +933,7 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 		}
 	}
 	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }
+	#endif
 	
 	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)
 	for(unsigned int i=0; i<NUM_PARTITIONS-1; i++){ 
@@ -1597,7 +1628,9 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 		{%endfor%}
 	}
 	
-	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
+	// PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
+	// PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<128; i++){ // CRITICAL REMOVEME. NEWCHANGE. ////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<WORKBUFFER_SIZE; i++){ // CRITICAL REMOVEME. NEWCHANGE. ////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
 	#pragma HLS PIPELINE II=2
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -1926,7 +1959,9 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	}
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
-		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){
+		// RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){ // CRITICAL NEWCHANGE. VHLS CHECKME. SRCBUFFER_SIZE
+		// RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<128; k+=4){ // CRITICAL REMOVEME. ////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<SRCBUFFER_SIZE; k+=4){ // CRITICAL REMOVEME. NEWCHANGE. ////////////////////////////////////////////////////////////// CRITICAL REMOVEME. CRITICAL NEWCHANGE.
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#pragma HLS PIPELINE II=4
 		
