@@ -195,6 +195,13 @@ void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZ
 		cout<<".."<<endl;
 	}
 }
+void actsutility::printkeyvalues(string message, keyvalue_buffer_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int size){
+	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
+	for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
+		cout<<".."<<endl;
+	}
+}
 void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int size){
 	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){

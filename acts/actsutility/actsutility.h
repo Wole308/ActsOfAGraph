@@ -43,6 +43,7 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int skipsize);
 	void printkeyvalues(string message, keyvalue_t * keyvalues1, keyvalue_t * keyvalues2, unsigned int size);
 	void printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int size);
+	void printkeyvalues(string message, keyvalue_buffer_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int size);
 	void printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int size);
 	void printkeyvalues(string message, keyvalue_t keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size);
 	void printkeyvalues(string message, keyvalue1_type keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size);

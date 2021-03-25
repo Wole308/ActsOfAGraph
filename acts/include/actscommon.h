@@ -36,6 +36,14 @@ using namespace std;
 #define PARTITIONMODE 1
 #define REDUCEMODE 2
 
+#define NUMSUBPARTITIONERS 2 // 
+#if NUMSUBPARTITIONERS==1
+#define _1SUBPARTITIONERS
+#endif 
+#if NUMSUBPARTITIONERS==2
+#define _2SUBPARTITIONERS
+#endif
+
 #define VBUFFER_VECTOR_SIZE NUM_PARTITIONS
 
 // buffer parameters
@@ -43,7 +51,8 @@ using namespace std;
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
 
 #define SRCBUFFER_SIZE (512 - (4 * 4))
-#define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*4))
+// #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*4))
+#define WORKBUFFER_SIZE ((SRCBUFFER_SIZE - (NUM_PARTITIONS*4)) * NUMSUBPARTITIONERS) // CRITICAL REMOVEME.
 
 #define DRAMPADD (16 * BLOCKRAM_SIZE * VECTOR_SIZE) // NEWCHANGE
 #define DRAMPADD_KVS (DRAMPADD / VECTOR_SIZE) // to avoid any spill-overs 
@@ -282,8 +291,9 @@ typedef struct {
 } offset_t;
 
 typedef struct {
-	int chunksize_kvs;
 	int nextoffset_kvs;
+	int chunksizeA_kvs;
+	int chunksizeB_kvs;
 } fetchmessage_t;
 #endif 
 

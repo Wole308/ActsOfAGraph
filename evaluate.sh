@@ -611,8 +611,8 @@ do
 						then
 							make cleanall
 							# make build_acts_nthreads
-							# make demo_acts_nthreads #> $RESULTDIR_RESULT
-							make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+							make demo_acts_nthreads #> $RESULTDIR_RESULT
+							# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall
