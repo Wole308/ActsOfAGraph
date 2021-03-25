@@ -5,6 +5,7 @@
 #include "../../include/host_common.h"
 #include "../../include/common.h"
 #include "mysort.h"
+#include "quicksort.h"
 
 #define CREATENDGRAPH_BATCHSIZE 10000000
 
@@ -63,6 +64,7 @@ private:
 	unsigned int groupid;
 	
 	mysort * mysortobj;
+	quicksort * quicksortobj;
 };
 #endif
 

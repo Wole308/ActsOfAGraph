@@ -25,10 +25,10 @@ help::
 	$(ECHO) ""
 
 # Points to Utility Directory (***choice between CREBTREE or AWS***)
-# COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
-# ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
-COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
-ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
+COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
+# COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
+# ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 
 # RELREF = ../
 
@@ -40,8 +40,8 @@ XCLBIN := ./xclbin
 include ./utils.mk
 
 # (***choice between CREBTREE or AWS***)
-# DSA = xilinx_u280_xdma_201910_1
-DSA = xilinx_aws_vu9p_f1
+DSA = xilinx_u280_xdma_201910_1
+# DSA = xilinx_aws_vu9p_f1
 BUILD_DIR := ./_x.$(TARGET).$(DSA)
 
 BUILD_DIR_topkernel = $(BUILD_DIR)/topkernel
@@ -92,6 +92,7 @@ HOST_SRCS += $(RELREF)kernels/swkernel.cpp
 HOST_SRCS += $(RELREF)kernels/goclkernel.cpp
 HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
 HOST_SRCS += $(RELREF)src/graphs/mysort.cpp
+HOST_SRCS += $(RELREF)src/graphs/quicksort.cpp
 HOST_SRCS += $(RELREF)acts/sortreduce/sr.cpp
 
 # sort-reduce files
@@ -182,10 +183,10 @@ LDCLFLAGS_DRAM_SYNC += --sp topkernelsync_1.m_axi_gmem3:bank3
 LDCLFLAGS_DRAM_SYNC += --sp topkernelsync_1.m_axi_gmem4:bank0
 
 # Kernel linker flags (***choice between CREBTREE or AWS***)
-# LDCLFLAGS_PROC = $(LDCLFLAGS_HBM_PROC)
-# LDCLFLAGS_SYNC = $(LDCLFLAGS_HBM_SYNC)
-LDCLFLAGS_PROC = $(LDCLFLAGS_DRAM_PROC)
-LDCLFLAGS_SYNC = $(LDCLFLAGS_DRAM_SYNC)
+LDCLFLAGS_PROC = $(LDCLFLAGS_HBM_PROC)
+LDCLFLAGS_SYNC = $(LDCLFLAGS_HBM_SYNC)
+# LDCLFLAGS_PROC = $(LDCLFLAGS_DRAM_PROC)
+# LDCLFLAGS_SYNC = $(LDCLFLAGS_DRAM_SYNC)
 
 EXECUTABLE = host
 CMD_ARGS = $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin
@@ -262,10 +263,10 @@ $(XCLBIN)/topkernelprocandsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topke
 	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_PROC) $(LDCLFLAGS_SYNC) --nk topkernelproc:20 --nk topkernelsync:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
-# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
-	# /tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(KERNEL_TOP_SYNC) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
-	/opt/Xilinx/SDx/2019.1.op2552052/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(KERNEL_TOP_SYNC) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+	/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(KERNEL_TOP_SYNC) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+# $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
+	# /opt/Xilinx/SDx/2019.1.op2552052/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x $(CXXFLAGS) $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(KERNEL_TOP_SYNC) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
 
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:

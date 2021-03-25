@@ -2096,7 +2096,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		buffer[6][loadcount + 1] = GETKV(mykeyvalue16);
 		buffer[7][loadcount] = GETKV(mykeyvalue07);
 		buffer[7][loadcount + 1] = GETKV(mykeyvalue17);
-		if(en == ON && mask == 1){ loadcount += 2; } // CRITICAL NEWCHANGE. VHLS CHECKME.
+		if(en == ON && mask == 1){ loadcount += 2; }
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsprocessed(VECTOR_SIZE*2);
@@ -3299,9 +3299,6 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print3("### dispatch_reduce:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
 		#endif
-		
-		// batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR; // CRITICAL NEWCHANGE.
-		// if(voffset_kvs >= (globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE)){ continue; }
 		
 		enablereduce = ON;
 		travstate_t rtravstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);

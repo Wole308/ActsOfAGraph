@@ -12,8 +12,8 @@ set -e # Courtesy : Jinja 2.0
 ON=1
 OFF=0
 
-CRABTREE=$OFF
-AWS=$ON
+CRABTREE=$ON
+AWS=$OFF
 GUNROCK=$OFF
 
 if [ $CRABTREE == $ON ]
@@ -134,8 +134,8 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
-for evaluation_type in EV_CREATENDGRAPH
-# for evaluation_type in EV_PERFORMANCEOFALGORITHM
+# for evaluation_type in EV_CREATENDGRAPH
+for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT

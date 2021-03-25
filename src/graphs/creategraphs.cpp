@@ -28,6 +28,7 @@
 #include "../../include/common.h"
 #include "../../include/host_common.h"
 #include "mysort.h"
+#include "quicksort.h"
 #include "creategraphs.h"
 using namespace std;
 #define YES
@@ -39,6 +40,7 @@ creategraphs::creategraphs(unsigned int datasetid){
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, false, false);
 	mysortobj = new mysort(graphobj);
+	quicksortobj = new quicksort(graphobj);
 	
 	cout<<"creategraphs:: constructor called: creating structures... "<<endl;
 	cout<<"creategraphs:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;
@@ -72,10 +74,14 @@ void creategraphs::run(){
 	transformgraph();
 	#endif 
 	
+	#ifdef SORTUNDIRECTEDGRAPH
+	cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
+	quicksortobj->start();
+	#else 
 	resetdatastructures(0);
 	cout<<endl<< TIMINGRESULTSCOLOR << "creategraphs::start: creating graph for group 0..." << RESET <<endl;
 	start();
-	
+	#endif
 	return;
 }
 
@@ -232,10 +238,10 @@ void creategraphs::start(){
 
 	writevertexptrstofile();
 	
-	#ifdef GRAPHISUNDIRECTED
-	cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
-	mysortobj->start();
-	#endif 
+	// #ifdef GRAPHISUNDIRECTED
+	// cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
+	// mysortobj->start();
+	// #endif 
 
 	cout<<"creategraphs:: start finished. closing files... "<<endl;
 	file_graph.close(); 

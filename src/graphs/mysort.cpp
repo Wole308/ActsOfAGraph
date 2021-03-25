@@ -36,6 +36,13 @@ mysort::mysort(graph * _graphobj){
 }
 mysort::~mysort() {}
 
+// size_t  mysort::FREAD(void * ptr, size_t size, size_t count, uint32_t * stream){
+	// memcpy (ptr, stream, size*count);
+// }
+// size_t  mysort::FWRITE(const void * ptr, size_t size, size_t count, uint32_t * stream){
+	// memcpy (stream, ptr, size*count);
+// }
+
 // returns true if a <= b
 bool mysort::compare(uint32_t a[2], uint32_t b[2]) {
 	if ( a[0] > b[0] ) return false;
