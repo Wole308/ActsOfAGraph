@@ -28,7 +28,6 @@
 #include "../../include/common.h"
 #include "../../include/host_common.h"
 #include "mysort.h"
-#include "quicksort.h"
 #include "creategraphs.h"
 using namespace std;
 #define YES
@@ -40,7 +39,6 @@ creategraphs::creategraphs(unsigned int datasetid){
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, false, false);
 	mysortobj = new mysort(graphobj);
-	quicksortobj = new quicksort(graphobj);
 	
 	cout<<"creategraphs:: constructor called: creating structures... "<<endl;
 	cout<<"creategraphs:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;
@@ -68,20 +66,10 @@ creategraphs::~creategraphs() {
 
 void creategraphs::run(){
 	cout<<"creategraphs::run started."<<endl;
-	
-	#if NUMGROUPS>1
-	analyzegraph();
-	transformgraph();
-	#endif 
-	
-	#ifdef SORTUNDIRECTEDGRAPH
-	cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
-	quicksortobj->start();
-	#else 
+
 	resetdatastructures(0);
 	cout<<endl<< TIMINGRESULTSCOLOR << "creategraphs::start: creating graph for group 0..." << RESET <<endl;
 	start();
-	#endif
 	return;
 }
 
@@ -114,8 +102,8 @@ void creategraphs::resetdatastructures(unsigned int _groupid){
 void creategraphs::start(){
 	cout<<"creategraphs::start: opening files..."<<endl;
 	utilityobj->createdirectory(graphobj->getdatasetdir().c_str());
-	graphobj->openfilesforwriting(groupid);
-	graphobj->openfilesforreading(groupid);
+	graphobj->openfilesforwriting(0);
+	graphobj->openfilesforreading(0);
 	std::ifstream file_graph(graphobj->getdataset().graph_path);
 
 	vertex_t srcv = 0;
@@ -148,81 +136,75 @@ void creategraphs::start(){
 			#ifdef _DEBUGMODE_CHECKS
 			cout<<"creategraphs: srcv: "<<srcv<<", dstv: "<<dstv<<endl; if(alllinecount >= 100){ break; }
 			#endif 
-			if(srcv > graphobj->getdataset().num_vertices){ cout<<"creategraphs::start:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
-			if(dstv > graphobj->getdataset().num_vertices){ cout<<"creategraphs::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
-			// if(alllinecount >= 2 && alllinecount < 128){ if(srcv < prevsrcv){ cout<<"creategraphs::start:: ERROR: source vertexid ("<<srcv<<") is less than previous source vertex id ("<<prevsrcv<<"). change graph direction. EXITING... "<<endl; exit(EXIT_FAILURE); } else { prevsrcv = srcv; }} else { prevsrcv = srcv; } 
-			
-			#if NUMGROUPS>1
-			srcv = gettransformedglobalid(srcv);
-			dstv = gettransformedglobalid(dstv);
+			#ifdef ENABLE_PERFECTACCURACY // graphobj->getdataset().num_vertices
+			if(srcv >= KVDATA_RANGE){ cout<<"creategraphs::start:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			if(dstv >= KVDATA_RANGE){ cout<<"creategraphs::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			#else 
+			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
+			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
 			#endif
 		
-			if(getgroup(dstv) == groupid){
-				local_srcv = srcv;
-				#if NUMGROUPS==1
-				local_dstv = dstv;
-				#else 
-				local_dstv = getlocalid(dstv);
-				#endif
-				
-				unsigned int col = getbank(local_dstv);
-				if(col > 0){ continue; } // FIXME.
-				
-				#ifdef _DEBUGMODE_CHECKS
-				if (linecount < 16){ cout<<"creategraphs:: gedge: ["<<local_srcv<<","<<local_dstv<<"]"<<endl; }
-				#endif 
-				
-				edge2_type edge;
-				edge2_type edge2;
-				#ifdef GRAPHISUNDIRECTED
-				edge2_type edge_dup;
-				edge2_type edge2_dup;
-				#endif 
-				
-				edge.srcvid = local_srcv;
-				edge.dstvid = local_dstv;
-				#ifdef GRAPHISUNDIRECTED
-				edge_dup.srcvid = local_dstv;
-				edge_dup.dstvid = local_srcv;
-				#endif 
-				
-				edge2.dstvid = local_dstv;
-				#ifdef GRAPHISUNDIRECTED
-				edge2_dup.dstvid = local_srcv;
-				#endif 
-				
-				if(firstedge[col].srcvid == INVALIDDATA){ firstedge[col] = edge; }
-				
-				edgesbuffer[col].push_back(edge); 
-				// edges2buffer[col].push_back(edge2); 
-				#ifdef GRAPHISUNDIRECTED
-				edgesbuffer[col].push_back(edge_dup); 
-				// edges2buffer[col].push_back(edge2_dup); 
-				#endif 
-				
-				lvertexoutdegrees[col][local_srcv] += 1;
-				lvertexindegrees[col][local_dstv] += 1;
-				#ifdef GRAPHISUNDIRECTED
-				lvertexoutdegrees[col][local_dstv] += 1;
-				lvertexindegrees[col][local_srcv] += 1;
-				#endif 
-				
-				numedges[col] += 1;
+			local_srcv = srcv;
+			local_dstv = dstv;
+			
+			unsigned int col = getbank(local_dstv);
+			if(col > 0){ continue; } // FIXME.
+			
+			#ifdef _DEBUGMODE_CHECKS
+			if (linecount < 16){ cout<<"creategraphs:: gedge: ["<<local_srcv<<","<<local_dstv<<"]"<<endl; }
+			#endif 
+			
+			edge2_type edge;
+			edge2_type edge2;
+			#ifdef GRAPHISUNDIRECTED
+			edge2_type edge_dup;
+			edge2_type edge2_dup;
+			#endif 
+			
+			edge.srcvid = local_srcv;
+			edge.dstvid = local_dstv;
+			#ifdef GRAPHISUNDIRECTED
+			edge_dup.srcvid = local_dstv;
+			edge_dup.dstvid = local_srcv;
+			#endif 
+			
+			edge2.dstvid = local_dstv;
+			#ifdef GRAPHISUNDIRECTED
+			edge2_dup.dstvid = local_srcv;
+			#endif 
+			
+			if(firstedge[col].srcvid == INVALIDDATA){ firstedge[col] = edge; }
+			
+			edgesbuffer[col].push_back(edge); 
+			// edges2buffer[col].push_back(edge2); 
+			#ifdef GRAPHISUNDIRECTED
+			edgesbuffer[col].push_back(edge_dup); 
+			// edges2buffer[col].push_back(edge2_dup); 
+			#endif 
+			
+			lvertexoutdegrees[col][local_srcv] += 1;
+			lvertexindegrees[col][local_dstv] += 1;
+			#ifdef GRAPHISUNDIRECTED
+			lvertexoutdegrees[col][local_dstv] += 1;
+			lvertexindegrees[col][local_srcv] += 1;
+			#endif 
+			
+			numedges[col] += 1;
 
-				if((linecount++ % CREATENDGRAPH_BATCHSIZE) == 0){
-					#ifdef _DEBUGMODE_HOSTPRINTS
-					if(linecount < 2 * CREATENDGRAPH_BATCHSIZE){
-					utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[0][0]), 16); 
-					utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[1][0]), 16); }
-					#endif 
-					
-					writeedgestofile(edgesbuffer); 
-					clearedges(edgesbuffer); 
+			if((linecount++ % CREATENDGRAPH_BATCHSIZE) == 0){
+				#ifdef _DEBUGMODE_HOSTPRINTS
+				if(linecount < 2 * CREATENDGRAPH_BATCHSIZE){
+				utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[0][0]), 16); 
+				utilityobj->printedges("creategraphs::start", (edge2_type *)(&edgesbuffer[1][0]), 16); }
+				#endif 
+				
+				writeedgestofile(edgesbuffer); 
+				clearedges(edgesbuffer); 
 
-					// writeedgestofile(edges2buffer); 
-					// clearedges(edges2buffer);
-				}
+				// writeedgestofile(edges2buffer); 
+				// clearedges(edges2buffer);
 			}
+				
 			alllinecount += 1;
 										// if(linecount > 1000000){ break; } // CRITICAL REMOVEME..................................................
 		}
@@ -237,100 +219,13 @@ void creategraphs::start(){
 	clearedges(edgesbuffer); 
 
 	writevertexptrstofile();
-	
-	// #ifdef GRAPHISUNDIRECTED
-	// cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
-	// mysortobj->start();
-	// #endif 
 
 	cout<<"creategraphs:: start finished. closing files... "<<endl;
 	file_graph.close(); 
 	graphobj->closefilesforwriting();
 	graphobj->closefilesforreading();
 	cout<<"creategraphs:: finished creating 2D graph from "<<graphobj->getdataset().graph_path<<endl;
-	
-	// #ifdef GRAPHISUNDIRECTED
-	// cout<<"creategraphs:: start finished. sorting undirected graph... "<<endl;
-	// mysortobj->start();
-	// #endif 
-	
 	summary();
-	return;
-}
-
-void creategraphs::analyzegraph(){
-	cout<<endl<< TIMINGRESULTSCOLOR << "creategraphs::analyzegraph: analyzing graph..." << RESET <<endl;
-	utilityobj->createdirectory(graphobj->getdatasetdir().c_str());
-	std::ifstream file_graph(graphobj->getdataset().graph_path);
-	
-	cout<<"creategraphs::analyzegraph: initializing vertex out-degrees"<<endl;
-	vertexindegrees = new unsigned int[KVDATA_RANGE]; 
-	for(unsigned int i=0; i<KVDATA_RANGE; i++){ vertexindegrees[i] = 0; }
-	
-	vertex_t srcv = 0;
-	vertex_t dstv = 0;
-	edge_t linecount = 0;
-	vertex_t prevsrcv = 0;
-	
-	if (file_graph.is_open()) {
-		std::string line;
-		while (getline(file_graph, line)) {
-			if (line.find("%") == 0){ continue; }
-			if (linecount == 0){ linecount++; continue; } // first entry for flickr is stats
-			if ((linecount % 1000000) == 0){ cout<<"creategraphs::analyzegraph edge: ["<<srcv<<", "<<dstv<<"]. linecount: "<<linecount<<endl; }
-			
-			if(graphobj->getdataset().graphorder == SRC_DST){
-				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
-			} else {
-				sscanf(line.c_str(), "%i %i", &dstv, &srcv);
-			}
-			#ifdef _DEBUGMODE_CHECKS
-			cout<<"creategraphs: srcv: "<<srcv<<", dstv: "<<dstv<<endl;
-			#endif 
-			
-			if(srcv > graphobj->getdataset().num_vertices){ cout<<"creategraphs::analyzegraph:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
-			if(dstv > graphobj->getdataset().num_vertices){ cout<<"creategraphs::analyzegraph:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<". EXITING..."<<endl; exit(EXIT_FAILURE); }						
-			if(linecount >= 2 && linecount < 128){ if(srcv < prevsrcv){ cout<<"creategraphs::analyzegraph:: ERROR: source vertexid ("<<srcv<<") is less than previous source vertex id ("<<prevsrcv<<"). change graph direction. EXITING... "<<endl; exit(EXIT_FAILURE); } else { prevsrcv = srcv; }} else { prevsrcv = srcv; } 
-			
-			vertexindegrees[dstv] += 1;
-			
-			// if (linecount < 16){ cout<<"creategraphs:: gedge: ["<<srcv<<", "<<dstv<<"]"<<endl; }
-			if (linecount < 16){ cout<<"analyzegraph:: line["<<linecount<<"]: "<<line<<endl; }
-			linecount += 1;
-		}
-	} else {
-		cout<<"creategraphs:: directory ("<<graphobj->getdatasetdir()<<") does not exist. EXITING... "<<endl;
-		exit(EXIT_FAILURE);
-	}
-	
-	cout<<"creategraphs:: closing vertices files... "<<endl;
-	file_graph.close(); 
-	
-	utilityobj->printvalues("creategraphs::collectstats. vertexindegrees::", vertexindegrees, 256);
-	utilityobj->printvaluesgreaterthan("creategraphs::collectstats. vertexindegrees::", vertexindegrees, graphobj->getdataset().num_vertices, YDIMENSIONTHRESHOLD);
-	utilityobj->printvalueslessthan("creategraphs::collectstats. vertexindegrees::", vertexindegrees, graphobj->getdataset().num_vertices, 100);
-	cout<<"creategraphs::analyzegraph finished analyzing "<<graphobj->getdataset().graph_path<<endl;
-	return;
-}
-void creategraphs::transformgraph(){
-	cout<<"creategraphs::transformgraph transforming large indegree vertices "<<endl;
-	
-	global_to_transfglobal_ids = new unsigned int[KVDATA_RANGE];
-	for(unsigned int i=0; i<KVDATA_RANGE; i++){ global_to_transfglobal_ids[i] = INVALIDDATA; }
-	unsigned int nextfreevertexid = graphobj->getdataset().groupvoffset[1];
-	
-	for(unsigned int i=0; i<graphobj->getdataset().num_vertices; i++){ 
-		if(vertexindegrees[i] >= YDIMENSIONTHRESHOLD){
-			if(global_to_transfglobal_ids[i] == INVALIDDATA){
-				global_to_transfglobal_ids[i] = nextfreevertexid; // re-assign
-				vertexindegrees[nextfreevertexid] = vertexindegrees[i]; 
-				vertexindegrees[i] = 0; 
-				if((nextfreevertexid - graphobj->getdataset().num_vertices) < 16){ cout<<"creategraphs::transformgraph '> Threshold' FOUND i: "<<i<<" changed to "<<nextfreevertexid<<": vertexindegrees["<<i<<"]: "<<vertexindegrees[i]<<". vertexindegrees["<<nextfreevertexid<<"]: "<<vertexindegrees[nextfreevertexid]<<endl; }
-				nextfreevertexid += 1;
-			}
-		}
-	}
-	cout<<"creategraphs::transformgraph finished transforming large indegree vertices. number of rehased items: "<<(nextfreevertexid - graphobj->getdataset().num_vertices)<<endl;
 	return;
 }
 
@@ -437,16 +332,6 @@ unsigned int creategraphs::getbank(vertex_t vertexid){
 		bank = 0;
 	}  	
 	return bank;	
-}
-unsigned int creategraphs::getgroup(unsigned int vid){
-	return 0;
-}
-unsigned int creategraphs::gettransformedglobalid(unsigned int vertexid){
-	if(global_to_transfglobal_ids[vertexid] == INVALIDDATA){ return vertexid; }
-	else { return global_to_transfglobal_ids[vertexid]; }
-}
-unsigned int creategraphs::getlocalid(unsigned int vertexid){
-	return vertexid - graphobj->getdataset().groupvoffset[groupid];
 }
 
 

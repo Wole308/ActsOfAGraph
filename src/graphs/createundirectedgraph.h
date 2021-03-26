@@ -4,67 +4,28 @@
 #include "../utility/utility.h"
 #include "../../include/host_common.h"
 #include "../../include/common.h"
-#include "mysort.h"
-#include "quicksort.h"
-
-#define CREATENDGRAPH_BATCHSIZE 10000000
-
-// #define YDIMENSIONTHRESHOLD 1000
-#define YDIMENSIONTHRESHOLD (1 << 29) // infinite
 
 class createundirectedgraph {
 public:
 	createundirectedgraph(unsigned int datasetid);
 	~createundirectedgraph();
 	
-	void run();
-	
-	void createdatastructures();
-	void resetdatastructures(unsigned int groupid);
-	
 	void start();
-	
-	void analyzegraph();
-	void transformgraph();
-	
-	void summary();
-	
-	void writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
-	// void writeedgestofile(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]);
-
-	void clearedges(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
-	// void clearedges(std::vector<edge2_type> (&edges2buffer)[MAXNUMEDGEBANKS]);
-
-	void writevertexptrstofile();
-
-	unsigned int getbank(vertex_t vertexid);
-	unsigned int getgroup(unsigned int vid);
-	unsigned int gettransformedglobalid(unsigned int vertexid);
-	unsigned int getlocalid(unsigned int srcv);
-	void printworkloadstats();
 	
 private:
 	graph * graphobj;
-	
-	edge_t * lvertexoutdegrees[MAXNUMEDGEBANKS];
-	edge_t * lvertexindegrees[MAXNUMEDGEBANKS];
-	edge_t numedges[MAXNUMEDGEBANKS];
-	std::vector<edge2_type> edgesbuffer[MAXNUMEDGEBANKS];
-	// std::vector<edge2_type> edges2buffer[MAXNUMEDGEBANKS];
-	edge_t * vertexptrs[MAXNUMEDGEBANKS];	
-	edge_t totalnumedgeswritten[MAXNUMEDGEBANKS];
-	edge2_type firstedge[1];
-	
-	// analyze graph 
-	unsigned int * vertexoutdegrees;
-	unsigned int * vertexindegrees;
-	unsigned int * global_to_transfglobal_ids;
-
 	utility * utilityobj;
-	unsigned int groupid;
 	
-	mysort * mysortobj;
-	quicksort * quicksortobj;
+	edge2_type * edgedatabuffer_dup;
+	edge2_type * edgedatabuffer;
+	
+	edge_t * vertexptrbuffer_dup;
+	edge_t * vertexptrbuffer;
+	
+	int * inoutdegree_dup;
+	
+	FILE * nvmeFd_edges_w;	
+	FILE * nvmeFd_vertexptrs_w;
 };
 #endif
 

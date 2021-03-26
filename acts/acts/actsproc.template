@@ -2546,6 +2546,7 @@ topkernelproc(uint512_dt * kvdram){
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
 	}
 	#endif 
+	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();

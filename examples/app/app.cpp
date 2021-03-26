@@ -23,6 +23,7 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/setupkernel.h"
+#include "../../src/graphs/createundirectedgraph.h" // 
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -57,7 +58,7 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	
 	#ifdef GRAFBOOST_SETUP 
 	setupkernelobj->loadSRstructures();
-	#endif 
+	#endif
 }
 app::~app(){
 	cout<<"app::~app:: finish destroying memory structures... "<<endl;
@@ -79,7 +80,7 @@ runsummary_t app::run(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 32; // 3,12,32
+	unsigned int NumGraphIters = 3; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> activevertices;
@@ -157,6 +158,7 @@ runsummary_t app::run(){
 	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	#endif 
+	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 
 	// run
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;

@@ -5,7 +5,6 @@
 #include "../../include/host_common.h"
 #include "../../include/common.h"
 #include "mysort.h"
-#include "quicksort.h"
 
 #define CREATENDGRAPH_BATCHSIZE 10000000
 
@@ -24,9 +23,6 @@ public:
 	
 	void start();
 	
-	void analyzegraph();
-	void transformgraph();
-	
 	void summary();
 	
 	void writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]);
@@ -38,9 +34,6 @@ public:
 	void writevertexptrstofile();
 
 	unsigned int getbank(vertex_t vertexid);
-	unsigned int getgroup(unsigned int vid);
-	unsigned int gettransformedglobalid(unsigned int vertexid);
-	unsigned int getlocalid(unsigned int srcv);
 	void printworkloadstats();
 	
 private:
@@ -64,7 +57,6 @@ private:
 	unsigned int groupid;
 	
 	mysort * mysortobj;
-	quicksort * quicksortobj;
 };
 #endif
 

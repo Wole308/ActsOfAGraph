@@ -40,6 +40,11 @@ int main(int argc, char** argv){
 	creategraphsobj->run();
 	exit(EXIT_SUCCESS);
 	#endif
+	#ifdef _GENERATEUNDIRECTEDGRAPH
+	createundirectedgraph * createundirectedgraphobj = new createundirectedgraph(datasetobj->getdatasetid());
+	createundirectedgraphobj->start();
+	exit(EXIT_SUCCESS);
+	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime_overallexecution = std::chrono::steady_clock::now();
