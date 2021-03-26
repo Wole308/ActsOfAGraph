@@ -91,6 +91,7 @@ HOST_SRCS += $(RELREF)src/dataset/dataset.cpp
 HOST_SRCS += $(RELREF)kernels/swkernel.cpp
 HOST_SRCS += $(RELREF)kernels/goclkernel.cpp
 HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
+HOST_SRCS += $(RELREF)src/graphs/createundirectedgraph.cpp
 HOST_SRCS += $(RELREF)src/graphs/mysort.cpp
 HOST_SRCS += $(RELREF)src/graphs/quicksort.cpp
 HOST_SRCS += $(RELREF)acts/sortreduce/sr.cpp

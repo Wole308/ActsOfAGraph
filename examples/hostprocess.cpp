@@ -12,6 +12,7 @@
 #include "../examples/test/test.h"
 #include "../examples/app/app.h"
 #include "../src/graphs/creategraphs.h"
+#include "../src/graphs/createundirectedgraph.h"
 #include "../src/dataset/dataset.h"
 #include "../include/common.h"
 using namespace std;
