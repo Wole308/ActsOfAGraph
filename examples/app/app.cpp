@@ -80,7 +80,7 @@ runsummary_t app::run(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 3; // 3,12,32
+	unsigned int NumGraphIters = 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> activevertices;
@@ -157,8 +157,7 @@ runsummary_t app::run(){
 	unsigned int total_edges_processed = graphobj->get_num_edges();
 	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	#endif 
-	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
+	#endif
 
 	// run
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;

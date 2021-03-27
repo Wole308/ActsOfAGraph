@@ -25,9 +25,11 @@ using namespace std;
 
 #define ACTSPROC_AUTOMATE_ACROSSDATASETS
 
-// #define SUBPMASK // FIXME. work in progress...
+#define SUBPMASK // FIXME. work in progress...
 #define SUBPMASKFACTOR_POW 6
 #define SUBPMASKFACTOR 64
+
+#define REDUCEBUFFERFACTOR 8 // 8,16
 
 class actsproc {
 public:

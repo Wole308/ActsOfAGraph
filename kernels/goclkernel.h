@@ -11,7 +11,9 @@
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
-#define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
+// #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
+
+// #define NUMSYNCBUFFERSINKERNEL 16
 
 class goclkernel {
 public:
@@ -36,9 +38,13 @@ private:
 	stats * statsobj;
 	
 	actssync * kernelobjs_synchronize;
-	uint512_vec_dt * tempkvsourcedram;
-	uint512_vec_dt * tempkvsourcedrams[NUMSUBCPUTHREADS];
-	uint512_vec_dt * tempvdram;
+	
+	uint512_vec_dt * tempkvsourcedram_proc;
+	
+	uint512_vec_dt * tempkvsourcedrams_sync[NUMSUBCPUTHREADS];
+	uint512_vec_dt * tempvdram_sync;
+	
+	// uint512_vec_dt * tempvdram_sync;
 };
 #endif
 

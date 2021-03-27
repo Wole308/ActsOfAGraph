@@ -3216,7 +3216,7 @@ extern "C" {
 #pragma HLS DATA_PACK variable = kvdram30
 #pragma HLS DATA_PACK variable = kvdram31
 #pragma HLS DATA_PACK variable = vdram
-
+	
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
@@ -3392,8 +3392,8 @@ extern "C" {
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
-		enablereduce = ON;
-		unsigned int ntravszs = 0;
+		enablereduce = ON; 
+		unsigned int ntravszs = 0; // CRITICAL REMOVEME.
 		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
 		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
 		rtravstate[2] = gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
@@ -3532,7 +3532,7 @@ extern "C" {
 		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram28,kvdram29,kvdram30,kvdram31, vbuffer7_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 	
 		#endif 
-		
+	
 		// S_and_I4
 		spreadandwrite(enablereduce, ON,  kvdram0,kvdram1,kvdram2,kvdram3,	
 			vbuffer0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,

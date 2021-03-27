@@ -2584,7 +2584,12 @@ void
 	#endif 
 reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
+	#if REDUCEBUFFERFACTOR==8
 	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
+	#endif 
+	#if REDUCEBUFFERFACTOR==16
+	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / NUM_PARTITIONS);
+	#endif 
 	
 	keyvalue_buffer_t kvdata0;
 	keyvalue_buffer_t kvdata1;
@@ -2594,11 +2599,19 @@ reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM
 	keyvalue_buffer_t kvdata5;
 	keyvalue_buffer_t kvdata6;
 	keyvalue_buffer_t kvdata7;
-	buffer_type bramoffset_kvs[8];
+	keyvalue_buffer_t kvdata8;
+	keyvalue_buffer_t kvdata9;
+	keyvalue_buffer_t kvdata10;
+	keyvalue_buffer_t kvdata11;
+	keyvalue_buffer_t kvdata12;
+	keyvalue_buffer_t kvdata13;
+	keyvalue_buffer_t kvdata14;
+	keyvalue_buffer_t kvdata15;
+	buffer_type bramoffset_kvs[NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=bramoffset_kvs complete
-	buffer_type size_kvs[8];
+	buffer_type size_kvs[NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=size_kvs complete
-	unsigned int upperlimits[8];
+	unsigned int upperlimits[NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=upperlimits complete
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -2606,6 +2619,7 @@ reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM
 	#endif 
 
 	unsigned int tmplloprange = 0;
+	#if REDUCEBUFFERFACTOR==8
 	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int it=0; it<NUM_PARTITIONS; it+=NUM_PARTITIONS/2){
 		buffer_type maxsize_kvs = 0;
 		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
@@ -2647,6 +2661,64 @@ reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM
 			}
 		}
 	}
+	#endif 
+	#if REDUCEBUFFERFACTOR==16
+	buffer_type maxsize_kvs = 0;
+	REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		bramoffset_kvs[p] = localcapsule[p].key / VECTOR_SIZE;
+		size_kvs[p] = localcapsule[p].value / VECTOR_SIZE;
+		if(maxsize_kvs < size_kvs[p]){ maxsize_kvs = size_kvs[p]; }
+	}
+	
+	unsigned int lloprange = getrangeforeachllop(globalparams);
+	REDUCEBUFFERPARTITIONS_LOOP1C: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		upperlimits[p] = sweepparams.upperlimit + tmplloprange;
+		tmplloprange += lloprange;
+	}
+	
+	REDUCEBUFFERPARTITIONS_LOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=16
+		for(vector_type v=0; v<VECTOR_SIZE; v++){
+			kvdata0 = buffer[v][bramoffset_kvs[0] + i]; 	
+			kvdata1 = buffer[v][bramoffset_kvs[1] + i]; 	
+			kvdata2 = buffer[v][bramoffset_kvs[2] + i]; 	
+			kvdata3 = buffer[v][bramoffset_kvs[3] + i]; 	
+			kvdata4 = buffer[v][bramoffset_kvs[4] + i]; 	
+			kvdata5 = buffer[v][bramoffset_kvs[5] + i]; 	
+			kvdata6 = buffer[v][bramoffset_kvs[6] + i]; 	
+			kvdata7 = buffer[v][bramoffset_kvs[7] + i]; 	
+			kvdata8 = buffer[v][bramoffset_kvs[8] + i]; 	
+			kvdata9 = buffer[v][bramoffset_kvs[9] + i]; 	
+			kvdata10 = buffer[v][bramoffset_kvs[10] + i]; 	
+			kvdata11 = buffer[v][bramoffset_kvs[11] + i]; 	
+			kvdata12 = buffer[v][bramoffset_kvs[12] + i]; 	
+			kvdata13 = buffer[v][bramoffset_kvs[13] + i]; 	
+			kvdata14 = buffer[v][bramoffset_kvs[14] + i]; 	
+			kvdata15 = buffer[v][bramoffset_kvs[15] + i]; 	
+	
+
+			if(i< size_kvs[0]){ reducevector(kvdata0, vbuffer[0], 0, upperlimits[0], sweepparams, globalparams); }
+			if(i< size_kvs[1]){ reducevector(kvdata1, vbuffer[1], 0, upperlimits[1], sweepparams, globalparams); }
+			if(i< size_kvs[2]){ reducevector(kvdata2, vbuffer[2], 0, upperlimits[2], sweepparams, globalparams); }
+			if(i< size_kvs[3]){ reducevector(kvdata3, vbuffer[3], 0, upperlimits[3], sweepparams, globalparams); }
+			if(i< size_kvs[4]){ reducevector(kvdata4, vbuffer[4], 0, upperlimits[4], sweepparams, globalparams); }
+			if(i< size_kvs[5]){ reducevector(kvdata5, vbuffer[5], 0, upperlimits[5], sweepparams, globalparams); }
+			if(i< size_kvs[6]){ reducevector(kvdata6, vbuffer[6], 0, upperlimits[6], sweepparams, globalparams); }
+			if(i< size_kvs[7]){ reducevector(kvdata7, vbuffer[7], 0, upperlimits[7], sweepparams, globalparams); }
+			if(i< size_kvs[8]){ reducevector(kvdata8, vbuffer[8], 0, upperlimits[8], sweepparams, globalparams); }
+			if(i< size_kvs[9]){ reducevector(kvdata9, vbuffer[9], 0, upperlimits[9], sweepparams, globalparams); }
+			if(i< size_kvs[10]){ reducevector(kvdata10, vbuffer[10], 0, upperlimits[10], sweepparams, globalparams); }
+			if(i< size_kvs[11]){ reducevector(kvdata11, vbuffer[11], 0, upperlimits[11], sweepparams, globalparams); }
+			if(i< size_kvs[12]){ reducevector(kvdata12, vbuffer[12], 0, upperlimits[12], sweepparams, globalparams); }
+			if(i< size_kvs[13]){ reducevector(kvdata13, vbuffer[13], 0, upperlimits[13], sweepparams, globalparams); }
+			if(i< size_kvs[14]){ reducevector(kvdata14, vbuffer[14], 0, upperlimits[14], sweepparams, globalparams); }
+			if(i< size_kvs[15]){ reducevector(kvdata15, vbuffer[15], 0, upperlimits[15], sweepparams, globalparams); }
+		}
+	}
+	#endif 
 	return;
 }
 
@@ -2913,14 +2985,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -2933,8 +3005,8 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3391,8 +3463,7 @@ topkernelproc(uint512_dt * kvdram){
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
 	}
-	#endif 
-	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
+	#endif
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();

@@ -1766,16 +1766,21 @@ void
 	#endif 
 reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
+	#if REDUCEBUFFERFACTOR==8
 	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
+	#endif 
+	#if REDUCEBUFFERFACTOR==16
+	analysis_type analysis_loopcount = (BLOCKRAM_SIZE / NUM_PARTITIONS);
+	#endif 
 	
-	{%for p in context['8_seq']%}
+	{%for p in context['NUM_PARTITIONS_seq']%}
 	keyvalue_buffer_t kvdata{{p}};
 	{%endfor%}
-	buffer_type bramoffset_kvs[8];
+	buffer_type bramoffset_kvs[NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=bramoffset_kvs complete
-	buffer_type size_kvs[8];
+	buffer_type size_kvs[NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=size_kvs complete
-	unsigned int upperlimits[8];
+	unsigned int upperlimits[NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=upperlimits complete
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1783,6 +1788,7 @@ reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM
 	#endif 
 
 	unsigned int tmplloprange = 0;
+	#if REDUCEBUFFERFACTOR==8
 	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int it=0; it<NUM_PARTITIONS; it+=NUM_PARTITIONS/2){
 		buffer_type maxsize_kvs = 0;
 		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
@@ -1813,6 +1819,37 @@ reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM
 			}
 		}
 	}
+	#endif 
+	#if REDUCEBUFFERFACTOR==16
+	buffer_type maxsize_kvs = 0;
+	REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		bramoffset_kvs[p] = localcapsule[p].key / VECTOR_SIZE;
+		size_kvs[p] = localcapsule[p].value / VECTOR_SIZE;
+		if(maxsize_kvs < size_kvs[p]){ maxsize_kvs = size_kvs[p]; }
+	}
+	
+	unsigned int lloprange = getrangeforeachllop(globalparams);
+	REDUCEBUFFERPARTITIONS_LOOP1C: for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		upperlimits[p] = sweepparams.upperlimit + tmplloprange;
+		tmplloprange += lloprange;
+	}
+	
+	REDUCEBUFFERPARTITIONS_LOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=16
+		for(vector_type v=0; v<VECTOR_SIZE; v++){
+			{%for p in context['NUM_PARTITIONS_seq']%}
+			kvdata{{p}} = buffer[v][bramoffset_kvs[{{p}}] + i]; 	
+			{%endfor%}	
+
+			{%for p in context['NUM_PARTITIONS_seq']%}
+			if(i< size_kvs[{{p}}]){ reducevector(kvdata{{p}}, vbuffer[{{p}}], 0, upperlimits[{{p}}], sweepparams, globalparams); }
+			{%endfor%}
+		}
+	}
+	#endif 
 	return;
 }
 
@@ -2545,8 +2582,7 @@ topkernelproc(uint512_dt * kvdram){
 		#endif
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
 	}
-	#endif 
-	exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
+	#endif
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();

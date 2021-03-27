@@ -1238,7 +1238,7 @@ extern "C" {
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
-
+	
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.SYNC) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
@@ -1350,8 +1350,8 @@ extern "C" {
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMSYNCPIPELINES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
-		enablereduce = ON;
-		unsigned int ntravszs = 0;
+		enablereduce = ON; 
+		unsigned int ntravszs = 0; // CRITICAL REMOVEME.
 		{%for i in context['COMPUTEUNITS_seq']%}
 		rtravstate[{{i}}] = gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
 		{%endfor%}
@@ -1415,7 +1415,7 @@ extern "C" {
 		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 		{%endfor%}	
 		#endif 
-		
+	
 		// S_and_I4
 		{%for i in context['NUMSUBCPUTHREADS_DIV_4_seq']%}
 		spreadandwrite(enablereduce, ON, {%if(i==context['NUMSUBCPUTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}	
