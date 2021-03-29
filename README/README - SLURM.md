@@ -1,41 +1,17 @@
-# gunrock
-profiled version of gunrock
+LOGIN TO AN INTERRACTIVE NODE (E.G. PORTAL NODE)
+ssh portal01.cs.virgini.edu/wiki/doku
 
-Bash Scripts:
- #cuda="cuda9"
- cuda="cuda10
-if [ $cuda = "cuda9" ]
-then
-	module load cuda-toolkit-9.0
-	module load cmake-3.10
-	module load boost
-	module load openmpi4.0.0
-	export LD_LIBRARY_PATH="/sw/centos/cuda/9.2/lib64:$LD_LIBRARY_PATH"
-	export PATH="/sw/centos/cuda/9.2/bin:$PATH"
-else
-	#for gunrock changed from 10 to 10.1
-	module load cuda-toolkit-10.1
-	module load cmake-3.10
-	module load boost
-	module load openmpi4.0.0
-	export LD_LIBRARY_PATH="/sw/centos/cuda/10.1/lib64:$LD_LIBRARY_PATH"
-	export LD_LIBRARY_PATH="/sw/centos/cuda/10.1/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
-	export PATH="/sw/centos/cuda/10.1/bin:/sw/centos/cuda/10.1/NsightCompute-1.0:$PATH"
-fi
+CHECK AVAILABLE NODES IN LIST
+[pgh5a@portal01]$ sinfo
+PARTITION AVAIL TIMELIMIT NODES STATE NODELIST
+main* up 4-00:00:00 15 resv cortado[01-05],falcon[1-10]
+main* up 4-00:00:00 5 mix cortado06,hermes3,slurm[1-3]
+main* up 4-00:00:00 23 idle cortado[07-10],hermes[1-2,4],hydro,lynx[08-12],nibbler[1-4],optane01,slurm[4-5],trillian[1-3]
+gpu up 4-00:00:00 3 resv cheetah01,lynx[05-06]
+gpu up 4-00:00:00 14 mix ai[01,03-06],cheetah[02-03],lynx[01-04,07],ristretto[01-02]
+gpu up 4-00:00:00 7 idle affogato[11-15],ristretto[03-04]
 
-Building Gunrock:
-https://gunrock.github.io/docs/#/gunrock/building_gunrock
-
-Running Gunrock:
-/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected
-/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx --normalized --compensate --undirected				
-/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx --normalized --compensate --undirected				
-
-/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected
-/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx --normalized --compensate --undirected				
-/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx --normalized --compensate --undirected				
-
-Running Gunrock on Slurm:
+RUNNING GUNROCK ON SLURM:
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l 
 srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l -
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected 					
@@ -46,11 +22,11 @@ srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l submit.sh
 /net/bigtemp/oj2zf/gunrock_wole/examples/BaseMakefile.mk
 ./bin/test_pr_10.1_x86_64 market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --partition-method=random --compensate --undirected --quick --device=0
 
-Testing Sbatch:
+TESTING SBATCH:
 $ sbatch submit.sh
 sbatch: Submitted batch job 99999999
 
-Slurm Tutorials:
+SLURM TUTORIALS:
 https://www.cs.virginia.edu/wiki/doku.php?id=compute_slurm
 
 Resolving Gunrock error on Slurm:
