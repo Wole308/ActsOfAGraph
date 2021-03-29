@@ -437,14 +437,14 @@ long double goclkernel::runapp2(std::string binaryFile[2], uint512_vec_dt * vdra
 			cout<<"--------------- goclkernel[actssync]:: running ACTS PROCESS (Iteration "<<GraphIter<<")... ---------------"<<endl;
 			#endif 
 			
-			/* ////////////////////////////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
-			if(GraphIter==4){
+			////////////////////////////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
+			/* if(GraphIter==6){
 				for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 					kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON;  
 					kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = OFF;//ON;  
 				}
-			}
-			///////////////////////////////////////////////////////////////////////////////////// */
+			} */
+			/////////////////////////////////////////////////////////////////////////////////////
 			
 			cl_int err;
 			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);

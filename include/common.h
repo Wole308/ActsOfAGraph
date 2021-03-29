@@ -35,18 +35,6 @@
 
 ////////////////
 
-#define DISPATCHTYPE_SYNC
-
-#ifdef PR_ALGORITHM
-	#define DISPATCHTYPE_SYNC
-#endif 
-#ifdef BFS_ALGORITHM
-	#define DISPATCHTYPE_SYNC
-#endif 
-#ifdef SSSP_ALGORITHM
-	#define DISPATCHTYPE_SYNC
-#endif
-
 #define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
 
 #define _DEBUGMODE_HEADER //
