@@ -24,7 +24,8 @@ public:
 	runsummary_t run_sw();
 	runsummary_t run_hw();
 	
-	void verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams);
+	void verifyresults_sw(value_t * vdatas);
+	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_t globalparams);
 	
 private:
 	graph * graphobj;

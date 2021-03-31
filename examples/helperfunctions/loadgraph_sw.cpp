@@ -42,7 +42,7 @@ void loadgraph_sw::loadedges_rowwise(graph * graphobj, edge_t * vertexptrbuffer,
 	unsigned int index2 = 0;
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		vptrs[i][1] = 0; 
+		vptrs[i][0] = 0; 
 	}
 	
 	for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid++){
@@ -82,16 +82,13 @@ void loadgraph_sw::loadedges_rowwise(graph * graphobj, edge_t * vertexptrbuffer,
 		}
 	}
 	
-	unsigned int maxvptr = 0;
-	unsigned int totalcount = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<"counts["<<i<<"]: "<<counts[i]<<endl;
-		#endif 
-		totalcount += counts[i];
-		if(maxvptr < counts[i]){ maxvptr = counts[i]; }
-	}
-	cout<<"loadgraph_sw::loadedges_rowwise: totalcount: "<<totalcount<<", maxvptr: "<<maxvptr<<endl;
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	unsigned int totalsize = 0;
+	cout<<"loadedges_rowwise:: loading Acts... sizes: ["; 
+	cout<<"["; for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ totalsize += counts[i]; cout<<counts[i]; if(i<NUMSUBCPUTHREADS-1){ cout<<", "; }} cout<<"]";
+	cout<<"]"<<endl;
+	cout<<"loadedges_rowwise:: total sizes: "<<totalsize<<endl; 
+	#endif
 	return;
 }
 

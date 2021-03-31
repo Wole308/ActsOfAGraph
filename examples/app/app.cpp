@@ -92,27 +92,35 @@ runsummary_t app::run_sw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 4; // 3,12,32
+	unsigned int NumGraphIters = 8; // 3,12,32
 	#endif
-	vector<value_t> activevertices;
-	activevertices.push_back(1);
+	vector<value_t> actvvs;
+	actvvs.push_back(1);
 	
 	unsigned int num_edges_per = ((2 * graphobj->get_num_edges()) / NUMSUBCPUTHREADS) + 1024;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ vptrs[i] = new edge_t[KVDATA_RANGE]; }
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges[i] = new edge_type[num_edges_per]; }
 
+	// edges
 	loadgraphswobj->loadedges_rowwise(graphobj, vertexptrbuffer, edgedatabuffer, vptrs, edges);
-	// exit(EXIT_SUCCESS); // REMOVEME.
+
+	// active vertices
+	cout<<"app::loadactvvertices:: loading active vertices... "<<endl;
+	for(unsigned int t=0; t<actvvs.size(); t++){ vertexdatabuffer[actvvs[t]] = 0; }
 
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int total_edges_processed = graphobj->get_num_edges();
 	#else 
-	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	#endif
+	
+	vector<value_t> actvvs_currentit;
+	vector<value_t> actvvs_nextit;
+	actvvs_currentit.assign(actvvs.begin(), actvvs.end());
 
 	// run_sw
-	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_sw: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
-	long double total_time_elapsed = swkernelobj->runapp_sw(edges, vptrs, vertexdatabuffer, activevertices, kvdram, 
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_sw: app started. ("<<actvvs_currentit.size()<<" active vertices)"<< RESET <<endl;
+	long double total_time_elapsed = swkernelobj->runapp_sw(edges, vptrs, vertexdatabuffer, actvvs_currentit, actvvs_nextit, kvdram, 
 			#ifdef PR_ALGORITHM 
 			PAGERANK,
 			#endif 
@@ -128,7 +136,8 @@ runsummary_t app::run_sw(){
 	cout<<">>> app::run_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
 	
-	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	verifyresults_sw(vertexdatabuffer);
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -154,10 +163,10 @@ runsummary_t app::run_hw(){
 	unsigned int NumGraphIters = 4; // 3,12,32
 	#endif 
 	container_t container;
-	vector<value_t> activevertices;
+	vector<value_t> actvvs;
 	globalparams_t globalparams;
 
-	activevertices.push_back(1);
+	actvvs.push_back(1);
 
 	// load workload information
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
@@ -180,6 +189,7 @@ runsummary_t app::run_hw(){
 	globalparams.SIZE_KVDRAM = 0;
 	globalparams.SIZE_KVDRAMWORKSPACE = 0;
 	
+	// edges
 	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, globalparams);
 	
 	// vertex data
@@ -187,14 +197,14 @@ runsummary_t app::run_hw(){
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, 0, KVDATA_RANGE, globalparams);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], 0, KVDATA_RANGE, globalparams); }
 	cout<<"app::setrootvid:: setting root vid(s)... "<<endl;
-	loadgraphobj->setrootvid((value_t *)vdram, activevertices, globalparams);
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], activevertices, globalparams); }
+	loadgraphobj->setrootvid((value_t *)vdram, actvvs, globalparams);
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], actvvs, globalparams); }
 
 	// active vertices & masks
 	cout<<"app::loadactvvertices:: loading active vertices... "<<endl;
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(activevertices, (keyy_t *)&kvbuffer[i], &container, globalparams); }
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(actvvs, (keyy_t *)&kvbuffer[i], &container, globalparams); }
 	cout<<"app::generatevmaskdata:: generating vmask... "<<endl;
-	globalparams = loadgraphobj->generatevmaskdata(activevertices, kvbuffer, globalparams);
+	globalparams = loadgraphobj->generatevmaskdata(actvvs, kvbuffer, globalparams);
 	
 	// workspace info 
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
@@ -227,19 +237,19 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int total_edges_processed = graphobj->get_num_edges();
 	#else 
-	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	#endif
 
 	// run_hw
-	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);
 	
 	cout<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
 	
-	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
-	verifyresults(kvbuffer[0], globalparams);
+	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	verifyresults_hw(kvbuffer[0], globalparams);
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -248,9 +258,31 @@ runsummary_t app::run_hw(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
-void app::verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams){
+void app::verifyresults_sw(value_t * vdatas){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"app::verifyactvvsdata: verifying vertex data... "<<endl;
+	#endif
+	
+	unsigned int resdatas[64];
+	for(unsigned int k=0; k<64; k++){ resdatas[k] = 0; }
+	
+	for(unsigned int t=0; t<KVDATA_RANGE; t+=1){
+		unsigned int vid = t;
+		unsigned int vdata = vdatas[t];
+				
+		if(vdata < 64){
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"app:verifyresults_sw: vid: "<<vid<<", vdata: "<<vdata<<endl;
+			#endif 
+			resdatas[vdata] += 1; 
+		}
+	}
+	utilityobj->printvalues("app::verifyresults_sw.vdatas: verifying results after kernel run", resdatas, 16);
+	return;
+}
+void app::verifyresults_hw(uint512_vec_dt * kvdram, globalparams_t globalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"app::verifyresults_hw: verifying vertex data... "<<endl;
 	#endif
 	
 	unsigned int vdatas[64];
@@ -272,20 +304,20 @@ void app::verifyresults(uint512_vec_dt * kvdram, globalparams_t globalparams){
 				
 				if(vdata1 < 64){
 					#ifdef _DEBUGMODE_HOSTPRINTS
-					cout<<"app:verifyresults: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
+					cout<<"app:verifyresults_hw: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
 					#endif 
 					vdatas[vdata1] += 1; 
 				}
 				if(vdata2 < 64){
 					#ifdef _DEBUGMODE_HOSTPRINTS
-					cout<<"app:verifyresults: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
+					cout<<"app:verifyresults_hw: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
 					#endif
 					vdatas[vdata2] += 1; 
 				}
 			}
 		}
 	}
-	utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
+	utilityobj->printvalues("app::verifyresults_hw.vdatas: verifying results after kernel run", vdatas, 16);
 	return;
 }
 
