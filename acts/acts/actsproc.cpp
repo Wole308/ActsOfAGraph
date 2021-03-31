@@ -965,138 +965,6 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 	actsutilityobj->scankeyvalues("savekeyvalues::buffer", (keyvalue_t *)buffer, localcapsule, NUM_PARTITIONS, globalparams.SIZE_BATCHRANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	#endif
 	
-	////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
-	// #ifdef KOKOOOOOO
-	analysis_type analysis_destpartitionsz = BLOCKRAM_SIZE / NUM_PARTITIONS;
-	SAVEPARTITIONS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
-		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
-		buffer_type bramoffset_kvs = 0;// + (localcapsule[p].key / 1024);
-		buffer_type realsize_kvs = (localcapsule[p].value / 1024);
-		// buffer_type size_kvs = (512 / 16); //  + realsize_kvs; //  getpartitionwritesz(realsize_kvs, bramoffset_kvs);
-		buffer_type size_kvs = getpartitionwritesz(32, bramoffset_kvs);
-		
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, BLOCKRAM_SIZE + 1, p, NAp, NAp);
-		actsutilityobj->checkoutofbounds("savekeyvalues 25", ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE), globalparams.SIZE_KVDRAM + 1, p, NAp, NAp);
-		#endif
-		if(realsize_kvs > 0){
-			SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
-			#pragma HLS PIPELINE II=1
-				keyvalue_t mykeyvalue0 = GETKV(buffer[0][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue1 = GETKV(buffer[1][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue2 = GETKV(buffer[2][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue3 = GETKV(buffer[3][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue4 = GETKV(buffer[4][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue5 = GETKV(buffer[5][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue6 = GETKV(buffer[6][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue7 = GETKV(buffer[7][bramoffset_kvs + i]);
-				
-				#ifdef _WIDEWORD
-				kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
-				kvdram[dramoffset_kvs + i].range(63, 32) = mykeyvalue0.value; 
-				kvdram[dramoffset_kvs + i].range(95, 64) = mykeyvalue1.key; 
-				kvdram[dramoffset_kvs + i].range(127, 96) = mykeyvalue1.value; 
-				kvdram[dramoffset_kvs + i].range(159, 128) = mykeyvalue2.key; 
-				kvdram[dramoffset_kvs + i].range(191, 160) = mykeyvalue2.value; 
-				kvdram[dramoffset_kvs + i].range(223, 192) = mykeyvalue3.key; 
-				kvdram[dramoffset_kvs + i].range(255, 224) = mykeyvalue3.value; 
-				kvdram[dramoffset_kvs + i].range(287, 256) = mykeyvalue4.key; 
-				kvdram[dramoffset_kvs + i].range(319, 288) = mykeyvalue4.value; 
-				kvdram[dramoffset_kvs + i].range(351, 320) = mykeyvalue5.key; 
-				kvdram[dramoffset_kvs + i].range(383, 352) = mykeyvalue5.value; 
-				kvdram[dramoffset_kvs + i].range(415, 384) = mykeyvalue6.key; 
-				kvdram[dramoffset_kvs + i].range(447, 416) = mykeyvalue6.value; 
-				kvdram[dramoffset_kvs + i].range(479, 448) = mykeyvalue7.key; 
-				kvdram[dramoffset_kvs + i].range(511, 480) = mykeyvalue7.value; 
-				#else 
-				kvdram[dramoffset_kvs + i].data[0].key = mykeyvalue0.key; 
-				kvdram[dramoffset_kvs + i].data[0].value = mykeyvalue0.value; 
-				kvdram[dramoffset_kvs + i].data[1].key = mykeyvalue1.key; 
-				kvdram[dramoffset_kvs + i].data[1].value = mykeyvalue1.value; 
-				kvdram[dramoffset_kvs + i].data[2].key = mykeyvalue2.key; 
-				kvdram[dramoffset_kvs + i].data[2].value = mykeyvalue2.value; 
-				kvdram[dramoffset_kvs + i].data[3].key = mykeyvalue3.key; 
-				kvdram[dramoffset_kvs + i].data[3].value = mykeyvalue3.value; 
-				kvdram[dramoffset_kvs + i].data[4].key = mykeyvalue4.key; 
-				kvdram[dramoffset_kvs + i].data[4].value = mykeyvalue4.value; 
-				kvdram[dramoffset_kvs + i].data[5].key = mykeyvalue5.key; 
-				kvdram[dramoffset_kvs + i].data[5].value = mykeyvalue5.value; 
-				kvdram[dramoffset_kvs + i].data[6].key = mykeyvalue6.key; 
-				kvdram[dramoffset_kvs + i].data[6].value = mykeyvalue6.value; 
-				kvdram[dramoffset_kvs + i].data[7].key = mykeyvalue7.key; 
-				kvdram[dramoffset_kvs + i].data[7].value = mykeyvalue7.value; 
-				#endif 
-				
-				#ifdef _DEBUGMODE_STATS
-				actsutilityobj->globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
-				#endif
-			}
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_countkvspartitionswritten(realsize_kvs * VECTOR_SIZE);
-			#endif
-		}
-	}
-	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }
-	/* batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[0].key + globalcapsule[0].value) / VECTOR_SIZE);
-	buffer_type bramoffset_kvs = localcapsule[0].key / VECTOR_SIZE;
-	SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<512; i++){ // 256
-	// #pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
-	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue0 = GETKV(buffer[0][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue1 = GETKV(buffer[1][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue2 = GETKV(buffer[2][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue3 = GETKV(buffer[3][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue4 = GETKV(buffer[4][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue5 = GETKV(buffer[5][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue6 = GETKV(buffer[6][bramoffset_kvs + i]);
-		keyvalue_t mykeyvalue7 = GETKV(buffer[7][bramoffset_kvs + i]);
-		
-		#ifdef _WIDEWORD
-		kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
-		kvdram[dramoffset_kvs + i].range(63, 32) = mykeyvalue0.value; 
-		kvdram[dramoffset_kvs + i].range(95, 64) = mykeyvalue1.key; 
-		kvdram[dramoffset_kvs + i].range(127, 96) = mykeyvalue1.value; 
-		kvdram[dramoffset_kvs + i].range(159, 128) = mykeyvalue2.key; 
-		kvdram[dramoffset_kvs + i].range(191, 160) = mykeyvalue2.value; 
-		kvdram[dramoffset_kvs + i].range(223, 192) = mykeyvalue3.key; 
-		kvdram[dramoffset_kvs + i].range(255, 224) = mykeyvalue3.value; 
-		kvdram[dramoffset_kvs + i].range(287, 256) = mykeyvalue4.key; 
-		kvdram[dramoffset_kvs + i].range(319, 288) = mykeyvalue4.value; 
-		kvdram[dramoffset_kvs + i].range(351, 320) = mykeyvalue5.key; 
-		kvdram[dramoffset_kvs + i].range(383, 352) = mykeyvalue5.value; 
-		kvdram[dramoffset_kvs + i].range(415, 384) = mykeyvalue6.key; 
-		kvdram[dramoffset_kvs + i].range(447, 416) = mykeyvalue6.value; 
-		kvdram[dramoffset_kvs + i].range(479, 448) = mykeyvalue7.key; 
-		kvdram[dramoffset_kvs + i].range(511, 480) = mykeyvalue7.value; 
-		#else 
-		kvdram[dramoffset_kvs + i].data[0].key = mykeyvalue0.key; 
-		kvdram[dramoffset_kvs + i].data[0].value = mykeyvalue0.value; 
-		kvdram[dramoffset_kvs + i].data[1].key = mykeyvalue1.key; 
-		kvdram[dramoffset_kvs + i].data[1].value = mykeyvalue1.value; 
-		kvdram[dramoffset_kvs + i].data[2].key = mykeyvalue2.key; 
-		kvdram[dramoffset_kvs + i].data[2].value = mykeyvalue2.value; 
-		kvdram[dramoffset_kvs + i].data[3].key = mykeyvalue3.key; 
-		kvdram[dramoffset_kvs + i].data[3].value = mykeyvalue3.value; 
-		kvdram[dramoffset_kvs + i].data[4].key = mykeyvalue4.key; 
-		kvdram[dramoffset_kvs + i].data[4].value = mykeyvalue4.value; 
-		kvdram[dramoffset_kvs + i].data[5].key = mykeyvalue5.key; 
-		kvdram[dramoffset_kvs + i].data[5].value = mykeyvalue5.value; 
-		kvdram[dramoffset_kvs + i].data[6].key = mykeyvalue6.key; 
-		kvdram[dramoffset_kvs + i].data[6].value = mykeyvalue6.value; 
-		kvdram[dramoffset_kvs + i].data[7].key = mykeyvalue7.key; 
-		kvdram[dramoffset_kvs + i].data[7].value = mykeyvalue7.value; 
-		#endif 
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvspartitionswritten_actual(VECTOR_SIZE);
-		#endif
-	}
-	SAVEPARTITIONS_LOOP2B: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; } */
-	// #endif 
-	///////////////////////////////////////////////////////////////////
-	
-	#ifdef KOKOOOOOO
 	analysis_type analysis_destpartitionsz = BLOCKRAM_SIZE / NUM_PARTITIONS;
 	SAVEPARTITIONS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
@@ -1186,7 +1054,6 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 	cout<<"savekeyvalues:: keyvalues saved: offset_kvs from: "<<globalbaseaddress_kvs + ((globalcapsule[0].key + globalcapsule[0].value) / VECTOR_SIZE)<<endl;
 	actsutilityobj->printkeyvalues("actsutility::savekeyvalues: globalcapsule.", (keyvalue_t *)globalcapsule, NUM_PARTITIONS);
 	#endif
-	#endif 
 	return;
 }
 
@@ -2374,8 +2241,7 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 		localcapsule[7][p].value = 0; 
 	}
 	
-	// PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<512; i++){ // CRITICAL REMOVEME.
+	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
 	#pragma HLS PIPELINE II=2
 		keyvalue_buffer_t keyvalue0 = sourcebuffer[0][i];
@@ -2978,9 +2844,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	}
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
-		// RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){
-		// RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<256; k+=4){ // CRITICAL REMOVEME.
-		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<512; k+=4){ // CRITICAL REMOVEME.
+		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#pragma HLS PIPELINE II=4
 		
@@ -3121,14 +2985,14 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
-keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3141,8 +3005,8 @@ keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-buffer_type pp0cutoffs[VECTOR_SIZE];
-buffer_type pp1cutoffs[VECTOR_SIZE];
+static buffer_type pp0cutoffs[VECTOR_SIZE];
+static buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	

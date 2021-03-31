@@ -1,5 +1,6 @@
 LOGIN TO AN INTERRACTIVE NODE (E.G. PORTAL NODE)
 ssh portal01.cs.virgini.edu/wiki/doku
+Titan GPU in Automata 20 does not have HBM2 memories. Lynx05, lynx06, and lynx 07 have HBM2 memory.
 
 CHECK AVAILABLE NODES IN LIST
 [pgh5a@portal01]$ sinfo
@@ -10,6 +11,9 @@ main* up 4-00:00:00 23 idle cortado[07-10],hermes[1-2,4],hydro,lynx[08-12],nibbl
 gpu up 4-00:00:00 3 resv cheetah01,lynx[05-06]
 gpu up 4-00:00:00 14 mix ai[01,03-06],cheetah[02-03],lynx[01-04,07],ristretto[01-02]
 gpu up 4-00:00:00 7 idle affogato[11-15],ristretto[03-04]
+
+CHECK RESERVATIONS
+>> scontrol show reservations
 
 RUNNING GUNROCK ON SLURM:
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l 

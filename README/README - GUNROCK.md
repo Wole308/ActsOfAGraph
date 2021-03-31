@@ -1,5 +1,6 @@
 # gunrock
 GPU available on Automata20 (ssh oj2zf@automata20.cs.virginia.edu, P5vTuiH4)
+Titan GPU in Automata 20 does not have HBM2 memories. Lynx05, lynx06, and lynx 07 have HBM2 memory.
 
 Bash Scripts:
  #cuda="cuda9"
@@ -30,6 +31,9 @@ Running Gunrock:
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx --normalized --compensate --undirected				
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx --normalized --compensate --undirected				
+/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx --normalized --compensate --undirected
+/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/road_usa/road_usa.mtx --normalized --compensate --undirected
+/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-twitter-2010/soc-twitter-2010.mtx --normalized --compensate --undirected
 
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx --normalized --compensate --undirected				

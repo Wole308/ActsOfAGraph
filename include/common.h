@@ -1,11 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -13,6 +10,7 @@
 #define FPGA_IMPL
 #endif 
 #define CRABTREE_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
+#define SW_IMPL //
 
 #ifdef GRAFBOOST_SETUP
 #define SORTREDUCEMODEL
@@ -125,6 +123,7 @@
 #define VMASKBUFFERSZ_KVS ((REDUCESZ * NUM_PARTITIONS) / 512) // 32 //>>> 16384=[WidthxHeight]=512*32
 
 #define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
+#define TOTALNUMPARTITIONS 273 // CRITICAL FIXME.
 
 ////////////////
 
@@ -453,10 +452,10 @@ typedef struct {
 	unsigned int x;
 	unsigned int numbits;
 } mail_t; */
-typedef struct {
+/* typedef struct {
 	unsigned int x;
 	unsigned int streetaddr;
 	unsigned int houseno;
-} mail_t;
+} mail_t; */
 #endif
 

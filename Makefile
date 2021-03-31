@@ -80,6 +80,7 @@ HOST_TOP += $(RELREF)examples/hostprocess.cpp
 
 HOST_SRCS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph_sw.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/evalparams.cpp
 HOST_SRCS += $(RELREF)examples/app/app.cpp
@@ -94,6 +95,8 @@ HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
 HOST_SRCS += $(RELREF)src/graphs/createundirectedgraph.cpp
 HOST_SRCS += $(RELREF)src/graphs/mysort.cpp
 HOST_SRCS += $(RELREF)acts/sortreduce/sr.cpp
+HOST_SRCS += $(RELREF)acts/acts_sw/actsproc_sw.cpp
+HOST_SRCS += $(RELREF)acts/acts_sw/actssync_sw.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=$(RELREF)sortreduce-master/include/

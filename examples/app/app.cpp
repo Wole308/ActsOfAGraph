@@ -22,8 +22,10 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
+#include "../../examples/helperfunctions/loadgraph_sw.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
+#include "../../kernels/swkernel.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -37,7 +39,9 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	algorithmobj = new algorithm();
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
+	loadgraphswobj = new loadgraph_sw(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
+	swkernelobj = new swkernel(statsobj);
 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }				
@@ -67,7 +71,15 @@ app::~app(){
 void app::finish(){}
 
 runsummary_t app::run(){
-	cout<<"app::run:: app algorithm started. "<<endl;
+	#ifdef SW_IMPL 
+	run_sw();
+	#else 
+	run_hw();
+	#endif
+}
+
+runsummary_t app::run_sw(){
+	cout<<"app::run_sw:: app algorithm started. "<<endl;
 	long double totaltime_ms = 0;
 	graphobj->opentemporaryfilesforwriting();
 	graphobj->opentemporaryfilesforreading();
@@ -80,7 +92,66 @@ runsummary_t app::run(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 32; // 3,12,32
+	unsigned int NumGraphIters = 4; // 3,12,32
+	#endif
+	vector<value_t> activevertices;
+	activevertices.push_back(1);
+	
+	unsigned int num_edges_per = ((2 * graphobj->get_num_edges()) / NUMSUBCPUTHREADS) + 1024;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ vptrs[i] = new edge_t[KVDATA_RANGE]; }
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ edges[i] = new edge_type[num_edges_per]; }
+
+	loadgraphswobj->loadedges_rowwise(graphobj, vertexptrbuffer, edgedatabuffer, vptrs, edges);
+	// exit(EXIT_SUCCESS); // REMOVEME.
+
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int total_edges_processed = graphobj->get_num_edges();
+	#else 
+	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	#endif
+
+	// run_sw
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_sw: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+	long double total_time_elapsed = swkernelobj->runapp_sw(edges, vptrs, vertexdatabuffer, activevertices, kvdram, 
+			#ifdef PR_ALGORITHM 
+			PAGERANK,
+			#endif 
+			#ifdef BFS_ALGORITHM  
+			BFS,
+			#endif 
+			#ifdef SSSP_ALGORITHM 
+			SSSP,
+			#endif
+			NumGraphIters);
+	
+	cout<<">>> app::run_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> app::run_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
+	
+	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	
+	finish();
+	graphobj->closetemporaryfilesforwriting();
+	graphobj->closetemporaryfilesforreading();
+	graphobj->closefilesforreading();
+	return statsobj->timingandsummary(NAp, totaltime_ms);
+}
+
+runsummary_t app::run_hw(){
+	cout<<"app::run_hw:: app algorithm started. "<<endl;
+	long double totaltime_ms = 0;
+	graphobj->opentemporaryfilesforwriting();
+	graphobj->opentemporaryfilesforreading();
+	vertexdatabuffer = graphobj->generateverticesdata();
+	graphobj->openfilesforreading(0);
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
+	
+	// set root vid
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int NumGraphIters = 1;
+	#else 
+	unsigned int NumGraphIters = 4; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> activevertices;
@@ -159,13 +230,13 @@ runsummary_t app::run(){
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	#endif
 
-	// run
-	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
+	// run_hw
+	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<activevertices.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer);
 	
-	cout<<">>> app::run: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
-	cout<<">>> app::run: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
+	cout<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
 	
 	utilityobj->runsssp_sw(activevertices, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	verifyresults(kvbuffer[0], globalparams);

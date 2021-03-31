@@ -8,6 +8,8 @@
 #include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
+#include "../acts/acts_sw/actsproc_sw.h"
+#include "../acts/acts_sw/actssync_sw.h"
 #include "../src/utility/utility.h"
 
 class swkernel {
@@ -16,6 +18,7 @@ public:
 	~swkernel();
 	
 	#ifdef SW 
+	long double runapp_sw(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<unsigned int> &actvvs, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters);				
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	#endif 
 private:
@@ -23,10 +26,13 @@ private:
 	stats * statsobj;
 	#ifdef SW
 	acts * kernelobjs[NUMSUBCPUTHREADS];
+	
 	actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
 	actssync * kernelobjs_synchronize;
-	#endif 
-	std::thread mykernelthread[NUMSUBCPUTHREADS];
+	
+	actsproc_sw * swkernelobjs_process[NUMSUBCPUTHREADS];
+	actssync_sw * swkernelobjs_synchronize;
+	#endif
 };
 #endif
 
