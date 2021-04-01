@@ -25,6 +25,7 @@
 #include <iostream> 
 #include <sys/stat.h> 
 #include <sys/types.h> 
+#include <algorithm>
 #include "../../examples/include/examplescommon.h"
 #include "../../acts/include/actscommon.h" //
 #include "../../include/common.h"
@@ -48,39 +49,39 @@ utility::~utility(){}
 
 void utility::printallparameters(){
 	#ifdef USEHBMMEMORY
-	std::cout<<"host:: USEHBMMEMORY DEFINED"<<std::endl;
+	std::cout<<"utility:: USEHBMMEMORY DEFINED"<<std::endl;
 	#else 
-	std::cout<<"host:: USEDDRAMMEMORY DEFINED"<<std::endl;	
+	std::cout<<"utility:: USEDDRAMMEMORY DEFINED"<<std::endl;	
 	#endif
-	std::cout<<"host:: NUMDRAMBANKS: "<<NUMDRAMBANKS<<std::endl;
-	std::cout<<"host:: NUMWORKERS: "<<NUMWORKERS<<std::endl;
-	std::cout<<"host:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
-	std::cout<<"host:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
-	std::cout<<"host:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
-	std::cout<<"host:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
-	std::cout<<"host:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
-	std::cout<<"host:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
-	std::cout<<"host:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
-	std::cout<<"host:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
-	std::cout<<"host:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
-	std::cout<<"host:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;
+	std::cout<<"utility:: NUMDRAMBANKS: "<<NUMDRAMBANKS<<std::endl;
+	std::cout<<"utility:: NUMWORKERS: "<<NUMWORKERS<<std::endl;
+	std::cout<<"utility:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
+	std::cout<<"utility:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
+	std::cout<<"utility:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
+	std::cout<<"utility:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
+	std::cout<<"utility:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;
+	std::cout<<"utility:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
+	std::cout<<"utility:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
+	std::cout<<"utility:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
+	std::cout<<"utility:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
+	std::cout<<"utility:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
+	std::cout<<"utility:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
+	std::cout<<"utility:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
+	std::cout<<"utility:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;
 	#ifdef LOCKE
-	std::cout<<"host:: LOCKE DEFINED"<<std::endl;
+	std::cout<<"utility:: LOCKE DEFINED"<<std::endl;
 	#else 
-	std::cout<<"host:: LOCKE NOT DEFINED"<<std::endl;	
+	std::cout<<"utility:: LOCKE NOT DEFINED"<<std::endl;	
 	#endif
-	std::cout<<"host:: sizeof(keyvalue_t): "<<sizeof(keyvalue_t)<<" bytes ("<<(sizeof(keyvalue_t) * 8)<<" bits)"<<std::endl;
-	std::cout<<"host:: sizeof(vertex_t): "<<sizeof(vertex_t)<<" bytes ("<<(sizeof(vertex_t) * 8)<<" bits)"<<std::endl;
-	std::cout<<"host:: sizeof(edge_t): "<<sizeof(edge_t)<<" bytes ("<<(sizeof(edge_t) * 8)<<" bits)"<<std::endl;
+	std::cout<<"utility:: sizeof(keyvalue_t): "<<sizeof(keyvalue_t)<<" bytes ("<<(sizeof(keyvalue_t) * 8)<<" bits)"<<std::endl;
+	std::cout<<"utility:: sizeof(vertex_t): "<<sizeof(vertex_t)<<" bytes ("<<(sizeof(vertex_t) * 8)<<" bits)"<<std::endl;
+	std::cout<<"utility:: sizeof(edge_t): "<<sizeof(edge_t)<<" bytes ("<<(sizeof(edge_t) * 8)<<" bits)"<<std::endl;
 	
-	std::cout<<"host:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
-	std::cout<<"host:: VERTEXPTRSSZ: "<<VERTEXPTRSSZ<<std::endl;
-	std::cout<<"host:: VERTEXPTRSSZ_KVS: "<<VERTEXPTRSSZ_KVS<<std::endl;
-	std::cout<<"host:: VERTICESDATASZ: "<<VERTICESDATASZ<<std::endl;
-	std::cout<<"host:: VERTICESDATASZ_KVS: "<<VERTICESDATASZ_KVS<<std::endl;
+	std::cout<<"utility:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
+	std::cout<<"utility:: VERTEXPTRSSZ: "<<VERTEXPTRSSZ<<std::endl;
+	std::cout<<"utility:: VERTEXPTRSSZ_KVS: "<<VERTEXPTRSSZ_KVS<<std::endl;
+	std::cout<<"utility:: VERTICESDATASZ: "<<VERTICESDATASZ<<std::endl;
+	std::cout<<"utility:: VERTICESDATASZ_KVS: "<<VERTICESDATASZ_KVS<<std::endl;
 
 	// >>>
 	std::cout<<">> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA: "<<BASEOFFSET_MESSAGESDATA<<std::endl;
@@ -115,39 +116,16 @@ void utility::printallparameters(){
 	std::cout<<">> host[bytes]:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
-	std::cout<<"host:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
-	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+	std::cout<<"utility:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
+	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	
-	std::cout<<"host:: REDUCESZ_POW: "<<REDUCESZ_POW<<std::endl;
-	std::cout<<"host:: REDUCESZ: "<<REDUCESZ<<std::endl;
-	std::cout<<"host:: REDUCEBUFFERSZ: "<<REDUCEBUFFERSZ<<std::endl;
+	std::cout<<"utility:: REDUCESZ_POW: "<<REDUCESZ_POW<<std::endl;
+	std::cout<<"utility:: REDUCESZ: "<<REDUCESZ<<std::endl;
+	std::cout<<"utility:: REDUCEBUFFERSZ: "<<REDUCEBUFFERSZ<<std::endl;
 	
-	std::cout<<"host:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
+	std::cout<<"utility:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
 	
-	std::cout<<"host:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
-	
-	#ifdef ACTSFAST
-	std::cout<<"host::ACTSFAST DEFINED"<<std::endl;
-	#else 
-	std::cout<<"host::ACTSFAST NOT DEFINED"<<std::endl;	
-	#endif 
-	#ifdef MAXPERFORMANCE
-	std::cout<<"host::MAXPERFORMANCE DEFINED"<<std::endl;
-	#else 
-	std::cout<<"host::MAXPERFORMANCE NOT DEFINED"<<std::endl;	
-	#endif 
-	#ifdef MERGEEDGESANDKVDRAMWORKSPACE
-	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE DEFINED"<<std::endl;
-	#else 
-	std::cout<<"host::MERGEEDGESANDKVDRAMWORKSPACE NOT DEFINED"<<std::endl;	
-	#endif
-	std::cout<<"host::COLLECTSTATSOFFLINE DEFINED"<<std::endl;
-	#ifdef EMBEDDEDCOLLECTSTATS
-	std::cout<<"host::EMBEDDEDCOLLECTSTATS DEFINED"<<std::endl;
-	#else 
-	std::cout<<"host::EMBEDDEDCOLLECTSTATS NOT DEFINED"<<std::endl;	
-	#endif
-	
+	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	// exit(EXIT_SUCCESS);
 	return;
 }
@@ -703,7 +681,7 @@ void utility::set_callback(cl_event event, const char *queue_name) {
 }
 #endif 
 
-void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
+/* void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
 	*edges_count = 0;
 	*edgesdstv_sum = 0;
 	for(unsigned int i=0; i<srcvids.size(); i++){
@@ -718,7 +696,9 @@ void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuff
 		}
 	}
 	return;
-}
+} */
+
+#ifdef KOKOOOO
 unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
@@ -739,6 +719,8 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	for(unsigned int i=0; i<rootactvvs.size(); i++){ labels[rootactvvs[i]] = 0; }
 	unsigned int ew = 1;
 	
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	
 	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
 		actvvsdstv1_sum = 0;
 	
@@ -747,8 +729,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 			edge_t vptr_begin = vertexptrbuffer[vid];
 			edge_t vptr_end = vertexptrbuffer[vid+1];
 			edge_t edges_size = vptr_end - vptr_begin;
-			if(vptr_end < vptr_begin){ continue; }
-			// cout<<"utility::runsssp_sw: edges_size: "<<edges_size<<endl;
+			// if(vptr_end < vptr_begin){ continue; } // 
 			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
@@ -797,11 +778,72 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 		}
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"utility::runsssp_sw: total edges processed: "<<total_edges_processed<<endl;
-	#endif 
+	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	cout<<">>> utility::runsssp_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> utility::runsssp_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> utility::runsssp_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
+	
 	delete labels;
 	return total_edges_processed; // actvvsdstv1_sum;
+}
+#endif 
+unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
+	#endif 
+	
+	unsigned int * vdatas = new unsigned int[KVDATA_RANGE];
+	for(unsigned int i=0; i<KVDATA_RANGE; i++){ vdatas[i] = 0xFFFFFFFF; }
+	
+	vector<value_t> actvvs;
+	vector<value_t> actvvs_nextit;
+	
+	unsigned int total_edges_processed = 0;
+	
+	for(unsigned int i=0; i<srcvids.size(); i++){ actvvs.push_back(srcvids[i]); }
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<"utility::runsssp_sw: number of active vertices for iteration 0: "<<actvvs_nextit.size()<<endl;
+	#endif
+	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
+	
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	
+	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
+
+		for(unsigned int i=0; i<actvvs.size(); i++){
+			unsigned int vid = actvvs[i];
+			edge_t vptr_begin = vertexptrbuffer[vid];
+			edge_t vptr_end = vertexptrbuffer[vid+1];
+			edge_t edges_size = vptr_end - vptr_begin;
+			
+			for(unsigned int k=0; k<edges_size; k++){
+				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
+				
+				unsigned int res = vdatas[vid] + 1;
+				value_t vprop = vdatas[dstvid];
+				value_t vtemp = min(vprop, res);
+				vdatas[dstvid] = vtemp;
+				if(vtemp != vprop){ actvvs_nextit.push_back(dstvid); } 
+			
+				total_edges_processed += 1;
+			}
+		}
+		
+		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<actvvs_nextit.size()<<""<<endl;
+		if(actvvs_nextit.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
+		
+		actvvs.clear();
+		for(unsigned int i=0; i<actvvs_nextit.size(); i++){ actvvs.push_back(actvvs_nextit[i]); }
+		actvvs_nextit.clear();
+	}
+	
+	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	cout<<">>> utility::runsssp_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> utility::runsssp_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> utility::runsssp_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
+	
+	delete vdatas;
+	return total_edges_processed;
 }
 
 

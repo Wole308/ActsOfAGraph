@@ -11,8 +11,7 @@
 #include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
-#include "../acts/acts_sw/actsproc_sw.h"
-#include "../acts/acts_sw/actssync_sw.h"
+#include "../acts/acts_sw/acts_sw.h"
 #include "../src/stats/stats.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -28,34 +27,28 @@ swkernel::swkernel(stats * _statsobj){
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
 	kernelobjs_synchronize = new actssync();
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ swkernelobjs_process[i] = new actsproc_sw(); }
-	swkernelobjs_synchronize = new actssync_sw();
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ swkernelobjs_process[i] = new acts_sw(); }
 	#endif 
 }
 swkernel::~swkernel(){} 
 
 #ifdef SW
-long double swkernel::runapp_sw(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
+long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
+		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<" ("<<actvvs.size()<<" active vertices)"<<endl;
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-			// cout<<">>> swkernel::runapp: instance: "<<i<<endl;
 			swkernelobjs_process[i]->topkernelproc(edges[i], vptrs[i], vdatas, actvvs, actvvs_nextit, kvdram[i], GraphAlgo, GraphIter);
-			// break; // REMOVEME.
-			// exit(EXIT_SUCCESS); // REMOVEME.
 		}
 		
 		actvvs.clear();
 		actvvs.assign(actvvs_nextit.begin(), actvvs_nextit.end());
 		actvvs_nextit.clear();
 		
-		// for(unsigned int t=0; t<actvvs_nextit.size(); t++){ cout<<"[after copy] app::run_sw: actvvs_nextit["<<t<<"]: "<<actvvs_nextit[t]<<endl; }
-		// for(unsigned int t=0; t<actvvs.size(); t++){ cout<<"[after copy] app::run_sw: actvvs["<<t<<"]: "<<actvvs[t]<<endl; }
-		// exit(EXIT_SUCCESS);
+		if(actvvs.size() == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
 	
 	#ifdef _DEBUGMODE_TIMERS3
@@ -64,6 +57,40 @@ long double swkernel::runapp_sw(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vp
 	#endif
 	return total_time_elapsed;
 }
+/* long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
+	#ifdef _DEBUGMODE_TIMERS3
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
+	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
+		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<" ("<<actvvs.size()<<" active vertices)"<<endl;
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+			if(GraphIter % 2 == 0){
+				swkernelobjs_process[i]->topkernelproc(edges[i], vptrs[i], vdatas, actvvs, actvvs_nextit, kvdram[i], GraphAlgo, GraphIter);
+			} else {
+				swkernelobjs_process[i]->topkernelproc(edges[i], vptrs[i], vdatas, actvvs_nextit, actvvs, kvdram[i], GraphAlgo, GraphIter);
+			}
+		}
+		
+		if(GraphIter % 2 == 0){
+			actvvs.clear();
+		} else {
+			actvvs_nextit.clear();
+		}
+		
+		// actvvs.clear();
+		// actvvs.assign(actvvs_nextit.begin(), actvvs_nextit.end());
+		// actvvs_nextit.clear();
+		
+		// if(actvvs.size() == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+	}
+	
+	#ifdef _DEBUGMODE_TIMERS3
+	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(total_time_elapsed);
+	#endif
+	return total_time_elapsed;
+} */
 
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_TIMERS3
@@ -77,6 +104,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
 		
+		#ifndef SW_IMPL
 		kernelobjs_synchronize->topkernelsync_sw(
 			(uint512_dt *)kvsourcedram[0],
 			(uint512_dt *)kvsourcedram[1],
@@ -128,6 +156,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#endif 
 			(uint512_dt *)vdram
 		);
+		#endif
 		
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));

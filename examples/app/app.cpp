@@ -43,6 +43,7 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	setupkernelobj = new setupkernel(graphobj, statsobj); 
 	swkernelobj = new swkernel(statsobj);
 
+	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }				
 	vdram = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
@@ -50,7 +51,8 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 	vdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	#endif
-
+	#endif 
+	
 	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
 		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
 	} else {
@@ -92,7 +94,7 @@ runsummary_t app::run_sw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 8; // 3,12,32
+	unsigned int NumGraphIters = 32; // 3,12,32
 	#endif
 	vector<value_t> actvvs;
 	actvvs.push_back(1);
@@ -108,11 +110,13 @@ runsummary_t app::run_sw(){
 	cout<<"app::loadactvvertices:: loading active vertices... "<<endl;
 	for(unsigned int t=0; t<actvvs.size(); t++){ vertexdatabuffer[actvvs[t]] = 0; }
 
+	unsigned int total_edges_processed;
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
-	unsigned int total_edges_processed = graphobj->get_num_edges();
+	total_edges_processed = graphobj->get_num_edges();
 	#else 
-	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
+	total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	#endif
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	
 	vector<value_t> actvvs_currentit;
 	vector<value_t> actvvs_nextit;
@@ -120,7 +124,7 @@ runsummary_t app::run_sw(){
 
 	// run_sw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_sw: app started. ("<<actvvs_currentit.size()<<" active vertices)"<< RESET <<endl;
-	long double total_time_elapsed = swkernelobj->runapp_sw(edges, vptrs, vertexdatabuffer, actvvs_currentit, actvvs_nextit, kvdram, 
+	long double total_time_elapsed = swkernelobj->runapp(edges, vptrs, vertexdatabuffer, actvvs_currentit, actvvs_nextit, kvdram, 
 			#ifdef PR_ALGORITHM 
 			PAGERANK,
 			#endif 

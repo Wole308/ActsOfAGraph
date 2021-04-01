@@ -95,8 +95,7 @@ HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
 HOST_SRCS += $(RELREF)src/graphs/createundirectedgraph.cpp
 HOST_SRCS += $(RELREF)src/graphs/mysort.cpp
 HOST_SRCS += $(RELREF)acts/sortreduce/sr.cpp
-HOST_SRCS += $(RELREF)acts/acts_sw/actsproc_sw.cpp
-HOST_SRCS += $(RELREF)acts/acts_sw/actssync_sw.cpp
+HOST_SRCS += $(RELREF)acts/acts_sw/acts_sw.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=$(RELREF)sortreduce-master/include/

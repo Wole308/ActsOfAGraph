@@ -16,7 +16,7 @@
 #define SORTREDUCEMODEL
 #endif 
 
-#define USEHBMMEMORY
+#define USEDDRAMMEMORY
 
 #define LOCKE
 #define _SINGLEKERNEL
@@ -38,9 +38,9 @@
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
 #else
-#define _DEBUGMODE_STATS // 
+// #define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
-#define _DEBUGMODE_CHECKS2 // 
+// #define _DEBUGMODE_CHECKS2 // CRITICAL ADDME
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
@@ -67,7 +67,7 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 32
+#define NUMSUBCPUTHREADS 1
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -77,7 +77,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 32
+#define NUMCOMPUTEUNITS 1
 #define NUMINTSINKEYVALUETYPE 2
 
 #define NUMDRAMBANKS 4
@@ -108,7 +108,11 @@
 #define BATCHRANGESZ (BATCH_RANGE / 2)
 #define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
+#ifdef SW_IMPL
+#define SRAMSZ_POW 18
+#else 
 #define SRAMSZ_POW 10
+#endif 
 #define SRAMSZ (1 << SRAMSZ_POW)
 
 // tree-depth:sramsz constraint

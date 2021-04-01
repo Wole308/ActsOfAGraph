@@ -37,13 +37,13 @@ using namespace std;
 actssync::actssync(){ actsutilityobj = new actsutility(); }
 actssync::~actssync(){}
 #endif
-
 #ifdef FPGA_IMPL
 actssync::actssync(){}
 actssync::~actssync(){}
 actsutility * actsutilityobj = new actsutility();
 #endif 
 
+#ifndef SW_IMPL // FIXME.
 // functions (basic)
 unsigned int
 	#ifdef SW 
@@ -1452,7 +1452,7 @@ extern "C" {
 }
 }
 {%endfor%}
-
+#endif 
 
 
 

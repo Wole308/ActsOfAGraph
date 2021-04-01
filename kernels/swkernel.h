@@ -8,8 +8,7 @@
 #include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
-#include "../acts/acts_sw/actsproc_sw.h"
-#include "../acts/acts_sw/actssync_sw.h"
+#include "../acts/acts_sw/acts_sw.h"
 #include "../src/utility/utility.h"
 
 class swkernel {
@@ -17,10 +16,10 @@ public:
 	swkernel(stats * _statsobj);
 	~swkernel();
 	
-	#ifdef SW 
-	long double runapp_sw(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters);				
+	#ifdef SW
+	long double runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters);				
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
-	#endif 
+	#endif
 private:
 	utility * utilityobj;
 	stats * statsobj;
@@ -30,8 +29,7 @@ private:
 	actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
 	actssync * kernelobjs_synchronize;
 	
-	actsproc_sw * swkernelobjs_process[NUMSUBCPUTHREADS];
-	actssync_sw * swkernelobjs_synchronize;
+	acts_sw * swkernelobjs_process[NUMSUBCPUTHREADS];
 	#endif
 };
 #endif
