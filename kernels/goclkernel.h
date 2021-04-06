@@ -8,6 +8,7 @@
 #endif 
 #include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
+#include "../src/graphs/graph.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 
@@ -17,7 +18,7 @@
 
 class goclkernel {
 public:
-	goclkernel(stats * _statsobj);
+	goclkernel(graph * _graphobj, stats * _statsobj);
 	~goclkernel();
 	
 	long double getaveragetimeelapsed(long double kerneltimelapse[NUMSUBCPUTHREADS]);
@@ -32,10 +33,11 @@ public:
 	
 private:
 	utility * utilityobj;
+	stats * statsobj;
+	graph * graphobj;
 	
 	size_t inputvdata_size_bytes;
 	size_t inputdata_size_bytes;
-	stats * statsobj;
 	
 	actssync * kernelobjs_synchronize;
 	
@@ -43,8 +45,6 @@ private:
 	
 	uint512_vec_dt * tempkvsourcedrams_sync[NUMSUBCPUTHREADS];
 	uint512_vec_dt * tempvdram_sync;
-	
-	// uint512_vec_dt * tempvdram_sync;
 };
 #endif
 

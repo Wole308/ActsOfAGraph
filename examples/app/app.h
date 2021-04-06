@@ -8,6 +8,7 @@
 #include "../../examples/helperfunctions/loadgraph_sw.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
+#include "../../acts/acts_sw/acts_sw.h"
 #include "../../kernels/swkernel.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
@@ -21,8 +22,8 @@ public:
 	void finish();
 	
 	runsummary_t run();
-	runsummary_t run_sw();
 	runsummary_t run_hw();
+	runsummary_t run_sw();
 	
 	void verifyresults_sw(value_t * vdatas);
 	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_t globalparams);
@@ -36,6 +37,7 @@ private:
 	swkernel * swkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
+	acts_sw * actssw_obj;
 	
 	edge_t * vertexptrbuffer;
 	value_t * vertexdatabuffer;

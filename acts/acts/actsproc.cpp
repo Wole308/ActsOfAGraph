@@ -24,11 +24,11 @@
 #include "actsproc.h"
 using namespace std;
 
-#define NUMPARTITIONUPDATESPIPELINES 2 
-#if NUMPARTITIONUPDATESPIPELINES==1
+#define NUMPIPELINES_PARTITIONUPDATES 2 
+#if NUMPIPELINES_PARTITIONUPDATES==1
 #define PUP0
 #endif 
-#if NUMPARTITIONUPDATESPIPELINES==2
+#if NUMPIPELINES_PARTITIONUPDATES==2
 #define PUP0
 #define PUP1
 #endif
@@ -239,18 +239,6 @@ GETKEYENTRY(uint512_dt data, unsigned int v){
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
 	#else 
 	return data.data[v].key;	
-	#endif
-}
-value_t 
-	#ifdef SW 
-	actsproc::
-	#endif 
-GETVALUEENTRY(uint512_dt data, unsigned int v){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return data.range(32 * (((v * 2) + 1) + 1) - 1, (v * 2 + 1) * 32);
-	#else 
-	return data.data[v].value;	
 	#endif
 }
 value_t 
@@ -2982,7 +2970,7 @@ actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
-	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
+	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
 static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
@@ -3057,7 +3045,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		preparekeyvalues(pp1partitionen, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
 		#endif
 		
-		itercount += NUMPARTITIONUPDATESPIPELINES;
+		itercount += NUMPIPELINES_PARTITIONUPDATES;
 	}
 	return;
 }

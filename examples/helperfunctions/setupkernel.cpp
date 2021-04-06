@@ -22,9 +22,9 @@ using namespace std;
 
 setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 	#ifdef FPGA_IMPL
-	kernelobj = new goclkernel(_statsobj);
+	kernelobj = new goclkernel(_graphobj, _statsobj);
 	#else 
-	kernelobj = new swkernel(_statsobj);
+	kernelobj = new swkernel(_graphobj, _statsobj);
 	#endif
 	
 	utilityobj = new utility();

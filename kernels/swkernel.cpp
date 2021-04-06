@@ -13,84 +13,42 @@
 #include "../acts/acts/actssync.h"
 #include "../acts/acts_sw/acts_sw.h"
 #include "../src/stats/stats.h"
+#include "../src/graphs/graph.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 #include "swkernel.h"
 using namespace std;
 
-swkernel::swkernel(stats * _statsobj){
+swkernel::swkernel(graph * _graphobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
-	#ifdef SW 
+	graphobj = _graphobj;
+	
+	#ifdef SW
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs[i] = new acts(); }
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
 	kernelobjs_synchronize = new actssync();
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ swkernelobjs_process[i] = new acts_sw(); }
-	#endif 
+	actssw_obj = new acts_sw();
+	#endif
 }
-swkernel::~swkernel(){} 
+swkernel::~swkernel(){}
 
 #ifdef SW
-long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
+long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], value_t * vprops, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
-	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<" ("<<actvvs.size()<<" active vertices)"<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-			swkernelobjs_process[i]->topkernelproc(edges[i], vptrs[i], vdatas, actvvs, actvvs_nextit, kvdram[i], GraphAlgo, GraphIter);
-		}
-		
-		actvvs.clear();
-		actvvs.assign(actvvs_nextit.begin(), actvvs_nextit.end());
-		actvvs_nextit.clear();
-		
-		if(actvvs.size() == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
-	}
-	
+	actssw_obj->start(graphobj, edges, vptrs, vprops, actvvs, actvvs_nextit, kvdram, GraphAlgo, numIters);
+
 	#ifdef _DEBUGMODE_TIMERS3
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(total_time_elapsed);
 	#endif
 	return total_time_elapsed;
 }
-/* long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], unsigned int * vdatas, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
-	#ifdef _DEBUGMODE_TIMERS3
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	#endif
-	
-	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<" ("<<actvvs.size()<<" active vertices)"<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-			if(GraphIter % 2 == 0){
-				swkernelobjs_process[i]->topkernelproc(edges[i], vptrs[i], vdatas, actvvs, actvvs_nextit, kvdram[i], GraphAlgo, GraphIter);
-			} else {
-				swkernelobjs_process[i]->topkernelproc(edges[i], vptrs[i], vdatas, actvvs_nextit, actvvs, kvdram[i], GraphAlgo, GraphIter);
-			}
-		}
-		
-		if(GraphIter % 2 == 0){
-			actvvs.clear();
-		} else {
-			actvvs_nextit.clear();
-		}
-		
-		// actvvs.clear();
-		// actvvs.assign(actvvs_nextit.begin(), actvvs_nextit.end());
-		// actvvs_nextit.clear();
-		
-		// if(actvvs.size() == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
-	}
-	
-	#ifdef _DEBUGMODE_TIMERS3
-	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(total_time_elapsed);
-	#endif
-	return total_time_elapsed;
-} */
 
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_TIMERS3

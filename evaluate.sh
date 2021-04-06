@@ -459,18 +459,19 @@ do
 		
 		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
 		# for numsubcputhreads in $NUMTHREADS_EQ0
-		for numsubcputhreads in $NUMTHREADS_EQ1
+		# for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
 		# for numsubcputhreads in $NUMTHREADS_EQ4 #
+		# for numsubcputhreads in $NUMTHREADS_EQ8
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		# for numsubcputhreads in $NUMTHREADS_EQ16
+		# for numsubcputhreads in $NUMTHREADS_EQ16 #
 		# for numsubcputhreads in $NUMTHREADS_EQ18
-		# for numsubcputhreads in $NUMTHREADS_EQ20 #
+		# for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
-		# for numsubcputhreads in $NUMTHREADS_EQ32 #
+		for numsubcputhreads in $NUMTHREADS_EQ32 #
 		
 		do
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -611,8 +612,8 @@ do
 						then
 							make cleanall
 							# make build_acts_nthreads
-							make demo_acts_nthreads #> $RESULTDIR_RESULT
-							# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+							# make demo_acts_nthreads #> $RESULTDIR_RESULT
+							make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 						then
 							make cleanall

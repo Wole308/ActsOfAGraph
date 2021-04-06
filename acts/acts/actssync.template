@@ -43,7 +43,6 @@ actssync::~actssync(){}
 actsutility * actsutilityobj = new actsutility();
 #endif 
 
-#ifndef SW_IMPL // FIXME.
 // functions (basic)
 unsigned int
 	#ifdef SW 
@@ -445,27 +444,6 @@ savevmaskp(bool_type enable1, bool_type enable2, uint512_dt * kvdram, unsigned i
 	return;
 }
 
-// functions (resets)
-void
-	#ifdef SW 
-	actssync::
-	#endif 
-resetkvdramstats({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} unsigned int size, globalparams_t globalparams){
-	#pragma HLS INLINE 
-	RESETKVSTATS_LOOP1: for(unsigned int i=0; i<size; i++){
-		#ifdef _WIDEWORD
-		{%for i in context['4_seq']%}
-		kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].range(31, 0) = 0;
-		{%endfor%}
-		#else
-		{%for i in context['4_seq']%}
-		kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key = 0;
-		{%endfor%}
-		#endif 
-	}
-	return;
-}
-
 // functions (accessors)
 void // 
 	#ifdef SW 
@@ -773,6 +751,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	return;
 }
 
+#ifndef SW_IMPL
 uint32_type
 	#ifdef SW 
 	actssync::
@@ -875,6 +854,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	}
 	return cummvmask_sp;
 }
+#endif 
 
 void
 	#ifdef SW 
@@ -1213,6 +1193,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, uint512_dt * vdram, {%for i
 	return;
 }
 
+#ifndef SW_IMPL // FIXME.
 // top
 {%for i in context['1_seq']%} // CRITICAL FIXME.
 extern "C" {

@@ -10,13 +10,13 @@
 #define FPGA_IMPL
 #endif 
 #define CRABTREE_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
-#define SW_IMPL //
+// #define SW_IMPL //
 
 #ifdef GRAFBOOST_SETUP
 #define SORTREDUCEMODEL
 #endif 
 
-#define USEDDRAMMEMORY
+#define USEHBMMEMORY
 
 #define LOCKE
 #define _SINGLEKERNEL
@@ -38,9 +38,9 @@
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
 #else
-// #define _DEBUGMODE_STATS // CRITICAL ADDME
+#define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
-// #define _DEBUGMODE_CHECKS2 // CRITICAL ADDME
+#define _DEBUGMODE_CHECKS2 // CRITICAL ADDME
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
@@ -67,7 +67,7 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 1
+#define NUMSUBCPUTHREADS 32
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -77,7 +77,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 1
+#define NUMCOMPUTEUNITS 32
 #define NUMINTSINKEYVALUETYPE 2
 
 #define NUMDRAMBANKS 4
@@ -109,7 +109,7 @@
 #define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
 #ifdef SW_IMPL
-#define SRAMSZ_POW 18
+#define SRAMSZ_POW 18 // 14,18
 #else 
 #define SRAMSZ_POW 10
 #endif 
@@ -196,11 +196,11 @@
 
 ////////////////
 
-#ifdef FPGA_IMPL
+/* #ifdef FPGA_IMPL
 #define NUMFLAGS 1//2
 #else 
 #define NUMFLAGS 1
-#endif
+#endif */
 
 #define PROCESSEDGESCMD 1
 #define PARTITIONCMD 2
@@ -267,11 +267,11 @@ struct _bitData {
 // #define INFINITI (0xFFFFFFFF) // FIXME. is this better?
 
 #define NAp 666
-#define INVALIDDATA 0x0FFFFFFF // CRITICAL REMOVEME.
+#define INVALIDDATA 0x0FFFFFFF 
 #define UNUSEDDATA 987654321
 
 #define ONE 1
-#define TWO 2 // CRITICAL REMOVEME.
+#define TWO 2
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

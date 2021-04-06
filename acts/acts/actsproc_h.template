@@ -59,7 +59,6 @@ public:
 	keyy_t GETK2(uint32_type data);
 	value_t GETV2(uint32_type data);
 	keyy_t GETKEYENTRY(uint512_dt data, unsigned int v);
-	value_t GETVALUEENTRY(uint512_dt data, unsigned int v);
 	value_t GETVTXDATA(keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
 	value_t GETVTXMASK(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
 	value_t GETVTXMASK_SUBP(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);

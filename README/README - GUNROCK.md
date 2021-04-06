@@ -87,9 +87,31 @@ Important Gunrock paths:
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_enactor.cuh
 /net/bigtemp/oj2zf/gunrock_wole/gunrock/app/pr/pr_app.cu/RunTests
 
-
-
-
+Check which GPU is Installed:
+nvidia-smi
+nvidia-smi -q (gives more information)
+Thu Apr  1 12:51:12 2021       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 450.36.06    Driver Version: 450.36.06    CUDA Version: 11.0     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  TITAN X (Pascal)    Off  | 00000000:06:00.0 Off |                  N/A |
+| 21%   35C    P0    51W / 250W |      0MiB / 12196MiB |      3%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+https://www.techpowerup.com/gpu-specs/titan-x-pascal.c2863
+https://www.techpowerup.com/gpu-specs/tesla-p100-pcie-16-gb.c2888
 
 
 

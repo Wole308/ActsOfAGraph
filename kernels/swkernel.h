@@ -5,6 +5,7 @@
 #include "../include/config_params.h"
 #include "../include/common.h"
 #include "../src/stats/stats.h"
+#include "../src/graphs/graph.h"
 #include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
@@ -13,7 +14,7 @@
 
 class swkernel {
 public:
-	swkernel(stats * _statsobj);
+	swkernel(graph * _graphobj, stats * _statsobj);
 	~swkernel();
 	
 	#ifdef SW
@@ -23,13 +24,15 @@ public:
 private:
 	utility * utilityobj;
 	stats * statsobj;
+	graph * graphobj;
+	
 	#ifdef SW
 	acts * kernelobjs[NUMSUBCPUTHREADS];
 	
 	actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
 	actssync * kernelobjs_synchronize;
 	
-	acts_sw * swkernelobjs_process[NUMSUBCPUTHREADS];
+	acts_sw * actssw_obj;
 	#endif
 };
 #endif

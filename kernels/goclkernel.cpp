@@ -12,6 +12,7 @@
 #include <mutex>
 #include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
+#include "../src/graphs/graph.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
 #ifdef FPGA_IMPL
@@ -31,10 +32,11 @@ using namespace std;
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
-goclkernel::goclkernel(stats * _statsobj){
+goclkernel::goclkernel(graph * _graphobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
-	kernelobjs_synchronize = new actssync(); //////
+	graphobj = _graphobj;
+	kernelobjs_synchronize = new actssync();
 }
 goclkernel::~goclkernel(){} 
 
