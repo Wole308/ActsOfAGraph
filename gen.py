@@ -139,23 +139,25 @@ print ('NUMWORKERS: ' + str(context['NUMWORKERS']))
 print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
+
+relref=""
 	
-o_path0="acts/acts/acts.cpp"
-o_path1="acts/acts/acts.h"
-o_path2="acts/acts/acts.cpp"
-o_path3="acts/acts/acts.h"
-o_path4="include/common.h"
-o_path5="include/common.h"
-o_path6="acts/acts/actsproc.cpp"
-o_path7="acts/acts/actsproc.h"
-o_path8="acts/acts/actssync.cpp"
-o_path9="acts/acts/actssync.h"
-o_path10="acts/acts/acts.cpp"
-o_path11="acts/acts/acts.h"
-o_path12="acts/acts/acts.cpp"
-o_path13="acts/acts/acts.h"
-o_path14="acts/acts/acts.cpp"
-o_path15="acts/acts/acts.h"
+o_path0=relref+"acts/acts/acts.cpp"
+o_path1=relref+"acts/acts/acts.h"
+o_path2=relref+"acts/acts/acts.cpp"
+o_path3=relref+"acts/acts/acts.h"
+o_path4=relref+"include/common.h"
+o_path5=relref+"include/common.h"
+o_path6=relref+"acts/acts/actsproc.cpp"
+o_path7=relref+"acts/acts/actsproc.h"
+o_path8=relref+"acts/acts/actssync.cpp"
+o_path9=relref+"acts/acts/actssync.h"
+o_path10=relref+"acts/acts/acts.cpp"
+o_path11=relref+"acts/acts/acts.h"
+o_path12=relref+"acts/acts/acts.cpp"
+o_path13=relref+"acts/acts/acts.h"
+o_path14=relref+"acts/acts/acts.cpp"
+o_path15=relref+"acts/acts/acts.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -174,22 +176,22 @@ out_path13=os.path.abspath(o_path13)
 out_path14=os.path.abspath(o_path14)
 out_path15=os.path.abspath(o_path15)
 
-templ_path0="acts/acts/"
-templ_path1="acts/acts/"
-templ_path2="acts/acts/"
-templ_path3="acts/acts/"
-templ_path4="include/"
-templ_path5="include/"
-templ_path6="acts/acts/"
-templ_path7="acts/acts/"
-templ_path8="acts/acts/"
-templ_path9="acts/acts/"
-templ_path10="acts/acts/"
-templ_path11="acts/acts/"
-templ_path12="acts/acts/"
-templ_path13="acts/acts/"
-templ_path14="acts/acts/"
-templ_path15="acts/acts/"
+templ_path0=relref+"acts/acts/"
+templ_path1=relref+"acts/acts/"
+templ_path2=relref+"acts/acts/"
+templ_path3=relref+"acts/acts/"
+templ_path4=relref+"include/"
+templ_path5=relref+"include/"
+templ_path6=relref+"acts/acts/"
+templ_path7=relref+"acts/acts/"
+templ_path8=relref+"acts/acts/"
+templ_path9=relref+"acts/acts/"
+templ_path10=relref+"acts/acts/"
+templ_path11=relref+"acts/acts/"
+templ_path12=relref+"acts/acts/"
+templ_path13=relref+"acts/acts/"
+templ_path14=relref+"acts/acts/"
+templ_path15=relref+"acts/acts/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -314,20 +316,26 @@ for i in range (0,(context['NUMSUBCPUTHREADS'])):
 		context['NUMSUBCPUTHREADS_seq'].append(i)
         
 # SYNC 
-context['NUMSUBCPUTHREADS_DIV_4'] = context['NUMSUBCPUTHREADS'] / 4
-context['NUMSUBCPUTHREADS_DIV_4_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS_DIV_4'])):
-		context['NUMSUBCPUTHREADS_DIV_4_seq'].append(i)
+context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS']# / 2
+
+context['SYNCTHREADS_seq'] = []
+for i in range (0,(context['NUMSYNCTHREADS'])):
+		context['SYNCTHREADS_seq'].append(i)
         
-context['NUMSUBCPUTHREADS_DIV_4__PLUS1'] = context['NUMSUBCPUTHREADS_DIV_4'] + 1
-context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS_DIV_4__PLUS1'])):
-		context['NUMSUBCPUTHREADS_DIV_4__PLUS1_seq'].append(i)
+context['NUMSYNCTHREADS_DIV_4'] = context['NUMSYNCTHREADS'] / 4
+context['NUMSYNCTHREADS_DIV_4_seq'] = []
+for i in range (0,(context['NUMSYNCTHREADS_DIV_4'])):
+		context['NUMSYNCTHREADS_DIV_4_seq'].append(i)
         
-context['NUMSUBCPUTHREADS_DIV_4__PLUS2'] = context['NUMSUBCPUTHREADS_DIV_4'] + 2
-context['NUMSUBCPUTHREADS_DIV_4__PLUS2_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS_DIV_4__PLUS2'])):
-		context['NUMSUBCPUTHREADS_DIV_4__PLUS2_seq'].append(i)
+context['NUMSYNCTHREADS_DIV_4__PLUS1'] = context['NUMSYNCTHREADS_DIV_4'] + 1
+context['NUMSYNCTHREADS_DIV_4__PLUS1_seq'] = []
+for i in range (0,(context['NUMSYNCTHREADS_DIV_4__PLUS1'])):
+		context['NUMSYNCTHREADS_DIV_4__PLUS1_seq'].append(i)
+        
+context['NUMSYNCTHREADS_DIV_4__PLUS2'] = context['NUMSYNCTHREADS_DIV_4'] + 2
+context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'] = []
+for i in range (0,(context['NUMSYNCTHREADS_DIV_4__PLUS2'])):
+		context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)

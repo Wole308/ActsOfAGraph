@@ -101,6 +101,11 @@ using namespace std;
 
 #define NOBUFFERADDRESS 999999999
 
+#define SIZEOF_KEY 22
+#define SIZEOF_VALUE 10
+#define SIZEOF_VDATAKEY 16
+#define SIZEOF_VDATAVALUE 16
+
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;

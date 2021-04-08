@@ -8,6 +8,7 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
+#include "../../src/algorithm/algorithm.h"
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -15,7 +16,7 @@ using namespace std;
 
 class setupkernel {
 public:
-	setupkernel(graph * graphobj, stats * _statsobj);
+	setupkernel(graph * graphobj, algorithm * _algorithmobj, stats * _statsobj);
 	setupkernel(stats * _statsobj);
 	~setupkernel();
 
@@ -34,6 +35,8 @@ private:
 	utility * utilityobj;
 	graph * graphobj;
 	stats * statsobj;
+	algorithm * algorithmobj;
+	
 	#ifdef GRAFBOOST_SETUP 
 	SortReduce<uint64_t,uint32_t>* _sr;
 	VertexValues<uint32_t,uint32_t>* vertex_values;

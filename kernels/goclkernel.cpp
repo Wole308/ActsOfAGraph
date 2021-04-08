@@ -12,6 +12,7 @@
 #include <mutex>
 #include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
+#include "../src/algorithm/algorithm.h"
 #include "../src/graphs/graph.h"
 #include "../src/utility/utility.h"
 #include "../include/common.h"
@@ -32,10 +33,11 @@ using namespace std;
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
-goclkernel::goclkernel(graph * _graphobj, stats * _statsobj){
+goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
 	graphobj = _graphobj;
+	algorithmobj = _algorithmobj;
 	kernelobjs_synchronize = new actssync();
 }
 goclkernel::~goclkernel(){} 

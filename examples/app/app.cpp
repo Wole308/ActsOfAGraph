@@ -41,8 +41,8 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
 	loadgraphswobj = new loadgraph_sw(graphobj, statsobj);
-	setupkernelobj = new setupkernel(graphobj, statsobj); 
-	swkernelobj = new swkernel(graphobj, statsobj);
+	setupkernelobj = new setupkernel(graphobj, thisalgorithmobj, statsobj); 
+	swkernelobj = new swkernel(graphobj, thisalgorithmobj, statsobj);
 	actssw_obj = new acts_sw();
 
 	#ifndef SW_IMPL 
@@ -96,11 +96,12 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 32; // 3,12,32
+	unsigned int NumGraphIters = 3; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
 	globalparams_t globalparams;
+	// exit(EXIT_SUCCESS); /////////////////////////
 
 	actvvs.push_back(1);
 

@@ -14,17 +14,18 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
+#include "../../src/algorithm/algorithm.h"
 #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
 #include "setupkernel.h"
 using namespace std;
 
-setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
+setupkernel::setupkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	#ifdef FPGA_IMPL
-	kernelobj = new goclkernel(_graphobj, _statsobj);
+	kernelobj = new goclkernel(_graphobj, _algorithmobj, _statsobj);
 	#else 
-	kernelobj = new swkernel(_graphobj, _statsobj);
+	kernelobj = new swkernel(_graphobj, _algorithmobj, _statsobj);
 	#endif
 	
 	utilityobj = new utility();
@@ -32,6 +33,7 @@ setupkernel::setupkernel(graph * _graphobj, stats * _statsobj){
 	#ifdef GRAFBOOST_SETUP
 	srkernelobj = new sr();
 	#endif
+	algorithmobj = _algorithmobj;
 	statsobj = _statsobj;
 }
 setupkernel::setupkernel(stats * _statsobj){

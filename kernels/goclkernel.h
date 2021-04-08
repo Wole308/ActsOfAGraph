@@ -10,6 +10,7 @@
 #include "../src/stats/stats.h"
 #include "../src/graphs/graph.h"
 #include "../src/utility/utility.h"
+#include "../src/algorithm/algorithm.h"
 #include "../include/common.h"
 
 // #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
@@ -18,7 +19,7 @@
 
 class goclkernel {
 public:
-	goclkernel(graph * _graphobj, stats * _statsobj);
+	goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj);
 	~goclkernel();
 	
 	long double getaveragetimeelapsed(long double kerneltimelapse[NUMSUBCPUTHREADS]);
@@ -35,6 +36,7 @@ private:
 	utility * utilityobj;
 	stats * statsobj;
 	graph * graphobj;
+	algorithm * algorithmobj;
 	
 	size_t inputvdata_size_bytes;
 	size_t inputdata_size_bytes;

@@ -125,8 +125,8 @@ GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
-	res.key = data.range(21, 0);
-	res.value = data.range(31, 22);
+	res.key = data.range(SIZEOF_KEY - 1, 0);
+	res.value = data.range(SIZEOF_KEY + SIZEOF_VALUE - 1, SIZEOF_KEY);
 	#else 
 	res.key = data.key;
 	res.value = data.value;	
@@ -141,8 +141,8 @@ GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
-	res.range(21, 0) = data.key;
-	res.range(31, 22) = data.value;
+	res.range(SIZEOF_KEY - 1, 0) = data.key;
+	res.range(SIZEOF_KEY + SIZEOF_VALUE - 1, SIZEOF_KEY) = data.value;
 	#else
 	res.key = data.key;
 	res.value = data.value;	
@@ -156,7 +156,7 @@ keyy_t
 GETK(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return data.range(21, 0);
+	return data.range(SIZEOF_KEY - 1, 0);
 	#else
 	return data;
 	#endif
@@ -168,7 +168,7 @@ value_t
 GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return data.range(9, 0);
+	return data.range(SIZEOF_VALUE - 1, 0);
 	#else
 	return data;
 	#endif
@@ -181,8 +181,8 @@ GETKV2(keyvalue_vbuffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
-	res.key = data.range(15, 0); 
-	res.value = data.range(31, 16);
+	res.key = data.range(SIZEOF_VDATAKEY - 1, 0); 
+	res.value = data.range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
 	#else 
 	res.key = data.key;
 	res.value = data.value;	
@@ -197,8 +197,8 @@ GETKV2(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_vbuffer_t res;
 	#ifdef _WIDEWORD
-	res.range(15, 0) = data.key; 
-	res.range(31, 16) = data.value;
+	res.range(SIZEOF_VDATAKEY - 1, 0) = data.key; 
+	res.range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY) = data.value;
 	#else
 	res.key = data.key;
 	res.value = data.value;
@@ -212,7 +212,7 @@ keyy_t
 GETK2(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return data.range(15, 0);
+	return data.range(SIZEOF_VDATAKEY - 1, 0);
 	#else
 	return data;
 	#endif
@@ -224,7 +224,7 @@ value_t
 GETV2(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return data.range(15, 0);
+	return data.range(SIZEOF_VDATAKEY - 1, 0);
 	#else
 	return data;
 	#endif
