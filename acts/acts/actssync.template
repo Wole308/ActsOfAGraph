@@ -282,7 +282,9 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.ENABLE_PROCESSCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].range(31, 0);
 	globalparams.ENABLE_PARTITIONCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].range(31, 0);
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].range(31, 0);
-
+	globalparams.ENABLE_SAVEVMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].range(31, 0);
+	globalparams.ENABLE_SAVEVMASKP = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].range(31, 0);
+	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_MESSAGESDATA].range(31, 0);
 	globalparams.BASEOFFSETKVS_EDGESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].range(31, 0);
 	globalparams.BASEOFFSETKVS_VERTEXPTR = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].range(31, 0);
@@ -337,6 +339,8 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.ENABLE_PROCESSCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key;
 	globalparams.ENABLE_PARTITIONCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key;
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key;
+	globalparams.ENABLE_SAVEVMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key;
+	globalparams.ENABLE_SAVEVMASKP = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key;
 
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_MESSAGESDATA].data[0].key;
 	globalparams.BASEOFFSETKVS_EDGESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
@@ -624,7 +628,7 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 	return;
 }
 
-// #ifdef KOKOKOKOOOOOOO
+#ifdef KOKOKOKOOOOOOO
 uint32_type
 	#ifdef SW 
 	actssync::
@@ -729,8 +733,8 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	#endif
 	return cummvmask_sp;
 }
-// #endif 
-#ifdef KOKOKOKOOOOOOO // CORRECTONE
+#endif 
+// #ifdef KOKOKOKOOOOOOO // CORRECTONE
 uint32_type
 	#ifdef SW 
 	actssync::
@@ -822,7 +826,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3	
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(res{{v}}.key != udata{{v}}.key){ cout<<"SYNC AND APPLY FUNC SEEN @ (vid1: "<<vid[{{v}}][0]<<" & vid2: "<<vid[{{v}}][1]<<"): res{{v}}.key: "<<res{{v}}.key<<", res{{v}}.value: "<<res{{v}}.value<<": udata{{v}}.key: "<<udata{{v}}.key<<", udata{{v}}.value: "<<udata{{v}}.value<<", data{{v}}.key: "<<data{{v}}.key<<", data{{v}}.value: "<<data{{v}}.value<<endl; }
+		if(false){ cout<<"SYNC AND APPLY FUNC SEEN @ (vid1: "<<vid[{{v}}][0]<<" & vid2: "<<vid[{{v}}][1]<<"): res{{v}}.key: "<<res{{v}}.key<<", res{{v}}.value: "<<res{{v}}.value<<": udata{{v}}.key: "<<udata{{v}}.key<<", udata{{v}}.value: "<<udata{{v}}.value<<", data{{v}}.key: "<<data{{v}}.key<<", data{{v}}.value: "<<data{{v}}.value<<endl; }
 		if(res{{v}}.key != udata{{v}}.key){ cout<<"synchronizeandapply: vid[{{v}}][0]: "<<vid[{{v}}][0]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].key: "<<vmask[i].data[colindex + {{v}}].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(res{{v}}.value != udata{{v}}.value){ cout<<"synchronizeandapply: vid[{{v}}][1]: "<<vid[{{v}}][1]<<", vmask["<<i<<"].data["<<colindex + {{v}}<<"].value: "<<vmask[i].data[colindex + {{v}}].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		{%endfor%}
@@ -837,7 +841,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	#endif
 	return cummvmask_sp;
 }
-#endif 
+// #endif 
 
 void
 	#ifdef SW 
@@ -1182,7 +1186,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, {%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
 {%for i in context['SYNCTHREADS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
@@ -1304,18 +1308,13 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	bool_type pp1en_spreadvmask = ON;
 	bool_type pp1en_spreadandwrite = ON;
 	
+	// bool_type enable_savevmask, bool_type enable_savevmaskp
+	// bool_type enable_savevmask = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key;
+	// bool_type enable_savevmaskp = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key;
+	
 	unsigned int SWITCHcount = 0;
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
-	
-	// unsigned int _BASEOFFSETKVS_VERTICESDATA = _globalparams.BASEOFFSETKVS_VERTICESDATA;
-	// unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = _globalparams.BASEOFFSETKVS_VERTICESDATAMASK;
-	// unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = _globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK;
-	// unsigned int _BASEOFFSETKVS_STATSDRAM = _globalparams.BASEOFFSETKVS_STATSDRAM;
-	// _BASEOFFSETKVS_VERTICESDATA = _BASEOFFSETKVS_VERTICESDATA - _BASEOFFSETKVS_VERTICESDATA;
-	// _BASEOFFSETKVS_VERTICESDATAMASK = _BASEOFFSETKVS_VERTICESDATAMASK - _BASEOFFSETKVS_VERTICESDATA;
-	// _BASEOFFSETKVS_VERTICESPARTITIONMASK = _BASEOFFSETKVS_VERTICESPARTITIONMASK - _BASEOFFSETKVS_VERTICESDATA;
-	// _BASEOFFSETKVS_STATSDRAM = _BASEOFFSETKVS_STATSDRAM - _BASEOFFSETKVS_VERTICESDATA;
 	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMPIPELINES_SYNC){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
@@ -1360,7 +1359,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		SWITCHcount += 1;
 		#ifdef SUP1
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, ON, ON, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}
+		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}
 			vbuffer{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp{{i}}_level3,
@@ -1386,7 +1385,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		#endif 
 	
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-		spreadandwrite(enablereduce, ON, ON, ON, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}	
+		spreadandwrite(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}kvdram{{i*4+j}},{%endfor%}	
 			vbuffer{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp{{i}}_level3,
@@ -1419,8 +1418,6 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	return;
 }
 }
-
-
 
 
 

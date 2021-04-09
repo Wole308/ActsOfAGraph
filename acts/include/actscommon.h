@@ -203,6 +203,8 @@ typedef struct {
 	unsigned int ENABLE_PROCESSCOMMAND;
 	unsigned int ENABLE_PARTITIONCOMMAND;
 	unsigned int ENABLE_APPLYUPDATESCOMMAND;
+	unsigned int ENABLE_SAVEVMASK;
+	unsigned int ENABLE_SAVEVMASKP;
 
 	unsigned int BASEOFFSETKVS_MESSAGESDATA;
 	unsigned int BASEOFFSETKVS_EDGESDATA;
