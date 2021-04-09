@@ -533,6 +533,9 @@ globalparams_t loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * 
 	cout<<"[globalparams.BASEOFFSET_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK<<"]"<<endl;
 	
+	cout<<"[globalparams.BASEOFFSET_VERTICESPARTITIONMASK : "<<globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK * VECTOR_SIZE<<"]"<<endl;
+	cout<<"[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK: "<<globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK<<"]"<<endl;
+	
 	cout<<"[globalparams.BASEOFFSET_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.BASEOFFSETKVS_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM<<"]"<<endl;
 	

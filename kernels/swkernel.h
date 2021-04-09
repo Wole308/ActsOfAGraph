@@ -36,6 +36,8 @@ private:
 	
 	acts_sw * actssw_obj;
 	#endif
+	
+	// uint512_vec_dt * tempvdram[NUMSUBCPUTHREADS];
 };
 #endif
 

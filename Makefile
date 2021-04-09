@@ -171,6 +171,18 @@ LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem17:HBM[17]
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem18:HBM[18]
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem19:HBM[19]
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem20:HBM[20]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem21:HBM[21]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem22:HBM[22]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem23:HBM[23]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem24:HBM[24]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem25:HBM[25]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem26:HBM[26]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem27:HBM[27]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem28:HBM[28]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem29:HBM[29]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem30:HBM[30]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem31:HBM[31]
+LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem32:HBM[31]
 
 # === DRAM MEMORY ===
 LDCLFLAGS_DRAM_PROC += --sp topkernelproc_1.m_axi_gmem0:bank0 

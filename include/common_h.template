@@ -104,6 +104,7 @@
 ////////////////
 
 #define NUMSUBCPUTHREADS {{context['NUMSUBCPUTHREADS']}}
+#define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////

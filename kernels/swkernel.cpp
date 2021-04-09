@@ -20,6 +20,8 @@
 #include "swkernel.h"
 using namespace std;
 
+// #define SYNC32
+
 swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
@@ -38,7 +40,7 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 swkernel::~swkernel(){}
 
 #ifdef SW
-#ifdef KOKOOOOOOO
+// #ifdef KOKOOOOOOOO
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -47,7 +49,6 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	#ifdef NACTS_IN_NCOMPUTEUNITS
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
 		
@@ -125,174 +126,104 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	#endif
 	return total_time_elapsed;
 }
-#endif
-// #ifdef KOKOOOOOOO
+// #endif 
+#ifdef KOKOOOOOOOO
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
-	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
-	uint512_vec_dt * tempvdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	uint512_vec_dt * tempkvsourcedram[NUMSUBCPUTHREADS];
+	uint512_vec_dt * tempvdram;
 	
-	unsigned int indexoff = 0;
+	unsigned int _BASEOFFSETKVS_MESSAGESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_MESSAGESDATA].data[0].key;
+	unsigned int _BASEOFFSETKVS_EDGESDATA = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
+	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
+	unsigned int _BASEOFFSETKVS_KVDRAM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].data[0].key;
+	unsigned int _MSIZE = _BASEOFFSETKVS_EDGESDATA - _BASEOFFSETKVS_MESSAGESDATA;
+	unsigned int _VSIZE = _BASEOFFSETKVS_KVDRAM - _BASEOFFSETKVS_VERTICESDATA;
+	unsigned int _TOTSIZE = _MSIZE + _VSIZE;
+	
+	for(unsigned int i=0; i<NUMSYNCTHREADS; i++){
+		tempkvsourcedram[i] = new uint512_vec_dt[_TOTSIZE];
+	}
+	tempvdram = new uint512_vec_dt[_TOTSIZE];
+
+	unsigned int _OFF_KVS = 0;
+	for(unsigned int i=0; i<NUMSYNCTHREADS; i++){
+		memcpy(&tempkvsourcedram[i][0], &kvsourcedram[i][_BASEOFFSETKVS_MESSAGESDATA], MESSAGESDRAMSZ * sizeof(uint512_vec_dt));
+	}
+	memcpy(&tempvdram[i][0], &vdram[i][_BASEOFFSETKVS_MESSAGESDATA], MESSAGESDRAMSZ * sizeof(uint512_vec_dt));
+	_OFF_KVS += _MSIZE; // MESSAGESDRAMSZ;
+	for(unsigned int i=0; i<NUMSYNCTHREADS; i++){
+		memcpy(&tempkvsourcedram[i][0 + _OFF_KVS], &kvsourcedram[i][_BASEOFFSETKVS_VERTICESDATA], _TOTSIZE * sizeof(uint512_vec_dt));
+	}
+	memcpy(&tempvdram[i][0 + _OFF_KVS], &vdram[i][_BASEOFFSETKVS_VERTICESDATA], _TOTSIZE * sizeof(uint512_vec_dt));
+	_OFF_KVS += _VSIZE; // _TOTSIZE;
+	
+	#ifdef NACTS_IN_NCOMPUTEUNITS
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>>>>>>>>>>>>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
+		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 		
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
-	
-		for(unsigned int k=0; k<VERTICESDATASZ_KVS; k++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				tempvdram[_BASEOFFSETKVS_VERTICESDATA + k].data[v].key = algorithmobj->vertex_initdata();
-				tempvdram[_BASEOFFSETKVS_VERTICESDATA + k].data[v].value = algorithmobj->vertex_initdata();
-			}
-		}
-	
-		//
-		indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
-			OFF,
-			OFF,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)tempvdram
-		);
 		
-		indexoff = 16;
-		kernelobjs_synchronize->topkernelsync(
-			OFF,
-			OFF,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)tempvdram
-		);
-		//
-		
-		//
-		indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
-			OFF,
-			OFF,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)tempvdram
-		);
-		
-		indexoff = 16;
-		kernelobjs_synchronize->topkernelsync(
-			OFF,
-			OFF,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)tempvdram
-		);
-		//
-		
-		//
-		indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
+		#ifndef SW_IMPL
+		kernelobjs_synchronize->topkernelsync( // topkernelsync_sw
 			ON,
 			ON,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)vdram
+			(uint512_dt *)tempkvsourcedram[0],
+			(uint512_dt *)tempkvsourcedram[1],
+			#if NUMSYNCTHREADS>2
+			(uint512_dt *)tempkvsourcedram[2],
+			(uint512_dt *)tempkvsourcedram[3],
+			#if NUMSYNCTHREADS>4
+			(uint512_dt *)tempkvsourcedram[4],
+			(uint512_dt *)tempkvsourcedram[5],
+			(uint512_dt *)tempkvsourcedram[6],
+			(uint512_dt *)tempkvsourcedram[7],
+			#if NUMSYNCTHREADS>8
+			(uint512_dt *)tempkvsourcedram[8],
+			(uint512_dt *)tempkvsourcedram[9],
+			(uint512_dt *)tempkvsourcedram[10],
+			(uint512_dt *)tempkvsourcedram[11],
+			#if NUMSYNCTHREADS>12
+			(uint512_dt *)tempkvsourcedram[12],
+			(uint512_dt *)tempkvsourcedram[13],
+			(uint512_dt *)tempkvsourcedram[14],
+			(uint512_dt *)tempkvsourcedram[15],
+			#if NUMSYNCTHREADS>16
+			(uint512_dt *)tempkvsourcedram[16],
+			(uint512_dt *)tempkvsourcedram[17],
+			(uint512_dt *)tempkvsourcedram[18],
+			(uint512_dt *)tempkvsourcedram[19],
+			#if NUMSYNCTHREADS>20
+			(uint512_dt *)tempkvsourcedram[20],
+			(uint512_dt *)tempkvsourcedram[21],
+			(uint512_dt *)tempkvsourcedram[22],
+			(uint512_dt *)tempkvsourcedram[23],
+			#if NUMSYNCTHREADS>24
+			(uint512_dt *)tempkvsourcedram[24],
+			(uint512_dt *)tempkvsourcedram[25],
+			(uint512_dt *)tempkvsourcedram[26],
+			(uint512_dt *)tempkvsourcedram[27],
+			#if NUMSYNCTHREADS>28
+			(uint512_dt *)tempkvsourcedram[28],
+			(uint512_dt *)tempkvsourcedram[29],
+			(uint512_dt *)tempkvsourcedram[30],
+			(uint512_dt *)tempkvsourcedram[31],
+			#endif
+			#endif
+			#endif
+			#endif
+			#endif
+			#endif
+			#endif
+			#endif 
+			(uint512_dt *)tempvdram
 		);
-		
-		indexoff = 16;
-		kernelobjs_synchronize->topkernelsync(
-			ON,
-			ON,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)vdram
-		);
-		//
-		// exit(EXIT_SUCCESS); /////
+		#endif
+		exit(EXIT_SUCCESS); // REMOVEME.
 		
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
@@ -306,6 +237,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
+	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
@@ -313,211 +245,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	#endif
 	return total_time_elapsed;
 }
-// #endif
-#ifdef KOKOOOOOOO
-long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
-	#ifdef _DEBUGMODE_TIMERS3
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	#endif
-	
-	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
-	uint512_vec_dt * tempvdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
-	
-	unsigned int indexoff = 0;
-	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
-	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		cout<<">>>>>>>>>>>>>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
-		
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
-	
-		for(unsigned int k=0; k<VERTICESDATASZ_KVS; k++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				tempvdram[_BASEOFFSETKVS_VERTICESDATA + k].data[v].key = algorithmobj->vertex_initdata();
-				tempvdram[_BASEOFFSETKVS_VERTICESDATA + k].data[v].value = algorithmobj->vertex_initdata();
-			}
-		}
-	
-		//
-		indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
-			OFF,
-			OFF,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)kvsourcedram[indexoff+16],
-			(uint512_dt *)kvsourcedram[indexoff+17],
-			(uint512_dt *)kvsourcedram[indexoff+18],
-			(uint512_dt *)kvsourcedram[indexoff+19],
-			(uint512_dt *)kvsourcedram[indexoff+20],
-			(uint512_dt *)kvsourcedram[indexoff+21],
-			(uint512_dt *)kvsourcedram[indexoff+22],
-			(uint512_dt *)kvsourcedram[indexoff+23],
-			(uint512_dt *)kvsourcedram[indexoff+24],
-			(uint512_dt *)kvsourcedram[indexoff+25],
-			(uint512_dt *)kvsourcedram[indexoff+26],
-			(uint512_dt *)kvsourcedram[indexoff+27],
-			(uint512_dt *)kvsourcedram[indexoff+28],
-			(uint512_dt *)kvsourcedram[indexoff+29],
-			(uint512_dt *)kvsourcedram[indexoff+30],
-			(uint512_dt *)kvsourcedram[indexoff+31],
-			(uint512_dt *)tempvdram
-		);
-		
-		indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
-			OFF,
-			OFF,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)kvsourcedram[indexoff+16],
-			(uint512_dt *)kvsourcedram[indexoff+17],
-			(uint512_dt *)kvsourcedram[indexoff+18],
-			(uint512_dt *)kvsourcedram[indexoff+19],
-			(uint512_dt *)kvsourcedram[indexoff+20],
-			(uint512_dt *)kvsourcedram[indexoff+21],
-			(uint512_dt *)kvsourcedram[indexoff+22],
-			(uint512_dt *)kvsourcedram[indexoff+23],
-			(uint512_dt *)kvsourcedram[indexoff+24],
-			(uint512_dt *)kvsourcedram[indexoff+25],
-			(uint512_dt *)kvsourcedram[indexoff+26],
-			(uint512_dt *)kvsourcedram[indexoff+27],
-			(uint512_dt *)kvsourcedram[indexoff+28],
-			(uint512_dt *)kvsourcedram[indexoff+29],
-			(uint512_dt *)kvsourcedram[indexoff+30],
-			(uint512_dt *)kvsourcedram[indexoff+31],
-			(uint512_dt *)tempvdram
-		);
-		//
-		
-		//
-		indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
-			ON,
-			ON,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)kvsourcedram[indexoff+16],
-			(uint512_dt *)kvsourcedram[indexoff+17],
-			(uint512_dt *)kvsourcedram[indexoff+18],
-			(uint512_dt *)kvsourcedram[indexoff+19],
-			(uint512_dt *)kvsourcedram[indexoff+20],
-			(uint512_dt *)kvsourcedram[indexoff+21],
-			(uint512_dt *)kvsourcedram[indexoff+22],
-			(uint512_dt *)kvsourcedram[indexoff+23],
-			(uint512_dt *)kvsourcedram[indexoff+24],
-			(uint512_dt *)kvsourcedram[indexoff+25],
-			(uint512_dt *)kvsourcedram[indexoff+26],
-			(uint512_dt *)kvsourcedram[indexoff+27],
-			(uint512_dt *)kvsourcedram[indexoff+28],
-			(uint512_dt *)kvsourcedram[indexoff+29],
-			(uint512_dt *)kvsourcedram[indexoff+30],
-			(uint512_dt *)kvsourcedram[indexoff+31],
-			(uint512_dt *)vdram
-		);
-		
-		/* indexoff = 0;
-		kernelobjs_synchronize->topkernelsync(
-			ON,
-			ON,
-			(uint512_dt *)kvsourcedram[indexoff],
-			(uint512_dt *)kvsourcedram[indexoff+1],
-			(uint512_dt *)kvsourcedram[indexoff+2],
-			(uint512_dt *)kvsourcedram[indexoff+3],
-			(uint512_dt *)kvsourcedram[indexoff+4],
-			(uint512_dt *)kvsourcedram[indexoff+5],
-			(uint512_dt *)kvsourcedram[indexoff+6],
-			(uint512_dt *)kvsourcedram[indexoff+7],
-			(uint512_dt *)kvsourcedram[indexoff+8],
-			(uint512_dt *)kvsourcedram[indexoff+9],
-			(uint512_dt *)kvsourcedram[indexoff+10],
-			(uint512_dt *)kvsourcedram[indexoff+11],
-			(uint512_dt *)kvsourcedram[indexoff+12],
-			(uint512_dt *)kvsourcedram[indexoff+13],
-			(uint512_dt *)kvsourcedram[indexoff+14],
-			(uint512_dt *)kvsourcedram[indexoff+15],
-			(uint512_dt *)kvsourcedram[indexoff+16],
-			(uint512_dt *)kvsourcedram[indexoff+17],
-			(uint512_dt *)kvsourcedram[indexoff+18],
-			(uint512_dt *)kvsourcedram[indexoff+19],
-			(uint512_dt *)kvsourcedram[indexoff+20],
-			(uint512_dt *)kvsourcedram[indexoff+21],
-			(uint512_dt *)kvsourcedram[indexoff+22],
-			(uint512_dt *)kvsourcedram[indexoff+23],
-			(uint512_dt *)kvsourcedram[indexoff+24],
-			(uint512_dt *)kvsourcedram[indexoff+25],
-			(uint512_dt *)kvsourcedram[indexoff+26],
-			(uint512_dt *)kvsourcedram[indexoff+27],
-			(uint512_dt *)kvsourcedram[indexoff+28],
-			(uint512_dt *)kvsourcedram[indexoff+29],
-			(uint512_dt *)kvsourcedram[indexoff+30],
-			(uint512_dt *)kvsourcedram[indexoff+31],
-			(uint512_dt *)vdram
-		); */
-		//
-		// exit(EXIT_SUCCESS); /////
-		
-		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
-		unsigned int totalactvvp = 0;
-		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
-		for(unsigned int i=0; i<256; i++){
-			unsigned int gmask = kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
-			totalactvvp += gmask;
-			if(gmask > 0){ cout<<i<<", "; }
-		}
-		cout<<""<<endl;
-		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
-	}
-	
-	#ifdef _DEBUGMODE_TIMERS3
-	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(total_time_elapsed);
-	#endif
-	return total_time_elapsed;
-}
-#endif
+#endif 
 long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], value_t * vprops, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();

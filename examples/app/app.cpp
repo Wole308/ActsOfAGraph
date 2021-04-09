@@ -96,12 +96,11 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 3; // 3,12,32
+	unsigned int NumGraphIters = 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
 	globalparams_t globalparams;
-	// exit(EXIT_SUCCESS); /////////////////////////
 
 	actvvs.push_back(1);
 
@@ -204,6 +203,7 @@ runsummary_t app::run_sw(){
 	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
 	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 
+	#ifdef SW_IMPL
 	// set root vid
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
@@ -256,6 +256,7 @@ runsummary_t app::run_sw(){
 	
 	// utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters);
 	verifyresults_sw(vertexdatabuffer);
+	#endif 
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
