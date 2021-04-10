@@ -96,8 +96,7 @@ public:
 			globalparams_t globalparams);
 	#endif 
 
-	void topkernelsync(bool_type enable_savevmask, bool_type enable_savevmaskp, {%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
-	// void topkernelsync_sw({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
+	void topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
 
 private:
 	#ifndef FPGA_IMPL

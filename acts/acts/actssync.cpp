@@ -609,7 +609,7 @@ value_t
 	#ifdef SW 
 	actssync::
 	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){ //????
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	value_t res = 0;
 	
 	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
@@ -1268,7 +1268,6 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	return cummvmask_sp;
 }
 #endif 
-// #ifdef KOKOKOKOOOOOOO // CORRECTONE
 uint32_type
 	#ifdef SW 
 	actssync::
@@ -1458,29 +1457,45 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	
 
 	
-		res[0][i].key = mergefunc(udata0.key, GETKV2(keyvalue0_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[0][i].value = mergefunc(udata0.value, GETKV2(keyvalue0_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue0;
+		mykeyvalue0.key = mergefunc(udata0.key, keyvalue0_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue0.value = mergefunc(udata0.value, keyvalue0_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[0][i] = GETKV2(mykeyvalue0);
 	
-		res[1][i].key = mergefunc(udata1.key, GETKV2(keyvalue1_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[1][i].value = mergefunc(udata1.value, GETKV2(keyvalue1_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue1;
+		mykeyvalue1.key = mergefunc(udata1.key, keyvalue1_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue1.value = mergefunc(udata1.value, keyvalue1_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[1][i] = GETKV2(mykeyvalue1);
 	
-		res[2][i].key = mergefunc(udata2.key, GETKV2(keyvalue2_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[2][i].value = mergefunc(udata2.value, GETKV2(keyvalue2_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue2;
+		mykeyvalue2.key = mergefunc(udata2.key, keyvalue2_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue2.value = mergefunc(udata2.value, keyvalue2_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[2][i] = GETKV2(mykeyvalue2);
 	
-		res[3][i].key = mergefunc(udata3.key, GETKV2(keyvalue3_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[3][i].value = mergefunc(udata3.value, GETKV2(keyvalue3_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue3;
+		mykeyvalue3.key = mergefunc(udata3.key, keyvalue3_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue3.value = mergefunc(udata3.value, keyvalue3_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[3][i] = GETKV2(mykeyvalue3);
 	
-		res[4][i].key = mergefunc(udata4.key, GETKV2(keyvalue4_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[4][i].value = mergefunc(udata4.value, GETKV2(keyvalue4_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue4;
+		mykeyvalue4.key = mergefunc(udata4.key, keyvalue4_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue4.value = mergefunc(udata4.value, keyvalue4_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[4][i] = GETKV2(mykeyvalue4);
 	
-		res[5][i].key = mergefunc(udata5.key, GETKV2(keyvalue5_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[5][i].value = mergefunc(udata5.value, GETKV2(keyvalue5_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue5;
+		mykeyvalue5.key = mergefunc(udata5.key, keyvalue5_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue5.value = mergefunc(udata5.value, keyvalue5_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[5][i] = GETKV2(mykeyvalue5);
 	
-		res[6][i].key = mergefunc(udata6.key, GETKV2(keyvalue6_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[6][i].value = mergefunc(udata6.value, GETKV2(keyvalue6_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue6;
+		mykeyvalue6.key = mergefunc(udata6.key, keyvalue6_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue6.value = mergefunc(udata6.value, keyvalue6_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[6][i] = GETKV2(mykeyvalue6);
 	
-		res[7][i].key = mergefunc(udata7.key, GETKV2(keyvalue7_vault4).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[7][i].value = mergefunc(udata7.value, GETKV2(keyvalue7_vault4).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue7;
+		mykeyvalue7.key = mergefunc(udata7.key, keyvalue7_vault4.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue7.value = mergefunc(udata7.value, keyvalue7_vault4.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[7][i] = GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
 		if(GETKV2(res[0][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
@@ -1617,7 +1632,6 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	#endif
 	return cummvmask_sp;
 }
-// #endif 
 
 void
 	#ifdef SW 
@@ -2931,7 +2945,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, uint512_dt * vdram){
+topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15, uint512_dt * vdram){
  
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
  
@@ -3123,11 +3137,7 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, ui
 	bool_type pp1en_spreadvdata = ON;
 	bool_type pp1en_spreadvmask = ON;
 	bool_type pp1en_spreadandwrite = ON;
-	
-	// bool_type enable_savevmask, bool_type enable_savevmaskp
-	// bool_type enable_savevmask = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key;
-	// bool_type enable_savevmaskp = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key;
-	
+
 	unsigned int SWITCHcount = 0;
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
@@ -3136,7 +3146,7 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, ui
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
 		enablereduce = ON; 
-		#ifdef KOKOKOKOOOOOOO // REMOVEME.
+		// #ifdef KOKOKOKOOOOOOO // REMOVEME.
 		unsigned int ntravszs = 0;
 		rtravstate[0] = gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
 		rtravstate[1] = gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
@@ -3156,7 +3166,7 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, ui
 		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		#endif 
+		// #endif 
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 
@@ -3164,8 +3174,8 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, ui
 		#endif
 	
 		source_partition = iterationidx / 2;
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(enablereduce==ON && _globalparams.ENABLE_SAVEVMASK==ON){ actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); }
 		#endif
 		
 		enablereducepp0 = enablereduce;	
@@ -3268,7 +3278,7 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, ui
 	actsutilityobj->clearglobalvars();
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
+	if(_globalparams.ENABLE_SAVEVMASK == ON){ cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl; }
 	actsutilityobj->globalstats_setactvvsseen(0);
 	#endif 
 	return;

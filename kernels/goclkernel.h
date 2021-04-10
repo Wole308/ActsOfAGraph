@@ -26,8 +26,6 @@ public:
 
 	#ifdef FPGA_IMPL
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
-	long double runapp1(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
-	long double runapp2(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
 	#endif
 	
 	unsigned int ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter);

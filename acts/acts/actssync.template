@@ -519,7 +519,7 @@ value_t
 	#ifdef SW 
 	actssync::
 	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){ //????
+mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	value_t res = 0;
 	
 	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
@@ -734,7 +734,6 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	return cummvmask_sp;
 }
 #endif 
-// #ifdef KOKOKOKOOOOOOO // CORRECTONE
 uint32_type
 	#ifdef SW 
 	actssync::
@@ -786,8 +785,10 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		{%endfor%}
 
 		{%for v in context['VECTOR_SIZE_seq']%}	
-		res[{{v}}][i].key = mergefunc(udata{{v}}.key, GETKV2(keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}}).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[{{v}}][i].value = mergefunc(udata{{v}}.value, GETKV2(keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}}).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue_t mykeyvalue{{v}};
+		mykeyvalue{{v}}.key = mergefunc(udata{{v}}.key, keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}}.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue{{v}}.value = mergefunc(udata{{v}}.value, keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}}.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res[{{v}}][i] = GETKV2(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
@@ -841,7 +842,6 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	#endif
 	return cummvmask_sp;
 }
-// #endif 
 
 void
 	#ifdef SW 
@@ -1186,7 +1186,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, {%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
 {%for i in context['SYNCTHREADS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
@@ -1307,11 +1307,7 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, {%
 	bool_type pp1en_spreadvdata = ON;
 	bool_type pp1en_spreadvmask = ON;
 	bool_type pp1en_spreadandwrite = ON;
-	
-	// bool_type enable_savevmask, bool_type enable_savevmaskp
-	// bool_type enable_savevmask = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key;
-	// bool_type enable_savevmaskp = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key;
-	
+
 	unsigned int SWITCHcount = 0;
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
@@ -1320,14 +1316,12 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, {%
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
 		enablereduce = ON; 
-		#ifdef KOKOKOKOOOOOOO // REMOVEME.
 		unsigned int ntravszs = 0;
 		{%for i in context['SYNCTHREADS_seq']%}
 		rtravstate[{{i}}] = gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
 		{%endfor%}
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		#endif 
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 
@@ -1335,8 +1329,8 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, {%
 		#endif
 	
 		source_partition = iterationidx / 2;
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(enablereduce==ON && _globalparams.ENABLE_SAVEVMASK==ON){ actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); }
 		#endif
 		
 		enablereducepp0 = enablereduce;	
@@ -1412,7 +1406,7 @@ topkernelsync(bool_type enable_savevmaskxxx, bool_type enable_savevmaskpxxxx, {%
 	actsutilityobj->clearglobalvars();
 	#endif
 	#ifdef _DEBUGMODE_STATS
-	cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl;
+	if(_globalparams.ENABLE_SAVEVMASK == ON){ cout<< TIMINGRESULTSCOLOR <<"num active vertices for this iteration: "<<actsutilityobj->globalstats_getactvvsseen()<< RESET <<endl; }
 	actsutilityobj->globalstats_setactvvsseen(0);
 	#endif 
 	return;
