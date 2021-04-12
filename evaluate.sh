@@ -154,8 +154,8 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
@@ -645,8 +645,8 @@ do
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 									make host
-									# ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
-									./host $BACKUPDIR_KERNELXCLBIN1 /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync16HW.xclbin
+									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
+									# ./host $BACKUPDIR_KERNELXCLBIN1 /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync16HW.xclbin
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

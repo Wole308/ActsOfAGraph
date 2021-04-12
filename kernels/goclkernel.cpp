@@ -158,6 +158,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
 	unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
 	unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+	unsigned int _BASEOFFSETKVS_STATSDRAM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
@@ -325,7 +326,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 							 &err));
 			}
 			OCL_CHECK(err,
-			  buffer_tempvdram[0] = // buffer_kvsourcedram[NUMSUBCPUTHREADS] =
+			  buffer_tempvdram[0] =
 				  cl::Buffer(context,
 						 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
 						 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
