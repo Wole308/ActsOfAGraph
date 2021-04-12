@@ -44,9 +44,9 @@ setupkernel::setupkernel(stats * _statsobj){
 }
 setupkernel::~setupkernel(){} 
 
-long double setupkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
+long double setupkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){						
 	#ifdef ACTGRAPH_SETUP
-	long double total_time_elapsed = kernelobj->runapp(binaryFile, vdram, kvsourcedram);
+	long double total_time_elapsed = kernelobj->runapp(binaryFile, vdram, kvsourcedram, timeelapsed_totals);
 	#endif 
 	#ifdef GRAFBOOST_SETUP
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ srkernelobj->srtopkernel(_sr, (uint512_dt *)kvsourcedram[i]); }

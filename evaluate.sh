@@ -646,7 +646,6 @@ do
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 									make host
 									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
-									# ./host $BACKUPDIR_KERNELXCLBIN1 /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync16HW.xclbin
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

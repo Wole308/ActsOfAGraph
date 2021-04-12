@@ -20,6 +20,9 @@
 #include "swkernel.h"
 using namespace std;
 
+#define ENABLE_ACTSPROC
+#define ENABLE_ACTSSYNC
+
 swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
@@ -52,11 +55,39 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	
 	unsigned int ind = 0;
+	unsigned int _PROCESSCOMMAND = ON; unsigned int _PARTITIONCOMMAND = ON; unsigned int _APPLYUPDATESCOMMAND = ON;
+	#ifdef ENABLE_KERNEL_PROFILING
+	unsigned int analysis_icount = 3;
+	#else 
+	unsigned int analysis_icount = 1;
+	#endif 
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 		
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
+		#ifdef ENABLE_ACTSPROC
+		for(unsigned int analysis_i=0; analysis_i<analysis_icount; analysis_i++){
+			#ifdef ENABLE_KERNEL_PROFILING
+			if(analysis_i==0){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = OFF; _APPLYUPDATESCOMMAND = OFF; }
+			if(analysis_i==1){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = OFF; }
+			if(analysis_i==2){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = ON; }
+			cout<<"swkernel::runapp: analysis_i: "<<analysis_i<<"(PROCESSCOMMAND:"<<_PROCESSCOMMAND<<", PARTITIONCOMMAND:"<<_PARTITIONCOMMAND<<", APPLYUPDATESCOMMAND:"<<_APPLYUPDATESCOMMAND<<")"<<endl;
+			
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
+				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = _PROCESSCOMMAND; 
+				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = _PARTITIONCOMMAND; 
+				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = _APPLYUPDATESCOMMAND;
+			}
+			#endif 
+			
+			std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
+			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
+			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
+		}
+		#endif 
 		
+		#ifdef ENABLE_ACTSSYNC
 		#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
 		for(unsigned int k=0; k<KVSTATSDRAMSZ_KVS; k++){
 			unsigned int maxstats = 0;
@@ -174,7 +205,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			memcpy(&kvsourcedram[i][_BASEOFFSETKVS_VERTICESPARTITIONMASK], &kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK], 512 * sizeof(uint512_vec_dt));
 		}
 		#endif 
-		
+		#endif 
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
 		unsigned int totalactvvp = 0;

@@ -14,6 +14,7 @@
 #include "../include/common.h"
 
 // #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
+#define GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 
 // #define NUMSYNCBUFFERSINKERNEL 16
 
@@ -25,7 +26,7 @@ public:
 	long double getaveragetimeelapsed(long double kerneltimelapse[NUMSUBCPUTHREADS]);
 
 	#ifdef FPGA_IMPL
-	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);	
+	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]);								
 	#endif
 	
 	unsigned int ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter);

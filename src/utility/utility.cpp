@@ -681,113 +681,7 @@ void utility::set_callback(cl_event event, const char *queue_name) {
 }
 #endif 
 
-/* void utility::collectedgestats(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int * edges_count, unsigned int * edgesdstv_sum){
-	*edges_count = 0;
-	*edgesdstv_sum = 0;
-	for(unsigned int i=0; i<srcvids.size(); i++){
-		unsigned int vid = srcvids[i];
-		edge_t vptr_begin = vertexptrbuffer[vid];
-		edge_t vptr_end = vertexptrbuffer[vid+1];
-		edge_t edges_size = vptr_end - vptr_begin;
-		
-		for(unsigned int k=0; k<edges_size; k++){
-			*edges_count += 1;
-			*edgesdstv_sum += edgedatabuffer[vptr_begin + k].dstvid;
-		}
-	}
-	return;
-} */
-
-#ifdef KOKOOOO
-unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
-	#endif 
-	
-	unsigned int * labels = new unsigned int[KVDATA_RANGE];
-	unsigned int * visitedlabels = new unsigned int[KVDATA_RANGE];
-	for(unsigned int i=0; i<KVDATA_RANGE; i++){ labels[i] = 0xFFFFFFFF; }
-	for(unsigned int i=0; i<KVDATA_RANGE; i++){ visitedlabels[i] = UNVISITED; }
-	vector<value_t> rootactvvs;
-	vector<value_t> activevertices;
-	for(unsigned int i=0; i<srcvids.size(); i++){ rootactvvs.push_back(srcvids[i]); }
-	unsigned int total_edges_processed = 0;
-	unsigned int actvvsdstv1_sum = 0;
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"utility::runsssp_sw: number of active vertices for iteration 0: "<<activevertices.size()<<endl;
-	#endif
-	for(unsigned int i=0; i<rootactvvs.size(); i++){ labels[rootactvvs[i]] = 0; }
-	unsigned int ew = 1;
-	
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	
-	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
-		actvvsdstv1_sum = 0;
-	
-		for(unsigned int i=0; i<rootactvvs.size(); i++){
-			unsigned int vid = rootactvvs[i];
-			edge_t vptr_begin = vertexptrbuffer[vid];
-			edge_t vptr_end = vertexptrbuffer[vid+1];
-			edge_t edges_size = vptr_end - vptr_begin;
-			// if(vptr_end < vptr_begin){ continue; } // 
-			
-			for(unsigned int k=0; k<edges_size; k++){
-				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
-				#ifdef _DEBUGMODE_CHECKS
-				checkoutofbounds("utility::runsssp_sw.vptr_begin + k", vptr_begin + k, 91042010, vid, vptr_begin, vptr_end);
-				#endif
-				
-				unsigned int res = labels[vid] + ew;
-				if(res < labels[dstvid]){
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
-					#endif
-					#ifdef _DEBUGMODE_CHECKS3
-					checkoutofbounds("utility::runsssp_sw.dstvid", dstvid, KVDATA_RANGE, NAp, NAp, NAp);
-					#endif
-					
-					labels[dstvid] = res;
-					if(visitedlabels[dstvid] == UNVISITED){ 
-						#ifdef _DEBUGMODE_KERNELPRINTS
-						cout<<"utility::runsssp_sw: ACTIVE VERTICES seen for iteration "<<GraphIter + 1<<": dstvid: "<<dstvid<<endl;
-						#endif
-						
-						visitedlabels[dstvid] = VISITED_IN_CURRENT_ITERATION; 
-						activevertices.push_back(dstvid); 
-						actvvsdstv1_sum += dstvid; 
-					}
-				}
-				
-				total_edges_processed += 1;
-			}
-		}
-		
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<activevertices.size()<<" (actvvsdstv1_sum: "<<actvvsdstv1_sum<<")"<<endl;
-		for(unsigned int i=0; i<hmin(activevertices.size(), 0); i++){ cout<<"utility::runsssp_sw: activevertices["<<i<<"]: "<<activevertices[i]<<endl; }
-		#endif
-		
-		if(activevertices.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
-		
-		rootactvvs.clear();
-		for(unsigned int i=0; i<activevertices.size(); i++){ rootactvvs.push_back(activevertices[i]); }
-		activevertices.clear();
-		
-		for(unsigned int i=0; i<KVDATA_RANGE; i++){ 
-			if(visitedlabels[i] == VISITED_IN_CURRENT_ITERATION){ visitedlabels[i] = UNVISITED;  }
-		}
-	}
-	
-	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	cout<<">>> utility::runsssp_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
-	cout<<">>> utility::runsssp_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> utility::runsssp_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
-	
-	delete labels;
-	return total_edges_processed; // actvvsdstv1_sum;
-}
-#endif 
-unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters){
+unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128]){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
 	#endif 
@@ -799,6 +693,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	vector<value_t> actvvs_nextit;
 	
 	unsigned int total_edges_processed = 0;
+	for(unsigned int i=0; i<128; i++){ edgesprocessed_totals[i] = 0; }
 	
 	for(unsigned int i=0; i<srcvids.size(); i++){ actvvs.push_back(srcvids[i]); }
 	#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -826,6 +721,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 				if(vtemp != vprop){ actvvs_nextit.push_back(dstvid); } 
 			
 				total_edges_processed += 1;
+				edgesprocessed_totals[GraphIter] += 1;
 			}
 		}
 		
