@@ -27,9 +27,9 @@ using namespace std;
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
 
 #define ENABLE_ACTSPROC
-// #ifndef ALLVERTEXISACTIVE_ALGORITHM // CRITICAL REMOVEME
+#ifndef ALLVERTEXISACTIVE_ALGORITHM // CRITICAL REMOVEME
 #define ENABLE_ACTSSYNC
-// #endif 
+#endif 
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
@@ -132,9 +132,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	long double avs_sync[32];
 	
 	// Create tempkvbuffer
-	tempkvsourcedram_proc = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); // process
-	for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ tempkvsourcedrams_sync[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); } //
-	uint512_vec_dt * tempvdram_sync = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); //
+	tempkvsourcedram_proc = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	
 	cl_int err;
     auto devices = xcl::get_xil_devices();
@@ -154,6 +152,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
     int vector_length = LENGTH;
     bool match = true;
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	
+	uint512_vec_dt * tempvdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	
 	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
 	unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
@@ -279,6 +279,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			
 			cl_int err;
 			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
+			std::vector<cl_mem_ext_ptr_t> v_inoutBufExt(2);
 			std::vector<cl::Buffer> buffer_kvsourcedram(32);
 			std::vector<cl::Buffer> buffer_vdram(2);
 			std::vector<cl::Kernel> krnls(1);
@@ -313,37 +314,60 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 			cout<<"goclkernel[actssync]:: creating OCL buffers..."<<endl;
 			#endif
-			for(unsigned int i=0; i<NUMSYNCTHREADS; i++){
-				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+				#ifdef _DEBUGMODE_HOSTPRINTS3
 				cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
 				#endif
-				inoutBufExt[i].obj = tempkvsourcedrams_sync[i];
+				inoutBufExt[i].obj = kvsourcedram[i],
 				inoutBufExt[i].param = 0;
-				inoutBufExt[i].flags = bank[i];
+				inoutBufExt[i].flags = bank[i%NUMSYNCTHREADS];
 			}
-			inoutBufExt[NUMSYNCTHREADS].obj = tempvdram_sync;
-			inoutBufExt[NUMSYNCTHREADS].param = 0;
-			inoutBufExt[NUMSYNCTHREADS].flags = bank[NUMSYNCTHREADS];
-			for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ 
+			v_inoutBufExt[0].obj = vdram;
+			v_inoutBufExt[0].param = 0;
+			v_inoutBufExt[0].flags = bank[NUMSYNCTHREADS];
+			v_inoutBufExt[1].obj = tempvdram;
+			v_inoutBufExt[1].param = 0;
+			v_inoutBufExt[1].flags = bank[NUMSYNCTHREADS];
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 				cout<<"creating buffer for ACTS: "<<i<<endl;
 				#endif
 				OCL_CHECK(err,
 				  buffer_kvsourcedram[i] =
 					  cl::Buffer(context,
+							 // CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
 							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 									 CL_MEM_USE_HOST_PTR,
 							 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
+							 // kvsourcedram[i],
 							 &inoutBufExt[i],
 							 &err));
 			}
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"creating buffer for ACTS VDRAM: 0"<<endl;
+			#endif
 			OCL_CHECK(err,
 			  buffer_vdram[0] =
 				  cl::Buffer(context,
+						 // CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
 						 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 									 CL_MEM_USE_HOST_PTR,
 						 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
-						 &inoutBufExt[NUMSYNCTHREADS],
+						 // vdram,
+						 &v_inoutBufExt[0],
+						 &err));
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+			cout<<"creating buffer for ACTS VDRAM: 1"<<endl;
+			#endif
+			OCL_CHECK(err,
+			  buffer_vdram[1] =
+				  cl::Buffer(context,
+						 // CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
+						 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+									 CL_MEM_USE_HOST_PTR,
+						 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
+						 // tempvdram,
+						 &v_inoutBufExt[1],
 						 &err));
 						 
 			#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
@@ -357,42 +381,33 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
 			for(unsigned int k=0; k<VERTICESDATASZ_KVS; k++){
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){
-					tempvdram_sync[_BASEOFFSETKVS_VERTICESDATA + k].data[v].key = algorithmobj->vertex_initdata();
-					tempvdram_sync[_BASEOFFSETKVS_VERTICESDATA + k].data[v].value = algorithmobj->vertex_initdata();
+					tempvdram[_BASEOFFSETKVS_VERTICESDATA + k].data[v].key = algorithmobj->vertex_initdata();
+					tempvdram[_BASEOFFSETKVS_VERTICESDATA + k].data[v].value = algorithmobj->vertex_initdata();
 				}
 			}
 			#endif 
 			
-			for(unsigned int inst=0; inst<3; inst++){
+			for(unsigned int inst=0; inst<1; inst++){ // 1
 				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 				cout<<"goclkernel[actssync]:: inst: "<<inst<<endl;
 				#endif
+					
+				unsigned int vindex;
+				if(inst==2){ vindex=0; } else { vindex=1; }
 				
 				unsigned int _BOOL;
-				if(inst==2){ _BOOL = ON; } else { _BOOL = OFF; }
-				
-				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+				if(vindex==0){ _BOOL = ON; } else { _BOOL = OFF; }
 				cout<<"swkernel::runapp: setting savevmask and savevmaskp... "<<endl;
-				#endif 
 				for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 					kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key = _BOOL;
 					kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key = _BOOL;
 				}
 				
-				if(inst==2){ memcpy(tempvdram_sync, vdram, sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
-				
 				for(unsigned int ind=0; ind<32; ind+=NUMSYNCTHREADS){
-					// copy 
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: copying kvsourcedram to tempkvsourcedrams_sync..."<<endl;
-					#endif
-					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ memcpy(tempkvsourcedrams_sync[i], kvsourcedram[ind+i], sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
-					
 					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 					cout<<"goclkernel[actssync]:: setting kernel arguments: ind: "<<ind<<"..."<<endl;
 					#endif
-					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
-					OCL_CHECK(err, err = krnls[0].setArg(NUMSYNCTHREADS, buffer_vdram[0]));
+					for(unsigned int i=0; i<NUMSYNCTHREADS + 1; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[ind+i])); }
 				
 					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 					cout<<"goclkernel[actssync]:: migrating workload to FPGA..."<<endl;
@@ -401,9 +416,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, 0));
 					#endif
 					#if NUMSYNCTHREADS==16
-					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],				
-																		buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 				
-																			buffer_vdram[0]},
+					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[ind], buffer_kvsourcedram[ind+1], buffer_kvsourcedram[ind+2], buffer_kvsourcedram[ind+3], buffer_kvsourcedram[ind+4], buffer_kvsourcedram[ind+5], buffer_kvsourcedram[ind+6], buffer_kvsourcedram[ind+7],				
+																		buffer_kvsourcedram[ind+8], buffer_kvsourcedram[ind+9], buffer_kvsourcedram[ind+10], buffer_kvsourcedram[ind+11], buffer_kvsourcedram[ind+12], buffer_kvsourcedram[ind+13], buffer_kvsourcedram[ind+14], buffer_kvsourcedram[ind+15], 				
+																			buffer_vdram[vindex]},
 																					0));
 					#endif
 																				
@@ -426,22 +441,13 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, CL_MIGRATE_MEM_OBJECT_HOST));
 					#endif
 					#if NUMSYNCTHREADS==16
-					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],				
-																		buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 				
-																			buffer_vdram[0]},
+					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[ind], buffer_kvsourcedram[ind+1], buffer_kvsourcedram[ind+2], buffer_kvsourcedram[ind+3], buffer_kvsourcedram[ind+4], buffer_kvsourcedram[ind+5], buffer_kvsourcedram[ind+6], buffer_kvsourcedram[ind+7],				
+																		buffer_kvsourcedram[ind+8], buffer_kvsourcedram[ind+9], buffer_kvsourcedram[ind+10], buffer_kvsourcedram[ind+11], buffer_kvsourcedram[ind+12], buffer_kvsourcedram[ind+13], buffer_kvsourcedram[ind+14], buffer_kvsourcedram[ind+15], 				
+																			buffer_vdram[vindex]},
 																					CL_MIGRATE_MEM_OBJECT_HOST));
 					#endif
 					OCL_CHECK(err, err = q.finish());
-					
-					// copy back
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: copying tempkvsourcedrams_sync backto kvsourcedram..."<<endl;
-					#endif
-					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ memcpy(kvsourcedram[ind+i], tempkvsourcedrams_sync[i], sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
 				}
-				
-				// copy back
-				if(inst==2){ memcpy(vdram, tempvdram_sync, sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
 			}
 			
 			#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
