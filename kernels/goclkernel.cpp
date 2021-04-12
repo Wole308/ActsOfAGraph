@@ -297,9 +297,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			for(unsigned int analysis_i=0; analysis_i<8; analysis_i++){ avs_proc[GraphIter][analysis_i] = getaveragetimeelapsed(kerneltimelapse_ms[analysis_i]); }
 			total_time_elapsed += avs_proc[GraphIter][analysis_icount-1];
 
-			// for(unsigned int i=0; i<3; i++){ std::cout <<">>> SUMMARY: kernel (proc) average time elapsed for Iteration "<<GraphIter<<": "<<avs_proc[i][GraphIter]<<" ms"<<std::endl; }
 			std::cout <<">>> SUMMARY: kernel (proc) average time elapsed for Iteration "<<GraphIter<<": ";
-			// for(unsigned int i=0; i<analysis_icount; i++){ cout<<avs_proc[i][GraphIter]<<" ms, "; } 
 			cout<<avs_proc[GraphIter][0]<<"("<<avs_proc[GraphIter][0]<<")"<<" ms, ";
 			for(unsigned int analysis_i=1; analysis_i<analysis_icount; analysis_i++){ cout<<avs_proc[GraphIter][analysis_i]<<"("<<avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]<<")"<<" ms, "; }
 			cout<<endl;
@@ -492,15 +490,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		}
 		#endif
 		
-		/* timeelapsed_totals[0][GraphIter] = avs_proc[0][GraphIter];
-		for(unsigned int i=1; i<8; i++){ timeelapsed_totals[i][GraphIter] = avs_proc[i][GraphIter]-avs_proc[i-1][GraphIter]; }
-		
-		for(unsigned int i=0; i<8; i++){ 
-			cout<<"timeelapsed_totals["<<i<<"]["<<GraphIter<<"]: "<<timeelapsed_totals[i][GraphIter]<<endl;
-		} */
-		
-		// for(unsigned int i=0; i<8; i++){ timeelapsed_totals[i][GraphIter] = avs_proc[i][GraphIter]; }
-		
 		if(ExitCheck(kvsourcedram[0], GraphIter) == 1){ cout<<"goclkernel::runapp2: no more active vertices to process. exiting... "<<endl; break; }
 	}
 	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<total_time_elapsed<<" ms"<< RESET << std::endl;
@@ -508,11 +497,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		timeelapsed_totals[GraphIter][0] = avs_proc[GraphIter][0];
 		for(unsigned int analysis_i=1; analysis_i<3; analysis_i++){ timeelapsed_totals[GraphIter][analysis_i] = avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]; }
-		
-		
-		for(unsigned int analysis_i=1; analysis_i<3; analysis_i++){ 
-			cout<<"timeelapsed_totals["<<GraphIter<<"]["<<analysis_i<<"]: "<<timeelapsed_totals[GraphIter][analysis_i]<<endl;
-		}
 	}
 		
 	return total_time_elapsed;

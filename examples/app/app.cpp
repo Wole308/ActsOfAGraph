@@ -99,7 +99,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 2; // 3,12,32
+	unsigned int NumGraphIters = 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
@@ -183,24 +183,30 @@ runsummary_t app::run_hw(){
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, timeelapsed_totals);
 	
-	/* for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
-		for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ 
-			cout<<"app::run_hw: timeelapsed_totals["<<analysis_i<<"]["<<GraphIter<<"]: "<<timeelapsed_totals[analysis_i][GraphIter]<<endl;
+	// output
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	for(unsigned int i=0; i<NumGraphIters; i++){
+		for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){
+			cout <<">>> app::run_hw: throughput["<<i<<"]["<<analysis_i<<"]("<<edgesprocessed_totals[i]/1000000<<"M edges,"<<timeelapsed_totals[i][analysis_i]<<" ms): "<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) * (1000))<<" edges/sec ("<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) / (1000))<<" million edges/sec)" <<endl;								
 		}
 	}
-	exit(EXIT_SUCCESS); */
+	#endif
+	for(unsigned int i=0; i<NumGraphIters; i++){
+		unsigned int total_edges = 0;
+		long double total_time = 0;
 		
-	// output
+		for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ total_time += timeelapsed_totals[i][analysis_i]; }
+		// for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ total_edges += edgesprocessed_totals[i]; }
+
+		if(edgesprocessed_totals[i] > 0){
+			for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ cout<<""<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) / (1000))<<", "; }
+			cout<<"[Iter "<<i<<" throughput: "<<((edgesprocessed_totals[i] / total_time) / (1000))<<"]";
+			cout<<endl;
+		}
+	}
 	cout<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;			
-	for(unsigned int i=0; i<NumGraphIters; i++){
-		cout<<">>> app::run_hw: total_edges_processed[Iter:"<<i<<"]: "<<edgesprocessed_totals[i]<<" edges ("<<edgesprocessed_totals[i]/1000000<<" million edges)"<<endl;	
-		for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){
-			cout<<">>> app::run_hw: total_time_elapsed[Iter:"<<i<<"][Analy:"<<analysis_i<<"]: "<<timeelapsed_totals[i][analysis_i]<<" ms ("<<timeelapsed_totals[i][analysis_i]/1000<<" s)"<<endl;
-			cout <<">>> app::run_hw: throughput["<<i<<"]["<<analysis_i<<"]: "<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) * (1000))<<" edges/sec ("<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) / (1000))<<" million edges/sec)" <<endl;								
-		}
-	}
 	
 	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals);
 	verifyresults_hw(kvbuffer[0], globalparams);
