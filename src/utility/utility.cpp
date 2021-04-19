@@ -126,6 +126,12 @@ void utility::printallparameters(){
 	std::cout<<"utility:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
 	
 	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+	
+	#ifdef ENABLE_KERNEL_PROFILING
+	std::cout<<"utility:: ENABLE_KERNEL_PROFILING DEFINED: "<<std::endl;
+	#else 
+	std::cout<<"utility:: ENABLE_KERNEL_PROFILING NOT DEFINED: "<<std::endl;	
+	#endif 
 	// exit(EXIT_SUCCESS);
 	return;
 }

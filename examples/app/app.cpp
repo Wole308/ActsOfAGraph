@@ -196,8 +196,7 @@ runsummary_t app::run_hw(){
 		long double total_time = 0;
 		
 		for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ total_time += timeelapsed_totals[i][analysis_i]; }
-		// for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ total_edges += edgesprocessed_totals[i]; }
-
+		
 		if(edgesprocessed_totals[i] > 0){
 			for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ cout<<""<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) / (1000))<<", "; }
 			cout<<"[Iter "<<i<<" throughput: "<<((edgesprocessed_totals[i] / total_time) / (1000))<<"]";

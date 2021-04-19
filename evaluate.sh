@@ -130,6 +130,12 @@ NUMTHREADS_EQ24=24
 NUMTHREADS_EQ28=28
 NUMTHREADS_EQ32=32
 
+SYNFREQUENCY_EQ60=60
+SYNFREQUENCY_EQ120=120
+SYNFREQUENCY_EQ180=180 
+SYNFREQUENCY_EQ240=240
+SYNFREQUENCY_EQ300=300				
+
 _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
@@ -155,12 +161,12 @@ do
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
@@ -502,333 +508,339 @@ do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
-						BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.xclbin"
-						BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}.xclbin"
-						
-						BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
-						BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}.awsxclbin"
-						BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}.awsxclbin"
-						
-						RESULTSBACKUP_DIR="${ROOTDIR}/results"
-						RESULT_NAME="result_${SETUP_NAME}"
-						PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
-						
-						if [ $dataset == $NODATASET ]  
-						then	
-							DATASET=""
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_bips98_606.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
-						elif [ $dataset == $ORKUT_3M_106M ]  
-						then	
-							DATASET="_ORKUT_3M_106M"
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_orkut.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
-						elif [ $dataset == $HOLLYWOOD_1M_57M ]  
-						then	
-							DATASET="_HOLLYWOOD_1M_57M"
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_hollywood.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
-						elif [ $dataset == $INDOCHINA_7M_194M ]  
-						then	
-							DATASET="_INDOCHINA_7M_194M"
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_indochina.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
-						elif [ $dataset == $KRON21_2M_91M ]  
-						then
-							DATASET="_KRON21_2M_91M"
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron21.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
-						elif [ $dataset == $RGG_17M_132M ]  
-						then	
-							DATASET="_RGG_17M_132M"
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_rgg.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
-						elif [ $dataset == $ROADNET_2M_3M ]  
-						then	
-							DATASET="_ROADNET_2M_3M"
-							datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/roadNet-CA/roadNet-CA.mtx"
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_roadnet.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
-						elif [ $dataset == $FLICKR_1M_10M ]  
-						then	
-							DATASET="_FLICKR_1M_10M"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_flickr.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
-						
-						elif [ $dataset == $TWITTER_67M ]  
-						then	
-							DATASET="_TWITTER_67M"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_twitter26.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
-						elif [ $dataset == $MOLIERE2016_33M ]  
-						then	
-							DATASET="_MOLIERE2016_33M"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_moliere33.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
-						elif [ $dataset == $LARGEDATASET_67M ]  
-						then	
-							DATASET="_LARGEDATASET_67M"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron26.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"		
-						elif [ $dataset == $LARGEDATASET_268M ]
-						then
-							DATASET="_LARGEDATASET_268M"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron28.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
-						elif [ $dataset == $LARGEDATASET_1B ]
-						then
-							DATASET="_LARGEDATASET_1B"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron30.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
-						elif [ $dataset == $LARGEDATASET_4B ]
-						then
-							DATASET="_LARGEDATASET_4B"
-							datasetpath=""
-							RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron32.out"
-							RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
-						else 
-							DATASET=""
-							datasetpath=""
-							RESULTDIR_RESULT=""
-						fi
-						
-						make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
-
-						# ================================================ SW RUNS ================================================
-						if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							make cleanall
-							# make build_acts_nthreads
-							# make demo_acts_nthreads #> $RESULTDIR_RESULT
-							make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
-						elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
-						then
-							make cleanall
-							# make build_grafboost_nthreads
-							make demo_grafboost_nthreads > $RESULTDIR_RESULT
-						elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
-						then
-							echo 'SW__GUNROCK_SETUP__PR_ALGORITHM called.'
-							if [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
-							then 
-								/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
-							elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
+						# for synfreq in $SYNFREQUENCY_EQ120
+						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ300
+						for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
+						do
+							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							
+							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							
+							RESULTSBACKUP_DIR="${ROOTDIR}/results"
+							RESULT_NAME="result_${SETUP_NAME}"
+							PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
+							
+							if [ $dataset == $NODATASET ]  
+							then	
+								DATASET=""
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_bips98_606.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
+							elif [ $dataset == $ORKUT_3M_106M ]  
+							then	
+								DATASET="_ORKUT_3M_106M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_orkut.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
+							elif [ $dataset == $HOLLYWOOD_1M_57M ]  
+							then	
+								DATASET="_HOLLYWOOD_1M_57M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_hollywood.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
+							elif [ $dataset == $INDOCHINA_7M_194M ]  
+							then	
+								DATASET="_INDOCHINA_7M_194M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_indochina.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
+							elif [ $dataset == $KRON21_2M_91M ]  
 							then
-								/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
-							elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+								DATASET="_KRON21_2M_91M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron21.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
+							elif [ $dataset == $RGG_17M_132M ]  
+							then	
+								DATASET="_RGG_17M_132M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_rgg.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
+							elif [ $dataset == $ROADNET_2M_3M ]  
+							then	
+								DATASET="_ROADNET_2M_3M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/roadNet-CA/roadNet-CA.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_roadnet.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
+							elif [ $dataset == $FLICKR_1M_10M ]  
+							then	
+								DATASET="_FLICKR_1M_10M"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_flickr.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
+							
+							elif [ $dataset == $TWITTER_67M ]  
+							then	
+								DATASET="_TWITTER_67M"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_twitter26.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
+							elif [ $dataset == $MOLIERE2016_33M ]  
+							then	
+								DATASET="_MOLIERE2016_33M"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_moliere33.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
+							elif [ $dataset == $LARGEDATASET_67M ]  
+							then	
+								DATASET="_LARGEDATASET_67M"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron26.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"		
+							elif [ $dataset == $LARGEDATASET_268M ]
 							then
-								/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
-							else
-								echo "..."
+								DATASET="_LARGEDATASET_268M"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron28.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
+							elif [ $dataset == $LARGEDATASET_1B ]
+							then
+								DATASET="_LARGEDATASET_1B"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron30.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
+							elif [ $dataset == $LARGEDATASET_4B ]
+							then
+								DATASET="_LARGEDATASET_4B"
+								datasetpath=""
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron32.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
+							else 
+								DATASET=""
+								datasetpath=""
+								RESULTDIR_RESULT=""
 							fi
-						
-						# ================================================ HW (FPGA) RUNS ================================================
-						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							make cleanall
-							if [ $CRABTREE == $ON ]
+							
+							make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
+
+							# ================================================ SW RUNS ================================================
+							if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+							then
+								make cleanall
+								# make build_acts_nthreads
+								# make demo_acts_nthreads #> $RESULTDIR_RESULT
+								make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+							elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
+							then
+								make cleanall
+								# make build_grafboost_nthreads
+								make demo_grafboost_nthreads > $RESULTDIR_RESULT
+							elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+							then
+								echo 'SW__GUNROCK_SETUP__PR_ALGORITHM called.'
+								if [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+								then 
+									/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+								elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
+								then
+									/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+								elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+								then
+									/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+								else
+									echo "..."
+								fi
+							
+							# ================================================ HW (FPGA) RUNS ================================================
+							elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+							then
+								make cleanall
+								if [ $CRABTREE == $ON ]
+								then
+									if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									then
+										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
+										make host
+										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
+										# ./host $BACKUPDIR_KERNELXCLBIN1 /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync16HW.xclbin
+									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+									then
+										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+										make host
+										./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
+									else
+										echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+									fi
+								elif [ $AWS == $ON ]
+								then
+									echo "aws setup specified."
+									# sudo su
+									make host
+									# source /opt/xilinx/xrt/setup.sh 
+									# source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+									if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									then
+										./host $BACKUPDIR_AWSKERNELXCLBIN1 $BACKUPDIR_AWSKERNELXCLBIN2
+									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+									then
+										./host $BACKUPDIR_AWSKERNELXCLBIN
+									else
+										echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+									fi
+								else
+									echo "no setup specified. specify crabtree or aws"
+								fi
+								wait 
+								if test -f "profile_summary.csv"; then
+									echo "profile_summary.csv exist"
+									# cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
+								fi	
+								
+							# ================================================ SIMULATIONS ================================================
+							elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 							then
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
-									make host
-									./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
+									make cleanall
+									# make host 
+									make all_nk TARGET=sw_emu DEVICE=$DEVICEPATH 
+									cp xclbin/topkernelproc.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+									cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
-									make host
-									./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
+									make cleanall
+									make all TARGET=sw_emu DEVICE=$DEVICEPATH 
+									cp xclbin/topkernel.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_AWSKERNELXCLBIN
+									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_AWSKERNELXCLBIN
 								else
 									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 								fi
-							elif [ $AWS == $ON ]
+							
+							# ================================================ SYNTHESIS (CRABTREE) ================================================
+							elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 							then
-								echo "aws setup specified."
-								# sudo su
-								make host
-								# source /opt/xilinx/xrt/setup.sh 
-								# source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 								then
-									./host $BACKUPDIR_AWSKERNELXCLBIN1 $BACKUPDIR_AWSKERNELXCLBIN2
+									# make cleanall
+									# rm -rf xclbin
+									# make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									# if test -f "host"; then
+										# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+										# echo "kernel.xclbin saved"
+									# fi
+									# echo "sleeping for 5 seconds before continuing ...."
+									# sleep 5
+									
+									make cleanall
+									rm -rf xclbin
+									make all_sync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_sync.out 
+									if test -f "host"; then
+										cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+										echo "kernel.xclbin saved"
+									fi
+									echo "sleeping for 5 seconds before continuing ...."
+									sleep 5
+									
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
-									./host $BACKUPDIR_AWSKERNELXCLBIN
+									make cleanall
+									rm -rf xclbin
+									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out 
+								
+									echo "sleeping for 5 seconds before continuing ...."
+									sleep 5
+									
+									if test -f "host"; then
+										cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										echo "host, kernel.xo, kernel.xclbin, nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out saved"
+									fi
+									echo "sleeping for 5 seconds before continuing ...."
+									sleep 5
 								else
 									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
 								fi
-							else
-								echo "no setup specified. specify crabtree or aws"
-							fi
-							wait 
-							if test -f "profile_summary.csv"; then
-								echo "profile_summary.csv exist"
-								# cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
-							fi	
 							
-						# ================================================ SIMULATIONS ================================================
-						elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+							# ================================================ SYNTHESIS (AWS) ================================================
+							elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 							then
-								echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
-								make cleanall
-								# make host 
-								make all_nk TARGET=sw_emu DEVICE=$DEVICEPATH 
-								cp xclbin/topkernelproc.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-								cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-								XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
-							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-							then
-								echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
-								make cleanall
-								make all TARGET=sw_emu DEVICE=$DEVICEPATH 
-								cp xclbin/topkernel.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_AWSKERNELXCLBIN
-								XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_AWSKERNELXCLBIN
-							else
-								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
-							fi
-						
-						# ================================================ SYNTHESIS (CRABTREE) ================================================
-						elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
-							then
+								source /opt/xilinx/xrt/setup.sh 
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								
 								make cleanall
 								rm -rf xclbin
-								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
-								if test -f "host"; then
-									cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-									echo "kernel.xclbin saved"
-								fi
-								echo "sleeping for 20 seconds before continuing ...."
-								sleep 20
 								
-								# make cleanall
-								# rm -rf xclbin
-								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
-								# if test -f "host"; then
-									# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-									# echo "kernel.xclbin saved"
-								# fi
-								# echo "sleeping for 20 seconds before continuing ...."
-								# sleep 20
-								
-							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-							then
-								make cleanall
-								rm -rf xclbin
-								make all DEVICE=$DEVICEPATH > nohupsyn.out 
-							
-								echo "sleeping for 20 seconds before continuing ...."
-								sleep 20
-								
-								if test -f "host"; then
-									cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-									echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-								fi
-								echo "sleeping for 20 seconds before continuing ...."
-								sleep 20
-							else
-								echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
-							fi
-						
-						# ================================================ SYNTHESIS (AWS) ================================================
-						elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-						then
-							source /opt/xilinx/xrt/setup.sh 
-							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-							
-							make cleanall
-							rm -rf xclbin
-							
-							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
-							then
-								# make all_nk DEVICE=$DEVICEPATH > nohupsyn.out 
-								make all_proc DEVICE=$DEVICEPATH > nohupsyn_proc.out 
-								# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
-								cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
-								# cp -rf xclbin/topkernelsync.hw.${DSA_NAME}.xclbin kernel.xclbin
-							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-							then
-								make all DEVICE=$DEVICEPATH > nohupsyn.out
-								cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
-							else
-								echo "not specified (7)."
-							fi
-								
-							echo "sleeping for 20 seconds before continuing ...."
-							sleep 20
-							
-							if test -f "host"; then
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 								then
-									cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN1
-									# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN2
+									# make all_nk DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out 
+									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
+									cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
+									# cp -rf xclbin/topkernelsync.hw.${DSA_NAME}.xclbin kernel.xclbin
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
-									make all DEVICE=$DEVICEPATH > nohupsyn.out
-									cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
+									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
+									cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
 								else
 									echo "not specified (7)."
 								fi
-								echo "host, kernel.xo, kernel.xclbin, nohupsyn.out saved"
-							fi
-							echo "sleeping for 20 seconds before continuing ...."
-							sleep 20
-							
-							source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-							source /opt/xilinx/xrt/setup.sh 
-							cd /home/centos/src/project_data/aws-fpga
-							./createawsxclbin.sh
-							echo "sleeping for 60 minuites before continuing ...."
-							sleep 3600
-							
-							if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									
+								echo "sleeping for 5 seconds before continuing ...."
+								sleep 5
+								
+								if test -f "host"; then
+									if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									then
+										cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN1
+										# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN2
+									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+									then
+										make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
+										cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
+									else
+										echo "not specified (7)."
+									fi
+									echo "host, kernel.xo, kernel.xclbin, nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out saved"
+								fi
+								echo "sleeping for 5 seconds before continuing ...."
+								sleep 5
+								
+								source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
+								source /opt/xilinx/xrt/setup.sh 
+								cd /home/centos/src/project_data/aws-fpga
+								./createawsxclbin.sh
+								echo "sleeping for 60 minuites before continuing ...."
+								sleep 3600
+								
+								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								then
+									cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN1
+									# cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN2
+								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								then
+									cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
+								else
+									echo "not specified (7)."
+								fi
+								
+							elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
 							then
-								cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN1
-								# cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN2
-							elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-							then
-								cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
-							else
-								echo "not specified (7)."
+								make cleanall
+								# open X2go
+								# open terminal
+								# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
+								
+							else 
+								XWARE="" 
+								SETUP="" 
+								ALGORITHM="" 
 							fi
-							
-						elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
-						then
-							make cleanall
-							# open X2go
-							# open terminal
-							# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
-							
-						else 
-							XWARE="" 
-							SETUP="" 
-							ALGORITHM="" 
-						fi
 
-						echo 'finished: variables:'
-						echo 'XWARE:' $XWARE 
-						echo 'SETUP:' $SETUP
-						echo 'ALGORITHM:' $ALGORITHM
-						echo 'DATASET:' $DATASET
-						echo 'NUMCPUTHREADS:' $NUMCPUTHREADS
-						echo 'RESULTDIR_RESULT:' $RESULTDIR_RESULT
-						echo 'BACKUPDIR_KERNELXCLBIN:' $BACKUPDIR_KERNELXCLBIN
+							echo 'finished: variables:'
+							echo 'XWARE:' $XWARE 
+							echo 'SETUP:' $SETUP
+							echo 'ALGORITHM:' $ALGORITHM
+							echo 'DATASET:' $DATASET
+							echo 'NUMCPUTHREADS:' $NUMCPUTHREADS
+							echo 'RESULTDIR_RESULT:' $RESULTDIR_RESULT
+							echo 'BACKUPDIR_KERNELXCLBIN:' $BACKUPDIR_KERNELXCLBIN
+						done
 					done
 				done
 			done
