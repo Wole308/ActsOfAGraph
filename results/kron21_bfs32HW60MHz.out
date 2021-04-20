@@ -1,0 +1,142 @@
+Hostprocess:: Graph Analytics Started...
+utility:: USEHBMMEMORY DEFINED
+utility:: NUMDRAMBANKS: 4
+utility:: NUMWORKERS: 1
+utility:: NUMSUBWORKERS: 3
+utility:: NUM_PARTITIONS: 16
+utility:: NUMSUBCPUTHREADS: 32
+utility:: DATAWIDTH: 512
+utility:: VECTOR_SIZE: 8
+utility:: KVDATA_RANGE: 2097152
+utility:: KVDATA_RANGE_POW: 21
+utility:: BATCH_RANGE: 2097152
+utility:: BATCH_RANGE_POW: 21
+utility:: TREE_DEPTH: 3
+utility:: KVDATA_RANGE_POW: 21
+utility:: KVDATA_RANGE: 2097152
+utility:: MESSAGES_SIZE: 1024
+utility:: LOCKE DEFINED
+utility:: sizeof(keyvalue_t): 8 bytes (64 bits)
+utility:: sizeof(vertex_t): 4 bytes (32 bits)
+utility:: sizeof(edge_t): 4 bytes (32 bits)
+utility:: MESSAGESDRAMSZ: 1024
+utility:: VERTEXPTRSSZ: 1114112
+utility:: VERTEXPTRSSZ_KVS: 139264
+utility:: VERTICESDATASZ: 1048576
+utility:: VERTICESDATASZ_KVS: 131072
+>> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA: 0
+>> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA_KVS: 0
+>> host[baseoffsets]:: KVSOURCEDRAMSZ: 33554432
+>> host[baseoffsets]:: KVSOURCEDRAMSZ_KVS: 4194304
+>> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ_KVS: 4194304
+>> host[baseoffsets]:: VDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDVDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDVDRAMSZ_KVS: 4194304
+>> host[sizes]:: MESSAGESDRAMSZ (keyvalues): 1024 keyvalues
+>> host[sizes]:: VERTEXPTRSSZ (keyvalues): 1114112 keyvalues
+>> host[sizes]:: VERTICESDATASZ (keyvalues): 1048576 keyvalues
+>> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): 0 keyvalues
+>> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): 65536 keyvalues
+>> host[sizes]:: KVSTATSDRAMSZ (keyvalues): 65536 keyvalues
+>> host[sizes]:: PADDEDVDRAMSZ (keyvalues): 33554432 keyvalues
+>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues
+>> host[bytes]:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host[bytes]:: KVSTATSDRAMSZ (bytes): 524288 bytes
+>> host[bytes]:: VERTEXPTRSSZ (bytes): 8912896 bytes
+>> host[bytes]:: VERTICESDATASZ (bytes): 8388608 bytes
+>> host[bytes]:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host[bytes]:: VERTICESDATAMASKSZ (bytes): 524288 bytes
+>> host[bytes]:: PADDEDVDRAMSZ (bytes): 268435456 bytes
+>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes
+utility:: KVSTATSDRAMSZ: 65536
+utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: REDUCESZ_POW: 9
+utility:: REDUCESZ: 512
+utility:: REDUCEBUFFERSZ: 256
+utility:: VMASKBUFFERSZ_KVS: 16
+utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: ENABLE_KERNEL_PROFILING DEFINED: 
+graph::graph constructor:: datasetid: 33, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphtopname: kron-g500-logn21
+>>> graphname: kron-g500-logn21_dup
+>>> graph_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2097151
+>>> num_vertices: 2097151
+>>> num_edges: 182084020
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 666
+app::run_hw:: app algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vproperties
+generating vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.edges
+loadedges_rowblockwise:: loading Acts... sizes: [[6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408]]
+loadedges_rowblockwise:: total sizes: 209773216
+maxvptr: 6555424
+app::loadvertexdata:: loading vertex datas... 
+app::setrootvid:: setting root vid(s)... 
+app::loadactvvertices:: loading active vertices... 
+app::generatevmaskdata:: generating vmask... 
+app::loadoffsetmarkers:: loading offset markers... 
+app::loadmessages:: loading messages... 
+[globalparams.BASEOFFSET_MESSAGESDATA: 0]
+[globalparams.BASEOFFSETKVS_MESSAGESDATA: 0]
+[globalparams.BASEOFFSET_EDGESDATA: 8192]
+[globalparams.BASEOFFSETKVS_EDGESDATA: 1024]
+[globalparams.BASEOFFSET_VERTEXPTR: 3351440]
+[globalparams.BASEOFFSETKVS_VERTEXPTR: 418930]
+[globalparams.BASEOFFSET_VERTICESDATA: 4465552]
+[globalparams.BASEOFFSETKVS_VERTICESDATA: 558194]
+[globalparams.BASEOFFSET_ACTIVEVERTICES: 5514128]
+[globalparams.BASEOFFSETKVS_ACTIVEVERTICES: 689266]
+[globalparams.BASEOFFSET_VERTICESDATAMASK: 5514128]
+[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: 689266]
+[globalparams.BASEOFFSET_VERTICESPARTITIONMASK : 5579664]
+[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK: 697458]
+[globalparams.BASEOFFSET_STATSDRAM: 5583760]
+[globalparams.BASEOFFSETKVS_STATSDRAM: 697970]
+[globalparams.BASEOFFSET_KVDRAM: 6108048]
+[globalparams.BASEOFFSETKVS_KVDRAM: 763506]
+[globalparams.BASEOFFSET_KVDRAMWORKSPACE: 12664496]
+[globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: 1583062]
+[globalparams.SIZE_MESSAGESDRAM: 0]
+[globalparams.SIZE_EDGES: 6556424]
+[globalparams.SIZE_VERTEXPTRS: 2097152]
+[globalparams.SIZE_VERTICESDATA: 2097152]
+[globalparams.SIZE_ACTIVEVERTICES: 0]
+[globalparams.SIZE_VERTICESDATAMASK: 65536]
+[globalparams.SIZE_KVSTATSDRAM: 65536]
+[globalparams.SIZE_KVDRAM: 6556451]
+[globalparams.SIZE_KVDRAMWORKSPACE: 6556451]
+[1m[37m>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues[0m
+[1m[37m>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes[0m
+[1m[37m>> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): 19220947 keyvalues[0m
+[1m[37m>> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): 153767576 bytes. (HBM max=268435456 bytes)[0m
+loadmessages:: loading Acts... sizes: [[6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408]]
+loadmessages:: total sizes: 209773216
+app::appendkeyvaluecount:: appending value count... 
+app::experiements: resetting kvdram & kvdram workspaces...
+
+utility::runsssp_sw:: running traditional sssp... 
+utility::runsssp_sw: number of active vertices for iteration 0: 0
+utility::runsssp_sw: number of active vertices for iteration 1: 3
+utility::runsssp_sw: number of active vertices for iteration 2: 21299
+utility::runsssp_sw: number of active vertices for iteration 3: 1308321

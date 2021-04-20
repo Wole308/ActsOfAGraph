@@ -1,0 +1,728 @@
+/tools/Xilinx/SDx/2019.1/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x -I/home/oj2zf/Documents/SDAccel_Examples//libs/xcl2 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/Vivado/2019.1/include/ -Wall -O0 -g -std=c++14 -fmessage-length=0 ../examples/hostprocess.cpp /home/oj2zf/Documents/SDAccel_Examples//libs/xcl2/xcl2.cpp ../src/algorithm/algorithm.cpp ../examples/helperfunctions/loadgraph.cpp ../examples/helperfunctions/loadgraph_sw.cpp ../examples/helperfunctions/setupkernel.cpp ../examples/helperfunctions/evalparams.cpp ../examples/app/app.cpp ../examples/test/test.cpp ../src/graphs/graph.cpp ../src/stats/stats.cpp ../src/utility/utility.cpp ../src/dataset/dataset.cpp ../kernels/swkernel.cpp ../kernels/goclkernel.cpp ../src/graphs/creategraphs.cpp ../src/graphs/createundirectedgraph.cpp ../src/graphs/mysort.cpp ../acts/sortreduce/sr.cpp ../acts/acts_sw/acts_sw.cpp ../acts/acts/actssync.cpp ../acts/actsutility/actsutility.cpp ../sortreduce-master/examples/graph/src//FileReaderAio.cpp ../sortreduce-master/examples/graph/src//EdgeProcess.cpp ../sortreduce-master/examples/graph/src//VertexValues.cpp ../sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -I../sortreduce-master/include/ -I../sortreduce-master/examples/graph/src/ -L../sortreduce-master/obj/ -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+# /opt/Xilinx/SDx/2019.1.op2552052/bin/xcpp -Wall -O3 -g -std=c++11 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/SDx/2019.1/runtime/ -I/tools/Xilinx/Vivado/2019.1/include/ -std=c++0x -I/home/oj2zf/Documents/SDAccel_Examples//libs/xcl2 -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/Vivado/2019.1/include/ -Wall -O0 -g -std=c++14 -fmessage-length=0 ../examples/hostprocess.cpp /home/oj2zf/Documents/SDAccel_Examples//libs/xcl2/xcl2.cpp ../src/algorithm/algorithm.cpp ../examples/helperfunctions/loadgraph.cpp ../examples/helperfunctions/loadgraph_sw.cpp ../examples/helperfunctions/setupkernel.cpp ../examples/helperfunctions/evalparams.cpp ../examples/app/app.cpp ../examples/test/test.cpp ../src/graphs/graph.cpp ../src/stats/stats.cpp ../src/utility/utility.cpp ../src/dataset/dataset.cpp ../kernels/swkernel.cpp ../kernels/goclkernel.cpp ../src/graphs/creategraphs.cpp ../src/graphs/createundirectedgraph.cpp ../src/graphs/mysort.cpp ../acts/sortreduce/sr.cpp ../acts/acts_sw/acts_sw.cpp ../acts/acts/actssync.cpp ../acts/actsutility/actsutility.cpp ../sortreduce-master/examples/graph/src//FileReaderAio.cpp ../sortreduce-master/examples/graph/src//EdgeProcess.cpp ../sortreduce-master/examples/graph/src//VertexValues.cpp ../sortreduce-master/examples/graph/src//BCMergeFlip.cpp -DKVTYPES1='uint64_t,uint32_t'  -DKVTYPES2='uint32_t,uint32_t' -I../sortreduce-master/include/ -I../sortreduce-master/examples/graph/src/ -L../sortreduce-master/obj/ -lsortreduce -pthread -laio -march=native -lrt ./xcl.c -o host -L/opt/Xilinx/SDx/2018.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt				
+mkdir -p ./xclbin
+/tools/Xilinx/SDx/2019.1/bin/xocc -t hw --platform /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --save-temps --kernel_frequency 300 --temp_dir ./_x.hw.xilinx_u280_xdma_201910_1/topkernelsync -c -k topkernelsync -I'../acts/acts' -I'../acts/actsutility/' -o'xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xo' ../acts/acts/actssync.cpp ../acts/actsutility/actsutility.cpp
+Option Map File Used: '/tools/Xilinx/SDx/2019.1/data/sdx/xocc/optMap.xml'
+
+****** xocc v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+Attempting to get a license: ap_opencl
+INFO: [XOCC 17-1540] The version limit for your license is '2020.08' and has expired for new software. A version limit expiration means that, although you may be able to continue to use the current version of tools or IP with this license, you will not be eligible for any updates or new releases.
+Feature available: ap_opencl
+INFO: [XOCC 60-1306] Additional information associated with this xocc compile can be found at:
+	Reports: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/topkernelsync.hw.xilinx_u280_xdma_201910_1
+	Log files: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/logs/topkernelsync.hw.xilinx_u280_xdma_201910_1
+INFO: [XOCC 60-585] Compiling for hardware target
+INFO: [XOCC 60-1316] Initiating connection to rulecheck server, at Fri Apr 16 00:06:54 2021
+Running Rule Check Server on port:38421
+INFO: [XOCC 60-1315] Creating rulecheck session with output '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/topkernelsync.hw.xilinx_u280_xdma_201910_1/xocc_compile_topkernelsync.hw.xilinx_u280_xdma_201910_1_guidance.html', at Fri Apr 16 00:06:55 2021
+INFO: [XOCC 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+INFO: [XOCC 60-423]   Target device: xilinx_u280_xdma_201910_1
+WARNING: [XOCC 60-889] User-specified kernel frequency for ID 0 is the same as the default frequency 300 MHz, so it will be ignored
+INFO: [XOCC 60-242] Creating kernel: 'topkernelsync'
+
+===>The following messages were generated while  performing high-level synthesis for kernel: topkernelsync Log file: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/topkernelsync.hw.xilinx_u280_xdma_201910_1/topkernelsync/vivado_hls.log :
+INFO: [XOCC 204-61] Option 'relax_ii_for_timing' is enabled, will increase II to preserve clock frequency constraints.
+INFO: [XOCC 204-61] Pipelining loop 'READKEYVALUES2_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining function 'mergefunc'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 6.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 6.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 6.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 6.
+INFO: [XOCC 204-61] Pipelining function 'applyfunc'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 7.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 2.
+INFO: [XOCC 204-61] Pipelining loop 'SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'SAVEVMASKS_LOOP'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 1'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 204-61] Pipelining loop 'Loop 2'.
+INFO: [XOCC 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [XOCC 60-594] Finished kernel compilation
+INFO: [XOCC 60-244] Generating system estimate report...
+INFO: [XOCC 60-1092] Generated system estimate report: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/topkernelsync.hw.xilinx_u280_xdma_201910_1/system_estimate_topkernelsync.hw.xilinx_u280_xdma_201910_1.xtxt
+Add Instance synchronizeandapply grp_synchronizeandapply_fu_915 915
+Add Instance mergefunc keyvalue0_vault2_key_mergefunc_fu_900 900
+Add Instance mergefunc keyvalue0_vault2_value_mergefunc_fu_907 907
+Add Instance mergefunc keyvalue1_vault2_key_mergefunc_fu_914 914
+Add Instance mergefunc keyvalue1_vault2_value_mergefunc_fu_921 921
+Add Instance mergefunc keyvalue2_vault2_key_mergefunc_fu_928 928
+Add Instance mergefunc keyvalue2_vault2_value_mergefunc_fu_935 935
+Add Instance mergefunc keyvalue3_vault2_key_mergefunc_fu_942 942
+Add Instance mergefunc keyvalue3_vault2_value_mergefunc_fu_949 949
+Add Instance mergefunc keyvalue4_vault2_key_mergefunc_fu_956 956
+Add Instance mergefunc keyvalue4_vault2_value_mergefunc_fu_963 963
+Add Instance mergefunc keyvalue5_vault2_key_mergefunc_fu_970 970
+Add Instance mergefunc keyvalue5_vault2_value_mergefunc_fu_977 977
+Add Instance mergefunc keyvalue6_vault2_key_mergefunc_fu_984 984
+Add Instance mergefunc keyvalue6_vault2_value_mergefunc_fu_991 991
+Add Instance mergefunc keyvalue7_vault2_key_mergefunc_fu_998 998
+Add Instance mergefunc keyvalue7_vault2_value_mergefunc_fu_1005 1005
+Add Instance mergefunc keyvalue0_vault3_key_mergefunc_fu_1012 1012
+Add Instance mergefunc keyvalue0_vault3_value_mergefunc_fu_1019 1019
+Add Instance mergefunc keyvalue1_vault3_key_mergefunc_fu_1026 1026
+Add Instance mergefunc keyvalue1_vault3_value_mergefunc_fu_1033 1033
+Add Instance mergefunc keyvalue2_vault3_key_mergefunc_fu_1040 1040
+Add Instance mergefunc keyvalue2_vault3_value_mergefunc_fu_1047 1047
+Add Instance mergefunc keyvalue3_vault3_key_mergefunc_fu_1054 1054
+Add Instance mergefunc keyvalue3_vault3_value_mergefunc_fu_1061 1061
+Add Instance mergefunc keyvalue4_vault3_key_mergefunc_fu_1068 1068
+Add Instance mergefunc keyvalue4_vault3_value_mergefunc_fu_1075 1075
+Add Instance mergefunc keyvalue5_vault3_key_mergefunc_fu_1082 1082
+Add Instance mergefunc keyvalue5_vault3_value_mergefunc_fu_1089 1089
+Add Instance mergefunc keyvalue6_vault3_key_mergefunc_fu_1096 1096
+Add Instance mergefunc keyvalue6_vault3_value_mergefunc_fu_1103 1103
+Add Instance mergefunc keyvalue7_vault3_key_mergefunc_fu_1110 1110
+Add Instance mergefunc keyvalue7_vault3_value_mergefunc_fu_1117 1117
+Add Instance mergefunc keyvalue0_vault4_key_mergefunc_fu_1124 1124
+Add Instance mergefunc keyvalue0_vault4_value_mergefunc_fu_1131 1131
+Add Instance mergefunc keyvalue1_vault4_key_mergefunc_fu_1138 1138
+Add Instance mergefunc keyvalue1_vault4_value_mergefunc_fu_1145 1145
+Add Instance mergefunc keyvalue2_vault4_key_mergefunc_fu_1152 1152
+Add Instance mergefunc keyvalue2_vault4_value_mergefunc_fu_1159 1159
+Add Instance mergefunc keyvalue3_vault4_key_mergefunc_fu_1166 1166
+Add Instance mergefunc keyvalue3_vault4_value_mergefunc_fu_1173 1173
+Add Instance mergefunc keyvalue4_vault4_key_mergefunc_fu_1180 1180
+Add Instance mergefunc keyvalue4_vault4_value_mergefunc_fu_1187 1187
+Add Instance mergefunc keyvalue5_vault4_key_mergefunc_fu_1194 1194
+Add Instance mergefunc keyvalue5_vault4_value_mergefunc_fu_1201 1201
+Add Instance mergefunc keyvalue6_vault4_key_mergefunc_fu_1208 1208
+Add Instance mergefunc keyvalue6_vault4_value_mergefunc_fu_1215 1215
+Add Instance mergefunc keyvalue7_vault4_key_mergefunc_fu_1222 1222
+Add Instance mergefunc keyvalue7_vault4_value_mergefunc_fu_1229 1229
+Add Instance mergefunc mykeyvalue0_key_mergefunc_fu_1236 1236
+Add Instance mergefunc mykeyvalue0_value_mergefunc_fu_1243 1243
+Add Instance mergefunc mykeyvalue1_key_mergefunc_fu_1250 1250
+Add Instance mergefunc mykeyvalue1_value_mergefunc_fu_1257 1257
+Add Instance mergefunc mykeyvalue2_key_mergefunc_fu_1264 1264
+Add Instance mergefunc mykeyvalue2_value_mergefunc_fu_1271 1271
+Add Instance mergefunc mykeyvalue3_key_mergefunc_fu_1278 1278
+Add Instance mergefunc mykeyvalue3_value_mergefunc_fu_1285 1285
+Add Instance mergefunc mykeyvalue4_key_mergefunc_fu_1292 1292
+Add Instance mergefunc mykeyvalue4_value_mergefunc_fu_1299 1299
+Add Instance mergefunc mykeyvalue5_key_mergefunc_fu_1306 1306
+Add Instance mergefunc mykeyvalue5_value_mergefunc_fu_1313 1313
+Add Instance mergefunc mykeyvalue6_key_mergefunc_fu_1320 1320
+Add Instance mergefunc mykeyvalue6_value_mergefunc_fu_1327 1327
+Add Instance mergefunc mykeyvalue7_key_mergefunc_fu_1334 1334
+Add Instance mergefunc mykeyvalue7_value_mergefunc_fu_1341 1341
+Add Instance applyfunc res0_key_applyfunc_fu_1348 1348
+Add Instance applyfunc res1_key_applyfunc_fu_1355 1355
+Add Instance applyfunc res2_key_applyfunc_fu_1362 1362
+Add Instance applyfunc res3_key_applyfunc_fu_1369 1369
+Add Instance applyfunc res4_key_applyfunc_fu_1376 1376
+Add Instance applyfunc res5_key_applyfunc_fu_1383 1383
+Add Instance applyfunc res6_key_applyfunc_fu_1390 1390
+Add Instance applyfunc res7_key_applyfunc_fu_1397 1397
+Add Instance applyfunc res0_value_applyfunc_fu_1404 1404
+Add Instance applyfunc res1_value_applyfunc_fu_1411 1411
+Add Instance applyfunc res2_value_applyfunc_fu_1418 1418
+Add Instance applyfunc res3_value_applyfunc_fu_1425 1425
+Add Instance applyfunc res4_value_applyfunc_fu_1432 1432
+Add Instance applyfunc res5_value_applyfunc_fu_1439 1439
+Add Instance applyfunc res6_value_applyfunc_fu_1446 1446
+Add Instance applyfunc res7_value_applyfunc_fu_1453 1453
+Add Instance readandsynchronize_3 grp_readandsynchronize_3_fu_972 972
+Add Instance mergefunc keyvalue0_vault2_key_mergefunc_fu_370 370
+Add Instance mergefunc keyvalue0_vault2_value_mergefunc_fu_377 377
+Add Instance mergefunc keyvalue1_vault2_key_mergefunc_fu_384 384
+Add Instance mergefunc keyvalue1_vault2_value_mergefunc_fu_391 391
+Add Instance mergefunc keyvalue2_vault2_key_mergefunc_fu_398 398
+Add Instance mergefunc keyvalue2_vault2_value_mergefunc_fu_405 405
+Add Instance mergefunc keyvalue3_vault2_key_mergefunc_fu_412 412
+Add Instance mergefunc keyvalue3_vault2_value_mergefunc_fu_419 419
+Add Instance mergefunc keyvalue4_vault2_key_mergefunc_fu_426 426
+Add Instance mergefunc keyvalue4_vault2_value_mergefunc_fu_433 433
+Add Instance mergefunc keyvalue5_vault2_key_mergefunc_fu_440 440
+Add Instance mergefunc keyvalue5_vault2_value_mergefunc_fu_447 447
+Add Instance mergefunc keyvalue6_vault2_key_mergefunc_fu_454 454
+Add Instance mergefunc keyvalue6_vault2_value_mergefunc_fu_461 461
+Add Instance mergefunc keyvalue7_vault2_key_mergefunc_fu_468 468
+Add Instance mergefunc keyvalue7_vault2_value_mergefunc_fu_475 475
+Add Instance mergefunc keyvalue0_vault3_key_mergefunc_fu_482 482
+Add Instance mergefunc keyvalue0_vault3_value_mergefunc_fu_489 489
+Add Instance mergefunc keyvalue1_vault3_key_mergefunc_fu_496 496
+Add Instance mergefunc keyvalue1_vault3_value_mergefunc_fu_503 503
+Add Instance mergefunc keyvalue2_vault3_key_mergefunc_fu_510 510
+Add Instance mergefunc keyvalue2_vault3_value_mergefunc_fu_517 517
+Add Instance mergefunc keyvalue3_vault3_key_mergefunc_fu_524 524
+Add Instance mergefunc keyvalue3_vault3_value_mergefunc_fu_531 531
+Add Instance mergefunc keyvalue4_vault3_key_mergefunc_fu_538 538
+Add Instance mergefunc keyvalue4_vault3_value_mergefunc_fu_545 545
+Add Instance mergefunc keyvalue5_vault3_key_mergefunc_fu_552 552
+Add Instance mergefunc keyvalue5_vault3_value_mergefunc_fu_559 559
+Add Instance mergefunc keyvalue6_vault3_key_mergefunc_fu_566 566
+Add Instance mergefunc keyvalue6_vault3_value_mergefunc_fu_573 573
+Add Instance mergefunc keyvalue7_vault3_key_mergefunc_fu_580 580
+Add Instance mergefunc keyvalue7_vault3_value_mergefunc_fu_587 587
+Add Instance mergefunc keyvalue0_vault4_key_mergefunc_fu_594 594
+Add Instance mergefunc keyvalue0_vault4_value_mergefunc_fu_601 601
+Add Instance mergefunc keyvalue1_vault4_key_mergefunc_fu_608 608
+Add Instance mergefunc keyvalue1_vault4_value_mergefunc_fu_615 615
+Add Instance mergefunc keyvalue2_vault4_key_mergefunc_fu_622 622
+Add Instance mergefunc keyvalue2_vault4_value_mergefunc_fu_629 629
+Add Instance mergefunc keyvalue3_vault4_key_mergefunc_fu_636 636
+Add Instance mergefunc keyvalue3_vault4_value_mergefunc_fu_643 643
+Add Instance mergefunc keyvalue4_vault4_key_mergefunc_fu_650 650
+Add Instance mergefunc keyvalue4_vault4_value_mergefunc_fu_657 657
+Add Instance mergefunc keyvalue5_vault4_key_mergefunc_fu_664 664
+Add Instance mergefunc keyvalue5_vault4_value_mergefunc_fu_671 671
+Add Instance mergefunc keyvalue6_vault4_key_mergefunc_fu_678 678
+Add Instance mergefunc keyvalue6_vault4_value_mergefunc_fu_685 685
+Add Instance mergefunc keyvalue7_vault4_key_mergefunc_fu_692 692
+Add Instance mergefunc keyvalue7_vault4_value_mergefunc_fu_699 699
+Add Instance readandsynchronize_2 grp_readandsynchronize_2_fu_1000 1000
+Add Instance mergefunc keyvalue0_vault2_key_mergefunc_fu_370 370
+Add Instance mergefunc keyvalue0_vault2_value_mergefunc_fu_377 377
+Add Instance mergefunc keyvalue1_vault2_key_mergefunc_fu_384 384
+Add Instance mergefunc keyvalue1_vault2_value_mergefunc_fu_391 391
+Add Instance mergefunc keyvalue2_vault2_key_mergefunc_fu_398 398
+Add Instance mergefunc keyvalue2_vault2_value_mergefunc_fu_405 405
+Add Instance mergefunc keyvalue3_vault2_key_mergefunc_fu_412 412
+Add Instance mergefunc keyvalue3_vault2_value_mergefunc_fu_419 419
+Add Instance mergefunc keyvalue4_vault2_key_mergefunc_fu_426 426
+Add Instance mergefunc keyvalue4_vault2_value_mergefunc_fu_433 433
+Add Instance mergefunc keyvalue5_vault2_key_mergefunc_fu_440 440
+Add Instance mergefunc keyvalue5_vault2_value_mergefunc_fu_447 447
+Add Instance mergefunc keyvalue6_vault2_key_mergefunc_fu_454 454
+Add Instance mergefunc keyvalue6_vault2_value_mergefunc_fu_461 461
+Add Instance mergefunc keyvalue7_vault2_key_mergefunc_fu_468 468
+Add Instance mergefunc keyvalue7_vault2_value_mergefunc_fu_475 475
+Add Instance mergefunc keyvalue0_vault3_key_mergefunc_fu_482 482
+Add Instance mergefunc keyvalue0_vault3_value_mergefunc_fu_489 489
+Add Instance mergefunc keyvalue1_vault3_key_mergefunc_fu_496 496
+Add Instance mergefunc keyvalue1_vault3_value_mergefunc_fu_503 503
+Add Instance mergefunc keyvalue2_vault3_key_mergefunc_fu_510 510
+Add Instance mergefunc keyvalue2_vault3_value_mergefunc_fu_517 517
+Add Instance mergefunc keyvalue3_vault3_key_mergefunc_fu_524 524
+Add Instance mergefunc keyvalue3_vault3_value_mergefunc_fu_531 531
+Add Instance mergefunc keyvalue4_vault3_key_mergefunc_fu_538 538
+Add Instance mergefunc keyvalue4_vault3_value_mergefunc_fu_545 545
+Add Instance mergefunc keyvalue5_vault3_key_mergefunc_fu_552 552
+Add Instance mergefunc keyvalue5_vault3_value_mergefunc_fu_559 559
+Add Instance mergefunc keyvalue6_vault3_key_mergefunc_fu_566 566
+Add Instance mergefunc keyvalue6_vault3_value_mergefunc_fu_573 573
+Add Instance mergefunc keyvalue7_vault3_key_mergefunc_fu_580 580
+Add Instance mergefunc keyvalue7_vault3_value_mergefunc_fu_587 587
+Add Instance mergefunc keyvalue0_vault4_key_mergefunc_fu_594 594
+Add Instance mergefunc keyvalue0_vault4_value_mergefunc_fu_601 601
+Add Instance mergefunc keyvalue1_vault4_key_mergefunc_fu_608 608
+Add Instance mergefunc keyvalue1_vault4_value_mergefunc_fu_615 615
+Add Instance mergefunc keyvalue2_vault4_key_mergefunc_fu_622 622
+Add Instance mergefunc keyvalue2_vault4_value_mergefunc_fu_629 629
+Add Instance mergefunc keyvalue3_vault4_key_mergefunc_fu_636 636
+Add Instance mergefunc keyvalue3_vault4_value_mergefunc_fu_643 643
+Add Instance mergefunc keyvalue4_vault4_key_mergefunc_fu_650 650
+Add Instance mergefunc keyvalue4_vault4_value_mergefunc_fu_657 657
+Add Instance mergefunc keyvalue5_vault4_key_mergefunc_fu_664 664
+Add Instance mergefunc keyvalue5_vault4_value_mergefunc_fu_671 671
+Add Instance mergefunc keyvalue6_vault4_key_mergefunc_fu_678 678
+Add Instance mergefunc keyvalue6_vault4_value_mergefunc_fu_685 685
+Add Instance mergefunc keyvalue7_vault4_key_mergefunc_fu_692 692
+Add Instance mergefunc keyvalue7_vault4_value_mergefunc_fu_699 699
+Add Instance readandsynchronize_1 grp_readandsynchronize_1_fu_1028 1028
+Add Instance mergefunc keyvalue0_vault2_key_mergefunc_fu_370 370
+Add Instance mergefunc keyvalue0_vault2_value_mergefunc_fu_377 377
+Add Instance mergefunc keyvalue1_vault2_key_mergefunc_fu_384 384
+Add Instance mergefunc keyvalue1_vault2_value_mergefunc_fu_391 391
+Add Instance mergefunc keyvalue2_vault2_key_mergefunc_fu_398 398
+Add Instance mergefunc keyvalue2_vault2_value_mergefunc_fu_405 405
+Add Instance mergefunc keyvalue3_vault2_key_mergefunc_fu_412 412
+Add Instance mergefunc keyvalue3_vault2_value_mergefunc_fu_419 419
+Add Instance mergefunc keyvalue4_vault2_key_mergefunc_fu_426 426
+Add Instance mergefunc keyvalue4_vault2_value_mergefunc_fu_433 433
+Add Instance mergefunc keyvalue5_vault2_key_mergefunc_fu_440 440
+Add Instance mergefunc keyvalue5_vault2_value_mergefunc_fu_447 447
+Add Instance mergefunc keyvalue6_vault2_key_mergefunc_fu_454 454
+Add Instance mergefunc keyvalue6_vault2_value_mergefunc_fu_461 461
+Add Instance mergefunc keyvalue7_vault2_key_mergefunc_fu_468 468
+Add Instance mergefunc keyvalue7_vault2_value_mergefunc_fu_475 475
+Add Instance mergefunc keyvalue0_vault3_key_mergefunc_fu_482 482
+Add Instance mergefunc keyvalue0_vault3_value_mergefunc_fu_489 489
+Add Instance mergefunc keyvalue1_vault3_key_mergefunc_fu_496 496
+Add Instance mergefunc keyvalue1_vault3_value_mergefunc_fu_503 503
+Add Instance mergefunc keyvalue2_vault3_key_mergefunc_fu_510 510
+Add Instance mergefunc keyvalue2_vault3_value_mergefunc_fu_517 517
+Add Instance mergefunc keyvalue3_vault3_key_mergefunc_fu_524 524
+Add Instance mergefunc keyvalue3_vault3_value_mergefunc_fu_531 531
+Add Instance mergefunc keyvalue4_vault3_key_mergefunc_fu_538 538
+Add Instance mergefunc keyvalue4_vault3_value_mergefunc_fu_545 545
+Add Instance mergefunc keyvalue5_vault3_key_mergefunc_fu_552 552
+Add Instance mergefunc keyvalue5_vault3_value_mergefunc_fu_559 559
+Add Instance mergefunc keyvalue6_vault3_key_mergefunc_fu_566 566
+Add Instance mergefunc keyvalue6_vault3_value_mergefunc_fu_573 573
+Add Instance mergefunc keyvalue7_vault3_key_mergefunc_fu_580 580
+Add Instance mergefunc keyvalue7_vault3_value_mergefunc_fu_587 587
+Add Instance mergefunc keyvalue0_vault4_key_mergefunc_fu_594 594
+Add Instance mergefunc keyvalue0_vault4_value_mergefunc_fu_601 601
+Add Instance mergefunc keyvalue1_vault4_key_mergefunc_fu_608 608
+Add Instance mergefunc keyvalue1_vault4_value_mergefunc_fu_615 615
+Add Instance mergefunc keyvalue2_vault4_key_mergefunc_fu_622 622
+Add Instance mergefunc keyvalue2_vault4_value_mergefunc_fu_629 629
+Add Instance mergefunc keyvalue3_vault4_key_mergefunc_fu_636 636
+Add Instance mergefunc keyvalue3_vault4_value_mergefunc_fu_643 643
+Add Instance mergefunc keyvalue4_vault4_key_mergefunc_fu_650 650
+Add Instance mergefunc keyvalue4_vault4_value_mergefunc_fu_657 657
+Add Instance mergefunc keyvalue5_vault4_key_mergefunc_fu_664 664
+Add Instance mergefunc keyvalue5_vault4_value_mergefunc_fu_671 671
+Add Instance mergefunc keyvalue6_vault4_key_mergefunc_fu_678 678
+Add Instance mergefunc keyvalue6_vault4_value_mergefunc_fu_685 685
+Add Instance mergefunc keyvalue7_vault4_key_mergefunc_fu_692 692
+Add Instance mergefunc keyvalue7_vault4_value_mergefunc_fu_699 699
+Add Instance readandsynchronize_0 grp_readandsynchronize_0_fu_1056 1056
+Add Instance mergefunc keyvalue0_vault2_key_mergefunc_fu_370 370
+Add Instance mergefunc keyvalue0_vault2_value_mergefunc_fu_377 377
+Add Instance mergefunc keyvalue1_vault2_key_mergefunc_fu_384 384
+Add Instance mergefunc keyvalue1_vault2_value_mergefunc_fu_391 391
+Add Instance mergefunc keyvalue2_vault2_key_mergefunc_fu_398 398
+Add Instance mergefunc keyvalue2_vault2_value_mergefunc_fu_405 405
+Add Instance mergefunc keyvalue3_vault2_key_mergefunc_fu_412 412
+Add Instance mergefunc keyvalue3_vault2_value_mergefunc_fu_419 419
+Add Instance mergefunc keyvalue4_vault2_key_mergefunc_fu_426 426
+Add Instance mergefunc keyvalue4_vault2_value_mergefunc_fu_433 433
+Add Instance mergefunc keyvalue5_vault2_key_mergefunc_fu_440 440
+Add Instance mergefunc keyvalue5_vault2_value_mergefunc_fu_447 447
+Add Instance mergefunc keyvalue6_vault2_key_mergefunc_fu_454 454
+Add Instance mergefunc keyvalue6_vault2_value_mergefunc_fu_461 461
+Add Instance mergefunc keyvalue7_vault2_key_mergefunc_fu_468 468
+Add Instance mergefunc keyvalue7_vault2_value_mergefunc_fu_475 475
+Add Instance mergefunc keyvalue0_vault3_key_mergefunc_fu_482 482
+Add Instance mergefunc keyvalue0_vault3_value_mergefunc_fu_489 489
+Add Instance mergefunc keyvalue1_vault3_key_mergefunc_fu_496 496
+Add Instance mergefunc keyvalue1_vault3_value_mergefunc_fu_503 503
+Add Instance mergefunc keyvalue2_vault3_key_mergefunc_fu_510 510
+Add Instance mergefunc keyvalue2_vault3_value_mergefunc_fu_517 517
+Add Instance mergefunc keyvalue3_vault3_key_mergefunc_fu_524 524
+Add Instance mergefunc keyvalue3_vault3_value_mergefunc_fu_531 531
+Add Instance mergefunc keyvalue4_vault3_key_mergefunc_fu_538 538
+Add Instance mergefunc keyvalue4_vault3_value_mergefunc_fu_545 545
+Add Instance mergefunc keyvalue5_vault3_key_mergefunc_fu_552 552
+Add Instance mergefunc keyvalue5_vault3_value_mergefunc_fu_559 559
+Add Instance mergefunc keyvalue6_vault3_key_mergefunc_fu_566 566
+Add Instance mergefunc keyvalue6_vault3_value_mergefunc_fu_573 573
+Add Instance mergefunc keyvalue7_vault3_key_mergefunc_fu_580 580
+Add Instance mergefunc keyvalue7_vault3_value_mergefunc_fu_587 587
+Add Instance mergefunc keyvalue0_vault4_key_mergefunc_fu_594 594
+Add Instance mergefunc keyvalue0_vault4_value_mergefunc_fu_601 601
+Add Instance mergefunc keyvalue1_vault4_key_mergefunc_fu_608 608
+Add Instance mergefunc keyvalue1_vault4_value_mergefunc_fu_615 615
+Add Instance mergefunc keyvalue2_vault4_key_mergefunc_fu_622 622
+Add Instance mergefunc keyvalue2_vault4_value_mergefunc_fu_629 629
+Add Instance mergefunc keyvalue3_vault4_key_mergefunc_fu_636 636
+Add Instance mergefunc keyvalue3_vault4_value_mergefunc_fu_643 643
+Add Instance mergefunc keyvalue4_vault4_key_mergefunc_fu_650 650
+Add Instance mergefunc keyvalue4_vault4_value_mergefunc_fu_657 657
+Add Instance mergefunc keyvalue5_vault4_key_mergefunc_fu_664 664
+Add Instance mergefunc keyvalue5_vault4_value_mergefunc_fu_671 671
+Add Instance mergefunc keyvalue6_vault4_key_mergefunc_fu_678 678
+Add Instance mergefunc keyvalue6_vault4_value_mergefunc_fu_685 685
+Add Instance mergefunc keyvalue7_vault4_key_mergefunc_fu_692 692
+Add Instance mergefunc keyvalue7_vault4_value_mergefunc_fu_699 699
+Add Instance spreadandwrite_1_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0 grp_spreadandwrite_1_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_fu_1084 1084
+Add Instance spreadandwrite_0 grp_spreadandwrite_0_fu_1122 1122
+Add Instance spreadandwrite_2 grp_spreadandwrite_2_fu_1157 1157
+Add Instance spreadandwrite_3 grp_spreadandwrite_3_fu_1192 1192
+Add Instance getglobalparams grp_getglobalparams_fu_1227 1227
+Add Instance readvdata_0 grp_readvdata_0_fu_1234 1234
+Add Instance gettravstate grp_gettravstate_fu_1252 1252
+Add Instance gettravstate grp_gettravstate_fu_1264 1264
+Add Instance gettravstate grp_gettravstate_fu_1276 1276
+Add Instance gettravstate grp_gettravstate_fu_1288 1288
+Add Instance gettravstate grp_gettravstate_fu_1300 1300
+Add Instance gettravstate grp_gettravstate_fu_1312 1312
+Add Instance gettravstate grp_gettravstate_fu_1324 1324
+Add Instance gettravstate grp_gettravstate_fu_1336 1336
+Add Instance gettravstate grp_gettravstate_fu_1348 1348
+Add Instance gettravstate grp_gettravstate_fu_1360 1360
+Add Instance gettravstate grp_gettravstate_fu_1372 1372
+Add Instance gettravstate grp_gettravstate_fu_1384 1384
+Add Instance gettravstate grp_gettravstate_fu_1396 1396
+Add Instance gettravstate grp_gettravstate_fu_1408 1408
+Add Instance gettravstate grp_gettravstate_fu_1420 1420
+Add Instance gettravstate grp_gettravstate_fu_1432 1432
+Add Instance spreadvdata_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0 grp_spreadvdata_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_fu_1444 1444
+Add Instance spreadvmask grp_spreadvmask_fu_1490 1490
+INFO: [XOCC 60-586] Created xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xo
+INFO: [XOCC 60-791] Total elapsed time: 0h 2m 29s
+mkdir -p ./xclbin
+/tools/Xilinx/SDx/2019.1/bin/xocc -t hw --platform /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --save-temps --kernel_frequency 300 --temp_dir ./_x.hw.xilinx_u280_xdma_201910_1/topkernelsync -l --sp topkernelsync_1.m_axi_gmem0:HBM[0]  --sp topkernelsync_1.m_axi_gmem1:HBM[1]  --sp topkernelsync_1.m_axi_gmem2:HBM[2]  --sp topkernelsync_1.m_axi_gmem3:HBM[3] --sp topkernelsync_1.m_axi_gmem4:HBM[4] --sp topkernelsync_1.m_axi_gmem5:HBM[5] --sp topkernelsync_1.m_axi_gmem6:HBM[6] --sp topkernelsync_1.m_axi_gmem7:HBM[7] --sp topkernelsync_1.m_axi_gmem8:HBM[8] --sp topkernelsync_1.m_axi_gmem9:HBM[9] --sp topkernelsync_1.m_axi_gmem10:HBM[10] --sp topkernelsync_1.m_axi_gmem11:HBM[11] --sp topkernelsync_1.m_axi_gmem12:HBM[12] --sp topkernelsync_1.m_axi_gmem13:HBM[13] --sp topkernelsync_1.m_axi_gmem14:HBM[14] --sp topkernelsync_1.m_axi_gmem15:HBM[15] --sp topkernelsync_1.m_axi_gmem16:HBM[16] --nk topkernelsync:1 -o'xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin' xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xo	
+Option Map File Used: '/tools/Xilinx/SDx/2019.1/data/sdx/xocc/optMap.xml'
+
+****** xocc v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+Attempting to get a license: ap_opencl
+INFO: [XOCC 17-1540] The version limit for your license is '2020.08' and has expired for new software. A version limit expiration means that, although you may be able to continue to use the current version of tools or IP with this license, you will not be eligible for any updates or new releases.
+Feature available: ap_opencl
+INFO: [XOCC 60-1306] Additional information associated with this xocc link can be found at:
+	Reports: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link
+	Log files: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/logs/link
+INFO: [XOCC 60-629] Linking for hardware target
+INFO: [XOCC 60-1316] Initiating connection to rulecheck server, at Fri Apr 16 00:09:26 2021
+Running Rule Check Server on port:46263
+INFO: [XOCC 60-1315] Creating rulecheck session with output '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link/xocc_link_topkernelsync.hw.xilinx_u280_xdma_201910_1_guidance.html', at Fri Apr 16 00:09:27 2021
+INFO: [XOCC 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+INFO: [XOCC 60-423]   Target device: xilinx_u280_xdma_201910_1
+WARNING: [XOCC 60-889] User-specified kernel frequency for ID 0 is the same as the default frequency 300 MHz, so it will be ignored
+INFO: [XOCC 60-1332] Run 'xocc_link' status: Not started
+INFO: [XOCC 60-1443] [00:09:35] Run xocc_link: Step sdx_link: Started
+INFO: [XOCC 60-1453] Command Line: sdx_link --xo /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xo --nk topkernelsync:1 -keep -sp topkernelsync_1.m_axi_gmem0:HBM[0] -sp topkernelsync_1.m_axi_gmem1:HBM[1] -sp topkernelsync_1.m_axi_gmem2:HBM[2] -sp topkernelsync_1.m_axi_gmem3:HBM[3] -sp topkernelsync_1.m_axi_gmem4:HBM[4] -sp topkernelsync_1.m_axi_gmem5:HBM[5] -sp topkernelsync_1.m_axi_gmem6:HBM[6] -sp topkernelsync_1.m_axi_gmem7:HBM[7] -sp topkernelsync_1.m_axi_gmem8:HBM[8] -sp topkernelsync_1.m_axi_gmem9:HBM[9] -sp topkernelsync_1.m_axi_gmem10:HBM[10] -sp topkernelsync_1.m_axi_gmem11:HBM[11] -sp topkernelsync_1.m_axi_gmem12:HBM[12] -sp topkernelsync_1.m_axi_gmem13:HBM[13] -sp topkernelsync_1.m_axi_gmem14:HBM[14] -sp topkernelsync_1.m_axi_gmem15:HBM[15] -sp topkernelsync_1.m_axi_gmem16:HBM[16] --xpfm /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --target hw --output_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int --temp_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/sys_link
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/xocc_link
+using /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+extracting xo v3 file /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xo
+Creating IP database /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/sys_link/_sds/.cdb/xd_ip_db.xml
+processing accelerators: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/sys_link/iprepo/xilinx_com_hls_topkernelsync_1_0
+ip_dir: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/sys_link/iprepo/xilinx_com_hls_topkernelsync_1_0
+/tools/Xilinx/SDx/2019.1/bin/xsltproc --stringparam xpath "spirit:component/spirit:name/text()" /tools/Xilinx/SDx/2019.1/scripts/xdcc/xpathValueOf.xsl /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/sys_link/iprepo/xilinx_com_hls_topkernelsync_1_0/component.xml
+ip_name: topkernelsync
+Creating apsys_0.xml
+INFO: [CFGEN 83-0] Kernel Specs: 
+INFO: [CFGEN 83-0]   kernel: topkernelsync, num: 1  {topkernelsync_1}
+INFO: [CFGEN 83-0] Port Specs: 
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem0, sptag: HBM[0]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem1, sptag: HBM[1]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem2, sptag: HBM[2]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem3, sptag: HBM[3]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem4, sptag: HBM[4]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem5, sptag: HBM[5]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem6, sptag: HBM[6]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem7, sptag: HBM[7]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem8, sptag: HBM[8]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem9, sptag: HBM[9]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem10, sptag: HBM[10]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem11, sptag: HBM[11]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem12, sptag: HBM[12]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem13, sptag: HBM[13]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem14, sptag: HBM[14]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem15, sptag: HBM[15]
+INFO: [CFGEN 83-0]   kernel: topkernelsync_1, k_port: m_axi_gmem16, sptag: HBM[16]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram0 to HBM[0] for directive topkernelsync_1.m_axi_gmem0:HBM[0]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram1 to HBM[1] for directive topkernelsync_1.m_axi_gmem1:HBM[1]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram2 to HBM[2] for directive topkernelsync_1.m_axi_gmem2:HBM[2]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram3 to HBM[3] for directive topkernelsync_1.m_axi_gmem3:HBM[3]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram4 to HBM[4] for directive topkernelsync_1.m_axi_gmem4:HBM[4]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram5 to HBM[5] for directive topkernelsync_1.m_axi_gmem5:HBM[5]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram6 to HBM[6] for directive topkernelsync_1.m_axi_gmem6:HBM[6]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram7 to HBM[7] for directive topkernelsync_1.m_axi_gmem7:HBM[7]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram8 to HBM[8] for directive topkernelsync_1.m_axi_gmem8:HBM[8]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram9 to HBM[9] for directive topkernelsync_1.m_axi_gmem9:HBM[9]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram10 to HBM[10] for directive topkernelsync_1.m_axi_gmem10:HBM[10]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram11 to HBM[11] for directive topkernelsync_1.m_axi_gmem11:HBM[11]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram12 to HBM[12] for directive topkernelsync_1.m_axi_gmem12:HBM[12]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram13 to HBM[13] for directive topkernelsync_1.m_axi_gmem13:HBM[13]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram14 to HBM[14] for directive topkernelsync_1.m_axi_gmem14:HBM[14]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.kvdram15 to HBM[15] for directive topkernelsync_1.m_axi_gmem15:HBM[15]
+INFO: [CFGEN 83-2228] Creating mapping for argument topkernelsync_1.vdram to HBM[16] for directive topkernelsync_1.m_axi_gmem16:HBM[16]
+
+Creating dr.bd.tcl
+INFO: [XOCC 60-1441] [00:09:52] Run xocc_link: Step sdx_link: Completed
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 651.496 ; gain = 0.000 ; free physical = 243049 ; free virtual = 255886
+INFO: [XOCC 60-1443] [00:09:52] Run xocc_link: Step vpl: Started
+INFO: [XOCC 60-1453] Command Line: vpl -t hw -f /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --kernel_frequency 300 --nk topkernelsync:1 -s --xp param:compiler.enablePerformanceTrace=1 --xp vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high} --xp misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10} --xp misc:report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10} --xp misc:BinaryName=topkernelsync.hw.xilinx_u280_xdma_201910_1 --output_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int --log_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/logs/link --report_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link -k /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/kernel_info.dat --webtalk_flag SDAccel --temp_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link --no-info --tlog_dir /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/.tlog/xocc_link_topkernelsync.hw.xilinx_u280_xdma_201910_1 --iprepo /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/xo/ip_repo/xilinx_com_hls_topkernelsync_1_0 --messageDb /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/xocc_link/vpl.pb /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/dr.bd.tcl
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/xocc_link
+
+****** vpl v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+Attempting to get a license: ap_opencl
+INFO: [VPL 17-1540] The version limit for your license is '2020.08' and has expired for new software. A version limit expiration means that, although you may be able to continue to use the current version of tools or IP with this license, you will not be eligible for any updates or new releases.
+Feature available: ap_opencl
+INFO: [VPL 60-839] Read in kernel information from file '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/kernel_info.dat'.
+INFO: [VPL 60-423]   Target device: xilinx_u280_xdma_201910_1
+WARNING: [VPL 60-889] User-specified kernel frequency for ID 0 is the same as the default frequency 300 MHz, so it will be ignored
+INFO: [VPL 60-1032] Extracting DSA to /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/vivado/vpl/.local/dsa
+[00:10:19] Run vpl: Step create_project: Started
+Creating Vivado project.
+[00:10:19] Run vpl: Step create_project: Completed
+[00:10:19] Run vpl: Step create_bd: Started
+[00:11:35] Run vpl: Step create_bd: RUNNING...
+[00:11:56] Run vpl: Step create_bd: Completed
+[00:11:56] Run vpl: Step update_bd: Started
+[00:11:57] Run vpl: Step update_bd: Completed
+[00:11:57] Run vpl: Step generate_target: Started
+[00:13:12] Run vpl: Step generate_target: RUNNING...
+[00:14:28] Run vpl: Step generate_target: RUNNING...
+[00:15:40] Run vpl: Step generate_target: Completed
+[00:15:40] Run vpl: Step config_hw_runs: Started
+[00:15:53] Run vpl: Step config_hw_runs: Completed
+[00:15:53] Run vpl: Step synth: Started
+[00:16:23] Block-level synthesis in progress, 0 of 83 jobs complete, 8 jobs running.
+[00:16:54] Block-level synthesis in progress, 0 of 83 jobs complete, 8 jobs running.
+[00:17:24] Block-level synthesis in progress, 0 of 83 jobs complete, 8 jobs running.
+[00:17:54] Block-level synthesis in progress, 0 of 83 jobs complete, 8 jobs running.
+[00:18:25] Block-level synthesis in progress, 2 of 83 jobs complete, 6 jobs running.
+[00:18:55] Block-level synthesis in progress, 8 of 83 jobs complete, 5 jobs running.
+[00:19:26] Block-level synthesis in progress, 10 of 83 jobs complete, 7 jobs running.
+[00:19:56] Block-level synthesis in progress, 15 of 83 jobs complete, 3 jobs running.
+[00:20:26] Block-level synthesis in progress, 23 of 83 jobs complete, 4 jobs running.
+[00:20:57] Block-level synthesis in progress, 30 of 83 jobs complete, 4 jobs running.
+[00:21:27] Block-level synthesis in progress, 34 of 83 jobs complete, 5 jobs running.
+[00:21:58] Block-level synthesis in progress, 36 of 83 jobs complete, 7 jobs running.
+[00:22:28] Block-level synthesis in progress, 36 of 83 jobs complete, 8 jobs running.
+[00:22:59] Block-level synthesis in progress, 37 of 83 jobs complete, 7 jobs running.
+[00:23:29] Block-level synthesis in progress, 40 of 83 jobs complete, 7 jobs running.
+[00:24:00] Block-level synthesis in progress, 42 of 83 jobs complete, 7 jobs running.
+[00:24:30] Block-level synthesis in progress, 43 of 83 jobs complete, 7 jobs running.
+[00:25:01] Block-level synthesis in progress, 47 of 83 jobs complete, 6 jobs running.
+[00:25:31] Block-level synthesis in progress, 49 of 83 jobs complete, 7 jobs running.
+[00:26:02] Block-level synthesis in progress, 52 of 83 jobs complete, 7 jobs running.
+[00:26:32] Block-level synthesis in progress, 52 of 83 jobs complete, 8 jobs running.
+[00:27:03] Block-level synthesis in progress, 53 of 83 jobs complete, 7 jobs running.
+[00:27:34] Block-level synthesis in progress, 54 of 83 jobs complete, 8 jobs running.
+[00:28:05] Block-level synthesis in progress, 55 of 83 jobs complete, 8 jobs running.
+[00:28:35] Block-level synthesis in progress, 56 of 83 jobs complete, 7 jobs running.
+[00:29:06] Block-level synthesis in progress, 58 of 83 jobs complete, 7 jobs running.
+[00:29:37] Block-level synthesis in progress, 61 of 83 jobs complete, 6 jobs running.
+[00:30:07] Block-level synthesis in progress, 63 of 83 jobs complete, 7 jobs running.
+[00:30:38] Block-level synthesis in progress, 64 of 83 jobs complete, 7 jobs running.
+[00:31:09] Block-level synthesis in progress, 66 of 83 jobs complete, 6 jobs running.
+[00:31:39] Block-level synthesis in progress, 69 of 83 jobs complete, 6 jobs running.
+[00:32:10] Block-level synthesis in progress, 70 of 83 jobs complete, 7 jobs running.
+[00:32:41] Block-level synthesis in progress, 70 of 83 jobs complete, 8 jobs running.
+[00:33:12] Block-level synthesis in progress, 71 of 83 jobs complete, 7 jobs running.
+[00:33:43] Block-level synthesis in progress, 76 of 83 jobs complete, 4 jobs running.
+[00:34:13] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:34:44] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:35:15] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:35:45] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:36:16] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:36:47] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:37:17] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:37:48] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:38:19] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:38:50] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:39:20] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:39:51] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:40:22] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:40:52] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:41:23] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:41:54] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:42:24] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:42:55] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:43:26] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:43:56] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:44:27] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:44:58] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:45:28] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:45:59] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:46:30] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:47:01] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:47:31] Block-level synthesis in progress, 82 of 83 jobs complete, 1 job running.
+[00:48:02] Block-level synthesis in progress, 83 of 83 jobs complete, 0 jobs running.
+[00:48:33] Top-level synthesis in progress.
+[00:49:03] Top-level synthesis in progress.
+[00:49:34] Top-level synthesis in progress.
+[00:50:05] Top-level synthesis in progress.
+[00:50:24] Run vpl: Step synth: Completed
+[00:50:24] Run vpl: Step impl: Started
+[01:01:38] Finished 2nd of 6 tasks (FPGA linking synthesized kernels to platform). Elapsed time: 00h 51m 44s 
+
+[01:01:38] Starting logic optimization..
+[01:02:09] Phase 1 Generate And Synthesize Debug Cores
+[01:07:15] Phase 2 Retarget
+[01:07:46] Phase 3 Constant propagation
+[01:08:16] Phase 4 Sweep
+[01:14:24] Phase 5 BUFG optimization
+[01:14:55] Phase 6 Shift Register Optimization
+[01:14:55] Phase 7 Post Processing Netlist
+[01:16:27] Finished 3rd of 6 tasks (FPGA logic optimization). Elapsed time: 00h 14m 48s 
+
+[01:16:27] Starting logic placement..
+[01:17:28] Phase 1 Placer Initialization
+[01:17:28] Phase 1.1 Placer Initialization Netlist Sorting
+[01:20:32] Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+[01:23:05] Phase 1.3 Build Placer Netlist Model
+[01:26:09] Phase 1.4 Constrain Clocks/Macros
+[01:26:40] Phase 2 Global Placement
+[01:26:40] Phase 2.1 Floorplanning
+[01:39:26] Phase 2.2 Global Placement Core
+[01:51:43] Phase 2.2.1 Physical Synthesis In Placer
+[01:56:19] Phase 3 Detail Placement
+[01:56:19] Phase 3.1 Commit Multi Column Macros
+[01:56:50] Phase 3.2 Commit Most Macros & LUTRAMs
+[01:57:21] Phase 3.3 Area Swap Optimization
+[01:58:22] Phase 3.4 Pipeline Register Optimization
+[01:58:22] Phase 3.5 IO Cut Optimizer
+[01:58:22] Phase 3.6 Fast Optimization
+[01:59:23] Phase 3.7 Small Shape Clustering
+[02:00:55] Phase 3.8 Flow Legalize Slice Clusters
+[02:00:55] Phase 3.9 Slice Area Swap
+[02:03:29] Phase 3.10 Commit Slice Clusters
+[02:04:30] Phase 3.11 Place Remaining
+[02:04:30] Phase 3.12 Re-assign LUT pins
+[02:05:32] Phase 3.13 Pipeline Register Optimization
+[02:05:32] Phase 3.14 Fast Optimization
+[02:07:34] Phase 4 Post Placement Optimization and Clean-Up
+[02:07:34] Phase 4.1 Post Commit Optimization
+[02:08:36] Phase 4.1.1 Post Placement Optimization
+[02:09:06] Phase 4.1.1.1 BUFG Insertion
+[02:10:08] Phase 4.1.1.2 BUFG Replication
+[02:16:16] Phase 4.1.1.3 Replication
+[02:16:16] Phase 4.2 Post Placement Cleanup
+[02:18:49] Phase 4.3 Placer Reporting
+[02:18:49] Phase 4.4 Final Placement Cleanup
+[02:21:53] Finished 4th of 6 tasks (FPGA logic placement). Elapsed time: 01h 05m 26s 
+
+[02:21:53] Starting logic routing..
+[02:22:55] Phase 1 Build RT Design
+[02:27:31] Phase 2 Router Initialization
+[02:27:31] Phase 2.1 Fix Topology Constraints
+[02:27:31] Phase 2.2 Pre Route Cleanup
+[02:28:02] Phase 2.3 Global Clock Net Routing
+[02:29:03] Phase 2.4 Update Timing
+[02:32:39] Phase 2.5 Update Timing for Bus Skew
+[02:32:39] Phase 2.5.1 Update Timing
+[02:34:11] Phase 3 Initial Routing
+[02:34:11] Phase 3.1 Global Routing
+[02:36:13] Phase 4 Rip-up And Reroute
+[02:36:13] Phase 4.1 Global Iteration 0
+[02:52:36] Phase 4.2 Global Iteration 1
+[02:56:10] Phase 4.3 Global Iteration 2
+[02:58:44] Phase 4.4 Global Iteration 3
+[03:01:17] Phase 4.5 Global Iteration 4
+[03:03:51] Phase 5 Delay and Skew Optimization
+[03:03:51] Phase 5.1 Delay CleanUp
+[03:03:51] Phase 5.1.1 Update Timing
+[03:05:54] Phase 5.1.2 Update Timing
+[03:07:26] Phase 5.2 Clock Skew Optimization
+[03:07:57] Phase 6 Post Hold Fix
+[03:07:57] Phase 6.1 Hold Fix Iter
+[03:07:57] Phase 6.1.1 Update Timing
+[03:09:29] Phase 6.1.2 Lut RouteThru Assignment for hold
+[03:10:00] Phase 6.2 Additional Hold Fix
+[03:13:04] Phase 7 Leaf Clock Prog Delay Opt
+[03:16:08] Phase 7.1 Delay CleanUp
+[03:16:08] Phase 7.1.1 Update Timing
+[03:17:41] Phase 7.1.2 Update Timing
+[03:19:13] Phase 7.2 Hold Fix Iter
+[03:19:13] Phase 7.2.1 Update Timing
+[03:20:45] Phase 7.2.2 Lut RouteThru Assignment for hold
+[03:21:16] Phase 7.3 Additional Hold Fix
+[03:25:52] Phase 8 Route finalize
+[03:25:52] Phase 9 Verifying routed nets
+[03:26:23] Phase 10 Depositing Routes
+[03:27:24] Phase 11 Post Router Timing
+[03:28:57] Phase 12 Physical Synthesis in Router
+[03:28:57] Phase 12.1 Physical Synthesis Initialization
+[03:31:30] Phase 12.2 Critical Path Optimization
+[03:33:02] Finished 5th of 6 tasks (FPGA routing). Elapsed time: 01h 11m 08s 
+
+[03:33:02] Starting bitstream generation..
+[03:45:20] Creating bitmap...
+[03:52:30] Writing bitstream ./pfm_top_i_dynamic_region_my_rm_partial.bit...
+[03:52:30] Finished 6th of 6 tasks (FPGA bitstream generation). Elapsed time: 00h 19m 28s 
+[03:53:30] Run vpl: Step impl: Completed
+[03:53:31] Run vpl: FINISHED. Run Status: impl Complete!
+INFO: [XOCC 60-1441] [03:53:31] Run xocc_link: Step vpl: Completed
+Time (s): cpu = 00:04:20 ; elapsed = 03:43:39 . Memory (MB): peak = 651.496 ; gain = 0.000 ; free physical = 239286 ; free virtual = 255776
+INFO: [XOCC 60-1443] [03:53:31] Run xocc_link: Step rtdgen: Started
+INFO: [XOCC 60-1453] Command Line: rtdgen
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/xocc_link
+INFO: [XOCC 60-991] clock name 'clkwiz_kernel_clk_out1' (clock ID '0') is being mapped to clock name 'DATA_CLK' in the xclbin
+INFO: [XOCC 60-991] clock name 'clkwiz_kernel2_clk_out1' (clock ID '1') is being mapped to clock name 'KERNEL_CLK' in the xclbin
+INFO: [XOCC 60-991] clock name 'clk_out1_pfm_top_clkwiz_hbm_aclk_0' (clock ID '') is being mapped to clock name 'clk_out1_pfm_top_clkwiz_hbm_aclk_0' in the xclbin
+INFO: [XOCC 60-1230] The compiler selected the following frequencies for the runtime controllable kernel clock(s) and scalable system clock(s): System (SYSTEM) clock: clk_out1_pfm_top_clkwiz_hbm_aclk_0 = 450, Kernel (DATA) clock: clkwiz_kernel_clk_out1 = 290, Kernel (KERNEL) clock: clkwiz_kernel2_clk_out1 = 500
+INFO: [XOCC 60-1453] Command Line: cf2sw -a /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/address_map.xml -sdsl /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/sdsl.dat -xclbin /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/xclbin_orig.xml -rtd /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.rtd -o /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xml
+INFO: [XOCC 60-1441] [03:53:34] Run xocc_link: Step rtdgen: Completed
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:03 . Memory (MB): peak = 651.496 ; gain = 0.000 ; free physical = 239294 ; free virtual = 255784
+INFO: [XOCC 60-1443] [03:53:34] Run xocc_link: Step xclbinutil: Started
+INFO: [XOCC 60-1453] Command Line: xclbinutil --add-section BITSTREAM:RAW:/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/partial.bit --force --key-value SYS:mode:hw_pr --add-section :JSON:/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.rtd --append-section :JSON:/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/appendSection.rtd --add-section CLOCK_FREQ_TOPOLOGY:JSON:/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1_xml.rtd --add-section BUILD_METADATA:JSON:/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1_build.rtd --add-section EMBEDDED_METADATA:RAW:/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xml --output /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/xocc_link
+XRT Build Version: 2.2.2249
+       Build Date: 2019-08-15 22:22:52
+          Hash ID: da87ac894a037d7e11c0496361458efed4bab438
+Creating a default 'in-memory' xclbin image.
+
+Section: 'BITSTREAM'(0) was successfully added.
+Size   : 54021513 bytes
+Format : RAW
+File   : '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/partial.bit'
+
+Section: 'MEM_TOPOLOGY'(6) was successfully added.
+Format : JSON
+File   : 'mem_topology'
+
+Section: 'IP_LAYOUT'(8) was successfully added.
+Format : JSON
+File   : 'ip_layout'
+
+Section: 'CONNECTIVITY'(7) was successfully added.
+Format : JSON
+File   : 'connectivity'
+
+Section: 'CLOCK_FREQ_TOPOLOGY'(11) was successfully added.
+Size   : 410 bytes
+Format : JSON
+File   : '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1_xml.rtd'
+
+Section: 'BUILD_METADATA'(14) was successfully added.
+Size   : 7721 bytes
+Format : JSON
+File   : '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1_build.rtd'
+
+Section: 'EMBEDDED_METADATA'(2) was successfully added.
+Size   : 145200 bytes
+Format : RAW
+File   : '/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xml'
+
+Section: 'IP_LAYOUT'(8) was successfully appended to.
+Format : JSON
+File   : 'ip_layout'
+Successfully wrote (54199987 bytes) to the output file: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin
+Leaving xclbinutil.
+INFO: [XOCC 60-1441] [03:53:34] Run xocc_link: Step xclbinutil: Completed
+Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.24 . Memory (MB): peak = 651.496 ; gain = 0.000 ; free physical = 239242 ; free virtual = 255784
+INFO: [XOCC 60-1443] [03:53:34] Run xocc_link: Step xclbinutilinfo: Started
+INFO: [XOCC 60-1453] Command Line: xclbinutil --quiet --info /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin.info --input /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/int/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin
+INFO: [XOCC 60-1454] Run Directory: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/link/xocc_link
+INFO: [XOCC 60-1441] [03:53:35] Run xocc_link: Step xclbinutilinfo: Completed
+Time (s): cpu = 00:00:00.50 ; elapsed = 00:00:00.60 . Memory (MB): peak = 651.496 ; gain = 0.000 ; free physical = 239243 ; free virtual = 255784
+INFO: [XOCC 60-244] Generating system estimate report...
+INFO: [XOCC 60-1092] Generated system estimate report: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link/system_estimate_topkernelsync.hw.xilinx_u280_xdma_201910_1.xtxt
+INFO: [XOCC 60-586] Created /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.ltx
+INFO: [XOCC 60-586] Created xclbin/topkernelsync.hw.xilinx_u280_xdma_201910_1.xclbin
+INFO: [XOCC 60-1307] Run completed. Additional information can be found in:
+	Guidance: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link/xocc_link_topkernelsync.hw.xilinx_u280_xdma_201910_1_guidance.html
+	Timing Report: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link/imp/xilinx_u280_xdma_201910_1_bb_locked_timing_summary_routed.rpt
+	Utilizations Report: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/reports/link/imp/kernel_util_routed.rpt
+	Vivado Log: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/logs/link/vivado.log
+	Steps Log File: /home/oj2zf/Documents/ActsOfAGraph/ztest_portal/_x.hw.xilinx_u280_xdma_201910_1/topkernelsync/logs/link/link.steps.log
+
+INFO: [XOCC 60-791] Total elapsed time: 3h 44m 9s
+emconfigutil --platform /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm --od ./xclbin/xilinx_u280_xdma_201910_1
+
+****** configutil v2019.1.3 (64-bit)
+  **** SW Build 2644227 on Wed Sep  4 09:44:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+INFO: [ConfigUtil 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
+emulation configuration file `emconfig.json` is created in ./xclbin/xilinx_u280_xdma_201910_1 directory 

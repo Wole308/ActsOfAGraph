@@ -149,11 +149,11 @@ void createundirectedgraph::start(){
 			inoutdegree_dup[edge2.srcvid] += 1;
 			
 			#ifdef _DEBUGMODE_CHECKS2
-			if(edge1.srcvid < graphobj->get_num_vertices() && vertexptrbuffer_dup[edge1.srcvid] + inoutdegree_dup[edge1.srcvid] > vertexptrbuffer_dup[edge1.srcvid+1]){ 
+			if(edge1.srcvid < graphobj->get_num_vertices()-1 && vertexptrbuffer_dup[edge1.srcvid] + inoutdegree_dup[edge1.srcvid] > vertexptrbuffer_dup[edge1.srcvid+1]){ 
 				cout<<"createundirectedgraph::start:: ERROR. vertexptrbuffer_dup["<<edge1.srcvid<<"]("<<vertexptrbuffer_dup[edge1.srcvid]<<") + inoutdegree_dup["<<edge1.srcvid<<"]("<<inoutdegree_dup[edge1.srcvid]<<") >= vertexptrbuffer_dup["<<edge1.srcvid+1<<"]("<<vertexptrbuffer_dup[edge1.srcvid+1]<<")"<<endl; 
 				exit(EXIT_FAILURE); 
 			}
-			if(edge2.srcvid < graphobj->get_num_vertices() && vertexptrbuffer_dup[edge2.srcvid] + inoutdegree_dup[edge2.srcvid] > vertexptrbuffer_dup[edge2.srcvid+1]){ 
+			if(edge2.srcvid < graphobj->get_num_vertices()-1 && vertexptrbuffer_dup[edge2.srcvid] + inoutdegree_dup[edge2.srcvid] > vertexptrbuffer_dup[edge2.srcvid+1]){ 
 				cout<<"createundirectedgraph::start:: ERROR. vertexptrbuffer_dup["<<edge2.srcvid<<"]("<<vertexptrbuffer_dup[edge2.srcvid]<<") + inoutdegree_dup["<<edge2.srcvid<<"]("<<inoutdegree_dup[edge2.srcvid]<<") >= vertexptrbuffer_dup["<<edge2.srcvid+1<<"]("<<vertexptrbuffer_dup[edge2.srcvid+1]<<")"<<endl; 
 				exit(EXIT_FAILURE); 
 			}
@@ -174,7 +174,6 @@ void createundirectedgraph::start(){
 		if(k<10000){ cout<<"createundirectedgraph::start:: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<endl; }
 		if(vertexptrbuffer_dup[k] < vertexptrbuffer_dup[k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<", vertexptrbuffer_dup["<<k-1<<"]: "<<vertexptrbuffer_dup[k-1]<<endl; exit(EXIT_FAILURE); }
 	} */
-	
 	
 	string edgespath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".edges";
 	std::ofstream ofs1; ofs1.open(edgespath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	

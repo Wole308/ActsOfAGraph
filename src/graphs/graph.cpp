@@ -537,7 +537,7 @@ void graph::loadalldatasets(){
 	_datasets[30].max_vertex = 2997166; 
 	_datasets[30].num_vertices = 2997166;
 	_datasets[30].num_edges = 106349209;
-	_datasets[30].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[30].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[30].graphorder = DST_SRC;
 	_datasets[30].skewratio = NAp; // SKEWRATIO;
 	
@@ -552,7 +552,7 @@ void graph::loadalldatasets(){
 	_datasets[31].max_vertex = 1139905; 
 	_datasets[31].num_vertices = 1139905;
 	_datasets[31].num_edges = 57515616;
-	_datasets[31].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[31].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[31].graphorder = DST_SRC;
 	_datasets[31].skewratio = NAp; // SKEWRATIO;
 	
@@ -567,7 +567,7 @@ void graph::loadalldatasets(){
 	_datasets[32].max_vertex = 7414866; 
 	_datasets[32].num_vertices = 7414866;
 	_datasets[32].num_edges = 194109311;
-	_datasets[32].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[32].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[32].graphorder = DST_SRC;
 	_datasets[32].skewratio = NAp; // SKEWRATIO;
 	
@@ -582,10 +582,11 @@ void graph::loadalldatasets(){
 	_datasets[33].max_vertex = 2097151; // 2097152, 2097151
 	_datasets[33].num_vertices = 2097151; // 2097152, 2097151
 	_datasets[33].num_edges = 91042010;
-	_datasets[33].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[33].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[33].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[33].skewratio = NAp; // SKEWRATIO;
 	
+	// https://suitesparse-collection-website.herokuapp.com/MM/DIMACS10/rgg_n_2_24_s0.tar.gz
 	_datasets[34].graphtopname = "rgg_n_2_24_s0";
 	_datasets[34].graphname = "rgg_n_2_24_s0";
 	_datasets[34].graph_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx";
@@ -597,7 +598,7 @@ void graph::loadalldatasets(){
 	_datasets[34].max_vertex = 16777216; 
 	_datasets[34].num_vertices = 16777216;
 	_datasets[34].num_edges = 132557200;
-	_datasets[34].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[34].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[34].graphorder = DST_SRC;
 	_datasets[34].skewratio = NAp; // SKEWRATIO;
 	
@@ -612,7 +613,7 @@ void graph::loadalldatasets(){
 	_datasets[35].max_vertex = 1971281; 
 	_datasets[35].num_vertices = 1971281;
 	_datasets[35].num_edges = 2766607;
-	_datasets[35].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[35].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[35].graphorder = DST_SRC;
 	_datasets[35].skewratio = NAp; // SKEWRATIO;
 	
@@ -627,9 +628,40 @@ void graph::loadalldatasets(){
 	_datasets[36].max_vertex = 820878;
 	_datasets[36].num_vertices = 820879;
 	_datasets[36].num_edges = 9837214;
-	_datasets[36].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[36].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[36].graphorder = DST_SRC;
 	_datasets[36].skewratio = NAp; // SKEWRATIO;
+	
+	_datasets[37].graphtopname = "kron_g500-logn20";
+	_datasets[37].graphname = "kron_g500-logn20";
+	_datasets[37].graph_path = rootDir + "dataset/kron_g500-logn20/kron_g500-logn20.mtx";
+	_datasets[37].vertices_path = rootDir + "dataset/kron_g500-logn20/kron_g500-logn20.vertices";
+	_datasets[37].edges_path = rootDir + "dataset/kron_g500-logn21/kron_g500-logn20.edges";	
+	_datasets[37].vertices_path_bin = rootDir + "dataset/kron_g500-logn20/kron_g500-logn20_bin.vertices";
+	_datasets[37].edges_path_bin = rootDir + "dataset/kron_g500-logn20/kron_g500-logn20_bin.edges";
+	_datasets[37].min_vertex = 0;
+	_datasets[37].max_vertex = 1048576;
+	_datasets[37].num_vertices = 1048576;
+	_datasets[37].num_edges = 44620272;
+	_datasets[37].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[37].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[37].skewratio = NAp; // SKEWRATIO;
+	
+	// https://suitesparse-collection-website.herokuapp.com/MM/DIMACS10/rgg_n_2_22_s0.tar.gz
+	_datasets[38].graphtopname = "rgg_n_2_22_s0";
+	_datasets[38].graphname = "rgg_n_2_22_s0";
+	_datasets[38].graph_path = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0.mtx";
+	_datasets[38].vertices_path = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0.vertices";
+	_datasets[38].edges_path = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0.edges";	
+	_datasets[38].vertices_path_bin = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0_bin.vertices";
+	_datasets[38].edges_path_bin = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0_bin.edges";
+	_datasets[38].min_vertex = 0;
+	_datasets[38].max_vertex = 4194304; 
+	_datasets[38].num_vertices = 4194304;
+	_datasets[38].num_edges = 30359198;
+	_datasets[38].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[38].graphorder = DST_SRC;
+	_datasets[38].skewratio = NAp; // SKEWRATIO;
 	
 	// large dataset
 	_datasets[2].graphtopname = "twitter";
@@ -673,7 +705,7 @@ void graph::loadalldatasets(){
 	_datasets[4].max_vertex = 67108864; 
 	_datasets[4].num_vertices = 67108864;  // 67108864, 67108816(prev)*
 	_datasets[4].num_edges = 1073741824; // 1073741824
-	_datasets[4].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[4].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[4].graphorder = SRC_DST;
 	_datasets[4].skewratio = NAp; // SKEWRATIO;
 	
@@ -688,7 +720,7 @@ void graph::loadalldatasets(){
 	_datasets[5].max_vertex = 268435456; // 268435456 // 268431360(prev)
 	_datasets[5].num_vertices = 268435456; 
 	_datasets[5].num_edges = 4294967290;
-	_datasets[5].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[5].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[5].graphorder = SRC_DST;
 	_datasets[5].skewratio = NAp; // SKEWRATIO;
 	
@@ -703,7 +735,7 @@ void graph::loadalldatasets(){
 	_datasets[6].max_vertex = 1073741824; // 1073741824 // 1041451012(prev)
 	_datasets[6].num_vertices = 1073741824;
 	_datasets[6].num_edges = 17179869184;
-	_datasets[6].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[6].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[6].graphorder = SRC_DST;
 	_datasets[6].skewratio = NAp; // SKEWRATIO;
 	
@@ -718,7 +750,7 @@ void graph::loadalldatasets(){
 	_datasets[7].max_vertex = 4294967296; 
 	_datasets[7].num_vertices = 4294967296;
 	_datasets[7].num_edges = 68719476736;
-	_datasets[7].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[7].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[7].graphorder = SRC_DST;
 	_datasets[7].skewratio = NAp; // SKEWRATIO;
 	
@@ -733,7 +765,7 @@ void graph::loadalldatasets(){
 	_datasets[10].max_vertex = 3315452338;
 	_datasets[10].num_vertices = 3315452338;
 	_datasets[10].num_edges = 0;
-	_datasets[10].graphdirectiontype = DIRECTEDGRAPH;
+	_datasets[10].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[10].graphorder = SRC_DST;
 	_datasets[10].skewratio = NAp; // SKEWRATIO;
 

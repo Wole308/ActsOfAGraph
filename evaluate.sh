@@ -161,12 +161,12 @@ do
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
-	for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
 	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
@@ -487,8 +487,8 @@ do
 				
 				# for dataset in $NODATASET
 				# for dataset in $HOLLYWOOD_1M_57M
-				# for dataset in $KRON21_2M_91M #
-				for dataset in $ORKUT_3M_106M #
+				for dataset in $KRON21_2M_91M #
+				# for dataset in $ORKUT_3M_106M #
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M
@@ -503,13 +503,13 @@ do
 				# for dataset in $LARGEDATASET_4B
 				# for dataset in $TWITTER_67M $MOLIERE2016_33M
 				
-				# for dataset in $NODATASET $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON21_2M_91M
+				# for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $ORKUT_3M_106M
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						# for synfreq in $SYNFREQUENCY_EQ120
-						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ300
+						# for synfreq in $SYNFREQUENCY_EQ60
+						# for synfreq in $SYNFREQUENCY_EQ300
 						for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 						do
 							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
@@ -521,93 +521,93 @@ do
 							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
 							
 							RESULTSBACKUP_DIR="${ROOTDIR}/results"
-							RESULT_NAME="result_${SETUP_NAME}"
+							RESULT_NAME="${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz"
 							PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 							
 							if [ $dataset == $NODATASET ]  
 							then	
 								DATASET=""
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_bips98_606.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/bips98_606_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
 							elif [ $dataset == $ORKUT_3M_106M ]  
 							then	
 								DATASET="_ORKUT_3M_106M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_orkut.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/orkut_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
 							elif [ $dataset == $HOLLYWOOD_1M_57M ]  
 							then	
 								DATASET="_HOLLYWOOD_1M_57M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_hollywood.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/hollywood_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
 							elif [ $dataset == $INDOCHINA_7M_194M ]  
 							then	
 								DATASET="_INDOCHINA_7M_194M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_indochina.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/indochina_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
 							elif [ $dataset == $KRON21_2M_91M ]  
 							then
 								DATASET="_KRON21_2M_91M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron21.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron21_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
 							elif [ $dataset == $RGG_17M_132M ]  
 							then	
 								DATASET="_RGG_17M_132M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_rgg.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/rgg_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
 							elif [ $dataset == $ROADNET_2M_3M ]  
 							then	
 								DATASET="_ROADNET_2M_3M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/roadNet-CA/roadNet-CA.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_roadnet.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/roadnet_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
 							elif [ $dataset == $FLICKR_1M_10M ]  
 							then	
 								DATASET="_FLICKR_1M_10M"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_flickr.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/flickr_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
 							
 							elif [ $dataset == $TWITTER_67M ]  
 							then	
 								DATASET="_TWITTER_67M"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_twitter26.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/twitter26_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
 							elif [ $dataset == $MOLIERE2016_33M ]  
 							then	
 								DATASET="_MOLIERE2016_33M"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_moliere33.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/moliere33_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
 							elif [ $dataset == $LARGEDATASET_67M ]  
 							then	
 								DATASET="_LARGEDATASET_67M"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron26.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron26_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"		
 							elif [ $dataset == $LARGEDATASET_268M ]
 							then
 								DATASET="_LARGEDATASET_268M"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron28.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron28_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
 							elif [ $dataset == $LARGEDATASET_1B ]
 							then
 								DATASET="_LARGEDATASET_1B"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron30.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron30_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
 							elif [ $dataset == $LARGEDATASET_4B ]
 							then
 								DATASET="_LARGEDATASET_4B"
 								datasetpath=""
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${RESULT_NAME}_kron32.out"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron32_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
 							else 
 								DATASET=""
@@ -655,8 +655,7 @@ do
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT 
-										# ./host $BACKUPDIR_KERNELXCLBIN1 /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync16HW.xclbin
+										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT
 									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
@@ -718,25 +717,25 @@ do
 							then
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 								then
-									# make cleanall
-									# rm -rf xclbin
-									# make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-									# if test -f "host"; then
-										# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-										# echo "kernel.xclbin saved"
-									# fi
-									# echo "sleeping for 5 seconds before continuing ...."
-									# sleep 5
-									
 									make cleanall
 									rm -rf xclbin
-									make all_sync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_sync.out 
+									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									if test -f "host"; then
-										cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+										cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 										echo "kernel.xclbin saved"
 									fi
 									echo "sleeping for 5 seconds before continuing ...."
 									sleep 5
+									
+									# make cleanall
+									# rm -rf xclbin
+									# make all_sync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_sync.out 
+									# if test -f "host"; then
+										# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+										# echo "kernel.xclbin saved"
+									# fi
+									# echo "sleeping for 5 seconds before continuing ...."
+									# sleep 5
 									
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then

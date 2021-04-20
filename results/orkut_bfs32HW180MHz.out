@@ -1,0 +1,556 @@
+Hostprocess:: Graph Analytics Started...
+utility:: USEHBMMEMORY DEFINED
+utility:: NUMDRAMBANKS: 4
+utility:: NUMWORKERS: 1
+utility:: NUMSUBWORKERS: 3
+utility:: NUM_PARTITIONS: 16
+utility:: NUMSUBCPUTHREADS: 32
+utility:: DATAWIDTH: 512
+utility:: VECTOR_SIZE: 8
+utility:: KVDATA_RANGE: 4194304
+utility:: KVDATA_RANGE_POW: 22
+utility:: BATCH_RANGE: 4194304
+utility:: BATCH_RANGE_POW: 22
+utility:: TREE_DEPTH: 3
+utility:: KVDATA_RANGE_POW: 22
+utility:: KVDATA_RANGE: 4194304
+utility:: MESSAGES_SIZE: 1024
+utility:: LOCKE DEFINED
+utility:: sizeof(keyvalue_t): 8 bytes (64 bits)
+utility:: sizeof(vertex_t): 4 bytes (32 bits)
+utility:: sizeof(edge_t): 4 bytes (32 bits)
+utility:: MESSAGESDRAMSZ: 1024
+utility:: VERTEXPTRSSZ: 2162688
+utility:: VERTEXPTRSSZ_KVS: 270336
+utility:: VERTICESDATASZ: 2097152
+utility:: VERTICESDATASZ_KVS: 262144
+>> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA: 0
+>> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA_KVS: 0
+>> host[baseoffsets]:: KVSOURCEDRAMSZ: 33554432
+>> host[baseoffsets]:: KVSOURCEDRAMSZ_KVS: 4194304
+>> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ_KVS: 4194304
+>> host[baseoffsets]:: VDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDVDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDVDRAMSZ_KVS: 4194304
+>> host[sizes]:: MESSAGESDRAMSZ (keyvalues): 1024 keyvalues
+>> host[sizes]:: VERTEXPTRSSZ (keyvalues): 2162688 keyvalues
+>> host[sizes]:: VERTICESDATASZ (keyvalues): 2097152 keyvalues
+>> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): 0 keyvalues
+>> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): 131072 keyvalues
+>> host[sizes]:: KVSTATSDRAMSZ (keyvalues): 65536 keyvalues
+>> host[sizes]:: PADDEDVDRAMSZ (keyvalues): 33554432 keyvalues
+>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues
+>> host[bytes]:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host[bytes]:: KVSTATSDRAMSZ (bytes): 524288 bytes
+>> host[bytes]:: VERTEXPTRSSZ (bytes): 17301504 bytes
+>> host[bytes]:: VERTICESDATASZ (bytes): 16777216 bytes
+>> host[bytes]:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host[bytes]:: VERTICESDATAMASKSZ (bytes): 1048576 bytes
+>> host[bytes]:: PADDEDVDRAMSZ (bytes): 268435456 bytes
+>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes
+utility:: KVSTATSDRAMSZ: 65536
+utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: REDUCESZ_POW: 10
+utility:: REDUCESZ: 1024
+utility:: REDUCEBUFFERSZ: 512
+utility:: VMASKBUFFERSZ_KVS: 32
+utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: ENABLE_KERNEL_PROFILING DEFINED: 
+graph::graph constructor:: datasetid: 30, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphtopname: soc-orkut
+>>> graphname: soc-orkut_dup
+>>> graph_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2997166
+>>> num_vertices: 2997166
+>>> num_edges: 212698418
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 666
+app::run_hw:: app algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup.vproperties
+generating vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_1by1/soc-orkut_dup_0_0.edges
+loadedges_rowblockwise:: loading Acts... sizes: [[7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352]]
+loadedges_rowblockwise:: total sizes: 250251520
+maxvptr: 7820368
+app::loadvertexdata:: loading vertex datas... 
+app::setrootvid:: setting root vid(s)... 
+app::loadactvvertices:: loading active vertices... 
+app::generatevmaskdata:: generating vmask... 
+app::loadoffsetmarkers:: loading offset markers... 
+app::loadmessages:: loading messages... 
+[globalparams.BASEOFFSET_MESSAGESDATA: 0]
+[globalparams.BASEOFFSETKVS_MESSAGESDATA: 0]
+[globalparams.BASEOFFSET_EDGESDATA: 8192]
+[globalparams.BASEOFFSETKVS_EDGESDATA: 1024]
+[globalparams.BASEOFFSET_VERTEXPTR: 3983912]
+[globalparams.BASEOFFSETKVS_VERTEXPTR: 497989]
+[globalparams.BASEOFFSET_VERTICESDATA: 6146600]
+[globalparams.BASEOFFSETKVS_VERTICESDATA: 768325]
+[globalparams.BASEOFFSET_ACTIVEVERTICES: 8243752]
+[globalparams.BASEOFFSETKVS_ACTIVEVERTICES: 1030469]
+[globalparams.BASEOFFSET_VERTICESDATAMASK: 8243752]
+[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: 1030469]
+[globalparams.BASEOFFSET_VERTICESPARTITIONMASK : 8374824]
+[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK: 1046853]
+[globalparams.BASEOFFSET_STATSDRAM: 8378920]
+[globalparams.BASEOFFSETKVS_STATSDRAM: 1047365]
+[globalparams.BASEOFFSET_KVDRAM: 8903208]
+[globalparams.BASEOFFSETKVS_KVDRAM: 1112901]
+[globalparams.BASEOFFSET_KVDRAMWORKSPACE: 16724336]
+[globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: 2090542]
+[globalparams.SIZE_MESSAGESDRAM: 0]
+[globalparams.SIZE_EDGES: 7821368]
+[globalparams.SIZE_VERTEXPTRS: 4194304]
+[globalparams.SIZE_VERTICESDATA: 4194304]
+[globalparams.SIZE_ACTIVEVERTICES: 0]
+[globalparams.SIZE_VERTICESDATAMASK: 131072]
+[globalparams.SIZE_KVSTATSDRAM: 65536]
+[globalparams.SIZE_KVDRAM: 7821128]
+[globalparams.SIZE_KVDRAMWORKSPACE: 7821128]
+[1m[37m>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues[0m
+[1m[37m>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes[0m
+[1m[37m>> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): 24545464 keyvalues[0m
+[1m[37m>> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): 196363712 bytes. (HBM max=268435456 bytes)[0m
+loadmessages:: loading Acts... sizes: [[7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820368, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352, 7820352]]
+loadmessages:: total sizes: 250251520
+app::appendkeyvaluecount:: appending value count... 
+app::experiements: resetting kvdram & kvdram workspaces...
+
+utility::runsssp_sw:: running traditional sssp... 
+utility::runsssp_sw: number of active vertices for iteration 0: 0
+utility::runsssp_sw: number of active vertices for iteration 1: 12
+utility::runsssp_sw: number of active vertices for iteration 2: 460
+utility::runsssp_sw: number of active vertices for iteration 3: 25400
+utility::runsssp_sw: number of active vertices for iteration 4: 728870
+utility::runsssp_sw: number of active vertices for iteration 5: 2210225
+utility::runsssp_sw: number of active vertices for iteration 6: 32166
+utility::runsssp_sw: number of active vertices for iteration 7: 32
+utility::runsssp_sw: number of active vertices for iteration 8: 0
+no more activer vertices to process. breaking out... 
+>>> utility::runsssp_sw: total_edges_processed: 212698418 edges (212 million edges)
+>>> utility::runsssp_sw: total_time_elapsed: 4612 ms (4.612 s)
+[1m[37m>>> utility::runsssp_sw: throughput: 4.61185e+07 edges/sec (46.1185 million edges/sec)[0m
+
+[1m[37m>>> app::run_hw: app started. (1 active vertices)[0m
+Found Platform
+Platform Name: Xilinx
+Found Device=xilinx_u280_xdma_201910_1
+INFO: Reading /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelprocbfs32HW180MHz.xclbin
+Loading: '/home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelprocbfs32HW180MHz.xclbin'
+INFO: Reading /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync32HW180MHz.xclbin
+Loading: '/home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync32HW180MHz.xclbin'
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 0)...
+>>> kernel (proc) 0 time elapsed: 0.735 ms, 735 microsecs, 
+>>> kernel (proc) 1 time elapsed: 0.688 ms, 688 microsecs, 
+>>> kernel (proc) 2 time elapsed: 0.696 ms, 696 microsecs, 
+>>> kernel (proc) 3 time elapsed: 0.69 ms, 690 microsecs, 
+>>> kernel (proc) 4 time elapsed: 0.698 ms, 698 microsecs, 
+>>> kernel (proc) 5 time elapsed: 0.714 ms, 714 microsecs, 
+>>> kernel (proc) 6 time elapsed: 0.716 ms, 716 microsecs, 
+>>> kernel (proc) 7 time elapsed: 0.692 ms, 692 microsecs, 
+>>> kernel (proc) 8 time elapsed: 0.626 ms, 626 microsecs, 
+>>> kernel (proc) 9 time elapsed: 0.691 ms, 691 microsecs, 
+>>> kernel (proc) 10 time elapsed: 0.691 ms, 691 microsecs, 
+>>> kernel (proc) 11 time elapsed: 0.638 ms, 638 microsecs, 
+>>> kernel (proc) 12 time elapsed: 0.84 ms, 840 microsecs, 
+>>> kernel (proc) 13 time elapsed: 0.628 ms, 628 microsecs, 
+>>> kernel (proc) 14 time elapsed: 0.634 ms, 634 microsecs, 
+>>> kernel (proc) 15 time elapsed: 0.624 ms, 624 microsecs, 
+>>> kernel (proc) 16 time elapsed: 0.634 ms, 634 microsecs, 
+>>> kernel (proc) 17 time elapsed: 0.658 ms, 658 microsecs, 
+>>> kernel (proc) 18 time elapsed: 0.636 ms, 636 microsecs, 
+>>> kernel (proc) 19 time elapsed: 0.637 ms, 637 microsecs, 
+>>> kernel (proc) 20 time elapsed: 0.636 ms, 636 microsecs, 
+>>> kernel (proc) 21 time elapsed: 0.633 ms, 633 microsecs, 
+>>> kernel (proc) 22 time elapsed: 0.657 ms, 657 microsecs, 
+>>> kernel (proc) 23 time elapsed: 0.692 ms, 692 microsecs, 
+>>> kernel (proc) 24 time elapsed: 0.691 ms, 691 microsecs, 
+>>> kernel (proc) 25 time elapsed: 0.694 ms, 694 microsecs, 
+>>> kernel (proc) 26 time elapsed: 0.69 ms, 690 microsecs, 
+>>> kernel (proc) 27 time elapsed: 0.668 ms, 668 microsecs, 
+>>> kernel (proc) 28 time elapsed: 0.694 ms, 694 microsecs, 
+>>> kernel (proc) 29 time elapsed: 0.646 ms, 646 microsecs, 
+>>> kernel (proc) 30 time elapsed: 0.683 ms, 683 microsecs, 
+>>> kernel (proc) 31 time elapsed: 0.692 ms, 692 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 0: 0.570194(0.570194) ms, 0.569516(-0.000677419) ms, 0.674419(0.104903) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 0)
+
+active partitions for iteration 1: 0, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 1)...
+>>> kernel (proc) 0 time elapsed: 0.668 ms, 668 microsecs, 
+>>> kernel (proc) 1 time elapsed: 0.741 ms, 741 microsecs, 
+>>> kernel (proc) 2 time elapsed: 0.695 ms, 695 microsecs, 
+>>> kernel (proc) 3 time elapsed: 0.694 ms, 694 microsecs, 
+>>> kernel (proc) 4 time elapsed: 0.655 ms, 655 microsecs, 
+>>> kernel (proc) 5 time elapsed: 0.622 ms, 622 microsecs, 
+>>> kernel (proc) 6 time elapsed: 0.63 ms, 630 microsecs, 
+>>> kernel (proc) 7 time elapsed: 0.689 ms, 689 microsecs, 
+>>> kernel (proc) 8 time elapsed: 0.753 ms, 753 microsecs, 
+>>> kernel (proc) 9 time elapsed: 0.611 ms, 611 microsecs, 
+>>> kernel (proc) 10 time elapsed: 0.727 ms, 727 microsecs, 
+>>> kernel (proc) 11 time elapsed: 0.627 ms, 627 microsecs, 
+>>> kernel (proc) 12 time elapsed: 0.509 ms, 509 microsecs, 
+>>> kernel (proc) 13 time elapsed: 0.661 ms, 661 microsecs, 
+>>> kernel (proc) 14 time elapsed: 0.661 ms, 661 microsecs, 
+>>> kernel (proc) 15 time elapsed: 0.66 ms, 660 microsecs, 
+>>> kernel (proc) 16 time elapsed: 0.666 ms, 666 microsecs, 
+>>> kernel (proc) 17 time elapsed: 0.643 ms, 643 microsecs, 
+>>> kernel (proc) 18 time elapsed: 0.588 ms, 588 microsecs, 
+>>> kernel (proc) 19 time elapsed: 0.595 ms, 595 microsecs, 
+>>> kernel (proc) 20 time elapsed: 0.597 ms, 597 microsecs, 
+>>> kernel (proc) 21 time elapsed: 0.59 ms, 590 microsecs, 
+>>> kernel (proc) 22 time elapsed: 0.59 ms, 590 microsecs, 
+>>> kernel (proc) 23 time elapsed: 0.595 ms, 595 microsecs, 
+>>> kernel (proc) 24 time elapsed: 0.674 ms, 674 microsecs, 
+>>> kernel (proc) 25 time elapsed: 0.663 ms, 663 microsecs, 
+>>> kernel (proc) 26 time elapsed: 0.628 ms, 628 microsecs, 
+>>> kernel (proc) 27 time elapsed: 0.661 ms, 661 microsecs, 
+>>> kernel (proc) 28 time elapsed: 0.714 ms, 714 microsecs, 
+>>> kernel (proc) 29 time elapsed: 0.737 ms, 737 microsecs, 
+>>> kernel (proc) 30 time elapsed: 0.711 ms, 711 microsecs, 
+>>> kernel (proc) 31 time elapsed: 0.744 ms, 744 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 1: 0.497387(0.497387) ms, 0.521645(0.0242581) ms, 0.655839(0.134194) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 1)
+
+active partitions for iteration 2: 0, 1, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 2)...
+>>> kernel (proc) 0 time elapsed: 1.461 ms, 1461 microsecs, 
+>>> kernel (proc) 1 time elapsed: 1.535 ms, 1535 microsecs, 
+>>> kernel (proc) 2 time elapsed: 1.417 ms, 1417 microsecs, 
+>>> kernel (proc) 3 time elapsed: 1.569 ms, 1569 microsecs, 
+>>> kernel (proc) 4 time elapsed: 1.44 ms, 1440 microsecs, 
+>>> kernel (proc) 5 time elapsed: 1.421 ms, 1421 microsecs, 
+>>> kernel (proc) 6 time elapsed: 1.363 ms, 1363 microsecs, 
+>>> kernel (proc) 7 time elapsed: 1.425 ms, 1425 microsecs, 
+>>> kernel (proc) 8 time elapsed: 1.468 ms, 1468 microsecs, 
+>>> kernel (proc) 9 time elapsed: 1.487 ms, 1487 microsecs, 
+>>> kernel (proc) 10 time elapsed: 1.447 ms, 1447 microsecs, 
+>>> kernel (proc) 11 time elapsed: 1.42 ms, 1420 microsecs, 
+>>> kernel (proc) 12 time elapsed: 1.439 ms, 1439 microsecs, 
+>>> kernel (proc) 13 time elapsed: 1.472 ms, 1472 microsecs, 
+>>> kernel (proc) 14 time elapsed: 1.418 ms, 1418 microsecs, 
+>>> kernel (proc) 15 time elapsed: 1.634 ms, 1634 microsecs, 
+>>> kernel (proc) 16 time elapsed: 1.523 ms, 1523 microsecs, 
+>>> kernel (proc) 17 time elapsed: 1.431 ms, 1431 microsecs, 
+>>> kernel (proc) 18 time elapsed: 1.446 ms, 1446 microsecs, 
+>>> kernel (proc) 19 time elapsed: 1.333 ms, 1333 microsecs, 
+>>> kernel (proc) 20 time elapsed: 1.521 ms, 1521 microsecs, 
+>>> kernel (proc) 21 time elapsed: 1.432 ms, 1432 microsecs, 
+>>> kernel (proc) 22 time elapsed: 1.367 ms, 1367 microsecs, 
+>>> kernel (proc) 23 time elapsed: 1.528 ms, 1528 microsecs, 
+>>> kernel (proc) 24 time elapsed: 1.395 ms, 1395 microsecs, 
+>>> kernel (proc) 25 time elapsed: 1.392 ms, 1392 microsecs, 
+>>> kernel (proc) 26 time elapsed: 1.57 ms, 1570 microsecs, 
+>>> kernel (proc) 27 time elapsed: 1.46 ms, 1460 microsecs, 
+>>> kernel (proc) 28 time elapsed: 1.372 ms, 1372 microsecs, 
+>>> kernel (proc) 29 time elapsed: 1.516 ms, 1516 microsecs, 
+>>> kernel (proc) 30 time elapsed: 1.453 ms, 1453 microsecs, 
+>>> kernel (proc) 31 time elapsed: 1.509 ms, 1509 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 2: 0.59329(0.59329) ms, 0.639355(0.0460645) ms, 1.45816(0.818806) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 2)
+
+active partitions for iteration 3: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 3)...
+>>> kernel (proc) 0 time elapsed: 8.369 ms, 8369 microsecs, 
+>>> kernel (proc) 1 time elapsed: 8.387 ms, 8387 microsecs, 
+>>> kernel (proc) 2 time elapsed: 8.608 ms, 8608 microsecs, 
+>>> kernel (proc) 3 time elapsed: 8.48 ms, 8480 microsecs, 
+>>> kernel (proc) 4 time elapsed: 8.533 ms, 8533 microsecs, 
+>>> kernel (proc) 5 time elapsed: 8.513 ms, 8513 microsecs, 
+>>> kernel (proc) 6 time elapsed: 8.454 ms, 8454 microsecs, 
+>>> kernel (proc) 7 time elapsed: 8.417 ms, 8417 microsecs, 
+>>> kernel (proc) 8 time elapsed: 8.554 ms, 8554 microsecs, 
+>>> kernel (proc) 9 time elapsed: 8.556 ms, 8556 microsecs, 
+>>> kernel (proc) 10 time elapsed: 8.585 ms, 8585 microsecs, 
+>>> kernel (proc) 11 time elapsed: 8.606 ms, 8606 microsecs, 
+>>> kernel (proc) 12 time elapsed: 8.583 ms, 8583 microsecs, 
+>>> kernel (proc) 13 time elapsed: 8.559 ms, 8559 microsecs, 
+>>> kernel (proc) 14 time elapsed: 8.485 ms, 8485 microsecs, 
+>>> kernel (proc) 15 time elapsed: 8.593 ms, 8593 microsecs, 
+>>> kernel (proc) 16 time elapsed: 8.58 ms, 8580 microsecs, 
+>>> kernel (proc) 17 time elapsed: 8.602 ms, 8602 microsecs, 
+>>> kernel (proc) 18 time elapsed: 8.58 ms, 8580 microsecs, 
+>>> kernel (proc) 19 time elapsed: 8.556 ms, 8556 microsecs, 
+>>> kernel (proc) 20 time elapsed: 8.596 ms, 8596 microsecs, 
+>>> kernel (proc) 21 time elapsed: 8.577 ms, 8577 microsecs, 
+>>> kernel (proc) 22 time elapsed: 8.572 ms, 8572 microsecs, 
+>>> kernel (proc) 23 time elapsed: 8.548 ms, 8548 microsecs, 
+>>> kernel (proc) 24 time elapsed: 8.531 ms, 8531 microsecs, 
+>>> kernel (proc) 25 time elapsed: 8.59 ms, 8590 microsecs, 
+>>> kernel (proc) 26 time elapsed: 8.511 ms, 8511 microsecs, 
+>>> kernel (proc) 27 time elapsed: 8.559 ms, 8559 microsecs, 
+>>> kernel (proc) 28 time elapsed: 8.485 ms, 8485 microsecs, 
+>>> kernel (proc) 29 time elapsed: 8.553 ms, 8553 microsecs, 
+>>> kernel (proc) 30 time elapsed: 8.488 ms, 8488 microsecs, 
+>>> kernel (proc) 31 time elapsed: 8.534 ms, 8534 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 3: 3.89465(3.89465) ms, 4.49587(0.601226) ms, 8.54113(4.04526) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 3)
+
+active partitions for iteration 4: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 4)...
+>>> kernel (proc) 0 time elapsed: 44.434 ms, 44434 microsecs, 
+>>> kernel (proc) 1 time elapsed: 44.413 ms, 44413 microsecs, 
+>>> kernel (proc) 2 time elapsed: 44.351 ms, 44351 microsecs, 
+>>> kernel (proc) 3 time elapsed: 44.196 ms, 44196 microsecs, 
+>>> kernel (proc) 4 time elapsed: 44.351 ms, 44351 microsecs, 
+>>> kernel (proc) 5 time elapsed: 44.385 ms, 44385 microsecs, 
+>>> kernel (proc) 6 time elapsed: 44.333 ms, 44333 microsecs, 
+>>> kernel (proc) 7 time elapsed: 44.327 ms, 44327 microsecs, 
+>>> kernel (proc) 8 time elapsed: 44.365 ms, 44365 microsecs, 
+>>> kernel (proc) 9 time elapsed: 44.328 ms, 44328 microsecs, 
+>>> kernel (proc) 10 time elapsed: 44.317 ms, 44317 microsecs, 
+>>> kernel (proc) 11 time elapsed: 44.378 ms, 44378 microsecs, 
+>>> kernel (proc) 12 time elapsed: 44.327 ms, 44327 microsecs, 
+>>> kernel (proc) 13 time elapsed: 44.392 ms, 44392 microsecs, 
+>>> kernel (proc) 14 time elapsed: 44.365 ms, 44365 microsecs, 
+>>> kernel (proc) 15 time elapsed: 44.297 ms, 44297 microsecs, 
+>>> kernel (proc) 16 time elapsed: 44.316 ms, 44316 microsecs, 
+>>> kernel (proc) 17 time elapsed: 44.363 ms, 44363 microsecs, 
+>>> kernel (proc) 18 time elapsed: 44.232 ms, 44232 microsecs, 
+>>> kernel (proc) 19 time elapsed: 44.396 ms, 44396 microsecs, 
+>>> kernel (proc) 20 time elapsed: 44.316 ms, 44316 microsecs, 
+>>> kernel (proc) 21 time elapsed: 44.341 ms, 44341 microsecs, 
+>>> kernel (proc) 22 time elapsed: 44.34 ms, 44340 microsecs, 
+>>> kernel (proc) 23 time elapsed: 44.316 ms, 44316 microsecs, 
+>>> kernel (proc) 24 time elapsed: 44.347 ms, 44347 microsecs, 
+>>> kernel (proc) 25 time elapsed: 44.298 ms, 44298 microsecs, 
+>>> kernel (proc) 26 time elapsed: 44.32 ms, 44320 microsecs, 
+>>> kernel (proc) 27 time elapsed: 44.319 ms, 44319 microsecs, 
+>>> kernel (proc) 28 time elapsed: 44.289 ms, 44289 microsecs, 
+>>> kernel (proc) 29 time elapsed: 44.367 ms, 44367 microsecs, 
+>>> kernel (proc) 30 time elapsed: 44.405 ms, 44405 microsecs, 
+>>> kernel (proc) 31 time elapsed: 44.385 ms, 44385 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 4: 18.0774(18.0774) ms, 27.3313(9.2539) ms, 44.3379(17.0066) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 4)
+
+active partitions for iteration 5: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 5)...
+>>> kernel (proc) 0 time elapsed: 68.104 ms, 68104 microsecs, 
+>>> kernel (proc) 1 time elapsed: 68.014 ms, 68014 microsecs, 
+>>> kernel (proc) 2 time elapsed: 67.935 ms, 67935 microsecs, 
+>>> kernel (proc) 3 time elapsed: 67.887 ms, 67887 microsecs, 
+>>> kernel (proc) 4 time elapsed: 67.973 ms, 67973 microsecs, 
+>>> kernel (proc) 5 time elapsed: 67.932 ms, 67932 microsecs, 
+>>> kernel (proc) 6 time elapsed: 68.06 ms, 68060 microsecs, 
+>>> kernel (proc) 7 time elapsed: 68.03 ms, 68030 microsecs, 
+>>> kernel (proc) 8 time elapsed: 68.071 ms, 68071 microsecs, 
+>>> kernel (proc) 9 time elapsed: 68.058 ms, 68058 microsecs, 
+>>> kernel (proc) 10 time elapsed: 67.994 ms, 67994 microsecs, 
+>>> kernel (proc) 11 time elapsed: 68.104 ms, 68104 microsecs, 
+>>> kernel (proc) 12 time elapsed: 68.076 ms, 68076 microsecs, 
+>>> kernel (proc) 13 time elapsed: 68.01 ms, 68010 microsecs, 
+>>> kernel (proc) 14 time elapsed: 68.051 ms, 68051 microsecs, 
+>>> kernel (proc) 15 time elapsed: 68.089 ms, 68089 microsecs, 
+>>> kernel (proc) 16 time elapsed: 68.071 ms, 68071 microsecs, 
+>>> kernel (proc) 17 time elapsed: 68.109 ms, 68109 microsecs, 
+>>> kernel (proc) 18 time elapsed: 68.061 ms, 68061 microsecs, 
+>>> kernel (proc) 19 time elapsed: 68.062 ms, 68062 microsecs, 
+>>> kernel (proc) 20 time elapsed: 68.028 ms, 68028 microsecs, 
+>>> kernel (proc) 21 time elapsed: 68.066 ms, 68066 microsecs, 
+>>> kernel (proc) 22 time elapsed: 68.148 ms, 68148 microsecs, 
+>>> kernel (proc) 23 time elapsed: 68.074 ms, 68074 microsecs, 
+>>> kernel (proc) 24 time elapsed: 68.084 ms, 68084 microsecs, 
+>>> kernel (proc) 25 time elapsed: 67.968 ms, 67968 microsecs, 
+>>> kernel (proc) 26 time elapsed: 68.03 ms, 68030 microsecs, 
+>>> kernel (proc) 27 time elapsed: 68.139 ms, 68139 microsecs, 
+>>> kernel (proc) 28 time elapsed: 68.023 ms, 68023 microsecs, 
+>>> kernel (proc) 29 time elapsed: 68.068 ms, 68068 microsecs, 
+>>> kernel (proc) 30 time elapsed: 68.021 ms, 68021 microsecs, 
+>>> kernel (proc) 31 time elapsed: 67.97 ms, 67970 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 5: 23.3709(23.3709) ms, 39.2085(15.8376) ms, 68.0389(28.8304) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 5)
+
+active partitions for iteration 6: 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 6)...
+>>> kernel (proc) 0 time elapsed: 13.473 ms, 13473 microsecs, 
+>>> kernel (proc) 1 time elapsed: 13.474 ms, 13474 microsecs, 
+>>> kernel (proc) 2 time elapsed: 13.525 ms, 13525 microsecs, 
+>>> kernel (proc) 3 time elapsed: 13.527 ms, 13527 microsecs, 
+>>> kernel (proc) 4 time elapsed: 13.445 ms, 13445 microsecs, 
+>>> kernel (proc) 5 time elapsed: 13.564 ms, 13564 microsecs, 
+>>> kernel (proc) 6 time elapsed: 13.516 ms, 13516 microsecs, 
+>>> kernel (proc) 7 time elapsed: 13.519 ms, 13519 microsecs, 
+>>> kernel (proc) 8 time elapsed: 13.519 ms, 13519 microsecs, 
+>>> kernel (proc) 9 time elapsed: 13.553 ms, 13553 microsecs, 
+>>> kernel (proc) 10 time elapsed: 13.434 ms, 13434 microsecs, 
+>>> kernel (proc) 11 time elapsed: 13.547 ms, 13547 microsecs, 
+>>> kernel (proc) 12 time elapsed: 13.525 ms, 13525 microsecs, 
+>>> kernel (proc) 13 time elapsed: 13.514 ms, 13514 microsecs, 
+>>> kernel (proc) 14 time elapsed: 13.51 ms, 13510 microsecs, 
+>>> kernel (proc) 15 time elapsed: 13.484 ms, 13484 microsecs, 
+>>> kernel (proc) 16 time elapsed: 13.456 ms, 13456 microsecs, 
+>>> kernel (proc) 17 time elapsed: 13.636 ms, 13636 microsecs, 
+>>> kernel (proc) 18 time elapsed: 13.476 ms, 13476 microsecs, 
+>>> kernel (proc) 19 time elapsed: 13.502 ms, 13502 microsecs, 
+>>> kernel (proc) 20 time elapsed: 13.488 ms, 13488 microsecs, 
+>>> kernel (proc) 21 time elapsed: 13.555 ms, 13555 microsecs, 
+>>> kernel (proc) 22 time elapsed: 13.512 ms, 13512 microsecs, 
+>>> kernel (proc) 23 time elapsed: 13.546 ms, 13546 microsecs, 
+>>> kernel (proc) 24 time elapsed: 13.492 ms, 13492 microsecs, 
+>>> kernel (proc) 25 time elapsed: 13.538 ms, 13538 microsecs, 
+>>> kernel (proc) 26 time elapsed: 13.54 ms, 13540 microsecs, 
+>>> kernel (proc) 27 time elapsed: 13.551 ms, 13551 microsecs, 
+>>> kernel (proc) 28 time elapsed: 13.524 ms, 13524 microsecs, 
+>>> kernel (proc) 29 time elapsed: 13.529 ms, 13529 microsecs, 
+>>> kernel (proc) 30 time elapsed: 13.572 ms, 13572 microsecs, 
+>>> kernel (proc) 31 time elapsed: 13.539 ms, 13539 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 6: 9.92539(9.92539) ms, 10.2034(0.278032) ms, 13.5197(3.31632) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 6)
+
+active partitions for iteration 7: 56, 74, 90, 93, 107, 110, 121, 123, 124, 128, 129, 130, 134, 135, 136, 141, 142, 145, 146, 148, 149, 153, 154, 155, 156, 175, 176, 177, 
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 7)...
+>>> kernel (proc) 0 time elapsed: 1.991 ms, 1991 microsecs, 
+>>> kernel (proc) 1 time elapsed: 1.916 ms, 1916 microsecs, 
+>>> kernel (proc) 2 time elapsed: 1.958 ms, 1958 microsecs, 
+>>> kernel (proc) 3 time elapsed: 1.878 ms, 1878 microsecs, 
+>>> kernel (proc) 4 time elapsed: 1.911 ms, 1911 microsecs, 
+>>> kernel (proc) 5 time elapsed: 1.915 ms, 1915 microsecs, 
+>>> kernel (proc) 6 time elapsed: 1.927 ms, 1927 microsecs, 
+>>> kernel (proc) 7 time elapsed: 1.939 ms, 1939 microsecs, 
+>>> kernel (proc) 8 time elapsed: 1.926 ms, 1926 microsecs, 
+>>> kernel (proc) 9 time elapsed: 1.902 ms, 1902 microsecs, 
+>>> kernel (proc) 10 time elapsed: 1.907 ms, 1907 microsecs, 
+>>> kernel (proc) 11 time elapsed: 1.896 ms, 1896 microsecs, 
+>>> kernel (proc) 12 time elapsed: 1.962 ms, 1962 microsecs, 
+>>> kernel (proc) 13 time elapsed: 1.861 ms, 1861 microsecs, 
+>>> kernel (proc) 14 time elapsed: 1.887 ms, 1887 microsecs, 
+>>> kernel (proc) 15 time elapsed: 1.943 ms, 1943 microsecs, 
+>>> kernel (proc) 16 time elapsed: 1.846 ms, 1846 microsecs, 
+>>> kernel (proc) 17 time elapsed: 1.956 ms, 1956 microsecs, 
+>>> kernel (proc) 18 time elapsed: 1.962 ms, 1962 microsecs, 
+>>> kernel (proc) 19 time elapsed: 1.911 ms, 1911 microsecs, 
+>>> kernel (proc) 20 time elapsed: 1.916 ms, 1916 microsecs, 
+>>> kernel (proc) 21 time elapsed: 1.874 ms, 1874 microsecs, 
+>>> kernel (proc) 22 time elapsed: 1.891 ms, 1891 microsecs, 
+>>> kernel (proc) 23 time elapsed: 1.863 ms, 1863 microsecs, 
+>>> kernel (proc) 24 time elapsed: 1.949 ms, 1949 microsecs, 
+>>> kernel (proc) 25 time elapsed: 1.881 ms, 1881 microsecs, 
+>>> kernel (proc) 26 time elapsed: 1.85 ms, 1850 microsecs, 
+>>> kernel (proc) 27 time elapsed: 1.901 ms, 1901 microsecs, 
+>>> kernel (proc) 28 time elapsed: 1.883 ms, 1883 microsecs, 
+>>> kernel (proc) 29 time elapsed: 1.881 ms, 1881 microsecs, 
+>>> kernel (proc) 30 time elapsed: 1.938 ms, 1938 microsecs, 
+>>> kernel (proc) 31 time elapsed: 1.893 ms, 1893 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 7: 1.77577(1.77577) ms, 1.7901(0.0143226) ms, 1.90719(0.117097) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 7)
+
+active partitions for iteration 8: 
+goclkernel::runapp2: no more active vertices to process. exiting... 
+[1m[37m>>> SUMMARY: Total kernel time: 139.133 ms[0m
+0.0210455, -17.7143, 0.114391, [Iter 0 throughput: 0.0177931]
+1.16609, 23.9096, 4.32212, [Iter 1 throughput: 0.884364]
+65.044, 837.738, 47.1296, [Iter 2 throughput: 26.4648]
+845.936, 5479.84, 814.44, [Iter 3 throughput: 385.736]
+4087.3, 7984.47, 4344.63, [Iter 4 throughput: 1666.46]
+5780.94, 8530.7, 4686.24, [Iter 5 throughput: 1985.72]
+37.392, 1334.85, 111.91, [Iter 6 throughput: 27.451]
+0.029283, 3.63063, 0.444077, [Iter 7 throughput: 0.0272652]
+>>> app::run_hw: total_edges_processed: 212698418 edges (212 million edges)
+>>> app::run_hw: total_time_elapsed: 139.133 ms (0.139133 s)
+[1m[37m>>> app::run_hw: throughput: 1.52874e+09 edges/sec (1528.74 million edges/sec)[0m
+
+utility::runsssp_sw:: running traditional sssp... 
+utility::runsssp_sw: number of active vertices for iteration 0: 0
+utility::runsssp_sw: number of active vertices for iteration 1: 12
+utility::runsssp_sw: number of active vertices for iteration 2: 460
+utility::runsssp_sw: number of active vertices for iteration 3: 25400
+utility::runsssp_sw: number of active vertices for iteration 4: 728870
+utility::runsssp_sw: number of active vertices for iteration 5: 2210225
+utility::runsssp_sw: number of active vertices for iteration 6: 32166
+utility::runsssp_sw: number of active vertices for iteration 7: 32
+utility::runsssp_sw: number of active vertices for iteration 8: 0
+no more activer vertices to process. breaking out... 
+>>> utility::runsssp_sw: total_edges_processed: 212698418 edges (212 million edges)
+>>> utility::runsssp_sw: total_time_elapsed: 6247 ms (6.247 s)
+[1m[37m>>> utility::runsssp_sw: throughput: 3.40481e+07 edges/sec (34.0481 million edges/sec)[0m
+
+app::verifyresults_hw: verifying vertex data... 
+utility::printvalues::app::verifyresults_hw.vdatas: verifying results after kernel run:: printing first 16 values
+values[0]: 1
+values[1]: 12
+values[2]: 460
+values[3]: 25399
+values[4]: 728863
+values[5]: 2210230
+values[6]: 32167
+values[7]: 32
+values[8]: 0
+values[9]: 0
+values[10]: 0
+values[11]: 0
+values[12]: 0
+values[13]: 0
+values[14]: 0
+values[15]: 0
+printvalues:: total values: totalvalues: 2997164
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+graph::closefilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 250251520
+>>> stats::summary Total number of kvReads for all threads: 250251520
+>>> stats::summary Total time spent (SSD access): 0 milliseconds
+>>> stats::summary Total time spent (SSD access): 0 seconds
+>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds
+>>> stats::summary Total time spent (OCL data transfers): 0 seconds
+>>> stats::summary Total time spent (Kernel Pre Process execution): 0 milliseconds
+>>> stats::summary Total time spent (Kernel Pre Process execution): 0 seconds
+>>> stats::summary Total time spent (Kernel execution): 0 milliseconds
+>>> stats::summary Total time spent (Kernel execution): 0 seconds
+>>> stats::summary Total time spent (Kernel Post Process execution): 0 milliseconds
+>>> stats::summary Total time spent (Kernel Post Process execution): 0 seconds
+>>> stats::summary Total time spent (Overall Kernel execution): 0 milliseconds
+>>> stats::summary Total time spent (Overall Kernel execution): 0 seconds
+>>> stats::summary Total time spent (Overall processing): 0 milliseconds
+>>> stats::summary Total time spent (Overall processing): 0 seconds
+>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 0 milliseconds
+>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 0 seconds
+>>> stats::summary Throughput (Kernel processing): inf keyvalues per second
+>>> stats::summary Throughput (Kernel processing): inf million keyvalues per second
+>>> stats::summary Throughput (Kernel processing): inf MB/s
+>>> stats::summary Throughput (Overall processing): inf keyvalues per second
+>>> stats::summary Throughput (Overall processing): inf million keyvalues per second
+>>> stats::summary Throughput (Overall processing): inf MB/s
+>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): inf keyvalues per second
+>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): inf million keyvalues per second
+
+graph::printdataset: printing dataset parameters...
+>>> graphtopname: soc-orkut
+>>> graphname: soc-orkut_dup
+>>> graph_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/soc-orkut/soc-orkut_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2997166
+>>> num_vertices: 2997166
+>>> num_edges: 212698418
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 666
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 358835620649[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 358835620[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 358835[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 358[seconds](Iteration 666)[0m
+

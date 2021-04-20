@@ -54,6 +54,12 @@ unsigned int dataset::getdatasetid(){
 	#ifdef _FLICKR_1M_10M
 	datasetid = 36;
 	#endif
+	#ifdef _KRON20_1M_45M
+	datasetid = 37;
+	#endif
+	#ifdef _RGG_4M_32M
+	datasetid = 38;
+	#endif
 	
 	// large dataset 
 	#ifdef _TWITTER_67M

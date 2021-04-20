@@ -16,8 +16,6 @@
 // #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS // 
 #define GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 
-// #define NUMSYNCBUFFERSINKERNEL 16
-
 class goclkernel {
 public:
 	goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj);

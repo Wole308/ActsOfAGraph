@@ -1,14 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
-#define _ORKUT_3M_106M 
+#define _RGG_4M_32M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -33,10 +30,12 @@
 #endif
 
 #define ACTS
+// #define _GENERATE2DGRAPH
+#define _GENERATEUNDIRECTEDGRAPH //
 
 ////////////////
 
-#define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
+// #define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
 
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)

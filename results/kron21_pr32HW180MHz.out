@@ -1,0 +1,265 @@
+Hostprocess:: Graph Analytics Started...
+utility:: USEHBMMEMORY DEFINED
+utility:: NUMDRAMBANKS: 4
+utility:: NUMWORKERS: 1
+utility:: NUMSUBWORKERS: 3
+utility:: NUM_PARTITIONS: 16
+utility:: NUMSUBCPUTHREADS: 32
+utility:: DATAWIDTH: 512
+utility:: VECTOR_SIZE: 8
+utility:: KVDATA_RANGE: 2097152
+utility:: KVDATA_RANGE_POW: 21
+utility:: BATCH_RANGE: 2097152
+utility:: BATCH_RANGE_POW: 21
+utility:: TREE_DEPTH: 3
+utility:: KVDATA_RANGE_POW: 21
+utility:: KVDATA_RANGE: 2097152
+utility:: MESSAGES_SIZE: 1024
+utility:: LOCKE DEFINED
+utility:: sizeof(keyvalue_t): 8 bytes (64 bits)
+utility:: sizeof(vertex_t): 4 bytes (32 bits)
+utility:: sizeof(edge_t): 4 bytes (32 bits)
+utility:: MESSAGESDRAMSZ: 1024
+utility:: VERTEXPTRSSZ: 1114112
+utility:: VERTEXPTRSSZ_KVS: 139264
+utility:: VERTICESDATASZ: 1048576
+utility:: VERTICESDATASZ_KVS: 131072
+>> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA: 0
+>> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA_KVS: 0
+>> host[baseoffsets]:: KVSOURCEDRAMSZ: 33554432
+>> host[baseoffsets]:: KVSOURCEDRAMSZ_KVS: 4194304
+>> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDKVSOURCEDRAMSZ_KVS: 4194304
+>> host[baseoffsets]:: VDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDVDRAMSZ: 33554432
+>> host[baseoffsets]:: PADDEDVDRAMSZ_KVS: 4194304
+>> host[sizes]:: MESSAGESDRAMSZ (keyvalues): 1024 keyvalues
+>> host[sizes]:: VERTEXPTRSSZ (keyvalues): 1114112 keyvalues
+>> host[sizes]:: VERTICESDATASZ (keyvalues): 1048576 keyvalues
+>> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): 0 keyvalues
+>> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): 65536 keyvalues
+>> host[sizes]:: KVSTATSDRAMSZ (keyvalues): 65536 keyvalues
+>> host[sizes]:: PADDEDVDRAMSZ (keyvalues): 33554432 keyvalues
+>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues
+>> host[bytes]:: MESSAGESDRAMSZ (bytes): 8192 bytes
+>> host[bytes]:: KVSTATSDRAMSZ (bytes): 524288 bytes
+>> host[bytes]:: VERTEXPTRSSZ (bytes): 8912896 bytes
+>> host[bytes]:: VERTICESDATASZ (bytes): 8388608 bytes
+>> host[bytes]:: ACTIVEVERTICESSZ (bytes): 0 bytes
+>> host[bytes]:: VERTICESDATAMASKSZ (bytes): 524288 bytes
+>> host[bytes]:: PADDEDVDRAMSZ (bytes): 268435456 bytes
+>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes
+utility:: KVSTATSDRAMSZ: 65536
+utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: REDUCESZ_POW: 9
+utility:: REDUCESZ: 512
+utility:: REDUCEBUFFERSZ: 256
+utility:: VMASKBUFFERSZ_KVS: 16
+utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: ENABLE_KERNEL_PROFILING DEFINED: 
+graph::graph constructor:: datasetid: 33, _numedgebanks: 1
+graph::loadalldatasets:: 
+graph::loadalldatasets finished. 
+graph::printdataset: printing dataset parameters...
+>>> graphtopname: kron-g500-logn21
+>>> graphname: kron-g500-logn21_dup
+>>> graph_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2097151
+>>> num_vertices: 2097151
+>>> num_edges: 182084020
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 666
+app::run_hw:: app algorithm started. 
+graph::opentemporaryfilesforwriting : opening temporary files for writing...
+Directory already exists.INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vproperties
+graph::opentemporaryfilesforreading : opening temporary files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vdata
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup.vproperties
+generating vertices data... 
+graph::openfilesforreading : opening files for reading
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.vertexptrs
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.edges
+INFO: Successfully opened /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_1by1/kron-g500-logn21_dup_0_0.edges
+loadedges_rowblockwise:: loading Acts... sizes: [[6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408]]
+loadedges_rowblockwise:: total sizes: 209773216
+maxvptr: 6555424
+app::loadvertexdata:: loading vertex datas... 
+app::setrootvid:: setting root vid(s)... 
+app::loadactvvertices:: loading active vertices... 
+app::generatevmaskdata:: generating vmask... 
+app::loadoffsetmarkers:: loading offset markers... 
+app::loadmessages:: loading messages... 
+[globalparams.BASEOFFSET_MESSAGESDATA: 0]
+[globalparams.BASEOFFSETKVS_MESSAGESDATA: 0]
+[globalparams.BASEOFFSET_EDGESDATA: 8192]
+[globalparams.BASEOFFSETKVS_EDGESDATA: 1024]
+[globalparams.BASEOFFSET_VERTEXPTR: 3351440]
+[globalparams.BASEOFFSETKVS_VERTEXPTR: 418930]
+[globalparams.BASEOFFSET_VERTICESDATA: 4465552]
+[globalparams.BASEOFFSETKVS_VERTICESDATA: 558194]
+[globalparams.BASEOFFSET_ACTIVEVERTICES: 5514128]
+[globalparams.BASEOFFSETKVS_ACTIVEVERTICES: 689266]
+[globalparams.BASEOFFSET_VERTICESDATAMASK: 5514128]
+[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: 689266]
+[globalparams.BASEOFFSET_VERTICESPARTITIONMASK : 5579664]
+[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK: 697458]
+[globalparams.BASEOFFSET_STATSDRAM: 5583760]
+[globalparams.BASEOFFSETKVS_STATSDRAM: 697970]
+[globalparams.BASEOFFSET_KVDRAM: 6108048]
+[globalparams.BASEOFFSETKVS_KVDRAM: 763506]
+[globalparams.BASEOFFSET_KVDRAMWORKSPACE: 12664496]
+[globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: 1583062]
+[globalparams.SIZE_MESSAGESDRAM: 0]
+[globalparams.SIZE_EDGES: 6556424]
+[globalparams.SIZE_VERTEXPTRS: 2097152]
+[globalparams.SIZE_VERTICESDATA: 2097152]
+[globalparams.SIZE_ACTIVEVERTICES: 0]
+[globalparams.SIZE_VERTICESDATAMASK: 65536]
+[globalparams.SIZE_KVSTATSDRAM: 65536]
+[globalparams.SIZE_KVDRAM: 6556451]
+[globalparams.SIZE_KVDRAMWORKSPACE: 6556451]
+[1m[37m>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues[0m
+[1m[37m>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes[0m
+[1m[37m>> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): 19220947 keyvalues[0m
+[1m[37m>> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): 153767576 bytes. (HBM max=268435456 bytes)[0m
+loadmessages:: loading Acts... sizes: [[6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555424, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408, 6555408]]
+loadmessages:: total sizes: 209773216
+app::appendkeyvaluecount:: appending value count... 
+app::experiements: resetting kvdram & kvdram workspaces...
+
+[1m[37m>>> app::run_hw: app started. (1 active vertices)[0m
+Found Platform
+Platform Name: Xilinx
+Found Device=xilinx_u280_xdma_201910_1
+INFO: Reading /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelprocpr32HW180MHz.xclbin
+Loading: '/home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelprocpr32HW180MHz.xclbin'
+INFO: Reading /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync32HW180MHz.xclbin
+Loading: '/home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync32HW180MHz.xclbin'
+>>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 0)...
+>>> kernel (proc) 0 time elapsed: 76.977 ms, 76977 microsecs, 
+>>> kernel (proc) 1 time elapsed: 76.908 ms, 76908 microsecs, 
+>>> kernel (proc) 2 time elapsed: 76.997 ms, 76997 microsecs, 
+>>> kernel (proc) 3 time elapsed: 76.93 ms, 76930 microsecs, 
+>>> kernel (proc) 4 time elapsed: 76.958 ms, 76958 microsecs, 
+>>> kernel (proc) 5 time elapsed: 76.937 ms, 76937 microsecs, 
+>>> kernel (proc) 6 time elapsed: 76.964 ms, 76964 microsecs, 
+>>> kernel (proc) 7 time elapsed: 76.808 ms, 76808 microsecs, 
+>>> kernel (proc) 8 time elapsed: 76.846 ms, 76846 microsecs, 
+>>> kernel (proc) 9 time elapsed: 76.855 ms, 76855 microsecs, 
+>>> kernel (proc) 10 time elapsed: 77.023 ms, 77023 microsecs, 
+>>> kernel (proc) 11 time elapsed: 76.93 ms, 76930 microsecs, 
+>>> kernel (proc) 12 time elapsed: 76.999 ms, 76999 microsecs, 
+>>> kernel (proc) 13 time elapsed: 76.902 ms, 76902 microsecs, 
+>>> kernel (proc) 14 time elapsed: 76.95 ms, 76950 microsecs, 
+>>> kernel (proc) 15 time elapsed: 76.954 ms, 76954 microsecs, 
+>>> kernel (proc) 16 time elapsed: 77.001 ms, 77001 microsecs, 
+>>> kernel (proc) 17 time elapsed: 77.08 ms, 77080 microsecs, 
+>>> kernel (proc) 18 time elapsed: 76.97 ms, 76970 microsecs, 
+>>> kernel (proc) 19 time elapsed: 77.056 ms, 77056 microsecs, 
+>>> kernel (proc) 20 time elapsed: 77.062 ms, 77062 microsecs, 
+>>> kernel (proc) 21 time elapsed: 77.014 ms, 77014 microsecs, 
+>>> kernel (proc) 22 time elapsed: 76.917 ms, 76917 microsecs, 
+>>> kernel (proc) 23 time elapsed: 76.785 ms, 76785 microsecs, 
+>>> kernel (proc) 24 time elapsed: 77.003 ms, 77003 microsecs, 
+>>> kernel (proc) 25 time elapsed: 77.023 ms, 77023 microsecs, 
+>>> kernel (proc) 26 time elapsed: 77.024 ms, 77024 microsecs, 
+>>> kernel (proc) 27 time elapsed: 77.027 ms, 77027 microsecs, 
+>>> kernel (proc) 28 time elapsed: 76.995 ms, 76995 microsecs, 
+>>> kernel (proc) 29 time elapsed: 76.999 ms, 76999 microsecs, 
+>>> kernel (proc) 30 time elapsed: 76.996 ms, 76996 microsecs, 
+>>> kernel (proc) 31 time elapsed: 76.975 ms, 76975 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed for Iteration 0: 25.9872(25.9872) ms, 47.2781(21.291) ms, 76.9641(29.686) ms, 
+>>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 0)
+
+active partitions for iteration 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 
+[1m[37m>>> SUMMARY: Total kernel time: 76.9641 ms[0m
+>>> app::run_hw: total_edges_processed: 182084020 edges (182 million edges)
+>>> app::run_hw: total_time_elapsed: 76.9641 ms (0.0769641 s)
+[1m[37m>>> app::run_hw: throughput: 2.36583e+09 edges/sec (2365.83 million edges/sec)[0m
+
+utility::runsssp_sw:: running traditional sssp... 
+utility::runsssp_sw: number of active vertices for iteration 0: 0
+utility::runsssp_sw: number of active vertices for iteration 1: 3
+>>> utility::runsssp_sw: total_edges_processed: 3 edges (0 million edges)
+>>> utility::runsssp_sw: total_time_elapsed: 0 ms (0 s)
+[1m[37m>>> utility::runsssp_sw: throughput: inf edges/sec (inf million edges/sec)[0m
+
+app::verifyresults_hw: verifying vertex data... 
+utility::printvalues::app::verifyresults_hw.vdatas: verifying results after kernel run:: printing first 16 values
+values[0]: 0
+values[1]: 10
+values[2]: 0
+values[3]: 0
+values[4]: 0
+values[5]: 0
+values[6]: 0
+values[7]: 0
+values[8]: 0
+values[9]: 0
+values[10]: 0
+values[11]: 0
+values[12]: 0
+values[13]: 0
+values[14]: 0
+values[15]: 0
+printvalues:: total values: totalvalues: 10
+graph::closetemporaryfilesforwriting : close temporary files for writing...
+graph::closetemporaryfilesforreading : close files for reading...
+graph::closefilesforreading : close files for reading...
+=== STATS::TIMING AND SUMMARY RESULTS FOR ITERATION: 666 === 
+>>> stats::summary Total number of kvReads in bank [0]: 209773216
+>>> stats::summary Total number of kvReads for all threads: 209773216
+>>> stats::summary Total time spent (SSD access): 0 milliseconds
+>>> stats::summary Total time spent (SSD access): 0 seconds
+>>> stats::summary Total time spent (OCL data transfers): 0 milliseconds
+>>> stats::summary Total time spent (OCL data transfers): 0 seconds
+>>> stats::summary Total time spent (Kernel Pre Process execution): 0 milliseconds
+>>> stats::summary Total time spent (Kernel Pre Process execution): 0 seconds
+>>> stats::summary Total time spent (Kernel execution): 0 milliseconds
+>>> stats::summary Total time spent (Kernel execution): 0 seconds
+>>> stats::summary Total time spent (Kernel Post Process execution): 0 milliseconds
+>>> stats::summary Total time spent (Kernel Post Process execution): 0 seconds
+>>> stats::summary Total time spent (Overall Kernel execution): 0 milliseconds
+>>> stats::summary Total time spent (Overall Kernel execution): 0 seconds
+>>> stats::summary Total time spent (Overall processing): 0 milliseconds
+>>> stats::summary Total time spent (Overall processing): 0 seconds
+>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 0 milliseconds
+>>> stats::summary Total time spent (Overall processing excluding SSD & OCL data transfers): 0 seconds
+>>> stats::summary Throughput (Kernel processing): inf keyvalues per second
+>>> stats::summary Throughput (Kernel processing): inf million keyvalues per second
+>>> stats::summary Throughput (Kernel processing): inf MB/s
+>>> stats::summary Throughput (Overall processing): inf keyvalues per second
+>>> stats::summary Throughput (Overall processing): inf million keyvalues per second
+>>> stats::summary Throughput (Overall processing): inf MB/s
+>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): inf keyvalues per second
+>>> stats::summary Throughput (Overall processing excluding SSD & OCL data transfers): inf million keyvalues per second
+
+graph::printdataset: printing dataset parameters...
+>>> graphtopname: kron-g500-logn21
+>>> graphname: kron-g500-logn21_dup
+>>> graph_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.mtx
+>>> vertices_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.vertices
+>>> edges_path: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21.edges
+>>> vertices_path_bin: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_bin.vertices
+>>> edges_path_bin: /localtmp/oj2zf/dataset/kron-g500-logn21/kron-g500-logn21_bin.edges
+>>> min_vertex: 0
+>>> max_vertex: 2097151
+>>> num_vertices: 2097151
+>>> num_edges: 182084020
+>>> graphdirectiontype: 5
+>>> graphorder: 6
+>>> skewratio: 666
+TEST FINISHED
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 60575389971[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 60575389[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 60575[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 60[seconds](Iteration 666)[0m
+
