@@ -88,23 +88,25 @@ HW__ACTGRAPH_SETUP__PR_VHLS=34
 HW__ACTGRAPH_SETUP__BFS_VHLS=35
 HW__ACTGRAPH_SETUP__SSSP_VHLS=36
 
-NODATASET=50
-ORKUT_3M_106M=51
-HOLLYWOOD_1M_57M=52
-INDOCHINA_7M_194M=53
-KRON21_2M_91M=54
-RGG_17M_132M=55
-ROADNET_2M_3M=56
-FLICKR_1M_10M=57
+NODATASET=0
+ORKUT_3M_106M=1
+HOLLYWOOD_1M_57M=2
+KRON20_1M_45M=3
+KRON21_2M_91M=4
+KRON22_2M_200M=5
 
-LARGEDATASET_1M=1
-LARGEDATASET_4M=2
-TWITTER_67M=3
-MOLIERE2016_33M=4
-LARGEDATASET_67M=5
-LARGEDATASET_268M=6
-LARGEDATASET_1B=7
-LARGEDATASET_4B=8
+INDOCHINA_7M_194M=10
+RGG_4M_32M=11
+RGG_17M_132M=12
+ROADNET_2M_3M=13
+FLICKR_1M_10M=14
+
+TWITTER_67M=20
+MOLIERE2016_33M=21
+LARGEDATASET_67M=22
+LARGEDATASET_268M=23
+LARGEDATASET_1B=24
+LARGEDATASET_4B=25
 
 THREADCOUNT_EQ1=1
 THREADCOUNT_EQ2=2
@@ -130,6 +132,10 @@ NUMTHREADS_EQ24=24
 NUMTHREADS_EQ28=28
 NUMTHREADS_EQ32=32
 
+NUMPARTITIONSPOW_EQ3=3
+NUMPARTITIONSPOW_EQ4=4
+NUMPARTITIONSPOW_EQ5=5
+
 SYNFREQUENCY_EQ60=60
 SYNFREQUENCY_EQ120=120
 SYNFREQUENCY_EQ180=180 
@@ -140,8 +146,8 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
-# for evaluation_type in EV_CREATENDGRAPH
-for evaluation_type in EV_PERFORMANCEOFALGORITHM
+for evaluation_type in EV_CREATENDGRAPH
+# for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
@@ -160,8 +166,8 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
@@ -180,7 +186,6 @@ do
 
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	
 	do 
@@ -478,22 +483,29 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
 		for numsubcputhreads in $NUMTHREADS_EQ32 #
-		
 		do
+		
+		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4 #
+		# for dataset in $NUMPARTITIONSPOW_EQ3 $NUMPARTITIONSPOW_EQ4 $NUMPARTITIONSPOW_EQ5
+		do
+		
 			### >>> LOOP3: locke (kernel-only evaluation)
 			for locke in $_LOCKE
 			do
 				### >>> LOOP3: datasets
 				
 				# for dataset in $NODATASET
+				# for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
-				for dataset in $KRON21_2M_91M #
-				# for dataset in $ORKUT_3M_106M #
+				# for dataset in $KRON20_1M_45M
+				# for dataset in $KRON21_2M_91M
+				for dataset in $KRON22_4M_200M
+				
 				# for dataset in $INDOCHINA_7M_194M
+				# for dataset in $RGG_4M_32M
 				# for dataset in $RGG_17M_132M
 				# for dataset in $ROADNET_2M_3M
 				# for dataset in $FLICKR_1M_10M
-				# for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $ORKUT_3M_106M
 				
 				# for dataset in $TWITTER_67M #
 				# for dataset in $MOLIERE2016_33M
@@ -501,16 +513,16 @@ do
 				# for dataset in $LARGEDATASET_268M
 				# for dataset in $LARGEDATASET_1B
 				# for dataset in $LARGEDATASET_4B
-				# for dataset in $TWITTER_67M $MOLIERE2016_33M
+				# for dataset in $TWITTER_67M
 				
-				# for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $ORKUT_3M_106M
+				# for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $KRON20_1M_45M $ORKUT_3M_106M
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
 						# for synfreq in $SYNFREQUENCY_EQ60
-						# for synfreq in $SYNFREQUENCY_EQ300
-						for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
+						for synfreq in $SYNFREQUENCY_EQ300
+						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 						do
 							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
 							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
@@ -542,18 +554,37 @@ do
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
 								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/hollywood_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
-							elif [ $dataset == $INDOCHINA_7M_194M ]  
-							then	
-								DATASET="_INDOCHINA_7M_194M"
-								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/indochina_${RESULT_NAME}.out"
-								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
+							elif [ $dataset == $KRON20_1M_45M ]  
+							then
+								DATASET="_KRON20_1M_45M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn20/kron_g500-logn20.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron20_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron20.csv"
 							elif [ $dataset == $KRON21_2M_91M ]  
 							then
 								DATASET="_KRON21_2M_91M"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
 								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron21_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
+							elif [ $dataset == $KRON22_4M_200M ]  
+							then
+								DATASET="_KRON22_4M_200M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron22_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"	
+						
+							elif [ $dataset == $INDOCHINA_7M_194M ]  
+							then	
+								DATASET="_INDOCHINA_7M_194M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/indochina_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
+							elif [ $dataset == $RGG_4M_32M ]  
+							then	
+								DATASET="_RGG_4M_32M"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_22_s0/rgg_n_2_22_s0.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/rgg_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
 							elif [ $dataset == $RGG_17M_132M ]  
 							then	
 								DATASET="_RGG_17M_132M"
@@ -572,7 +603,7 @@ do
 								datasetpath=""
 								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/flickr_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
-							
+								
 							elif [ $dataset == $TWITTER_67M ]  
 							then	
 								DATASET="_TWITTER_67M"
@@ -615,15 +646,15 @@ do
 								RESULTDIR_RESULT=""
 							fi
 							
-							make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0				
+							make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads NUMPARTITIONS=$numpartitions_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0 												
 
 							# ================================================ SW RUNS ================================================
 							if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 							then
 								make cleanall
 								# make build_acts_nthreads
-								# make demo_acts_nthreads #> $RESULTDIR_RESULT
-								make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+								make demo_acts_nthreads #> $RESULTDIR_RESULT
+								# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 							elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 							then
 								make cleanall
@@ -843,7 +874,9 @@ do
 					done
 				done
 			done
-
+		
+		done 
+		
 		done
 
 		done

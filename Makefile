@@ -30,12 +30,13 @@ ABS_COMMON_REPO = /home/oj2zf/Documents/SDAccel_Examples/
 # COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 # ABS_COMMON_REPO = /home/centos/src/project_data/oj2zf/SDAccel_Examples/
 
-# RELREF = ../
+RELREF = ../
 
 TARGETS := hw
 TARGET := $(TARGETS)
 DEVICE := $(DEVICES)
 XCLBIN := ./xclbin
+SYNFREQUENCY := 300
 
 include ./utils.mk
 
@@ -167,22 +168,22 @@ LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem13:HBM[13]
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem14:HBM[14]
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem15:HBM[15]
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem16:HBM[16]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem17:HBM[17]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem18:HBM[18]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem19:HBM[19]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem20:HBM[20]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem21:HBM[21]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem22:HBM[22]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem23:HBM[23]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem24:HBM[24]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem25:HBM[25]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem26:HBM[26]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem27:HBM[27]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem28:HBM[28]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem29:HBM[29]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem30:HBM[30]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem31:HBM[31]
-LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem32:HBM[31]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem17:HBM[17]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem18:HBM[18]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem19:HBM[19]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem20:HBM[20]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem21:HBM[21]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem22:HBM[22]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem23:HBM[23]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem24:HBM[24]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem25:HBM[25]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem26:HBM[26]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem27:HBM[27]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem28:HBM[28]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem29:HBM[29]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem30:HBM[30]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem31:HBM[31]
+# LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem32:HBM[32]
 
 # === DRAM MEMORY ===
 LDCLFLAGS_DRAM_PROC += --sp topkernelproc_1.m_axi_gmem0:bank0 
@@ -250,31 +251,31 @@ build: $(BINARY_CONTAINERS)
 # Building kernel (N compute units in 1 kernel)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xo: $(KERNEL_TOP) $(KERNEL_UTILITY)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP) $(KERNEL_UTILITY)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernel -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP) $(KERNEL_UTILITY)
 $(XCLBIN)/topkernel.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernel_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS) --nk topkernel:1 -o'$@' $(+)
 	
 # Building kernel (proc)
 $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -c -k topkernelproc -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelproc) -c -k topkernelproc -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
 $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS_PROC) --nk topkernelproc:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS_PROC) --nk topkernelproc:1 -o'$@' $(+)
 	
 # Building kernel (sync)
 $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo: $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelsync) -c -k topkernelsync -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelsync) -c -k topkernelsync -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY)
 $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelsync_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelsync) -l $(LDCLFLAGS_SYNC) --nk topkernelsync:1 -o'$@' $(+)	
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelsync) -l $(LDCLFLAGS_SYNC) --nk topkernelsync:1 -o'$@' $(+)	
 	
 # Building kernel (proc & sync in 1 kernel)
 $(XCLBIN)/topkernelprocandsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_PROC) $(LDCLFLAGS_SYNC) --nk topkernelproc:20 --nk topkernelsync:1 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_PROC) $(LDCLFLAGS_SYNC) --nk topkernelproc:20 --nk topkernelsync:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
 $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
@@ -367,7 +368,7 @@ run_grafboost_nthreads_debug:
 	
 ### generate source files (python)
 generatesrcs:
-	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
+	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(NUMPARTITIONS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
 	
 # Cleaning stuff
 clean:

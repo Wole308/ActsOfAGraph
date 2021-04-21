@@ -15,16 +15,16 @@ context['DATASET'] = sys.argv[4]
 context['NUMSUPERCPUTHREADS'] = sys.argv[5]
 context['NUMCPUTHREADS'] = sys.argv[6] # FIXME. this is overriden in common.h
 context['NUMSUBCPUTHREADS'] = int(sys.argv[7])
-context['LOCKE'] = sys.argv[8]
-context['EVALUATION_TYPE'] = sys.argv[9]
-context['EVALUATION_PARAM0'] = int(sys.argv[10])
+context['NUM_PARTITIONS_POW'] = int(sys.argv[8])
+context['LOCKE'] = sys.argv[9]
+context['EVALUATION_TYPE'] = sys.argv[10]
+context['EVALUATION_PARAM0'] = int(sys.argv[11])
 path = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 isFile = os.path.isfile(path)  
 print(isFile) 
 
 ###
 
-context['NUM_PARTITIONS_POW'] = 4
 context['VECTOR_SIZE'] = 8
 context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
@@ -74,6 +74,11 @@ elif context['DATASET'] == "_ROADNET_2M_3M":
     context['KVDATA_RANGE_POW'] = 21
 elif context['DATASET'] == "_FLICKR_1M_10M":
     context['KVDATA_RANGE_POW'] = 20
+elif context['DATASET'] == "_KRON20_1M_45M":
+    context['KVDATA_RANGE_POW'] = 20
+elif context['DATASET'] == "_RGG_4M_32M":
+    context['KVDATA_RANGE_POW'] = 22
+    
 elif context['DATASET'] == "_TWITTER_67M": # large dataset
     context['KVDATA_RANGE_POW'] = 26
 elif context['DATASET'] == "_MOLIERE2016_33M":
@@ -140,8 +145,8 @@ print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 
-relref=""
-# relref="../"
+# relref=""
+relref="../"
 	
 o_path0=relref+"acts/acts/acts.cpp"
 o_path1=relref+"acts/acts/acts.h"

@@ -71,6 +71,10 @@
 
 // #define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
 
+#ifdef FPGA_IMPL
+#define ENABLE_KERNEL_PROFILING
+#endif 
+
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
 #else
@@ -306,6 +310,9 @@ struct _bitData {
 
 #define ONE 1
 #define TWO 2
+
+#define SNAP 1
+#define SYNTHETIC 2
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

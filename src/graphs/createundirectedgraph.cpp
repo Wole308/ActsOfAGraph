@@ -109,12 +109,17 @@ void createundirectedgraph::start(){
 		inoutdegree_dup[i] = 0;
 	}
 	
+	// cout<<"graphobj->getdataset().graphgroup: "<<graphobj->getdataset().graphgroup<<endl;
+	// exit(EXIT_SUCCESS);
+	
 	std::ifstream file_graph(graphobj->getdataset().graph_path);
 	if (file_graph.is_open()) {
 		std::string line;
 		while (getline(file_graph, line)) {
 			if (line.find("%") == 0){ continue; }
-			if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats
+			if(graphobj->getdataset().graphgroup == SNAP){
+				if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats
+			}
 			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			
 			if(graphobj->getdataset().graphorder == SRC_DST){

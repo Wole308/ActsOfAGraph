@@ -39,7 +39,7 @@ typedef struct {
 	size_t num_edges;
 	int graphdirectiontype;
 	int graphorder;
-	int skewratio;
+	int graphgroup;
 	unsigned int groupvoffset[4];
 } dataset_t;
 

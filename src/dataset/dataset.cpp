@@ -34,51 +34,55 @@ unsigned int dataset::getdatasetid(){
 	
 	// small dataset 
 	#ifdef _ORKUT_3M_106M
-	datasetid = 30;
+	datasetid = 1;
 	#endif
 	#ifdef _HOLLYWOOD_1M_57M
-	datasetid = 31;
-	#endif
-	#ifdef _INDOCHINA_7M_194M
-	datasetid = 32;
-	#endif
-	#ifdef _KRON21_2M_91M
-	datasetid = 33;
-	#endif
-	#ifdef _RGG_17M_132M
-	datasetid = 34;
-	#endif
-	#ifdef _ROADNET_2M_3M
-	datasetid = 35;
-	#endif
-	#ifdef _FLICKR_1M_10M
-	datasetid = 36;
+	datasetid = 2;
 	#endif
 	#ifdef _KRON20_1M_45M
-	datasetid = 37;
+	datasetid = 3;
+	#endif
+	#ifdef _KRON21_2M_91M
+	datasetid = 4;
+	#endif
+	#ifdef _KRON22_4M_200M
+	datasetid = 5;
+	#endif
+	
+	#ifdef _INDOCHINA_7M_194M
+	datasetid = 10;
 	#endif
 	#ifdef _RGG_4M_32M
-	datasetid = 38;
+	datasetid = 11;
+	#endif
+	#ifdef _RGG_17M_132M
+	datasetid = 12;
+	#endif
+	#ifdef _ROADNET_2M_3M
+	datasetid = 13;
+	#endif
+	#ifdef _FLICKR_1M_10M
+	datasetid = 14;
 	#endif
 	
 	// large dataset 
 	#ifdef _TWITTER_67M
-	datasetid = 2;
+	datasetid = 20;
 	#endif
 	#ifdef _MOLIERE2016_33M
-	datasetid = 3;
+	datasetid = 21;
 	#endif
 	#ifdef _LARGEDATASET_67M
-	datasetid = 4;
+	datasetid = 22;
 	#endif
 	#ifdef _LARGEDATASET_268M
-	datasetid = 5;
+	datasetid = 23;
 	#endif
 	#ifdef _LARGEDATASET_1B
-	datasetid = 6;
+	datasetid = 24;
 	#endif
 	#ifdef _LARGEDATASET_4B
-	datasetid = 7;
+	datasetid = 25;
 	#endif
 	return datasetid;
 }

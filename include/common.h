@@ -5,7 +5,7 @@
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
-#define _RGG_17M_132M 
+#define _KRON22_4M_200M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -36,6 +36,10 @@
 ////////////////
 
 // #define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
+
+#ifdef FPGA_IMPL
+#define ENABLE_KERNEL_PROFILING
+#endif 
 
 #define _DEBUGMODE_HEADER //
 #if defined (FPGA_IMPL) && defined (HW)
@@ -95,7 +99,7 @@
 #define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
-#define KVDATA_RANGE_POW 25
+#define KVDATA_RANGE_POW 22
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
@@ -272,6 +276,9 @@ struct _bitData {
 
 #define ONE 1
 #define TWO 2
+
+#define SNAP 1
+#define SYNTHETIC 2
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

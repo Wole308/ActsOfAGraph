@@ -108,7 +108,7 @@ void creategraphs::start(){
 
 	vertex_t srcv = 0;
 	vertex_t dstv = 0;
-	vertex_t ew = 1;
+	vertex_t ew = NAp;
 	vertex_t local_srcv = 0;
 	vertex_t local_dstv = 0;
 	edge_t linecount = 0;
@@ -122,8 +122,11 @@ void creategraphs::start(){
 		std::string line;
 		while (getline(file_graph, line)) {
 			if (line.find("%") == 0){ continue; }
-			if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats
+			if(graphobj->getdataset().graphgroup == SNAP){
+				if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats // CRITICAL FIXME.
+			}
 			if ((alllinecount % 1000000) == 0){ cout<<"creategraphs::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
+			// continue; // REMOVEME.
 			
 			if(graphobj->getdataset().graphorder == SRC_DST){
 				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
@@ -176,10 +179,8 @@ void creategraphs::start(){
 			if(firstedge[col].srcvid == INVALIDDATA){ firstedge[col] = edge; }
 			
 			edgesbuffer[col].push_back(edge); 
-			// edges2buffer[col].push_back(edge2); 
 			#ifdef GRAPHISUNDIRECTED
 			edgesbuffer[col].push_back(edge_dup); 
-			// edges2buffer[col].push_back(edge2_dup); 
 			#endif 
 			
 			lvertexoutdegrees[col][local_srcv] += 1;
@@ -199,14 +200,10 @@ void creategraphs::start(){
 				#endif 
 				
 				writeedgestofile(edgesbuffer); 
-				clearedges(edgesbuffer); 
-
-				// writeedgestofile(edges2buffer); 
-				// clearedges(edges2buffer);
+				clearedges(edgesbuffer);
 			}
 				
 			alllinecount += 1;
-										// if(linecount > 1000000){ break; } // CRITICAL REMOVEME..................................................
 		}
 		cout<<"creategraphs:: finished processing edges: [valid edges processed: "<<linecount<<"][invalid edges processed: "<<(alllinecount - linecount)<<"][total edges processed: "<<alllinecount<<"][groupid: "<<groupid<<"][YDIMENSIONTHRESHOLD: "<<YDIMENSIONTHRESHOLD<<"]"<<endl;
 	}
@@ -243,6 +240,18 @@ void creategraphs::summary(){
 
 void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
 	cout<<"creategraphs::writeedgestofile<edge2_type>  started."<<endl;
+	
+	if(edgesbuffer[0].size() > 100){
+		for(unsigned int i=1; i<100; i++){
+			// cout<<"creategraphs::writeedgestofile: srcvid["<<i<<"]: "<<edgesbuffer[0][i].srcvid<<", dstvid["<<i<<"]: "<<edgesbuffer[0][i].dstvid<<endl;
+			if(edgesbuffer[0][i].srcvid > edgesbuffer[0][i+1].srcvid){ 
+				cout<<"ERROR: writeedgestofile: NON-INCREASING SOURCE VIDS. EXITING..."<<endl; 
+				cout<<"$$$ creategraphs::writeedgestofile: srcvid["<<i<<"]: "<<edgesbuffer[0][i].srcvid<<", dstvid["<<i<<"]: "<<edgesbuffer[0][i].dstvid;
+				cout<<", srcvid["<<i+1<<"]: "<<edgesbuffer[0][i+1].srcvid<<", dstvid["<<i+1<<"]: "<<edgesbuffer[0][i+1].dstvid<<endl;
+				exit(EXIT_FAILURE); 
+			}
+		}
+	}
 
 	edge_t totalnumedges = 0;
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){
@@ -312,11 +321,11 @@ void creategraphs::writevertexptrstofile(){
 		#endif 
 		cout<<"creategraphs:: checking col "<<i<<"... "<<endl;
 
-		#ifdef GRAPHISUNDIRECTED
-		if(vertexptrs[i][KVDATA_RANGE-1] != 2*numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
-		#else 
-		if(vertexptrs[i][KVDATA_RANGE-1] != numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
-		#endif 
+		// #ifdef GRAPHISUNDIRECTED
+		// if(vertexptrs[i][KVDATA_RANGE-1] != 2*numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
+		// #else 
+		// if(vertexptrs[i][KVDATA_RANGE-1] != numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
+		// #endif 
 	}
 	cout<<">>> creategraphs::writevertexptrstofile:: total number of vertices out-degree information written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumvertices<<endl;
 	return;

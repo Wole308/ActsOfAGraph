@@ -22,8 +22,6 @@
 // #define ACCESSFPGABY_ENQUEUEWRITEBUFFER // FIXME. causing extra latency // FIXME. would cause FPGA inaccuracies now if enabled
 
 #define HARDWIREBY_TREEDEPTH // DEPRECIATED.
-
-#define ENABLE_KERNEL_PROFILING
 #endif
 
 
