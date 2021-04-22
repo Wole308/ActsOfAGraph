@@ -1414,6 +1414,12 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		actsutilityobj->checkoutofbounds("readandprocess.1", mask, 2, NAp, NAp, NAp);
 		#endif
 		
+		// CRITICAL REMOVEME.
+		// if(i<4 && srcvid < 4){ 
+		// if(srcvid < 4){ 
+		// cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; 
+		// for(unsigned int v=0; v<VECTOR_SIZE; v++){  cout<<"readandprocess: udata: "<<udata<<", E[0]["<<v<<"]: "<<E[0][v]<<", E[1]["<<v<<"]: "<<E[1][v]<<endl; }
+		// }
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 // CRITICAL REMOVEME.
 		if(en == ON && mask == 1){
 			if(true){ cout<<"readandprocess: i: "<<i<<", mask: "<<mask<<", srcvid: "<<srcvid<<", travstate.i2: "<<travstate.i2<<", lvid: "<<lvid<<", udata: "<<udata<<endl; }
@@ -1421,6 +1427,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: udata: "<<udata<<", E[1]["<<v<<"]: "<<E[1][v]<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
 		}
 		#endif
+		// if(i>8){ exit(EXIT_SUCCESS); } // CRITICAL REMOVEME.
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		keyvalue_t mykeyvalue0{{v}};
@@ -1561,6 +1568,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#endif 
 	
 	fetchmessage.chunksize_kvs = loadcount;
+	// exit(EXIT_SUCCESS); // CRITICAL REMOVEME.
 	return fetchmessage;
 }
 

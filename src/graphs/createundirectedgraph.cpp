@@ -41,9 +41,6 @@ createundirectedgraph::createundirectedgraph(unsigned int datasetid){
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, true, true);
 	
-	// edgedatabuffer_dup = new edge2_type[2 * graphobj->get_num_edges()];
-	// edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
-	
 	unsigned int num_edges = graphobj->getedgessize(0);
 	edgedatabuffer_dup = new edge2_type[2 * num_edges];
 	edgedatabuffer = new edge2_type[num_edges];
@@ -85,8 +82,6 @@ void createundirectedgraph::start(){
 	vertex_t ew = NAp;
 	vertex_t local_srcv = 0;
 	vertex_t local_dstv = 0;
-	// edge_t linecount = 0;
-	// edge_t alllinecount = 0;
 	unsigned int edgedatabuffer_dup_size = 0;
 	
 	unsigned int num_edges = graphobj->getedgessize(0);
@@ -123,8 +118,7 @@ void createundirectedgraph::start(){
 			if(alllinecount > num_edges){ cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
 		}
 	}
-	file1_graph.close(); 
-	// exit(EXIT_SUCCESS); //  
+	file1_graph.close();
 	
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){
 		inoutdegree_dup[i] = 0;
@@ -142,7 +136,6 @@ void createundirectedgraph::start(){
 	for(unsigned int k=0; k<10; k++){
 		cout<<"createundirectedgraph::start:: inoutdegree_dup["<<k<<"]: "<<inoutdegree_dup[k]<<endl;
 	}
-	// exit(EXIT_SUCCESS);
 	
 	vertexptrbuffer_dup[0] = 0;
 	for(unsigned int k=1; k<KVDATA_RANGE; k++){
@@ -151,7 +144,6 @@ void createundirectedgraph::start(){
 		if(vertexptrbuffer_dup[k] < vertexptrbuffer_dup[k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<", vertexptrbuffer_dup["<<k-1<<"]: "<<vertexptrbuffer_dup[k-1]<<endl; exit(EXIT_FAILURE); }
 	}
 	cout<<"createundirectedgraph::start:: last: vertexptrbuffer_dup["<<KVDATA_RANGE-1<<"]: "<<vertexptrbuffer_dup[KVDATA_RANGE-1]<<endl;
-	// exit(EXIT_SUCCESS);
 	
 	cout<<"createundirectedgraph::start:: checking..."<<endl;
 	for(unsigned int k=0; k<KVDATA_RANGE-2; k++){
@@ -161,7 +153,6 @@ void createundirectedgraph::start(){
 		}
 	}
 	cout<<"createundirectedgraph::start:: finished checking."<<endl;
-	// exit(EXIT_SUCCESS); //  
 			
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ inoutdegree_dup[i] = 0; }
 	
@@ -240,9 +231,6 @@ void createundirectedgraph::start(){
 	nvmeFd_vertexptrs_w = fopen(vptrspath.c_str(), "w"); 
 	if(fwrite(vertexptrbuffer_dup, (KVDATA_RANGE * sizeof(edge_t)), 1, nvmeFd_vertexptrs_w) == 0){ cout<<"ERROR:createundirectedgraph: fwrite error 34"<<endl; exit(EXIT_FAILURE); }	
 		
-	// writeedgestofile(edgedatabuffer_dup); 
-	// writevertexptrstofile();
-
 	cout<<"createundirectedgraph:: start finished. closing files... "<<endl;
 	graphobj->closefilesforreading();
 	cout<<"createundirectedgraph:: finished creating undirected 2D graph from "<<graphobj->getdataset().graph_path<<endl;

@@ -594,12 +594,17 @@ void graph::loadalldatasets(){
 	_datasets[5].vertices_path_bin = rootDir + "dataset/kron_g500-logn22/kron_g500-logn22.vertices";
 	_datasets[5].edges_path_bin = rootDir + "dataset/kron_g500-logn22/kron_g500-logn22.edges";
 	_datasets[5].min_vertex = 0;
-	_datasets[5].max_vertex = 4194303;//(1 << 22);
-	_datasets[5].num_vertices = 4194304;//(1 << 22);
+	
+	// _datasets[5].max_vertex = 4194303;//(1 << 22);
+	// _datasets[5].num_vertices = 4194304;//(1 << 22);
 	// _datasets[5].num_edges = 209715200; // ((1 << 22) * 50);
 	
-	_datasets[5].num_edges = 209715200;
+	// _datasets[5].num_edges = 209715200;
 	// _datasets[5].num_edges = 210000000;
+	
+	_datasets[5].max_vertex = (1 << 22);
+	_datasets[5].num_vertices = (1 << 22);
+	_datasets[5].num_edges = ((1 << 22) * 35); // 40
 	
 	_datasets[5].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[5].graphorder = DST_SRC; // DST_SRC, SRC_DST;

@@ -99,13 +99,14 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 32; // 3,12,32
+	unsigned int NumGraphIters = 1; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
 	globalparams_t globalparams;
 
 	actvvs.push_back(1);
+	// actvvs.push_back(0);
 
 	// load workload information
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
