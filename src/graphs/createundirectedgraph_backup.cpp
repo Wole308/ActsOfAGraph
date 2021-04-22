@@ -41,12 +41,8 @@ createundirectedgraph::createundirectedgraph(unsigned int datasetid){
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, true, true);
 	
-	// edgedatabuffer_dup = new edge2_type[2 * graphobj->get_num_edges()];
-	// edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
-	
-	unsigned int num_edges = graphobj->getedgessize(0);
-	edgedatabuffer_dup = new edge2_type[2 * num_edges];
-	edgedatabuffer = new edge2_type[num_edges];
+	edgedatabuffer_dup = new edge2_type[2 * graphobj->get_num_edges()];
+	edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
 	
 	vertexptrbuffer_dup = new edge_t[KVDATA_RANGE];
 	inoutdegree_dup = new int[KVDATA_RANGE];
@@ -77,72 +73,30 @@ void createundirectedgraph::start(){
 	cout<<"createundirectedgraph::start: opening files..."<<endl;
 	utilityobj->createdirectory(graphobj->getdatasetdir().c_str());
 	graphobj->openfilesforreading(0);
-	// graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0)); //
-	// vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	vertexptrbuffer = graphobj->loadvertexptrsfromfile(0);
 
 	vertex_t srcv = 0;
 	vertex_t dstv = 0;
 	vertex_t ew = NAp;
 	vertex_t local_srcv = 0;
 	vertex_t local_dstv = 0;
-	// edge_t linecount = 0;
-	// edge_t alllinecount = 0;
+	edge_t linecount = 0;
+	edge_t alllinecount = 0;
 	unsigned int edgedatabuffer_dup_size = 0;
-	
-	unsigned int num_edges = graphobj->getedgessize(0);
-	
-	std::ifstream file1_graph(graphobj->getdataset().graph_path);
-	if (file1_graph.is_open()) {
-		std::string line;
-		unsigned int linecount = 0;
-		unsigned int alllinecount = 0;
-		while (getline(file1_graph, line)) {
-			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
-			
-			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
-			
-			if(graphobj->getdataset().graphorder == SRC_DST){
-				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
-			} else if(graphobj->getdataset().graphorder == DST_SRC){
-				sscanf(line.c_str(), "%i %i", &dstv, &srcv);
-			} else if(graphobj->getdataset().graphorder == DST_SRC_EDGEW){
-				sscanf(line.c_str(), "%i %i %i", &dstv, &srcv, &ew);
-			} else {}
-			
-			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
-			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
-			
-			edgedatabuffer[linecount].srcvid = srcv;
-			edgedatabuffer[linecount].dstvid = dstv;
-			
-			linecount += 1;
-			alllinecount += 1;
-			
-			// graphobj->getdataset().num_edges
-			if(linecount > num_edges){ cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
-			if(alllinecount > num_edges){ cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
-		}
-	}
-	file1_graph.close(); 
-	// exit(EXIT_SUCCESS); //  
 	
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){
 		inoutdegree_dup[i] = 0;
 		vertexptrbuffer_dup[i] = 0;
 	}
 	
-	for(unsigned int i=0; i<num_edges; i++){ // graphobj->get_num_edges()
-		if(edgedatabuffer[i].srcvid >= KVDATA_RANGE){ edgedatabuffer[i].srcvid = graphobj->getdataset().max_vertex; }
-		if(edgedatabuffer[i].dstvid >= KVDATA_RANGE){ edgedatabuffer[i].dstvid = graphobj->getdataset().max_vertex; }
+	for(unsigned int i=0; i<graphobj->get_num_edges(); i++){
+		if(edgedatabuffer[i].srcvid >= KVDATA_RANGE){ edgedatabuffer[i].srcvid = graphobj->getdataset().max_vertex; } ///////
+		if(edgedatabuffer[i].dstvid >= KVDATA_RANGE){ edgedatabuffer[i].dstvid = graphobj->getdataset().max_vertex; } ///////
 			
 		inoutdegree_dup[edgedatabuffer[i].srcvid] += 1;
 		inoutdegree_dup[edgedatabuffer[i].dstvid] += 1;
 	}
-	
-	for(unsigned int k=0; k<10; k++){
-		cout<<"createundirectedgraph::start:: inoutdegree_dup["<<k<<"]: "<<inoutdegree_dup[k]<<endl;
-	}
-	// exit(EXIT_SUCCESS);
 	
 	vertexptrbuffer_dup[0] = 0;
 	for(unsigned int k=1; k<KVDATA_RANGE; k++){
@@ -151,7 +105,6 @@ void createundirectedgraph::start(){
 		if(vertexptrbuffer_dup[k] < vertexptrbuffer_dup[k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<", vertexptrbuffer_dup["<<k-1<<"]: "<<vertexptrbuffer_dup[k-1]<<endl; exit(EXIT_FAILURE); }
 	}
 	cout<<"createundirectedgraph::start:: last: vertexptrbuffer_dup["<<KVDATA_RANGE-1<<"]: "<<vertexptrbuffer_dup[KVDATA_RANGE-1]<<endl;
-	// exit(EXIT_SUCCESS);
 	
 	cout<<"createundirectedgraph::start:: checking..."<<endl;
 	for(unsigned int k=0; k<KVDATA_RANGE-2; k++){
@@ -163,17 +116,22 @@ void createundirectedgraph::start(){
 	cout<<"createundirectedgraph::start:: finished checking."<<endl;
 	// exit(EXIT_SUCCESS); //  
 			
-	for(unsigned int i=0; i<KVDATA_RANGE; i++){ inoutdegree_dup[i] = 0; }
+	for(unsigned int i=0; i<KVDATA_RANGE; i++){
+		inoutdegree_dup[i] = 0;
+	}
 	
-	std::ifstream file2_graph(graphobj->getdataset().graph_path);
-	if (file2_graph.is_open()) {
+	// cout<<"graphobj->getdataset().graphgroup: "<<graphobj->getdataset().graphgroup<<endl;
+	// exit(EXIT_SUCCESS);
+	
+	std::ifstream file_graph(graphobj->getdataset().graph_path);
+	if (file_graph.is_open()) {
 		std::string line;
-		unsigned int linecount = 0;
-		unsigned int alllinecount = 0;
-		while (getline(file2_graph, line)) {
+		while (getline(file_graph, line)) {
 			if (line.find("%") == 0){ continue; }
-			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
-			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (B): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
+			// if(graphobj->getdataset().graphgroup == SNAP){
+				// if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats
+			// }
+			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			
 			if(graphobj->getdataset().graphorder == SRC_DST){
 				sscanf(line.c_str(), "%i %i", &srcv, &dstv);
@@ -187,8 +145,13 @@ void createundirectedgraph::start(){
 			cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; if(alllinecount >= 100){ break; }
 			#endif 
 			
+			// #ifdef ENABLE_PERFECTACCURACY // graphobj->getdataset().num_vertices
+			// if(srcv >= KVDATA_RANGE){ cout<<"createundirectedgraph::start:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			// if(dstv >= KVDATA_RANGE){ cout<<"createundirectedgraph::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			// #else 
 			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
 			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			// #endif
 			
 			local_srcv = srcv;
 			local_dstv = dstv;
@@ -219,7 +182,7 @@ void createundirectedgraph::start(){
 		}
 		cout<<"createundirectedgraph:: finished processing edges: [valid edges processed: "<<linecount<<"][invalid edges processed: "<<(alllinecount - linecount)<<"][total edges processed: "<<alllinecount<<"]"<<endl;
 	}
-	file2_graph.close(); 
+	file_graph.close(); 
 	
 	cout<<"createundirectedgraph:: saving edge data... "<<endl;
 	/* for(unsigned int k=1; k<KVDATA_RANGE; k++){

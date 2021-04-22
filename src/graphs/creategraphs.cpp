@@ -122,9 +122,9 @@ void creategraphs::start(){
 		std::string line;
 		while (getline(file_graph, line)) {
 			if (line.find("%") == 0){ continue; }
-			if(graphobj->getdataset().graphgroup == SNAP){
-				if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats // CRITICAL FIXME.
-			}
+			// if(graphobj->getdataset().graphgroup == SNAP){
+				// if (alllinecount == 0){ alllinecount++; continue; } // first entry for flickr is stats // CRITICAL FIXME.
+			// }
 			if ((alllinecount % 1000000) == 0){ cout<<"creategraphs::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			// continue; // REMOVEME.
 			
@@ -139,19 +139,20 @@ void creategraphs::start(){
 			#ifdef _DEBUGMODE_CHECKS
 			cout<<"creategraphs: srcv: "<<srcv<<", dstv: "<<dstv<<endl; if(alllinecount >= 100){ break; }
 			#endif 
-			#ifdef ENABLE_PERFECTACCURACY // graphobj->getdataset().num_vertices
-			if(srcv >= KVDATA_RANGE){ cout<<"creategraphs::start:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
-			if(dstv >= KVDATA_RANGE){ cout<<"creategraphs::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
-			#else 
+			
+			// #ifdef ENABLE_PERFECTACCURACY // graphobj->getdataset().num_vertices
+			// if(srcv >= KVDATA_RANGE){ cout<<"creategraphs::start:: source vertex found greater than number of vertices specified in dataset. srcv: "<<srcv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			// if(dstv >= KVDATA_RANGE){ cout<<"creategraphs::start:: destination vertex found greater than number of vertices specified in dataset. dstv: "<<dstv<<", dataset.num_vertices: "<<graphobj->getdataset().num_vertices<<endl; exit(EXIT_FAILURE); }
+			// #else 
 			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
 			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
-			#endif
+			// #endif
 		
 			local_srcv = srcv;
 			local_dstv = dstv;
 			
 			unsigned int col = getbank(local_dstv);
-			if(col > 0){ continue; } // FIXME.
+			if(col > 0){ cout<<"creategraphs::start: ERROR: col("<<col<<") > 0. exiting..."<<endl; exit(EXIT_FAILURE); continue; } // FIXME.
 			
 			#ifdef _DEBUGMODE_CHECKS
 			if (linecount < 16){ cout<<"creategraphs:: gedge: ["<<local_srcv<<","<<local_dstv<<"]"<<endl; }
