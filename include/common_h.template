@@ -63,8 +63,8 @@
 #define TESTKERNEL
 {%endif%}
 {%if(context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH")%}
-// #define _GENERATE2DGRAPH
-#define _GENERATEUNDIRECTEDGRAPH //
+#define _GENERATE2DGRAPH
+// #define _GENERATEUNDIRECTEDGRAPH //
 {%endif%}
 ////////////////
 

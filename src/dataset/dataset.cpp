@@ -49,6 +49,31 @@ unsigned int dataset::getdatasetid(){
 	datasetid = 5;
 	#endif
 	
+	#ifdef _RMAT22_SPARSE0
+	datasetid = 30;
+	#endif
+	#ifdef _RMAT22_SPARSE1
+	datasetid = 31;
+	#endif
+	#ifdef _RMAT22_SPARSE2
+	datasetid = 32;
+	#endif
+	#ifdef _RMAT22_SPARSE3
+	datasetid = 33;
+	#endif
+	#ifdef _RMAT22_SPARSE4
+	datasetid = 34;
+	#endif
+	#ifdef _RMAT22_SPARSE5
+	datasetid = 35;
+	#endif
+	#ifdef _RMAT22_SPARSE6
+	datasetid = 36;
+	#endif
+	#ifdef _RMAT22_SPARSE7
+	datasetid = 37;
+	#endif
+	
 	#ifdef _INDOCHINA_7M_194M
 	datasetid = 10;
 	#endif

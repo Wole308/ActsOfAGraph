@@ -95,6 +95,7 @@ void createundirectedgraph::start(){
 			if (line.find("%") == 0){ continue; }
 			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
 			
+			if (linecount < 128){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			
 			if(graphobj->getdataset().graphorder == SRC_DST){
@@ -167,6 +168,8 @@ void createundirectedgraph::start(){
 		while (getline(file2_graph, line)) {
 			if (line.find("%") == 0){ continue; }
 			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
+			
+			// if (linecount < 128){ cout<<"createundirectedgraph::~start edge (B): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (B): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			
 			if(graphobj->getdataset().graphorder == SRC_DST){

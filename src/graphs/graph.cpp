@@ -614,6 +614,128 @@ void graph::loadalldatasets(){
 	
 	/////////////////////////////////////////////////////////////////////
 	
+	_datasets[30].graphtopname = "RMAT22_SPARSE0";
+	_datasets[30].graphname = "RMAT22_SPARSE0";
+	_datasets[30].graph_path = rootDir + "dataset/RMAT22_SPARSE0/RMAT22_SPARSE0.mtx";
+	_datasets[30].vertices_path = rootDir + "dataset/RMAT22_SPARSE0/RMAT22_SPARSE0.vertices";
+	_datasets[30].edges_path = rootDir + "dataset/RMAT22_SPARSE0/RMAT22_SPARSE0.edges";	
+	_datasets[30].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE0/RMAT22_SPARSE0.vertices";
+	_datasets[30].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE0/RMAT22_SPARSE0.edges";
+	_datasets[30].min_vertex = 0;
+	_datasets[30].max_vertex = (1 << 22);
+	_datasets[30].num_vertices = (1 << 22);
+	_datasets[30].num_edges = ((1 << 22) * 30);
+	_datasets[30].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[30].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[30].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[31].graphtopname = "RMAT22_SPARSE1";
+	_datasets[31].graphname = "RMAT22_SPARSE1";
+	_datasets[31].graph_path = rootDir + "dataset/RMAT22_SPARSE1/RMAT22_SPARSE1.mtx";
+	_datasets[31].vertices_path = rootDir + "dataset/RMAT22_SPARSE1/RMAT22_SPARSE1.vertices";
+	_datasets[31].edges_path = rootDir + "dataset/RMAT22_SPARSE1/RMAT22_SPARSE1.edges";	
+	_datasets[31].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE1/RMAT22_SPARSE1.vertices";
+	_datasets[31].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE1/RMAT22_SPARSE1.edges";
+	_datasets[31].min_vertex = 0;
+	_datasets[31].max_vertex = (1 << 22);
+	_datasets[31].num_vertices = (1 << 22);
+	_datasets[31].num_edges = ((1 << 22) * 30);
+	_datasets[31].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[31].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[31].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[32].graphtopname = "RMAT22_SPARSE2";
+	_datasets[32].graphname = "RMAT22_SPARSE2";
+	_datasets[32].graph_path = rootDir + "dataset/RMAT22_SPARSE2/RMAT22_SPARSE2.mtx";
+	_datasets[32].vertices_path = rootDir + "dataset/RMAT22_SPARSE2/RMAT22_SPARSE2.vertices";
+	_datasets[32].edges_path = rootDir + "dataset/RMAT22_SPARSE2/RMAT22_SPARSE2.edges";	
+	_datasets[32].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE2/RMAT22_SPARSE2.vertices";
+	_datasets[32].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE2/RMAT22_SPARSE2.edges";
+	_datasets[32].min_vertex = 0;
+	_datasets[32].max_vertex = (1 << 22);
+	_datasets[32].num_vertices = (1 << 22);
+	_datasets[32].num_edges = ((1 << 22) * 30);
+	_datasets[32].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[32].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[32].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[33].graphtopname = "RMAT22_SPARSE3";
+	_datasets[33].graphname = "RMAT22_SPARSE3";
+	_datasets[33].graph_path = rootDir + "dataset/RMAT22_SPARSE3/RMAT22_SPARSE3.mtx";
+	_datasets[33].vertices_path = rootDir + "dataset/RMAT22_SPARSE3/RMAT22_SPARSE3.vertices";
+	_datasets[33].edges_path = rootDir + "dataset/RMAT22_SPARSE3/RMAT22_SPARSE3.edges";	
+	_datasets[33].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE3/RMAT22_SPARSE3.vertices";
+	_datasets[33].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE3/RMAT22_SPARSE3.edges";
+	_datasets[33].min_vertex = 0;
+	_datasets[33].max_vertex = (1 << 22);
+	_datasets[33].num_vertices = (1 << 22);
+	_datasets[33].num_edges = ((1 << 22) * 30);
+	_datasets[33].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[33].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[33].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[34].graphtopname = "RMAT22_SPARSE4";
+	_datasets[34].graphname = "RMAT22_SPARSE4";
+	_datasets[34].graph_path = rootDir + "dataset/RMAT22_SPARSE4/RMAT22_SPARSE4.mtx";
+	_datasets[34].vertices_path = rootDir + "dataset/RMAT22_SPARSE4/RMAT22_SPARSE4.vertices";
+	_datasets[34].edges_path = rootDir + "dataset/RMAT22_SPARSE4/RMAT22_SPARSE4.edges";	
+	_datasets[34].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE4/RMAT22_SPARSE4.vertices";
+	_datasets[34].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE4/RMAT22_SPARSE4.edges";
+	_datasets[34].min_vertex = 0;
+	_datasets[34].max_vertex = (1 << 22);
+	_datasets[34].num_vertices = (1 << 22);
+	_datasets[34].num_edges = ((1 << 22) * 30);
+	_datasets[34].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[34].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[34].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[35].graphtopname = "RMAT22_SPARSE5";
+	_datasets[35].graphname = "RMAT22_SPARSE5";
+	_datasets[35].graph_path = rootDir + "dataset/RMAT22_SPARSE5/RMAT22_SPARSE5.mtx";
+	_datasets[35].vertices_path = rootDir + "dataset/RMAT22_SPARSE5/RMAT22_SPARSE5.vertices";
+	_datasets[35].edges_path = rootDir + "dataset/RMAT22_SPARSE5/RMAT22_SPARSE5.edges";	
+	_datasets[35].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE5/RMAT22_SPARSE5.vertices";
+	_datasets[35].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE5/RMAT22_SPARSE5.edges";
+	_datasets[35].min_vertex = 0;
+	_datasets[35].max_vertex = (1 << 22);
+	_datasets[35].num_vertices = (1 << 22);
+	_datasets[35].num_edges = ((1 << 22) * 30);
+	_datasets[35].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[35].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[35].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[36].graphtopname = "RMAT22_SPARSE6";
+	_datasets[36].graphname = "RMAT22_SPARSE6";
+	_datasets[36].graph_path = rootDir + "dataset/RMAT22_SPARSE6/RMAT22_SPARSE6.mtx";
+	_datasets[36].vertices_path = rootDir + "dataset/RMAT22_SPARSE6/RMAT22_SPARSE6.vertices";
+	_datasets[36].edges_path = rootDir + "dataset/RMAT22_SPARSE6/RMAT22_SPARSE6.edges";	
+	_datasets[36].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE6/RMAT22_SPARSE6.vertices";
+	_datasets[36].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE6/RMAT22_SPARSE6.edges";
+	_datasets[36].min_vertex = 0;
+	_datasets[36].max_vertex = (1 << 22);
+	_datasets[36].num_vertices = (1 << 22);
+	_datasets[36].num_edges = ((1 << 22) * 30);
+	_datasets[36].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[36].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[36].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[37].graphtopname = "RMAT22_SPARSE7";
+	_datasets[37].graphname = "RMAT22_SPARSE7";
+	_datasets[37].graph_path = rootDir + "dataset/RMAT22_SPARSE7/RMAT22_SPARSE7.mtx";
+	_datasets[37].vertices_path = rootDir + "dataset/RMAT22_SPARSE7/RMAT22_SPARSE7.vertices";
+	_datasets[37].edges_path = rootDir + "dataset/RMAT22_SPARSE7/RMAT22_SPARSE7.edges";	
+	_datasets[37].vertices_path_bin = rootDir + "dataset/RMAT22_SPARSE7/RMAT22_SPARSE7.vertices";
+	_datasets[37].edges_path_bin = rootDir + "dataset/RMAT22_SPARSE7/RMAT22_SPARSE7.edges";
+	_datasets[37].min_vertex = 0;
+	_datasets[37].max_vertex = (1 << 22);
+	_datasets[37].num_vertices = (1 << 22);
+	_datasets[37].num_edges = ((1 << 22) * 30);
+	_datasets[37].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[37].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[37].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	/////////////////////////////////////////////////////////////////////
+	
 	_datasets[10].graphtopname = "indochina-04";
 	_datasets[10].graphname = "indochina-04";
 	_datasets[10].graph_path = rootDir + "dataset/indochina-04/indochina-2004.mtx";
