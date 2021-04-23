@@ -484,7 +484,18 @@ value_t * graph::generatetempverticesdata(){
 	return tempvertexdatabuffer;
 }
 void graph::loadedgesfromfile(int col, size_t fdoffset, edge2_type * buffer, vertex_t bufferoffset, vertex_t size){
-	if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}					
+	// if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}					
+	
+	unsigned int szA = size/2;
+	unsigned int szB = size - szA;
+	
+	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (szA * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + szA], (szB * sizeof(edge2_type)), (fdoffset + szA) * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	
+	
+	// if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], ((size/2) * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	// if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + (size/2)], ((size/2) * sizeof(edge2_type)), (fdoffset + (size/2)) * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	
 	return;
 }
 edge_t graph::getedgessize(int col){ 
@@ -594,18 +605,9 @@ void graph::loadalldatasets(){
 	_datasets[5].vertices_path_bin = rootDir + "dataset/kron_g500-logn22/kron_g500-logn22.vertices";
 	_datasets[5].edges_path_bin = rootDir + "dataset/kron_g500-logn22/kron_g500-logn22.edges";
 	_datasets[5].min_vertex = 0;
-	
-	// _datasets[5].max_vertex = 4194303;//(1 << 22);
-	// _datasets[5].num_vertices = 4194304;//(1 << 22);
-	// _datasets[5].num_edges = 209715200; // ((1 << 22) * 50);
-	
-	// _datasets[5].num_edges = 209715200;
-	// _datasets[5].num_edges = 210000000;
-	
 	_datasets[5].max_vertex = (1 << 22);
 	_datasets[5].num_vertices = (1 << 22);
-	_datasets[5].num_edges = ((1 << 22) * 35); // 40
-	
+	_datasets[5].num_edges = ((1 << 22) * 35);
 	_datasets[5].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[5].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[5].graphgroup = SYNTHETIC; // SKEWRATIO;

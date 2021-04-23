@@ -66,10 +66,11 @@
 // #define _GENERATE2DGRAPH
 #define _GENERATEUNDIRECTEDGRAPH //
 {%endif%}
-
 ////////////////
 
-#define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
+{%if(context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH")%}
+#define GRAPHISUNDIRECTED
+{%endif%}
 
 #ifdef FPGA_IMPL
 #define ENABLE_KERNEL_PROFILING

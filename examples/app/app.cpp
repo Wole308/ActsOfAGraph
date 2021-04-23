@@ -55,12 +55,8 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	#endif
 	#endif 
 	
-	if(graphobj->getdataset().graphdirectiontype == UNDIRECTEDGRAPH){
-		edgedatabuffer = new edge2_type[2 * graphobj->get_num_edges()];
-	} else {
-		edgedatabuffer = new edge2_type[graphobj->get_num_edges()];
-	}
-	
+	edgedatabuffer = new edge2_type[graphobj->getedgessize(0)];
+
 	binaryFile[0] = _binaryFile1;
 	binaryFile[1] = _binaryFile2;
 	
@@ -99,14 +95,13 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 1; // 3,12,32
+	unsigned int NumGraphIters = 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
 	globalparams_t globalparams;
 
 	actvvs.push_back(1);
-	// actvvs.push_back(0);
 
 	// load workload information
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = 0;
@@ -179,7 +174,6 @@ runsummary_t app::run_hw(){
 	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals);
 	#endif
-	// exit(EXIT_SUCCESS); /////
 
 	// run_hw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;

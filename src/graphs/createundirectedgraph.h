@@ -26,8 +26,6 @@ private:
 	
 	FILE * nvmeFd_edges_w;	
 	FILE * nvmeFd_vertexptrs_w;
-	
-	unsigned int num_edges;
 };
 #endif
 

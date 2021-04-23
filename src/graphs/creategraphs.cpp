@@ -104,7 +104,6 @@ void creategraphs::start(){
 	utilityobj->createdirectory(graphobj->getdatasetdir().c_str());
 	graphobj->openfilesforwriting(0);
 	graphobj->openfilesforreading(0);
-	std::ifstream file_graph(graphobj->getdataset().graph_path);
 
 	vertex_t srcv = 0;
 	vertex_t dstv = 0;
@@ -118,11 +117,13 @@ void creategraphs::start(){
 	globalerrorfound1 = 0;
 	
 	// create graph
+	std::ifstream file_graph(graphobj->getdataset().graph_path);
 	if (file_graph.is_open()) {
 		std::string line;
 		while (getline(file_graph, line)) {
 			if (line.find("%") == 0){ continue; }
 			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
+			
 			if ((alllinecount % 1000000) == 0){ cout<<"creategraphs::start edge: ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			// continue; // REMOVEME.
 			

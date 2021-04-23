@@ -93,7 +93,7 @@ ORKUT_3M_106M=1
 HOLLYWOOD_1M_57M=2
 KRON20_1M_45M=3
 KRON21_2M_91M=4
-KRON22_2M_200M=5
+KRON22_4M_200M=5
 
 INDOCHINA_7M_194M=10
 RGG_4M_32M=11
@@ -146,8 +146,8 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
-for evaluation_type in EV_CREATENDGRAPH
-# for evaluation_type in EV_PERFORMANCEOFALGORITHM
+# for evaluation_type in EV_CREATENDGRAPH
+for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
 # for evaluation_type in EV_IMPACTOFRANGE
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
@@ -499,7 +499,7 @@ do
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
-				for dataset in $KRON22_4M_200M
+				# for dataset in $KRON22_4M_200M
 				
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_4M_32M
@@ -515,7 +515,8 @@ do
 				# for dataset in $LARGEDATASET_4B
 				# for dataset in $TWITTER_67M
 				
-				# for dataset in $HOLLYWOOD_1M_57M $KRON21_2M_91M $KRON20_1M_45M $ORKUT_3M_106M
+				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
+				for dataset in $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0

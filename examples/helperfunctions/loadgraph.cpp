@@ -189,11 +189,10 @@ globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graph
 	#endif
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::loadedges_rowblockwise:: index1: "<<index1<<", index2: "<<index2<<endl;
-	// utilityobj->printvalues("loadgraph::loadedges_rowblockwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
+	utilityobj->printvalues("loadgraph::loadedges_rowblockwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadgraph::loadedges_rowblockwise.edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][2*_BASEOFFSET_EDGESDATA], 8); }
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ utilityobj->printvalues("loadedges_rowblockwise.vptrs["+std::to_string(i)+"][~]", (value_t *)&vptrs[i][2*_BASEOFFSET_VERTEXPTR], 8); }
 	#endif
-	// exit(EXIT_SUCCESS);///////////////////////////////
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	unsigned int numvaliditems = 0;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
@@ -365,17 +364,11 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 			unsigned int * V = (unsigned int *)vmask[i]; 
 			for(unsigned int k=0; k<REDUCESZ; k++){
 				unsigned int vid = offset + (i*REDUCESZ) + k;
-				// if(vid==1){ V[k] = 1; } // CRITICAL REMOVEME.
-				// else{ V[k] = 0; }
-				
-				if(vid==activevertices[0]){ V[k] = 1; } // CRITICAL REMOVEME.
+				if(vid==activevertices[0]){ V[k] = 1; }
 				else{ V[k] = 0; }
-				
-				// V[k] = 1; activevertices
 			}
 		}
 		
-		// for(unsigned int i=0; i<1; i++){ savevmasks(ON, kvbuffer[i], vmask, _BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, VMASKBUFFERSZ_KVS); }
 		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ savevmasks(ON, kvbuffer[i], vmask, _BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, VMASKBUFFERSZ_KVS); }
 		vmaskoffset_kvs += VMASKBUFFERSZ_KVS;
 	}

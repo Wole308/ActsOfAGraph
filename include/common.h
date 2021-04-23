@@ -30,10 +30,9 @@
 #endif
 
 #define ACTS
-
 ////////////////
 
-#define GRAPHISUNDIRECTED // CRITICAL NEWCHANGE.
+#define GRAPHISUNDIRECTED
 
 #ifdef FPGA_IMPL
 #define ENABLE_KERNEL_PROFILING

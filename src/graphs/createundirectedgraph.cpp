@@ -92,6 +92,7 @@ void createundirectedgraph::start(){
 		unsigned int linecount = 0;
 		unsigned int alllinecount = 0;
 		while (getline(file1_graph, line)) {
+			if (line.find("%") == 0){ continue; }
 			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
 			
 			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
@@ -113,10 +114,12 @@ void createundirectedgraph::start(){
 			linecount += 1;
 			alllinecount += 1;
 			
-			// graphobj->getdataset().num_edges
-			if(linecount > num_edges){ cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
-			if(alllinecount > num_edges){ cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
+			if(linecount > num_edges){ cout<<"createundirectedgraph: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
 		}
+		
+		cout<<"SUMMARY: alllinecount: "<<alllinecount<<endl;
+		cout<<"SUMMARY: linecount: "<<linecount<<endl;
+		cout<<"SUMMARY: num_edges: "<<num_edges<<endl;
 	}
 	file1_graph.close();
 	
@@ -140,7 +143,7 @@ void createundirectedgraph::start(){
 	vertexptrbuffer_dup[0] = 0;
 	for(unsigned int k=1; k<KVDATA_RANGE; k++){
 		vertexptrbuffer_dup[k] = vertexptrbuffer_dup[k-1] + inoutdegree_dup[k-1];
-		if(k<16){ cout<<"createundirectedgraph::start:: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<endl; }
+		if(k<16 || k>KVDATA_RANGE-16){ cout<<"createundirectedgraph::start:: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<endl; }
 		if(vertexptrbuffer_dup[k] < vertexptrbuffer_dup[k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<", vertexptrbuffer_dup["<<k-1<<"]: "<<vertexptrbuffer_dup[k-1]<<endl; exit(EXIT_FAILURE); }
 	}
 	cout<<"createundirectedgraph::start:: last: vertexptrbuffer_dup["<<KVDATA_RANGE-1<<"]: "<<vertexptrbuffer_dup[KVDATA_RANGE-1]<<endl;
@@ -213,13 +216,6 @@ void createundirectedgraph::start(){
 	file2_graph.close(); 
 	
 	cout<<"createundirectedgraph:: saving edge data... "<<endl;
-	/* for(unsigned int k=1; k<KVDATA_RANGE; k++){
-		vertexptrbuffer_dup[k] = vertexptrbuffer_dup[k-1] + inoutdegree_dup[k-1];
-		// if(k<16){ cout<<"createundirectedgraph::start:: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<endl; }
-		if(k<10000){ cout<<"createundirectedgraph::start:: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<endl; }
-		if(vertexptrbuffer_dup[k] < vertexptrbuffer_dup[k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vertexptrbuffer_dup["<<k<<"]: "<<vertexptrbuffer_dup[k]<<", vertexptrbuffer_dup["<<k-1<<"]: "<<vertexptrbuffer_dup[k-1]<<endl; exit(EXIT_FAILURE); }
-	} */
-	
 	string edgespath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".edges";
 	std::ofstream ofs1; ofs1.open(edgespath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	
 	nvmeFd_edges_w = fopen(edgespath.c_str(), "w"); 
@@ -236,4 +232,9 @@ void createundirectedgraph::start(){
 	cout<<"createundirectedgraph:: finished creating undirected 2D graph from "<<graphobj->getdataset().graph_path<<endl;
 	return;
 }
+
+
+
+
+
 
