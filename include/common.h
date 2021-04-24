@@ -5,7 +5,7 @@
 #define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
-#define _RMAT22_SPARSE2 
+#define _RMAT22_SPARSE0 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -30,10 +30,9 @@
 #endif
 
 #define ACTS
-#define _GENERATE2DGRAPH
-// #define _GENERATEUNDIRECTEDGRAPH //
 ////////////////
 
+#define GRAPHISUNDIRECTED
 
 #ifdef FPGA_IMPL
 #define ENABLE_KERNEL_PROFILING
