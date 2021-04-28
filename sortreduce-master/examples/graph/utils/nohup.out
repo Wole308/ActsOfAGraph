@@ -63,64 +63,8 @@ Sorting block 60 (1048576)
 Sorting block 61 (1048576)
 Sorting block 62 (1048576)
 Sorting block 63 (1048576)
-Sorting block 64 (1048576)
-Sorting block 65 (1048576)
-Sorting block 66 (1048576)
-Sorting block 67 (1048576)
-Sorting block 68 (1048576)
-Sorting block 69 (1048576)
-Sorting block 70 (1048576)
-Sorting block 71 (1048576)
-Sorting block 72 (1048576)
-Sorting block 73 (1048576)
-Sorting block 74 (1048576)
-Sorting block 75 (1048576)
-Sorting block 76 (1048576)
-Sorting block 77 (1048576)
-Sorting block 78 (1048576)
-Sorting block 79 (1048576)
-Sorting block 80 (1048576)
-Sorting block 81 (1048576)
-Sorting block 82 (1048576)
-Sorting block 83 (1048576)
-Sorting block 84 (1048576)
-Sorting block 85 (1048576)
-Sorting block 86 (1048576)
-Sorting block 87 (1048576)
-Sorting block 88 (1048576)
-Sorting block 89 (1048576)
-Sorting block 90 (1048576)
-Sorting block 91 (1048576)
-Sorting block 92 (1048576)
-Sorting block 93 (1048576)
-Sorting block 94 (1048576)
-Sorting block 95 (1048576)
-Sorting block 96 (1048576)
-Sorting block 97 (1048576)
-Sorting block 98 (1048576)
-Sorting block 99 (1048576)
-Sorting block 100 (1048576)
-Sorting block 101 (1048576)
-Sorting block 102 (1048576)
-Sorting block 103 (1048576)
-Sorting block 104 (1048576)
-Sorting block 105 (1048576)
-Sorting block 106 (1048576)
-Sorting block 107 (1048576)
-Sorting block 108 (1048576)
-Sorting block 109 (1048576)
-Sorting block 110 (1048576)
-Sorting block 111 (1048576)
-Sorting block 112 (1048576)
-Sorting block 113 (1048576)
-Sorting block 114 (1048576)
-Sorting block 115 (1048576)
-Sorting block 116 (1048576)
-Sorting block 117 (1048576)
-Sorting block 118 (1048576)
-Sorting block 119 (1048576)
 Initial block-level sorting finished!
-Sorting stage 0! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_0.dat -- 120
+Sorting stage 0! /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_0.dat -- 64
 Sorting blocks 0 8388608 (1)
 Sorting blocks 16777216 25165824 (1)
 Sorting blocks 33554432 41943040 (1)
@@ -153,36 +97,8 @@ Sorting blocks 469762048 478150656 (1)
 Sorting blocks 486539264 494927872 (1)
 Sorting blocks 503316480 511705088 (1)
 Sorting blocks 520093696 528482304 (1)
-Sorting blocks 536870912 545259520 (1)
-Sorting blocks 553648128 562036736 (1)
-Sorting blocks 570425344 578813952 (1)
-Sorting blocks 587202560 595591168 (1)
-Sorting blocks 603979776 612368384 (1)
-Sorting blocks 620756992 629145600 (1)
-Sorting blocks 637534208 645922816 (1)
-Sorting blocks 654311424 662700032 (1)
-Sorting blocks 671088640 679477248 (1)
-Sorting blocks 687865856 696254464 (1)
-Sorting blocks 704643072 713031680 (1)
-Sorting blocks 721420288 729808896 (1)
-Sorting blocks 738197504 746586112 (1)
-Sorting blocks 754974720 763363328 (1)
-Sorting blocks 771751936 780140544 (1)
-Sorting blocks 788529152 796917760 (1)
-Sorting blocks 805306368 813694976 (1)
-Sorting blocks 822083584 830472192 (1)
-Sorting blocks 838860800 847249408 (1)
-Sorting blocks 855638016 864026624 (1)
-Sorting blocks 872415232 880803840 (1)
-Sorting blocks 889192448 897581056 (1)
-Sorting blocks 905969664 914358272 (1)
-Sorting blocks 922746880 931135488 (1)
-Sorting blocks 939524096 947912704 (1)
-Sorting blocks 956301312 964689920 (1)
-Sorting blocks 973078528 981467136 (1)
-Sorting blocks 989855744 998244352 (1)
 ----- sort_stage: 0 
-Sorting stage 1! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_1.dat -- 120
+Sorting stage 1! /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_1.dat -- 64
 Sorting blocks 0 16777216 (2)
 Sorting blocks 33554432 50331648 (2)
 Sorting blocks 67108864 83886080 (2)
@@ -199,22 +115,8 @@ Sorting blocks 402653184 419430400 (2)
 Sorting blocks 436207616 452984832 (2)
 Sorting blocks 469762048 486539264 (2)
 Sorting blocks 503316480 520093696 (2)
-Sorting blocks 536870912 553648128 (2)
-Sorting blocks 570425344 587202560 (2)
-Sorting blocks 603979776 620756992 (2)
-Sorting blocks 637534208 654311424 (2)
-Sorting blocks 671088640 687865856 (2)
-Sorting blocks 704643072 721420288 (2)
-Sorting blocks 738197504 754974720 (2)
-Sorting blocks 771751936 788529152 (2)
-Sorting blocks 805306368 822083584 (2)
-Sorting blocks 838860800 855638016 (2)
-Sorting blocks 872415232 889192448 (2)
-Sorting blocks 905969664 922746880 (2)
-Sorting blocks 939524096 956301312 (2)
-Sorting blocks 973078528 989855744 (2)
 ----- sort_stage: 1 
-Sorting stage 2! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_2.dat -- 120
+Sorting stage 2! /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_2.dat -- 64
 Sorting blocks 0 33554432 (4)
 Sorting blocks 67108864 100663296 (4)
 Sorting blocks 134217728 167772160 (4)
@@ -223,38 +125,21 @@ Sorting blocks 268435456 301989888 (4)
 Sorting blocks 335544320 369098752 (4)
 Sorting blocks 402653184 436207616 (4)
 Sorting blocks 469762048 503316480 (4)
-Sorting blocks 536870912 570425344 (4)
-Sorting blocks 603979776 637534208 (4)
-Sorting blocks 671088640 704643072 (4)
-Sorting blocks 738197504 771751936 (4)
-Sorting blocks 805306368 838860800 (4)
-Sorting blocks 872415232 905969664 (4)
-Sorting blocks 939524096 973078528 (4)
 ----- sort_stage: 2 
-Sorting stage 3! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_3.dat -- 120
+Sorting stage 3! /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_3.dat -- 64
 Sorting blocks 0 67108864 (8)
 Sorting blocks 134217728 201326592 (8)
 Sorting blocks 268435456 335544320 (8)
 Sorting blocks 402653184 469762048 (8)
-Sorting blocks 536870912 603979776 (8)
-Sorting blocks 671088640 738197504 (8)
-Sorting blocks 805306368 872415232 (8)
-Sorting blocks 939524096 1006632960 (8)
 ----- sort_stage: 3 
-Sorting stage 4! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_4.dat -- 120
+Sorting stage 4! /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_4.dat -- 64
 Sorting blocks 0 134217728 (16)
 Sorting blocks 268435456 402653184 (16)
-Sorting blocks 536870912 671088640 (16)
-Sorting blocks 805306368 939524096 (16)
 ----- sort_stage: 4 
-Sorting stage 5! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_5.dat -- 120
+Sorting stage 5! /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_5.dat -- 64
 Sorting blocks 0 268435456 (32)
-Sorting blocks 536870912 805306368 (32)
 ----- sort_stage: 5 
-Sorting stage 6! /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_6.dat -- 120
-Sorting blocks 0 536870912 (64)
------ sort_stage: 6 
-extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT22_SPARSE0/RMAT22_SPARSE0.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT22_SPARSE0/temp_7.dat
+extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT_RANGE0/RMAT_RANGE0.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT_RANGE0/temp_6.dat
 sort:: current edge count: 1000000
 sort:: current edge count: 2000000
 sort:: current edge count: 3000000
@@ -322,65 +207,7 @@ sort:: current edge count: 64000000
 sort:: current edge count: 65000000
 sort:: current edge count: 66000000
 sort:: current edge count: 67000000
-sort:: current edge count: 68000000
-sort:: current edge count: 69000000
-sort:: current edge count: 70000000
-sort:: current edge count: 71000000
-sort:: current edge count: 72000000
-sort:: current edge count: 73000000
-sort:: current edge count: 74000000
-sort:: current edge count: 75000000
-sort:: current edge count: 76000000
-sort:: current edge count: 77000000
-sort:: current edge count: 78000000
-sort:: current edge count: 79000000
-sort:: current edge count: 80000000
-sort:: current edge count: 81000000
-sort:: current edge count: 82000000
-sort:: current edge count: 83000000
-sort:: current edge count: 84000000
-sort:: current edge count: 85000000
-sort:: current edge count: 86000000
-sort:: current edge count: 87000000
-sort:: current edge count: 88000000
-sort:: current edge count: 89000000
-sort:: current edge count: 90000000
-sort:: current edge count: 91000000
-sort:: current edge count: 92000000
-sort:: current edge count: 93000000
-sort:: current edge count: 94000000
-sort:: current edge count: 95000000
-sort:: current edge count: 96000000
-sort:: current edge count: 97000000
-sort:: current edge count: 98000000
-sort:: current edge count: 99000000
-sort:: current edge count: 100000000
-sort:: current edge count: 101000000
-sort:: current edge count: 102000000
-sort:: current edge count: 103000000
-sort:: current edge count: 104000000
-sort:: current edge count: 105000000
-sort:: current edge count: 106000000
-sort:: current edge count: 107000000
-sort:: current edge count: 108000000
-sort:: current edge count: 109000000
-sort:: current edge count: 110000000
-sort:: current edge count: 111000000
-sort:: current edge count: 112000000
-sort:: current edge count: 113000000
-sort:: current edge count: 114000000
-sort:: current edge count: 115000000
-sort:: current edge count: 116000000
-sort:: current edge count: 117000000
-sort:: current edge count: 118000000
-sort:: current edge count: 119000000
-sort:: current edge count: 120000000
-sort:: current edge count: 121000000
-sort:: current edge count: 122000000
-sort:: current edge count: 123000000
-sort:: current edge count: 124000000
-sort:: current edge count: 125000000
-Checked 125829121 samples
+Checked 67108864 samples
 >>> Sorting process. topi: 1 
 Sorting block 0 (1048576)
 Sorting block 1 (1048576)
@@ -446,64 +273,8 @@ Sorting block 60 (1048576)
 Sorting block 61 (1048576)
 Sorting block 62 (1048576)
 Sorting block 63 (1048576)
-Sorting block 64 (1048576)
-Sorting block 65 (1048576)
-Sorting block 66 (1048576)
-Sorting block 67 (1048576)
-Sorting block 68 (1048576)
-Sorting block 69 (1048576)
-Sorting block 70 (1048576)
-Sorting block 71 (1048576)
-Sorting block 72 (1048576)
-Sorting block 73 (1048576)
-Sorting block 74 (1048576)
-Sorting block 75 (1048576)
-Sorting block 76 (1048576)
-Sorting block 77 (1048576)
-Sorting block 78 (1048576)
-Sorting block 79 (1048576)
-Sorting block 80 (1048576)
-Sorting block 81 (1048576)
-Sorting block 82 (1048576)
-Sorting block 83 (1048576)
-Sorting block 84 (1048576)
-Sorting block 85 (1048576)
-Sorting block 86 (1048576)
-Sorting block 87 (1048576)
-Sorting block 88 (1048576)
-Sorting block 89 (1048576)
-Sorting block 90 (1048576)
-Sorting block 91 (1048576)
-Sorting block 92 (1048576)
-Sorting block 93 (1048576)
-Sorting block 94 (1048576)
-Sorting block 95 (1048576)
-Sorting block 96 (1048576)
-Sorting block 97 (1048576)
-Sorting block 98 (1048576)
-Sorting block 99 (1048576)
-Sorting block 100 (1048576)
-Sorting block 101 (1048576)
-Sorting block 102 (1048576)
-Sorting block 103 (1048576)
-Sorting block 104 (1048576)
-Sorting block 105 (1048576)
-Sorting block 106 (1048576)
-Sorting block 107 (1048576)
-Sorting block 108 (1048576)
-Sorting block 109 (1048576)
-Sorting block 110 (1048576)
-Sorting block 111 (1048576)
-Sorting block 112 (1048576)
-Sorting block 113 (1048576)
-Sorting block 114 (1048576)
-Sorting block 115 (1048576)
-Sorting block 116 (1048576)
-Sorting block 117 (1048576)
-Sorting block 118 (1048576)
-Sorting block 119 (1048576)
 Initial block-level sorting finished!
-Sorting stage 0! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_0.dat -- 120
+Sorting stage 0! /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_0.dat -- 64
 Sorting blocks 0 8388608 (1)
 Sorting blocks 16777216 25165824 (1)
 Sorting blocks 33554432 41943040 (1)
@@ -536,36 +307,8 @@ Sorting blocks 469762048 478150656 (1)
 Sorting blocks 486539264 494927872 (1)
 Sorting blocks 503316480 511705088 (1)
 Sorting blocks 520093696 528482304 (1)
-Sorting blocks 536870912 545259520 (1)
-Sorting blocks 553648128 562036736 (1)
-Sorting blocks 570425344 578813952 (1)
-Sorting blocks 587202560 595591168 (1)
-Sorting blocks 603979776 612368384 (1)
-Sorting blocks 620756992 629145600 (1)
-Sorting blocks 637534208 645922816 (1)
-Sorting blocks 654311424 662700032 (1)
-Sorting blocks 671088640 679477248 (1)
-Sorting blocks 687865856 696254464 (1)
-Sorting blocks 704643072 713031680 (1)
-Sorting blocks 721420288 729808896 (1)
-Sorting blocks 738197504 746586112 (1)
-Sorting blocks 754974720 763363328 (1)
-Sorting blocks 771751936 780140544 (1)
-Sorting blocks 788529152 796917760 (1)
-Sorting blocks 805306368 813694976 (1)
-Sorting blocks 822083584 830472192 (1)
-Sorting blocks 838860800 847249408 (1)
-Sorting blocks 855638016 864026624 (1)
-Sorting blocks 872415232 880803840 (1)
-Sorting blocks 889192448 897581056 (1)
-Sorting blocks 905969664 914358272 (1)
-Sorting blocks 922746880 931135488 (1)
-Sorting blocks 939524096 947912704 (1)
-Sorting blocks 956301312 964689920 (1)
-Sorting blocks 973078528 981467136 (1)
-Sorting blocks 989855744 998244352 (1)
 ----- sort_stage: 0 
-Sorting stage 1! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_1.dat -- 120
+Sorting stage 1! /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_1.dat -- 64
 Sorting blocks 0 16777216 (2)
 Sorting blocks 33554432 50331648 (2)
 Sorting blocks 67108864 83886080 (2)
@@ -582,22 +325,8 @@ Sorting blocks 402653184 419430400 (2)
 Sorting blocks 436207616 452984832 (2)
 Sorting blocks 469762048 486539264 (2)
 Sorting blocks 503316480 520093696 (2)
-Sorting blocks 536870912 553648128 (2)
-Sorting blocks 570425344 587202560 (2)
-Sorting blocks 603979776 620756992 (2)
-Sorting blocks 637534208 654311424 (2)
-Sorting blocks 671088640 687865856 (2)
-Sorting blocks 704643072 721420288 (2)
-Sorting blocks 738197504 754974720 (2)
-Sorting blocks 771751936 788529152 (2)
-Sorting blocks 805306368 822083584 (2)
-Sorting blocks 838860800 855638016 (2)
-Sorting blocks 872415232 889192448 (2)
-Sorting blocks 905969664 922746880 (2)
-Sorting blocks 939524096 956301312 (2)
-Sorting blocks 973078528 989855744 (2)
 ----- sort_stage: 1 
-Sorting stage 2! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_2.dat -- 120
+Sorting stage 2! /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_2.dat -- 64
 Sorting blocks 0 33554432 (4)
 Sorting blocks 67108864 100663296 (4)
 Sorting blocks 134217728 167772160 (4)
@@ -606,38 +335,21 @@ Sorting blocks 268435456 301989888 (4)
 Sorting blocks 335544320 369098752 (4)
 Sorting blocks 402653184 436207616 (4)
 Sorting blocks 469762048 503316480 (4)
-Sorting blocks 536870912 570425344 (4)
-Sorting blocks 603979776 637534208 (4)
-Sorting blocks 671088640 704643072 (4)
-Sorting blocks 738197504 771751936 (4)
-Sorting blocks 805306368 838860800 (4)
-Sorting blocks 872415232 905969664 (4)
-Sorting blocks 939524096 973078528 (4)
 ----- sort_stage: 2 
-Sorting stage 3! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_3.dat -- 120
+Sorting stage 3! /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_3.dat -- 64
 Sorting blocks 0 67108864 (8)
 Sorting blocks 134217728 201326592 (8)
 Sorting blocks 268435456 335544320 (8)
 Sorting blocks 402653184 469762048 (8)
-Sorting blocks 536870912 603979776 (8)
-Sorting blocks 671088640 738197504 (8)
-Sorting blocks 805306368 872415232 (8)
-Sorting blocks 939524096 1006632960 (8)
 ----- sort_stage: 3 
-Sorting stage 4! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_4.dat -- 120
+Sorting stage 4! /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_4.dat -- 64
 Sorting blocks 0 134217728 (16)
 Sorting blocks 268435456 402653184 (16)
-Sorting blocks 536870912 671088640 (16)
-Sorting blocks 805306368 939524096 (16)
 ----- sort_stage: 4 
-Sorting stage 5! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_5.dat -- 120
+Sorting stage 5! /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_5.dat -- 64
 Sorting blocks 0 268435456 (32)
-Sorting blocks 536870912 805306368 (32)
 ----- sort_stage: 5 
-Sorting stage 6! /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_6.dat -- 120
-Sorting blocks 0 536870912 (64)
------ sort_stage: 6 
-extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT22_SPARSE1/RMAT22_SPARSE1.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT22_SPARSE1/temp_7.dat
+extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT_RANGE1/RMAT_RANGE1.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT_RANGE1/temp_6.dat
 sort:: current edge count: 1000000
 sort:: current edge count: 2000000
 sort:: current edge count: 3000000
@@ -705,65 +417,7 @@ sort:: current edge count: 64000000
 sort:: current edge count: 65000000
 sort:: current edge count: 66000000
 sort:: current edge count: 67000000
-sort:: current edge count: 68000000
-sort:: current edge count: 69000000
-sort:: current edge count: 70000000
-sort:: current edge count: 71000000
-sort:: current edge count: 72000000
-sort:: current edge count: 73000000
-sort:: current edge count: 74000000
-sort:: current edge count: 75000000
-sort:: current edge count: 76000000
-sort:: current edge count: 77000000
-sort:: current edge count: 78000000
-sort:: current edge count: 79000000
-sort:: current edge count: 80000000
-sort:: current edge count: 81000000
-sort:: current edge count: 82000000
-sort:: current edge count: 83000000
-sort:: current edge count: 84000000
-sort:: current edge count: 85000000
-sort:: current edge count: 86000000
-sort:: current edge count: 87000000
-sort:: current edge count: 88000000
-sort:: current edge count: 89000000
-sort:: current edge count: 90000000
-sort:: current edge count: 91000000
-sort:: current edge count: 92000000
-sort:: current edge count: 93000000
-sort:: current edge count: 94000000
-sort:: current edge count: 95000000
-sort:: current edge count: 96000000
-sort:: current edge count: 97000000
-sort:: current edge count: 98000000
-sort:: current edge count: 99000000
-sort:: current edge count: 100000000
-sort:: current edge count: 101000000
-sort:: current edge count: 102000000
-sort:: current edge count: 103000000
-sort:: current edge count: 104000000
-sort:: current edge count: 105000000
-sort:: current edge count: 106000000
-sort:: current edge count: 107000000
-sort:: current edge count: 108000000
-sort:: current edge count: 109000000
-sort:: current edge count: 110000000
-sort:: current edge count: 111000000
-sort:: current edge count: 112000000
-sort:: current edge count: 113000000
-sort:: current edge count: 114000000
-sort:: current edge count: 115000000
-sort:: current edge count: 116000000
-sort:: current edge count: 117000000
-sort:: current edge count: 118000000
-sort:: current edge count: 119000000
-sort:: current edge count: 120000000
-sort:: current edge count: 121000000
-sort:: current edge count: 122000000
-sort:: current edge count: 123000000
-sort:: current edge count: 124000000
-sort:: current edge count: 125000000
-Checked 125829121 samples
+Checked 67108864 samples
 >>> Sorting process. topi: 2 
 Sorting block 0 (1048576)
 Sorting block 1 (1048576)
@@ -829,64 +483,8 @@ Sorting block 60 (1048576)
 Sorting block 61 (1048576)
 Sorting block 62 (1048576)
 Sorting block 63 (1048576)
-Sorting block 64 (1048576)
-Sorting block 65 (1048576)
-Sorting block 66 (1048576)
-Sorting block 67 (1048576)
-Sorting block 68 (1048576)
-Sorting block 69 (1048576)
-Sorting block 70 (1048576)
-Sorting block 71 (1048576)
-Sorting block 72 (1048576)
-Sorting block 73 (1048576)
-Sorting block 74 (1048576)
-Sorting block 75 (1048576)
-Sorting block 76 (1048576)
-Sorting block 77 (1048576)
-Sorting block 78 (1048576)
-Sorting block 79 (1048576)
-Sorting block 80 (1048576)
-Sorting block 81 (1048576)
-Sorting block 82 (1048576)
-Sorting block 83 (1048576)
-Sorting block 84 (1048576)
-Sorting block 85 (1048576)
-Sorting block 86 (1048576)
-Sorting block 87 (1048576)
-Sorting block 88 (1048576)
-Sorting block 89 (1048576)
-Sorting block 90 (1048576)
-Sorting block 91 (1048576)
-Sorting block 92 (1048576)
-Sorting block 93 (1048576)
-Sorting block 94 (1048576)
-Sorting block 95 (1048576)
-Sorting block 96 (1048576)
-Sorting block 97 (1048576)
-Sorting block 98 (1048576)
-Sorting block 99 (1048576)
-Sorting block 100 (1048576)
-Sorting block 101 (1048576)
-Sorting block 102 (1048576)
-Sorting block 103 (1048576)
-Sorting block 104 (1048576)
-Sorting block 105 (1048576)
-Sorting block 106 (1048576)
-Sorting block 107 (1048576)
-Sorting block 108 (1048576)
-Sorting block 109 (1048576)
-Sorting block 110 (1048576)
-Sorting block 111 (1048576)
-Sorting block 112 (1048576)
-Sorting block 113 (1048576)
-Sorting block 114 (1048576)
-Sorting block 115 (1048576)
-Sorting block 116 (1048576)
-Sorting block 117 (1048576)
-Sorting block 118 (1048576)
-Sorting block 119 (1048576)
 Initial block-level sorting finished!
-Sorting stage 0! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_0.dat -- 120
+Sorting stage 0! /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_0.dat -- 64
 Sorting blocks 0 8388608 (1)
 Sorting blocks 16777216 25165824 (1)
 Sorting blocks 33554432 41943040 (1)
@@ -919,36 +517,8 @@ Sorting blocks 469762048 478150656 (1)
 Sorting blocks 486539264 494927872 (1)
 Sorting blocks 503316480 511705088 (1)
 Sorting blocks 520093696 528482304 (1)
-Sorting blocks 536870912 545259520 (1)
-Sorting blocks 553648128 562036736 (1)
-Sorting blocks 570425344 578813952 (1)
-Sorting blocks 587202560 595591168 (1)
-Sorting blocks 603979776 612368384 (1)
-Sorting blocks 620756992 629145600 (1)
-Sorting blocks 637534208 645922816 (1)
-Sorting blocks 654311424 662700032 (1)
-Sorting blocks 671088640 679477248 (1)
-Sorting blocks 687865856 696254464 (1)
-Sorting blocks 704643072 713031680 (1)
-Sorting blocks 721420288 729808896 (1)
-Sorting blocks 738197504 746586112 (1)
-Sorting blocks 754974720 763363328 (1)
-Sorting blocks 771751936 780140544 (1)
-Sorting blocks 788529152 796917760 (1)
-Sorting blocks 805306368 813694976 (1)
-Sorting blocks 822083584 830472192 (1)
-Sorting blocks 838860800 847249408 (1)
-Sorting blocks 855638016 864026624 (1)
-Sorting blocks 872415232 880803840 (1)
-Sorting blocks 889192448 897581056 (1)
-Sorting blocks 905969664 914358272 (1)
-Sorting blocks 922746880 931135488 (1)
-Sorting blocks 939524096 947912704 (1)
-Sorting blocks 956301312 964689920 (1)
-Sorting blocks 973078528 981467136 (1)
-Sorting blocks 989855744 998244352 (1)
 ----- sort_stage: 0 
-Sorting stage 1! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_1.dat -- 120
+Sorting stage 1! /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_1.dat -- 64
 Sorting blocks 0 16777216 (2)
 Sorting blocks 33554432 50331648 (2)
 Sorting blocks 67108864 83886080 (2)
@@ -965,22 +535,8 @@ Sorting blocks 402653184 419430400 (2)
 Sorting blocks 436207616 452984832 (2)
 Sorting blocks 469762048 486539264 (2)
 Sorting blocks 503316480 520093696 (2)
-Sorting blocks 536870912 553648128 (2)
-Sorting blocks 570425344 587202560 (2)
-Sorting blocks 603979776 620756992 (2)
-Sorting blocks 637534208 654311424 (2)
-Sorting blocks 671088640 687865856 (2)
-Sorting blocks 704643072 721420288 (2)
-Sorting blocks 738197504 754974720 (2)
-Sorting blocks 771751936 788529152 (2)
-Sorting blocks 805306368 822083584 (2)
-Sorting blocks 838860800 855638016 (2)
-Sorting blocks 872415232 889192448 (2)
-Sorting blocks 905969664 922746880 (2)
-Sorting blocks 939524096 956301312 (2)
-Sorting blocks 973078528 989855744 (2)
 ----- sort_stage: 1 
-Sorting stage 2! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_2.dat -- 120
+Sorting stage 2! /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_2.dat -- 64
 Sorting blocks 0 33554432 (4)
 Sorting blocks 67108864 100663296 (4)
 Sorting blocks 134217728 167772160 (4)
@@ -989,38 +545,21 @@ Sorting blocks 268435456 301989888 (4)
 Sorting blocks 335544320 369098752 (4)
 Sorting blocks 402653184 436207616 (4)
 Sorting blocks 469762048 503316480 (4)
-Sorting blocks 536870912 570425344 (4)
-Sorting blocks 603979776 637534208 (4)
-Sorting blocks 671088640 704643072 (4)
-Sorting blocks 738197504 771751936 (4)
-Sorting blocks 805306368 838860800 (4)
-Sorting blocks 872415232 905969664 (4)
-Sorting blocks 939524096 973078528 (4)
 ----- sort_stage: 2 
-Sorting stage 3! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_3.dat -- 120
+Sorting stage 3! /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_3.dat -- 64
 Sorting blocks 0 67108864 (8)
 Sorting blocks 134217728 201326592 (8)
 Sorting blocks 268435456 335544320 (8)
 Sorting blocks 402653184 469762048 (8)
-Sorting blocks 536870912 603979776 (8)
-Sorting blocks 671088640 738197504 (8)
-Sorting blocks 805306368 872415232 (8)
-Sorting blocks 939524096 1006632960 (8)
 ----- sort_stage: 3 
-Sorting stage 4! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_4.dat -- 120
+Sorting stage 4! /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_4.dat -- 64
 Sorting blocks 0 134217728 (16)
 Sorting blocks 268435456 402653184 (16)
-Sorting blocks 536870912 671088640 (16)
-Sorting blocks 805306368 939524096 (16)
 ----- sort_stage: 4 
-Sorting stage 5! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_5.dat -- 120
+Sorting stage 5! /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_5.dat -- 64
 Sorting blocks 0 268435456 (32)
-Sorting blocks 536870912 805306368 (32)
 ----- sort_stage: 5 
-Sorting stage 6! /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_6.dat -- 120
-Sorting blocks 0 536870912 (64)
------ sort_stage: 6 
-extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT22_SPARSE2/RMAT22_SPARSE2.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT22_SPARSE2/temp_7.dat
+extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT_RANGE2/RMAT_RANGE2.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT_RANGE2/temp_6.dat
 sort:: current edge count: 1000000
 sort:: current edge count: 2000000
 sort:: current edge count: 3000000
@@ -1088,65 +627,7 @@ sort:: current edge count: 64000000
 sort:: current edge count: 65000000
 sort:: current edge count: 66000000
 sort:: current edge count: 67000000
-sort:: current edge count: 68000000
-sort:: current edge count: 69000000
-sort:: current edge count: 70000000
-sort:: current edge count: 71000000
-sort:: current edge count: 72000000
-sort:: current edge count: 73000000
-sort:: current edge count: 74000000
-sort:: current edge count: 75000000
-sort:: current edge count: 76000000
-sort:: current edge count: 77000000
-sort:: current edge count: 78000000
-sort:: current edge count: 79000000
-sort:: current edge count: 80000000
-sort:: current edge count: 81000000
-sort:: current edge count: 82000000
-sort:: current edge count: 83000000
-sort:: current edge count: 84000000
-sort:: current edge count: 85000000
-sort:: current edge count: 86000000
-sort:: current edge count: 87000000
-sort:: current edge count: 88000000
-sort:: current edge count: 89000000
-sort:: current edge count: 90000000
-sort:: current edge count: 91000000
-sort:: current edge count: 92000000
-sort:: current edge count: 93000000
-sort:: current edge count: 94000000
-sort:: current edge count: 95000000
-sort:: current edge count: 96000000
-sort:: current edge count: 97000000
-sort:: current edge count: 98000000
-sort:: current edge count: 99000000
-sort:: current edge count: 100000000
-sort:: current edge count: 101000000
-sort:: current edge count: 102000000
-sort:: current edge count: 103000000
-sort:: current edge count: 104000000
-sort:: current edge count: 105000000
-sort:: current edge count: 106000000
-sort:: current edge count: 107000000
-sort:: current edge count: 108000000
-sort:: current edge count: 109000000
-sort:: current edge count: 110000000
-sort:: current edge count: 111000000
-sort:: current edge count: 112000000
-sort:: current edge count: 113000000
-sort:: current edge count: 114000000
-sort:: current edge count: 115000000
-sort:: current edge count: 116000000
-sort:: current edge count: 117000000
-sort:: current edge count: 118000000
-sort:: current edge count: 119000000
-sort:: current edge count: 120000000
-sort:: current edge count: 121000000
-sort:: current edge count: 122000000
-sort:: current edge count: 123000000
-sort:: current edge count: 124000000
-sort:: current edge count: 125000000
-Checked 125829121 samples
+Checked 67108864 samples
 >>> Sorting process. topi: 3 
 Sorting block 0 (1048576)
 Sorting block 1 (1048576)
@@ -1212,64 +693,8 @@ Sorting block 60 (1048576)
 Sorting block 61 (1048576)
 Sorting block 62 (1048576)
 Sorting block 63 (1048576)
-Sorting block 64 (1048576)
-Sorting block 65 (1048576)
-Sorting block 66 (1048576)
-Sorting block 67 (1048576)
-Sorting block 68 (1048576)
-Sorting block 69 (1048576)
-Sorting block 70 (1048576)
-Sorting block 71 (1048576)
-Sorting block 72 (1048576)
-Sorting block 73 (1048576)
-Sorting block 74 (1048576)
-Sorting block 75 (1048576)
-Sorting block 76 (1048576)
-Sorting block 77 (1048576)
-Sorting block 78 (1048576)
-Sorting block 79 (1048576)
-Sorting block 80 (1048576)
-Sorting block 81 (1048576)
-Sorting block 82 (1048576)
-Sorting block 83 (1048576)
-Sorting block 84 (1048576)
-Sorting block 85 (1048576)
-Sorting block 86 (1048576)
-Sorting block 87 (1048576)
-Sorting block 88 (1048576)
-Sorting block 89 (1048576)
-Sorting block 90 (1048576)
-Sorting block 91 (1048576)
-Sorting block 92 (1048576)
-Sorting block 93 (1048576)
-Sorting block 94 (1048576)
-Sorting block 95 (1048576)
-Sorting block 96 (1048576)
-Sorting block 97 (1048576)
-Sorting block 98 (1048576)
-Sorting block 99 (1048576)
-Sorting block 100 (1048576)
-Sorting block 101 (1048576)
-Sorting block 102 (1048576)
-Sorting block 103 (1048576)
-Sorting block 104 (1048576)
-Sorting block 105 (1048576)
-Sorting block 106 (1048576)
-Sorting block 107 (1048576)
-Sorting block 108 (1048576)
-Sorting block 109 (1048576)
-Sorting block 110 (1048576)
-Sorting block 111 (1048576)
-Sorting block 112 (1048576)
-Sorting block 113 (1048576)
-Sorting block 114 (1048576)
-Sorting block 115 (1048576)
-Sorting block 116 (1048576)
-Sorting block 117 (1048576)
-Sorting block 118 (1048576)
-Sorting block 119 (1048576)
 Initial block-level sorting finished!
-Sorting stage 0! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_0.dat -- 120
+Sorting stage 0! /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_0.dat -- 64
 Sorting blocks 0 8388608 (1)
 Sorting blocks 16777216 25165824 (1)
 Sorting blocks 33554432 41943040 (1)
@@ -1302,36 +727,8 @@ Sorting blocks 469762048 478150656 (1)
 Sorting blocks 486539264 494927872 (1)
 Sorting blocks 503316480 511705088 (1)
 Sorting blocks 520093696 528482304 (1)
-Sorting blocks 536870912 545259520 (1)
-Sorting blocks 553648128 562036736 (1)
-Sorting blocks 570425344 578813952 (1)
-Sorting blocks 587202560 595591168 (1)
-Sorting blocks 603979776 612368384 (1)
-Sorting blocks 620756992 629145600 (1)
-Sorting blocks 637534208 645922816 (1)
-Sorting blocks 654311424 662700032 (1)
-Sorting blocks 671088640 679477248 (1)
-Sorting blocks 687865856 696254464 (1)
-Sorting blocks 704643072 713031680 (1)
-Sorting blocks 721420288 729808896 (1)
-Sorting blocks 738197504 746586112 (1)
-Sorting blocks 754974720 763363328 (1)
-Sorting blocks 771751936 780140544 (1)
-Sorting blocks 788529152 796917760 (1)
-Sorting blocks 805306368 813694976 (1)
-Sorting blocks 822083584 830472192 (1)
-Sorting blocks 838860800 847249408 (1)
-Sorting blocks 855638016 864026624 (1)
-Sorting blocks 872415232 880803840 (1)
-Sorting blocks 889192448 897581056 (1)
-Sorting blocks 905969664 914358272 (1)
-Sorting blocks 922746880 931135488 (1)
-Sorting blocks 939524096 947912704 (1)
-Sorting blocks 956301312 964689920 (1)
-Sorting blocks 973078528 981467136 (1)
-Sorting blocks 989855744 998244352 (1)
 ----- sort_stage: 0 
-Sorting stage 1! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_1.dat -- 120
+Sorting stage 1! /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_1.dat -- 64
 Sorting blocks 0 16777216 (2)
 Sorting blocks 33554432 50331648 (2)
 Sorting blocks 67108864 83886080 (2)
@@ -1348,22 +745,8 @@ Sorting blocks 402653184 419430400 (2)
 Sorting blocks 436207616 452984832 (2)
 Sorting blocks 469762048 486539264 (2)
 Sorting blocks 503316480 520093696 (2)
-Sorting blocks 536870912 553648128 (2)
-Sorting blocks 570425344 587202560 (2)
-Sorting blocks 603979776 620756992 (2)
-Sorting blocks 637534208 654311424 (2)
-Sorting blocks 671088640 687865856 (2)
-Sorting blocks 704643072 721420288 (2)
-Sorting blocks 738197504 754974720 (2)
-Sorting blocks 771751936 788529152 (2)
-Sorting blocks 805306368 822083584 (2)
-Sorting blocks 838860800 855638016 (2)
-Sorting blocks 872415232 889192448 (2)
-Sorting blocks 905969664 922746880 (2)
-Sorting blocks 939524096 956301312 (2)
-Sorting blocks 973078528 989855744 (2)
 ----- sort_stage: 1 
-Sorting stage 2! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_2.dat -- 120
+Sorting stage 2! /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_2.dat -- 64
 Sorting blocks 0 33554432 (4)
 Sorting blocks 67108864 100663296 (4)
 Sorting blocks 134217728 167772160 (4)
@@ -1372,38 +755,21 @@ Sorting blocks 268435456 301989888 (4)
 Sorting blocks 335544320 369098752 (4)
 Sorting blocks 402653184 436207616 (4)
 Sorting blocks 469762048 503316480 (4)
-Sorting blocks 536870912 570425344 (4)
-Sorting blocks 603979776 637534208 (4)
-Sorting blocks 671088640 704643072 (4)
-Sorting blocks 738197504 771751936 (4)
-Sorting blocks 805306368 838860800 (4)
-Sorting blocks 872415232 905969664 (4)
-Sorting blocks 939524096 973078528 (4)
 ----- sort_stage: 2 
-Sorting stage 3! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_3.dat -- 120
+Sorting stage 3! /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_3.dat -- 64
 Sorting blocks 0 67108864 (8)
 Sorting blocks 134217728 201326592 (8)
 Sorting blocks 268435456 335544320 (8)
 Sorting blocks 402653184 469762048 (8)
-Sorting blocks 536870912 603979776 (8)
-Sorting blocks 671088640 738197504 (8)
-Sorting blocks 805306368 872415232 (8)
-Sorting blocks 939524096 1006632960 (8)
 ----- sort_stage: 3 
-Sorting stage 4! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_4.dat -- 120
+Sorting stage 4! /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_4.dat -- 64
 Sorting blocks 0 134217728 (16)
 Sorting blocks 268435456 402653184 (16)
-Sorting blocks 536870912 671088640 (16)
-Sorting blocks 805306368 939524096 (16)
 ----- sort_stage: 4 
-Sorting stage 5! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_5.dat -- 120
+Sorting stage 5! /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_5.dat -- 64
 Sorting blocks 0 268435456 (32)
-Sorting blocks 536870912 805306368 (32)
 ----- sort_stage: 5 
-Sorting stage 6! /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_6.dat -- 120
-Sorting blocks 0 536870912 (64)
------ sort_stage: 6 
-extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT22_SPARSE3/RMAT22_SPARSE3.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT22_SPARSE3/temp_7.dat
+extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT_RANGE3/RMAT_RANGE3.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT_RANGE3/temp_6.dat
 sort:: current edge count: 1000000
 sort:: current edge count: 2000000
 sort:: current edge count: 3000000
@@ -1471,65 +837,7 @@ sort:: current edge count: 64000000
 sort:: current edge count: 65000000
 sort:: current edge count: 66000000
 sort:: current edge count: 67000000
-sort:: current edge count: 68000000
-sort:: current edge count: 69000000
-sort:: current edge count: 70000000
-sort:: current edge count: 71000000
-sort:: current edge count: 72000000
-sort:: current edge count: 73000000
-sort:: current edge count: 74000000
-sort:: current edge count: 75000000
-sort:: current edge count: 76000000
-sort:: current edge count: 77000000
-sort:: current edge count: 78000000
-sort:: current edge count: 79000000
-sort:: current edge count: 80000000
-sort:: current edge count: 81000000
-sort:: current edge count: 82000000
-sort:: current edge count: 83000000
-sort:: current edge count: 84000000
-sort:: current edge count: 85000000
-sort:: current edge count: 86000000
-sort:: current edge count: 87000000
-sort:: current edge count: 88000000
-sort:: current edge count: 89000000
-sort:: current edge count: 90000000
-sort:: current edge count: 91000000
-sort:: current edge count: 92000000
-sort:: current edge count: 93000000
-sort:: current edge count: 94000000
-sort:: current edge count: 95000000
-sort:: current edge count: 96000000
-sort:: current edge count: 97000000
-sort:: current edge count: 98000000
-sort:: current edge count: 99000000
-sort:: current edge count: 100000000
-sort:: current edge count: 101000000
-sort:: current edge count: 102000000
-sort:: current edge count: 103000000
-sort:: current edge count: 104000000
-sort:: current edge count: 105000000
-sort:: current edge count: 106000000
-sort:: current edge count: 107000000
-sort:: current edge count: 108000000
-sort:: current edge count: 109000000
-sort:: current edge count: 110000000
-sort:: current edge count: 111000000
-sort:: current edge count: 112000000
-sort:: current edge count: 113000000
-sort:: current edge count: 114000000
-sort:: current edge count: 115000000
-sort:: current edge count: 116000000
-sort:: current edge count: 117000000
-sort:: current edge count: 118000000
-sort:: current edge count: 119000000
-sort:: current edge count: 120000000
-sort:: current edge count: 121000000
-sort:: current edge count: 122000000
-sort:: current edge count: 123000000
-sort:: current edge count: 124000000
-sort:: current edge count: 125000000
-Checked 125829121 samples
+Checked 67108864 samples
 >>> Sorting process. topi: 4 
 Sorting block 0 (1048576)
 Sorting block 1 (1048576)
@@ -1595,64 +903,8 @@ Sorting block 60 (1048576)
 Sorting block 61 (1048576)
 Sorting block 62 (1048576)
 Sorting block 63 (1048576)
-Sorting block 64 (1048576)
-Sorting block 65 (1048576)
-Sorting block 66 (1048576)
-Sorting block 67 (1048576)
-Sorting block 68 (1048576)
-Sorting block 69 (1048576)
-Sorting block 70 (1048576)
-Sorting block 71 (1048576)
-Sorting block 72 (1048576)
-Sorting block 73 (1048576)
-Sorting block 74 (1048576)
-Sorting block 75 (1048576)
-Sorting block 76 (1048576)
-Sorting block 77 (1048576)
-Sorting block 78 (1048576)
-Sorting block 79 (1048576)
-Sorting block 80 (1048576)
-Sorting block 81 (1048576)
-Sorting block 82 (1048576)
-Sorting block 83 (1048576)
-Sorting block 84 (1048576)
-Sorting block 85 (1048576)
-Sorting block 86 (1048576)
-Sorting block 87 (1048576)
-Sorting block 88 (1048576)
-Sorting block 89 (1048576)
-Sorting block 90 (1048576)
-Sorting block 91 (1048576)
-Sorting block 92 (1048576)
-Sorting block 93 (1048576)
-Sorting block 94 (1048576)
-Sorting block 95 (1048576)
-Sorting block 96 (1048576)
-Sorting block 97 (1048576)
-Sorting block 98 (1048576)
-Sorting block 99 (1048576)
-Sorting block 100 (1048576)
-Sorting block 101 (1048576)
-Sorting block 102 (1048576)
-Sorting block 103 (1048576)
-Sorting block 104 (1048576)
-Sorting block 105 (1048576)
-Sorting block 106 (1048576)
-Sorting block 107 (1048576)
-Sorting block 108 (1048576)
-Sorting block 109 (1048576)
-Sorting block 110 (1048576)
-Sorting block 111 (1048576)
-Sorting block 112 (1048576)
-Sorting block 113 (1048576)
-Sorting block 114 (1048576)
-Sorting block 115 (1048576)
-Sorting block 116 (1048576)
-Sorting block 117 (1048576)
-Sorting block 118 (1048576)
-Sorting block 119 (1048576)
 Initial block-level sorting finished!
-Sorting stage 0! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_0.dat -- 120
+Sorting stage 0! /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_0.dat -- 64
 Sorting blocks 0 8388608 (1)
 Sorting blocks 16777216 25165824 (1)
 Sorting blocks 33554432 41943040 (1)
@@ -1685,36 +937,8 @@ Sorting blocks 469762048 478150656 (1)
 Sorting blocks 486539264 494927872 (1)
 Sorting blocks 503316480 511705088 (1)
 Sorting blocks 520093696 528482304 (1)
-Sorting blocks 536870912 545259520 (1)
-Sorting blocks 553648128 562036736 (1)
-Sorting blocks 570425344 578813952 (1)
-Sorting blocks 587202560 595591168 (1)
-Sorting blocks 603979776 612368384 (1)
-Sorting blocks 620756992 629145600 (1)
-Sorting blocks 637534208 645922816 (1)
-Sorting blocks 654311424 662700032 (1)
-Sorting blocks 671088640 679477248 (1)
-Sorting blocks 687865856 696254464 (1)
-Sorting blocks 704643072 713031680 (1)
-Sorting blocks 721420288 729808896 (1)
-Sorting blocks 738197504 746586112 (1)
-Sorting blocks 754974720 763363328 (1)
-Sorting blocks 771751936 780140544 (1)
-Sorting blocks 788529152 796917760 (1)
-Sorting blocks 805306368 813694976 (1)
-Sorting blocks 822083584 830472192 (1)
-Sorting blocks 838860800 847249408 (1)
-Sorting blocks 855638016 864026624 (1)
-Sorting blocks 872415232 880803840 (1)
-Sorting blocks 889192448 897581056 (1)
-Sorting blocks 905969664 914358272 (1)
-Sorting blocks 922746880 931135488 (1)
-Sorting blocks 939524096 947912704 (1)
-Sorting blocks 956301312 964689920 (1)
-Sorting blocks 973078528 981467136 (1)
-Sorting blocks 989855744 998244352 (1)
 ----- sort_stage: 0 
-Sorting stage 1! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_1.dat -- 120
+Sorting stage 1! /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_1.dat -- 64
 Sorting blocks 0 16777216 (2)
 Sorting blocks 33554432 50331648 (2)
 Sorting blocks 67108864 83886080 (2)
@@ -1731,22 +955,8 @@ Sorting blocks 402653184 419430400 (2)
 Sorting blocks 436207616 452984832 (2)
 Sorting blocks 469762048 486539264 (2)
 Sorting blocks 503316480 520093696 (2)
-Sorting blocks 536870912 553648128 (2)
-Sorting blocks 570425344 587202560 (2)
-Sorting blocks 603979776 620756992 (2)
-Sorting blocks 637534208 654311424 (2)
-Sorting blocks 671088640 687865856 (2)
-Sorting blocks 704643072 721420288 (2)
-Sorting blocks 738197504 754974720 (2)
-Sorting blocks 771751936 788529152 (2)
-Sorting blocks 805306368 822083584 (2)
-Sorting blocks 838860800 855638016 (2)
-Sorting blocks 872415232 889192448 (2)
-Sorting blocks 905969664 922746880 (2)
-Sorting blocks 939524096 956301312 (2)
-Sorting blocks 973078528 989855744 (2)
 ----- sort_stage: 1 
-Sorting stage 2! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_2.dat -- 120
+Sorting stage 2! /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_2.dat -- 64
 Sorting blocks 0 33554432 (4)
 Sorting blocks 67108864 100663296 (4)
 Sorting blocks 134217728 167772160 (4)
@@ -1755,38 +965,21 @@ Sorting blocks 268435456 301989888 (4)
 Sorting blocks 335544320 369098752 (4)
 Sorting blocks 402653184 436207616 (4)
 Sorting blocks 469762048 503316480 (4)
-Sorting blocks 536870912 570425344 (4)
-Sorting blocks 603979776 637534208 (4)
-Sorting blocks 671088640 704643072 (4)
-Sorting blocks 738197504 771751936 (4)
-Sorting blocks 805306368 838860800 (4)
-Sorting blocks 872415232 905969664 (4)
-Sorting blocks 939524096 973078528 (4)
 ----- sort_stage: 2 
-Sorting stage 3! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_3.dat -- 120
+Sorting stage 3! /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_3.dat -- 64
 Sorting blocks 0 67108864 (8)
 Sorting blocks 134217728 201326592 (8)
 Sorting blocks 268435456 335544320 (8)
 Sorting blocks 402653184 469762048 (8)
-Sorting blocks 536870912 603979776 (8)
-Sorting blocks 671088640 738197504 (8)
-Sorting blocks 805306368 872415232 (8)
-Sorting blocks 939524096 1006632960 (8)
 ----- sort_stage: 3 
-Sorting stage 4! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_4.dat -- 120
+Sorting stage 4! /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_4.dat -- 64
 Sorting blocks 0 134217728 (16)
 Sorting blocks 268435456 402653184 (16)
-Sorting blocks 536870912 671088640 (16)
-Sorting blocks 805306368 939524096 (16)
 ----- sort_stage: 4 
-Sorting stage 5! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_5.dat -- 120
+Sorting stage 5! /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_5.dat -- 64
 Sorting blocks 0 268435456 (32)
-Sorting blocks 536870912 805306368 (32)
 ----- sort_stage: 5 
-Sorting stage 6! /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_6.dat -- 120
-Sorting blocks 0 536870912 (64)
------ sort_stage: 6 
-extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT22_SPARSE4/RMAT22_SPARSE4.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT22_SPARSE4/temp_7.dat
+extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT_RANGE4/RMAT_RANGE4.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT_RANGE4/temp_6.dat
 sort:: current edge count: 1000000
 sort:: current edge count: 2000000
 sort:: current edge count: 3000000
@@ -1854,65 +1047,7 @@ sort:: current edge count: 64000000
 sort:: current edge count: 65000000
 sort:: current edge count: 66000000
 sort:: current edge count: 67000000
-sort:: current edge count: 68000000
-sort:: current edge count: 69000000
-sort:: current edge count: 70000000
-sort:: current edge count: 71000000
-sort:: current edge count: 72000000
-sort:: current edge count: 73000000
-sort:: current edge count: 74000000
-sort:: current edge count: 75000000
-sort:: current edge count: 76000000
-sort:: current edge count: 77000000
-sort:: current edge count: 78000000
-sort:: current edge count: 79000000
-sort:: current edge count: 80000000
-sort:: current edge count: 81000000
-sort:: current edge count: 82000000
-sort:: current edge count: 83000000
-sort:: current edge count: 84000000
-sort:: current edge count: 85000000
-sort:: current edge count: 86000000
-sort:: current edge count: 87000000
-sort:: current edge count: 88000000
-sort:: current edge count: 89000000
-sort:: current edge count: 90000000
-sort:: current edge count: 91000000
-sort:: current edge count: 92000000
-sort:: current edge count: 93000000
-sort:: current edge count: 94000000
-sort:: current edge count: 95000000
-sort:: current edge count: 96000000
-sort:: current edge count: 97000000
-sort:: current edge count: 98000000
-sort:: current edge count: 99000000
-sort:: current edge count: 100000000
-sort:: current edge count: 101000000
-sort:: current edge count: 102000000
-sort:: current edge count: 103000000
-sort:: current edge count: 104000000
-sort:: current edge count: 105000000
-sort:: current edge count: 106000000
-sort:: current edge count: 107000000
-sort:: current edge count: 108000000
-sort:: current edge count: 109000000
-sort:: current edge count: 110000000
-sort:: current edge count: 111000000
-sort:: current edge count: 112000000
-sort:: current edge count: 113000000
-sort:: current edge count: 114000000
-sort:: current edge count: 115000000
-sort:: current edge count: 116000000
-sort:: current edge count: 117000000
-sort:: current edge count: 118000000
-sort:: current edge count: 119000000
-sort:: current edge count: 120000000
-sort:: current edge count: 121000000
-sort:: current edge count: 122000000
-sort:: current edge count: 123000000
-sort:: current edge count: 124000000
-sort:: current edge count: 125000000
-Checked 125829121 samples
+Checked 67108864 samples
 >>> Sorting process. topi: 5 
 Sorting block 0 (1048576)
 Sorting block 1 (1048576)
@@ -1978,64 +1113,8 @@ Sorting block 60 (1048576)
 Sorting block 61 (1048576)
 Sorting block 62 (1048576)
 Sorting block 63 (1048576)
-Sorting block 64 (1048576)
-Sorting block 65 (1048576)
-Sorting block 66 (1048576)
-Sorting block 67 (1048576)
-Sorting block 68 (1048576)
-Sorting block 69 (1048576)
-Sorting block 70 (1048576)
-Sorting block 71 (1048576)
-Sorting block 72 (1048576)
-Sorting block 73 (1048576)
-Sorting block 74 (1048576)
-Sorting block 75 (1048576)
-Sorting block 76 (1048576)
-Sorting block 77 (1048576)
-Sorting block 78 (1048576)
-Sorting block 79 (1048576)
-Sorting block 80 (1048576)
-Sorting block 81 (1048576)
-Sorting block 82 (1048576)
-Sorting block 83 (1048576)
-Sorting block 84 (1048576)
-Sorting block 85 (1048576)
-Sorting block 86 (1048576)
-Sorting block 87 (1048576)
-Sorting block 88 (1048576)
-Sorting block 89 (1048576)
-Sorting block 90 (1048576)
-Sorting block 91 (1048576)
-Sorting block 92 (1048576)
-Sorting block 93 (1048576)
-Sorting block 94 (1048576)
-Sorting block 95 (1048576)
-Sorting block 96 (1048576)
-Sorting block 97 (1048576)
-Sorting block 98 (1048576)
-Sorting block 99 (1048576)
-Sorting block 100 (1048576)
-Sorting block 101 (1048576)
-Sorting block 102 (1048576)
-Sorting block 103 (1048576)
-Sorting block 104 (1048576)
-Sorting block 105 (1048576)
-Sorting block 106 (1048576)
-Sorting block 107 (1048576)
-Sorting block 108 (1048576)
-Sorting block 109 (1048576)
-Sorting block 110 (1048576)
-Sorting block 111 (1048576)
-Sorting block 112 (1048576)
-Sorting block 113 (1048576)
-Sorting block 114 (1048576)
-Sorting block 115 (1048576)
-Sorting block 116 (1048576)
-Sorting block 117 (1048576)
-Sorting block 118 (1048576)
-Sorting block 119 (1048576)
 Initial block-level sorting finished!
-Sorting stage 0! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_0.dat -- 120
+Sorting stage 0! /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_0.dat -- 64
 Sorting blocks 0 8388608 (1)
 Sorting blocks 16777216 25165824 (1)
 Sorting blocks 33554432 41943040 (1)
@@ -2068,36 +1147,8 @@ Sorting blocks 469762048 478150656 (1)
 Sorting blocks 486539264 494927872 (1)
 Sorting blocks 503316480 511705088 (1)
 Sorting blocks 520093696 528482304 (1)
-Sorting blocks 536870912 545259520 (1)
-Sorting blocks 553648128 562036736 (1)
-Sorting blocks 570425344 578813952 (1)
-Sorting blocks 587202560 595591168 (1)
-Sorting blocks 603979776 612368384 (1)
-Sorting blocks 620756992 629145600 (1)
-Sorting blocks 637534208 645922816 (1)
-Sorting blocks 654311424 662700032 (1)
-Sorting blocks 671088640 679477248 (1)
-Sorting blocks 687865856 696254464 (1)
-Sorting blocks 704643072 713031680 (1)
-Sorting blocks 721420288 729808896 (1)
-Sorting blocks 738197504 746586112 (1)
-Sorting blocks 754974720 763363328 (1)
-Sorting blocks 771751936 780140544 (1)
-Sorting blocks 788529152 796917760 (1)
-Sorting blocks 805306368 813694976 (1)
-Sorting blocks 822083584 830472192 (1)
-Sorting blocks 838860800 847249408 (1)
-Sorting blocks 855638016 864026624 (1)
-Sorting blocks 872415232 880803840 (1)
-Sorting blocks 889192448 897581056 (1)
-Sorting blocks 905969664 914358272 (1)
-Sorting blocks 922746880 931135488 (1)
-Sorting blocks 939524096 947912704 (1)
-Sorting blocks 956301312 964689920 (1)
-Sorting blocks 973078528 981467136 (1)
-Sorting blocks 989855744 998244352 (1)
 ----- sort_stage: 0 
-Sorting stage 1! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_1.dat -- 120
+Sorting stage 1! /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_1.dat -- 64
 Sorting blocks 0 16777216 (2)
 Sorting blocks 33554432 50331648 (2)
 Sorting blocks 67108864 83886080 (2)
@@ -2114,22 +1165,8 @@ Sorting blocks 402653184 419430400 (2)
 Sorting blocks 436207616 452984832 (2)
 Sorting blocks 469762048 486539264 (2)
 Sorting blocks 503316480 520093696 (2)
-Sorting blocks 536870912 553648128 (2)
-Sorting blocks 570425344 587202560 (2)
-Sorting blocks 603979776 620756992 (2)
-Sorting blocks 637534208 654311424 (2)
-Sorting blocks 671088640 687865856 (2)
-Sorting blocks 704643072 721420288 (2)
-Sorting blocks 738197504 754974720 (2)
-Sorting blocks 771751936 788529152 (2)
-Sorting blocks 805306368 822083584 (2)
-Sorting blocks 838860800 855638016 (2)
-Sorting blocks 872415232 889192448 (2)
-Sorting blocks 905969664 922746880 (2)
-Sorting blocks 939524096 956301312 (2)
-Sorting blocks 973078528 989855744 (2)
 ----- sort_stage: 1 
-Sorting stage 2! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_2.dat -- 120
+Sorting stage 2! /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_2.dat -- 64
 Sorting blocks 0 33554432 (4)
 Sorting blocks 67108864 100663296 (4)
 Sorting blocks 134217728 167772160 (4)
@@ -2138,38 +1175,21 @@ Sorting blocks 268435456 301989888 (4)
 Sorting blocks 335544320 369098752 (4)
 Sorting blocks 402653184 436207616 (4)
 Sorting blocks 469762048 503316480 (4)
-Sorting blocks 536870912 570425344 (4)
-Sorting blocks 603979776 637534208 (4)
-Sorting blocks 671088640 704643072 (4)
-Sorting blocks 738197504 771751936 (4)
-Sorting blocks 805306368 838860800 (4)
-Sorting blocks 872415232 905969664 (4)
-Sorting blocks 939524096 973078528 (4)
 ----- sort_stage: 2 
-Sorting stage 3! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_3.dat -- 120
+Sorting stage 3! /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_3.dat -- 64
 Sorting blocks 0 67108864 (8)
 Sorting blocks 134217728 201326592 (8)
 Sorting blocks 268435456 335544320 (8)
 Sorting blocks 402653184 469762048 (8)
-Sorting blocks 536870912 603979776 (8)
-Sorting blocks 671088640 738197504 (8)
-Sorting blocks 805306368 872415232 (8)
-Sorting blocks 939524096 1006632960 (8)
 ----- sort_stage: 3 
-Sorting stage 4! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_4.dat -- 120
+Sorting stage 4! /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_4.dat -- 64
 Sorting blocks 0 134217728 (16)
 Sorting blocks 268435456 402653184 (16)
-Sorting blocks 536870912 671088640 (16)
-Sorting blocks 805306368 939524096 (16)
 ----- sort_stage: 4 
-Sorting stage 5! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_5.dat -- 120
+Sorting stage 5! /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_5.dat -- 64
 Sorting blocks 0 268435456 (32)
-Sorting blocks 536870912 805306368 (32)
 ----- sort_stage: 5 
-Sorting stage 6! /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_6.dat -- 120
-Sorting blocks 0 536870912 (64)
------ sort_stage: 6 
-extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT22_SPARSE5/RMAT22_SPARSE5.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT22_SPARSE5/temp_7.dat
+extract_vertices::extract_vertices : extracting vertices from /localtmp/oj2zf/dataset/RMAT_RANGE5/RMAT_RANGE5.mtxChecking final file, /localtmp/oj2zf/dataset/RMAT_RANGE5/temp_6.dat
 sort:: current edge count: 1000000
 sort:: current edge count: 2000000
 sort:: current edge count: 3000000
@@ -2237,62 +1257,4 @@ sort:: current edge count: 64000000
 sort:: current edge count: 65000000
 sort:: current edge count: 66000000
 sort:: current edge count: 67000000
-sort:: current edge count: 68000000
-sort:: current edge count: 69000000
-sort:: current edge count: 70000000
-sort:: current edge count: 71000000
-sort:: current edge count: 72000000
-sort:: current edge count: 73000000
-sort:: current edge count: 74000000
-sort:: current edge count: 75000000
-sort:: current edge count: 76000000
-sort:: current edge count: 77000000
-sort:: current edge count: 78000000
-sort:: current edge count: 79000000
-sort:: current edge count: 80000000
-sort:: current edge count: 81000000
-sort:: current edge count: 82000000
-sort:: current edge count: 83000000
-sort:: current edge count: 84000000
-sort:: current edge count: 85000000
-sort:: current edge count: 86000000
-sort:: current edge count: 87000000
-sort:: current edge count: 88000000
-sort:: current edge count: 89000000
-sort:: current edge count: 90000000
-sort:: current edge count: 91000000
-sort:: current edge count: 92000000
-sort:: current edge count: 93000000
-sort:: current edge count: 94000000
-sort:: current edge count: 95000000
-sort:: current edge count: 96000000
-sort:: current edge count: 97000000
-sort:: current edge count: 98000000
-sort:: current edge count: 99000000
-sort:: current edge count: 100000000
-sort:: current edge count: 101000000
-sort:: current edge count: 102000000
-sort:: current edge count: 103000000
-sort:: current edge count: 104000000
-sort:: current edge count: 105000000
-sort:: current edge count: 106000000
-sort:: current edge count: 107000000
-sort:: current edge count: 108000000
-sort:: current edge count: 109000000
-sort:: current edge count: 110000000
-sort:: current edge count: 111000000
-sort:: current edge count: 112000000
-sort:: current edge count: 113000000
-sort:: current edge count: 114000000
-sort:: current edge count: 115000000
-sort:: current edge count: 116000000
-sort:: current edge count: 117000000
-sort:: current edge count: 118000000
-sort:: current edge count: 119000000
-sort:: current edge count: 120000000
-sort:: current edge count: 121000000
-sort:: current edge count: 122000000
-sort:: current edge count: 123000000
-sort:: current edge count: 124000000
-sort:: current edge count: 125000000
-Checked 125829121 samples
+Checked 67108864 samples

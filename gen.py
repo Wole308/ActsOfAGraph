@@ -25,10 +25,15 @@ print(isFile)
 
 ###
 
+if ((context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH") and ((context['DATASET'] == "_RMAT_RANGE0") or (context['DATASET'] == "_RMAT_RANGE1") or (context['DATASET'] == "_RMAT_RANGE2") or (context['DATASET'] == "_RMAT_RANGE3") or (context['DATASET'] == "_RMAT_RANGE4") or (context['DATASET'] == "_RMAT_RANGE5") or (context['DATASET'] == "_RMAT_RANGE6") or (context['DATASET'] == "_RMAT_RANGE7"))):                                     
+    context['NUMSUBCPUTHREADS']=4
+    
+###
+
 context['VECTOR_SIZE'] = 8
 context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
-context['NUMSUBWORKERS'] = 3#4
+context['NUMSUBWORKERS'] = 1 # 3#4
 
 ###
 
@@ -182,8 +187,8 @@ print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 
-relref=""
-# relref="../"
+# relref=""
+relref="../"
 	
 o_path0=relref+"acts/acts/acts.cpp"
 o_path1=relref+"acts/acts/acts.h"
@@ -360,6 +365,8 @@ for i in range (0,(context['NUMSUBCPUTHREADS'])):
         
 # SYNC 
 context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / 2
+if context['NUMSYNCTHREADS'] == 0:
+    context['NUMSYNCTHREADS'] = 1
 
 context['SYNCTHREADS_seq'] = []
 for i in range (0,(context['NUMSYNCTHREADS'])):

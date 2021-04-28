@@ -28,7 +28,7 @@ int main( int argc, char** argv) {
 	#ifdef VARYBYNONE
 	unsigned int totalsize = 1;
 	#else 
-	unsigned int totalsize = 6;	
+	unsigned int totalsize = 6;	//6
 	#endif
 	for(unsigned int topi=0; topi<totalsize; topi++){
 	
@@ -37,9 +37,8 @@ int main( int argc, char** argv) {
 			{0.19,0.05}
 		}; */
 		
-		double seed[2][2];
-		
 		#ifdef VARYBYNONE
+		double seed[2][2];
 		uint32_t scale = 22; // kron22
 		int edgefactor = 35; 
 	
@@ -50,6 +49,7 @@ int main( int argc, char** argv) {
 		#endif
 		
 		#ifdef VARYBYSPARSITY
+		double seed[2][2];
 		uint32_t scale = 22; // SPARSE
 		int edgefactor = 30;
 	
@@ -94,10 +94,10 @@ int main( int argc, char** argv) {
 		#endif 
 		
 		#ifdef VARYBYRANGE
-		seed[0][1] = 0.25; 
-		seed[1][0] = 0.25; 
-		seed[1][1] = 0.25; 
-		seed[0][0] = 0.25; 
+		double seed[2][2] = {
+			{0.25,0.25},
+			{0.25,0.25}
+		};
 		#endif 
 		
 		#ifdef VARYBYNONE
@@ -143,17 +143,17 @@ int main( int argc, char** argv) {
 		#ifdef VARYBYRANGE
 		uint32_t scale = 0;
 		if(topi==0){
-			scale = 21; // 2M
+			scale = 20; // 1M
 		} else if(topi==1){
-			scale = 22; // 4M
+			scale = 21; // 2M
 		} else if(topi==2){
-			scale = 23; // 8M
+			scale = 22; // 4M
 		} else if(topi==3){
-			scale = 24; // 16M
+			scale = 23; // 8M
 		} else if(topi==4){
-			scale = 25; // 32M
+			scale = 24; // 16M
 		} else if(topi==5){
-			scale = 26; // 64M
+			scale = 25; // 32M
 		}
 		nodecount = (1L<<scale);
 		edgecount = (1L<<26); // 64M

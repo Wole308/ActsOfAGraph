@@ -13,6 +13,8 @@ using namespace std;
 
 // run
 
+// nohup ./obj/sort 0
+
 // nohup ./obj/sort 0 /localtmp/oj2zf/dataset/kron_g500-logn22/kron_g500-logn22.dat
 
 // nohup ./obj/sort 0 /localtmp/oj2zf/dataset/RMAT22_SPARSE0/sparse.dat
@@ -141,7 +143,7 @@ int main( int argc, char** argv ) {
 	#ifdef VARYBYNONE
 	unsigned int totalsize = 1;
 	#else 
-	unsigned int totalsize = 6;	
+	unsigned int totalsize = 6;	//6
 	#endif
 	for(unsigned int topi=0; topi<totalsize; topi++){
 		
@@ -344,7 +346,16 @@ int main( int argc, char** argv ) {
 			
 			// printf( "%i, %i \n", cur[0], cur[1] );
 			// fprintf(file_graph, "%lu %lu \n", cur[0], cur[1]); // SRC_DEST
+			// fprintf(file_graph, "%lu %lu \n", cur[1], cur[0]); // DEST_SRC /////////
+			#ifdef VARYBYNONE
 			fprintf(file_graph, "%lu %lu \n", cur[1], cur[0]); // DEST_SRC
+			#endif
+			#ifdef VARYBYSPARSITY
+			fprintf(file_graph, "%lu %lu \n", cur[1], cur[0]); // DEST_SRC
+			#endif 
+			#ifdef VARYBYRANGE
+			fprintf(file_graph, "%lu %lu \n", cur[1], 1); // DEST_SRC
+			#endif 
 
 			if ( !compare(last, cur) ) {
 				printf( "Sort error @ %ld (%ld %ld) > (%ld %ld)\n", count,

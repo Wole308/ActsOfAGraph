@@ -744,8 +744,8 @@ void graph::loadalldatasets(){
 	_datasets[40].vertices_path_bin = rootDir + "dataset/RMAT_RANGE0/RMAT_RANGE0.vertices";
 	_datasets[40].edges_path_bin = rootDir + "dataset/RMAT_RANGE0/RMAT_RANGE0.edges";
 	_datasets[40].min_vertex = 0;
-	_datasets[40].max_vertex = (1 << 21);
-	_datasets[40].num_vertices = (1 << 21);
+	_datasets[40].max_vertex = (1 << 20);
+	_datasets[40].num_vertices = (1 << 20);
 	_datasets[40].num_edges = (1 << 26);
 	_datasets[40].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[40].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -759,8 +759,8 @@ void graph::loadalldatasets(){
 	_datasets[41].vertices_path_bin = rootDir + "dataset/RMAT_RANGE1/RMAT_RANGE1.vertices";
 	_datasets[41].edges_path_bin = rootDir + "dataset/RMAT_RANGE1/RMAT_RANGE1.edges";
 	_datasets[41].min_vertex = 0;
-	_datasets[41].max_vertex = (1 << 22);
-	_datasets[41].num_vertices = (1 << 22);
+	_datasets[41].max_vertex = (1 << 21);
+	_datasets[41].num_vertices = (1 << 21);
 	_datasets[41].num_edges = (1 << 26);
 	_datasets[41].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[41].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -774,8 +774,8 @@ void graph::loadalldatasets(){
 	_datasets[42].vertices_path_bin = rootDir + "dataset/RMAT_RANGE2/RMAT_RANGE2.vertices";
 	_datasets[42].edges_path_bin = rootDir + "dataset/RMAT_RANGE2/RMAT_RANGE2.edges";
 	_datasets[42].min_vertex = 0;
-	_datasets[42].max_vertex = (1 << 23);
-	_datasets[42].num_vertices = (1 << 23);
+	_datasets[42].max_vertex = (1 << 22);
+	_datasets[42].num_vertices = (1 << 22);
 	_datasets[42].num_edges = (1 << 26);
 	_datasets[42].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[42].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -789,8 +789,8 @@ void graph::loadalldatasets(){
 	_datasets[43].vertices_path_bin = rootDir + "dataset/RMAT_RANGE3/RMAT_RANGE3.vertices";
 	_datasets[43].edges_path_bin = rootDir + "dataset/RMAT_RANGE3/RMAT_RANGE3.edges";
 	_datasets[43].min_vertex = 0;
-	_datasets[43].max_vertex = (1 << 24);
-	_datasets[43].num_vertices = (1 << 24);
+	_datasets[43].max_vertex = (1 << 23);
+	_datasets[43].num_vertices = (1 << 23);
 	_datasets[43].num_edges = (1 << 26);
 	_datasets[43].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[43].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -804,8 +804,8 @@ void graph::loadalldatasets(){
 	_datasets[44].vertices_path_bin = rootDir + "dataset/RMAT_RANGE4/RMAT_RANGE4.vertices";
 	_datasets[44].edges_path_bin = rootDir + "dataset/RMAT_RANGE4/RMAT_RANGE4.edges";
 	_datasets[44].min_vertex = 0;
-	_datasets[44].max_vertex = (1 << 25);
-	_datasets[44].num_vertices = (1 << 25);
+	_datasets[44].max_vertex = (1 << 24);
+	_datasets[44].num_vertices = (1 << 24);
 	_datasets[44].num_edges = (1 << 26);
 	_datasets[44].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[44].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -819,8 +819,8 @@ void graph::loadalldatasets(){
 	_datasets[45].vertices_path_bin = rootDir + "dataset/RMAT_RANGE5/RMAT_RANGE5.vertices";
 	_datasets[45].edges_path_bin = rootDir + "dataset/RMAT_RANGE5/RMAT_RANGE5.edges";
 	_datasets[45].min_vertex = 0;
-	_datasets[45].max_vertex = (1 << 26);
-	_datasets[45].num_vertices = (1 << 26);
+	_datasets[45].max_vertex = (1 << 25);
+	_datasets[45].num_vertices = (1 << 25);
 	_datasets[45].num_edges = (1 << 26);
 	_datasets[45].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[45].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -834,8 +834,8 @@ void graph::loadalldatasets(){
 	_datasets[46].vertices_path_bin = rootDir + "dataset/RMAT_RANGE6/RMAT_RANGE6.vertices";
 	_datasets[46].edges_path_bin = rootDir + "dataset/RMAT_RANGE6/RMAT_RANGE6.edges";
 	_datasets[46].min_vertex = 0;
-	_datasets[46].max_vertex = (1 << 27);
-	_datasets[46].num_vertices = (1 << 27);
+	_datasets[46].max_vertex = (1 << 26);
+	_datasets[46].num_vertices = (1 << 26);
 	_datasets[46].num_edges = (1 << 26);
 	_datasets[46].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[46].graphorder = DST_SRC; // DST_SRC, SRC_DST;
@@ -849,8 +849,8 @@ void graph::loadalldatasets(){
 	_datasets[47].vertices_path_bin = rootDir + "dataset/RMAT_RANGE7/RMAT_RANGE7.vertices";
 	_datasets[47].edges_path_bin = rootDir + "dataset/RMAT_RANGE7/RMAT_RANGE7.edges";
 	_datasets[47].min_vertex = 0;
-	_datasets[47].max_vertex = (1 << 28);
-	_datasets[47].num_vertices = (1 << 28);
+	_datasets[47].max_vertex = (1 << 27);
+	_datasets[47].num_vertices = (1 << 27);
 	_datasets[47].num_edges = (1 << 26);
 	_datasets[47].graphdirectiontype = DIRECTEDGRAPH;
 	_datasets[47].graphorder = DST_SRC; // DST_SRC, SRC_DST;

@@ -172,9 +172,11 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
     bool match = true;
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
 	
-	#ifdef TESTKERNEL_IMPACTOFRANGE // OVERRIDE
-	inputdata_size_bytes = _BASEOFFSETKVS_KVDRAM * sizeof(uint512_vec_dt); // PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
-	#endif 
+	#ifdef LOADTEMPSPACETOFPGA
+	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	#else 
+	inputdata_size_bytes = _BASEOFFSETKVS_KVDRAM * sizeof(uint512_vec_dt);
+	#endif
 	
 	for(unsigned int i=0; i<8; i++){ for(unsigned int j=0; j<128; j++){ timeelapsed_totals[i][j] = 0; }}
 	

@@ -164,10 +164,10 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
-for evaluation_type in EV_CREATENDGRAPH
+for evaluation_type in EV_CREATENDGRAPH #
 # for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
-# for evaluation_type in EV_IMPACTOFRANGE
+# for evaluation_type in EV_IMPACTOFRANGE #
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
 # for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
 # for evaluation_type in EV_IMPACTOFBANDWIDTH
@@ -175,7 +175,7 @@ for evaluation_type in EV_CREATENDGRAPH
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -184,7 +184,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -488,14 +488,14 @@ do
 		
 		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
 		# for numsubcputhreads in $NUMTHREADS_EQ0
-		# for numsubcputhreads in $NUMTHREADS_EQ1
+		# for numsubcputhreads in $NUMTHREADS_EQ1 #
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		# for numsubcputhreads in $NUMTHREADS_EQ4 #
+		# for numsubcputhreads in $NUMTHREADS_EQ4
 		# for numsubcputhreads in $NUMTHREADS_EQ8
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		# for numsubcputhreads in $NUMTHREADS_EQ16 #
+		# for numsubcputhreads in $NUMTHREADS_EQ16
 		# for numsubcputhreads in $NUMTHREADS_EQ18
 		# for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
@@ -528,7 +528,7 @@ do
 				# for dataset in $RMAT22_SPARSE6
 				# for dataset in $RMAT22_SPARSE7
 				
-				for dataset in $RMAT_RANGE0
+				# for dataset in $RMAT_RANGE0
 				# for dataset in $RMAT_RANGE1
 				# for dataset in $RMAT_RANGE2
 				# for dataset in $RMAT_RANGE3
@@ -551,9 +551,12 @@ do
 				# for dataset in $LARGEDATASET_4B
 				# for dataset in $TWITTER_67M
 				
+				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2
+				# for dataset in $RMAT_RANGE4 $RMAT_RANGE5
+				
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
 				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
-				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5
+				for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5
 				
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4			
 				do

@@ -81,12 +81,12 @@ globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graph
 		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
 		
-		#ifdef TESTKERNEL_IMPACTOFRANGE // ADDED OVERRIDE. source information not necessary
-		vptr_begin = 0;
-		if(vid==1){ vptr_end = vertexptrbuffer[KVDATA_RANGE-1]; } 
-		else { vptr_end = 0; }
-		edges_size = vptr_end - vptr_begin;
-		#endif 
+		// #ifdef TESTKERNEL_IMPACTOFRANGE // ADDED OVERRIDE. source information not necessary
+		// vptr_begin = 0;
+		// if(vid==1){ vptr_end = vertexptrbuffer[KVDATA_RANGE-1]; } 
+		// else { vptr_end = 0; }
+		// edges_size = vptr_end - vptr_begin;
+		// #endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"loadgraph::loadedges_rowblockwise:: vptr_begin: "<<vptr_begin<<endl;
@@ -635,9 +635,7 @@ globalparams_t loadgraph::createmessages(
 			unsigned int GraphAlgo,
 			unsigned int runsize,
 			globalparams_t globalparams){
-				
-	cout<<"createmessages: ----------------------------------------------------- GraphIter: "<<GraphIter<<endl;
-				
+			
 	unsigned int kvstatssz = 0;
 	for(unsigned int CLOP=0; CLOP<=TREE_DEPTH; CLOP++){ kvstatssz += (1 << (NUM_PARTITIONS_POW * CLOP)); }
 	
