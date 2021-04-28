@@ -95,6 +95,15 @@ KRON20_1M_45M=3
 KRON21_2M_91M=4
 KRON22_4M_200M=5
 
+RMAT22_SPARSE0=30
+RMAT22_SPARSE1=31
+RMAT22_SPARSE2=32
+RMAT22_SPARSE3=33
+RMAT22_SPARSE4=34
+RMAT22_SPARSE5=35
+RMAT22_SPARSE6=36
+RMAT22_SPARSE7=37
+
 INDOCHINA_7M_194M=10
 RGG_4M_32M=11
 RGG_17M_132M=12
@@ -166,7 +175,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -185,7 +194,7 @@ do
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	
 	do 
@@ -501,6 +510,15 @@ do
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
 				
+				# for dataset in $RMAT22_SPARSE0
+				# for dataset in $RMAT22_SPARSE1
+				# for dataset in $RMAT22_SPARSE2
+				# for dataset in $RMAT22_SPARSE3
+				# for dataset in $RMAT22_SPARSE4
+				# for dataset in $RMAT22_SPARSE5
+				# for dataset in $RMAT22_SPARSE6
+				# for dataset in $RMAT22_SPARSE7
+				
 				# for dataset in $INDOCHINA_7M_194M
 				# for dataset in $RGG_4M_32M
 				# for dataset in $RGG_17M_132M
@@ -515,15 +533,17 @@ do
 				# for dataset in $LARGEDATASET_4B
 				# for dataset in $TWITTER_67M
 				
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
 				for dataset in $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
+				
+				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
+				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE1 $RMAT22_SPARSE2 $RMAT22_SPARSE3 $RMAT22_SPARSE4 $RMAT22_SPARSE5
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
 						# for synfreq in $SYNFREQUENCY_EQ60
-						for synfreq in $SYNFREQUENCY_EQ300
-						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
+						# for synfreq in $SYNFREQUENCY_EQ300
+						for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 						do
 							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
 							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
@@ -573,6 +593,55 @@ do
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
 								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron22_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"	
+								
+							elif [ $dataset == $RMAT22_SPARSE0 ]  
+							then
+								DATASET="_RMAT22_SPARSE0"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE0/RMAT22_SPARSE0.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE0_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE0.csv"	
+							elif [ $dataset == $RMAT22_SPARSE1 ]  
+							then
+								DATASET="_RMAT22_SPARSE1"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE1/RMAT22_SPARSE1.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE1_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE1.csv"	
+							elif [ $dataset == $RMAT22_SPARSE2 ]  
+							then
+								DATASET="_RMAT22_SPARSE2"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE2/RMAT22_SPARSE2.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE2_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE2.csv"	
+							elif [ $dataset == $RMAT22_SPARSE3 ]  
+							then
+								DATASET="_RMAT22_SPARSE3"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE3/RMAT22_SPARSE3.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE3_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE0.csv"	
+							elif [ $dataset == $RMAT22_SPARSE4 ]  
+							then
+								DATASET="_RMAT22_SPARSE4"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE4/RMAT22_SPARSE4.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE4_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE4.csv"	
+							elif [ $dataset == $RMAT22_SPARSE5 ]  
+							then
+								DATASET="_RMAT22_SPARSE5"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE5/RMAT22_SPARSE5.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE5_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE5.csv"
+							elif [ $dataset == $RMAT22_SPARSE6 ]  
+							then
+								DATASET="_RMAT22_SPARSE6"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE6/RMAT22_SPARSE6.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE6_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE6.csv"
+							elif [ $dataset == $RMAT22_SPARSE7 ]  
+							then
+								DATASET="_RMAT22_SPARSE7"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE7/RMAT22_SPARSE7.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE7_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE7.csv"	
 						
 							elif [ $dataset == $INDOCHINA_7M_194M ]  
 							then	
