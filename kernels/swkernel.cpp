@@ -54,6 +54,9 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	unsigned int _BASEOFFSETKVS_STATSDRAM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	
+	cout<<"swkernel: ----------------------------------------------------- numIters: "<<numIters<<endl;
+	exit(EXIT_SUCCESS);////
+	
 	unsigned int ind = 0;
 	unsigned int _PROCESSCOMMAND = ON; unsigned int _PARTITIONCOMMAND = ON; unsigned int _APPLYUPDATESCOMMAND = ON;
 	#ifdef ENABLE_KERNEL_PROFILING

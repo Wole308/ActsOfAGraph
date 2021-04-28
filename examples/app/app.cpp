@@ -163,11 +163,13 @@ runsummary_t app::run_hw(){
 	cout<<"app::appendkeyvaluecount:: appending value count... "<<endl;
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
-	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl;
+	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl; // NEWCHANGE
+	// #ifndef TESTKERNEL_IMPACTOFRANGE
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAM], globalparams.SIZE_KVDRAM);
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.SIZE_KVDRAM);
 	}
+	// #endif 
 	
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int total_edges_processed = graphobj->get_num_edges();
@@ -175,6 +177,7 @@ runsummary_t app::run_hw(){
 	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals);
 	#endif
+	// exit(EXIT_SUCCESS); //////////////////////////////////////// 
 
 	// run_hw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;

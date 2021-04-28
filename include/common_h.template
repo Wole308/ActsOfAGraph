@@ -68,6 +68,10 @@
 {%endif%}
 ////////////////
 
+#ifndef TESTKERNEL_IMPACTOFRANGE
+#define LOADTEMPSPACETOFPGA
+#endif 
+
 {%if(context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH")%}
 // #define GRAPHISUNDIRECTED
 {%endif%}

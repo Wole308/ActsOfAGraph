@@ -734,7 +734,6 @@ void graph::loadalldatasets(){
 	_datasets[37].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[37].graphgroup = SYNTHETIC; // SKEWRATIO;
 	
-	
 	/////////////////////////////////////////////////////////////////////
 	
 	_datasets[40].graphtopname = "RMAT_RANGE0";

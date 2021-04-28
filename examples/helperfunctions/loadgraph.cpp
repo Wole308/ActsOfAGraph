@@ -81,6 +81,13 @@ globalparams_t loadgraph::loadedges_rowblockwise(unsigned int col, graph * graph
 		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
 		
+		#ifdef TESTKERNEL_IMPACTOFRANGE // ADDED OVERRIDE. source information not necessary
+		vptr_begin = 0;
+		if(vid==1){ vptr_end = vertexptrbuffer[KVDATA_RANGE-1]; } 
+		else { vptr_end = 0; }
+		edges_size = vptr_end - vptr_begin;
+		#endif 
+		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"loadgraph::loadedges_rowblockwise:: vptr_begin: "<<vptr_begin<<endl;
 		utilityobj->printvalues("loadedges_rowblockwise.counts", (value_t *)counts, NUMSUBCPUTHREADS);
@@ -493,6 +500,7 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 	
 	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.BASEOFFSETKVS_KVDRAM + (globalparams.SIZE_KVDRAM / VECTOR_SIZE); // KVDRAMSZ_KVS;
+	// #if defined(_DEBUGMODE_CHECKS3) & not defined(TESTKERNEL_IMPACTOFRANGE)
 	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadoffsetmarkers.BASEOFFSETKVS_KVDRAM", globalparams.BASEOFFSETKVS_KVDRAM, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
 	utilityobj->checkoutofbounds("loadoffsetmarkers.BASEOFFSETKVS_KVDRAMWORKSPACE", globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
@@ -558,13 +566,18 @@ globalparams_t loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * 
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<< RESET <<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<(PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t))<<" bytes"<< RESET <<std::endl;
 	
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: valid workload space(not including temp space) (keyvalues): "<<(globalparams.BASEOFFSETKVS_KVDRAM*VECTOR_SIZE)<<" keyvalues"<< RESET <<std::endl;
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid workload space(not including temp space) (keyvalues): "<<(((unsigned long)globalparams.BASEOFFSETKVS_KVDRAM*VECTOR_SIZE) * sizeof(keyvalue_t))<<" bytes. "<< RESET <<std::endl;
+	
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): "<<((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE)<<" keyvalues"<< RESET <<std::endl;
-	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<(((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(KVSOURCEDRAMSZ * 8)<<" bytes)"<< RESET <<std::endl;
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<((((unsigned long)globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(unsigned long)((unsigned long)KVSOURCEDRAMSZ * 8)<<" bytes)"<< RESET <<std::endl;
 	
-	// if((((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (256 * 1024 * 1024)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
+	// #ifndef TESTKERNEL_IMPACTOFRANGE
 	if((((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (KVSOURCEDRAMSZ * 8)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
-	#endif 
+	// #endif
+	#endif
 	
+	// #if defined(_DEBUGMODE_CHECKS3) & not defined(TESTKERNEL_IMPACTOFRANGE)
 	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadgraph::loadmessages", (globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE, PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif
@@ -622,6 +635,9 @@ globalparams_t loadgraph::createmessages(
 			unsigned int GraphAlgo,
 			unsigned int runsize,
 			globalparams_t globalparams){
+				
+	cout<<"createmessages: ----------------------------------------------------- GraphIter: "<<GraphIter<<endl;
+				
 	unsigned int kvstatssz = 0;
 	for(unsigned int CLOP=0; CLOP<=TREE_DEPTH; CLOP++){ kvstatssz += (1 << (NUM_PARTITIONS_POW * CLOP)); }
 	
