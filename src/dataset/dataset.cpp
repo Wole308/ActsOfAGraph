@@ -74,6 +74,31 @@ unsigned int dataset::getdatasetid(){
 	datasetid = 37;
 	#endif
 	
+	#ifdef _RMAT_RANGE0
+	datasetid = 40;
+	#endif
+	#ifdef _RMAT_RANGE1
+	datasetid = 41;
+	#endif
+	#ifdef _RMAT_RANGE2
+	datasetid = 42;
+	#endif
+	#ifdef _RMAT_RANGE3
+	datasetid = 43;
+	#endif
+	#ifdef _RMAT_RANGE4
+	datasetid = 44;
+	#endif
+	#ifdef _RMAT_RANGE5
+	datasetid = 45;
+	#endif
+	#ifdef _RMAT_RANGE6
+	datasetid = 46;
+	#endif
+	#ifdef _RMAT_RANGE7
+	datasetid = 47;
+	#endif
+	
 	#ifdef _INDOCHINA_7M_194M
 	datasetid = 10;
 	#endif

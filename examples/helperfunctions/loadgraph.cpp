@@ -559,9 +559,10 @@ globalparams_t loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * 
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<(PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t))<<" bytes"<< RESET <<std::endl;
 	
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): "<<((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE)<<" keyvalues"<< RESET <<std::endl;
-	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<(((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(256 * 1024 * 1024)<<" bytes)"<< RESET <<std::endl;
+	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<(((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(KVSOURCEDRAMSZ * 8)<<" bytes)"<< RESET <<std::endl;
 	
-	if((((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (256 * 1024 * 1024)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
+	// if((((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (256 * 1024 * 1024)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
+	if((((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (KVSOURCEDRAMSZ * 8)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif 
 	
 	#ifdef _DEBUGMODE_CHECKS3

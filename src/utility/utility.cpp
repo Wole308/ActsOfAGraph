@@ -526,10 +526,15 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
-		#ifdef ALLVERTEXISACTIVE_ALGORITHM
-		skipspacing[p] = 0; // skipspacing[p] * 2; // CRITICAL REMOVEME.
+		#ifdef TESTKERNEL
+			skipspacing[p] = skipspacing[p] * 2;
 		#else 
-		skipspacing[p] = 0; // CRITICAL REMOVEME
+			#ifdef ALLVERTEXISACTIVE_ALGORITHM
+			skipspacing[p] = 0; // skipspacing[p] * 2; // CRITICAL FIXME.
+			// skipspacing[p] = skipspacing[p] * 2; // CRITICAL FIXME.
+			#else 
+			skipspacing[p] = 0; // CRITICAL FIXME
+			#endif 
 		#endif 
 		
 		// cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;

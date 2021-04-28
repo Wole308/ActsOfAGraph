@@ -64,20 +64,57 @@ if context['DATASET'] == "_ORKUT_3M_106M": # small dataset
     context['KVDATA_RANGE_POW'] = 22
 elif context['DATASET'] == "_HOLLYWOOD_1M_57M":
     context['KVDATA_RANGE_POW'] = 21
-elif context['DATASET'] == "_INDOCHINA_7M_194M":
-    context['KVDATA_RANGE_POW'] = 23
+elif context['DATASET'] == "_KRON20_1M_45M":
+    context['KVDATA_RANGE_POW'] = 20
 elif context['DATASET'] == "_KRON21_2M_91M":
     context['KVDATA_RANGE_POW'] = 21
+elif context['DATASET'] == "_KRON22_4M_200M":
+    context['KVDATA_RANGE_POW'] = 22
+    
+elif context['DATASET'] == "_RMAT22_SPARSE0":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE1":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE2":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE3":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE4":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE5":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE6":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT22_SPARSE7":
+    context['KVDATA_RANGE_POW'] = 22
+    
+elif context['DATASET'] == "_RMAT_RANGE0":
+    context['KVDATA_RANGE_POW'] = 21
+elif context['DATASET'] == "_RMAT_RANGE1":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "_RMAT_RANGE2":
+    context['KVDATA_RANGE_POW'] = 23
+elif context['DATASET'] == "_RMAT_RANGE3":
+    context['KVDATA_RANGE_POW'] = 24
+elif context['DATASET'] == "_RMAT_RANGE4":
+    context['KVDATA_RANGE_POW'] = 25
+elif context['DATASET'] == "_RMAT_RANGE5":
+    context['KVDATA_RANGE_POW'] = 26
+elif context['DATASET'] == "_RMAT_RANGE6":
+    context['KVDATA_RANGE_POW'] = 27
+elif context['DATASET'] == "_RMAT_RANGE7":
+    context['KVDATA_RANGE_POW'] = 28
+    
+elif context['DATASET'] == "_INDOCHINA_7M_194M":
+    context['KVDATA_RANGE_POW'] = 23
+elif context['DATASET'] == "_RGG_4M_32M":
+    context['KVDATA_RANGE_POW'] = 22
 elif context['DATASET'] == "_RGG_17M_132M":
     context['KVDATA_RANGE_POW'] = 25
 elif context['DATASET'] == "_ROADNET_2M_3M":
     context['KVDATA_RANGE_POW'] = 21
 elif context['DATASET'] == "_FLICKR_1M_10M":
     context['KVDATA_RANGE_POW'] = 20
-elif context['DATASET'] == "_KRON20_1M_45M":
-    context['KVDATA_RANGE_POW'] = 20
-elif context['DATASET'] == "_RGG_4M_32M":
-    context['KVDATA_RANGE_POW'] = 22
     
 elif context['DATASET'] == "_TWITTER_67M": # large dataset
     context['KVDATA_RANGE_POW'] = 26
@@ -145,8 +182,8 @@ print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 
-# relref=""
-relref="../"
+relref=""
+# relref="../"
 	
 o_path0=relref+"acts/acts/acts.cpp"
 o_path1=relref+"acts/acts/acts.h"

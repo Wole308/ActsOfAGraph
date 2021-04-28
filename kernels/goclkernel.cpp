@@ -304,7 +304,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		}
 		#endif 
 		
-		#ifdef ENABLE_ACTSSYNC
+		#if defined(ENABLE_ACTSSYNC) & not defined(TESTKERNEL)
 		{
 			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 			cout<<">>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<")"<<endl;

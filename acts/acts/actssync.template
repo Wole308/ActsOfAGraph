@@ -770,10 +770,12 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		keyvalue_t udata{{v}} = GETKV2(refbuffer[{{v}}][i]);
 		{%endfor%}
 		
-		// synchronize
+		// synchronize // NEWCHANGE.
+		{%if(context['NUMSYNCTHREADS_DIV_4']>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}	
 		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
+		{%endif%}
 			
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		{%if(i>0)%}
