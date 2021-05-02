@@ -26,7 +26,7 @@ print(isFile)
 ###
 
 if ((context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH") and ((context['DATASET'] == "_RMAT_RANGE0") or (context['DATASET'] == "_RMAT_RANGE1") or (context['DATASET'] == "_RMAT_RANGE2") or (context['DATASET'] == "_RMAT_RANGE3") or (context['DATASET'] == "_RMAT_RANGE4") or (context['DATASET'] == "_RMAT_RANGE5") or (context['DATASET'] == "_RMAT_RANGE6") or (context['DATASET'] == "_RMAT_RANGE7"))):                                     
-    context['NUMSUBCPUTHREADS']=4
+    context['NUMSUBCPUTHREADS']=1
     
 ###
 
@@ -94,21 +94,21 @@ elif context['DATASET'] == "_RMAT22_SPARSE7":
     context['KVDATA_RANGE_POW'] = 22
     
 elif context['DATASET'] == "_RMAT_RANGE0":
-    context['KVDATA_RANGE_POW'] = 21
+    context['KVDATA_RANGE_POW'] = 20
 elif context['DATASET'] == "_RMAT_RANGE1":
-    context['KVDATA_RANGE_POW'] = 22
+    context['KVDATA_RANGE_POW'] = 21
 elif context['DATASET'] == "_RMAT_RANGE2":
-    context['KVDATA_RANGE_POW'] = 23
+    context['KVDATA_RANGE_POW'] = 22
 elif context['DATASET'] == "_RMAT_RANGE3":
-    context['KVDATA_RANGE_POW'] = 24
+    context['KVDATA_RANGE_POW'] = 23
 elif context['DATASET'] == "_RMAT_RANGE4":
-    context['KVDATA_RANGE_POW'] = 25
+    context['KVDATA_RANGE_POW'] = 24
 elif context['DATASET'] == "_RMAT_RANGE5":
-    context['KVDATA_RANGE_POW'] = 26
+    context['KVDATA_RANGE_POW'] = 25
 elif context['DATASET'] == "_RMAT_RANGE6":
-    context['KVDATA_RANGE_POW'] = 27
+    context['KVDATA_RANGE_POW'] = 26
 elif context['DATASET'] == "_RMAT_RANGE7":
-    context['KVDATA_RANGE_POW'] = 28
+    context['KVDATA_RANGE_POW'] = 27
     
 elif context['DATASET'] == "_INDOCHINA_7M_194M":
     context['KVDATA_RANGE_POW'] = 23

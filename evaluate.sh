@@ -164,10 +164,10 @@ _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
-for evaluation_type in EV_CREATENDGRAPH #
+# for evaluation_type in EV_CREATENDGRAPH #
 # for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
-# for evaluation_type in EV_IMPACTOFRANGE #
+for evaluation_type in EV_IMPACTOFRANGE #
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
 # for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
 # for evaluation_type in EV_IMPACTOFBANDWIDTH
@@ -486,7 +486,6 @@ do
 		for numcputhreads in $THREADCOUNT_EQ1
 		do
 		
-		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
 		# for numsubcputhreads in $NUMTHREADS_EQ0
 		# for numsubcputhreads in $NUMTHREADS_EQ1 #
 		# for numsubcputhreads in $NUMTHREADS_EQ2
@@ -501,6 +500,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ24
 		# for numsubcputhreads in $NUMTHREADS_EQ28
 		for numsubcputhreads in $NUMTHREADS_EQ32 #
+		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
 		do
 		
 		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4 #
@@ -519,7 +519,7 @@ do
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
 				
-				# for dataset in $RMAT22_SPARSE0
+				for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE1
 				# for dataset in $RMAT22_SPARSE2
 				# for dataset in $RMAT22_SPARSE3
@@ -556,7 +556,7 @@ do
 				
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
 				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
-				for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5
+				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5
 				
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4			
 				do

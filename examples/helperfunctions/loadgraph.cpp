@@ -307,8 +307,8 @@ void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue
 	for (buffer_type i=0; i<VMASKBUFFERSZ_KVS; i++){
 		for (vector_type v=0; v<VECTOR_SIZE; v++){
 			#ifdef _DEBUGMODE_CHECKS2
-			utilityobj->checkoutofbounds("loadgraph::savevmasks_h 1", index, REDUCEBUFFERSZ, NAp, NAp, NAp);
-			utilityobj->checkoutofbounds("loadgraph::savevmasks_h 1", i, VMASKBUFFERSZ_KVS, NAp, NAp, NAp);
+			utilityobj->checkoutofbounds("loadgraph::savevmasks_h 1.1", index, REDUCEBUFFERSZ, NAp, NAp, NAp);
+			utilityobj->checkoutofbounds("loadgraph::savevmasks_h 1.2", i, VMASKBUFFERSZ_KVS, NAp, NAp, NAp);
 			#endif
 			tempbuffer[v][i].key = bitsbuffer[index]; 
 			tempbuffer[v][i].value = bitsbuffer[index+1]; 
@@ -328,6 +328,7 @@ void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue
 	utilityobj->printkeyvalues("savevmasks.tempbuffer", tempbuffer, 8, 4);
 	utilityobj->printkeyvalues("savevmasks.kvbuffer[0]", (keyvalue_t *)&kvbuffer[offset_kvs], 4);
 	#endif
+	exit(EXIT_SUCCESS); ////////////////////////////// 
 	return;
 }
 globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], globalparams_t globalparams){ 
@@ -571,13 +572,10 @@ globalparams_t loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * 
 	
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): "<<((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE)<<" keyvalues"<< RESET <<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): "<<((((unsigned long)globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(unsigned long)((unsigned long)KVSOURCEDRAMSZ * 8)<<" bytes)"<< RESET <<std::endl;
-	
-	// #ifndef TESTKERNEL_IMPACTOFRANGE
-	if((((globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (KVSOURCEDRAMSZ * 8)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
-	// #endif
+
+	if(((((unsigned long)globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + (unsigned long)globalparams.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > ((unsigned long)KVSOURCEDRAMSZ * 8)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
-	// #if defined(_DEBUGMODE_CHECKS3) & not defined(TESTKERNEL_IMPACTOFRANGE)
 	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadgraph::loadmessages", (globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.SIZE_KVDRAMWORKSPACE, PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif

@@ -79,7 +79,12 @@ using namespace std;
 // #define KVSOURCEDRAMSZ (1 << (30-3)) // max HBM capacity (8GB)
 // #define KVSOURCEDRAMSZ 100377960 /////////////////////////////////////////////// FORMERONE
 
+// #define KVSOURCEDRAMSZ (1 << (31-3)) // ((1 << 31) / 8)
+#if NUMSUBCPUTHREADS==1
+#define KVSOURCEDRAMSZ (1 << (32-3)) // ((1 << 31) / 8)
+#else 
 #define KVSOURCEDRAMSZ (1 << (31-3)) // ((1 << 31) / 8)
+#endif
 
 #endif 
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)

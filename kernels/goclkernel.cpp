@@ -42,13 +42,26 @@ goclkernel::~goclkernel(){}
 
 long double goclkernel::getaveragetimeelapsed(long double kerneltimelapse_ms[NUMSUBCPUTHREADS]){
 	long double av = 0;
-	for(unsigned int i=1; i<NUMSUBCPUTHREADS; i++){ // FIXME. 0 adds some unwanted latency
+	
+	long double count = NUMSUBCPUTHREADS;
+	unsigned int startind = 1;
+	unsigned int numinds = NUMSUBCPUTHREADS-1;
+	if(count == 1){ startind = 0; numinds = NUMSUBCPUTHREADS; }
+	else { startind = 1; numinds = NUMSUBCPUTHREADS-1; }
+	
+	for(unsigned int i=startind; i<NUMSUBCPUTHREADS; i++){ // FIXME. 0 adds some unwanted latency
 		av += kerneltimelapse_ms[i];
 	}
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 	cout<<"goclkernel::getaveragetimeelapsed: average time elapsed: "<<av / (NUMSUBCPUTHREADS-1)<<endl;
 	#endif 
+	
+	/* #if NUMSUBCPUTHREADS==1
+	
+	#else 
 	return av / (NUMSUBCPUTHREADS-1);
+	#endif  */
+	return av / numinds;
 }
 
 #ifdef FPGA_IMPL 
@@ -124,7 +137,6 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-// long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
 	long double total_time_elapsed = 0;
 	long double avs_proc[128][8];
@@ -170,7 +182,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 
     int vector_length = LENGTH;
     bool match = true;
-	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
+	// inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
 	
 	#ifdef LOADTEMPSPACETOFPGA
 	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);

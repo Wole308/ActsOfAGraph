@@ -82,7 +82,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			
 			std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
 			// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
-			for(unsigned int i=0; i<1; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); } // REMOVEME.
+			for(unsigned int i=0; i<1; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); } // CRITICAL REMOVEME.
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		}
