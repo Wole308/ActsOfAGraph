@@ -153,6 +153,9 @@ NUMTHREADS_EQ32=32
 NUMPARTITIONSPOW_EQ3=3
 NUMPARTITIONSPOW_EQ4=4
 NUMPARTITIONSPOW_EQ5=5
+NUMPARTITIONSPOW_EQ6=6
+NUMPARTITIONSPOW_EQ7=7
+NUMPARTITIONSPOW_EQ8=8
 
 SYNFREQUENCY_EQ60=60
 SYNFREQUENCY_EQ120=120
@@ -165,9 +168,9 @@ _NOLOCKE="NOLOCKE"
 
 ### >>> LOOP0: evaluation types
 # for evaluation_type in EV_CREATENDGRAPH #
-# for evaluation_type in EV_PERFORMANCEOFALGORITHM
+for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_SIMPLETEST
-for evaluation_type in EV_IMPACTOFRANGE #
+# for evaluation_type in EV_IMPACTOFRANGE #
 # for evaluation_type in EV_IMPACTOFPARTITIONFANOUT
 # for evaluation_type in EV_IMPACTOFNUMSUBWORKERS
 # for evaluation_type in EV_IMPACTOFBANDWIDTH
@@ -175,7 +178,7 @@ for evaluation_type in EV_IMPACTOFRANGE #
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
@@ -184,7 +187,7 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -504,7 +507,8 @@ do
 		do
 		
 		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4 #
-		# for dataset in $NUMPARTITIONSPOW_EQ3 $NUMPARTITIONSPOW_EQ4 $NUMPARTITIONSPOW_EQ5
+		# for numpartitions_pow in $NUMPARTITIONSPOW_EQ8 #
+		# for dataset in $NUMPARTITIONSPOW_EQ3 $NUMPARTITIONSPOW_EQ4 $NUMPARTITIONSPOW_EQ5 $NUMPARTITIONSPOW_EQ6 $NUMPARTITIONSPOW_EQ7 $NUMPARTITIONSPOW_EQ8
 		do
 		
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -519,11 +523,11 @@ do
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
 				
-				for dataset in $RMAT22_SPARSE0
+				# for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE1
 				# for dataset in $RMAT22_SPARSE2
 				# for dataset in $RMAT22_SPARSE3
-				# for dataset in $RMAT22_SPARSE4
+				for dataset in $RMAT22_SPARSE4
 				# for dataset in $RMAT22_SPARSE5
 				# for dataset in $RMAT22_SPARSE6
 				# for dataset in $RMAT22_SPARSE7
@@ -555,6 +559,7 @@ do
 				# for dataset in $RMAT_RANGE4 $RMAT_RANGE5
 				
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
+				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE4
 				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
 				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5
 				
@@ -826,7 +831,7 @@ do
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT
+										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT
 									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

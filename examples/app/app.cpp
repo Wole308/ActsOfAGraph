@@ -17,6 +17,7 @@
 #include <mutex>
 #include <vector>
 #include <algorithm>
+#include <stack-simulator.hpp> //
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
@@ -71,11 +72,14 @@ app::~app(){
 void app::finish(){}
 
 runsummary_t app::run(){
-	#ifdef SW_IMPL 
+	/* #ifdef SW_IMPL 
 	run_sw();
 	#else 
 	run_hw();
-	#endif
+	#endif */
+	
+	// calculate_stack_distance();
+	calculate_cache_misses();
 }
 
 runsummary_t app::run_hw(){
@@ -163,13 +167,11 @@ runsummary_t app::run_hw(){
 	cout<<"app::appendkeyvaluecount:: appending value count... "<<endl;
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ statsobj->appendkeyvaluecount(0, container.edgessize[i]); }
 	
-	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl; // NEWCHANGE
-	// #ifndef TESTKERNEL_IMPACTOFRANGE
+	cout<<"app::experiements: resetting kvdram & kvdram workspaces..."<<endl;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAM], globalparams.SIZE_KVDRAM);
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.SIZE_KVDRAM);
 	}
-	// #endif 
 	
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int total_edges_processed = graphobj->get_num_edges();
@@ -177,7 +179,6 @@ runsummary_t app::run_hw(){
 	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals);
 	#endif
-	// exit(EXIT_SUCCESS); //////////////////////////////////////// 
 
 	// run_hw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
@@ -288,6 +289,84 @@ runsummary_t app::run_sw(){
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
 	return statsobj->timingandsummary(NAp, totaltime_ms);
+}
+
+#ifdef KOKOOOOO
+void app::calculate_stack_distance(){
+	cout<<"app::run_hw:: calculating stack distance... "<<endl;
+	long double totaltime_ms = 0;
+	graphobj->opentemporaryfilesforwriting();
+	graphobj->opentemporaryfilesforreading();
+	graphobj->openfilesforreading(0);
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	
+	/* StackSimulator simulator;
+    char c;
+	for(unsigned int i=0; i<2; i++){
+		for (unsigned int j = 0; j <= 32; j++){
+			std::string s = std::to_string(j);
+			cout << s <<" ";
+			cout << simulator.Reference(s) << endl;
+		}
+	} */
+	
+	StackSimulator simulator;
+    char c;
+	for (unsigned int j = 0; j <= 32; j++){
+		std::string s = std::to_string(edgedatabuffer[j].dstvid);
+		cout << s <<" ";
+		cout << simulator.Reference(s) << endl;
+	}
+	
+	graphobj->closetemporaryfilesforwriting();
+	graphobj->closetemporaryfilesforreading();
+	graphobj->closefilesforreading();
+}
+#endif
+void app::calculate_cache_misses(){
+	// perf stat -B -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./evaluate
+	cout<<"app::run_hw:: calculating cache misses... "<<endl;
+	long double totaltime_ms = 0;
+	graphobj->opentemporaryfilesforwriting();
+	graphobj->opentemporaryfilesforreading();
+	graphobj->openfilesforreading(0);
+	graphobj->loadedgesfromfile(0, 0, edgedatabuffer, 0, graphobj->getedgessize(0));
+	
+	unsigned int * buffer = new unsigned int[KVDATA_RANGE];
+	
+	unsigned int SZ = 1000;
+	// unsigned int SZ = 100000;
+	// unsigned int SZ = 1000000;
+	// unsigned int SZ = 10000000; // 10M
+	// unsigned int SZ = 100000000; // 100M
+	unsigned int dstv = 0;
+	
+	StackSimulator simulator;
+	
+	for(unsigned int i=0; i<SZ; i++){
+		
+		#ifdef AAA
+		dstv = edgedatabuffer[i].dstvid;
+		// dstv = rand() % SZ; 
+		// dstv = rand() % 100; 
+		// dstv = i;
+		// dstv = 2;
+		if ((i % (SZ/10)) == 0){ cout<<"edge: [1,"<<dstv<<",1]."<<endl; }
+		buffer[dstv] += 1;
+		#endif 
+		
+		// #ifdef BBB
+		std::string s = std::to_string(edgedatabuffer[i].dstvid);
+		// cout << s <<" "<<endl;
+		// cout<<"edge: ["<<edgedatabuffer[i].srcvid<<","<<edgedatabuffer[i].dstvid<<",1]."<<endl;
+		cout << simulator.Reference(s) << endl;
+		// #endif 
+	}
+	
+	graphobj->closetemporaryfilesforwriting();
+	graphobj->closetemporaryfilesforreading();
+	graphobj->closefilesforreading();
+	return;
 }
 
 void app::verifyresults_sw(value_t * vdatas){

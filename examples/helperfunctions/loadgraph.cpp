@@ -328,7 +328,6 @@ void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue
 	utilityobj->printkeyvalues("savevmasks.tempbuffer", tempbuffer, 8, 4);
 	utilityobj->printkeyvalues("savevmasks.kvbuffer[0]", (keyvalue_t *)&kvbuffer[offset_kvs], 4);
 	#endif
-	exit(EXIT_SUCCESS); ////////////////////////////// 
 	return;
 }
 globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], globalparams_t globalparams){ 

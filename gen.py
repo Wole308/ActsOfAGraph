@@ -187,8 +187,8 @@ print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 
-# relref=""
-relref="../"
+relref=""
+# relref="../"
 	
 o_path0=relref+"acts/acts/acts.cpp"
 o_path1=relref+"acts/acts/acts.h"

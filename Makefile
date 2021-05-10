@@ -112,6 +112,17 @@ LDFLAGS += -lrt -lstdc++
 # Kernel compiler global settings
 CLFLAGS += -t $(TARGET) --platform $(DEVICE) --save-temps
 
+############################ Stack-distance application
+STACKD_SOURCE_DIR=$(RELREF)stack-distance-master/src
+STACKD_COMMON=${STACKD_SOURCE_DIR}/rank-tree.cpp
+STACKD_COMMON+=${STACKD_SOURCE_DIR}/stack-simulator.cpp
+
+STACKD_HEADERS=${STACKD_SOURCE_DIR}/rank-tree.hpp
+STACKD_HEADERS+=${STACKD_SOURCE_DIR}/stack-simulator.hpp
+
+STACKD_OPTIONS=-O3
+############################
+
 # === HBM MEMORY ===
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem1:HBM[1] 
@@ -343,11 +354,19 @@ aws_build: check-aws_repo $(BINARY_CONTAINERS)
 demo_acts_nthreads: clean build_acts_nthreads run_nthreads
 demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 			
+# build_acts_nthreads:
+	# g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
+
 build_acts_nthreads:
-	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
+	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) \
+	${STACKD_COMMON} ${STACKD_OPTIONS} -I${STACKD_SOURCE_DIR} \
+	-std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+	
+# run_nthreads:
+	# ./acts_nthreads
 
 run_nthreads:
-	./acts_nthreads
+	perf stat -B -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./acts_nthreads | sort -n | uniq -c
 	
 run_nthreads_debug:
 	gdb ./acts_nthreads
@@ -370,6 +389,28 @@ run_grafboost_nthreads_debug:
 generatesrcs:
 	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(NUMPARTITIONS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
 	
+### Stack-distance application
+# STACKD_SOURCE_DIR=src
+# STACKD_COMMON=${STACKD_SOURCE_DIR}/rank-tree.cpp
+# STACKD_COMMON+=${STACKD_SOURCE_DIR}/stack-simulator.cpp
+
+# STACKD_HEADERS=${STACKD_SOURCE_DIR}/rank-tree.hpp
+# STACKD_HEADERS+=${STACKD_SOURCE_DIR}/stack-simulator.hpp
+
+# STACKD_OPTIONS=-O3
+
+# stack-distance: ${STACKD_COMMON} ${STACKD_HEADERS} ${STACKD_SOURCE_DIR}/main.cpp
+	# ${COMPILE} ${STACKD_COMMON} ${STACKD_OPTIONS} \
+	 # ${STACKD_SOURCE_DIR}/main.cpp \
+	 # -I${STACKD_SOURCE_DIR} --std=c++11 -o stack-distance
+	 
+# build_acts_nthreads:
+	# g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) \
+	# ${STACKD_COMMON} ${STACKD_OPTIONS} \
+	# -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
+
+############################
+
 # Cleaning stuff
 clean:
 	-$(RMDIR) $(EXECUTABLE) $(XCLBIN)/{*sw_emu*,*hw_emu*} 
