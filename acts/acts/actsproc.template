@@ -1297,16 +1297,15 @@ value_t
 	#endif 
 processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
-	#ifdef PR_ALGORITHM
-	res = udata;
-	#endif
-	#ifdef BFS_ALGORITHM
-	// res = NAp;  // BFS
-	res = udata + edgew;
-	#endif 
-	#ifdef SSSP_ALGORITHM
-	res = udata + edgew;
-	#endif
+	if(GraphAlgo == PAGERANK){
+		res = udata;
+	} else if(GraphAlgo == BFS){
+		res = NAp;
+	} else if(GraphAlgo == SSSP){
+		res = udata + edgew;
+	} else {
+		res = NAp;
+	}
 	return res;
 }
 
@@ -1361,6 +1360,7 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	int subpidx = -1;
 	unsigned int numVsperpartition_POW = globalparams.POW_BATCHRANGE - (NUM_PARTITIONS_POW * (globalparams.ACTSPARAMS_TREEDEPTH-1));
 	unsigned int numVsperpartition = (1 << numVsperpartition_POW);
+	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	
 	buffer_type chunk_size = getchunksize_kvs(edgessize_kvs, travstate, 0);
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
@@ -1404,11 +1404,9 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 		#endif
 		
 		value_t udata = GETVTXDATA(vbuffer, lvid, globalparams);
-		#ifdef ALLVERTEXISACTIVE_ALGORITHM
-		unsigned int mask = 1;
-		#else
-		unsigned int mask = GETVTXMASK(vmask, lvid, globalparams);
-		#endif
+		unsigned int mask;
+		if(GraphAlgo == PAGERANK){ mask = 1; } 
+		else { mask = GETVTXMASK(vmask, lvid, globalparams); }
 		value_t res  = processfunc(udata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 		
 		if(en == ON && mask == 1 && firstvalidlvid == INVALIDDATA){ firstvalidlvid = lvid; } // NEWCHANGE.
@@ -1471,98 +1469,6 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"readandprocess:: lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<""<<endl;
 	#endif
-	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	#ifdef SUBPMASK_XXX
-	// if(sweepparams.source_partition == 0){
-	for(nextactivei=lvid_eob; nextactivei<numVsperpartition; nextactivei++){
-		unsigned int mask = GETVTXMASK(vmask, nextactivei, globalparams);
-		if(mask == 1){ 
-		// cout<<"next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
-		found = 1; break; } // break; }
-		// if(mask == 1){ cout<<"next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; found = 1; exit(EXIT_SUCCESS);; }
-		// else { cout<<"inactive: "<<nextactivei<<endl; }
-	}
-	// if(found == 0){ cout<<"none found"<<endl; }
-	
-	if(nextactivei - lvid_eob >= 1024){
-		#ifdef _WIDEWORD
-		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (nextactivei/VECTOR2_SIZE)].range(31, 0);
-		#else 
-		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (nextactivei/VECTOR2_SIZE)].data[0].key;
-		#endif 
-		nextbeginvptr_kvs = nextbeginvptr / VECTOR_SIZE;
-		// returnmessage = nextbeginvptr_kvs;
-		fetchmessage.nextoffset_kvs = nextbeginvptr_kvs;
-		// cout<<"readandprocess: vptrbaseoffset_kvs="<<vptrbaseoffset_kvs<<", voffset_kvs="<<voffset_kvs<<", nextactivei="<<nextactivei<<endl;
-		// cout<<"readandprocess: (nextactivei="<<nextactivei<<", lvid_eob="<<lvid_eob<<", nextbeginvptr="<<nextbeginvptr<<", nextbeginvptr_kvs="<<nextbeginvptr_kvs<<", returnmessage="<<returnmessage<<") gap more than 1024 found. skipping some..."<<endl;
-		// exit(EXIT_SUCCESS);
-	} else {
-		// returnmessage = -1;
-		fetchmessage.nextoffset_kvs = -1;
-	}
-	// }
-	#endif
-	#ifdef SUBPMASK
-	// fine grained search
-	unsigned int fac = (lvid_eob + (SUBPMASKFACTOR - 1)) / SUBPMASKFACTOR;
-	unsigned int last = fac * SUBPMASKFACTOR;
-	if(last > numVsperpartition){ last = numVsperpartition; }
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"readandprocess: fine grained scan: scanning vmask from srcvid:"<<lvid_eob<<" to srcvid:"<<last<<endl;
-	#endif 
-	READANDPROCESS_SCANFORNEXT_LOOP1: for(nextactivei=lvid_eob; nextactivei<last; nextactivei++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
-	#pragma HLS PIPELINE II=2
-		unsigned int mask = GETVTXMASK(vmask, nextactivei, globalparams);
-		if(mask == 1){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS2
-			cout<<"[fine grained scan]:next active: "<<nextactivei<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<")"<<endl; 
-			#endif 
-			found1 = 1; 
-			break; 
-		}
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	if(found1 == 0){ cout<<"[fine grained scan]:none found"<<endl; }
-	#endif 
-	
-	// coarsed grained search
-	if(found1 == 0 && nextactivei+SUBPMASKFACTOR < numVsperpartition){
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"readandprocess: coarse grained scan: scanning vmask_subp from "<<last / SUBPMASKFACTOR<<" to "<<numVsperpartition/SUBPMASKFACTOR<<endl;
-		#endif 
-		
-		unsigned int found2 = 0;
-		READANDPROCESS_SCANFORNEXT_LOOP2: for(subpidx=(last >> SUBPMASKFACTOR_POW); subpidx<(numVsperpartition >> SUBPMASKFACTOR_POW); subpidx++){ 
-		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop2 avg=analysis_loop2	
-		#pragma HLS PIPELINE II=2
-			unsigned int mask_subp = GETVTXMASK_SUBP(vmask_subp, subpidx, globalparams);
-			if(mask_subp == 1){
-				#ifdef _DEBUGMODE_KERNELPRINTS2
-				cout<<"[coarse grained scan]next active: "<<subpidx<<" (lvid_sob: "<<lvid_sob<<", lvid_eob: "<<lvid_eob<<", currentsubpidx: "<<last / SUBPMASKFACTOR<<")"<<endl; 
-				#endif 
-				found2 = 1;
-				break; 
-			}
-		}
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		if(found2 == 0){ cout<<"[coarse grained scan]:none found"<<endl; }
-		#endif 
-
-		#ifdef _WIDEWORD
-		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SUBPMASKFACTOR)/VECTOR2_SIZE)].range(31, 0);
-		#else 
-		nextbeginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + ((subpidx*SUBPMASKFACTOR)/VECTOR2_SIZE)].data[0].key;
-		#endif 
-		nextbeginvptr_kvs = nextbeginvptr / VECTOR_SIZE;
-		fetchmessage.nextoffset_kvs = nextbeginvptr_kvs;
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		cout<<"readandprocess:after coarse grained scan: (subpidx:"<<subpidx<<", nextbeginvptr_kvs:"<<nextbeginvptr_kvs<<endl;
-		#endif
-	}
-	#endif
-	#endif 
 	
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
@@ -1694,16 +1600,15 @@ value_t
 	#endif 
 reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
-	#ifdef PR_ALGORITHM
-	temp = vtemp + res;
-	#endif 
-	#ifdef BFS_ALGORITHM
-	// temp = amin(vtemp, GraphIter); // BFS
-	temp = amin(vtemp, res);
-	#endif 
-	#ifdef SSSP_ALGORITHM
-	temp = amin(vtemp, res);
-	#endif
+	if(GraphAlgo == PAGERANK){
+		temp = vtemp + res;
+	} else if(GraphAlgo == BFS){
+		temp = amin(vtemp, GraphIter);
+	} else if(GraphAlgo == SSSP){
+		temp = amin(vtemp, res);
+	} else {
+		temp = NAp;
+	}
 	return temp;
 }
 
@@ -2215,6 +2120,8 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 	batch_type vptrbaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTEXPTR + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
 	batch_type vdatabaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTICESDATA + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
 	
+	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->print7("### processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
@@ -2223,9 +2130,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		if(voffset_kvs >= avtravstate.end_kvs){ continue; }
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		if(vmask_p[source_partition] == 0){ vmaskoffset_kvs += vmaskbuffersz_kvs; continue; } // NEWFIX: update before continue.
-		#endif 
+		if(GraphAlgo != PAGERANK) { if(vmask_p[source_partition] == 0){ vmaskoffset_kvs += vmaskbuffersz_kvs; continue; }}
 		
 		sweepparams.source_partition = source_partition;
 		avtravstate.i_kvs = voffset_kvs;
@@ -2235,11 +2140,6 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 		#endif
 		
 		loadvmasks(ON, kvdram, vmask, vbuffer, globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparams); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-		#ifdef SUBPMASK
-		loadvmasks_subp(ON, vmask, vmask_subp, vmaskbuffersz_kvs, globalparams);
-		#endif 
-		#endif 
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
 		vmaskoffset_kvs += vmaskbuffersz_kvs;
@@ -2290,10 +2190,11 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 		bool_type flush = ON;
 		if(voffset_kvs == avtravstate.begin_kvs){ resetenv = ON; } else { resetenv = OFF; }
 		if((voffset_kvs + (reducebuffersz * FETFACTOR)) >= avtravstate.end_kvs){ flush = ON; } else { flush = OFF; }
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		/* #ifndef ALLVERTEXISACTIVE_ALGORITHM
 		resetenv = ON;
 		flush = ON; // CRITICAL FIXME. flushing disabled issues with hollywood
-		#endif 
+		#endif  */
+		if(GraphAlgo != PAGERANK){ resetenv = ON; flush = ON; } // CRITICAL NEWCHANGE.
 		
 		actit(
 			ON, PROCESSMODE,
@@ -2308,10 +2209,10 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCK
 	}
 	saveglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams);
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif 
-	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_CHECKS2)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
 	return;
@@ -2395,10 +2296,10 @@ partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLO
 			actsutilityobj->clearglobalvars();
 			#endif
 		}
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS2
 		actsutilityobj->printglobalvars();
 		#endif 
-		#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_CHECKS2)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 		actsutilityobj->clearglobalvars();
 		#endif
 	}	
@@ -2541,14 +2442,11 @@ topkernelproc(uint512_dt * kvdram){
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
 	globalparams_t globalparams = getglobalparams(kvdram);
+	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	
-	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	loadvmask_p(kvdram, vmask_p, globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE);
-	#endif 
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdram, vmask_p, globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	
-	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	resetkvdramstats(kvdram, globalparams);
-	#endif
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdram, globalparams); }
 	
 	// process & partition
 	#ifdef PROCESSMODULE
@@ -2580,7 +2478,7 @@ topkernelproc(uint512_dt * kvdram){
 	}
 	#endif
 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif 
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)

@@ -342,12 +342,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			std::vector<cl::Buffer> buffer_vdram(2);
 			std::vector<cl::Kernel> krnls(1);
 			
-			// cl::Event kernel_events;
 			vector<cl::Event> kernel_events;
-			cl::Event write_events;
-			cl::Event read_events;
-			
-			// vector<cl::Event> kernel_events;
 			kernel_events.resize(1);
 			
 			long double kerneltimelapse_ms[1];
@@ -427,14 +422,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			}
 			#endif 
 			
-			//////////////////////////////////////////
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel[actssync]:: setting kernel arguments: ind: "<<ind<<"..."<<endl;
-			#endif
-			for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
-			OCL_CHECK(err, err = krnls[0].setArg(NUMSYNCTHREADS, buffer_vdram[0]));
-			////////////////////////////////////////////
-			
 			for(unsigned int inst=0; inst<3; inst++){
 				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 				cout<<"goclkernel[actssync]:: inst: "<<inst<<endl;
@@ -460,20 +447,24 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 					#endif
 					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ memcpy(tempkvsourcedrams_sync[i], kvsourcedram[ind+i], sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
 					
-					/* #ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 					cout<<"goclkernel[actssync]:: setting kernel arguments: ind: "<<ind<<"..."<<endl;
 					#endif
 					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvsourcedram[i])); }
-					OCL_CHECK(err, err = krnls[0].setArg(NUMSYNCTHREADS, buffer_vdram[0])); */
+					OCL_CHECK(err, err = krnls[0].setArg(NUMSYNCTHREADS, buffer_vdram[0]));
 				
 					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 					cout<<"goclkernel[actssync]:: migrating workload to FPGA..."<<endl;
 					#endif
+					#if NUMSYNCTHREADS==4
+					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, 0));
+					#endif
+					#if NUMSYNCTHREADS==16
 					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],				
 																		buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 				
 																			buffer_vdram[0]},
-																					0, NULL, &write_events));
-					OCL_CHECK(err, err = write_events.wait());
+																					0));
+					#endif
 																				
 					// This function will execute the kernel on the FPGA
 					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
@@ -482,22 +473,25 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 					std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	  
 					OCL_CHECK(err, err = q.enqueueTask(krnls[0], NULL, &kernel_events[0])); 
 					OCL_CHECK(err, err = kernel_events[0].wait());
-					// if(inst==2 && ind==0){
-						long double kerneltimelapse_microsec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();			
-						kerneltimelapse_ms[0] = kerneltimelapse_microsec / 1000;
+					// if(inst==2 && ind==0){ 
+						kerneltimelapse_ms[0] = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();  // NEWCHANGE. FIXME.
+						// #ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+						std::cout <<">>> kernel (sync) time elapsed: "<<kerneltimelapse_ms[0]/1000<<" ms, "<<kerneltimelapse_ms[0]<<" microsecs, "<<std::endl;
+						// #endif 
 					// }
-					// #ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					std::cout <<">>> kernel (sync) time elapsed: "<<kerneltimelapse_ms[0]<<" ms, "<<(kerneltimelapse_ms[0] * 1000)<<" microsecs, "<<std::endl;
-					// #endif
 					
 					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
 					cout<<"goclkernel[actssync]:: migrating workload back to HOST..."<<endl;
 					#endif
+					#if NUMSYNCTHREADS==4
+					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4]}, CL_MIGRATE_MEM_OBJECT_HOST));
+					#endif
+					#if NUMSYNCTHREADS==16
 					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvsourcedram[0], buffer_kvsourcedram[1], buffer_kvsourcedram[2], buffer_kvsourcedram[3], buffer_kvsourcedram[4], buffer_kvsourcedram[5], buffer_kvsourcedram[6], buffer_kvsourcedram[7],				
 																		buffer_kvsourcedram[8], buffer_kvsourcedram[9], buffer_kvsourcedram[10], buffer_kvsourcedram[11], buffer_kvsourcedram[12], buffer_kvsourcedram[13], buffer_kvsourcedram[14], buffer_kvsourcedram[15], 				
 																			buffer_vdram[0]},
-																					CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events));
-					OCL_CHECK(err, err = read_events.wait());
+																					CL_MIGRATE_MEM_OBJECT_HOST));
+					#endif
 					OCL_CHECK(err, err = q.finish());
 					
 					// copy back
@@ -531,14 +525,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	}
 	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<total_time_elapsed<<" ms"<< RESET << std::endl;
 	
-	/* for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		timeelapsed_totals[GraphIter][0] = avs_proc[GraphIter][0];
-		for(unsigned int analysis_i=1; analysis_i<3; analysis_i++){ timeelapsed_totals[GraphIter][analysis_i] = avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]; }
-	} */
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		timeelapsed_totals[GraphIter][0] = avs_proc[GraphIter][0];
 		for(unsigned int analysis_i=1; analysis_i<3; analysis_i++){ timeelapsed_totals[GraphIter][analysis_i] = avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]; }
-		timeelapsed_totals[GraphIter][2] += avs_sync[GraphIter]; //////////////////
 	}
 		
 	return total_time_elapsed;

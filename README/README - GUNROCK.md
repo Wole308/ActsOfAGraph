@@ -2,6 +2,8 @@
 GPU available on Automata20 (ssh oj2zf@automata20.cs.virginia.edu, P5vTuiH4)
 Titan GPU in Automata 20 does not have HBM2 memories. Lynx05, lynx06, and lynx 07 have HBM2 memory.
 
+reset GPU: (nvidia-smi --gpu-reset)?
+
 Bash Scripts:
  #cuda="cuda9"
  cuda="cuda10
@@ -40,6 +42,7 @@ Running Gunrock:
 /net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market /net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx --normalized --compensate --undirected				
 
 Running Gunrock on Slurm:
+srun -w lynx05 -p gpu --reservation=oj2zf_34 --gres=gpu:4 --pty bash -i -l -
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l 
 srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l -
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected 					

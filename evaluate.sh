@@ -5,7 +5,7 @@
 #SBATCH --error="all_runs.err" 
 #SBATCH --output=all_runs.log 
 #SBATCH --nodelist=slurm1
-# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem
+# ssh -X centos@52.54.149.43 -i /home/oj2zf/Documents/aws/Alif.pem /opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm
 
 set -e # Courtesy : Jinja 2.0
 
@@ -21,8 +21,8 @@ then
 	echo "crabtree env specified."
 	ROOTDIR="/home/oj2zf/Documents/ActsOfAGraph"
 	ENV="CRABTREE"
-	DSA_NAME=xilinx_u280_xdma_201910_1
-	DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201910_1/xilinx_u280_xdma_201910_1.xpfm 
+	DSA_NAME=xilinx_u280_xdma_201920_3
+	DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 elif [ $AWS == $ON ]
 then
 	echo "aws env specified."
@@ -184,10 +184,10 @@ do
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_VHLS
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -523,11 +523,11 @@ do
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
 				
-				# for dataset in $RMAT22_SPARSE0
+				for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE1
 				# for dataset in $RMAT22_SPARSE2
 				# for dataset in $RMAT22_SPARSE3
-				for dataset in $RMAT22_SPARSE4
+				# for dataset in $RMAT22_SPARSE4
 				# for dataset in $RMAT22_SPARSE5
 				# for dataset in $RMAT22_SPARSE6
 				# for dataset in $RMAT22_SPARSE7
@@ -558,12 +558,8 @@ do
 				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2
 				# for dataset in $RMAT_RANGE4 $RMAT_RANGE5
 				
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M
-				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE4
-				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
-				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5
-				
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $KRON20_1M_45M $KRON21_2M_91M $KRON22_4M_200M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4			
+				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
+				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5		
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
@@ -571,12 +567,12 @@ do
 						for synfreq in $SYNFREQUENCY_EQ300
 						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 						do
-							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
-							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
 							BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
 							
-							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
-							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
 							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
 							
 							RESULTSBACKUP_DIR="${ROOTDIR}/results"
@@ -895,7 +891,7 @@ do
 								then
 									make cleanall
 									rm -rf xclbin
-									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									if test -f "host"; then
 										cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 										echo "kernel.xclbin saved"

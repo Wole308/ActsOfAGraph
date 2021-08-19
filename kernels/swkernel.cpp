@@ -64,6 +64,8 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 		
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; }
+		
 		#ifdef ENABLE_ACTSPROC
 		for(unsigned int analysis_i=0; analysis_i<analysis_icount; analysis_i++){
 			#ifdef ENABLE_KERNEL_PROFILING
@@ -81,8 +83,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#endif 
 			
 			std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
-			// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
-			for(unsigned int i=0; i<1; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); } // CRITICAL REMOVEME.
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		}
@@ -94,8 +95,10 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			unsigned int maxstats = 0;
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ maxstats += kvsourcedram[i][_BASEOFFSETKVS_STATSDRAM + k].data[0].value; }
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][_BASEOFFSETKVS_STATSDRAM + k].data[0].value = maxstats; }
+			// cout<<"--------------- k: "<<k<<", maxstats: "<<maxstats<<endl;
 		}
 		#endif 
+		// exit(EXIT_SUCCESS); //////////////////////
 	
 		#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
 		for(unsigned int k=0; k<VERTICESDATASZ_KVS; k++){
@@ -151,6 +154,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 				#endif 
 				(uint512_dt *)tempvdram
 			);
+			// exit(EXIT_SUCCESS); /////////////////////////////
 			}
 		}
 		#endif 

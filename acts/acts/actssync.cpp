@@ -577,31 +577,17 @@ value_t
 applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	
-	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 	if(GraphAlgo == PAGERANK){
-		temp = vtemp + res;
+		// temp = vtemp + res;
+		// temp = 0.5 + (1 - 0.5)*res / vdeg; // IDEAL
+		temp = res;
 	} else if(GraphAlgo == BFS){
-		// temp = amin(vtemp, GraphIter);
-		temp = amin(vtemp, res);
+		temp = res;
 	} else if(GraphAlgo == SSSP){
 		temp = amin(vtemp, res);
 	} else {
 		temp = NAp;
 	}
-	#endif
-	
-	#ifndef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
-	#ifdef PR_ALGORITHM
-	temp = vtemp + res;
-	#endif
-	#ifdef BFS_ALGORITHM
-	// temp = amin(vtemp, GraphIter);
-	temp = amin(vtemp, res);
-	#endif
-	#ifdef SSSP_ALGORITHM
-	temp = amin(vtemp, res);
-	#endif
-	#endif
 	return temp;
 }
 
@@ -612,7 +598,6 @@ value_t
 mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	value_t res = 0;
 	
-	#ifdef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 	if(GraphAlgo == PAGERANK){
 		res = value1 + value2;
 	} else if(GraphAlgo == BFS){
@@ -622,19 +607,6 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	} else {
 		res = NAp;
 	}
-	#endif
-	
-	#ifndef ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
-	#ifdef PR_ALGORITHM
-	res = value1 + value2;
-	#endif 
-	#ifdef BFS_ALGORITHM
-	res = amin(value1, value2);
-	#endif 
-	#ifdef SSSP_ALGORITHM
-	res = amin(value1, value2);
-	#endif
-	#endif 
 	return res;
 }
 
@@ -3165,6 +3137,13 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
+		
+		///////////////////////////////////////////////////////////////////////////////////////////////
+		// cout<<"------------ sourcestatsmarker: "<<sourcestatsmarker<<endl;
+		// for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ cout<<"sync: iterationidx size_kvs: "<<rtravstate[i].size_kvs<<endl; } /////////////////// CRITICAL REMOVEME.
+		// if(enablereduce==ON){ cout<<"sync: iterationidx: "<<iterationidx<<endl; } /////////////////// CRITICAL REMOVEME.
+		// if(iterationidx > 64){ exit(EXIT_SUCCESS); } /////////////////// CRITICAL REMOVEME.
+		///////////////////////////////////////////////////////////////////////////////////////////////
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 

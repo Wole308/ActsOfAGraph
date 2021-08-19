@@ -2,6 +2,8 @@ LOGIN TO AN INTERRACTIVE NODE (E.G. PORTAL NODE)
 ssh portal01.cs.virgini.edu/wiki/doku
 Titan GPU in Automata 20 does not have HBM2 memories. Lynx05, lynx06, and lynx 07 have HBM2 memory.
 
+reset GPU: (nvidia-smi --gpu-reset)?
+
 CHECK AVAILABLE NODES IN LIST
 [pgh5a@portal01]$ sinfo
 PARTITION AVAIL TIMELIMIT NODES STATE NODELIST
@@ -16,6 +18,7 @@ CHECK RESERVATIONS
 >> scontrol show reservations
 
 RUNNING GUNROCK ON SLURM:
+srun -w lynx05 -p gpu --reservation=oj2zf_34 --gres=gpu:4 --pty bash -i -l -
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l 
 srun --exclusive -w lynx06 -p gpu --gres=gpu:4 --pty bash -i -l -
 srun --exclusive -w lynx05 -p gpu --gres=gpu:4 --pty bash -i -l /net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market /net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx --normalized --compensate --undirected 					

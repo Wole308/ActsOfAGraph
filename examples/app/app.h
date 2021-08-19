@@ -25,9 +25,6 @@ public:
 	runsummary_t run_hw();
 	runsummary_t run_sw();
 	
-	// void calculate_stack_distance();
-	void calculate_cache_misses();
-	
 	void verifyresults_sw(value_t * vdatas);
 	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_t globalparams);
 	
