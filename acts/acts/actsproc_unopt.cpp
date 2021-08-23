@@ -21,10 +21,12 @@
 #ifndef HW
 #include "../../acts/actsutility/actsutility.h"
 #endif 
-#include "actsproc.h"
+#include "actsproc_unopt.h"
 using namespace std;
 
-#define NUMPIPELINES_PARTITIONUPDATES 2 
+// #define ACTSPARTITIONINGSTRATEGY
+
+#define NUMPIPELINES_PARTITIONUPDATES 1//2 // REMOVEME.
 #if NUMPIPELINES_PARTITIONUPDATES==1
 #define PUP0
 #endif 
@@ -2411,6 +2413,94 @@ preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourceb
 	return;
 }
 
+void 
+	#ifdef SW 
+	actsproc::
+	#endif
+partitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
+	if(enable1 == OFF && enable2 == OFF){ return; }
+	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
+	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
+	
+	value_t emptyslot[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=emptyslot complete
+	resetvalues(emptyslot, VECTOR_SIZE, 0);
+	
+	buffer_type chunk_size = size_kvs;
+	unsigned int upperlimit = sweepparams.upperlimit;
+	unsigned int upperpartition = sweepparams.upperpartition;
+	
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+		localcapsule[p].key = 0;
+		localcapsule[p].value = 0; 
+	}
+	
+	for(buffer_type i=0; i<chunk_size; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			keyvalue_buffer_t kv = sourcebuffer[v][i];
+			
+			partition_type p = getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			if(GETKV(kv).key != GETV(INVALIDDATA) && GETKV(kv).value != GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
+		}
+	}
+	
+	// actsutilityobj->printkeyvalues("---[after]partitionkeyvalues.localcapsule.before calculateoffsets---", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	calculateoffsets(localcapsule, NUM_PARTITIONS);
+	resetvalues(localcapsule, NUM_PARTITIONS, 0);
+	// actsutilityobj->printkeyvalues("---[after]partitionkeyvalues.localcapsule.after calculateoffsets---", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	
+	for(buffer_type i=0; i<chunk_size; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			keyvalue_buffer_t kv = sourcebuffer[v][i];
+			// cout<<"--- kv.key: "<<kv.key<<endl;
+			partition_type p = getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			buffer_type pos = localcapsule[p].key + localcapsule[p].value;
+			
+			if(GETKV(kv).key != GETV(INVALIDDATA) && GETKV(kv).value != GETV(INVALIDDATA)){ destbuffer[pos % VECTOR_SIZE][pos / VECTOR_SIZE] = kv; } // NOTE: could this be the cause of slight imperfection in results?
+			if(GETKV(kv).key != GETV(INVALIDDATA) && GETKV(kv).value != GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
+		}
+	}
+	
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		keyvalue_t mydummykv;
+		mydummykv.key = p;
+		mydummykv.value = GETV(INVALIDDATA);
+		keyvalue_buffer_t dummykv = GETKV(mydummykv);
+	
+		unsigned int endoffset = localcapsule[p].key + localcapsule[p].value;
+		unsigned int xpos = endoffset % VECTOR_SIZE;
+		unsigned int ypos = endoffset / VECTOR_SIZE;
+		
+		// cout<<"partitionkeyvalues: p: "<<p<<", xpos: "<<xpos<<", ypos: "<<ypos<<", localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		
+		if(localcapsule[p].value > 0){
+			for(vector_type v=xpos; v<VECTOR_SIZE; v++){
+				destbuffer[v][ypos] = dummykv;
+				localcapsule[p].value += 1;
+			}
+		}
+	}
+	
+	// actsutilityobj->printkeyvalues("---[after]partitionkeyvalues.localcapsule[0]---", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	// actsutilityobj->printkeyvalues("destbuffer", destbuffer, 4);
+	// exit(EXIT_SUCCESS);
+	return;
+}
+
 // functions (reduce)
 value_t 
 	#ifdef SW 
@@ -2743,6 +2833,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	#pragma HLS PIPELINE II=1
 		tempcutoffs[v] = cutoffs[v]; 
 	}
+	
 	unsigned int n=0;
 	RUNPIPELINE_LOOP1: for(n=0; n<2; n++){
 		RUNPIPELINE_LOOP1B: for(buffer_type k=0; k<maxcutoff; k+=4){
@@ -2852,6 +2943,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 			if(GETKV(kvA6[0]).value != GETV(INVALIDDATA)){ tempbufferDcapsule[pA6] += 4; } // ERROR CHECKPOINT.
 		}
 	}
+	
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].value = tempbufferDcapsule[p]; 
@@ -2941,6 +3033,14 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
 		
+		// cout<<"---------------------- SEEN ME --------------------- "<<endl;
+		// exit(EXIT_SUCCESS);
+		
+		// partitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
+		// cout<<"---------------------- actit: SEEN ME --------------------- "<<endl;
+		// exit(EXIT_SUCCESS);
+		
+		#ifdef ACTSPARTITIONINGSTRATEGY
 		preparekeyvalues(ON, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
 		#ifdef PUP1
 		commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalparams); 
@@ -2952,6 +3052,13 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		fetchmessagepp1 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams);
 		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif
+		#endif 
+		
+		#ifndef ACTSPARTITIONINGSTRATEGY
+		partitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
+		// cout<<"---------------------- actit: SEEN ME --------------------- "<<endl;
+		// exit(EXIT_SUCCESS);
+		#endif 
 		
 		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalparams); 
 		#ifdef PUP1

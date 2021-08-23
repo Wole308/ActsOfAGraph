@@ -51,8 +51,12 @@ BUILD_DIR_topkernelproc = $(BUILD_DIR)/topkernelproc
 BUILD_DIR_topkernelsync = $(BUILD_DIR)/topkernelsync
 BUILD_DIR_topkernelprocandsync = $(BUILD_DIR)/topkernelprocandsync
 
-CXX := $(XILINX_SDX)/bin/xcpp
-XOCC := $(XILINX_SDX)/bin/xocc
+# CXX := $(XILINX_SDX)/bin/xcpp
+# XOCC := $(XILINX_SDX)/bin/xocc
+# /tools/Xilinx/Vitis/2020.1/bin/
+
+CXX := $(XILINX_VITIS)/bin/xcpp
+XOCC := $(XILINX_VITIS)/bin/v++
 
 #Include Libraries
 include $(ABS_COMMON_REPO)/libs/opencl/opencl.mk
@@ -66,7 +70,8 @@ LDFLAGS += $(opencl_LDFLAGS)
 KERNEL_TOP += $(RELREF)acts/acts/acts.cpp
 # KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
-KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
+# KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc_unopt.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp
@@ -236,9 +241,11 @@ all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINER
 # builds
 .PHONY: all clean cleanall docs emconfig
 all_proc: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) emconfig
+# all_proc: check-devices $(BINARY_CONTAINERS_PROC) emconfig
 
 .PHONY: all clean cleanall docs emconfig
 all_sync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_SYNC) emconfig
+# all_sync: check-devices $(BINARY_CONTAINERS_SYNC) emconfig
 
 .PHONY: all clean cleanall docs emconfig
 all_procandsync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC) emconfig

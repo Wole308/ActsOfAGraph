@@ -184,10 +184,10 @@ do
 	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__PR_VHLS
-	for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
@@ -517,13 +517,13 @@ do
 				### >>> LOOP3: datasets
 				
 				# for dataset in $NODATASET
-				# for dataset in $ORKUT_3M_106M
+				for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
 				
-				for dataset in $RMAT22_SPARSE0
+				# for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE1
 				# for dataset in $RMAT22_SPARSE2
 				# for dataset in $RMAT22_SPARSE3
@@ -794,8 +794,8 @@ do
 							then
 								make cleanall
 								# make build_acts_nthreads
-								make demo_acts_nthreads #> $RESULTDIR_RESULT
-								# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+								# make demo_acts_nthreads #> $RESULTDIR_RESULT
+								make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 							elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 							then
 								make cleanall
@@ -872,7 +872,7 @@ do
 									make all_nk TARGET=sw_emu DEVICE=$DEVICEPATH 
 									cp xclbin/topkernelproc.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 									cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
+									# XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
@@ -891,7 +891,7 @@ do
 								then
 									make cleanall
 									rm -rf xclbin
-									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									if test -f "host"; then
 										cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 										echo "kernel.xclbin saved"

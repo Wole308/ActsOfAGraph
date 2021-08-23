@@ -1245,6 +1245,7 @@ void actsutility::updatemincutoffseen(unsigned int val){
 }
 unsigned int actsutility::updatemaxcutoffseen(unsigned int val){
 	if(maxcutoffseen < val){ maxcutoffseen = val; }
+	return maxcutoffseen;
 }
 
 void actsutility::intrarunpipelinecheck_shifting(unsigned int enable, string message, 

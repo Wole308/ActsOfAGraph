@@ -198,6 +198,7 @@ o_path4=relref+"include/common.h"
 o_path5=relref+"include/common.h"
 o_path6=relref+"acts/acts/actsproc.cpp"
 o_path7=relref+"acts/acts/actsproc.h"
+o_path7=relref+"acts/acts/actsproc.h"
 o_path8=relref+"acts/acts/actssync.cpp"
 o_path9=relref+"acts/acts/actssync.h"
 o_path10=relref+"acts/acts/acts.cpp"
@@ -206,6 +207,8 @@ o_path12=relref+"acts/acts/acts.cpp"
 o_path13=relref+"acts/acts/acts.h"
 o_path14=relref+"acts/acts/acts.cpp"
 o_path15=relref+"acts/acts/acts.h"
+o_path16=relref+"acts/acts/actsproc_unopt.cpp"
+o_path17=relref+"acts/acts/actsproc_unopt.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -223,6 +226,8 @@ out_path12=os.path.abspath(o_path12)
 out_path13=os.path.abspath(o_path13)
 out_path14=os.path.abspath(o_path14)
 out_path15=os.path.abspath(o_path15)
+out_path16=os.path.abspath(o_path16)
+out_path17=os.path.abspath(o_path17)
 
 templ_path0=relref+"acts/acts/"
 templ_path1=relref+"acts/acts/"
@@ -240,6 +245,8 @@ templ_path12=relref+"acts/acts/"
 templ_path13=relref+"acts/acts/"
 templ_path14=relref+"acts/acts/"
 templ_path15=relref+"acts/acts/"
+templ_path16=relref+"acts/acts/"
+templ_path17=relref+"acts/acts/"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -403,6 +410,8 @@ env12 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path12)), trim
 env13 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path13)), trim_blocks=True, lstrip_blocks=True)
 env14 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path14)), trim_blocks=True, lstrip_blocks=True)
 env15 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path15)), trim_blocks=True, lstrip_blocks=True)
+env16 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path16)), trim_blocks=True, lstrip_blocks=True)
+env17 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path17)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -420,6 +429,8 @@ env12.globals.update(zip=zip)
 env13.globals.update(zip=zip)
 env14.globals.update(zip=zip)
 env15.globals.update(zip=zip)
+env16.globals.update(zip=zip)
+env17.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -437,6 +448,8 @@ template12 = env12.get_template('acts.template')
 template13 = env13.get_template('acts_h.template')
 template14 = env14.get_template('acts.template')
 template15 = env15.get_template('acts_h.template')
+template16 = env16.get_template('actsproc_unopt.template')
+template17 = env17.get_template('actsproc_unopt_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -454,6 +467,8 @@ rendered_file12 = template12.render(context=context)
 rendered_file13 = template13.render(context=context)
 rendered_file14 = template14.render(context=context)
 rendered_file15 = template15.render(context=context)
+rendered_file16 = template16.render(context=context)
+rendered_file17 = template17.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -487,6 +502,10 @@ with open(out_path14, 'w') as outFile14:
 	outFile14.write(rendered_file14)
 with open(out_path15, 'w') as outFile15:
 	outFile15.write(rendered_file15)
+with open(out_path16, 'w') as outFile16:
+	outFile16.write(rendered_file16)
+with open(out_path17, 'w') as outFile17:
+	outFile17.write(rendered_file17)
 
 print ("successful!")
 print ("...")
