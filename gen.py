@@ -164,7 +164,7 @@ context['NUMWORKERS'] = 1
 context['NUMPEFUNCS'] = 8
 context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
 context['KERNELNAME'] = "ACTS"
-context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
+# context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
 context['NUMCOMPUTEUNITS'] = context['NUMSUBCPUTHREADS']
     
 print ('Generating sources... ')
@@ -181,7 +181,7 @@ print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('EVALUATION_PARAM0: ' + str(context['EVALUATION_PARAM0']))
 print ('NUMDRAMBANKS: ' + str(context['NUMDRAMBANKS']))
 print ('NUMINSTANCES: ' + str(context['NUMINSTANCES']))
-print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))
+# print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))
 print ('NUMWORKERS: ' + str(context['NUMWORKERS'])) 
 print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
@@ -290,9 +290,12 @@ context['NUMSUBWORKERS_seq'] = []
 for i in range (0,(context['NUMSUBWORKERS'])):
 		context['NUMSUBWORKERS_seq'].append(i)
 
-context['NUM_PARTITIONS_seq'] = []
-for i in range (0,(context['NUM_PARTITIONS'])):
-		context['NUM_PARTITIONS_seq'].append(i)
+# context['NUM_PARTITIONS_seq'] = []
+# for i in range (0,(context['NUM_PARTITIONS'])):
+		# context['NUM_PARTITIONS_seq'].append(i)
+context['BRAMwidth_seq'] = []
+for i in range (0,16):
+		context['BRAMwidth_seq'].append(i)
 
 context['64_seq'] = []
 for i in range (0,64):

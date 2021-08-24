@@ -64,6 +64,7 @@ void utility::printallparameters(){
 	std::cout<<"utility:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"utility:: BATCH_RANGE: "<<BATCH_RANGE<<std::endl;
 	std::cout<<"utility:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
+	std::cout<<"utility:: SRAMSZ_POW: "<<SRAMSZ_POW<<std::endl;
 	std::cout<<"utility:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
 	std::cout<<"utility:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"utility:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;

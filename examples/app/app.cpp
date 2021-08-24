@@ -140,6 +140,7 @@ runsummary_t app::run_hw(){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(actvvs, (keyy_t *)&kvbuffer[i], &container, globalparams); }
 	cout<<"app::generatevmaskdata:: generating vmask... "<<endl;
 	globalparams = loadgraphobj->generatevmaskdata(actvvs, kvbuffer, globalparams);
+	// exit(EXIT_SUCCESS); //////////////////////
 	
 	// workspace info 
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;

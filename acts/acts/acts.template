@@ -220,7 +220,7 @@ uint32_type
 	#ifdef SW 
 	acts::
 	#endif 
-convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
+convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	uint32_type res;
 	#ifdef _WIDEWORD
 	{%for v in context['16_seq']%}
@@ -652,9 +652,9 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-resetvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
+resetvmask(unitBRAMwidth_type vmask[BLOCKRAM_SIZE]){
 	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
-		{%for p in context['NUM_PARTITIONS_seq']%}
+		{%for p in context['BRAMwidth_seq']%}
 		vmask[i].data[{{p}}].key = 0;
 		vmask[i].data[{{p}}].value = 0;
 		{%endfor%}
@@ -1093,7 +1093,7 @@ void //
 	#ifdef SW 
 	acts::
 	#endif 
-loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1144,12 +1144,12 @@ loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		vmask[i].data[{{v}}].key = bitsbuffer[i].range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}});
 		vmask[i].data[{{v}}].value = bitsbuffer[i].range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}});
 		{%endfor%}
 		#else 
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		vmask[i].data[{{v}}].key = READFROM_UINT(bitsbuffer[i], {{v*2}}, 1);
 		vmask[i].data[{{v}}].value = READFROM_UINT(bitsbuffer[i], {{v*2+1}}, 1);
 		{%endfor%}
@@ -1162,7 +1162,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-savevmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+savevmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1174,12 +1174,12 @@ savevmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRA
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		bitsbuffer[i].range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[i].data[{{v}}].key;
 		bitsbuffer[i].range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[i].data[{{v}}].value;
 		{%endfor%}
 		#else 
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		WRITETO_UINT(&bitsbuffer[i], {{v*2}}, 1, vmask[i].data[{{v}}].key);
 		WRITETO_UINT(&bitsbuffer[i], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
 		{%endfor%}
@@ -1364,7 +1364,7 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
-getvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+getvmask(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -1407,7 +1407,7 @@ int
 	#ifdef SW 
 	acts::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return -1; }
 	analysis_type analysis_loop = BLOCKRAM_SIZE / 2;
@@ -1875,7 +1875,7 @@ synchronize(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
-	{%for v in context['NUM_PARTITIONS_seq']%}
+	{%for v in context['BRAMwidth_seq']%}
 	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
@@ -1883,24 +1883,24 @@ synchronize(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
 		{%if(i>0)%}
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, NAp);
 		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, NAp);
 		{%endfor%}	
 		{%endif%}
 		{%endfor%}
 		
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		tail[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}});
 		{%endfor%}
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(GETKV2(tail[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(tail[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}	
@@ -1961,7 +1961,7 @@ uint32_type
 	acts::
 	#endif
 apply(bool_type enable, 
-		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE],
 		batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -1972,7 +1972,7 @@ apply(bool_type enable,
 	unsigned int vid[NUM_PARTITIONS][2];
 	#pragma HLS ARRAY_PARTITION variable=vid complete
 	
-	{%for v in context['NUM_PARTITIONS_seq']%}
+	{%for v in context['BRAMwidth_seq']%}
 	keyvalue_t data{{v}};
 	keyvalue_t res{{v}};
 	{%endfor%}
@@ -1985,34 +1985,34 @@ apply(bool_type enable,
 	#pragma HLS PIPELINE II=1
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		vid[{{v}}][0] = voffset_kvs*VECTOR_SIZE*2 + (({{v}}*globalparams.SIZE_REDUCE) + i*2);
 		vid[{{v}}][1] = voffset_kvs*VECTOR_SIZE*2 + (({{v}}*globalparams.SIZE_REDUCE) + i*2 + 1);
 		{%endfor%}
 		#endif 
 	
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		data{{v}} = GETKV2(vbuffer[{{v}}][i]);
 		{%endfor%}
 		
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		keyvalue_t udata{{v}} = GETKV2(synvbuffer[{{v}}][i]);
 		{%endfor%}
 		
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		res{{v}}.key = applyfunc(udata{{v}}.key, data{{v}}.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		res{{v}}.value = applyfunc(udata{{v}}.value, data{{v}}.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}
 		
 		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < 0xFFFFFFFF){ vmask[i].data[{{v}}].key = 1; } else { vmask[i].data[{{v}}].key = 0; }
 		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < 0xFFFFFFFF){ vmask[i].data[{{v}}].value = 1; } else { vmask[i].data[{{v}}].value = 0; }
 		{%endfor%}	
 		#else
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(res{{v}}.key != udata{{v}}.key){ vmask[i].data[{{v}}].key = 1; } else { vmask[i].data[{{v}}].key = 0; }
 		if(res{{v}}.value != udata{{v}}.value){ vmask[i].data[{{v}}].value = 1; } else { vmask[i].data[{{v}}].value = 0; }
 		{%endfor%}
@@ -2022,7 +2022,7 @@ apply(bool_type enable,
 		cummvmask_sp = cummvmask_sp | mask;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(false){ cout<<"APPLY FUNC SEEN @ (vid1: "<<vid[{{v}}][0]<<" & vid2: "<<vid[{{v}}][1]<<"): res{{v}}.key: "<<res{{v}}.key<<", res{{v}}.value: "<<res{{v}}.value<<": udata{{v}}.key: "<<udata{{v}}.key<<", udata{{v}}.value: "<<udata{{v}}.value<<", data{{v}}.key: "<<data{{v}}.key<<", data{{v}}.value: "<<data{{v}}.value<<endl; }
 		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < 0xFFFFFFFF){ cout<<"apply: vid[{{v}}][0]: "<<vid[{{v}}][0]<<", vmask["<<i<<"].data[{{v}}].key: "<<vmask[i].data[{{v}}].key<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		if(res{{v}}.value != udata{{v}}.value || res{{v}}.value < 0xFFFFFFFF){ cout<<"apply: vid[{{v}}][1]: "<<vid[{{v}}][1]<<", vmask["<<i<<"].data[{{v}}].value: "<<vmask[i].data[{{v}}].value<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
@@ -2030,12 +2030,12 @@ apply(bool_type enable,
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		#ifdef NACTS_IN_NCOMPUTEUNITS // CRITICAL REMOVEME. CAUSEOFERROR
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(res{{v}}.key != udata{{v}}.key || res{{v}}.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res{{v}}.value != udata{{v}}.value || res{{v}}.key < 0xFFFFFFFF){ actsutilityobj->globalstats_countactvvsseen(1); }
 		{%endfor%}
 		#else 
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(res{{v}}.key != udata{{v}}.key){ actsutilityobj->globalstats_countactvvsseen(1); }
 		if(res{{v}}.value != udata{{v}}.value){ actsutilityobj->globalstats_countactvvsseen(1); }
 		{%endfor%}
@@ -2049,7 +2049,7 @@ uint32_type
 	acts::
 	#endif
 apply2(bool_type enable, 
-		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE],
 		unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -2147,7 +2147,7 @@ spreadvdata(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
-	{%for v in context['NUM_PARTITIONS_seq']%}
+	{%for v in context['BRAMwidth_seq']%}
 	keyvalue_t keyvalue{{v}}_vault{{i}};
 	{%endfor%}	
 	{%endfor%}
@@ -2155,24 +2155,24 @@ spreadvdata(bool_type enable, {%for i in context['COMPUTEUNITSPLUS1_seq']%}keyva
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['COMPUTEUNITSPLUS1_seq']%}
 		{%if(i>0)%}
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		keyvalue{{v}}_vault{{i+1}} = keyvalue{{v}}_vault{{i}};
 		buffer{{i}}[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{i}});
 		{%endfor%}
 		{%endif%}	
 		{%endfor%}
 		
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		tail[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMCOMPUTEUNITS']+1}});
 		{%endfor%}	
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		if(GETKV2(tail[{{v}}][i]).key < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
 		if(GETKV2(tail[{{v}}][i]).value < 0xFFFFFFFF){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}	
@@ -2232,7 +2232,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
+spreadvmask(bool_type enable, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], {%for i in context['COMPUTEUNITS_seq']%}unitBRAMwidth_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvmask: spread (vmask) function called."<<endl;
@@ -2240,7 +2240,7 @@ spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in 
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	
 	{%for i in context['COMPUTEUNITSPLUS2_seq']%}
-	uintNUMPby2_type vmask_vault{{i}};
+	unitBRAMwidth_type vmask_vault{{i}};
 	{%endfor%}
 	
 	for (buffer_type i=0; i<BLOCKRAM_SIZE; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -2280,7 +2280,7 @@ int
 	#ifdef SW 
 	acts::
 	#endif 
-fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	int message = -1;
 	if(mode == PROCESSMODE){
@@ -2493,7 +2493,7 @@ void
 	acts::
 	#endif
 actit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
@@ -2585,7 +2585,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
@@ -2735,7 +2735,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
+partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -2823,7 +2823,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
+reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -2858,7 +2858,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){
 	if(en_process == ON){ processit(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams); } 
 	if(en_partition == ON){ partitionit(kvdram, sourcebuffer, vbuffer, vmask, globalparams); } 
@@ -2873,7 +2873,7 @@ void
 	acts::
 	#endif 
 dispatch_reduce({%for i in context['COMPUTEUNITS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} 
-		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_buffer_t sourcebuffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE], uint32_type vmask_p{{i}}[BLOCKRAM_SIZE],{%endfor%} 
+		{%for i in context['COMPUTEUNITS_seq']%}keyvalue_buffer_t sourcebuffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask{{i}}[BLOCKRAM_SIZE], uint32_type vmask_p{{i}}[BLOCKRAM_SIZE],{%endfor%} 
 		uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -3023,7 +3023,7 @@ topkernel({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint512_d
 	#pragma HLS array_partition variable = sourcebuffer{{i}}
 	keyvalue_vbuffer_t vbuffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer{{i}}
-	uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask{{i}}[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask{{i}}
 	uint32_type vmask_p{{i}}[BLOCKRAM_SIZE];
 	{%endfor%}
@@ -3134,7 +3134,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -3222,7 +3222,7 @@ topkernelsync({%for i in context['COMPUTEUNITS_seq']%}{%if(i>0)%},{%endif%}uint5
 	{%for i in context['COMPUTEUNITS_seq']%}
 	keyvalue_vbuffer_t vbuffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer{{i}}
-	uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask{{i}}[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask{{i}}
 	uint32_type vmask_p{{i}}[BLOCKRAM_SIZE];
 	{%endfor%}
@@ -3377,7 +3377,7 @@ topkernel(uint512_dt * kvdram){
 	#pragma HLS array_partition variable = sourcebuffer
 	keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer
-	uintNUMPby2_type vmask[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	

@@ -215,7 +215,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif 
-convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
+convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	uint32_type res;
 	#ifdef _WIDEWORD
 	res.range(0, 0) = vmask[index].data[0].key;
@@ -953,7 +953,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -1244,7 +1244,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -1772,7 +1772,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE OFF //
 	if(enable1 == OFF || enable2 == OFF || enable3 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -1780,12 +1780,12 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2
 	#endif 
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	
-	uintNUMPby2_type vmask_vault0;
-	uintNUMPby2_type vmask_vault1;
-	uintNUMPby2_type vmask_vault2;
-	uintNUMPby2_type vmask_vault3;
-	uintNUMPby2_type vmask_vault4;
-	uintNUMPby2_type vmask_vault5;
+	unitBRAMwidth_type vmask_vault0;
+	unitBRAMwidth_type vmask_vault1;
+	unitBRAMwidth_type vmask_vault2;
+	unitBRAMwidth_type vmask_vault3;
+	unitBRAMwidth_type vmask_vault4;
+	unitBRAMwidth_type vmask_vault5;
 	
 	for (buffer_type i=0; i<BLOCKRAM_SIZE; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1814,7 +1814,7 @@ void
 	actssync::
 	#endif
 spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,		keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
-		uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+		unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
@@ -2347,7 +2347,7 @@ void
 	actssync::
 	#endif
 spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,		keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
-		uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+		unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
@@ -3023,16 +3023,16 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	#pragma HLS array_partition variable = vbuffer3_level3
 
 	//
-	uintNUMPby2_type vmask0_level2[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask0_level2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0_level2
 	
-	uintNUMPby2_type vmask0_level3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask0_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0_level3
-	uintNUMPby2_type vmask1_level3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask1_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1_level3
-	uintNUMPby2_type vmask2_level3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask2_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2_level3
-	uintNUMPby2_type vmask3_level3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask3_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3_level3
 	
 	//

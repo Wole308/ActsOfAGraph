@@ -92,7 +92,12 @@
 #define NUMDRAMBANKS 4
 #define NUMINSTANCES 1
 
+#ifdef ENABLERECURSIVEPARTITIONING
 #define NUM_PARTITIONS_POW 4
+#endif 
+#ifndef ENABLERECURSIVEPARTITIONING
+#define NUM_PARTITIONS_POW 8 // FIXME.
+#endif 
 #define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
 
 #define MAXNUMVERTEXBANKS 1
@@ -117,11 +122,16 @@
 #define BATCHRANGESZ (BATCH_RANGE / 2)
 #define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
+#ifdef ENABLERECURSIVEPARTITIONING
 #ifdef SW_IMPL
 #define SRAMSZ_POW 18 // 14,18
 #else 
 #define SRAMSZ_POW 10
 #endif 
+#endif
+#ifndef ENABLERECURSIVEPARTITIONING
+#define SRAMSZ_POW 14 // 16384
+#endif
 #define SRAMSZ (1 << SRAMSZ_POW)
 
 // tree-depth:sramsz constraint
@@ -314,9 +324,12 @@ typedef struct {
 	unsigned int value;
 } keyvalue_vec_bittype;
 
+// typedef struct {
+	// keyvalue1_type data[NUM_PARTITIONS];
+// } unitBRAMwidth_type; 
 typedef struct {
-	keyvalue1_type data[NUM_PARTITIONS];
-} uintNUMPby2_type; 
+	keyvalue1_type data[16];
+} unitBRAMwidth_type; 
 
 #ifdef _WIDEWORD
 typedef ap_uint<64> uint64_type;

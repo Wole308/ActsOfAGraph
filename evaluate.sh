@@ -507,7 +507,7 @@ do
 		do
 		
 		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4 #
-		# for numpartitions_pow in $NUMPARTITIONSPOW_EQ8 #
+		# for numpartitions_pow in $NUMPARTITIONSPOW_EQ8 # ACTS_PARTITION_AND_REDUCE_STRETEGY # CRITICAL NEWCHANGE
 		# for dataset in $NUMPARTITIONSPOW_EQ3 $NUMPARTITIONSPOW_EQ4 $NUMPARTITIONSPOW_EQ5 $NUMPARTITIONSPOW_EQ6 $NUMPARTITIONSPOW_EQ7 $NUMPARTITIONSPOW_EQ8
 		do
 		
@@ -794,8 +794,8 @@ do
 							then
 								make cleanall
 								# make build_acts_nthreads
-								# make demo_acts_nthreads #> $RESULTDIR_RESULT
-								make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+								make demo_acts_nthreads #> $RESULTDIR_RESULT
+								# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 							elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 							then
 								make cleanall

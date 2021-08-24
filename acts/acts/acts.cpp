@@ -220,7 +220,7 @@ uint32_type
 	#ifdef SW 
 	acts::
 	#endif 
-convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
+convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	uint32_type res;
 	#ifdef _WIDEWORD
 	res.range(0, 0) = vmask[index].data[0].key;
@@ -777,7 +777,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-resetvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE]){
+resetvmask(unitBRAMwidth_type vmask[BLOCKRAM_SIZE]){
 	for(buffer_type i=0; i<BLOCKRAM_SIZE; i++){ 
 		vmask[i].data[0].key = 0;
 		vmask[i].data[0].value = 0;
@@ -1571,7 +1571,7 @@ void //
 	#ifdef SW 
 	acts::
 	#endif 
-loadvmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1745,7 +1745,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-savevmasks(bool_type enable, uint512_dt * kvdram, uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+savevmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2052,7 +2052,7 @@ value_t
 	#ifdef SW 
 	acts::
 	#endif 
-getvmask(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+getvmask(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -2095,7 +2095,7 @@ int
 	#ifdef SW 
 	acts::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(enable == OFF){ return -1; }
 	analysis_type analysis_loop = BLOCKRAM_SIZE / 2;
@@ -5473,7 +5473,7 @@ uint32_type
 	acts::
 	#endif
 apply(bool_type enable, 
-		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE],
 		batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -5825,7 +5825,7 @@ uint32_type
 	acts::
 	#endif
 apply2(bool_type enable, 
-		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE],
+		keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t synvbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE],
 		unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return 0; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -8660,47 +8660,47 @@ void
 	#ifdef SW 
 	acts::
 	#endif
-spreadvmask(bool_type enable, uintNUMPby2_type vmask[BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE],uintNUMPby2_type vmask1[BLOCKRAM_SIZE],uintNUMPby2_type vmask2[BLOCKRAM_SIZE],uintNUMPby2_type vmask3[BLOCKRAM_SIZE],uintNUMPby2_type vmask4[BLOCKRAM_SIZE],uintNUMPby2_type vmask5[BLOCKRAM_SIZE],uintNUMPby2_type vmask6[BLOCKRAM_SIZE],uintNUMPby2_type vmask7[BLOCKRAM_SIZE],uintNUMPby2_type vmask8[BLOCKRAM_SIZE],uintNUMPby2_type vmask9[BLOCKRAM_SIZE],uintNUMPby2_type vmask10[BLOCKRAM_SIZE],uintNUMPby2_type vmask11[BLOCKRAM_SIZE],uintNUMPby2_type vmask12[BLOCKRAM_SIZE],uintNUMPby2_type vmask13[BLOCKRAM_SIZE],uintNUMPby2_type vmask14[BLOCKRAM_SIZE],uintNUMPby2_type vmask15[BLOCKRAM_SIZE],uintNUMPby2_type vmask16[BLOCKRAM_SIZE],uintNUMPby2_type vmask17[BLOCKRAM_SIZE],uintNUMPby2_type vmask18[BLOCKRAM_SIZE],uintNUMPby2_type vmask19[BLOCKRAM_SIZE],uintNUMPby2_type vmask20[BLOCKRAM_SIZE],uintNUMPby2_type vmask21[BLOCKRAM_SIZE],uintNUMPby2_type vmask22[BLOCKRAM_SIZE],uintNUMPby2_type vmask23[BLOCKRAM_SIZE],uintNUMPby2_type vmask24[BLOCKRAM_SIZE],uintNUMPby2_type vmask25[BLOCKRAM_SIZE],uintNUMPby2_type vmask26[BLOCKRAM_SIZE],uintNUMPby2_type vmask27[BLOCKRAM_SIZE],uintNUMPby2_type vmask28[BLOCKRAM_SIZE],uintNUMPby2_type vmask29[BLOCKRAM_SIZE],uintNUMPby2_type vmask30[BLOCKRAM_SIZE],uintNUMPby2_type vmask31[BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvmask(bool_type enable, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9[BLOCKRAM_SIZE],unitBRAMwidth_type vmask10[BLOCKRAM_SIZE],unitBRAMwidth_type vmask11[BLOCKRAM_SIZE],unitBRAMwidth_type vmask12[BLOCKRAM_SIZE],unitBRAMwidth_type vmask13[BLOCKRAM_SIZE],unitBRAMwidth_type vmask14[BLOCKRAM_SIZE],unitBRAMwidth_type vmask15[BLOCKRAM_SIZE],unitBRAMwidth_type vmask16[BLOCKRAM_SIZE],unitBRAMwidth_type vmask17[BLOCKRAM_SIZE],unitBRAMwidth_type vmask18[BLOCKRAM_SIZE],unitBRAMwidth_type vmask19[BLOCKRAM_SIZE],unitBRAMwidth_type vmask20[BLOCKRAM_SIZE],unitBRAMwidth_type vmask21[BLOCKRAM_SIZE],unitBRAMwidth_type vmask22[BLOCKRAM_SIZE],unitBRAMwidth_type vmask23[BLOCKRAM_SIZE],unitBRAMwidth_type vmask24[BLOCKRAM_SIZE],unitBRAMwidth_type vmask25[BLOCKRAM_SIZE],unitBRAMwidth_type vmask26[BLOCKRAM_SIZE],unitBRAMwidth_type vmask27[BLOCKRAM_SIZE],unitBRAMwidth_type vmask28[BLOCKRAM_SIZE],unitBRAMwidth_type vmask29[BLOCKRAM_SIZE],unitBRAMwidth_type vmask30[BLOCKRAM_SIZE],unitBRAMwidth_type vmask31[BLOCKRAM_SIZE], globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"spreadvmask: spread (vmask) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	
-	uintNUMPby2_type vmask_vault0;
-	uintNUMPby2_type vmask_vault1;
-	uintNUMPby2_type vmask_vault2;
-	uintNUMPby2_type vmask_vault3;
-	uintNUMPby2_type vmask_vault4;
-	uintNUMPby2_type vmask_vault5;
-	uintNUMPby2_type vmask_vault6;
-	uintNUMPby2_type vmask_vault7;
-	uintNUMPby2_type vmask_vault8;
-	uintNUMPby2_type vmask_vault9;
-	uintNUMPby2_type vmask_vault10;
-	uintNUMPby2_type vmask_vault11;
-	uintNUMPby2_type vmask_vault12;
-	uintNUMPby2_type vmask_vault13;
-	uintNUMPby2_type vmask_vault14;
-	uintNUMPby2_type vmask_vault15;
-	uintNUMPby2_type vmask_vault16;
-	uintNUMPby2_type vmask_vault17;
-	uintNUMPby2_type vmask_vault18;
-	uintNUMPby2_type vmask_vault19;
-	uintNUMPby2_type vmask_vault20;
-	uintNUMPby2_type vmask_vault21;
-	uintNUMPby2_type vmask_vault22;
-	uintNUMPby2_type vmask_vault23;
-	uintNUMPby2_type vmask_vault24;
-	uintNUMPby2_type vmask_vault25;
-	uintNUMPby2_type vmask_vault26;
-	uintNUMPby2_type vmask_vault27;
-	uintNUMPby2_type vmask_vault28;
-	uintNUMPby2_type vmask_vault29;
-	uintNUMPby2_type vmask_vault30;
-	uintNUMPby2_type vmask_vault31;
-	uintNUMPby2_type vmask_vault32;
-	uintNUMPby2_type vmask_vault33;
+	unitBRAMwidth_type vmask_vault0;
+	unitBRAMwidth_type vmask_vault1;
+	unitBRAMwidth_type vmask_vault2;
+	unitBRAMwidth_type vmask_vault3;
+	unitBRAMwidth_type vmask_vault4;
+	unitBRAMwidth_type vmask_vault5;
+	unitBRAMwidth_type vmask_vault6;
+	unitBRAMwidth_type vmask_vault7;
+	unitBRAMwidth_type vmask_vault8;
+	unitBRAMwidth_type vmask_vault9;
+	unitBRAMwidth_type vmask_vault10;
+	unitBRAMwidth_type vmask_vault11;
+	unitBRAMwidth_type vmask_vault12;
+	unitBRAMwidth_type vmask_vault13;
+	unitBRAMwidth_type vmask_vault14;
+	unitBRAMwidth_type vmask_vault15;
+	unitBRAMwidth_type vmask_vault16;
+	unitBRAMwidth_type vmask_vault17;
+	unitBRAMwidth_type vmask_vault18;
+	unitBRAMwidth_type vmask_vault19;
+	unitBRAMwidth_type vmask_vault20;
+	unitBRAMwidth_type vmask_vault21;
+	unitBRAMwidth_type vmask_vault22;
+	unitBRAMwidth_type vmask_vault23;
+	unitBRAMwidth_type vmask_vault24;
+	unitBRAMwidth_type vmask_vault25;
+	unitBRAMwidth_type vmask_vault26;
+	unitBRAMwidth_type vmask_vault27;
+	unitBRAMwidth_type vmask_vault28;
+	unitBRAMwidth_type vmask_vault29;
+	unitBRAMwidth_type vmask_vault30;
+	unitBRAMwidth_type vmask_vault31;
+	unitBRAMwidth_type vmask_vault32;
+	unitBRAMwidth_type vmask_vault33;
 	
 	for (buffer_type i=0; i<BLOCKRAM_SIZE; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -8842,7 +8842,7 @@ int
 	#ifdef SW 
 	acts::
 	#endif 
-fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
+fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	int message = -1;
 	if(mode == PROCESSMODE){
@@ -9055,7 +9055,7 @@ void
 	acts::
 	#endif
 actit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPARTITIONUPDATESPIPELINES * WORKBUFFER_SIZE);
@@ -9147,7 +9147,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
@@ -9297,7 +9297,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
+partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -9385,7 +9385,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
+reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -9420,7 +9420,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){
 	if(en_process == ON){ processit(kvdram, sourcebuffer, vbuffer, vmask, vmask_p, globalparams); } 
 	if(en_partition == ON){ partitionit(kvdram, sourcebuffer, vbuffer, vmask, globalparams); } 
@@ -9435,7 +9435,7 @@ void
 	acts::
 	#endif 
 dispatch_reduce(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11,uint512_dt * kvdram12,uint512_dt * kvdram13,uint512_dt * kvdram14,uint512_dt * kvdram15,uint512_dt * kvdram16,uint512_dt * kvdram17,uint512_dt * kvdram18,uint512_dt * kvdram19,uint512_dt * kvdram20,uint512_dt * kvdram21,uint512_dt * kvdram22,uint512_dt * kvdram23,uint512_dt * kvdram24,uint512_dt * kvdram25,uint512_dt * kvdram26,uint512_dt * kvdram27,uint512_dt * kvdram28,uint512_dt * kvdram29,uint512_dt * kvdram30,uint512_dt * kvdram31, 
-keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask16[BLOCKRAM_SIZE], uint32_type vmask_p16[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer17[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask17[BLOCKRAM_SIZE], uint32_type vmask_p17[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer18[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask18[BLOCKRAM_SIZE], uint32_type vmask_p18[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer19[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask19[BLOCKRAM_SIZE], uint32_type vmask_p19[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer20[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask20[BLOCKRAM_SIZE], uint32_type vmask_p20[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer21[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer21[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask21[BLOCKRAM_SIZE], uint32_type vmask_p21[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer22[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer22[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask22[BLOCKRAM_SIZE], uint32_type vmask_p22[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer23[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer23[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask23[BLOCKRAM_SIZE], uint32_type vmask_p23[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer24[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer24[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask24[BLOCKRAM_SIZE], uint32_type vmask_p24[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer25[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer25[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask25[BLOCKRAM_SIZE], uint32_type vmask_p25[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer26[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer26[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask26[BLOCKRAM_SIZE], uint32_type vmask_p26[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer27[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer27[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask27[BLOCKRAM_SIZE], uint32_type vmask_p27[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer28[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer28[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask28[BLOCKRAM_SIZE], uint32_type vmask_p28[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer29[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer29[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask29[BLOCKRAM_SIZE], uint32_type vmask_p29[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer30[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer30[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask30[BLOCKRAM_SIZE], uint32_type vmask_p30[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer31[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer31[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask31[BLOCKRAM_SIZE], uint32_type vmask_p31[BLOCKRAM_SIZE], 
+keyvalue_buffer_t sourcebuffer0[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], uint32_type vmask_p0[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask1[BLOCKRAM_SIZE], uint32_type vmask_p1[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask2[BLOCKRAM_SIZE], uint32_type vmask_p2[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask3[BLOCKRAM_SIZE], uint32_type vmask_p3[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask4[BLOCKRAM_SIZE], uint32_type vmask_p4[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask5[BLOCKRAM_SIZE], uint32_type vmask_p5[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask6[BLOCKRAM_SIZE], uint32_type vmask_p6[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask7[BLOCKRAM_SIZE], uint32_type vmask_p7[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask8[BLOCKRAM_SIZE], uint32_type vmask_p8[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask9[BLOCKRAM_SIZE], uint32_type vmask_p9[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask10[BLOCKRAM_SIZE], uint32_type vmask_p10[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask11[BLOCKRAM_SIZE], uint32_type vmask_p11[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask12[BLOCKRAM_SIZE], uint32_type vmask_p12[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask13[BLOCKRAM_SIZE], uint32_type vmask_p13[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask14[BLOCKRAM_SIZE], uint32_type vmask_p14[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask15[BLOCKRAM_SIZE], uint32_type vmask_p15[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer16[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask16[BLOCKRAM_SIZE], uint32_type vmask_p16[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer17[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask17[BLOCKRAM_SIZE], uint32_type vmask_p17[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer18[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask18[BLOCKRAM_SIZE], uint32_type vmask_p18[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer19[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask19[BLOCKRAM_SIZE], uint32_type vmask_p19[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer20[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask20[BLOCKRAM_SIZE], uint32_type vmask_p20[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer21[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer21[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask21[BLOCKRAM_SIZE], uint32_type vmask_p21[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer22[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer22[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask22[BLOCKRAM_SIZE], uint32_type vmask_p22[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer23[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer23[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask23[BLOCKRAM_SIZE], uint32_type vmask_p23[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer24[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer24[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask24[BLOCKRAM_SIZE], uint32_type vmask_p24[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer25[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer25[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask25[BLOCKRAM_SIZE], uint32_type vmask_p25[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer26[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer26[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask26[BLOCKRAM_SIZE], uint32_type vmask_p26[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer27[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer27[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask27[BLOCKRAM_SIZE], uint32_type vmask_p27[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer28[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer28[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask28[BLOCKRAM_SIZE], uint32_type vmask_p28[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer29[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer29[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask29[BLOCKRAM_SIZE], uint32_type vmask_p29[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer30[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer30[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask30[BLOCKRAM_SIZE], uint32_type vmask_p30[BLOCKRAM_SIZE],keyvalue_buffer_t sourcebuffer31[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer31[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask31[BLOCKRAM_SIZE], uint32_type vmask_p31[BLOCKRAM_SIZE], 
 		uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams[NUMCOMPUTEUNITS]){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -10189,224 +10189,224 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 	#pragma HLS array_partition variable = sourcebuffer0
 	keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0
-	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer1
 	keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
-	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer2[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer2
 	keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
-	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer3[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer3
 	keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
-	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer4[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer4
 	keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
-	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer5[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer5
 	keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
-	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer6[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer6
 	keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
-	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer7[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer7
 	keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
-	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer8[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer8
 	keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
-	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer9[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer9
 	keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
-	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer10[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer10
 	keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
-	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer11[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer11
 	keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
-	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer12[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer12
 	keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12
-	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer13[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer13
 	keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13
-	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer14[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer14
 	keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14
-	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer15[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer15
 	keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15
-	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
 	uint32_type vmask_p15[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer16[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer16
 	keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer16
-	uintNUMPby2_type vmask16[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask16[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask16
 	uint32_type vmask_p16[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer17[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer17
 	keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer17
-	uintNUMPby2_type vmask17[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask17[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask17
 	uint32_type vmask_p17[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer18[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer18
 	keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer18
-	uintNUMPby2_type vmask18[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask18[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask18
 	uint32_type vmask_p18[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer19[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer19
 	keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer19
-	uintNUMPby2_type vmask19[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask19[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask19
 	uint32_type vmask_p19[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer20[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer20
 	keyvalue_vbuffer_t vbuffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer20
-	uintNUMPby2_type vmask20[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask20[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask20
 	uint32_type vmask_p20[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer21[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer21
 	keyvalue_vbuffer_t vbuffer21[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer21
-	uintNUMPby2_type vmask21[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask21[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask21
 	uint32_type vmask_p21[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer22[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer22
 	keyvalue_vbuffer_t vbuffer22[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer22
-	uintNUMPby2_type vmask22[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask22[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask22
 	uint32_type vmask_p22[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer23[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer23
 	keyvalue_vbuffer_t vbuffer23[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer23
-	uintNUMPby2_type vmask23[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask23[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask23
 	uint32_type vmask_p23[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer24[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer24
 	keyvalue_vbuffer_t vbuffer24[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer24
-	uintNUMPby2_type vmask24[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask24[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask24
 	uint32_type vmask_p24[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer25[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer25
 	keyvalue_vbuffer_t vbuffer25[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer25
-	uintNUMPby2_type vmask25[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask25[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask25
 	uint32_type vmask_p25[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer26[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer26
 	keyvalue_vbuffer_t vbuffer26[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer26
-	uintNUMPby2_type vmask26[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask26[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask26
 	uint32_type vmask_p26[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer27[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer27
 	keyvalue_vbuffer_t vbuffer27[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer27
-	uintNUMPby2_type vmask27[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask27[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask27
 	uint32_type vmask_p27[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer28[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer28
 	keyvalue_vbuffer_t vbuffer28[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer28
-	uintNUMPby2_type vmask28[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask28[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask28
 	uint32_type vmask_p28[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer29[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer29
 	keyvalue_vbuffer_t vbuffer29[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer29
-	uintNUMPby2_type vmask29[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask29[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask29
 	uint32_type vmask_p29[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer30[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer30
 	keyvalue_vbuffer_t vbuffer30[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer30
-	uintNUMPby2_type vmask30[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask30[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask30
 	uint32_type vmask_p30[BLOCKRAM_SIZE];
 	keyvalue_buffer_t sourcebuffer31[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer31
 	keyvalue_vbuffer_t vbuffer31[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer31
-	uintNUMPby2_type vmask31[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask31[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask31
 	uint32_type vmask_p31[BLOCKRAM_SIZE];
 	globalparams_t globalparams[NUMCOMPUTEUNITS];
@@ -10908,7 +10908,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -11178,162 +11178,162 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	
 	keyvalue_vbuffer_t vbuffer0[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0
-	uintNUMPby2_type vmask0[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
 	uint32_type vmask_p0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
-	uintNUMPby2_type vmask1[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
 	uint32_type vmask_p1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
-	uintNUMPby2_type vmask2[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
 	uint32_type vmask_p2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
-	uintNUMPby2_type vmask3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
 	uint32_type vmask_p3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
-	uintNUMPby2_type vmask4[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
 	uint32_type vmask_p4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
-	uintNUMPby2_type vmask5[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
 	uint32_type vmask_p5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
-	uintNUMPby2_type vmask6[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
 	uint32_type vmask_p6[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer7[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
-	uintNUMPby2_type vmask7[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
 	uint32_type vmask_p7[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer8[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
-	uintNUMPby2_type vmask8[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
 	uint32_type vmask_p8[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer9[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
-	uintNUMPby2_type vmask9[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
 	uint32_type vmask_p9[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer10[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
-	uintNUMPby2_type vmask10[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
 	uint32_type vmask_p10[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer11[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
-	uintNUMPby2_type vmask11[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
 	uint32_type vmask_p11[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer12[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer12
-	uintNUMPby2_type vmask12[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask12[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask12
 	uint32_type vmask_p12[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer13[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer13
-	uintNUMPby2_type vmask13[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask13[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask13
 	uint32_type vmask_p13[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer14[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer14
-	uintNUMPby2_type vmask14[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask14[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask14
 	uint32_type vmask_p14[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer15[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer15
-	uintNUMPby2_type vmask15[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask15[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask15
 	uint32_type vmask_p15[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer16[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer16
-	uintNUMPby2_type vmask16[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask16[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask16
 	uint32_type vmask_p16[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer17[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer17
-	uintNUMPby2_type vmask17[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask17[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask17
 	uint32_type vmask_p17[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer18[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer18
-	uintNUMPby2_type vmask18[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask18[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask18
 	uint32_type vmask_p18[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer19[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer19
-	uintNUMPby2_type vmask19[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask19[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask19
 	uint32_type vmask_p19[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer20[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer20
-	uintNUMPby2_type vmask20[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask20[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask20
 	uint32_type vmask_p20[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer21[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer21
-	uintNUMPby2_type vmask21[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask21[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask21
 	uint32_type vmask_p21[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer22[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer22
-	uintNUMPby2_type vmask22[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask22[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask22
 	uint32_type vmask_p22[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer23[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer23
-	uintNUMPby2_type vmask23[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask23[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask23
 	uint32_type vmask_p23[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer24[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer24
-	uintNUMPby2_type vmask24[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask24[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask24
 	uint32_type vmask_p24[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer25[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer25
-	uintNUMPby2_type vmask25[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask25[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask25
 	uint32_type vmask_p25[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer26[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer26
-	uintNUMPby2_type vmask26[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask26[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask26
 	uint32_type vmask_p26[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer27[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer27
-	uintNUMPby2_type vmask27[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask27[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask27
 	uint32_type vmask_p27[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer28[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer28
-	uintNUMPby2_type vmask28[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask28[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask28
 	uint32_type vmask_p28[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer29[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer29
-	uintNUMPby2_type vmask29[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask29[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask29
 	uint32_type vmask_p29[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer30[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer30
-	uintNUMPby2_type vmask30[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask30[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask30
 	uint32_type vmask_p30[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer31[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer31
-	uintNUMPby2_type vmask31[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask31[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask31
 	uint32_type vmask_p31[BLOCKRAM_SIZE];
 	
@@ -11784,7 +11784,7 @@ topkernel(uint512_dt * kvdram){
 	#pragma HLS array_partition variable = sourcebuffer
 	keyvalue_vbuffer_t vbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer
-	uintNUMPby2_type vmask[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	

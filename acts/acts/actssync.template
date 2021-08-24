@@ -215,7 +215,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif 
-convertvmasktouint32(uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int index){
+convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	uint32_type res;
 	#ifdef _WIDEWORD
 	{%for v in context['16_seq']%}
@@ -605,7 +605,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -710,7 +710,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], uintNUMPby2_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}keyvalue_vbuffer_t buffer{{i}}[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE],{%endfor%} keyvalue_vbuffer_t res[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -865,7 +865,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2_type vmask[BLOCKRAM_SIZE], {%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}uintNUMPby2_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
+spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], {%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}unitBRAMwidth_type vmask{{i}}[BLOCKRAM_SIZE],{%endfor%} globalparams_t globalparams){
 	#pragma HLS INLINE OFF //
 	if(enable1 == OFF || enable2 == OFF || enable3 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -874,7 +874,7 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, uintNUMPby2
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	
 	{%for i in context['NUMSYNCTHREADS_DIV_4__PLUS2_seq']%}
-	uintNUMPby2_type vmask_vault{{i}};
+	unitBRAMwidth_type vmask_vault{{i}};
 	{%endfor%}
 	
 	for (buffer_type i=0; i<BLOCKRAM_SIZE; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -898,7 +898,7 @@ void
 	#endif
 spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, {%for i in context['4_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
 		keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
-		uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+		unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
@@ -961,7 +961,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		unsigned int Y = i / 16;
 	
 		#ifdef _WIDEWORD
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		tempbuffer[X][Y].range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[i].data[{{v}}].key;
 		tempbuffer[X][Y].range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[i].data[{{v}}].value;
 		{%endfor%}
@@ -1023,7 +1023,7 @@ void
 	#endif
 spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, uint512_dt * vdram, {%for i in context['4_seq']%}uint512_dt * kvdram{{i}},{%endfor%}
 		keyvalue_vbuffer_t source[VBUFFER_VECTOR_SIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
-		uintNUMPby2_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+		unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
@@ -1099,7 +1099,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		unsigned int Y = i / 16;
 	
 		#ifdef _WIDEWORD
-		{%for v in context['NUM_PARTITIONS_seq']%}
+		{%for v in context['BRAMwidth_seq']%}
 		tempbuffer[X][Y].range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[i].data[{{v}}].key;
 		tempbuffer[X][Y].range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[i].data[{{v}}].value;
 		{%endfor%}
@@ -1206,12 +1206,12 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 
 	//
 	{%for i in context['1_seq']%}
-	uintNUMPby2_type vmask{{i}}_level2[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask{{i}}_level2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask{{i}}_level2
 	{%endfor%}
 	
 	{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-	uintNUMPby2_type vmask{{i}}_level3[BLOCKRAM_SIZE];
+	unitBRAMwidth_type vmask{{i}}_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask{{i}}_level3
 	{%endfor%}
 	
