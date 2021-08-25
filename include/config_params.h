@@ -27,9 +27,9 @@
 
 
 // === parameters for ACTS design ===
-#define ENABLERECURSIVEPARTITIONING
+// #define ENABLERECURSIVEPARTITIONING // found in: common_h, loadgraph, actscommon_h
 
-// #define ACTS_PARTITION_AND_REDUCE_STRETEGY
+// #define ACTS_PARTITION_AND_REDUCE_STRETEGY // found in: actscommon_h
 #define BASIC_PARTITION_AND_REDUCE_STRETEGY
 #endif
 

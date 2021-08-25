@@ -289,7 +289,7 @@ globalparams_t loadgraph::loadactvvertices(vector<vertex_t> &activevertices, key
 	return globalparams;
 }
 
-void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs){
+void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[VMASK_PACKINGSIZE][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::savevmasks:: saving vmask... "<<endl;
 	#endif
@@ -297,7 +297,7 @@ void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue
 	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
 	
 	for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
-		for(unsigned int k=0; k<NUM_PARTITIONS; k++){
+		for(unsigned int k=0; k<VMASK_PACKINGSIZE; k++){
 			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
 			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
 		}
@@ -324,7 +324,7 @@ void loadgraph::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printvalues("savevmasks.bitsbuffer", bitsbuffer, 4);
-	utilityobj->printkeyvalues("savevmasks.vmask", vmask, NUM_PARTITIONS, 4);
+	utilityobj->printkeyvalues("savevmasks.vmask", vmask, VMASK_PACKINGSIZE, 4);
 	utilityobj->printkeyvalues("savevmasks.tempbuffer", tempbuffer, 8, 4);
 	utilityobj->printkeyvalues("savevmasks.kvbuffer[0]", (keyvalue_t *)&kvbuffer[offset_kvs], 4);
 	#endif
@@ -351,7 +351,7 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 	cout<<"[globalparams.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK<<"]"<<endl;
 	#endif
 	
-	keyvalue_vec_bittype vmask[NUM_PARTITIONS][REDUCEBUFFERSZ];
+	keyvalue_vec_bittype vmask[VMASK_PACKINGSIZE][REDUCEBUFFERSZ];
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS; k++){ 
@@ -366,8 +366,8 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 	}
 	
 	unsigned int vmaskoffset_kvs = 0;
-	for(unsigned int offset=0; offset<BATCH_RANGE; offset+=REDUCESZ * NUM_PARTITIONS){
-		for(unsigned int i=0; i<NUM_PARTITIONS; i++){
+	for(unsigned int offset=0; offset<BATCH_RANGE; offset+=REDUCESZ * VMASK_PACKINGSIZE){
+		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
 			unsigned int * V = (unsigned int *)vmask[i]; 
 			for(unsigned int k=0; k<REDUCESZ; k++){
 				unsigned int vid = offset + (i*REDUCESZ) + k;
@@ -391,10 +391,12 @@ globalparams_t loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, ui
 	}
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, NUM_PARTITIONS, 4);
+	utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, VMASK_PACKINGSIZE, 4);
 	utilityobj->printkeyvalues("generatevmaskdata.kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][_BASEOFFSET_VERTICESDATAMASK_KVS], 4);
 	cout<<"loadgraph::generatevmaskdata:: end. "<<endl;
 	#endif
+	
+	// cout<<""<<endl;
 	return globalparams;
 }
 
@@ -419,6 +421,7 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 	unsigned int totalnumpartitions = 0;
 	for(unsigned int k=0; k<=TREE_DEPTH; k++){ totalnumpartitions += (unsigned int)pow(NUM_PARTITIONS, k); } 
 	unsigned int maxdramsz = 0;
+	// cout<<"------ loadoffsetmarkers:: totalnumpartitions: "<<totalnumpartitions<<endl; // REMOVEME.
 	
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){
 		uint512_vec_dt * statsptrVec = (uint512_vec_dt *)&stats[i][_BASEOFFSET_STATSDRAM];
@@ -478,10 +481,17 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 			statsptrVec[k].data[0].key = tempstats[k].key;
 			statsptrVec[k].data[0].value = 0;
 			// statsptrVec[k].data[0].value = tempstats[k].value;
+			// cout<<"------ loadoffsetmarkers:: statsptrVec["<<k<<"].data[0].key: "<<statsptrVec[k].data[0].key<<endl; // REMOVEME.
 		}
+		// exit(EXIT_SUCCESS);
 		
 		unsigned int totalnumpb4llop = 0;
+		#ifdef ENABLERECURSIVEPARTITIONING
 		for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpb4llop += (unsigned int)pow(NUM_PARTITIONS, k); } 
+		#else 
+		for(unsigned int k=0; k<TREE_DEPTH+1; k++){ totalnumpb4llop += (unsigned int)pow(NUM_PARTITIONS, k); } 	// NOTE: because 
+		#endif 
+		// cout<<"------ loadoffsetmarkers:: totalnumpb4llop: "<<totalnumpb4llop<<endl; // REMOVEME.
 		if(maxdramsz < (tempstats[totalnumpb4llop-1].key + tempstats[totalnumpb4llop-1].value)){ maxdramsz = tempstats[totalnumpb4llop-1].key + tempstats[totalnumpb4llop-1].value; }
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
@@ -497,6 +507,10 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 		
 	globalparams.SIZE_KVDRAM = maxdramsz + 64; // CHECKME. FIXME.
 	globalparams.SIZE_KVDRAMWORKSPACE = globalparams.SIZE_KVDRAM; // maxdramsz;
+	
+	// cout<<"------ loadoffsetmarkers:: globalparams.SIZE_KVDRAM: "<<globalparams.SIZE_KVDRAM<<endl; // REMOVEME.
+	// cout<<"------ loadoffsetmarkers:: globalparams.SIZE_KVDRAMWORKSPACE: "<<globalparams.SIZE_KVDRAMWORKSPACE<<endl; // REMOVEME.
+	// exit(EXIT_SUCCESS);
 	
 	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.BASEOFFSETKVS_KVDRAM + (globalparams.SIZE_KVDRAM / VECTOR_SIZE); // KVDRAMSZ_KVS;

@@ -127,6 +127,12 @@ void utility::printallparameters(){
 	std::cout<<"utility:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
 	
 	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;
+	
+	std::cout<<"utility:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<std::endl;
+	std::cout<<"utility:: WORKBUFFER_SIZE: "<<WORKBUFFER_SIZE<<std::endl;
+	std::cout<<"utility:: SOURCEBLOCKRAM_SIZE: "<<SOURCEBLOCKRAM_SIZE<<std::endl;
+	std::cout<<"utility:: DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<std::endl;
 	
 	#ifdef ENABLE_KERNEL_PROFILING
 	std::cout<<"utility:: ENABLE_KERNEL_PROFILING DEFINED: "<<std::endl;
