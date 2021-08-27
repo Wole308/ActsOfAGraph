@@ -780,6 +780,16 @@ getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP,
 	partition_type partition;
 	keyvalue_t thiskeyvalue = GETKV(keyvalue);
 	
+	/* if(thiskeyvalue.key > 20000 && thiskeyvalue.key != INVALIDDATA){ 
+	cout<<"------------------------------------- thiskeyvalue.key ("<<thiskeyvalue.key<<") > 20000 seen"<<endl; 
+	// exit(EXIT_SUCCESS);
+	} // REMOVEME. */
+	
+	/* if(thiskeyvalue.key != INVALIDDATA){ 
+	cout<<"------------------------------------- thiskeyvalue.key ("<<thiskeyvalue.key<<") > 20000 seen"<<endl; 
+	// exit(EXIT_SUCCESS);
+	} // REMOVEME. */
+	
 	if(thiskeyvalue.value == GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	
@@ -986,13 +996,61 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 			#pragma HLS PIPELINE II=1
 				keyvalue_t mykeyvalue0 = GETKV(buffer[0][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue0.key > 20000 && mykeyvalue0.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue0.key ("<<mykeyvalue0.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue1 = GETKV(buffer[1][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue1.key > 20000 && mykeyvalue1.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue1.key ("<<mykeyvalue1.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue2 = GETKV(buffer[2][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue2.key > 20000 && mykeyvalue2.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue2.key ("<<mykeyvalue2.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue3 = GETKV(buffer[3][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue3.key > 20000 && mykeyvalue3.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue3.key ("<<mykeyvalue3.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue4 = GETKV(buffer[4][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue4.key > 20000 && mykeyvalue4.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue4.key ("<<mykeyvalue4.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue5 = GETKV(buffer[5][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue5.key > 20000 && mykeyvalue5.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue5.key ("<<mykeyvalue5.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue6 = GETKV(buffer[6][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue6.key > 20000 && mykeyvalue6.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue6.key ("<<mykeyvalue6.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				keyvalue_t mykeyvalue7 = GETKV(buffer[7][bramoffset_kvs + i]);
+				
+				/* if(mykeyvalue7.key > 20000 && mykeyvalue7.key != INVALIDDATA){ 
+				cout<<"------------------------------------- savekeyvalues: mykeyvalue7.key ("<<mykeyvalue7.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
+				// exit(EXIT_SUCCESS);
+				} // REMOVEME. */
+				
 				
 				#ifdef _WIDEWORD
 				kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
@@ -2427,15 +2485,20 @@ void
 	actsproc::
 	#endif
 basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
+	#ifdef ENABLERECURSIVEPARTITIONING
 	if(currentLOP == globalparams.ACTSPARAMS_TREEDEPTH){ return; } /// NEWCHANGE.
+	#else 
+	if(currentLOP > globalparams.ACTSPARAMS_TREEDEPTH){ return; } /// NEWCHANGE.	
+	#endif 
+	// cout<<"------------------basicpartitionkeyvalues: currentLOP: "<<currentLOP<<endl;
 	
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
 	
-	value_t emptyslot[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=emptyslot complete
-	resetvalues(emptyslot, VECTOR_SIZE, 0);
+	// value_t emptyslot[VECTOR_SIZE];
+	// #pragma HLS ARRAY_PARTITION variable=emptyslot complete
+	// resetvalues(emptyslot, VECTOR_SIZE, 0);
 	
 	buffer_type chunk_size = size_kvs;
 	unsigned int upperlimit = sweepparams.upperlimit;
@@ -2472,10 +2535,13 @@ basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t 
 	calculateoffsets(localcapsule, NUM_PARTITIONS);
 	resetvalues(localcapsule, NUM_PARTITIONS, 0);
 	
+	// cout<<"--- basicpartitionkeyvalues: chunk_size: "<<chunk_size<<endl; // REMOVEME.
+	// exit(EXIT_SUCCESS); // REMOVEME.
+	
 	for(buffer_type i=0; i<chunk_size; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
-			// cout<<"--- kv.key: "<<kv.key<<endl;
+			// cout<<"--- basicpartitionkeyvalues: kv.key: "<<kv.key<<endl; // REMOVEME.
 			partition_type p = getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
 			buffer_type pos = localcapsule[p].key + localcapsule[p].value;
 			
@@ -2502,8 +2568,8 @@ basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t 
 		}
 	}
 	
-	// actsutilityobj->printkeyvalues("basicpartitionkeyvalues::localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
-	// exit(EXIT_SUCCESS);
+	// actsutilityobj->printkeyvalues("))))))))))))))))))))))))))))))))))))basicpartitionkeyvalues::localcapsule", (keyvalue_t *)localcapsule, 8); // REMOVEME.
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 
@@ -2723,35 +2789,38 @@ reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOC
 	#ifdef SW 
 	actsproc::
 	#endif 
-basicreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+basicreduceandbuffer2(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	actsutilityobj->printkeyvalues("basicreduceandbuffer2.localcapsule", (keyvalue_t *)localcapsule, 8);
 	#endif 
 	
-	unsigned int tmplloprange = 0;
+	// cout<<"-------------------- actit.basicreduceandbuffer2: chunk_size: "<<chunk_size<<endl; // REMOVEME.
+	// exit(EXIT_SUCCESS); // REMOVEME.
+	
 	unsigned int lloprange = getrangeforeachllop(globalparams);
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){
-		unsigned int bramoffset_kvs = localcapsule[p].key / VECTOR_SIZE;
-		unsigned int size_kvs = localcapsule[p].value / VECTOR_SIZE;
+	for(buffer_type i=0; i<chunk_size; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			keyvalue_buffer_t kv = buffer[v][i];
+			
+			partition_type p = getpartition(ON, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
+			
+			// partition_type p2 = ((kv.key - sweepparams.upperlimit) >> (globalparams.POW_BATCHRANGE - VDATA_PACKINGSIZE_POW));
+			partition_type p2 = ((kv.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
+			
+			unsigned int upperlimit = sweepparams.upperlimit + p*lloprange; // CRITICAL CHECKME.
+			unsigned int upperlimit2 = sweepparams.upperlimit + p2*lloprange; // CRITICAL CHECKME.
+			
+			cout<<"--- basicreduceandbuffer2: kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p2: "<<p2<<", upperlimit2: "<<upperlimit2<<", lloprange: "<<lloprange<<", p2: "<<p2<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 		
-		unsigned int upperlimits = sweepparams.upperlimit + tmplloprange;
-		tmplloprange += lloprange;
-		
-		for(buffer_type i=bramoffset_kvs; i<(bramoffset_kvs + size_kvs); i++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				keyvalue_buffer_t kv = buffer[v][i];
-				partition_type p1 = getpartition(ON, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
-				// cout<<"--- kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p1: "<<p1<<endl;
-				
-				reducevector(kv, vbuffer[p1], 0, upperlimits, sweepparams, globalparams);
-			}
+			reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); // REMOVEME.
 		}
 	}
+	
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 } */
-
 void 
 	#ifdef SW 
 	actsproc::
@@ -2760,20 +2829,40 @@ basicreduceandbuffer2(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SO
 	if(enable == OFF){ return; }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	actsutilityobj->printkeyvalues("basicreduceandbuffer2.localcapsule", (keyvalue_t *)localcapsule, 8);
 	#endif 
 	
-	unsigned int lloprange = getrangeforeachllop(globalparams);
+	// cout<<"-------------------- actit.basicreduceandbuffer2: chunk_size: "<<chunk_size<<endl; // REMOVEME.
+	// exit(EXIT_SUCCESS); // REMOVEME.
+	
+	// unsigned int lloprange = getrangeforeachllop(globalparams);
 	for(buffer_type i=0; i<chunk_size; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			keyvalue_buffer_t kv = buffer[v][i];
-			partition_type p = getpartition(ON, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
-			unsigned int upperlimit = sweepparams.upperlimit + p*lloprange; // CRITICAL CHECKME.
-			cout<<"--- kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p: "<<p<<endl;
+			
+			// partition_type p = getpartition(ON, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
+			
+			// partition_type p2 = ((kv.key - sweepparams.upperlimit) >> (globalparams.POW_BATCHRANGE - VDATA_PACKINGSIZE_POW));
+			partition_type p = ((kv.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
+			
+			// unsigned int upperlimit = sweepparams.upperlimit + p*lloprange; // CRITICAL CHECKME.
+			unsigned int upperlimit = sweepparams.upperlimit + p*REDUCESZ; // CRITICAL CHECKME. 
+			
+		
+			
+			// globalparams.SIZE_REDUCE, globalparams.POW_REDUCE
+			
+			/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			cout<<"--- basicreduceandbuffer2: kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
+			#endif  */
+			
+			// cout<<"--- globalparams.SIZE_REDUCE: "<<globalparams.SIZE_REDUCE<<", globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<endl;
 		
 			reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); // REMOVEME.
 		}
 	}
+	
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 
@@ -2850,7 +2939,9 @@ basiccommitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, ui
 	if(mode == REDUCEMODE){
 		basicreduceandbuffer2(enable1, sourcebuffer, localcapsule, vbuffer, chunk_size, sweepparams, globalparams); // REMOVEME.
 	} else {
+		// actsutilityobj->printkeyvalues("**************************************************basiccommitkeyvalues: localcapsule", (keyvalue_t *)localcapsule, 8); // REMOVEME. // NUM_PARTITIONS
 		savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
+		// actsutilityobj->printkeyvalues("++++++++++++++++++++++++++++++++++++++++++++++++++basiccommitkeyvalues: globalcapsule", (keyvalue_t *)globalcapsule, 8); // REMOVEME. // NUM_PARTITIONS
 	}
 	return;
 }
@@ -3190,10 +3281,11 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 	}
 	#else
 		
-	// cout<<"-------------------- actit "<<endl;
+	// cout<<"-------------------- actit: offset_kvs: "<<offset_kvs<<", ptravstate.begin_kvs: "<<ptravstate.begin_kvs<<", ptravstate.end_kvs: "<<ptravstate.end_kvs<<", flushsz: "<<flushsz<<endl;
 		
 	// basic partitioning and apply strategy
-	ACTIT_MAINLOOP: while(offset_kvs < ptravstate.end_kvs + flushsz){
+	// ACTIT_MAINLOOP: while(offset_kvs < ptravstate.end_kvs + flushsz)
+	ACTIT_MAINLOOP: while(offset_kvs < ptravstate.end_kvs){ // NEWCHANGE.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 		#ifdef PUP1
 		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
@@ -3213,11 +3305,14 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		
 		// cout<<"-------------------- actit: basicpartitionkeyvalues "<<endl;
 		basicpartitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
-		// cout<<"-------------------- actit: basiccommitkeyvalues "<<endl;
+		// cout<<"-------------------- actit: basiccommitkeyvalues: fetchmessagepp0.chunksize_kvs: "<<fetchmessagepp0.chunksize_kvs<<", WORKBUFFER_SIZE: "<<WORKBUFFER_SIZE<<endl;
+		// actsutilityobj->printkeyvalues("actit: capsule_so8", (keyvalue_t *)capsule_so8, 8); // REMOVEME. // NUM_PARTITIONS
 		basiccommitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, sourcebuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
 		
 		itercount += NUMPIPELINES_PARTITIONUPDATES;
+		// exit(EXIT_SUCCESS); // REMOVEME.
 	}
+	// exit(EXIT_SUCCESS); // REMOVEME.
 	#endif
 	return;
 }
@@ -3310,6 +3405,9 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		if(localendvptr < globalparams.SIZE_EDGES){ actsutilityobj->checkptr("processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparams.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
 		
+		// cout<<"-------------------- processit: localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<", numedges: "<<numedges<<endl; // REMOVEME.
+		// exit(EXIT_SUCCESS); // REMOVEME.
+		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"[index: "<<source_partition<<"][beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<"][beginvptr: "<<localbeginvptr<<", endvptr: "<<localendvptr<<", edges size: "<<numedges<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
 		#endif
@@ -3338,6 +3436,9 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		if(GraphAlgo != PAGERANK){ resetenv = ON; flush = ON; } // CRITICAL NEWCHANGE.
 		// exit(EXIT_SUCCESS); ////////////////////// REMOVEME.
 		
+		// cout<<"-------------------- processit: NAp: "<<NAp<<", etravstate.begin_kvs: "<<etravstate.begin_kvs<<", etravstate.end_kvs: "<<etravstate.end_kvs<<", numedges: "<<numedges<<", numedges_kvs: "<<numedges_kvs<<endl; // REMOVEME.
+		// exit(EXIT_SUCCESS); // REMOVEME.
+		
 		actit(
 			ON, PROCESSMODE,
 			kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
@@ -3350,7 +3451,21 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		actsutilityobj->clearglobalvars();
 		#endif
 	}
+	
+	// actsutilityobj->printkeyvalues("processit::globalstatsbuffer", globalstatsbuffer, 8); // REMOVEME.
+	// exit(EXIT_SUCCESS); // REMOVEME.
+			
 	saveglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams);
+	
+	/* actsutilityobj->printkeyvalues("processit::globalstatsbuffer", globalstatsbuffer, 8); // REMOVEME.
+	////////////////////////////////////////////////////////////////
+	for(unsigned int k=0; k<8; k++){ // KVSTATSSZ
+		unsigned int key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker + k].data[0].key; 
+		unsigned int value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker + k].data[0].value; 
+		cout<<"------ processit:: key["<<k<<"]: "<<key<<", value["<<k<<"]: "<<value<<endl; // REMOVEME.
+	}
+	// exit(EXIT_SUCCESS);
+	//////////////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
@@ -3391,8 +3506,20 @@ partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOU
 	sweepparams_t sweepparams;
 	travstate_t actvvstravstate; actvvstravstate.i=0; actvvstravstate.i_kvs=0;
 	
-	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2); currentLOP++){
+	// cout<<"-------------------------- partitionit: before for-loop"<<endl; // REMOVEME.
+	// cout<<"-------------------------- partitionit: begin: "<<globalparams.ACTSPARAMS_BEGINLOP + 1<<", end: "<<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2)<<", size: 1"<<endl; // REMOVEME.
+	
+	// PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2); currentLOP++)
+	
+	#ifdef ENABLERECURSIVEPARTITIONING
+	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2); currentLOP++)
+	#else 
+	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2); currentLOP++)
+	#endif 
+	{ // REMOVEME.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numllops avg=analysis_numllops	
+	
+		// cout<<"-------------------------- partitionit: in for-loop"<<endl; // REMOVEME.
 	
 		batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 		bool_type enreduce = ON;
@@ -3424,6 +3551,9 @@ partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOU
 					ON, ON);
 			saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams); 
 			
+			// actsutilityobj->printkeyvalues("partitionit::globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); // REMOVEME.
+			// exit(EXIT_SUCCESS); // REMOVEME.
+			
 			if(currentLOP > 0){
 				sourcestatsmarker += 1;
 				deststatsmarker += NUM_PARTITIONS;
@@ -3446,7 +3576,9 @@ partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOU
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 		actsutilityobj->clearglobalvars();
 		#endif
-	}	
+	}
+	
+	// cout<<"-------------------------- partitionit: after for-loop"<<endl; // REMOVEME.
 	return;
 }
 
@@ -3462,10 +3594,30 @@ reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCE
 	
 	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
 	
+	/* ////////////////////////////////////////////////////////////////
+	cout<<"reduceit: sourcestatsmarker: "<<sourcestatsmarker<<endl;
+	for(unsigned int k=0; k<8; k++){ // KVSTATSSZ
+		unsigned int key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + 0 + k].data[0].key; 
+		unsigned int value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + 0 + k].data[0].value; 
+		cout<<"------ reduceit:: key["<<k<<"]: "<<key<<", value["<<k<<"]: "<<value<<endl; // REMOVEME.
+	}
+	cout<<"reduceit: sourcestatsmarker: "<<sourcestatsmarker<<endl;
+	for(unsigned int k=0; k<8; k++){ // KVSTATSSZ
+		unsigned int key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker + k].data[0].key; 
+		unsigned int value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker + k].data[0].value; 
+		cout<<"------ reduceit:: key["<<k<<"]: "<<key<<", value["<<k<<"]: "<<value<<endl; // REMOVEME.
+	}
+	// exit(EXIT_SUCCESS);
+	//////////////////////////////////////////////////////////////// */
+	
 	config_t config;
 	sweepparams_t sweepparams;
 	
+	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
+	#else 
+	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
+	#endif 
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 	
 	sweepparams = getsweepparams(globalparams, currentLOP, source_partition);
@@ -3478,6 +3630,16 @@ reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCE
 	#endif
 	bool_type resetenv; if(source_partition==0){ resetenv = ON; } else { resetenv = OFF; }
 	
+	/* cout<<"-------------------- reduceit: ptravstate.begin_kvs: "<<ptravstate.begin_kvs<<", ptravstate.end_kvs: "<<ptravstate.end_kvs<<", sourcestatsmarker: "<<sourcestatsmarker<<", NAp: "<<NAp<<", NAp: "<<NAp<<", NAp: "<<NAp<<endl;
+	////////////////////////////////////////////////////////////////
+	for(unsigned int k=0; k<8; k++){ // KVSTATSSZ
+		unsigned int key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker + k].data[0].key; 
+		unsigned int value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker + k].data[0].value; 
+		cout<<"------ loadoffsetmarkers:: key["<<k<<"]: "<<key<<", value["<<k<<"]: "<<value<<endl; // REMOVEME.
+	}
+	// exit(EXIT_SUCCESS);
+	//////////////////////////////////////////////////////////////// */
+		
 	actit(config.enablereduce, REDUCEMODE,
 			kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer,
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
@@ -3511,16 +3673,30 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	#endif
 	
 	unsigned int sourcestatsmarker = 0;
-	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ 
+	#ifdef ENABLERECURSIVEPARTITIONING
+	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ // NEWCHANGE.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
 		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
 	}
+	#else 
+	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ 
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
+		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
+	}
+	#endif 
 	
 	unsigned int vreadoffset_kvs = 0;
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	
+	// step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
+	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
+	#else 
+	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
+	#endif 
+	
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	cout<<"dispatch_reduce:: num_source_partitions: "<<num_source_partitions<<", currentLOP: "<<currentLOP<<endl; // REMOVEME.
 
 	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; } // vmask_subp[k] = 0; 
 	

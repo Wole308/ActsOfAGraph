@@ -3079,21 +3079,36 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	globalparams_t _globalparams = globalparams[0];
 	
 	unsigned int sourcestatsmarker = 0;
+	#ifdef ENABLERECURSIVEPARTITIONING
 	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
 		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
 	}
+	#else 
+	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH; k++){ 
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
+		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
+	}
+	#endif 
 	
 	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2; // 512
-	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512; // 32
+	// buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512; // 32
+	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * VDATA_PACKINGSIZE) / 512;
 	
 	unsigned int vreadoffset_kvs = 0;
 	unsigned int vreadoffsetpp0_kvs = 0;
 	unsigned int vreadoffsetpp1_kvs = vreadoffsetpp0_kvs + reducebuffersz;
 	unsigned int vmaskreadoffset_kvs = 0;
 	
+	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
+	#else 
+	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
+	#endif 
+	// step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
 	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	
+	// cout<<"------ topkernelsync:: vmaskbuffersz_kvs: "<<vmaskbuffersz_kvs<<", currentLOP: "<<currentLOP<<", num_source_partitions: "<<num_source_partitions<<endl;
 
 	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
 	

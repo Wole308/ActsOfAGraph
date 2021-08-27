@@ -481,7 +481,7 @@ globalparams_t loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREADS],
 			statsptrVec[k].data[0].key = tempstats[k].key;
 			statsptrVec[k].data[0].value = 0;
 			// statsptrVec[k].data[0].value = tempstats[k].value;
-			// cout<<"------ loadoffsetmarkers:: statsptrVec["<<k<<"].data[0].key: "<<statsptrVec[k].data[0].key<<endl; // REMOVEME.
+			// if(i==0){cout<<"------ loadoffsetmarkers:: statsptrVec["<<k<<"].data[0].key: "<<statsptrVec[k].data[0].key<<endl;} // REMOVEME.
 		}
 		// exit(EXIT_SUCCESS);
 		

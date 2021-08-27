@@ -99,9 +99,21 @@
 #define NUMINSTANCES 1
 
 #ifdef ENABLERECURSIVEPARTITIONING
+	#ifdef SW_IMPL
+	#define SRAMSZ_POW 18
+	#else 
+	#define SRAMSZ_POW 10 // 1024
+	#endif 
+#else
+	#define SRAMSZ_POW 14 // 16384
+#endif
+#define SRAMSZ (1 << SRAMSZ_POW)
+
+#ifdef ENABLERECURSIVEPARTITIONING
 	#define NUM_PARTITIONS_POW 4
 #else
-	#define NUM_PARTITIONS_POW 8 // FIXME. CRITICAL AUTOMATEME.
+	// #define NUM_PARTITIONS_POW 8 // FIXME. CRITICAL AUTOMATEME.
+	#define NUM_PARTITIONS_POW (BATCH_RANGE_POW - SRAMSZ_POW) // FIXME. CRITICAL AUTOMATEME.
 #endif 
 #define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
 
@@ -127,7 +139,7 @@
 #define BATCHRANGESZ (BATCH_RANGE / 2)
 #define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
-#ifdef ENABLERECURSIVEPARTITIONING
+/* #ifdef ENABLERECURSIVEPARTITIONING
 	#ifdef SW_IMPL
 	#define SRAMSZ_POW 18 // 14,18
 	#else 
@@ -136,16 +148,21 @@
 #else
 	#define SRAMSZ_POW 14 // 16384
 #endif
-#define SRAMSZ (1 << SRAMSZ_POW)
+#define SRAMSZ (1 << SRAMSZ_POW) */
 
 // tree-depth:sramsz constraint
 /** ACTS constraints equation! (NUM_PARTITIONS_POWx = KVDATA_RANGE_POW - SRAMSZ_POW) */
+#ifdef ENABLERECURSIVEPARTITIONING
 #define TREE_DEPTH (((BATCH_RANGE_POW - SRAMSZ_POW) + (NUM_PARTITIONS_POW - 1)) / NUM_PARTITIONS_POW)
+#else 
+#define TREE_DEPTH 1
+#endif 
 
 #ifdef ENABLERECURSIVEPARTITIONING
 	#define REDUCESZ_POW (BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW))
 #else
-	#define REDUCESZ_POW ((BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)) - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce
+	// #define REDUCESZ_POW ((BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)) - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce				
+	#define REDUCESZ_POW (SRAMSZ_POW - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce
 #endif
 #define REDUCESZ (1 << REDUCESZ_POW) // 1024
 #define REDUCEBUFFERSZ (REDUCESZ / 2) // 512
