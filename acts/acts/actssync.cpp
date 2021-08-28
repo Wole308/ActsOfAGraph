@@ -3080,20 +3080,17 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	
 	unsigned int sourcestatsmarker = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
-	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
-		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
-	}
+	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH-1; k++)
 	#else 
-	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH; k++){ 
+	for(unsigned int k=0; k<_globalparams.ACTSPARAMS_TREEDEPTH; k++)
+	#endif 
+	{
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
 		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
 	}
-	#endif 
 	
 	buffer_type reducebuffersz = _globalparams.SIZE_REDUCE / 2; // 512
-	// buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * NUM_PARTITIONS) / 512; // 32
-	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * VDATA_PACKINGSIZE) / 512;
+	buffer_type vmaskbuffersz_kvs = (_globalparams.SIZE_REDUCE * VDATA_PACKINGSIZE) / 512; // 32
 	
 	unsigned int vreadoffset_kvs = 0;
 	unsigned int vreadoffsetpp0_kvs = 0;
@@ -3102,14 +3099,12 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
+	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
 	#else 
 	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
-	#endif 
-	// step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
-	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	batch_type num_source_partitions = NUM_PARTITIONS;
+	#endif
 	
-	// cout<<"------ topkernelsync:: vmaskbuffersz_kvs: "<<vmaskbuffersz_kvs<<", currentLOP: "<<currentLOP<<", num_source_partitions: "<<num_source_partitions<<endl;
-
 	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; }
 	
 	unsigned int total_num_iterations = num_source_partitions * 2;
@@ -3152,13 +3147,6 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		rtravstate[15] = gettravstate(ON, kvdram15, globalparams[15], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		///////////////////////////////////////////////////////////////////////////////////////////////
-		// cout<<"------------ sourcestatsmarker: "<<sourcestatsmarker<<endl;
-		// for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ cout<<"sync: iterationidx size_kvs: "<<rtravstate[i].size_kvs<<endl; } /////////////////// CRITICAL REMOVEME.
-		// if(enablereduce==ON){ cout<<"sync: iterationidx: "<<iterationidx<<endl; } /////////////////// CRITICAL REMOVEME.
-		// if(iterationidx > 64){ exit(EXIT_SUCCESS); } /////////////////// CRITICAL REMOVEME.
-		///////////////////////////////////////////////////////////////////////////////////////////////
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 
