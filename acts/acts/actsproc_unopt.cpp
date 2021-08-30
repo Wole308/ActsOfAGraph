@@ -2783,35 +2783,22 @@ basicreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOU
 	actsutilityobj->printkeyvalues("basicreduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, 8);
 	#endif 
 	
-	// cout<<"-------------------- actit.basicreduceandbuffer: chunk_size: "<<chunk_size<<endl; // REMOVEME.
-	// exit(EXIT_SUCCESS); // REMOVEME.
-	
-	// unsigned int lloprange = getrangeforeachllop(globalparams);
 	for(buffer_type i=0; i<chunk_size; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			keyvalue_buffer_t kv = buffer[v][i];
-			
-			// partition_type p = getpartition(ON, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
-			
-			// partition_type p2 = ((kv.key - sweepparams.upperlimit) >> (globalparams.POW_BATCHRANGE - VDATA_PACKINGSIZE_POW));
+			// keyvalue_buffer_t kv = buffer[v][i];
+			keyvalue_t kv = GETKV(buffer[v][i]);
+		
 			partition_type p = ((kv.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
 			
-			// unsigned int upperlimit = sweepparams.upperlimit + p*lloprange; // CRITICAL CHECKME.
-			unsigned int upperlimit = sweepparams.upperlimit + p*REDUCESZ; // CRITICAL CHECKME. 
+			unsigned int upperlimit = sweepparams.upperlimit + p*REDUCESZ;
 			
-			// globalparams.SIZE_REDUCE, globalparams.POW_REDUCE
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			cout<<"basicreduceandbuffer: kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
+			#endif 
 			
-			/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			cout<<"--- basicreduceandbuffer: kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
-			#endif  */
-			
-			// cout<<"--- globalparams.SIZE_REDUCE: "<<globalparams.SIZE_REDUCE<<", globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<endl;
-		
-			reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); // REMOVEME.
+			if(p < VDATA_PACKINGSIZE){ reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
 		}
 	}
-	
-	// exit(EXIT_SUCCESS); // REMOVEME.
 	return;
 }
 
