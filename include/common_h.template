@@ -89,7 +89,7 @@
 #define _DEBUGMODE_CHECKS3 //
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
-// #define _DEBUGMODE_KERNELPRINTS2 //
+#define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 // #define _DEBUGMODE_RUNKERNELPRINTS //
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -536,16 +536,6 @@ typedef struct {
 	unsigned int datasize;
 	unsigned int message;
 } kvresults_t;
-
-/* typedef struct {
-	unsigned int x;
-	unsigned int numbits;
-} mail_t; */
-/* typedef struct {
-	unsigned int x;
-	unsigned int streetaddr;
-	unsigned int houseno;
-} mail_t; */
 #endif
 
 

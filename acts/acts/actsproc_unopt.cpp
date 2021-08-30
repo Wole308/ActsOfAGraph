@@ -780,16 +780,6 @@ getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP,
 	partition_type partition;
 	keyvalue_t thiskeyvalue = GETKV(keyvalue);
 	
-	/* if(thiskeyvalue.key > 20000 && thiskeyvalue.key != INVALIDDATA){ 
-	cout<<"------------------------------------- thiskeyvalue.key ("<<thiskeyvalue.key<<") > 20000 seen"<<endl; 
-	// exit(EXIT_SUCCESS);
-	} // REMOVEME. */
-	
-	/* if(thiskeyvalue.key != INVALIDDATA){ 
-	cout<<"------------------------------------- thiskeyvalue.key ("<<thiskeyvalue.key<<") > 20000 seen"<<endl; 
-	// exit(EXIT_SUCCESS);
-	} // REMOVEME. */
-	
 	if(thiskeyvalue.value == GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	
@@ -973,7 +963,7 @@ void
 	#endif 
 savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
-
+	
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->printkeyvalues("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->printvaluecount("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
@@ -996,61 +986,13 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 			#pragma HLS PIPELINE II=1
 				keyvalue_t mykeyvalue0 = GETKV(buffer[0][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue0.key > 20000 && mykeyvalue0.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue0.key ("<<mykeyvalue0.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue1 = GETKV(buffer[1][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue1.key > 20000 && mykeyvalue1.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue1.key ("<<mykeyvalue1.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue2 = GETKV(buffer[2][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue2.key > 20000 && mykeyvalue2.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue2.key ("<<mykeyvalue2.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue3 = GETKV(buffer[3][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue3.key > 20000 && mykeyvalue3.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue3.key ("<<mykeyvalue3.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue4 = GETKV(buffer[4][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue4.key > 20000 && mykeyvalue4.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue4.key ("<<mykeyvalue4.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue5 = GETKV(buffer[5][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue5.key > 20000 && mykeyvalue5.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue5.key ("<<mykeyvalue5.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue6 = GETKV(buffer[6][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue6.key > 20000 && mykeyvalue6.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue6.key ("<<mykeyvalue6.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				keyvalue_t mykeyvalue7 = GETKV(buffer[7][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue7.key > 20000 && mykeyvalue7.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue7.key ("<<mykeyvalue7.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				
 				#ifdef _WIDEWORD
 				kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
@@ -1069,7 +1011,7 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 				kvdram[dramoffset_kvs + i].range(447, 416) = mykeyvalue6.value; 
 				kvdram[dramoffset_kvs + i].range(479, 448) = mykeyvalue7.key; 
 				kvdram[dramoffset_kvs + i].range(511, 480) = mykeyvalue7.value; 
-				#else 
+				#else
 				kvdram[dramoffset_kvs + i].data[0].key = mykeyvalue0.key; 
 				kvdram[dramoffset_kvs + i].data[0].value = mykeyvalue0.value; 
 				kvdram[dramoffset_kvs + i].data[1].key = mykeyvalue1.key; 
@@ -2785,15 +2727,15 @@ basicreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOU
 	
 	for(buffer_type i=0; i<chunk_size; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			// keyvalue_buffer_t kv = buffer[v][i];
-			keyvalue_t kv = GETKV(buffer[v][i]);
+			keyvalue_buffer_t kv = buffer[v][i];
+			keyvalue_t kv2 = GETKV(kv);
 		
-			partition_type p = ((kv.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
+			partition_type p = ((kv2.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
 			
 			unsigned int upperlimit = sweepparams.upperlimit + p*REDUCESZ;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			cout<<"basicreduceandbuffer: kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
+			cout<<"basicreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 			#endif 
 			
 			if(p < VDATA_PACKINGSIZE){ reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
@@ -2872,7 +2814,7 @@ void
 basiccommitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], 
 		keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[NUM_PARTITIONS], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], 
 				batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
-	if(mode == REDUCEMODE){
+	if(mode == REDUCEMODE){ // CRITICAL REMOVEME.
 		basicreduceandbuffer(enable1, sourcebuffer, localcapsule, vbuffer, chunk_size, sweepparams, globalparams); // REMOVEME.
 	} else {
 		// actsutilityobj->printkeyvalues("**************************************************basiccommitkeyvalues: localcapsule", (keyvalue_t *)localcapsule, 8); // REMOVEME. // NUM_PARTITIONS
@@ -3088,15 +3030,15 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
 
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3109,8 +3051,8 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	

@@ -132,7 +132,8 @@ using namespace std;
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;
-typedef ap_uint<8> partition_type;
+// typedef ap_uint<8> partition_type; // FIXME. some bug somewhere
+typedef unsigned int partition_type; //
 typedef ap_uint<8> vector_type;
 typedef ap_uint<8> step_type;
 typedef ap_uint<8> bool_type;

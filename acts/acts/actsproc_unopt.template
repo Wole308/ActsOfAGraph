@@ -711,16 +711,6 @@ getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP,
 	partition_type partition;
 	keyvalue_t thiskeyvalue = GETKV(keyvalue);
 	
-	/* if(thiskeyvalue.key > 20000 && thiskeyvalue.key != INVALIDDATA){ 
-	cout<<"------------------------------------- thiskeyvalue.key ("<<thiskeyvalue.key<<") > 20000 seen"<<endl; 
-	// exit(EXIT_SUCCESS);
-	} // REMOVEME. */
-	
-	/* if(thiskeyvalue.key != INVALIDDATA){ 
-	cout<<"------------------------------------- thiskeyvalue.key ("<<thiskeyvalue.key<<") > 20000 seen"<<endl; 
-	// exit(EXIT_SUCCESS);
-	} // REMOVEME. */
-	
 	if(thiskeyvalue.value == GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	
@@ -870,7 +860,7 @@ void
 	#endif 
 savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
-
+	
 	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->printkeyvalues("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
 	actsutilityobj->printvaluecount("savekeyvalues::localcapsule", localcapsule, NUM_PARTITIONS);
@@ -894,12 +884,6 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 			#pragma HLS PIPELINE II=1
 				{%for v in context['VECTOR_SIZE_seq']%}
 				keyvalue_t mykeyvalue{{v}} = GETKV(buffer[{{v}}][bramoffset_kvs + i]);
-				
-				/* if(mykeyvalue{{v}}.key > 20000 && mykeyvalue{{v}}.key != INVALIDDATA){ 
-				cout<<"------------------------------------- savekeyvalues: mykeyvalue{{v}}.key ("<<mykeyvalue{{v}}.key<<") > 20000 seen. dramoffset_kvs: "<<dramoffset_kvs<<endl; 
-				// exit(EXIT_SUCCESS);
-				} // REMOVEME. */
-				
 				{%endfor%}
 				
 				#ifdef _WIDEWORD
@@ -907,7 +891,7 @@ savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 				kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = mykeyvalue{{v}}.key; 
 				kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = mykeyvalue{{v}}.value; 
 				{%endfor%}
-				#else 
+				#else
 				{%for v in context['VECTOR_SIZE_seq']%}
 				kvdram[dramoffset_kvs + i].data[{{v}}].key = mykeyvalue{{v}}.key; 
 				kvdram[dramoffset_kvs + i].data[{{v}}].value = mykeyvalue{{v}}.value; 
@@ -1862,15 +1846,15 @@ basicreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOU
 	
 	for(buffer_type i=0; i<chunk_size; i++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			// keyvalue_buffer_t kv = buffer[v][i];
-			keyvalue_t kv = GETKV(buffer[v][i]);
+			keyvalue_buffer_t kv = buffer[v][i];
+			keyvalue_t kv2 = GETKV(kv);
 		
-			partition_type p = ((kv.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
+			partition_type p = ((kv2.key - sweepparams.upperlimit) >> (REDUCESZ_POW));
 			
 			unsigned int upperlimit = sweepparams.upperlimit + p*REDUCESZ;
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			cout<<"basicreduceandbuffer: kv.key: "<<kv.key<<", kv.value: "<<kv.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
+			cout<<"basicreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 			#endif 
 			
 			if(p < VDATA_PACKINGSIZE){ reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
@@ -2624,7 +2608,7 @@ topkernelproc(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM) // CRITICAL REMOVEME
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	

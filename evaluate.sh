@@ -187,12 +187,12 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
+	for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
@@ -868,11 +868,11 @@ do
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 									make cleanall
-									# make host 
+									make host 
 									make all_nk TARGET=sw_emu DEVICE=$DEVICEPATH 
 									cp xclbin/topkernelproc.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 									cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-									# XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
+									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then
 									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
