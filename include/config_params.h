@@ -13,9 +13,11 @@
 
 // === parameters for ACTS design ===
 // #define ENABLERECURSIVEPARTITIONING // found in: common_h, loadgraph, actscommon_h, actsproc_unopt
-
-// #define ACTS_PARTITION_AND_REDUCE_STRETEGY // found in: actscommon_h
+#ifdef ENABLERECURSIVEPARTITIONING
+#define ACTS_PARTITION_AND_REDUCE_STRETEGY // found in: actscommon_h
+#else 
 #define BASIC_PARTITION_AND_REDUCE_STRETEGY
+#endif
 
 #define HWIMPLFOR_ACTSPROC
 // #define HWIMPLFOR_ACTSSYNC
