@@ -419,6 +419,8 @@ getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type loc
 	else {}
 	return chunk_size;
 }
+
+// #ifdef AAAAAAAAAAAAA
 buffer_type 
 	#ifdef SW 
 	actsproc::
@@ -426,7 +428,7 @@ buffer_type
 getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	
-	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES // DESTBLOCKRAM_SIZE
 		{% set my_variable = 2 %}
 		{% set my_base = 0 %} // SECOND SET:: (my_variable): {{my_variable}}, (my_base): {{my_base}}
 		
@@ -455,7 +457,58 @@ getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 		else if(realsize_kvs >= {{(my_base + n * my_variable)}} && realsize_kvs < {{(my_base + (n+1) * my_variable)}}){ size_kvs = {{(my_base + (n+1) * my_variable)}}; }
 		{%endfor%}
 		
-		else if(realsize_kvs == BLOCKRAM_SIZE){ size_kvs = BLOCKRAM_SIZE; }
+		else if(realsize_kvs == DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE; }
+		
+		else {
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<endl;				 
+			
+			#ifdef ENABLE_PERFECTACCURACY
+			#ifdef _DEBUGMODE_CHECKS2
+			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<endl;				 
+			exit(EXIT_FAILURE);
+			#endif
+			#else
+			size_kvs = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
+			#endif 
+		}
+		#if defined(SW) || defined(SWEMU) || defined(HW) 
+		if((bramoffset_kvs + size_kvs) >= DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE - bramoffset_kvs - 1; } 
+		#endif
+	#else 
+		size_kvs = realsize_kvs;
+	#endif
+	return size_kvs;
+}
+// #endif 
+
+#ifdef BBBBBBBBBBBBB
+buffer_type 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	buffer_type size_kvs = 0;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+		if(realsize_kvs == 0){ size_kvs = 0; }
+		
+		/* {%for n in context['64_seq']%}
+		else if(realsize_kvs > {{(n * 16)}} && realsize_kvs < {{((n+1) * 16)}}){ size_kvs = {{((n+1) * 16)}}; }
+		{%endfor%} */
+		
+		/* {%for n in context['16_seq']%}
+		else if(realsize_kvs > {{(n * 64)}} && realsize_kvs <= {{((n+1) * 64)}}){ size_kvs = {{((n+1) * 64)}}; }
+		{%endfor%} */
+		
+		/* {%for n in context['8_seq']%} // good.
+		else if(realsize_kvs > {{(n * 128)}} && realsize_kvs <= {{((n+1) * 128)}}){ size_kvs = {{((n+1) * 128)}}; }
+		{%endfor%} */
+		
+		{%for n in context['16_seq']%}
+		else if(realsize_kvs > {{(n * 64)}} && realsize_kvs <= {{((n+1) * 64)}}){ size_kvs = {{((n+1) * 64)}}; }
+		{%endfor%}
+		
+		else if(realsize_kvs == DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE; }
 		
 		else {
 			cout<<"WARNING:getpartitionwritesz: should not get here. something might be wrong. realsize_kvs: "<<realsize_kvs<<", size_kvs: "<<size_kvs<<", BLOCKRAM_SIZE: "<<BLOCKRAM_SIZE<<endl;				 
@@ -466,17 +519,108 @@ getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 			exit(EXIT_FAILURE);
 			#endif
 			#else
-			size_kvs = BLOCKRAM_SIZE / NUM_PARTITIONS;
+			size_kvs = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 			#endif 
 		}
 		#if defined(SW) || defined(SWEMU) || defined(HW) 
-		if((bramoffset_kvs + size_kvs) >= BLOCKRAM_SIZE){ size_kvs = BLOCKRAM_SIZE - bramoffset_kvs - 1; } 
+		if((bramoffset_kvs + size_kvs) >= DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE - bramoffset_kvs - 1; } 
 		#endif
 	#else 
 		size_kvs = realsize_kvs;
 	#endif
 	return size_kvs;
 }
+#endif 
+
+#ifdef CCCCCCCCCCCCCC
+buffer_type 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	buffer_type size_kvs = 0;
+	buffer_type size1_kvs = 0;
+	buffer_type size2_kvs = 0;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+		if(realsize_kvs == 0){ size1_kvs = 0; }
+		{%for n in context['8_seq']%} // good.
+		else if(realsize_kvs > {{(n * 128)}} && realsize_kvs <= {{((n+1) * 128)}}){ size1_kvs = {{((n+1) * 128)}}; }
+		{%endfor%}
+		else if(realsize_kvs == DESTBLOCKRAM_SIZE){ size1_kvs = DESTBLOCKRAM_SIZE; }
+		else { size1_kvs = DESTBLOCKRAM_SIZE / NUM_PARTITIONS; }
+		
+		if(size1_kvs == 0){ size2_kvs = 0; }
+		{%for n in context['8_seq']%} // good.
+		else if(size1_kvs > {{(n * 128)}} && size1_kvs <= {{((n+1) * 128)}}){ size2_kvs = {{((n+1) * 128)}}; }
+		{%endfor%}
+		else if(size1_kvs == DESTBLOCKRAM_SIZE){ size2_kvs = DESTBLOCKRAM_SIZE; }
+		else { size2_kvs = DESTBLOCKRAM_SIZE / NUM_PARTITIONS; }
+		
+		#if defined(SW) || defined(SWEMU) || defined(HW) 
+		if((bramoffset_kvs + size_kvs) >= DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE - bramoffset_kvs - 1; } 
+		#endif
+	#else 
+		size2_kvs = realsize_kvs;
+	#endif
+	return size2_kvs;
+}
+#endif 
+
+#ifdef DDDDDDDDDDDDD
+buffer_type 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+	buffer_type size_kvs = 0;
+	
+	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES
+		
+		/* if(realsize_kvs == 0){ size_kvs = 0; }
+		{%for n in context['8_seq']%}
+		else if(realsize_kvs > {{(n * 64)}} && realsize_kvs <= {{((n+1) * 64)}}){ size_kvs = {{((n+1) * 64)}}; }
+		{%endfor%}
+		else { size_kvs = 0; }
+		
+		{%for n in context['8_seq']%}
+		{%if(n>0)%}else {%endif%} if(realsize_kvs > {{((n+8) * 64)}} && realsize_kvs <= {{(((n+8)+1) * 64)}}){ size_kvs = {{(((n+8)+1) * 64)}}; }
+		{%endfor%}
+		else { size_kvs = DESTBLOCKRAM_SIZE / NUM_PARTITIONS; } */
+		
+		
+		if(realsize_kvs == 0){ size_kvs = 0; }
+		{%for n in context['8_seq']%}
+		else if(realsize_kvs > {{(n * 32)}} && realsize_kvs <= {{((n+1) * 32)}}){ size_kvs = {{((n+1) * 32)}}; }
+		{%endfor%}
+		else { size_kvs = size_kvs; }
+		
+		{%for n in context['8_seq']%}
+		{%if(n>0)%}else {%endif%} if(realsize_kvs > {{((n+8) * 32)}} && realsize_kvs <= {{(((n+8)+1) * 32)}}){ size_kvs = {{(((n+8)+1) * 32)}}; }
+		{%endfor%}
+		else { size_kvs = size_kvs; }
+		
+		{%for n in context['8_seq']%}
+		{%if(n>0)%}else {%endif%} if(realsize_kvs > {{((n+16) * 32)}} && realsize_kvs <= {{(((n+16)+1) * 32)}}){ size_kvs = {{(((n+16)+1) * 32)}}; }
+		{%endfor%}
+		else { size_kvs = size_kvs; }
+		
+		{%for n in context['8_seq']%}
+		{%if(n>0)%}else {%endif%} if(realsize_kvs > {{((n+24) * 32)}} && realsize_kvs <= {{(((n+24)+1) * 32)}}){ size_kvs = {{(((n+24)+1) * 32)}}; }
+		{%endfor%}
+		else { size_kvs = size_kvs; } // DESTBLOCKRAM_SIZE / NUM_PARTITIONS; }
+		
+		
+		#if defined(SW) || defined(SWEMU) || defined(HW) 
+		if((bramoffset_kvs + size_kvs) >= DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE - bramoffset_kvs - 1; } 
+		#endif
+	#else 
+		size_kvs = realsize_kvs;
+	#endif
+	return size_kvs;
+}
+#endif 
+
 void 
 	#ifdef SW 
 	actsproc::
@@ -1612,24 +1756,26 @@ basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t 
 	#else 
 	if(currentLOP > globalparams.ACTSPARAMS_TREEDEPTH){ return; } /// NEWCHANGE.	
 	#endif 
-	
 	if(enable1 == OFF && enable2 == OFF){ return; }
-	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
-	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
+	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
+	analysis_type analysis_loopcount2 = VECTOR_SIZE;
 	
 	buffer_type chunk_size = size_kvs;
 	unsigned int upperlimit = sweepparams.upperlimit;
 	unsigned int upperpartition = sweepparams.upperpartition;
 	
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
 		localcapsule[p].key = 0;
 		localcapsule[p].value = 0; 
 		{%endfor%}
 	}
 	
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+	BASICPARTITIONKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		BASICPARTITIONKEYVALUES_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		#pragma HLS PIPELINE II=2
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
 			
 			partition_type p = getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
@@ -1640,8 +1786,10 @@ basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t 
 	calculateoffsets(localcapsule, NUM_PARTITIONS);
 	resetvalues(localcapsule, NUM_PARTITIONS, 0);
 	
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+	BASICPARTITIONKEYVALUES_LOOP2: for(buffer_type i=0; i<chunk_size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		BASICPARTITIONKEYVALUES_LOOP2B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		#pragma HLS PIPELINE II=2
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
 			// cout<<"--- basicpartitionkeyvalues: kv.key: "<<kv.key<<endl; // REMOVEME.
 			partition_type p = getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
@@ -1652,7 +1800,8 @@ basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t 
 		}
 	}
 	
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	BASICPARTITIONKEYVALUES_LOOP3: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+	// #pragma HLS PIPELINE II=8
 		keyvalue_t mydummykv;
 		mydummykv.key = p;
 		mydummykv.value = GETV(INVALIDDATA);
@@ -1663,7 +1812,9 @@ basicpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t 
 		unsigned int ypos = endoffset / VECTOR_SIZE;
 		
 		if(localcapsule[p].value > 0){
-			for(vector_type v=xpos; v<VECTOR_SIZE; v++){
+			BASICPARTITIONKEYVALUES_LOOP3B: for(vector_type v=xpos; v<VECTOR_SIZE; v++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
+			#pragma HLS PIPELINE II=2
 				destbuffer[v][ypos] = dummykv;
 				localcapsule[p].value += 1;
 			}
@@ -1839,13 +1990,17 @@ void
 	#endif 
 basicreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("basicreduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, 8);
 	#endif 
 	
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+	BASICREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=16 // NEWCHANGE.
+		BASICREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		// #pragma HLS PIPELINE II=1 // NEWCHANGE.
 			keyvalue_buffer_t kv = buffer[v][i];
 			keyvalue_t kv2 = GETKV(kv);
 		

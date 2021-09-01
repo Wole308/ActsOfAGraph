@@ -192,7 +192,7 @@ do
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
 	
@@ -206,7 +206,7 @@ do
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
 
 	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
+	for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
 	
 	do 
@@ -517,7 +517,7 @@ do
 				### >>> LOOP3: datasets
 				
 				# for dataset in $NODATASET
-				for dataset in $ORKUT_3M_106M
+				# for dataset in $ORKUT_3M_106M
 				# for dataset in $HOLLYWOOD_1M_57M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
@@ -558,7 +558,7 @@ do
 				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2
 				# for dataset in $RMAT_RANGE4 $RMAT_RANGE5
 				
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
+				for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
 				# for dataset in $RMAT_RANGE0 $RMAT_RANGE1 $RMAT_RANGE2 $RMAT_RANGE3 $RMAT_RANGE4 $RMAT_RANGE5		
 				do
 					# for evaluation_param0 in 0 4
@@ -794,8 +794,8 @@ do
 							then
 								make cleanall
 								# make build_acts_nthreads
-								# make demo_acts_nthreads #> $RESULTDIR_RESULT
-								make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+								make demo_acts_nthreads #> $RESULTDIR_RESULT
+								# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
 							elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
 							then
 								make cleanall
@@ -827,7 +827,7 @@ do
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT
+										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT
 									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

@@ -22,12 +22,15 @@
 #include "goclkernel.h"
 using namespace std;
 
+// other actssync impls at ActsofAGraph69 & 70 backups
+
 //HBM Banks requirements
 #define MAX_HBM_BANKCOUNT 32
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
 
 #define ENABLE_ACTSPROC
-#define ENABLE_ACTSSYNC
+// #define ENABLE_ACTSSYNC
+#define ENABLE_ACTSSYNC2
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
@@ -202,7 +205,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		#ifdef ENABLE_ACTSPROC
 		{
 			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-			cout<<">>> goclkernel[actssync]:: running ACTS PROCESS (Iteration "<<GraphIter<<")..."<<endl;
+			cout<<">>> goclkernel[actsproc]:: running ACTS PROCESS (Iteration "<<GraphIter<<")..."<<endl;
 			#endif 
 			
 			cl_int err;
@@ -323,14 +326,14 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			for(unsigned int analysis_i=0; analysis_i<8; analysis_i++){ avs_proc[GraphIter][analysis_i] = getaveragetimeelapsed(kerneltimelapse_ms[analysis_i]); }
 			total_time_elapsed += avs_proc[GraphIter][analysis_icount-1];
 
-			std::cout <<">>> SUMMARY: kernel (proc) average time elapsed for Iteration "<<GraphIter<<": ";
+			std::cout <<">>> SUMMARY: kernel (proc) average time elapsed (for LOPs) for Iteration "<<GraphIter<<": ";
 			cout<<avs_proc[GraphIter][0]<<"("<<avs_proc[GraphIter][0]<<")"<<" ms, ";
 			for(unsigned int analysis_i=1; analysis_i<analysis_icount; analysis_i++){ cout<<avs_proc[GraphIter][analysis_i]<<"("<<avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]<<")"<<" ms, "; }
 			cout<<endl;
 		}
 		#endif 
 		
-		#if defined(ENABLE_ACTSSYNC) & not defined(TESTKERNEL)
+		#if defined(ENABLE_ACTSSYNC) & defined(HWIMPLFOR_ACTSSYNC) & not defined(TESTKERNEL)
 		{
 			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 			cout<<">>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<")"<<endl;
@@ -524,6 +527,67 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 			total_time_elapsed += avs_sync[GraphIter];
 			// std::cout <<">>> SUMMARY: kernel (sync) average time elapsed for Iteration "<<GraphIter<<": "<<avs_sync[GraphIter]<<" ms"<<std::endl;
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
+		}
+		#endif
+		
+		// NEWCHANGE.
+		#if defined(ENABLE_ACTSSYNC2) & not defined(HWIMPLFOR_ACTSSYNC) & not defined(TESTKERNEL)
+		{
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
+			cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<") ---------------"<<endl;
+			#endif 
+			
+			kernelobjs_synchronize->topkernelsync(
+				(uint512_dt *)kvsourcedram[0],
+				(uint512_dt *)kvsourcedram[1],
+				#if NUMCOMPUTEUNITS>2
+				(uint512_dt *)kvsourcedram[2],
+				(uint512_dt *)kvsourcedram[3],
+				#if NUMCOMPUTEUNITS>4
+				(uint512_dt *)kvsourcedram[4],
+				(uint512_dt *)kvsourcedram[5],
+				(uint512_dt *)kvsourcedram[6],
+				(uint512_dt *)kvsourcedram[7],
+				#if NUMCOMPUTEUNITS>8
+				(uint512_dt *)kvsourcedram[8],
+				(uint512_dt *)kvsourcedram[9],
+				(uint512_dt *)kvsourcedram[10],
+				(uint512_dt *)kvsourcedram[11],
+				#if NUMCOMPUTEUNITS>12
+				(uint512_dt *)kvsourcedram[12],
+				(uint512_dt *)kvsourcedram[13],
+				(uint512_dt *)kvsourcedram[14],
+				(uint512_dt *)kvsourcedram[15],
+				#if NUMCOMPUTEUNITS>16
+				(uint512_dt *)kvsourcedram[16],
+				(uint512_dt *)kvsourcedram[17],
+				(uint512_dt *)kvsourcedram[18],
+				(uint512_dt *)kvsourcedram[19],
+				#if NUMCOMPUTEUNITS>20
+				(uint512_dt *)kvsourcedram[20],
+				(uint512_dt *)kvsourcedram[21],
+				(uint512_dt *)kvsourcedram[22],
+				(uint512_dt *)kvsourcedram[23],
+				#if NUMCOMPUTEUNITS>24
+				(uint512_dt *)kvsourcedram[24],
+				(uint512_dt *)kvsourcedram[25],
+				(uint512_dt *)kvsourcedram[26],
+				(uint512_dt *)kvsourcedram[27],
+				#if NUMCOMPUTEUNITS>28
+				(uint512_dt *)kvsourcedram[28],
+				(uint512_dt *)kvsourcedram[29],
+				(uint512_dt *)kvsourcedram[30],
+				(uint512_dt *)kvsourcedram[31],
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif
+				#endif 
+				(uint512_dt *)vdram
+			);
 		}
 		#endif
 		

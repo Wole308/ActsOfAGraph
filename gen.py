@@ -374,7 +374,8 @@ for i in range (0,(context['NUMSUBCPUTHREADS'])):
 		context['NUMSUBCPUTHREADS_seq'].append(i)
         
 # SYNC 
-context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / 2
+# context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / 2
+context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] # CRITICAL FIXME, CRITICAL REMOVEME
 if context['NUMSYNCTHREADS'] == 0:
     context['NUMSYNCTHREADS'] = 1
 

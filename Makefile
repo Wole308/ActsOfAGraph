@@ -238,7 +238,7 @@ all: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all_nk: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) $(BINARY_CONTAINERS_SYNC) emconfig
 # all_nk: check-devices $(EXECUTABLE)
 
-# builds
+# builds # CRITICAL REMOVEME
 .PHONY: all clean cleanall docs emconfig
 all_proc: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROC) emconfig
 # all_proc: check-devices $(BINARY_CONTAINERS_PROC) emconfig

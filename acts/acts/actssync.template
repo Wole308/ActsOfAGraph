@@ -1157,7 +1157,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 
 extern "C" {
 void
-	#ifdef SW 
+	#if defined(SW) || not defined(HWIMPLFOR_ACTSSYNC)
 	actssync::
 	#endif
 topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){

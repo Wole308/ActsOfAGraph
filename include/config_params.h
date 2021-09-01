@@ -16,6 +16,9 @@
 
 // #define ACTS_PARTITION_AND_REDUCE_STRETEGY // found in: actscommon_h
 #define BASIC_PARTITION_AND_REDUCE_STRETEGY
+
+#define HWIMPLFOR_ACTSPROC
+// #define HWIMPLFOR_ACTSSYNC
 #endif
 
 
