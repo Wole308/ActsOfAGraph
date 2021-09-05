@@ -20,7 +20,7 @@
 #endif
 
 #define HWIMPLFOR_ACTSPROC
-// #define HWIMPLFOR_ACTSSYNC
+#define HWIMPLFOR_ACTSSYNC
 #endif
 
 

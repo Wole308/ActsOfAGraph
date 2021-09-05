@@ -70,8 +70,7 @@ LDFLAGS += $(opencl_LDFLAGS)
 KERNEL_TOP += $(RELREF)acts/acts/acts.cpp
 # KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
-# KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc_unopt.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp

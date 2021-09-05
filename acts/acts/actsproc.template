@@ -2284,7 +2284,7 @@ priorit(bool_type enable, unsigned int mode,
 	
 	batch_type offset_kvs = ptravstate.begin_kvs;
 
-	ACTIT_MAINLOOP: while(offset_kvs < ptravstate.end_kvs){ // NEWCHANGE.
+	PRIORIT_MAINLOOP: while(offset_kvs < ptravstate.end_kvs){ // NEWCHANGE.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 
 		ptravstatepp0.i_kvs = offset_kvs;
