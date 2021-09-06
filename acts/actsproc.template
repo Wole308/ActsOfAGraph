@@ -1884,40 +1884,6 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 	
 	// cout<<"--------------------- tradreduceandbuffer started --------------------"<<endl;
 	
-	/* BASICREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=16 // NEWCHANGE.
-		BASICREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			keyvalue_buffer_t kv = buffer[v][i];
-			keyvalue_t kv2 = GETKV(kv);
-			
-			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<endl;
-				#endif 
-				
-				unsigned int row = kv2.key / VECTOR2_SIZE;
-				unsigned int col = (kv2.key % VECTOR2_SIZE) / 2;
-				
-				value_t temp;
-				if(kv2.key % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].key; }
-				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].value; }
-				
-				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-				
-				if(kv2.key % 2 == 0){ 
-					kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].key = rettemp; 
-					// cout<<"tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<col<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].key<<endl; 
-				}
-				else { 
-					kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].value = rettemp; 
-					// cout<<"tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<col<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].value<<endl; 
-				}
-			}
-		}
-	} */
-	
 	BASICREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=16 // NEWCHANGE.
@@ -1925,36 +1891,21 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 			keyvalue_buffer_t kv = buffer[v][i];
 			keyvalue_t kv2 = GETKV(kv);
 			
+			// cout<<"tradreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<""<<endl;
 			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
-			
-				unsigned int block = kv2.key / (globalparams.SIZE_REDUCE * VECTOR_SIZE);
-				unsigned int globalpos_offset = block * (globalparams.SIZE_REDUCE * VECTOR_SIZE);
-				unsigned int globalrow_offset = globalpos_offset / VECTOR2_SIZE;
-				
-				unsigned int localpos = kv2.key % (globalparams.SIZE_REDUCE * VECTOR_SIZE); // 8192;
-				unsigned int localrow = (localpos % globalparams.SIZE_REDUCE) / 2;
-				unsigned int localcol = localpos / globalparams.SIZE_REDUCE;
-				
-				unsigned int row = globalrow_offset + localrow;
-				unsigned int col = localcol;
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", posoffset: "<<posoffset<<", rowoffset: "<<rowoffset<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
-				#endif
+				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<endl;
+				#endif 
 				
 				value_t temp;
-				if(localpos % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key; }
-				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value; }
+				if(kv2.key % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + (kv2.key / VECTOR2_SIZE)].data[kv2.key % VECTOR_SIZE].key; }
+				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + (kv2.key / VECTOR2_SIZE)].data[kv2.key % VECTOR_SIZE].value; }
 				
 				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 				
-				if(localpos % 2 == 0){ kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key = rettemp; }
-				else { kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value = rettemp; }
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				if(localpos % 2 == 0){ cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key<<endl; }
-				else { cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value<<endl; }
-				#endif
+				if(kv2.key % 2 == 0){ kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + (kv2.key / VECTOR2_SIZE)].data[kv2.key % VECTOR_SIZE].key = rettemp; }
+				else { kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + (kv2.key / VECTOR2_SIZE)].data[kv2.key % VECTOR_SIZE].value = rettemp; }
 			}
 		}
 	}
@@ -2411,8 +2362,8 @@ tradit(bool_type enable, unsigned int mode,
 	if(mode != PROCESSMODE){ cout<<"no PARTITION or REDUCE mode here, returning..."<<endl; return; }
 	#endif  */
 	
-	// {%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
-	// #pragma HLS array_partition variable = buffer_setof8
+	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = buffer_setof8
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -2436,8 +2387,6 @@ tradit(bool_type enable, unsigned int mode,
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		
 		tradreduceandbuffer(ON, kvdram, sourcebuffer, fetchmessagepp0.chunksize_kvs, globalparams);
-		
-		// for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalstatsbuffer[p].value += 10000; } // CRITICAL REMOVEME.
 		
 		// priorpartitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
 		// priorcommitkeyvalues(ON, ON, mode, kvdram, vbuffer, sourcebuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
