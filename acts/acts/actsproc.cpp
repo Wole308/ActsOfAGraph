@@ -883,10 +883,6 @@ readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VE
 	fetchmessage.chunksize_kvs = chunk_size;
 	fetchmessage.nextoffset_kvs = NAp;
 	
-	// cout<<"-------------------- readkeyvalues I. offset_kvs: "<<offset_kvs<<", chunk_size: "<<chunk_size<<endl; // REMOVEME.
-	// cout<<"-------------------- readkeyvalues I. travstate.i_kvs: "<<travstate.i_kvs<<", travstate.end_kvs: "<<travstate.end_kvs<<endl; // REMOVEME.
-	// cout<<"-------------------- readkeyvalues I. size_kvs: "<<size_kvs<<", chunk_size: "<<chunk_size<<endl; // REMOVEME.
-	
 	READKEYVALUES1_LOOP: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
@@ -2755,49 +2751,13 @@ priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOU
 	return;
 }
 
-void 
+/* void 
 	#ifdef SW 
 	actsproc::
 	#endif 
 tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
-	
-	// cout<<"--------------------- tradreduceandbuffer started --------------------"<<endl;
-	
-	/* BASICREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=16 // NEWCHANGE.
-		BASICREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			keyvalue_buffer_t kv = buffer[v][i];
-			keyvalue_t kv2 = GETKV(kv);
-			
-			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<endl;
-				#endif 
-				
-				unsigned int row = kv2.key / VECTOR2_SIZE;
-				unsigned int col = (kv2.key % VECTOR2_SIZE) / 2;
-				
-				value_t temp;
-				if(kv2.key % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].key; }
-				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].value; }
-				
-				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-				
-				if(kv2.key % 2 == 0){ 
-					kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].key = rettemp; 
-					// cout<<"tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<col<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].key<<endl; 
-				}
-				else { 
-					kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].value = rettemp; 
-					// cout<<"tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<col<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[col].value<<endl; 
-				}
-			}
-		}
-	} */
 	
 	BASICREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -2824,13 +2784,320 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 				#endif
 				
 				value_t temp;
+				#ifdef _WIDEWORD
+				if(localpos % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * ((localcol * 2) + 1) - 1, (localcol * 2) * 32); }
+				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * (((localcol * 2) + 1) + 1) - 1, (localcol * 2 + 1) * 32); }
+				#else 
 				if(localpos % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key; }
-				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value; }
+				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value; }	
+				#endif 
 				
 				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 				
+				#ifdef _WIDEWORD
+				if(localpos % 2 == 0){ kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * ((localcol * 2) + 1) - 1, (localcol * 2) * 32) = rettemp; }
+				else { kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * (((localcol * 2) + 1) + 1) - 1, (localcol * 2 + 1) * 32) = rettemp; }
+				#else 
 				if(localpos % 2 == 0){ kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key = rettemp; }
 				else { kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value = rettemp; }
+				#endif 
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				if(localpos % 2 == 0){ cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key<<endl; }
+				else { cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value<<endl; }
+				#endif
+			}
+		}
+	}
+	return;
+} */
+/* void
+	#ifdef SW
+	actsproc::
+	#endif 
+tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, globalparams_t globalparams){				
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
+	
+	TRADREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	// #pragma HLS PIPELINE II=16 // NEWCHANGE.
+		TRADREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		#pragma HLS PIPELINE II=1 // NEWCHANGE.
+			keyvalue_buffer_t kv = buffer[v][i];
+			keyvalue_t kv2 = GETKV(kv);
+			
+			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
+			
+				unsigned int block = kv2.key / (globalparams.SIZE_REDUCE * VECTOR_SIZE);
+				unsigned int globalpos_offset = block * (globalparams.SIZE_REDUCE * VECTOR_SIZE);
+				unsigned int globalrow_offset = globalpos_offset / VECTOR2_SIZE;
+				
+				unsigned int localpos = kv2.key % (globalparams.SIZE_REDUCE * VECTOR_SIZE); // 8192;
+				unsigned int localrow = (localpos % globalparams.SIZE_REDUCE) / 2;
+				unsigned int localcol = localpos / globalparams.SIZE_REDUCE;
+				
+				unsigned int row = globalrow_offset + localrow;
+				unsigned int col = localcol;
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", posoffset: "<<posoffset<<", rowoffset: "<<rowoffset<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
+				#endif
+				
+				value_t temp;
+				uint512_vec_dt vdata;
+				
+				// #ifdef _WIDEWORD
+				// 				// vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0);
+				// vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32);
+				// 				// vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64);
+				// vdata.data[1].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(127, 96);
+				// 				// vdata.data[2].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(159, 128);
+				// vdata.data[2].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(191, 160);
+				// 				// vdata.data[3].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(223, 192);
+				// vdata.data[3].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(255, 224);
+				// 				// vdata.data[4].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(287, 256);
+				// vdata.data[4].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(319, 288);
+				// 				// vdata.data[5].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(351, 320);
+				// vdata.data[5].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(383, 352);
+				// 				// vdata.data[6].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(415, 384);
+				// vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(447, 416);
+				// 				// vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(479, 448);
+				// vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(511, 480);
+				// 				// #else 
+				// 				// vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].key; 
+				// vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].value; 
+				// 				// vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].key; 
+				// vdata.data[1].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].value; 
+				// 				// vdata.data[2].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].key; 
+				// vdata.data[2].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].value; 
+				// 				// vdata.data[3].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].key; 
+				// vdata.data[3].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].value; 
+				// 				// vdata.data[4].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].key; 
+				// vdata.data[4].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].value; 
+				// 				// vdata.data[5].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].key; 
+				// vdata.data[5].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].value; 
+				// 				// vdata.data[6].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].key; 
+				// vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value; 
+				// 				// vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key; 
+				// vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value; 
+				// 				// #endif 
+				#ifdef _WIDEWORD // CRITICAL REMOVEME.
+				vdata.data[0].key = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[0].value = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[1].key = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[1].value = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[2].key = 2 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[2].value = 2 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[3].key = 3 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[3].value = 3 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[4].key = 4 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[4].value = 4 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[5].key = 5 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[5].value = 5 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[6].key = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[6].value = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[7].key = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[7].value = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				#endif 
+				
+				if(localpos % 2 == 0){ temp = vdata.data[localcol].key; }
+				else { temp = vdata.data[localcol].value; }
+				
+				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+				
+				if(localpos % 2 == 0){ vdata.data[localcol].key = rettemp; }
+				else { vdata.data[localcol].value = rettemp; }
+				
+				#ifdef _WIDEWORD
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0) = vdata.data[0].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32) = vdata.data[0].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64) = vdata.data[1].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(127, 96) = vdata.data[1].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(159, 128) = vdata.data[2].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(191, 160) = vdata.data[2].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(223, 192) = vdata.data[3].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(255, 224) = vdata.data[3].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(287, 256) = vdata.data[4].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(319, 288) = vdata.data[4].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(351, 320) = vdata.data[5].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(383, 352) = vdata.data[5].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(415, 384) = vdata.data[6].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(447, 416) = vdata.data[6].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(479, 448) = vdata.data[7].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(511, 480) = vdata.data[7].value;
+				#else 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].key = vdata.data[0].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].value = vdata.data[0].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].key = vdata.data[1].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].value = vdata.data[1].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].key = vdata.data[2].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].value = vdata.data[2].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].key = vdata.data[3].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].value = vdata.data[3].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].key = vdata.data[4].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].value = vdata.data[4].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].key = vdata.data[5].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].value = vdata.data[5].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].key = vdata.data[6].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value = vdata.data[6].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key = vdata.data[7].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value = vdata.data[7].value; 
+				#endif
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				if(localpos % 2 == 0){ cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key<<endl; }
+				else { cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value<<endl; }
+				#endif
+			}
+		}
+	}
+	return;
+} */
+void
+	#ifdef SW
+	actsproc::
+	#endif 
+tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, globalparams_t globalparams){				
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
+	
+	TRADREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	// #pragma HLS PIPELINE II=16 // NEWCHANGE.
+		TRADREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		#pragma HLS PIPELINE II=1 // NEWCHANGE.
+			keyvalue_buffer_t kv = buffer[v][i];
+			keyvalue_t kv2 = GETKV(kv);
+			
+			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
+			
+				unsigned int block = kv2.key / (REDUCESZ * VECTOR_SIZE); // REDUCESZ, globalparams.SIZE_REDUCE 
+				unsigned int globalpos_offset = block * (REDUCESZ * VECTOR_SIZE);
+				unsigned int globalrow_offset = globalpos_offset / VECTOR2_SIZE;
+				
+				unsigned int localpos = kv2.key % (REDUCESZ * VECTOR_SIZE); // 8192;
+				unsigned int localrow = (localpos % REDUCESZ) / 2;
+				unsigned int localcol = localpos / REDUCESZ;
+				
+				unsigned int row = globalrow_offset + localrow;
+				unsigned int col = localcol;
+				/* unsigned int block = kv2.key / VECTOR_SIZE; // CRITICAL REMOVEME.
+				unsigned int globalpos_offset = block * VECTOR_SIZE;
+				unsigned int globalrow_offset = globalpos_offset / VECTOR2_SIZE;
+				
+				unsigned int localpos = kv2.key % VECTOR_SIZE; // 8192;
+				unsigned int localrow = (localpos % NUM_PARTITIONS) / 2;
+				unsigned int localcol = localpos / NUM_PARTITIONS;
+				
+				unsigned int row = globalrow_offset + localrow;
+				unsigned int col = localcol; */
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", posoffset: "<<posoffset<<", rowoffset: "<<rowoffset<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
+				#endif
+				
+				value_t temp;
+				uint512_vec_dt vdata;
+				#pragma HLS data_pack variable=vdata
+				
+				/* #ifdef _WIDEWORD
+				vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0);
+				vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32);
+				vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64);
+				vdata.data[1].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(127, 96);
+				vdata.data[2].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(159, 128);
+				vdata.data[2].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(191, 160);
+				vdata.data[3].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(223, 192);
+				vdata.data[3].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(255, 224);
+				vdata.data[4].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(287, 256);
+				vdata.data[4].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(319, 288);
+				vdata.data[5].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(351, 320);
+				vdata.data[5].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(383, 352);
+				vdata.data[6].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(415, 384);
+				vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(447, 416);
+				vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(479, 448);
+				vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(511, 480);
+				#else 
+				vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].key; 
+				vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].value; 
+				vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].key; 
+				vdata.data[1].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].value; 
+				vdata.data[2].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].key; 
+				vdata.data[2].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].value; 
+				vdata.data[3].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].key; 
+				vdata.data[3].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].value; 
+				vdata.data[4].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].key; 
+				vdata.data[4].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].value; 
+				vdata.data[5].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].key; 
+				vdata.data[5].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].value; 
+				vdata.data[6].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].key; 
+				vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value; 
+				vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key; 
+				vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value; 
+				#endif  */
+				#ifdef _WIDEWORD // CRITICAL REMOVEME.
+				vdata.data[0].key = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[0].value = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[1].key = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[1].value = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[2].key = 2 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[2].value = 2 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[3].key = 3 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[3].value = 3 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[4].key = 4 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[4].value = 4 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[5].key = 5 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[5].value = 5 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[6].key = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[6].value = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				vdata.data[7].key = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA;
+				vdata.data[7].value = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
+				#endif 
+				
+				if(localpos % 2 == 0){ temp = vdata.data[localcol].key; }
+				else { temp = vdata.data[localcol].value; }
+				
+				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+				
+				if(localpos % 2 == 0){ vdata.data[localcol].key = rettemp; }
+				else { vdata.data[localcol].value = rettemp; }
+				
+				#ifdef _WIDEWORD
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0) = vdata.data[0].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32) = vdata.data[0].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64) = vdata.data[1].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(127, 96) = vdata.data[1].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(159, 128) = vdata.data[2].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(191, 160) = vdata.data[2].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(223, 192) = vdata.data[3].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(255, 224) = vdata.data[3].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(287, 256) = vdata.data[4].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(319, 288) = vdata.data[4].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(351, 320) = vdata.data[5].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(383, 352) = vdata.data[5].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(415, 384) = vdata.data[6].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(447, 416) = vdata.data[6].value;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(479, 448) = vdata.data[7].key;
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(511, 480) = vdata.data[7].value;
+				#else 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].key = vdata.data[0].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].value = vdata.data[0].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].key = vdata.data[1].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].value = vdata.data[1].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].key = vdata.data[2].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].value = vdata.data[2].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].key = vdata.data[3].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].value = vdata.data[3].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].key = vdata.data[4].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].value = vdata.data[4].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].key = vdata.data[5].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].value = vdata.data[5].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].key = vdata.data[6].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value = vdata.data[6].value; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key = vdata.data[7].key; 
+				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value = vdata.data[7].value; 
+				#endif
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 				if(localpos % 2 == 0){ cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key<<endl; }
@@ -3138,15 +3405,15 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
 
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3159,8 +3426,8 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3233,16 +3500,16 @@ priorit(bool_type enable, unsigned int mode,
 	#pragma HLS array_partition variable = sourcebufferpp1
 	#endif 
 	
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	#ifdef PUP1
-static keyvalue_buffer_t bufferpp1_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t bufferpp1_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = bufferpp1_setof8
 	#endif 
 	
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	#ifdef PUP1
-static keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
 	#endif 
 	
 	travstate_t ptravstatepp0 = ptravstate;
@@ -3300,13 +3567,7 @@ tradit(bool_type enable, unsigned int mode,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
-	/* #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-	if(mode != PROCESSMODE){ cout<<"no PARTITION or REDUCE mode here, returning..."<<endl; return; }
-	#endif  */
-	
-	// static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
-	// #pragma HLS array_partition variable = buffer_setof8
-	
+
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
 	
@@ -3329,11 +3590,6 @@ tradit(bool_type enable, unsigned int mode,
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		
 		tradreduceandbuffer(ON, kvdram, sourcebuffer, fetchmessagepp0.chunksize_kvs, globalparams);
-		
-		// for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalstatsbuffer[p].value += 10000; } // CRITICAL REMOVEME.
-		
-		// priorpartitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
-		// priorcommitkeyvalues(ON, ON, mode, kvdram, vbuffer, sourcebuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
 	}
 	return;
 }
