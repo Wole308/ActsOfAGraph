@@ -15,7 +15,7 @@
 // #define ENABLERECURSIVEPARTITIONING // found in: common_h, loadgraph, actscommon_h, actsproc_unopt
 #ifdef ENABLERECURSIVEPARTITIONING
 #define ACTS_PARTITION_AND_REDUCE_STRETEGY // found in: actscommon_h
-#else 
+#else
 // #define BASIC_PARTITION_AND_REDUCE_STRETEGY
 #define TRAD_PARTITION_AND_REDUCE_STRETEGY
 #endif

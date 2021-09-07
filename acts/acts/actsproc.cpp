@@ -2964,7 +2964,6 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 	
 	TRADREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	// #pragma HLS PIPELINE II=16 // NEWCHANGE.
 		TRADREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS PIPELINE II=1 // NEWCHANGE.
 			keyvalue_buffer_t kv = buffer[v][i];
@@ -3001,7 +3000,7 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 				uint512_vec_dt vdata;
 				#pragma HLS data_pack variable=vdata
 				
-				/* #ifdef _WIDEWORD
+				#ifdef _WIDEWORD
 				vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0);
 				vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32);
 				vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64);
@@ -3035,8 +3034,8 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 				vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value; 
 				vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key; 
 				vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value; 
-				#endif  */
-				#ifdef _WIDEWORD // CRITICAL REMOVEME.
+				#endif 
+				/* #ifdef _WIDEWORD // CRITICAL REMOVEME.
 				vdata.data[0].key = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA;
 				vdata.data[0].value = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
 				vdata.data[1].key = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA;
@@ -3053,7 +3052,7 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 				vdata.data[6].value = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
 				vdata.data[7].key = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA;
 				vdata.data[7].value = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				#endif 
+				#endif  */
 				
 				if(localpos % 2 == 0){ temp = vdata.data[localcol].key; }
 				else { temp = vdata.data[localcol].value; }
