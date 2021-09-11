@@ -188,10 +188,21 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	
 	for(unsigned int i=0; i<8; i++){ for(unsigned int j=0; j<128; j++){ timeelapsed_totals[i][j] = 0; }}
 	
+	unsigned int analysis_begincount;
+	unsigned int analysis_icount;
 	#ifdef ENABLE_KERNEL_PROFILING
-	unsigned int analysis_icount = 3;
+	analysis_icount = 3;
+		#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
+		analysis_begincount = 0;
+		#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
+		analysis_begincount = 0;
+		#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
+		analysis_begincount = 2;
+		#else 
+		analysis_begincount = 0;
+		#endif 
 	#else 
-	unsigned int analysis_icount = 1;
+	analysis_icount = 1;
 	#endif
 	unsigned int _PROCESSCOMMAND = ON; unsigned int _PARTITIONCOMMAND = ON; unsigned int _APPLYUPDATESCOMMAND = ON;
 	
@@ -268,10 +279,10 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 					}
 				}
 				
-				for(unsigned int analysis_i=0; analysis_i<analysis_icount; analysis_i++){
+				for(unsigned int analysis_i=analysis_begincount; analysis_i<analysis_icount; analysis_i++){
 					#ifdef ENABLE_KERNEL_PROFILING
 					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS_XXX
-					cout<<"goclkernel:: setting kernel profiling information..."<<endl;
+					cout<<"----------------------------------------- goclkernel:: setting kernel profiling information...: analysis_i: "<<analysis_i<<endl;
 					#endif
 					if(analysis_i==0){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = OFF; _APPLYUPDATESCOMMAND = OFF; }
 					if(analysis_i==1){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = OFF; }

@@ -41,6 +41,13 @@ else
 	echo "no env specified. specify crabtree, aws or gunrock"
 fi
 
+# SYNKERNELSPATHNAME="synkernels_acts"
+# RESULTSPATHNAME="results_acts"
+SYNKERNELSPATHNAME="synkernels_prior"
+RESULTSPATHNAME="results_prior"
+# SYNKERNELSPATHNAME="synkernels_trad"
+# RESULTSPATHNAME="results_trad"
+
 NCOMPUTEUNITS_IN_1KERNELS=$OFF
 NCOMPUTEUNITS_IN_NKERNELS=$ON
 
@@ -567,15 +574,15 @@ do
 						for synfreq in $SYNFREQUENCY_EQ300
 						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 						do
-							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
-							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
-							BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
 							
-							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/synkernels/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
-							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/synkernels/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
-							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/synkernels/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
 							
-							RESULTSBACKUP_DIR="${ROOTDIR}/results"
+							RESULTSBACKUP_DIR="${ROOTDIR}/${RESULTSPATHNAME}"
 							RESULT_NAME="${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz"
 							PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 							
@@ -827,7 +834,7 @@ do
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT
+										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT
 									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."

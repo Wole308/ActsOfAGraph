@@ -3,7 +3,7 @@ utility:: USEHBMMEMORY DEFINED
 utility:: NUMDRAMBANKS: 4
 utility:: NUMWORKERS: 1
 utility:: NUMSUBWORKERS: 1
-utility:: NUM_PARTITIONS: 16
+utility:: NUM_PARTITIONS: 256
 utility:: NUMSUBCPUTHREADS: 32
 utility:: DATAWIDTH: 512
 utility:: VECTOR_SIZE: 8
@@ -11,7 +11,8 @@ utility:: KVDATA_RANGE: 4194304
 utility:: KVDATA_RANGE_POW: 22
 utility:: BATCH_RANGE: 4194304
 utility:: BATCH_RANGE_POW: 22
-utility:: TREE_DEPTH: 3
+utility:: SRAMSZ_POW: 14
+utility:: TREE_DEPTH: 1
 utility:: KVDATA_RANGE_POW: 22
 utility:: KVDATA_RANGE: 4194304
 utility:: MESSAGES_SIZE: 1024
@@ -38,24 +39,29 @@ utility:: VERTICESDATASZ_KVS: 262144
 >> host[sizes]:: VERTICESDATASZ (keyvalues): 2097152 keyvalues
 >> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): 0 keyvalues
 >> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): 131072 keyvalues
->> host[sizes]:: KVSTATSDRAMSZ (keyvalues): 65536 keyvalues
+>> host[sizes]:: KVSTATSDRAMSZ (keyvalues): 4096 keyvalues
 >> host[sizes]:: PADDEDVDRAMSZ (keyvalues): 33554432 keyvalues
 >> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues
 >> host[bytes]:: MESSAGESDRAMSZ (bytes): 8192 bytes
->> host[bytes]:: KVSTATSDRAMSZ (bytes): 524288 bytes
+>> host[bytes]:: KVSTATSDRAMSZ (bytes): 32768 bytes
 >> host[bytes]:: VERTEXPTRSSZ (bytes): 17301504 bytes
 >> host[bytes]:: VERTICESDATASZ (bytes): 16777216 bytes
 >> host[bytes]:: ACTIVEVERTICESSZ (bytes): 0 bytes
 >> host[bytes]:: VERTICESDATAMASKSZ (bytes): 1048576 bytes
 >> host[bytes]:: PADDEDVDRAMSZ (bytes): 268435456 bytes
 >> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes
-utility:: KVSTATSDRAMSZ: 65536
-utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: KVSTATSDRAMSZ: 4096
+utility:: NUMLASTLEVELPARTITIONS: 256
 utility:: REDUCESZ_POW: 10
 utility:: REDUCESZ: 1024
 utility:: REDUCEBUFFERSZ: 512
 utility:: VMASKBUFFERSZ_KVS: 32
-utility:: NUMLASTLEVELPARTITIONS: 4096
+utility:: NUMLASTLEVELPARTITIONS: 256
+utility:: FETFACTOR: 2
+utility:: SRCBUFFER_SIZE: 1008
+utility:: WORKBUFFER_SIZE: 752
+utility:: SOURCEBLOCKRAM_SIZE: 1024
+utility:: DESTBLOCKRAM_SIZE: 1024
 utility:: ENABLE_KERNEL_PROFILING DEFINED: 
 graph::graph constructor:: datasetid: 30, _numedgebanks: 1
 graph::loadalldatasets:: 
@@ -113,25 +119,25 @@ app::loadmessages:: loading messages...
 [globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK: 1143348]
 [globalparams.BASEOFFSET_STATSDRAM: 9150880]
 [globalparams.BASEOFFSETKVS_STATSDRAM: 1143860]
-[globalparams.BASEOFFSET_KVDRAM: 9675168]
-[globalparams.BASEOFFSETKVS_KVDRAM: 1209396]
-[globalparams.BASEOFFSET_KVDRAMWORKSPACE: 19040472]
-[globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: 2380059]
+[globalparams.BASEOFFSET_KVDRAM: 9183648]
+[globalparams.BASEOFFSETKVS_KVDRAM: 1147956]
+[globalparams.BASEOFFSET_KVDRAMWORKSPACE: 18548952]
+[globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: 2318619]
 [globalparams.SIZE_MESSAGESDRAM: 0]
 [globalparams.SIZE_EDGES: 9365288]
 [globalparams.SIZE_VERTEXPTRS: 4194304]
 [globalparams.SIZE_VERTICESDATA: 4194304]
 [globalparams.SIZE_ACTIVEVERTICES: 0]
 [globalparams.SIZE_VERTICESDATAMASK: 131072]
-[globalparams.SIZE_KVSTATSDRAM: 65536]
+[globalparams.SIZE_KVSTATSDRAM: 4096]
 [globalparams.SIZE_KVDRAM: 9365310]
 [globalparams.SIZE_KVDRAMWORKSPACE: 9365310]
 [1m[37m>> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): 33554432 keyvalues[0m
 [1m[37m>> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): 268435456 bytes[0m
-[1m[37m>> host[sizes]:: valid workload space(not including temp space) (keyvalues): 9675168 keyvalues[0m
-[1m[37m>> host[bytes]:: valid workload space(not including temp space) (keyvalues): 77401344 bytes. [0m
-[1m[37m>> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): 28405782 keyvalues[0m
-[1m[37m>> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): 227246256 bytes. (HBM max=268435456 bytes)[0m
+[1m[37m>> host[sizes]:: valid workload space(not including temp space) (keyvalues): 9183648 keyvalues[0m
+[1m[37m>> host[bytes]:: valid workload space(not including temp space) (keyvalues): 73469184 bytes. [0m
+[1m[37m>> host[sizes]:: valid PADDEDKVSOURCEDRAMSZ (keyvalues): 27914262 keyvalues[0m
+[1m[37m>> host[bytes]:: valid PADDEDKVSOURCEDRAMSZ (bytes): 223314096 bytes. (HBM max=268435456 bytes)[0m
 loadmessages:: loading Acts... sizes: [[9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364288, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272, 9364272]]
 loadmessages:: total sizes: 299656960
 app::appendkeyvaluecount:: appending value count... 
@@ -140,62 +146,57 @@ app::experiements: resetting kvdram & kvdram workspaces...
 [1m[37m>>> app::run_hw: app started. (1 active vertices)[0m
 Found Platform
 Platform Name: Xilinx
-Found Device=xilinx_u280_xdma_201910_1
+Found Device=xilinx_u280_xdma_201920_3
 INFO: Reading /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelproc32HW300MHz.xclbin
 Loading: '/home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelproc32HW300MHz.xclbin'
 INFO: Reading /home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync32HW300MHz.xclbin
 Loading: '/home/oj2zf/Documents/ActsOfAGraph/synkernels/goldenkernelsync32HW300MHz.xclbin'
->>> goclkernel[actssync]:: running ACTS PROCESS (Iteration 0)...
->>> kernel (proc) 0 time elapsed: 74.334 ms, 74334 microsecs, 
->>> kernel (proc) 1 time elapsed: 74.315 ms, 74315 microsecs, 
->>> kernel (proc) 2 time elapsed: 74.368 ms, 74368 microsecs, 
->>> kernel (proc) 3 time elapsed: 74.39 ms, 74390 microsecs, 
->>> kernel (proc) 4 time elapsed: 74.306 ms, 74306 microsecs, 
->>> kernel (proc) 5 time elapsed: 74.373 ms, 74373 microsecs, 
->>> kernel (proc) 6 time elapsed: 74.35 ms, 74350 microsecs, 
->>> kernel (proc) 7 time elapsed: 74.377 ms, 74377 microsecs, 
->>> kernel (proc) 8 time elapsed: 74.349 ms, 74349 microsecs, 
->>> kernel (proc) 9 time elapsed: 74.347 ms, 74347 microsecs, 
->>> kernel (proc) 10 time elapsed: 74.289 ms, 74289 microsecs, 
->>> kernel (proc) 11 time elapsed: 74.329 ms, 74329 microsecs, 
->>> kernel (proc) 12 time elapsed: 74.349 ms, 74349 microsecs, 
->>> kernel (proc) 13 time elapsed: 74.361 ms, 74361 microsecs, 
->>> kernel (proc) 14 time elapsed: 74.355 ms, 74355 microsecs, 
->>> kernel (proc) 15 time elapsed: 74.334 ms, 74334 microsecs, 
->>> kernel (proc) 16 time elapsed: 74.367 ms, 74367 microsecs, 
->>> kernel (proc) 17 time elapsed: 74.347 ms, 74347 microsecs, 
->>> kernel (proc) 18 time elapsed: 74.345 ms, 74345 microsecs, 
->>> kernel (proc) 19 time elapsed: 74.348 ms, 74348 microsecs, 
->>> kernel (proc) 20 time elapsed: 74.369 ms, 74369 microsecs, 
->>> kernel (proc) 21 time elapsed: 74.403 ms, 74403 microsecs, 
->>> kernel (proc) 22 time elapsed: 74.329 ms, 74329 microsecs, 
->>> kernel (proc) 23 time elapsed: 74.364 ms, 74364 microsecs, 
->>> kernel (proc) 24 time elapsed: 74.346 ms, 74346 microsecs, 
->>> kernel (proc) 25 time elapsed: 74.325 ms, 74325 microsecs, 
->>> kernel (proc) 26 time elapsed: 74.328 ms, 74328 microsecs, 
->>> kernel (proc) 27 time elapsed: 74.326 ms, 74326 microsecs, 
->>> kernel (proc) 28 time elapsed: 74.324 ms, 74324 microsecs, 
->>> kernel (proc) 29 time elapsed: 74.348 ms, 74348 microsecs, 
->>> kernel (proc) 30 time elapsed: 74.374 ms, 74374 microsecs, 
->>> kernel (proc) 31 time elapsed: 74.346 ms, 74346 microsecs, 
->>> SUMMARY: kernel (proc) average time elapsed for Iteration 0: 25.105(25.105) ms, 44.6635(19.5585) ms, 74.3478(29.6843) ms, 
->>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 0)
->>> kernel (sync) time elapsed: 12.89 ms, 12890 microsecs, 
->>> kernel (sync) time elapsed: 5.74 ms, 5740 microsecs, 
->>> kernel (sync) time elapsed: 5.938 ms, 5938 microsecs, 
->>> kernel (sync) time elapsed: 5.849 ms, 5849 microsecs, 
->>> kernel (sync) time elapsed: 6.074 ms, 6074 microsecs, 
->>> kernel (sync) time elapsed: 6.035 ms, 6035 microsecs, 
+>>> goclkernel[actsproc]:: running ACTS PROCESS (Iteration 0)...
+>>> kernel (proc) 0 time elapsed: 379.157 ms, 379157 microsecs, 
+>>> kernel (proc) 1 time elapsed: 379.278 ms, 379278 microsecs, 
+>>> kernel (proc) 2 time elapsed: 379.211 ms, 379211 microsecs, 
+>>> kernel (proc) 3 time elapsed: 379.239 ms, 379239 microsecs, 
+>>> kernel (proc) 4 time elapsed: 379.183 ms, 379183 microsecs, 
+>>> kernel (proc) 5 time elapsed: 379.281 ms, 379281 microsecs, 
+>>> kernel (proc) 6 time elapsed: 379.355 ms, 379355 microsecs, 
+>>> kernel (proc) 7 time elapsed: 379.201 ms, 379201 microsecs, 
+>>> kernel (proc) 8 time elapsed: 379.152 ms, 379152 microsecs, 
+>>> kernel (proc) 9 time elapsed: 379.273 ms, 379273 microsecs, 
+>>> kernel (proc) 10 time elapsed: 379.333 ms, 379333 microsecs, 
+>>> kernel (proc) 11 time elapsed: 379.223 ms, 379223 microsecs, 
+>>> kernel (proc) 12 time elapsed: 379.272 ms, 379272 microsecs, 
+>>> kernel (proc) 13 time elapsed: 379.26 ms, 379260 microsecs, 
+>>> kernel (proc) 14 time elapsed: 379.185 ms, 379185 microsecs, 
+>>> kernel (proc) 15 time elapsed: 379.155 ms, 379155 microsecs, 
+>>> kernel (proc) 16 time elapsed: 379.238 ms, 379238 microsecs, 
+>>> kernel (proc) 17 time elapsed: 379.164 ms, 379164 microsecs, 
+>>> kernel (proc) 18 time elapsed: 379.142 ms, 379142 microsecs, 
+>>> kernel (proc) 19 time elapsed: 379.218 ms, 379218 microsecs, 
+>>> kernel (proc) 20 time elapsed: 379.288 ms, 379288 microsecs, 
+>>> kernel (proc) 21 time elapsed: 379.282 ms, 379282 microsecs, 
+>>> kernel (proc) 22 time elapsed: 379.268 ms, 379268 microsecs, 
+>>> kernel (proc) 23 time elapsed: 379.188 ms, 379188 microsecs, 
+>>> kernel (proc) 24 time elapsed: 379.204 ms, 379204 microsecs, 
+>>> kernel (proc) 25 time elapsed: 379.19 ms, 379190 microsecs, 
+>>> kernel (proc) 26 time elapsed: 379.232 ms, 379232 microsecs, 
+>>> kernel (proc) 27 time elapsed: 379.274 ms, 379274 microsecs, 
+>>> kernel (proc) 28 time elapsed: 379.143 ms, 379143 microsecs, 
+>>> kernel (proc) 29 time elapsed: 379.188 ms, 379188 microsecs, 
+>>> kernel (proc) 30 time elapsed: 379.226 ms, 379226 microsecs, 
+>>> kernel (proc) 31 time elapsed: 379.173 ms, 379173 microsecs, 
+>>> SUMMARY: kernel (proc) average time elapsed (for LOPs) for Iteration 0: 221.385(221.385) ms, 221.379(-0.00606452) ms, 379.226(157.847) ms, 
+--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration 0) ---------------
+>>> ====================== Light weight ACTS (NACTS_IN_NSYNCTHREADS.SYNC) Launched... size: 9364288
 
 active partitions for iteration 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 
-[1m[37m>>> SUMMARY: Total kernel time: 77.3653 ms[0m
+[1m[37m>>> SUMMARY: Total kernel time: 379.226 ms[0m
 
 [1m[37m>>> app::run_hw: THROUGHPUT SUMMARY DETAILS: [0m
-10024.2, 12867, 7695.55, [Iter 0 throughput: 3252.86][Iter 0 edges processed: 2.51658e+08]
+1136.74, -4.14968e+07, 662.729, [Iter 0 throughput: 418.656][Iter 0 edges processed: 2.51658e+08]
 
 >>> app::run_hw: total_edges_processed: 251658240 edges (251 million edges)
->>> app::run_hw: total_time_elapsed: 77.3653 ms (0.0773653 s)
-[1m[37m>>> app::run_hw: throughput: 3.25286e+09 edges/sec (3252.86 million edges/sec)[0m
+>>> app::run_hw: total_time_elapsed: 379.226 ms (0.379226 s)
+[1m[37m>>> app::run_hw: throughput: 6.63609e+08 edges/sec (663.609 million edges/sec)[0m
 
 utility::runsssp_sw:: running traditional sssp... 
 utility::runsssp_sw: number of active vertices for iteration 0: 0
@@ -207,7 +208,7 @@ utility::runsssp_sw: number of active vertices for iteration 1: 115
 app::verifyresults_hw: verifying vertex data... 
 utility::printvalues::app::verifyresults_hw.vdatas: verifying results after kernel run:: printing first 16 values
 values[0]: 0
-values[1]: 2
+values[1]: 0
 values[2]: 0
 values[3]: 0
 values[4]: 0
@@ -222,7 +223,7 @@ values[12]: 0
 values[13]: 0
 values[14]: 0
 values[15]: 0
-printvalues:: total values: totalvalues: 2
+printvalues:: total values: totalvalues: 0
 graph::closetemporaryfilesforwriting : close temporary files for writing...
 graph::closetemporaryfilesforreading : close files for reading...
 graph::closefilesforreading : close files for reading...
@@ -270,8 +271,8 @@ graph::printdataset: printing dataset parameters...
 >>> graphorder: 6
 >>> graphgroup: 2
 TEST FINISHED
-[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 70190573585[nanao seconds](Iteration 666)[0m
-[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 70190573[micro seconds](Iteration 666)[0m
-[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 70190[milli seconds](Iteration 666)[0m
-[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 70[seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 317514551817[nanao seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 317514551[micro seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 317514[milli seconds](Iteration 666)[0m
+[1m[37m>>> HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: : Time Elapsed = 317[seconds](Iteration 666)[0m
 

@@ -194,10 +194,22 @@ runsummary_t app::run_hw(){
 		unsigned int total_edges = 0;
 		long double total_time = 0;
 		
-		for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ total_time += timeelapsed_totals[i][analysis_i]; }
+		unsigned int analysis_begincount;
+		unsigned int analysis_icount = 3;
+		#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
+		analysis_begincount = 0;
+		#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
+		analysis_begincount = 0;
+		#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
+		analysis_begincount = 2;
+		#else 
+		analysis_begincount = 0;
+		#endif
+		
+		for(unsigned int analysis_i=analysis_begincount; analysis_i<analysis_icount; analysis_i++){ total_time += timeelapsed_totals[i][analysis_i]; }
 		
 		if(edgesprocessed_totals[i] > 0){
-			for(unsigned int analysis_i=0; analysis_i<3; analysis_i++){ cout<<""<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) / (1000))<<", "; }
+			for(unsigned int analysis_i=analysis_begincount; analysis_i<analysis_icount; analysis_i++){ cout<<""<<((edgesprocessed_totals[i] / timeelapsed_totals[i][analysis_i]) / (1000))<<", "; }
 			cout<<"[Iter "<<i<<" throughput: "<<((edgesprocessed_totals[i] / total_time) / (1000))<<"]";
 			cout<<"[Iter "<<i<<" edges processed: "<<edgesprocessed_totals[i]<<"]";
 			cout<<endl;

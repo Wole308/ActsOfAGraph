@@ -1300,14 +1300,14 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
 		enablereduce = ON; 
-		#ifndef TRAD_PARTITION_AND_REDUCE_STRETEGY // NEWCHANGE.
+		// #ifndef TRAD_PARTITION_AND_REDUCE_STRETEGY // NEWCHANGE.
 		unsigned int ntravszs = 0;
 		{%for i in context['SYNCTHREADS_seq']%}
 		rtravstate[{{i}}] = gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
 		{%endfor%}
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		#endif 
+		// #endif 
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 

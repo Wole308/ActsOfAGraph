@@ -11,17 +11,17 @@
 
 // #define ENABLE_APPROXIMATEPARTITIONWRITES // CRITICAL FIXME. FPGA hangs if this is disabled // REMOVEME.
 
-// === parameters for ACTS design ===
-// #define ENABLERECURSIVEPARTITIONING // found in: common_h, loadgraph, actscommon_h, actsproc_unopt
-#ifdef ENABLERECURSIVEPARTITIONING
-#define ACTS_PARTITION_AND_REDUCE_STRETEGY // found in: actscommon_h
+// === parameters for ACTS design (actscommon_h, goclkernel.cpp, app.cpp, actsproc.cpp, common_h, loadgraph) ===
+#define ENABLERECURSIVEPARTITIONING
+// #ifdef ENABLERECURSIVEPARTITIONING
+#define ACTS_PARTITION_AND_REDUCE_STRETEGY
 #else
-// #define BASIC_PARTITION_AND_REDUCE_STRETEGY
-#define TRAD_PARTITION_AND_REDUCE_STRETEGY
+#define BASIC_PARTITION_AND_REDUCE_STRETEGY
+// #define TRAD_PARTITION_AND_REDUCE_STRETEGY
 #endif
 
 #define HWIMPLFOR_ACTSPROC
-#define HWIMPLFOR_ACTSSYNC
+// #define HWIMPLFOR_ACTSSYNC
 #endif
 
 
