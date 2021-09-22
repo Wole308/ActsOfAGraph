@@ -2959,6 +2959,7 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
+#ifdef _1ACTS_IN_1COMPUTEUNITS
 extern "C" {
 void 
 	#ifdef SW 
@@ -3006,7 +3007,6 @@ topkernelproc(uint512_dt * kvdram){
 		dispatch(ON, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
 	}
 	#endif
-	// exit(EXIT_SUCCESS); ////////////////////// REMOVEME.
 	
 	// partition
 	#ifdef PARTITIONMODULE
@@ -3017,7 +3017,6 @@ topkernelproc(uint512_dt * kvdram){
 		dispatch(OFF, ON, OFF, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparams);
 	}
 	#endif
-	// exit(EXIT_SUCCESS); ////////////////////// REMOVEME.
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
@@ -3028,7 +3027,6 @@ topkernelproc(uint512_dt * kvdram){
 		dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams);
 	}
 	#endif
-	// exit(EXIT_SUCCESS); ////////////////////// REMOVEME.
 
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
@@ -3039,6 +3037,115 @@ topkernelproc(uint512_dt * kvdram){
 	return;
 }
 }
+#endif 
+
+#ifdef _4ACTS_IN_1COMPUTEUNITS
+extern "C" {
+void 
+	#ifdef SW 
+	actsproc:: 
+	#endif
+topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD){
+#pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
+#pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1	
+#pragma HLS INTERFACE m_axi port = kvdramC offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = kvdramD offset = slave bundle = gmem3
+		
+#pragma HLS INTERFACE s_axilite port = kvdramA bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdramB bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdramC bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdramD bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#pragma HLS DATA_PACK variable = kvdramA
+#pragma HLS DATA_PACK variable = kvdramB
+#pragma HLS DATA_PACK variable = kvdramC
+#pragma HLS DATA_PACK variable = kvdramD
+
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	#endif
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<">>> ====================== Light weight ACTS (NACTS_IN_NCOMPUTEUNITS.PPR) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
+	#endif
+	
+	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer
+	keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer
+	unitBRAMwidth_type vmask[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask
+	unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask_subp
+	uint32_type vmask_p[BLOCKRAM_SIZE];
+	
+	globalparams_t globalparamsA = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	
+	globalparams_t globalparamsB = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	
+	globalparams_t globalparamsC = getglobalparams(kvdramC);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramC, vmask_p, globalparamsC.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramC, globalparamsC); }
+	
+	globalparams_t globalparamsD = getglobalparams(kvdramD);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramD, vmask_p, globalparamsD.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramD, globalparamsD); }
+	
+	// process & partition
+	#ifdef PROCESSMODULE
+	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		cout<<"topkernelproc: processing instance ... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
+		dispatch(ON, OFF, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
+	}
+	#endif
+	
+	// partition
+	#ifdef PARTITIONMODULE
+	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		cout<<"topkernelproc: partitioning instance ... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
+		dispatch(OFF, ON, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
+	}
+	#endif
+	
+	// reduce & partition
+	#if defined(REDUCEMODULE)
+	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		cout<<"topkernelproc: reducing instance ... "<<endl;
+		#endif
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsC);
+		dispatch_reduce(kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsD);
+	}
+	#endif
+
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	return;
+}
+}
+#endif 
 
 
 

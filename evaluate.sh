@@ -41,10 +41,10 @@ else
 	echo "no env specified. specify crabtree, aws or gunrock"
 fi
 
-# SYNKERNELSPATHNAME="synkernels_acts"
-# RESULTSPATHNAME="results_acts"
-SYNKERNELSPATHNAME="synkernels_prior"
-RESULTSPATHNAME="results_prior"
+SYNKERNELSPATHNAME="synkernels_acts"
+RESULTSPATHNAME="results_acts"
+# SYNKERNELSPATHNAME="synkernels_prior"
+# RESULTSPATHNAME="results_prior"
 # SYNKERNELSPATHNAME="synkernels_trad"
 # RESULTSPATHNAME="results_trad"
 
@@ -501,7 +501,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
 		# for numsubcputhreads in $NUMTHREADS_EQ4
-		# for numsubcputhreads in $NUMTHREADS_EQ8
+		# for numsubcputhreads in $NUMTHREADS_EQ8 #
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
 		# for numsubcputhreads in $NUMTHREADS_EQ16
@@ -574,15 +574,15 @@ do
 						for synfreq in $SYNFREQUENCY_EQ300
 						# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 						do
-							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
-							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
-							BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
+							BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.xclbin"
 							
-							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
-							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
-							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/${SYNKERNELSPATHNAME}/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
+							BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${numsubcputhreads}${XWARE}${synfreq}MHz.awsxclbin"
 							
-							RESULTSBACKUP_DIR="${ROOTDIR}/${RESULTSPATHNAME}"
+							RESULTSBACKUP_DIR="${ROOTDIR}/outputs/${RESULTSPATHNAME}"
 							RESULT_NAME="${ALGORITHMABBRV}${numsubcputhreads}${XWARE}${synfreq}MHz"
 							PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${numsubcputhreads}threads_${evaluation_type}_evp${evaluation_param0}"
 							
@@ -834,7 +834,7 @@ do
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 > $RESULTDIR_RESULT
+										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT
 									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 									then
 										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
@@ -907,7 +907,7 @@ do
 								then
 									make cleanall
 									rm -rf xclbin
-									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									if test -f "host"; then
 										cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 										echo "kernel.xclbin saved"
@@ -920,6 +920,16 @@ do
 									# make all_sync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_sync.out 
 									# if test -f "host"; then
 										# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
+										# echo "kernel.xclbin saved"
+									# fi
+									# echo "sleeping for 5 seconds before continuing ...."
+									# sleep 5
+									
+									# make cleanall
+									# rm -rf xclbin
+									# make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									# if test -f "host"; then
+										# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
 										# echo "kernel.xclbin saved"
 									# fi
 									# echo "sleeping for 5 seconds before continuing ...."

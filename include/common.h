@@ -16,8 +16,6 @@
 #define SORTREDUCEMODEL
 #endif 
 
-#define USEHBMMEMORY
-
 #define LOCKE
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL

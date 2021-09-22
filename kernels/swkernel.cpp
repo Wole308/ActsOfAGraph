@@ -8,10 +8,8 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-#include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
-#include "../acts/acts_sw/acts_sw.h"
 #include "../src/stats/stats.h"
 #include "../src/algorithm/algorithm.h"
 #include "../src/graphs/graph.h"
@@ -30,12 +28,8 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 	algorithmobj = _algorithmobj;
 	
 	#ifdef SW
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs[i] = new acts(); }
-	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
 	kernelobjs_synchronize = new actssync();
-	
-	actssw_obj = new acts_sw();
 	#endif
 }
 swkernel::~swkernel(){}
@@ -83,7 +77,12 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#endif 
 			
 			std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
+			#ifdef _1ACTS_IN_1COMPUTEUNITS
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
+			#endif 
+			#ifdef _4ACTS_IN_1COMPUTEUNITS
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=4){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1], (uint512_dt *)kvsourcedram[i+2], (uint512_dt *)kvsourcedram[i+3]); }
+			#endif 
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		}
@@ -95,10 +94,8 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			unsigned int maxstats = 0;
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ maxstats += kvsourcedram[i][_BASEOFFSETKVS_STATSDRAM + k].data[0].value; }
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][_BASEOFFSETKVS_STATSDRAM + k].data[0].value = maxstats; }
-			// cout<<"--------------- k: "<<k<<", maxstats: "<<maxstats<<endl;
 		}
-		#endif 
-		// exit(EXIT_SUCCESS); //////////////////////
+		#endif
 	
 		#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
 		for(unsigned int k=0; k<VERTICESDATASZ_KVS; k++){
@@ -154,7 +151,6 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 				#endif 
 				(uint512_dt *)tempvdram
 			);
-			// exit(EXIT_SUCCESS); /////////////////////////////
 			}
 		}
 		#endif 
@@ -170,14 +166,17 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			(uint512_dt *)kvsourcedram[ind+1],
 			(uint512_dt *)kvsourcedram[ind+2],
 			(uint512_dt *)kvsourcedram[ind+3],
+			#if NUMSYNCTHREADS>4
 			(uint512_dt *)kvsourcedram[ind+4],
 			(uint512_dt *)kvsourcedram[ind+5],
 			(uint512_dt *)kvsourcedram[ind+6],
 			(uint512_dt *)kvsourcedram[ind+7],
+			#if NUMSYNCTHREADS>8
 			(uint512_dt *)kvsourcedram[ind+8],
 			(uint512_dt *)kvsourcedram[ind+9],
 			(uint512_dt *)kvsourcedram[ind+10],
 			(uint512_dt *)kvsourcedram[ind+11],
+			#if NUMSYNCTHREADS>12
 			(uint512_dt *)kvsourcedram[ind+12],
 			(uint512_dt *)kvsourcedram[ind+13],
 			(uint512_dt *)kvsourcedram[ind+14],
@@ -191,6 +190,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			(uint512_dt *)kvsourcedram[ind+21],
 			(uint512_dt *)kvsourcedram[ind+22],
 			(uint512_dt *)kvsourcedram[ind+23],
+			#if NUMSYNCTHREADS>24
 			(uint512_dt *)kvsourcedram[ind+24],
 			(uint512_dt *)kvsourcedram[ind+25],
 			(uint512_dt *)kvsourcedram[ind+26],
@@ -200,6 +200,10 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			(uint512_dt *)kvsourcedram[ind+30],
 			(uint512_dt *)kvsourcedram[ind+31],
 			#endif 
+			#endif 
+			#endif
+			#endif
+			#endif
 			(uint512_dt *)vdram
 		);
 		}
@@ -224,20 +228,6 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
 	
-	#ifdef _DEBUGMODE_TIMERS3
-	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
-	statsobj->appendkerneltimeelapsed(total_time_elapsed);
-	#endif
-	return total_time_elapsed;
-}
-
-long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], value_t * vprops, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
-	#ifdef _DEBUGMODE_TIMERS3
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
-	#endif
-	
-	actssw_obj->start(graphobj, edges, vptrs, vprops, actvvs, actvvs_nextit, kvdram, GraphAlgo, numIters);
-
 	#ifdef _DEBUGMODE_TIMERS3
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(total_time_elapsed);

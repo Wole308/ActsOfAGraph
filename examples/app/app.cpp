@@ -25,7 +25,6 @@
 #include "../../examples/helperfunctions/loadgraph_sw.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
-#include "../../acts/acts_sw/acts_sw.h"
 #include "../../kernels/swkernel.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
@@ -43,7 +42,6 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	loadgraphswobj = new loadgraph_sw(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, thisalgorithmobj, statsobj); 
 	swkernelobj = new swkernel(graphobj, thisalgorithmobj, statsobj);
-	actssw_obj = new acts_sw();
 
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL
@@ -176,7 +174,8 @@ runsummary_t app::run_hw(){
 	#else 
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals);
 	#endif
-
+	// exit(EXIT_SUCCESS); // --------------
+	
 	// run_hw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)kvbuffer, timeelapsed_totals);

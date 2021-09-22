@@ -8,7 +8,6 @@
 #include "../../examples/helperfunctions/loadgraph_sw.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
-#include "../../acts/acts_sw/acts_sw.h"
 #include "../../kernels/swkernel.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
@@ -37,7 +36,6 @@ private:
 	swkernel * swkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
-	acts_sw * actssw_obj;
 	
 	edge_t * vertexptrbuffer;
 	value_t * vertexdatabuffer;

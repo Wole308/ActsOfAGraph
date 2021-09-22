@@ -41,7 +41,6 @@ private:
 	actssync * kernelobjs_synchronize;
 	
 	uint512_vec_dt * tempkvsourcedram_proc;
-	uint512_vec_dt * tempkvsourcedrams_proc[NUMSUBCPUTHREADS]; // REMOVEME
 	uint512_vec_dt * tempkvsourcedrams_sync[NUMSYNCTHREADS];
 	uint512_vec_dt * tempvdram_sync;
 };

@@ -21,12 +21,6 @@
 #define SORTREDUCEMODEL
 #endif 
 
-{%if(context['NUMSUBCPUTHREADS'] > 4)%}
-#define USEHBMMEMORY
-{%else%}
-#define USEDDRAMMEMORY
-{%endif%}
-
 #define {{context['LOCKE']}}
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL

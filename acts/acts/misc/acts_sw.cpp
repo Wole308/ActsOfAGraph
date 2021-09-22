@@ -41,6 +41,21 @@ using namespace std;
 // actvvs area {active vertices, active vertices mask}
 // workspace area {stats, kvdram, kvdram workspace}
 
+// API
+/* long double swkernel::runapp(edge_type * edges[NUMSUBCPUTHREADS], edge_t * vptrs[NUMSUBCPUTHREADS], value_t * vprops, vector<vertex_t> &actvvs, vector<vertex_t> &actvvs_nextit, vector<keyvalue_t> (&kvdram)[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS], unsigned int GraphAlgo, unsigned int numIters){				
+	#ifdef _DEBUGMODE_TIMERS3
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
+	actssw_obj->start(graphobj, edges, vptrs, vprops, actvvs, actvvs_nextit, kvdram, GraphAlgo, numIters);
+
+	#ifdef _DEBUGMODE_TIMERS3
+	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(total_time_elapsed);
+	#endif
+	return total_time_elapsed;
+} */
+
 std::mutex vlock;
 
 acts_sw::acts_sw(){ actsutilityobj = new actsutility(); }

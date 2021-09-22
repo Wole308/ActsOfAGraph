@@ -470,8 +470,15 @@ gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams,
 		keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(31, 0); 
 		keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(63, 32);
 		#else
+			
+		
+		if(globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker >= PADDEDKVSOURCEDRAMSZ){ cout<<"gettravstate:: ERROR: globalparams.BASEOFFSETKVS_STATSDRAM("<<globalparams.BASEOFFSETKVS_STATSDRAM<<") + sourcestatsmarker("<<sourcestatsmarker<<") >= PADDEDKVSOURCEDRAMSZ_KVS("<<PADDEDKVSOURCEDRAMSZ_KVS<<")"<<endl; exit(EXIT_FAILURE); }
+		
 		keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].key; 
 		keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].value; 
+		
+		
+		
 		#endif
 	}
 	
@@ -2712,7 +2719,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"spreadvdata: spread (vdata) function called."<<endl;
+	cout<<"spreadandwrite: spread and write function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;

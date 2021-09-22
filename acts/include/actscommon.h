@@ -87,20 +87,11 @@ using namespace std;
 #define KVSTATSDRAMSZ_KVS KVSTATSDRAMSZ
 
 #ifdef USEHBMMEMORY
-#define KVSOURCEDRAMSZ ((1 << 28) / 8) // max HBM capacity (256MB)
+	#define KVSOURCEDRAMSZ ((1 << 28) / 8) // max HBM capacity (256MB)
 #endif 
 #ifdef USEDDRAMMEMORY 
-// #define KVSOURCEDRAMSZ (1 << (31-3)) // ((1 << 31) / 8) // max HBM capacity (8GB)
-// #define KVSOURCEDRAMSZ (1 << (30-3)) // max HBM capacity (8GB)
-// #define KVSOURCEDRAMSZ 100377960 /////////////////////////////////////////////// FORMERONE
-
-// #define KVSOURCEDRAMSZ (1 << (31-3)) // ((1 << 31) / 8)
-#if NUMSUBCPUTHREADS==1
-#define KVSOURCEDRAMSZ (1 << (32-3)) // ((1 << 31) / 8)
-#else 
-#define KVSOURCEDRAMSZ (1 << (31-3)) // ((1 << 31) / 8)
-#endif
-
+	// #define KVSOURCEDRAMSZ (1 << 28) // ((1 << 31) / 8)
+	#define KVSOURCEDRAMSZ (1 << 27) // ((1 << 31) / 8)
 #endif 
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ
