@@ -187,6 +187,9 @@ public:
 	void topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD);
 	#endif 
 	
+	#ifdef _8ACTS_IN_1COMPUTEUNITS
+	void topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD, uint512_dt * kvdramE, uint512_dt * kvdramF, uint512_dt * kvdramG, uint512_dt * kvdramH);
+	#endif 
 private:
 	#ifndef FPGA_IMPL
 	actsutility * actsutilityobj;

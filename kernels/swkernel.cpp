@@ -81,7 +81,10 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
 			#endif 
 			#ifdef _4ACTS_IN_1COMPUTEUNITS
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=4){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1], (uint512_dt *)kvsourcedram[i+2], (uint512_dt *)kvsourcedram[i+3]); }
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=4){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1], (uint512_dt *)kvsourcedram[i+2], (uint512_dt *)kvsourcedram[i+3]); }				
+			#endif 
+			#ifdef _8ACTS_IN_1COMPUTEUNITS
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=8){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1], (uint512_dt *)kvsourcedram[i+2], (uint512_dt *)kvsourcedram[i+3], (uint512_dt *)kvsourcedram[i+4], (uint512_dt *)kvsourcedram[i+5], (uint512_dt *)kvsourcedram[i+6], (uint512_dt *)kvsourcedram[i+7]); }					
 			#endif 
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;

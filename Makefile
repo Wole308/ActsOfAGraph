@@ -178,14 +178,19 @@ LDCLFLAGS_HBM_PROC += --sp topkernelproc_30.m_axi_gmem0:HBM[29]
 LDCLFLAGS_HBM_PROC += --sp topkernelproc_31.m_axi_gmem0:HBM[30]
 LDCLFLAGS_HBM_PROC += --sp topkernelproc_32.m_axi_gmem0:HBM[31]
 
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] --sp topkernelproc_1.m_axi_gmem1:HBM[1] --sp topkernelproc_1.m_axi_gmem2:HBM[2] --sp topkernelproc_1.m_axi_gmem3:HBM[3] 
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_2.m_axi_gmem0:HBM[4] --sp topkernelproc_2.m_axi_gmem1:HBM[5] --sp topkernelproc_2.m_axi_gmem2:HBM[6] --sp topkernelproc_2.m_axi_gmem3:HBM[7] 
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_3.m_axi_gmem0:HBM[8] --sp topkernelproc_3.m_axi_gmem1:HBM[9] --sp topkernelproc_3.m_axi_gmem2:HBM[10] --sp topkernelproc_3.m_axi_gmem3:HBM[11]			
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_4.m_axi_gmem0:HBM[12] --sp topkernelproc_4.m_axi_gmem1:HBM[13] --sp topkernelproc_4.m_axi_gmem2:HBM[14] --sp topkernelproc_4.m_axi_gmem3:HBM[15]
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_5.m_axi_gmem0:HBM[16] --sp topkernelproc_5.m_axi_gmem1:HBM[17] --sp topkernelproc_5.m_axi_gmem2:HBM[18] --sp topkernelproc_5.m_axi_gmem3:HBM[19]
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_6.m_axi_gmem0:HBM[20] --sp topkernelproc_6.m_axi_gmem1:HBM[21] --sp topkernelproc_6.m_axi_gmem2:HBM[22] --sp topkernelproc_6.m_axi_gmem3:HBM[23]
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_7.m_axi_gmem0:HBM[24] --sp topkernelproc_7.m_axi_gmem1:HBM[25] --sp topkernelproc_7.m_axi_gmem2:HBM[26] --sp topkernelproc_7.m_axi_gmem3:HBM[27]
-LDCLFLAGS_HBM_PROC_Nby1 += --sp topkernelproc_8.m_axi_gmem0:HBM[28] --sp topkernelproc_8.m_axi_gmem1:HBM[29] --sp topkernelproc_8.m_axi_gmem2:HBM[30] --sp topkernelproc_8.m_axi_gmem3:HBM[31]
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] --sp topkernelproc_1.m_axi_gmem1:HBM[1] --sp topkernelproc_1.m_axi_gmem2:HBM[2] --sp topkernelproc_1.m_axi_gmem3:HBM[3] 
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_2.m_axi_gmem0:HBM[4] --sp topkernelproc_2.m_axi_gmem1:HBM[5] --sp topkernelproc_2.m_axi_gmem2:HBM[6] --sp topkernelproc_2.m_axi_gmem3:HBM[7] 
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_3.m_axi_gmem0:HBM[8] --sp topkernelproc_3.m_axi_gmem1:HBM[9] --sp topkernelproc_3.m_axi_gmem2:HBM[10] --sp topkernelproc_3.m_axi_gmem3:HBM[11]			
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_4.m_axi_gmem0:HBM[12] --sp topkernelproc_4.m_axi_gmem1:HBM[13] --sp topkernelproc_4.m_axi_gmem2:HBM[14] --sp topkernelproc_4.m_axi_gmem3:HBM[15]
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_5.m_axi_gmem0:HBM[16] --sp topkernelproc_5.m_axi_gmem1:HBM[17] --sp topkernelproc_5.m_axi_gmem2:HBM[18] --sp topkernelproc_5.m_axi_gmem3:HBM[19]
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_6.m_axi_gmem0:HBM[20] --sp topkernelproc_6.m_axi_gmem1:HBM[21] --sp topkernelproc_6.m_axi_gmem2:HBM[22] --sp topkernelproc_6.m_axi_gmem3:HBM[23]
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_7.m_axi_gmem0:HBM[24] --sp topkernelproc_7.m_axi_gmem1:HBM[25] --sp topkernelproc_7.m_axi_gmem2:HBM[26] --sp topkernelproc_7.m_axi_gmem3:HBM[27]
+LDCLFLAGS_HBM_PROC_4by1 += --sp topkernelproc_8.m_axi_gmem0:HBM[28] --sp topkernelproc_8.m_axi_gmem1:HBM[29] --sp topkernelproc_8.m_axi_gmem2:HBM[30] --sp topkernelproc_8.m_axi_gmem3:HBM[31]
+
+LDCLFLAGS_HBM_PROC_8by1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] --sp topkernelproc_1.m_axi_gmem1:HBM[1] --sp topkernelproc_1.m_axi_gmem2:HBM[2] --sp topkernelproc_1.m_axi_gmem3:HBM[3] --sp topkernelproc_1.m_axi_gmem4:HBM[4] --sp topkernelproc_1.m_axi_gmem5:HBM[5] --sp topkernelproc_1.m_axi_gmem6:HBM[6] --sp topkernelproc_1.m_axi_gmem7:HBM[7]
+LDCLFLAGS_HBM_PROC_8by1 += --sp topkernelproc_1.m_axi_gmem0:HBM[8] --sp topkernelproc_1.m_axi_gmem1:HBM[9] --sp topkernelproc_1.m_axi_gmem2:HBM[10] --sp topkernelproc_1.m_axi_gmem3:HBM[11] --sp topkernelproc_1.m_axi_gmem4:HBM[12] --sp topkernelproc_1.m_axi_gmem5:HBM[13] --sp topkernelproc_1.m_axi_gmem6:HBM[14] --sp topkernelproc_1.m_axi_gmem7:HBM[15]
+LDCLFLAGS_HBM_PROC_8by1 += --sp topkernelproc_1.m_axi_gmem0:HBM[16] --sp topkernelproc_1.m_axi_gmem1:HBM[17] --sp topkernelproc_1.m_axi_gmem2:HBM[18] --sp topkernelproc_1.m_axi_gmem3:HBM[19] --sp topkernelproc_1.m_axi_gmem4:HBM[20] --sp topkernelproc_1.m_axi_gmem5:HBM[21] --sp topkernelproc_1.m_axi_gmem6:HBM[22] --sp topkernelproc_1.m_axi_gmem7:HBM[23]
+LDCLFLAGS_HBM_PROC_8by1 += --sp topkernelproc_1.m_axi_gmem0:HBM[24] --sp topkernelproc_1.m_axi_gmem1:HBM[25] --sp topkernelproc_1.m_axi_gmem2:HBM[26] --sp topkernelproc_1.m_axi_gmem3:HBM[27] --sp topkernelproc_1.m_axi_gmem4:HBM[28] --sp topkernelproc_1.m_axi_gmem5:HBM[29] --sp topkernelproc_1.m_axi_gmem6:HBM[30] --sp topkernelproc_1.m_axi_gmem7:HBM[31]
 
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS_HBM_SYNC += --sp topkernelsync_1.m_axi_gmem1:HBM[1] 
@@ -236,7 +241,9 @@ LDCLFLAGS_DRAM_SYNC += --sp topkernelsync_1.m_axi_gmem4:bank0
 # Kernel linker flags (***choice between CREBTREE or AWS***)
 # LDCLFLAGS_PROC = $(LDCLFLAGS_HBM_PROC)
 # LDCLFLAGS_SYNC = $(LDCLFLAGS_HBM_SYNC)
-LDCLFLAGS_PROC = $(LDCLFLAGS_HBM_PROC_Nby1)
+# LDCLFLAGS_PROC = $(LDCLFLAGS_HBM_PROC_4by1)
+# LDCLFLAGS_SYNC = $(LDCLFLAGS_HBM_SYNC)
+LDCLFLAGS_PROC = $(LDCLFLAGS_HBM_PROC_8by1)
 LDCLFLAGS_SYNC = $(LDCLFLAGS_HBM_SYNC)
 # LDCLFLAGS_PROC = $(LDCLFLAGS_DRAM_PROC)
 # LDCLFLAGS_SYNC = $(LDCLFLAGS_DRAM_SYNC)
@@ -302,7 +309,7 @@ $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC) $(KERNEL_UTILITY
 	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelproc) -c -k topkernelproc -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
 $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS_PROC) $(LDCLFLAGS_XP) --nk topkernelproc:24 -o'$@' $(+)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelproc) -l $(LDCLFLAGS_PROC) $(LDCLFLAGS_XP) --nk topkernelproc:8 -o'$@' $(+)
 	
 # Building kernel (sync)
 $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo: $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY)

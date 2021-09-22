@@ -6,11 +6,9 @@
 	Num_procs: 16 worked
 */
 
-/* // #define _NACTS_IN_1COMPUTEUNIT // DELETEME.
-// #define NACTS_IN_NCOMPUTEUNITS // */
-
 // #define _1ACTS_IN_1COMPUTEUNITS //
-#define _4ACTS_IN_1COMPUTEUNITS
+// #define _4ACTS_IN_1COMPUTEUNITS
+#define _8ACTS_IN_1COMPUTEUNITS
 
 // #define ENABLE_PERFECTACCURACY //
 // #define ENABLE_VOICEOUTREDUCEERRORS //
