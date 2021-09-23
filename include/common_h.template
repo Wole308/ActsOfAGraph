@@ -171,17 +171,6 @@
 #define BATCHRANGESZ (BATCH_RANGE / 2)
 #define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
 
-/* #ifdef ENABLERECURSIVEPARTITIONING
-	#ifdef SW_IMPL
-	#define SRAMSZ_POW 18 // 14,18
-	#else 
-	#define SRAMSZ_POW 10
-	#endif 
-#else
-	#define SRAMSZ_POW 14 // 16384
-#endif
-#define SRAMSZ (1 << SRAMSZ_POW) */
-
 // tree-depth:sramsz constraint
 /** ACTS constraints equation! (NUM_PARTITIONS_POWx = KVDATA_RANGE_POW - SRAMSZ_POW) */
 #ifdef ENABLERECURSIVEPARTITIONING

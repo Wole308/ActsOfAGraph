@@ -6,9 +6,11 @@
 	Num_procs: 16 worked
 */
 
-// #define _1ACTS_IN_1COMPUTEUNITS //
-// #define _4ACTS_IN_1COMPUTEUNITS
-#define _8ACTS_IN_1COMPUTEUNITS
+// #define ACTSPROC_1by1 //
+// #define ACTSPROC_2by1
+// #define ACTSPROC_4by1
+// #define ACTSPROC_8by1
+#define ACTS_1by1 //
 
 // #define ENABLE_PERFECTACCURACY //
 // #define ENABLE_VOICEOUTREDUCEERRORS //
@@ -27,7 +29,7 @@
 #endif
 
 #define HWIMPLFOR_ACTSPROC
-// #define HWIMPLFOR_ACTSSYNC
+#define HWIMPLFOR_ACTSSYNC
 
 #define USEHBMMEMORY
 // #define USEDDRAMMEMORY

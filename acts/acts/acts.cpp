@@ -317,23 +317,21 @@ topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512
 		
 		actssyncobj.topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11,kvdram12,kvdram13,kvdram14,kvdram15,kvdram16,kvdram17,kvdram18,kvdram19,kvdram20,kvdram21,kvdram22,kvdram23,kvdram24,kvdram25,kvdram26,kvdram27,kvdram28,kvdram29,kvdram30,kvdram31, vdram);
 		
-		cout<<"============================+++ finished ACTS iteration ====================================="<<endl;
-		
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
 		unsigned int totalactvvp = 0;
 		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
 		for(unsigned int i=0; i<256; i++){
 			unsigned int gmask = kvdram0[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
 			totalactvvp += gmask;
+			#ifdef SW 
 			if(gmask > 0){ cout<<i<<", "; }
+			#endif 
 		}
+		#ifdef SW 
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+		#endif 
 	}
-	
-	// cout<<"============================+++ finished ACTS ====================================="<<endl;
-	// exit(EXIT_SUCCESS);
 	return;
 }
 }

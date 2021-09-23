@@ -190,8 +190,8 @@ context['KERNELTYPE'] = "_SINGLEKERNEL"
 relref=""
 # relref="../"
 	
-o_path0=relref+"acts/acts/actsproc.cpp"
-o_path1=relref+"acts/acts/actsproc.h"
+o_path0=relref+"acts/acts/acts.cpp"
+o_path1=relref+"acts/acts/acts.h"
 o_path2=relref+"acts/acts/actsproc.cpp"
 o_path3=relref+"acts/acts/actsproc.h"
 o_path4=relref+"include/common.h"
@@ -435,8 +435,8 @@ env15.globals.update(zip=zip)
 env16.globals.update(zip=zip)
 env17.globals.update(zip=zip)
 
-template0 = env0.get_template('actsproc.template')
-template1 = env1.get_template('actsproc_h.template')
+template0 = env0.get_template('acts.template')
+template1 = env1.get_template('acts_h.template')
 template2 = env2.get_template('actsproc.template')
 template3 = env3.get_template('actsproc_h.template')
 template4 = env4.get_template('common_h.template')

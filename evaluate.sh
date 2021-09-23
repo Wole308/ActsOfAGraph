@@ -504,7 +504,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ8 #
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
-		# for numsubcputhreads in $NUMTHREADS_EQ16
+		# for numsubcputhreads in $NUMTHREADS_EQ16 #
 		# for numsubcputhreads in $NUMTHREADS_EQ18
 		# for numsubcputhreads in $NUMTHREADS_EQ20
 		# for numsubcputhreads in $NUMTHREADS_EQ24
@@ -905,15 +905,15 @@ do
 							then
 								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
 								then
-									make cleanall
-									rm -rf xclbin
-									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-									if test -f "host"; then
-										cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-										echo "kernel.xclbin saved"
-									fi
-									echo "sleeping for 5 seconds before continuing ...."
-									sleep 5
+									# make cleanall
+									# rm -rf xclbin
+									# make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									# if test -f "host"; then
+										# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+										# echo "kernel.xclbin saved"
+									# fi
+									# echo "sleeping for 5 seconds before continuing ...."
+									# sleep 5
 									
 									# make cleanall
 									# rm -rf xclbin
@@ -925,15 +925,15 @@ do
 									# echo "sleeping for 5 seconds before continuing ...."
 									# sleep 5
 									
-									# make cleanall
-									# rm -rf xclbin
-									# make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-									# if test -f "host"; then
-										# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-										# echo "kernel.xclbin saved"
-									# fi
-									# echo "sleeping for 5 seconds before continuing ...."
-									# sleep 5
+									make cleanall
+									rm -rf xclbin
+									make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									if test -f "host"; then
+										cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+										echo "kernel.xclbin saved"
+									fi
+									echo "sleeping for 5 seconds before continuing ...."
+									sleep 5
 									
 								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
 								then

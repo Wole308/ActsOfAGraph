@@ -8,6 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
@@ -30,11 +31,12 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 	#ifdef SW
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
 	kernelobjs_synchronize = new actssync();
+	kernelobjs = new acts();
 	#endif
 }
 swkernel::~swkernel(){}
 
-#ifdef SW
+#if defined(SW) & not defined(ACTS_1by1)
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -77,13 +79,17 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#endif 
 			
 			std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
-			#ifdef _1ACTS_IN_1COMPUTEUNITS
+			
+			#ifdef ACTSPROC_1by1
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i]); }
 			#endif 
-			#ifdef _4ACTS_IN_1COMPUTEUNITS
+			#ifdef ACTSPROC_2by1
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=4){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1]); }				
+			#endif 
+			#ifdef ACTSPROC_4by1
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=4){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1], (uint512_dt *)kvsourcedram[i+2], (uint512_dt *)kvsourcedram[i+3]); }				
 			#endif 
-			#ifdef _8ACTS_IN_1COMPUTEUNITS
+			#ifdef ACTSPROC_8by1
 			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=8){ kernelobjs_process[i]->topkernelproc((uint512_dt *)kvsourcedram[i], (uint512_dt *)kvsourcedram[i+1], (uint512_dt *)kvsourcedram[i+2], (uint512_dt *)kvsourcedram[i+3], (uint512_dt *)kvsourcedram[i+4], (uint512_dt *)kvsourcedram[i+5], (uint512_dt *)kvsourcedram[i+6], (uint512_dt *)kvsourcedram[i+7]); }					
 			#endif 
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
@@ -230,6 +236,75 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 	}
+	
+	#ifdef _DEBUGMODE_TIMERS3
+	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
+	statsobj->appendkerneltimeelapsed(total_time_elapsed);
+	#endif
+	return total_time_elapsed;
+}
+#endif 
+
+#if defined(SW) & defined(ACTS_1by1)
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
+	#ifdef _DEBUGMODE_TIMERS3
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	#endif
+	
+	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
+	unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
+	unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+	unsigned int _BASEOFFSETKVS_STATSDRAM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
+	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
+
+	std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
+	kernelobjs->topkernel(
+		(uint512_dt *)kvsourcedram[0],
+		(uint512_dt *)kvsourcedram[1],
+		(uint512_dt *)kvsourcedram[2],
+		(uint512_dt *)kvsourcedram[3],
+		#if NUMSYNCTHREADS>4
+		(uint512_dt *)kvsourcedram[4],
+		(uint512_dt *)kvsourcedram[5],
+		(uint512_dt *)kvsourcedram[6],
+		(uint512_dt *)kvsourcedram[7],
+		#if NUMSYNCTHREADS>8
+		(uint512_dt *)kvsourcedram[8],
+		(uint512_dt *)kvsourcedram[9],
+		(uint512_dt *)kvsourcedram[10],
+		(uint512_dt *)kvsourcedram[11],
+		#if NUMSYNCTHREADS>12
+		(uint512_dt *)kvsourcedram[12],
+		(uint512_dt *)kvsourcedram[13],
+		(uint512_dt *)kvsourcedram[14],
+		(uint512_dt *)kvsourcedram[15],
+		#if NUMSYNCTHREADS>16
+		(uint512_dt *)kvsourcedram[16],
+		(uint512_dt *)kvsourcedram[17],
+		(uint512_dt *)kvsourcedram[18],
+		(uint512_dt *)kvsourcedram[19],
+		(uint512_dt *)kvsourcedram[20],
+		(uint512_dt *)kvsourcedram[21],
+		(uint512_dt *)kvsourcedram[22],
+		(uint512_dt *)kvsourcedram[23],
+		#if NUMSYNCTHREADS>24
+		(uint512_dt *)kvsourcedram[24],
+		(uint512_dt *)kvsourcedram[25],
+		(uint512_dt *)kvsourcedram[26],
+		(uint512_dt *)kvsourcedram[27],
+		(uint512_dt *)kvsourcedram[28],
+		(uint512_dt *)kvsourcedram[29],
+		(uint512_dt *)kvsourcedram[30],
+		(uint512_dt *)kvsourcedram[31],
+		#endif 
+		#endif 
+		#endif
+		#endif
+		#endif
+		(uint512_dt *)vdram
+	);
+	long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
+	cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();

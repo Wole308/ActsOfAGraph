@@ -76,25 +76,21 @@ topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endf
 		
 		actssyncobj.topkernelsync({%for i in context['SYNCTHREADS_seq']%}kvdram{{i}},{%endfor%} vdram);
 		
-		cout<<"============================+++ finished ACTS iteration ====================================="<<endl;
-		
-		#ifdef SW 
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
 		unsigned int totalactvvp = 0;
 		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
 		for(unsigned int i=0; i<256; i++){
 			unsigned int gmask = kvdram0[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
 			totalactvvp += gmask;
+			#ifdef SW 
 			if(gmask > 0){ cout<<i<<", "; }
+			#endif 
 		}
+		#ifdef SW 
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		#endif 
 	}
-	
-	// cout<<"============================+++ finished ACTS ====================================="<<endl;
-	// exit(EXIT_SUCCESS);
 	return;
 }
 }
