@@ -1,5 +1,5 @@
-#ifndef ACTSPROC_UNOPT_H
-#define ACTSPROC_UNOPT_H
+#ifndef ACTSPROC_H
+#define ACTSPROC_H
 #include <string>
 #include <string.h>
 #include <iostream>
@@ -179,15 +179,19 @@ public:
 	
 	void dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams);
 
-	#ifdef _1ACTS_IN_1COMPUTEUNITS
+	#if defined(ACTS_1by1) || defined(ACTSPROC_1by1)
 	void topkernelproc(uint512_dt * kvdram);
 	#endif 
 	
-	#ifdef _4ACTS_IN_1COMPUTEUNITS
+	#ifdef ACTSPROC_2by1
+	void topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB);
+	#endif 
+	
+	#ifdef ACTSPROC_4by1
 	void topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD);
 	#endif 
 	
-	#ifdef _8ACTS_IN_1COMPUTEUNITS
+	#ifdef ACTSPROC_8by1
 	void topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD, uint512_dt * kvdramE, uint512_dt * kvdramF, uint512_dt * kvdramG, uint512_dt * kvdramH);
 	#endif 
 private:

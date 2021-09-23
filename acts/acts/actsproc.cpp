@@ -3397,15 +3397,15 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof1
-keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
 
-keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3418,8 +3418,8 @@ keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-buffer_type pp0cutoffs[VECTOR_SIZE];
-buffer_type pp1cutoffs[VECTOR_SIZE];
+static buffer_type pp0cutoffs[VECTOR_SIZE];
+static buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3492,16 +3492,16 @@ priorit(bool_type enable, unsigned int mode,
 	#pragma HLS array_partition variable = sourcebufferpp1
 	#endif 
 	
-keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	#ifdef PUP1
-keyvalue_buffer_t bufferpp1_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+static keyvalue_buffer_t bufferpp1_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = bufferpp1_setof8
 	#endif 
 	
-keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	#ifdef PUP1
-keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
+static keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
 	#endif 
 	
 	travstate_t ptravstatepp0 = ptravstate;
@@ -3972,7 +3972,7 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
-#ifdef _1ACTS_IN_1COMPUTEUNITS
+#if defined(ACTS_1by1) || defined(ACTSPROC_1by1)
 extern "C" {
 void 
 	#ifdef SW 
@@ -4052,7 +4052,95 @@ topkernelproc(uint512_dt * kvdram){
 }
 #endif 
 
-#ifdef _4ACTS_IN_1COMPUTEUNITS
+#ifdef ACTSPROC_2by1
+extern "C" {
+void 
+	#ifdef SW 
+	actsproc:: 
+	#endif
+topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
+#pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
+#pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1
+		
+#pragma HLS INTERFACE s_axilite port = kvdramA bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdramB bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#pragma HLS DATA_PACK variable = kvdramA
+#pragma HLS DATA_PACK variable = kvdramB
+
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	#endif
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<">>> ====================== Light weight ACTS (PR: 4 ACTS IN 1 COMPUTEUNITS) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
+	#endif
+	
+	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer
+	keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer
+	unitBRAMwidth_type vmask[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask
+	unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask_subp
+	uint32_type vmask_p[BLOCKRAM_SIZE];
+	
+	globalparams_t globalparamsA = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	
+	globalparams_t globalparamsB = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	
+	// process & partition
+	#ifdef PROCESSMODULE
+	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		cout<<"topkernelproc: processing instance ... "<<endl;
+		#endif
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+	}
+	#endif
+	
+	// partition
+	#ifdef PARTITIONMODULE
+	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		cout<<"topkernelproc: partitioning instance ... "<<endl;
+		#endif
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+	}
+	#endif
+	
+	// reduce & partition
+	#if defined(REDUCEMODULE)
+	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		cout<<"topkernelproc: reducing instance ... "<<endl;
+		#endif
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+	}
+	#endif
+
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	return;
+}
+}
+#endif 
+
+#ifdef ACTSPROC_4by1
 extern "C" {
 void 
 	#ifdef SW 
@@ -4160,7 +4248,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 }
 #endif 
 
-#ifdef _8ACTS_IN_1COMPUTEUNITS
+#ifdef ACTSPROC_8by1
 extern "C" {
 void 
 	#ifdef SW 
@@ -4307,8 +4395,6 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 }
 }
 #endif 
-
-
 
 
 

@@ -1,0 +1,108 @@
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+#include "../../include/config_params.h"
+#include "../../include/common.h"
+#include "../include/actscommon.h"
+#ifndef FPGA_IMPL
+#include "../../src/utility/utility.h"
+#endif 
+#ifndef HW
+#include "../../acts/actsutility/actsutility.h"
+#endif 
+#include "acts.h"
+#include "actsproc.h"
+#include "actssync.h"
+using namespace std;
+
+actsproc actsprocobj;
+actssync actssyncobj;
+
+#ifdef SW
+acts::acts(){}
+acts::~acts(){}
+#endif
+
+extern "C" {
+void 
+	#ifdef SW 
+	acts:: 
+	#endif
+topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+{%for i in context['SYNCTHREADS_seq']%} 
+#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
+{%endfor%}
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSYNCTHREADS']}}
+
+{%for i in context['SYNCTHREADS_seq']%}
+#pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
+{%endfor%}
+#pragma HLS INTERFACE s_axilite port = vdram bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+{%for i in context['SYNCTHREADS_seq']%}
+#pragma HLS DATA_PACK variable = kvdram{{i}}
+{%endfor%}
+#pragma HLS DATA_PACK variable = vdram
+
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
+	#endif
+	
+	unsigned int numIters = actsprocobj.GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0); // kvdram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
+	
+	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
+		cout<<">>> swkernel::runapp(ACTS_1by1): Iteration: "<<GraphIter<<endl;
+		
+		{%for i in context['SYNCTHREADS_seq']%} 
+		kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
+		{%endfor%}
+		
+		{%for i in context['SYNCTHREADS_seq']%} 
+		actsprocobj.topkernelproc(kvdram{{i}});
+		{%endfor%}
+		
+		actssyncobj.topkernelsync({%for i in context['SYNCTHREADS_seq']%}kvdram{{i}},{%endfor%} vdram);
+		
+		cout<<"============================+++ finished ACTS iteration ====================================="<<endl;
+		
+		#ifdef SW 
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
+		unsigned int totalactvvp = 0;
+		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
+		for(unsigned int i=0; i<256; i++){
+			unsigned int gmask = kvdram0[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
+			totalactvvp += gmask;
+			if(gmask > 0){ cout<<i<<", "; }
+		}
+		cout<<""<<endl;
+		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+		#endif 
+	}
+	
+	// cout<<"============================+++ finished ACTS ====================================="<<endl;
+	// exit(EXIT_SUCCESS);
+	return;
+}
+}
+
+
+
+
+
+
+
+
