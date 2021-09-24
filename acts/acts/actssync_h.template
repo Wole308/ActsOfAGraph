@@ -34,31 +34,31 @@ public:
 	
 	#ifdef SW  // CRITICAL REMOVEME.
 	// functions (basic)
-	unsigned int amin(unsigned int val1, unsigned int val2);
-	unsigned int aplus(unsigned int val1, unsigned int val2);
+	unsigned int SYNC_amin(unsigned int val1, unsigned int val2);
+	unsigned int SYNC_aplus(unsigned int val1, unsigned int val2);
 	
 	// functions (bit manipulation)
-	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
-	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
+	unsigned int SYNC_GETMASK_UINT(unsigned int index, unsigned int size);
+	unsigned int SYNC_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
+	void SYNC_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	
 	// functions (converters)
-	keyvalue_t GETKV(keyvalue_buffer_t data);
-	keyvalue_buffer_t GETKV(keyvalue_t data);
-	keyy_t GETK(uint32_type data);
-	value_t GETV(uint32_type data);
-	keyvalue_t GETKV2(keyvalue_vbuffer_t data);
-	keyvalue_vbuffer_t GETKV2(keyvalue_t data);
-	keyy_t GETK2(uint32_type data);
-	value_t GETV2(uint32_type data);
+	keyvalue_t SYNC_GETKV(keyvalue_buffer_t data);
+	keyvalue_buffer_t SYNC_GETKV(keyvalue_t data);
+	keyy_t SYNC_GETK(uint32_type data);
+	value_t SYNC_GETV(uint32_type data);
+	keyvalue_t SYNC_GETKV2(keyvalue_vbuffer_t data);
+	keyvalue_vbuffer_t SYNC_GETKV2(keyvalue_t data);
+	keyy_t SYNC_GETK2(uint32_type data);
+	value_t SYNC_GETV2(uint32_type data);
 	uint32_type convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index);
-	keyy_t GETKEYENTRY(uint512_dt data, unsigned int v);
+	keyy_t SYNC_GETKEYENTRY(uint512_dt data, unsigned int v);
 	value_t GETVALUEENTRY(uint512_dt data, unsigned int v);
 	
 	// functions (actssync utilities)
-	batch_type get_num_source_partitions(step_type currentLOP);
-	globalparams_t getglobalparams(uint512_dt * kvdram);
-	travstate_t gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
+	batch_type SYNC_get_num_source_partitions(step_type currentLOP);
+	globalparams_t SYNC_getglobalparams(uint512_dt * kvdram);
+	travstate_t SYNC_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
 	
 	// functions (accessors)
 	void readvdata(bool_type enable1, bool_type enable2, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);

@@ -45,6 +45,19 @@ actsproc::~actsproc(){}
 actsutility * actsutilityobj = new actsutility();
 #endif
 
+unsigned int 
+	#ifdef SW 
+	actsproc:: 
+	#endif
+test(uint512_dt * kvdram){
+	#ifdef _WIDEWORD
+	unsigned int returnme = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
+	#else 
+	unsigned int returnme = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+	#endif 
+	return returnme;
+}
+
 // functions (basic)
 unsigned int
 	#ifdef SW 
@@ -2959,13 +2972,15 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
-#if defined(ACTS_1by1) || defined(ACTSPROC_1by1)
+// #if defined(ACTS_1by1) || defined(ACTSPROC_1by1)
+#ifdef ACTSPROC_1by1
 extern "C" {
 void 
 	#ifdef SW 
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdram){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0			
 		
 #pragma HLS INTERFACE s_axilite port = kvdram bundle = control
@@ -2973,7 +2988,7 @@ topkernelproc(uint512_dt * kvdram){
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #pragma HLS DATA_PACK variable = kvdram
-
+#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
@@ -3382,8 +3397,6 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 }
 }
 #endif 
-
-
 
 
 

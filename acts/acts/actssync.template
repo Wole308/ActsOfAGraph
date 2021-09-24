@@ -46,7 +46,7 @@ unsigned int
 	#ifdef SW 
 	actssync::
 	#endif 
-amin(unsigned int val1, unsigned int val2){
+SYNC_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
@@ -54,7 +54,7 @@ unsigned int
 	#ifdef SW 
 	actssync::
 	#endif 
-aplus(unsigned int val1, unsigned int val2){
+SYNC_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
 
@@ -63,7 +63,7 @@ unsigned int
 	#ifdef SW 
 	actssync::
 	#endif
-GETMASK_UINT(unsigned int index, unsigned int size){
+SYNC_GETMASK_UINT(unsigned int index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
@@ -72,17 +72,17 @@ unsigned int
 	#ifdef SW 
 	actssync::
 	#endif
-READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
-	return (((data) & GETMASK_UINT((index), (size))) >> (index)); 
+SYNC_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+	return (((data) & SYNC_GETMASK_UINT((index), (size))) >> (index)); 
 }
 void
 	#ifdef SW 
 	actssync::
 	#endif
-WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+SYNC_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
-	unsigned int B = (~GETMASK_UINT((index), (size)));
+	unsigned int B = (~SYNC_GETMASK_UINT((index), (size)));
 	unsigned int C = ((tempdata) & (B));
 	unsigned int D = (C) | A;
 	*data = D;
@@ -103,7 +103,7 @@ keyvalue_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETKV(keyvalue_buffer_t data){
+SYNC_GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res; 
 	#ifdef _WIDEWORD
@@ -119,7 +119,7 @@ keyvalue_buffer_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETKV(keyvalue_t data){
+SYNC_GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
@@ -135,7 +135,7 @@ keyy_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETK(uint32_type data){
+SYNC_GETK(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_KEY - 1, 0);
@@ -147,7 +147,7 @@ value_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETV(uint32_type data){
+SYNC_GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VALUE - 1, 0);
@@ -159,7 +159,7 @@ keyvalue_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETKV2(keyvalue_vbuffer_t data){
+SYNC_GETKV2(keyvalue_vbuffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
@@ -175,7 +175,7 @@ keyvalue_vbuffer_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETKV2(keyvalue_t data){
+SYNC_GETKV2(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_vbuffer_t res;
 	#ifdef _WIDEWORD
@@ -191,7 +191,7 @@ keyy_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETK2(uint32_type data){
+SYNC_GETK2(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VDATAKEY - 1, 0);
@@ -203,7 +203,7 @@ value_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETV2(uint32_type data){
+SYNC_GETV2(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VDATAKEY - 1, 0);
@@ -224,8 +224,8 @@ convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index
 	{%endfor%}
 	#else 
 	{%for v in context['16_seq']%}
-	WRITETO_UINT(&res, {{v*2}}, 1, vmask[index].data[{{v}}].key);
-	WRITETO_UINT(&res, {{v*2+1}}, 1, vmask[index].data[{{v}}].value);
+	SYNC_WRITETO_UINT(&res, {{v*2}}, 1, vmask[index].data[{{v}}].key);
+	SYNC_WRITETO_UINT(&res, {{v*2+1}}, 1, vmask[index].data[{{v}}].value);
 	{%endfor%}
 	#endif
 	return res;
@@ -234,7 +234,7 @@ keyy_t
 	#ifdef SW 
 	actssync::
 	#endif 
-GETKEYENTRY(uint512_dt data, unsigned int v){
+SYNC_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
@@ -260,7 +260,7 @@ batch_type
 	#ifdef SW 
 	actssync::
 	#endif 
-get_num_source_partitions(step_type currentLOP){
+SYNC_get_num_source_partitions(step_type currentLOP){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -275,7 +275,7 @@ globalparams_t
 	#ifdef SW 
 	actssync::
 	#endif 
-getglobalparams(uint512_dt * kvdram){
+SYNC_getglobalparams(uint512_dt * kvdram){
 	globalparams_t globalparams;
 	#ifdef _WIDEWORD
 	globalparams.ENABLE_RUNKERNELCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].range(31, 0);
@@ -393,7 +393,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key;
 	#endif  
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printglobalparameters("actssync::getglobalparams:: printing global parameters", globalparams);
+	actsutilityobj->printglobalparameters("actssync::SYNC_getglobalparams:: printing global parameters", globalparams);
 	#endif
 	return globalparams;
 }
@@ -401,7 +401,7 @@ travstate_t
 	#ifdef SW 
 	actssync::
 	#endif 
-gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
+SYNC_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
 	travstate_t travstate;
 	if(enable == OFF){ return travstate; }
 	keyvalue_t keyvalue;
@@ -416,7 +416,7 @@ gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams,
 		#else
 			
 		
-		if(globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker >= PADDEDKVSOURCEDRAMSZ){ cout<<"gettravstate:: ERROR: globalparams.BASEOFFSETKVS_STATSDRAM("<<globalparams.BASEOFFSETKVS_STATSDRAM<<") + sourcestatsmarker("<<sourcestatsmarker<<") >= PADDEDKVSOURCEDRAMSZ_KVS("<<PADDEDKVSOURCEDRAMSZ_KVS<<")"<<endl; exit(EXIT_FAILURE); }
+		if(globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker >= PADDEDKVSOURCEDRAMSZ){ cout<<"SYNC_gettravstate:: ERROR: globalparams.BASEOFFSETKVS_STATSDRAM("<<globalparams.BASEOFFSETKVS_STATSDRAM<<") + sourcestatsmarker("<<sourcestatsmarker<<") >= PADDEDKVSOURCEDRAMSZ_KVS("<<PADDEDKVSOURCEDRAMSZ_KVS<<")"<<endl; exit(EXIT_FAILURE); }
 		
 		keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].key; 
 		keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].value; 
@@ -469,7 +469,7 @@ readvdata(bool_type enable1, bool_type enable2, uint512_dt * kvdram, batch_type 
 		#endif
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[begincol + {{v}}][bufferoffset_kvs + i] = GETKV2(mykeyvalue{{v}});
+		buffer[begincol + {{v}}][bufferoffset_kvs + i] = SYNC_GETKV2(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_STATS
@@ -501,7 +501,7 @@ applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Graph
 	} else if(GraphAlgo == BFS){
 		temp = res;
 	} else if(GraphAlgo == SSSP){
-		temp = amin(vtemp, res);
+		temp = SYNC_amin(vtemp, res);
 	} else {
 		temp = NAp;
 	}
@@ -518,9 +518,9 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	if(GraphAlgo == PAGERANK){
 		res = value1 + value2;
 	} else if(GraphAlgo == BFS){
-		res = amin(value1, value2);
+		res = SYNC_amin(value1, value2);
 	} else if(GraphAlgo == SSSP){
-		res = amin(value1, value2);
+		res = SYNC_amin(value1, value2);
 	} else {
 		res = NAp;
 	}
@@ -594,13 +594,13 @@ readandsynchronize(bool_type enable1, bool_type enable2, {%for i in context['4_s
 		{%endfor%}
 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{3+1}});
+		res[{{v}}][i] = SYNC_GETKV2(keyvalue{{v}}_vault{{3+1}});
 		{%endfor%}
 	
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[{{v}}][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[{{v}}][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 	}
@@ -642,26 +642,26 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	#pragma HLS PIPELINE II=1
 		// synchronize
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
+		keyvalue{{v}}_vault1 = SYNC_GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		{%if(i>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, SYNC_GETKV2(buffer{{i}}[{{v}}][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, SYNC_GETKV2(buffer{{i}}[{{v}}][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}	
 		{%endif%}
 		{%endfor%}
 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		res[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}});
+		res[{{v}}][i] = SYNC_GETKV2(keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[{{v}}][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[{{v}}][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -677,7 +677,7 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		keyvalue_t data{{v}} = keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}};
 		{%endfor%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t udata{{v}} = GETKV2(refbuffer[{{v}}][i]);
+		keyvalue_t udata{{v}} = SYNC_GETKV2(refbuffer[{{v}}][i]);
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -746,21 +746,21 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}	
-		keyvalue_t udata{{v}} = GETKV2(refbuffer[{{v}}][i]);
+		keyvalue_t udata{{v}} = SYNC_GETKV2(refbuffer[{{v}}][i]);
 		{%endfor%}
 		
 		// synchronize // NEWCHANGE.
 		{%if(context['NUMSYNCTHREADS_DIV_4']>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}	
-		keyvalue{{v}}_vault1 = GETKV2(buffer0[{{v}}][i]); 
+		keyvalue{{v}}_vault1 = SYNC_GETKV2(buffer0[{{v}}][i]); 
 		{%endfor%}
 		{%endif%}
 			
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		{%if(i>0)%}
 		{%for v in context['VECTOR_SIZE_seq']%}	
-		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, GETKV2(buffer{{i}}[{{v}}][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, GETKV2(buffer{{i}}[{{v}}][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue{{v}}_vault{{i+1}}.key = mergefunc(keyvalue{{v}}_vault{{i}}.key, SYNC_GETKV2(buffer{{i}}[{{v}}][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue{{v}}_vault{{i+1}}.value = mergefunc(keyvalue{{v}}_vault{{i}}.value, SYNC_GETKV2(buffer{{i}}[{{v}}][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		{%endfor%}	
 		{%endif%}
 		{%endfor%}
@@ -769,13 +769,13 @@ synchronizeandapply(bool_type enable1, bool_type enable2, {%for i in context['NU
 		keyvalue_t mykeyvalue{{v}};
 		mykeyvalue{{v}}.key = mergefunc(udata{{v}}.key, keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}}.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		mykeyvalue{{v}}.value = mergefunc(udata{{v}}.value, keyvalue{{v}}_vault{{context['NUMSYNCTHREADS_DIV_4']}}.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res[{{v}}][i] = GETKV2(mykeyvalue{{v}});
+		res[{{v}}][i] = SYNC_GETKV2(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(res[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(res[{{v}}][i]).value < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[{{v}}][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[{{v}}][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -848,20 +848,20 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDAT
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault0 = GETKV2(source[{{v}}][i]); 
+		keyvalue{{v}}_vault0 = SYNC_GETKV2(source[{{v}}][i]); 
 		{%endfor%}
 			
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer{{i}}[{{v}}][i] = GETKV2(keyvalue{{v}}_vault{{i}});
+		buffer{{i}}[{{v}}][i] = SYNC_GETKV2(keyvalue{{v}}_vault{{i}});
 		keyvalue{{v}}_vault{{i+1}} = keyvalue{{v}}_vault{{i}};
 		{%endfor%}	
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKV2(buffer{{context['NUMSYNCTHREADS_DIV_4']-1}}[{{v}}][i]).key < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETKV2(buffer{{context['NUMSYNCTHREADS_DIV_4']-1}}[{{v}}][i]).value < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer{{context['NUMSYNCTHREADS_DIV_4']-1}}[{{v}}][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer{{context['NUMSYNCTHREADS_DIV_4']-1}}[{{v}}][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 	}
@@ -935,7 +935,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 	#pragma HLS PIPELINE II=1
 		// spread operation
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault0 = GETKV2(source[{{v}}][i]); 
+		keyvalue{{v}}_vault0 = SYNC_GETKV2(source[{{v}}][i]); 
 		{%endfor%}
 		
 		#ifdef _WIDEWORD
@@ -958,8 +958,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -974,8 +974,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		{%endfor%}
 		#else
 		{%for v in context['16_seq']%}
-		WRITETO_UINT(&tempbuffer[X][Y], {{v*2}}, 1, vmask[i].data[{{v}}].key);
-		WRITETO_UINT(&tempbuffer[X][Y], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], {{v*2}}, 1, vmask[i].data[{{v}}].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
 		{%endfor%}
 		#endif
 	}
@@ -1060,7 +1060,7 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 	#pragma HLS PIPELINE II=1
 		// spread operation
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue{{v}}_vault0 = GETKV2(source[{{v}}][i]); 
+		keyvalue{{v}}_vault0 = SYNC_GETKV2(source[{{v}}][i]); 
 		{%endfor%}
 		
 		#ifdef _WIDEWORD
@@ -1083,8 +1083,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 		{%for v in context['VECTOR_SIZE_seq']%}
-		if(GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], {{v}}) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<({{v}}*REDUCESZ + 2*i + 1)<<endl; } 
 		{%endfor%}
 		#endif
 		
@@ -1112,8 +1112,8 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		{%endfor%}
 		#else
 		{%for v in context['16_seq']%}
-		WRITETO_UINT(&tempbuffer[X][Y], {{v*2}}, 1, vmask[i].data[{{v}}].key);
-		WRITETO_UINT(&tempbuffer[X][Y], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], {{v*2}}, 1, vmask[i].data[{{v}}].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], {{v*2+1}}, 1, vmask[i].data[{{v}}].value);
 		{%endfor%}
 		#endif
 	}
@@ -1168,6 +1168,7 @@ void
 	actssync::
 	#endif
 topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+#ifndef ACTS_1by1
 {%for i in context['SYNCTHREADS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
@@ -1184,9 +1185,10 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
+#endif 
 	
 	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
-	cout<<">>> ====================== Light weight ACTS (SYNC: NACTS_IN_NSYNCTHREADS) Launched... size: "<<GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
+	cout<<">>> ====================== Light weight ACTS (SYNC: NACTS_IN_NSYNCTHREADS) Launched... size: "<<SYNC_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
 	keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1249,7 +1251,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	vmaskptemp{{i}}_level3[0] = 0; vmaskptemp{{i}}_level3[1] = 0;
 	{%endfor%}
 
-	globalparams[0] = getglobalparams(kvdram0);
+	globalparams[0] = SYNC_getglobalparams(kvdram0);
 	{%for i in context['SYNCTHREADS_seq']%}
 	{%if(i>0)%}
 	globalparams[{{i}}] = globalparams[0];
@@ -1278,7 +1280,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH;
-	batch_type num_source_partitions = get_num_source_partitions(currentLOP);
+	batch_type num_source_partitions = SYNC_get_num_source_partitions(currentLOP);
 	#else 
 	step_type currentLOP = _globalparams.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
 	batch_type num_source_partitions = NUM_PARTITIONS;
@@ -1310,7 +1312,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		// #ifndef TRAD_PARTITION_AND_REDUCE_STRETEGY // NEWCHANGE.
 		unsigned int ntravszs = 0;
 		{%for i in context['SYNCTHREADS_seq']%}
-		rtravstate[{{i}}] = gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
+		rtravstate[{{i}}] = SYNC_gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
 		{%endfor%}
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
