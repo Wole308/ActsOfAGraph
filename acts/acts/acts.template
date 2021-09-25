@@ -22,16 +22,20 @@
 #include "../../acts/actsutility/actsutility.h"
 #endif 
 #include "acts.h"
+// #ifndef FPGA_IMPL
 #include "actsproc.h"
 #include "actssync.h"
-// #include "actsproc.cpp" // REMOVEME?
-// #include "actssync.cpp" // REMOVEME?
+// #endif 
 using namespace std;
 
 #ifdef SW
 acts::acts(){}
 acts::~acts(){}
 #endif
+#ifdef SW
+actsproc actsprocobj;
+actssync actssyncobj;
+#endif 
 
 // INCLUDE PROC & SYNC FILE ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define INCLUDEPROC
@@ -39,7 +43,7 @@ acts::~acts(){}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDE PROC FILE ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef INCLUDEPROC
+#if defined(FPGA_IMPL) & defined(INCLUDEPROC)
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define NUMPIPELINES_PARTITIONUPDATES 2 // REMOVEME.
 #else 
@@ -2975,22 +2979,22 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
-// #if defined(ACTS_1by1) || defined(ACTSPROC_1by1)
 #ifdef ACTSPROC_1by1
-// extern "C" {
+extern "C" {
 void 
 	#ifdef SW 
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdram){
-/* #pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0			
+#ifndef ACTS_1by1
+#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0			
 		
 #pragma HLS INTERFACE s_axilite port = kvdram bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-#pragma HLS DATA_PACK variable = kvdram */
-
+#pragma HLS DATA_PACK variable = kvdram
+#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
@@ -3053,7 +3057,7 @@ topkernelproc(uint512_dt * kvdram){
 	#endif
 	return;
 }
-// }
+}
 #endif 
 
 #ifdef ACTSPROC_2by1
@@ -3063,6 +3067,7 @@ void
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
 #pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1
 		
@@ -3073,6 +3078,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
 
 #pragma HLS DATA_PACK variable = kvdramA
 #pragma HLS DATA_PACK variable = kvdramB
+#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -3151,6 +3157,7 @@ void
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
 #pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1	
 #pragma HLS INTERFACE m_axi port = kvdramC offset = slave bundle = gmem2
@@ -3167,6 +3174,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 #pragma HLS DATA_PACK variable = kvdramB
 #pragma HLS DATA_PACK variable = kvdramC
 #pragma HLS DATA_PACK variable = kvdramD
+#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -3259,6 +3267,7 @@ void
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD, uint512_dt * kvdramE, uint512_dt * kvdramF, uint512_dt * kvdramG, uint512_dt * kvdramH){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
 #pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1	
 #pragma HLS INTERFACE m_axi port = kvdramC offset = slave bundle = gmem2
@@ -3287,6 +3296,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 #pragma HLS DATA_PACK variable = kvdramF
 #pragma HLS DATA_PACK variable = kvdramG
 #pragma HLS DATA_PACK variable = kvdramH
+#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -3400,24 +3410,11 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 }
 #endif 
 
-
-unsigned int 
-	#ifdef SW 
-	actsproc:: 
-	#endif
-test(uint512_dt * kvdram){
-	#ifdef _WIDEWORD
-	unsigned int returnme = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
-	#else 
-	unsigned int returnme = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	#endif 
-	return returnme;
-}
 #endif 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // INCLUDE SYNC FILE ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef INCLUDESYNC
+#if defined(FPGA_IMPL) & defined(INCLUDESYNC) 
 #define NUMPIPELINES_SYNC 1 // 2 // CRITICAL FIXME. CORRECTME.
 #if NUMPIPELINES_SYNC==1
 #define SUP0
@@ -3431,7 +3428,7 @@ test(uint512_dt * kvdram){
 actssync::actssync(){ actsutilityobj = new actsutility(); }
 actssync::~actssync(){}
 #endif
-#ifdef FPGA_IMPL
+#ifdef SWEMU
 actssync::actssync(){}
 actssync::~actssync(){}
 actsutility * actsutilityobj = new actsutility();
@@ -4809,67 +4806,63 @@ void
 	#ifdef SW 
 	acts:: 
 	#endif
-topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
-{%for i in context['SYNCTHREADS_seq']%} 
+topkernel({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+{%for i in context['NUMSUBCPUTHREADS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSYNCTHREADS']}}
 
-{%for i in context['SYNCTHREADS_seq']%}
+{%for i in context['NUMSUBCPUTHREADS_seq']%}
 #pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
 {%endfor%}
 #pragma HLS INTERFACE s_axilite port = vdram bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-{%for i in context['SYNCTHREADS_seq']%}
+{%for i in context['NUMSUBCPUTHREADS_seq']%}
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
-	// #ifdef YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
-	// actsproc actsprocobj;
-	
-	// unsigned int numIters = actsprocobj.GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	// {%for i in context['SYNCTHREADS_seq']%} 
-	// kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = actsprocobj.test(kvdram{{i}});
-	// {%endfor%}
-	
-	// unsigned int numIters = GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	// {%for i in context['SYNCTHREADS_seq']%} 
-	// kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = test(kvdram{{i}});
-	// {%endfor%}
-	// #endif 
-	
-	// #ifdef XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// actsproc actsprocobj;
-	// actssync actssyncobj;
-	unsigned int numIters = GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
+	unsigned int numIters = {%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
 	GRAPHITER_LOOP: for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<<">>> swkernel::runapp(ACTS_1by1): Iteration: "<<GraphIter<<endl;
 		
 		#ifdef _WIDEWORD
-		{%for i in context['SYNCTHREADS_seq']%} 
+		{%for i in context['NUMSUBCPUTHREADS_seq']%} 
 		kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
 		{%endfor%}
 		#else 
-		{%for i in context['SYNCTHREADS_seq']%} 
+		{%for i in context['NUMSUBCPUTHREADS_seq']%} 
 		kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
 		{%endfor%}
 		#endif 
 		
-		/* {%for i in context['SYNCTHREADS_seq']%} 
-		topkernelproc(kvdram{{i}});
+		#ifdef ACTSPROC_1by1
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}
+		{%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}topkernelproc({%for j in context['1_seq']%}{%if(j>0)%},{%endif%}kvdram{{i*1+j}}{%endfor%});	
 		{%endfor%}
-		topkernelsync({%for i in context['SYNCTHREADS_seq']%}kvdram{{i}},{%endfor%} vdram); */
-		{%for i in context['SYNCTHREADS_seq']%} 
-		topkernelproc(kvdram{{i}});
+		#endif 
+		#ifdef ACTSPROC_2by1
+		{%for i in context['NUMSUBCPUTHREADS_DIV2_seq']%}
+		{%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}topkernelproc({%for j in context['2_seq']%}{%if(j>0)%},{%endif%}kvdram{{i*2+j}}{%endfor%});	
 		{%endfor%}
-		topkernelsync({%for i in context['SYNCTHREADS_seq']%}kvdram{{i}},{%endfor%} vdram);
+		#endif 	
+		#ifdef ACTSPROC_4by1
+		{%for i in context['NUMSUBCPUTHREADS_DIV4_seq']%}
+		{%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}topkernelproc({%for j in context['4_seq']%}{%if(j>0)%},{%endif%}kvdram{{i*4+j}}{%endfor%});	
+		{%endfor%}
+		#endif 	
+		#ifdef ACTSPROC_8by1
+		{%for i in context['NUMSUBCPUTHREADS_DIV8_seq']%}
+		{%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}topkernelproc({%for j in context['8_seq']%}{%if(j>0)%},{%endif%}kvdram{{i*8+j}}{%endfor%});	
+		{%endfor%}
+		#endif 	
+		{%if(context['XWARE'] == "SW")%}actssyncobj.{%endif%}topkernelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}kvdram{{i}},{%endfor%} vdram);
 		
 		#ifdef _WIDEWORD
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
@@ -4896,7 +4889,6 @@ topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endf
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		#endif 
 	}
-	// #endif 
 	return;
 }
 }

@@ -2972,7 +2972,6 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
-// #if defined(ACTS_1by1) || defined(ACTSPROC_1by1)
 #ifdef ACTSPROC_1by1
 extern "C" {
 void 
@@ -3061,6 +3060,7 @@ void
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
 #pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1
 		
@@ -3071,6 +3071,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
 
 #pragma HLS DATA_PACK variable = kvdramA
 #pragma HLS DATA_PACK variable = kvdramB
+#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -3149,6 +3150,7 @@ void
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
 #pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1	
 #pragma HLS INTERFACE m_axi port = kvdramC offset = slave bundle = gmem2
@@ -3165,6 +3167,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 #pragma HLS DATA_PACK variable = kvdramB
 #pragma HLS DATA_PACK variable = kvdramC
 #pragma HLS DATA_PACK variable = kvdramD
+#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -3257,6 +3260,7 @@ void
 	actsproc:: 
 	#endif
 topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD, uint512_dt * kvdramE, uint512_dt * kvdramF, uint512_dt * kvdramG, uint512_dt * kvdramH){
+#ifndef ACTS_1by1
 #pragma HLS INTERFACE m_axi port = kvdramA offset = slave bundle = gmem0		
 #pragma HLS INTERFACE m_axi port = kvdramB offset = slave bundle = gmem1	
 #pragma HLS INTERFACE m_axi port = kvdramC offset = slave bundle = gmem2
@@ -3285,6 +3289,7 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 #pragma HLS DATA_PACK variable = kvdramF
 #pragma HLS DATA_PACK variable = kvdramG
 #pragma HLS DATA_PACK variable = kvdramH
+#endif 
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();

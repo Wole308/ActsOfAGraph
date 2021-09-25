@@ -36,6 +36,8 @@ public:
 	actsproc();
 	~actsproc();
 	
+	unsigned int test(uint512_dt * kvdram);
+	
 	// functions (basic)
 	unsigned int amin(unsigned int val1, unsigned int val2);
 	unsigned int aplus(unsigned int val1, unsigned int val2);
@@ -195,8 +197,6 @@ public:
 	#ifdef ACTSPROC_8by1
 	void topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, uint512_dt * kvdramD, uint512_dt * kvdramE, uint512_dt * kvdramF, uint512_dt * kvdramG, uint512_dt * kvdramH);
 	#endif 
-	
-	unsigned int test(uint512_dt * kvdram);
 	
 private:
 	#ifndef FPGA_IMPL

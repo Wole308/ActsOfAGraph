@@ -1,11 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -75,8 +72,8 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 8
-#define NUMSYNCTHREADS 8
+#define NUMSUBCPUTHREADS 32
+#define NUMSYNCTHREADS 32
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -86,7 +83,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 8
+#define NUMCOMPUTEUNITS 32
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.

@@ -372,6 +372,18 @@ context['NUMSUBCPUTHREADS_seq'] = []
 for i in range (0,(context['NUMSUBCPUTHREADS'])):
 		context['NUMSUBCPUTHREADS_seq'].append(i)
         
+context['NUMSUBCPUTHREADS_DIV2_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS']/2)):
+		context['NUMSUBCPUTHREADS_DIV2_seq'].append(i)
+        
+context['NUMSUBCPUTHREADS_DIV4_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS']/4)):
+		context['NUMSUBCPUTHREADS_DIV4_seq'].append(i)
+        
+context['NUMSUBCPUTHREADS_DIV8_seq'] = []
+for i in range (0,(context['NUMSUBCPUTHREADS']/8)):
+		context['NUMSUBCPUTHREADS_DIV8_seq'].append(i)
+        
 # SYNC 
 # context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / 2
 context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] # CRITICAL FIXME, CRITICAL REMOVEME

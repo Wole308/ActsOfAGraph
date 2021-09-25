@@ -9,7 +9,7 @@
 #define ACTS_1by1 //
 #define ACTSPROC_1by1 //
 // #define ACTSPROC_2by1
-// #define ACTSPROC_4by1
+// #define ACTSPROC_4by1 //
 // #define ACTSPROC_8by1
 
 // #define ENABLE_PERFECTACCURACY //
