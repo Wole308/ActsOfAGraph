@@ -3097,45 +3097,45 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
 	#pragma HLS DATA_PACK variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsA = getglobalparams(kvdramA);
-	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	globalparams_t globalparamsK = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsK); }
 	
-	globalparams_t globalparamsB = getglobalparams(kvdramB);
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	globalparams_t globalparamsE = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsE); }
 	
 	// process & partition
 	#ifdef PROCESSMODULE
-	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 	}
 	#endif
 	
 	// partition
 	#ifdef PARTITIONMODULE
-	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 	}
 	#endif
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
-	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
-		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsK);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
 	}
 	#endif
 
@@ -3193,14 +3193,14 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	#pragma HLS DATA_PACK variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsA = getglobalparams(kvdramA);
-	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	globalparams_t globalparamsK = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsK); }
 	
-	globalparams_t globalparamsB = getglobalparams(kvdramB);
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	globalparams_t globalparamsE = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsE); }
 	
 	globalparams_t globalparamsC = getglobalparams(kvdramC);
 	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramC, vmask_p, globalparamsC.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
@@ -3212,12 +3212,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// process & partition
 	#ifdef PROCESSMODULE
-	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(ON, OFF, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(ON, OFF, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 	}
@@ -3225,12 +3225,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// partition
 	#ifdef PARTITIONMODULE
-	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(OFF, ON, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(OFF, ON, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 	}
@@ -3238,12 +3238,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
-	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
-		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsK);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
 		dispatch_reduce(kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsC);
 		dispatch_reduce(kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsD);
 	}
@@ -3315,14 +3315,14 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	#pragma HLS DATA_PACK variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsA = getglobalparams(kvdramA);
-	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	globalparams_t globalparamsK = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsK); }
 	
-	globalparams_t globalparamsB = getglobalparams(kvdramB);
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	globalparams_t globalparamsE = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsE); }
 	
 	globalparams_t globalparamsC = getglobalparams(kvdramC);
 	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramC, vmask_p, globalparamsC.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
@@ -3350,12 +3350,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// process & partition
 	#ifdef PROCESSMODULE
-	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(ON, OFF, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(ON, OFF, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 		dispatch(ON, OFF, OFF, kvdramE, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
@@ -3367,12 +3367,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// partition
 	#ifdef PARTITIONMODULE
-	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(OFF, ON, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(OFF, ON, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 		dispatch(OFF, ON, OFF, kvdramE, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
@@ -3384,12 +3384,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
-	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
-		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsK);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
 		dispatch_reduce(kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsC);
 		dispatch_reduce(kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsD);
 		dispatch_reduce(kvdramE, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
@@ -4564,7 +4564,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 /* {%for i in context['SYNCTHREADS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSYNCTHREADS']}}
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSUBCPUTHREADS']}}
 
 {%for i in context['SYNCTHREADS_seq']%}
 #pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
@@ -4585,7 +4585,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = refbuffer
 	
-	travstate_t rtravstate[NUMSYNCTHREADS];
+	travstate_t rtravstate[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=rtravstate complete
 	
 	//
@@ -4625,7 +4625,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	{%endfor%}
 	
 	//
-	globalparams_t globalparams[NUMSYNCTHREADS];
+	globalparams_t globalparams[NUMSUBCPUTHREADS];
 	#pragma HLS ARRAY_PARTITION variable=globalparams complete
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
@@ -4705,7 +4705,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		{%for i in context['SYNCTHREADS_seq']%}
 		rtravstate[{{i}}] = SYNC_gettravstate(ON, kvdram{{i}}, globalparams[{{i}}], currentLOP, sourcestatsmarker);
 		{%endfor%}
-		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
+		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		// #endif 
 		
@@ -4801,20 +4801,27 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 #endif 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 extern "C" {
 void 
 	#ifdef SW 
 	acts:: 
 	#endif
-topkernel({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+topkernel(
+	{%for i in context['NUMSUBCPUTHREADS_seq']%}
+	uint512_dt * kvdram{{i}},
+	{%endfor%} 
+	uint512_dt * vdram){
+		
 {%for i in context['NUMSUBCPUTHREADS_seq']%} 
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endfor%}
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSYNCTHREADS']}}
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSUBCPUTHREADS']}}
 
 {%for i in context['NUMSUBCPUTHREADS_seq']%}
 #pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
 {%endfor%}
+
 #pragma HLS INTERFACE s_axilite port = vdram bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
@@ -4892,9 +4899,107 @@ topkernel({%for i in context['NUMSUBCPUTHREADS_seq']%}uint512_dt * kvdram{{i}},{
 	return;
 }
 }
+#endif 
 
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+extern "C" {
+void 
+	#ifdef SW 
+	acts:: 
+	#endif
+topkernel(
+	{%for i in context['NUMSUBCPUTHREADS_seq']%}
+	uint512_dt * edges{{i}},
+	uint512_dt * kvdram{{i}},
+	{%endfor%} 
+	uint512_dt * vdram){
+		
+{%for i in context['NUMSUBCPUTHREADS_seq']%}
+#pragma HLS INTERFACE m_axi port = edges{{i}} offset = slave bundle = gmem{{2*i}}
+#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{2*i+1}}
+{%endfor%}
 
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{2*context['NUMSUBCPUTHREADS']}}
 
+{%for i in context['NUMSUBCPUTHREADS_seq']%}
+#pragma HLS INTERFACE s_axilite port = edges{{i}} bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
+{%endfor%}
+
+#pragma HLS INTERFACE s_axilite port = vdram bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+{%for i in context['NUMSUBCPUTHREADS_seq']%}
+#pragma HLS DATA_PACK variable = edges{{i}}
+#pragma HLS DATA_PACK variable = kvdram{{i}}
+{%endfor%}
+#pragma HLS DATA_PACK variable = vdram
+
+	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
+	#endif
+	
+	unsigned int numIters = {%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
+	GRAPHITER_LOOP: for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
+		cout<<">>> swkernel::runapp(ACTS_1by1): Iteration: "<<GraphIter<<endl;
+		
+		// preparing variables
+		#ifdef _WIDEWORD
+		unsigned int BASEOFFSETKVS_VERTICESDATA_K = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].range(31, 0);
+		unsigned int BASEOFFSETKVS_VERTICESDATA_E = edges0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].range(31, 0);
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
+		{%for i in context['NUMSUBCPUTHREADS_seq']%} 
+		kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
+		{%endfor%}
+		#else 
+		unsigned int BASEOFFSETKVS_VERTICESDATA_K = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
+		unsigned int BASEOFFSETKVS_VERTICESDATA_E = edges0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;	
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		{%for i in context['NUMSUBCPUTHREADS_seq']%} 
+		kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
+		{%endfor%}
+		#endif 
+		
+		// run acts
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}
+		{%if(context['XWARE'] == "SW")%}actsprocobj.{%endif%}topkernelproc({%for j in context['1_seq']%}{%if(j>0)%},{%endif%}edges{{i*1+j}}, kvdram{{i*1+j}}{%endfor%});	
+		{%endfor%}
+		{%if(context['XWARE'] == "SW")%}actssyncobj.{%endif%}topkernelsync({%for i in context['NUMSUBCPUTHREADS_seq']%}kvdram{{i}},{%endfor%} vdram);
+		
+		// populating source vertices' data for next iteration
+		POPULATESRC: for(unsigned int k=0; k<KVDATA_RANGE/2; k++){ // CRITICAL FIXME. OPTIMIZEME.
+		#pragma HLS PIPELINE II=1
+			{%for i in context['NUMSUBCPUTHREADS_seq']%}
+			edges{{i}}[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram{{i}}[BASEOFFSETKVS_VERTICESDATA_K + k];
+			{%endfor%}
+		}
+		
+		// checking for exit 
+		unsigned int totalactvvp = 0;
+		#ifdef SW 
+		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
+		#endif 
+		for(unsigned int i=0; i<256; i++){
+			#ifdef _WIDEWORD
+			unsigned int gmask = kvdram0[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].range(31, 0);
+			#else 
+			unsigned int gmask = kvdram0[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
+			#endif 
+			totalactvvp += gmask;
+			#ifdef SW 
+			if(gmask > 0){ cout<<i<<", "; }
+			#endif 
+		}
+		#ifdef SW 
+		cout<<""<<endl;
+		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+		#endif 
+	}
+	return;
+}
+}
+#endif 
 
 
 

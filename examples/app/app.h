@@ -22,10 +22,8 @@ public:
 	
 	runsummary_t run();
 	runsummary_t run_hw();
-	runsummary_t run_sw();
 	
-	void verifyresults_sw(value_t * vdatas);
-	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_t globalparams);
+	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_TWOt globalparams);
 	
 private:
 	graph * graphobj;
@@ -40,12 +38,12 @@ private:
 	edge_t * vertexptrbuffer;
 	value_t * vertexdatabuffer;
 	edge2_type * edgedatabuffer;
+	
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 	uint512_vec_dt * vdram;
-	
 	edge_t * vptrs[NUMSUBCPUTHREADS];
-	edge_type * edges[NUMSUBCPUTHREADS];
-	vector<keyvalue_t> kvdram[NUMSUBCPUTHREADS][TOTALNUMPARTITIONS];
+	// edge_type * edges[NUMSUBCPUTHREADS];
+	uint512_vec_dt * edges[NUMSUBCPUTHREADS];
 	
 	std::string binaryFile[2];
 };

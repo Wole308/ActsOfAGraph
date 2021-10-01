@@ -621,6 +621,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].range(31, 0);
 	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
 	globalparams.BASEOFFSETKVS_STATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].range(31, 0);
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM].range(31, 0); //
 	globalparams.BASEOFFSETKVS_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].range(31, 0);
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].range(31, 0);
 	
@@ -632,6 +633,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATAMASK].range(31, 0);
 	globalparams.SIZE_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].range(31, 0);
 	globalparams.SIZE_KVSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVSTATSDRAM].range(31, 0);
+	globalparams.SIZE_EDGESSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_EDGESSTATSDRAM].range(31, 0); //
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].range(31, 0);
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].range(31, 0);
@@ -645,6 +647,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_ACTIVEVERTICES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_ACTIVEVERTICES].range(31, 0);
 	globalparams.POW_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_VERTICESDATAMASK].range(31, 0);
 	globalparams.POW_KVSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVSTATSDRAM].range(31, 0);
+	globalparams.POW_EDGESSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_EDGESSTATSDRAM].range(31, 0); //
 	globalparams.POW_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAM].range(31, 0);
 	globalparams.POW_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].range(31, 0);
@@ -678,6 +681,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
 	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 	globalparams.BASEOFFSETKVS_STATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM].data[0].key;//
 	globalparams.BASEOFFSETKVS_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].data[0].key;
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	
@@ -689,6 +693,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESDATAMASK].data[0].key;
 	globalparams.SIZE_VERTICESPARTITIONMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].data[0].key;
 	globalparams.SIZE_KVSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVSTATSDRAM].data[0].key;
+	globalparams.SIZE_EDGESSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_EDGESSTATSDRAM].data[0].key;//
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key;
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key;
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key;
@@ -702,6 +707,7 @@ getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_ACTIVEVERTICES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_ACTIVEVERTICES].data[0].key;
 	globalparams.POW_VERTICESDATAMASK = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_VERTICESDATAMASK].data[0].key;
 	globalparams.POW_KVSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVSTATSDRAM].data[0].key;
+	globalparams.POW_EDGESSTATSDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_EDGESSTATSDRAM].data[0].key;//
 	globalparams.POW_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAM].data[0].key;
 	globalparams.POW_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAMWORKSPACE].data[0].key;
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].data[0].key;
@@ -720,6 +726,8 @@ getglobalparams(uint512_dt * kvdram){
 	
 	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key;
 	#endif  
+	globalparams.VARS_WORKBATCH = 0;
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("actsproc::getglobalparams:: printing global parameters", globalparams);
 	#endif
@@ -764,12 +772,80 @@ gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams,
 	if(currentLOP == 0){ keyvalue.key = 0; }
 	else if(currentLOP == 1){ keyvalue.key = 0; }
 	else { 
+		// #ifdef _WIDEWORD
+		// keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(31, 0); 
+		// keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(63, 32);
+		// #else
+		// keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].key; 
+		// keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].value; 
+		// #endif
+		
 		#ifdef _WIDEWORD
-		keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(31, 0); 
-		keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(63, 32);
-		#else
-		keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].key; 
-		keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].value; 
+ if(globalparams.VARS_WORKBATCH == 0){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(31, 0); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(63, 32); 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(95, 64); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(127, 96); 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(159, 128); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(191, 160); 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(223, 192); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(255, 224); 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(287, 256); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(319, 288); 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(351, 320); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(383, 352); 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(415, 384); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(447, 416); 
+		}
+else {
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(479, 448); 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range(511, 480); 
+		}
+		#else 
+ if(globalparams.VARS_WORKBATCH == 0){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[0].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[1].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[1].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[2].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[2].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[3].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[3].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[4].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[4].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[5].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[5].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[6].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[6].value; 
+		}
+else {
+			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[7].key; 
+			keyvalue.value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].data[7].value; 
+		}
 		#endif
 	}
 	
@@ -792,6 +868,10 @@ partition_type
 getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = GETKV(keyvalue);
+	
+	/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(thiskeyvalue.key != GETK(INVALIDDATA) && thiskeyvalue.value != GETV(INVALIDDATA)){ cout<<"PARTITION SEEN @ getpartition:: thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.key: "<<thiskeyvalue.key<<endl; }
+	#endif  */
 	
 	if(thiskeyvalue.value == GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
@@ -870,11 +950,219 @@ resetkvdramstats(uint512_dt * kvdram, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+		// #ifdef _WIDEWORD
+		// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = 0; 
+		// #else
+		// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = 0; 
+		// #endif
+		
+		// #ifdef _WIDEWORD
+		// 		//  if(globalparams.VARS_WORKBATCH == 0){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 1){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96) = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 2){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(191, 160) = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 3){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(255, 224) = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 4){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288) = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 5){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(383, 352) = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 6){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(447, 416) = 0; 
+		// }
+		// 		// else {
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(511, 480) = 0; 
+		// }
+		// 		// #else 
+		// 		//  if(globalparams.VARS_WORKBATCH == 0){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 1){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[1].value = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 2){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[2].value = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 3){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 4){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 5){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[5].value = 0; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 6){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value = 0; 
+		// }
+		// 		// else {
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value = 0; 
+		// }
+		// 		// #endif
+		
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = 0; 
-		#else
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(191, 160) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(255, 224) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(383, 352) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(447, 416) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(511, 480) = 0; 
+		#else 
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = 0; 
-		#endif 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[1].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[2].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[5].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value = 0; 
+		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	actsproc::
+	#endif 
+savekvdramstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+	unsigned int totalnumpartitionsb4last = 0;
+	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
+	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+		// #ifdef _WIDEWORD
+		// buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32); 
+		// #else
+		// buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value; 
+		// #endif
+		
+		#ifdef _WIDEWORD
+ if(globalparams.VARS_WORKBATCH == 0){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32); 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96); 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(191, 160); 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(255, 224); 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288); 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(383, 352); 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(447, 416); 
+		}
+else {
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(511, 480); 
+		}
+		#else 
+ if(globalparams.VARS_WORKBATCH == 0){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[1].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[2].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[5].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value; 
+		}
+else {
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value; 
+		}
+		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	actsproc::
+	#endif 
+retrievekvdramstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+	unsigned int totalnumpartitionsb4last = 0;
+	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
+	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+		#ifdef _WIDEWORD
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = buffer[k]; 
+		#else
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = buffer[k]; 
+		#endif
+		
+		// #ifdef _WIDEWORD
+		// 		//  if(globalparams.VARS_WORKBATCH == 0){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 1){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96) = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 2){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(191, 160) = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 3){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(255, 224) = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 4){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288) = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 5){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(383, 352) = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 6){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(447, 416) = buffer[k]; 
+		// }
+		// 		// else {
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(511, 480) = buffer[k]; 
+		// }
+		// 		// #else 
+		// 		//  if(globalparams.VARS_WORKBATCH == 0){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 1){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[1].value = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 2){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[2].value = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 3){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 4){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 5){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[5].value = buffer[k]; 
+		// }
+		// 		// else if(globalparams.VARS_WORKBATCH == 6){
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value = buffer[k]; 
+		// }
+		// 		// else {
+			// kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value = buffer[k]; 
+		// }
+		// 		// #endif
 	}
 	return;
 }
@@ -1811,14 +2099,55 @@ readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuf
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
 	#endif
 	
+	// READGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
+		// #ifdef _WIDEWORD
+		// globalstatsbuffer[i].key = kvdram[offset_kvs + i].range(31, 0);
+		// globalstatsbuffer[i].value = kvdram[offset_kvs + i].range(63, 32);
+		// #else 
+		// globalstatsbuffer[i].key = kvdram[offset_kvs + i].data[0].key;
+		// globalstatsbuffer[i].value = kvdram[offset_kvs + i].data[0].value;
+		// #endif 
+	// }
+	
 	READGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
+		uint512_vec_dt vec;
 		#ifdef _WIDEWORD
-		globalstatsbuffer[i].key = kvdram[offset_kvs + i].range(31, 0);
-		globalstatsbuffer[i].value = kvdram[offset_kvs + i].range(63, 32);
+		vec.data[0].key = kvdram[offset_kvs + i].range(31, 0); 
+		vec.data[0].value = kvdram[offset_kvs + i].range(63, 32); 
+		vec.data[1].key = kvdram[offset_kvs + i].range(95, 64); 
+		vec.data[1].value = kvdram[offset_kvs + i].range(127, 96); 
+		vec.data[2].key = kvdram[offset_kvs + i].range(159, 128); 
+		vec.data[2].value = kvdram[offset_kvs + i].range(191, 160); 
+		vec.data[3].key = kvdram[offset_kvs + i].range(223, 192); 
+		vec.data[3].value = kvdram[offset_kvs + i].range(255, 224); 
+		vec.data[4].key = kvdram[offset_kvs + i].range(287, 256); 
+		vec.data[4].value = kvdram[offset_kvs + i].range(319, 288); 
+		vec.data[5].key = kvdram[offset_kvs + i].range(351, 320); 
+		vec.data[5].value = kvdram[offset_kvs + i].range(383, 352); 
+		vec.data[6].key = kvdram[offset_kvs + i].range(415, 384); 
+		vec.data[6].value = kvdram[offset_kvs + i].range(447, 416); 
+		vec.data[7].key = kvdram[offset_kvs + i].range(479, 448); 
+		vec.data[7].value = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		globalstatsbuffer[i].key = kvdram[offset_kvs + i].data[0].key;
-		globalstatsbuffer[i].value = kvdram[offset_kvs + i].data[0].value;
+		vec.data[0].key = kvdram[offset_kvs + i].data[0].key; 
+		vec.data[0].value = kvdram[offset_kvs + i].data[0].value; 
+		vec.data[1].key = kvdram[offset_kvs + i].data[1].key; 
+		vec.data[1].value = kvdram[offset_kvs + i].data[1].value; 
+		vec.data[2].key = kvdram[offset_kvs + i].data[2].key; 
+		vec.data[2].value = kvdram[offset_kvs + i].data[2].value; 
+		vec.data[3].key = kvdram[offset_kvs + i].data[3].key; 
+		vec.data[3].value = kvdram[offset_kvs + i].data[3].value; 
+		vec.data[4].key = kvdram[offset_kvs + i].data[4].key; 
+		vec.data[4].value = kvdram[offset_kvs + i].data[4].value; 
+		vec.data[5].key = kvdram[offset_kvs + i].data[5].key; 
+		vec.data[5].value = kvdram[offset_kvs + i].data[5].value; 
+		vec.data[6].key = kvdram[offset_kvs + i].data[6].key; 
+		vec.data[6].value = kvdram[offset_kvs + i].data[6].value; 
+		vec.data[7].key = kvdram[offset_kvs + i].data[7].key; 
+		vec.data[7].value = kvdram[offset_kvs + i].data[7].value; 
 		#endif 
+		
+		globalstatsbuffer[i] = vec.data[globalparams.VARS_WORKBATCH];
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1837,14 +2166,88 @@ saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuf
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
 	#endif
 	
+	// SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
+		// #ifdef _WIDEWORD
+		// kvdram[offset_kvs + i].range(31, 0) = globalstatsbuffer[i].key;
+		// kvdram[offset_kvs + i].range(63, 32) = globalstatsbuffer[i].value;
+		// #else 
+		// kvdram[offset_kvs + i].data[0].key = globalstatsbuffer[i].key;
+		// kvdram[offset_kvs + i].data[0].value = globalstatsbuffer[i].value;
+		// #endif 
+		// #ifdef _DEBUGMODE_STATS
+		// actsutilityobj->globalvar_savestats_counttotalstatswritten(VECTOR_SIZE);
+		// #endif
+	// }
+	
 	SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
 		#ifdef _WIDEWORD
-		kvdram[offset_kvs + i].range(31, 0) = globalstatsbuffer[i].key;
-		kvdram[offset_kvs + i].range(63, 32) = globalstatsbuffer[i].value;
+ if(globalparams.VARS_WORKBATCH == 0){
+			kvdram[offset_kvs + i].range(31, 0) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(63, 32) = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			kvdram[offset_kvs + i].range(95, 64) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(127, 96) = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			kvdram[offset_kvs + i].range(159, 128) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(191, 160) = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			kvdram[offset_kvs + i].range(223, 192) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(255, 224) = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			kvdram[offset_kvs + i].range(287, 256) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(319, 288) = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			kvdram[offset_kvs + i].range(351, 320) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(383, 352) = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			kvdram[offset_kvs + i].range(415, 384) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(447, 416) = globalstatsbuffer[i].value; 
+		}
+else {
+			kvdram[offset_kvs + i].range(479, 448) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(511, 480) = globalstatsbuffer[i].value; 
+		}
 		#else 
-		kvdram[offset_kvs + i].data[0].key = globalstatsbuffer[i].key;
-		kvdram[offset_kvs + i].data[0].value = globalstatsbuffer[i].value;
-		#endif 
+ if(globalparams.VARS_WORKBATCH == 0){
+			kvdram[offset_kvs + i].data[0].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[0].value = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			kvdram[offset_kvs + i].data[1].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[1].value = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			kvdram[offset_kvs + i].data[2].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[2].value = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			kvdram[offset_kvs + i].data[3].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[3].value = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			kvdram[offset_kvs + i].data[4].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[4].value = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			kvdram[offset_kvs + i].data[5].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[5].value = globalstatsbuffer[i].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			kvdram[offset_kvs + i].data[6].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[6].value = globalstatsbuffer[i].value; 
+		}
+else {
+			kvdram[offset_kvs + i].data[7].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[7].value = globalstatsbuffer[i].value; 
+		}
+		#endif
+
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalvar_savestats_counttotalstatswritten(VECTOR_SIZE);
 		#endif
@@ -1879,7 +2282,7 @@ fetchmessage_t
 	#ifdef SW 
 	actsproc::
 	#endif 
-readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -1932,40 +2335,40 @@ readandprocess(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer
 	#pragma HLS PIPELINE II=1
 
 		#ifdef _WIDEWORD
-		E[0][0] = kvdram[offset_kvs + i].range(31, 0); 
-		E[0][1] = kvdram[offset_kvs + i].range(63, 32); 
-		E[0][2] = kvdram[offset_kvs + i].range(95, 64); 
-		E[0][3] = kvdram[offset_kvs + i].range(127, 96); 
-		E[0][4] = kvdram[offset_kvs + i].range(159, 128); 
-		E[0][5] = kvdram[offset_kvs + i].range(191, 160); 
-		E[0][6] = kvdram[offset_kvs + i].range(223, 192); 
-		E[0][7] = kvdram[offset_kvs + i].range(255, 224); 
-		E[1][0] = kvdram[offset_kvs + i].range(287, 256); 
-		E[1][1] = kvdram[offset_kvs + i].range(319, 288); 
-		E[1][2] = kvdram[offset_kvs + i].range(351, 320); 
-		E[1][3] = kvdram[offset_kvs + i].range(383, 352); 
-		E[1][4] = kvdram[offset_kvs + i].range(415, 384); 
-		E[1][5] = kvdram[offset_kvs + i].range(447, 416); 
-		E[1][6] = kvdram[offset_kvs + i].range(479, 448); 
-		E[1][7] = kvdram[offset_kvs + i].range(511, 480); 
+		E[0][0] = edges[offset_kvs + i].range(31, 0); 
+		E[0][1] = edges[offset_kvs + i].range(63, 32); 
+		E[0][2] = edges[offset_kvs + i].range(95, 64); 
+		E[0][3] = edges[offset_kvs + i].range(127, 96); 
+		E[0][4] = edges[offset_kvs + i].range(159, 128); 
+		E[0][5] = edges[offset_kvs + i].range(191, 160); 
+		E[0][6] = edges[offset_kvs + i].range(223, 192); 
+		E[0][7] = edges[offset_kvs + i].range(255, 224); 
+		E[1][0] = edges[offset_kvs + i].range(287, 256); 
+		E[1][1] = edges[offset_kvs + i].range(319, 288); 
+		E[1][2] = edges[offset_kvs + i].range(351, 320); 
+		E[1][3] = edges[offset_kvs + i].range(383, 352); 
+		E[1][4] = edges[offset_kvs + i].range(415, 384); 
+		E[1][5] = edges[offset_kvs + i].range(447, 416); 
+		E[1][6] = edges[offset_kvs + i].range(479, 448); 
+		E[1][7] = edges[offset_kvs + i].range(511, 480); 
 		#else 
-		E[0][0] = kvdram[offset_kvs + i].data[0].key; 
-		E[0][1] = kvdram[offset_kvs + i].data[0].value; 
-		E[0][2] = kvdram[offset_kvs + i].data[1].key; 
-		E[0][3] = kvdram[offset_kvs + i].data[1].value; 
-		E[0][4] = kvdram[offset_kvs + i].data[2].key; 
-		E[0][5] = kvdram[offset_kvs + i].data[2].value; 
-		E[0][6] = kvdram[offset_kvs + i].data[3].key; 
-		E[0][7] = kvdram[offset_kvs + i].data[3].value; 
-		E[1][0] = kvdram[offset_kvs + i].data[4+0].key; 
-		E[1][1] = kvdram[offset_kvs + i].data[4+0].value; 
-		E[1][2] = kvdram[offset_kvs + i].data[4+1].key; 
-		E[1][3] = kvdram[offset_kvs + i].data[4+1].value; 
-		E[1][4] = kvdram[offset_kvs + i].data[4+2].key; 
-		E[1][5] = kvdram[offset_kvs + i].data[4+2].value; 
-		E[1][6] = kvdram[offset_kvs + i].data[4+3].key; 
-		E[1][7] = kvdram[offset_kvs + i].data[4+3].value; 
-		#endif 
+		E[0][0] = edges[offset_kvs + i].data[0].key; 
+		E[0][1] = edges[offset_kvs + i].data[0].value; 
+		E[0][2] = edges[offset_kvs + i].data[1].key; 
+		E[0][3] = edges[offset_kvs + i].data[1].value; 
+		E[0][4] = edges[offset_kvs + i].data[2].key; 
+		E[0][5] = edges[offset_kvs + i].data[2].value; 
+		E[0][6] = edges[offset_kvs + i].data[3].key; 
+		E[0][7] = edges[offset_kvs + i].data[3].value; 
+		E[1][0] = edges[offset_kvs + i].data[4+0].key; 
+		E[1][1] = edges[offset_kvs + i].data[4+0].value; 
+		E[1][2] = edges[offset_kvs + i].data[4+1].key; 
+		E[1][3] = edges[offset_kvs + i].data[4+1].value; 
+		E[1][4] = edges[offset_kvs + i].data[4+2].key; 
+		E[1][5] = edges[offset_kvs + i].data[4+2].value; 
+		E[1][6] = edges[offset_kvs + i].data[4+3].key; 
+		E[1][7] = edges[offset_kvs + i].data[4+3].value; 
+		#endif
 		
 		en = ON;
 		
@@ -2764,209 +3167,6 @@ priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOU
 	return;
 }
 
-/* void 
-	#ifdef SW 
-	actsproc::
-	#endif 
-tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, globalparams_t globalparams){				
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
-	
-	BASICREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=16 // NEWCHANGE.
-		BASICREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			keyvalue_buffer_t kv = buffer[v][i];
-			keyvalue_t kv2 = GETKV(kv);
-			
-			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
-			
-				unsigned int block = kv2.key / (globalparams.SIZE_REDUCE * VECTOR_SIZE);
-				unsigned int globalpos_offset = block * (globalparams.SIZE_REDUCE * VECTOR_SIZE);
-				unsigned int globalrow_offset = globalpos_offset / VECTOR2_SIZE;
-				
-				unsigned int localpos = kv2.key % (globalparams.SIZE_REDUCE * VECTOR_SIZE); // 8192;
-				unsigned int localrow = (localpos % globalparams.SIZE_REDUCE) / 2;
-				unsigned int localcol = localpos / globalparams.SIZE_REDUCE;
-				
-				unsigned int row = globalrow_offset + localrow;
-				unsigned int col = localcol;
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", posoffset: "<<posoffset<<", rowoffset: "<<rowoffset<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
-				#endif
-				
-				value_t temp;
-				#ifdef _WIDEWORD
-				if(localpos % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * ((localcol * 2) + 1) - 1, (localcol * 2) * 32); }
-				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * (((localcol * 2) + 1) + 1) - 1, (localcol * 2 + 1) * 32); }
-				#else 
-				if(localpos % 2 == 0){ temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key; }
-				else { temp = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value; }	
-				#endif 
-				
-				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-				
-				#ifdef _WIDEWORD
-				if(localpos % 2 == 0){ kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * ((localcol * 2) + 1) - 1, (localcol * 2) * 32) = rettemp; }
-				else { kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(32 * (((localcol * 2) + 1) + 1) - 1, (localcol * 2 + 1) * 32) = rettemp; }
-				#else 
-				if(localpos % 2 == 0){ kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key = rettemp; }
-				else { kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value = rettemp; }
-				#endif 
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				if(localpos % 2 == 0){ cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key<<endl; }
-				else { cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value<<endl; }
-				#endif
-			}
-		}
-	}
-	return;
-} */
-/* void
-	#ifdef SW
-	actsproc::
-	#endif 
-tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, globalparams_t globalparams){				
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
-	
-	TRADREDUCEANDBUFFER_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	// #pragma HLS PIPELINE II=16 // NEWCHANGE.
-		TRADREDUCEANDBUFFER_LOOP1B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
-		#pragma HLS PIPELINE II=1 // NEWCHANGE.
-			keyvalue_buffer_t kv = buffer[v][i];
-			keyvalue_t kv2 = GETKV(kv);
-			
-			if(kv2.key != GETV(INVALIDDATA) && kv2.value != GETV(INVALIDDATA)){
-			
-				unsigned int block = kv2.key / (globalparams.SIZE_REDUCE * VECTOR_SIZE);
-				unsigned int globalpos_offset = block * (globalparams.SIZE_REDUCE * VECTOR_SIZE);
-				unsigned int globalrow_offset = globalpos_offset / VECTOR2_SIZE;
-				
-				unsigned int localpos = kv2.key % (globalparams.SIZE_REDUCE * VECTOR_SIZE); // 8192;
-				unsigned int localrow = (localpos % globalparams.SIZE_REDUCE) / 2;
-				unsigned int localcol = localpos / globalparams.SIZE_REDUCE;
-				
-				unsigned int row = globalrow_offset + localrow;
-				unsigned int col = localcol;
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", posoffset: "<<posoffset<<", rowoffset: "<<rowoffset<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
-				#endif
-				
-				value_t temp;
-				uint512_vec_dt vdata;
-				
-				// #ifdef _WIDEWORD
-				// 				// vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0);
-				// vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32);
-				// 				// vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64);
-				// vdata.data[1].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(127, 96);
-				// 				// vdata.data[2].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(159, 128);
-				// vdata.data[2].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(191, 160);
-				// 				// vdata.data[3].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(223, 192);
-				// vdata.data[3].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(255, 224);
-				// 				// vdata.data[4].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(287, 256);
-				// vdata.data[4].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(319, 288);
-				// 				// vdata.data[5].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(351, 320);
-				// vdata.data[5].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(383, 352);
-				// 				// vdata.data[6].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(415, 384);
-				// vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(447, 416);
-				// 				// vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(479, 448);
-				// vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(511, 480);
-				// 				// #else 
-				// 				// vdata.data[0].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].key; 
-				// vdata.data[0].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].value; 
-				// 				// vdata.data[1].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].key; 
-				// vdata.data[1].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].value; 
-				// 				// vdata.data[2].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].key; 
-				// vdata.data[2].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].value; 
-				// 				// vdata.data[3].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].key; 
-				// vdata.data[3].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].value; 
-				// 				// vdata.data[4].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].key; 
-				// vdata.data[4].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].value; 
-				// 				// vdata.data[5].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].key; 
-				// vdata.data[5].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].value; 
-				// 				// vdata.data[6].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].key; 
-				// vdata.data[6].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value; 
-				// 				// vdata.data[7].key = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key; 
-				// vdata.data[7].value = kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value; 
-				// 				// #endif 
-				#ifdef _WIDEWORD // CRITICAL REMOVEME.
-				vdata.data[0].key = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[0].value = 0 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[1].key = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[1].value = 1 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[2].key = 2 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[2].value = 2 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[3].key = 3 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[3].value = 3 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[4].key = 4 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[4].value = 4 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[5].key = 5 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[5].value = 5 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[6].key = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[6].value = 6 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				vdata.data[7].key = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA;
-				vdata.data[7].value = 7 * globalparams.BASEOFFSETKVS_VERTICESDATA + globalparams.ALGORITHMINFO_GRAPHITERATIONID;
-				#endif 
-				
-				if(localpos % 2 == 0){ temp = vdata.data[localcol].key; }
-				else { temp = vdata.data[localcol].value; }
-				
-				value_t rettemp = reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-				
-				if(localpos % 2 == 0){ vdata.data[localcol].key = rettemp; }
-				else { vdata.data[localcol].value = rettemp; }
-				
-				#ifdef _WIDEWORD
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(31, 0) = vdata.data[0].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(63, 32) = vdata.data[0].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(95, 64) = vdata.data[1].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(127, 96) = vdata.data[1].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(159, 128) = vdata.data[2].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(191, 160) = vdata.data[2].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(223, 192) = vdata.data[3].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(255, 224) = vdata.data[3].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(287, 256) = vdata.data[4].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(319, 288) = vdata.data[4].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(351, 320) = vdata.data[5].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(383, 352) = vdata.data[5].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(415, 384) = vdata.data[6].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(447, 416) = vdata.data[6].value;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(479, 448) = vdata.data[7].key;
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].range(511, 480) = vdata.data[7].value;
-				#else 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].key = vdata.data[0].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[0].value = vdata.data[0].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].key = vdata.data[1].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[1].value = vdata.data[1].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].key = vdata.data[2].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[2].value = vdata.data[2].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].key = vdata.data[3].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[3].value = vdata.data[3].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].key = vdata.data[4].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[4].value = vdata.data[4].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].key = vdata.data[5].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[5].value = vdata.data[5].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].key = vdata.data[6].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[6].value = vdata.data[6].value; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].key = vdata.data[7].key; 
-				kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[7].value = vdata.data[7].value; 
-				#endif
-				
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				if(localpos % 2 == 0){ cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].key: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].key<<endl; }
-				else { cout<<"--- tradreduceandbuffer :: kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + "<<row<<"].data["<<localcol<<"].value: "<<kvdram[globalparams.BASEOFFSETKVS_VERTICESDATA + row].data[localcol].value<<endl; }
-				#endif
-			}
-		}
-	}
-	return;
-} */
 void
 	#ifdef SW
 	actsproc::
@@ -2996,7 +3196,7 @@ tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buf
 				unsigned int col = localcol;
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", posoffset: "<<posoffset<<", rowoffset: "<<rowoffset<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
+				cout<<"REDUCE SEEN @ tradreduceandbuffer:: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<" || block: "<<block<<", row: "<<row<<", col: "<<col<<" || localpos: "<<localpos<<", localrow: "<<localrow<<", localcol: "<<localcol<<endl;
 				#endif
 				
 				value_t temp;
@@ -3161,11 +3361,11 @@ fetchmessage_t
 	#ifdef SW 
 	actsproc::
 	#endif 
-fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	if(mode == PROCESSMODE){
-		fetchmessage = readandprocess(enable, kvdram, vbuffer, vmask, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+		fetchmessage = readandprocess(enable, edges, kvdram, vbuffer, vmask, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 	} else {
 		fetchmessage = readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
 	}
@@ -3404,13 +3604,13 @@ void
 	actsproc::
 	#endif
 actit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE];
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE]; // REMOVEME.-SWX
 	#pragma HLS array_partition variable = buffer_setof1
 static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
@@ -3461,7 +3661,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		#endif
 		
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
+		fetchmessagepp0 = fetchkeyvalues(ON, mode, edges, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#ifdef PUP1
 		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
@@ -3475,7 +3675,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
 		ptravstatepp1.i_kvs = offset_kvs;
-		fetchmessagepp1 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams);
+		fetchmessagepp1 = fetchkeyvalues(ON, mode, edges, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams);
 		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif
 		
@@ -3494,7 +3694,7 @@ void
 	actsproc::
 	#endif
 priorit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -3540,13 +3740,13 @@ static keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
+		fetchmessagepp0 = fetchkeyvalues(ON, mode, edges, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		
 		priorpartitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
 		#ifdef PUP1
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp1 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebufferpp1, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
+		fetchmessagepp1 = fetchkeyvalues(ON, mode, edges, kvdram, vbuffer, vmask, vmask_subp, sourcebufferpp1, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
 		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif 
 		
@@ -3567,7 +3767,7 @@ void
 	actsproc::
 	#endif
 tradit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
+		uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -3591,7 +3791,7 @@ tradit(bool_type enable, unsigned int mode,
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = fetchkeyvalues(ON, mode, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
+		fetchmessagepp0 = fetchkeyvalues(ON, mode, edges, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams);
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		
 		// tradreduceandbuffer(ON, kvdram, sourcebuffer, fetchmessagepp0.chunksize_kvs, globalparams);
@@ -3605,12 +3805,15 @@ void
 	#ifdef SW
 	actsproc::
 	#endif 
-processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+processit(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
+			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
+	
+	// v_chunkid = 0; /////////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
 	
 	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
 	
@@ -3618,37 +3821,39 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 	batch_type deststatsmarker = 1;
 	sweepparams_t sweepparams;
 	
-	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
-	buffer_type vmaskbuffersz_kvs = (globalparams.SIZE_REDUCE * VDATA_PACKINGSIZE) / 512;
+	buffer_type reducebuffersz = globalparamsK.SIZE_REDUCE / 2;
+	buffer_type vmaskbuffersz_kvs = (globalparamsK.SIZE_REDUCE * VDATA_PACKINGSIZE) / 512;
 	
-	step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP;
+	step_type currentLOP=globalparamsK.ACTSPARAMS_BEGINLOP;
 	resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
-	sweepparams = getsweepparams(globalparams, currentLOP, 0);
+	sweepparams = getsweepparams(globalparamsK, currentLOP, 0);
 	travstate_t avtravstate;
-	batch_type vmaskoffset_kvs = 0;
+	// batch_type vmaskoffset_kvs = 0;
+	batch_type vmaskoffset_kvs = v_chunkids[v_chunkid] * (vmaskbuffersz_kvs); // NEWCHANGE.
+	// batch_type vmaskoffset_kvs = v_chunkids[0] * (vmaskbuffersz_kvs); // CORRECT.
 	
-	step_type tempcurrentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
 	#ifdef ENABLERECURSIVEPARTITIONING
-	batch_type tempnum_source_partitions = get_num_source_partitions(tempcurrentLOP);
+	batch_type tempnum_source_partitions = get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);
 	#else 
 	batch_type tempnum_source_partitions = NUM_PARTITIONS;	
 	#endif 
 	
 	avtravstate.begin_kvs = 0;
-	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparams.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
-	readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams); 
+	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
+	readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
 	resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	
-	batch_type vptrbaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTEXPTR + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
-	batch_type vdatabaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTICESDATA + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
+	batch_type vptrbaseoffset_kvs = globalparamsK.BASEOFFSETKVS_VERTEXPTR + (globalparamsK.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NOTE: no need to include v_chunkids[32] because source_partition handles it
+	batch_type vdatabaseoffset_kvs = globalparamsE.BASEOFFSETKVS_VERTICESDATA + (globalparamsK.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); 
 	
-	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->print7("### processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
-	PROCESSIT_MAINLOOP: for(batch_type source_partition=0; source_partition<tempnum_source_partitions; source_partition+=1){
+	PROCESSIT_MAINLOOP: for(batch_type source_partition=v_chunkids[v_chunkid]; source_partition<v_chunkids[v_chunkid+1]; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
+		// cout<<"--- source_partition "<<source_partition<<" ... "<<endl; // REMOVEME.
 
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		if(voffset_kvs >= avtravstate.end_kvs){ continue; }
@@ -3661,16 +3866,16 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		actsutilityobj->print5("### processit:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
 		
-		loadvmasks(ON, kvdram, vmask, vbuffer, globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparams); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
-		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
-		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
+		loadvmasks(ON, kvdram, vmask, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsK); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
+		readvdata(ON, edges, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparamsE); 
+		readvdata(ON, edges, vdatabaseoffset_kvs + voffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsE);
 		vmaskoffset_kvs += vmaskbuffersz_kvs;
 	
 		vertex_t srcvlocaloffset = (voffset_kvs * VECTOR2_SIZE);
-		vertex_t beginsrcvid = globalparams.ACTSPARAMS_SRCVOFFSET + (voffset_kvs * VECTOR2_SIZE);
+		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs * VECTOR2_SIZE);
 		vertex_t endsrcvid = beginsrcvid + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR);
-		if(srcvlocaloffset >= globalparams.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
-		if((srcvlocaloffset < globalparams.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparams.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparams.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
+		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
+		if((srcvlocaloffset < globalparamsK.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparamsK.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparamsK.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
 		
 		#ifdef _WIDEWORD
 		keyy_t beginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs].range(31, 0);
@@ -3679,7 +3884,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		keyy_t beginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs].data[0].key;
 		keyy_t endvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].data[0].key;
 		#endif 
-		if(srcvlocaloffset >= globalparams.ACTSPARAMS_SRCVSIZE){ endvptr = beginvptr; }
+		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endvptr = beginvptr; }
 		
 		keyy_t localbeginvptr = beginvptr;
 		keyy_t localendvptr = endvptr;
@@ -3689,7 +3894,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		keyy_t numedges_kvs = numedges / VECTOR_SIZE; // NB: this is correct.
 		#ifdef _DEBUGMODE_CHECKS2
 		if(localendvptr < localbeginvptr){ cout<<"processit::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-		if(localendvptr < globalparams.SIZE_EDGES){ actsutilityobj->checkptr("processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparams.BASEOFFSETKVS_EDGESDATA]); }
+		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -3712,10 +3917,6 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		bool_type flush = ON;
 		if(voffset_kvs == avtravstate.begin_kvs){ resetenv = ON; } else { resetenv = OFF; }
 		if((voffset_kvs + (reducebuffersz * FETFACTOR)) >= avtravstate.end_kvs){ flush = ON; } else { flush = OFF; }
-		/* #ifndef ALLVERTEXISACTIVE_ALGORITHM
-		resetenv = ON;
-		flush = ON; // CRITICAL FIXME. flushing disabled issues with hollywood
-		#endif  */
 		if(GraphAlgo != PAGERANK){ resetenv = ON; flush = ON; } // CRITICAL NEWCHANGE.
 	
 		#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
@@ -3729,8 +3930,8 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		#endif 
 		(
 			ON, PROCESSMODE,
-			kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
-			globalparams, sweepparams, etravstate, globalparams.BASEOFFSETKVS_EDGESDATA, globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE,
+			edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
+			globalparamsK, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -3739,7 +3940,7 @@ processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 		#endif
 	}
 		
-	saveglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams);
+	saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
@@ -3754,7 +3955,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], globalparams_t globalparams){
+partitionit(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -3820,7 +4021,7 @@ partitionit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOU
 			tradit
 			#endif
 			(config.enablepartition, PARTITIONMODE,
-					kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer,
+					edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer,
 					globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON);
 					
@@ -3856,7 +4057,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
+reduceit(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -3893,7 +4094,7 @@ reduceit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCE
 	tradit
 	#endif
 	(config.enablereduce, REDUCEMODE,
-			kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer,
+			edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer,
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON); // REMOVEME.
 	return;
@@ -3903,11 +4104,12 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
-			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams){
-	if(en_process == ON){ processit(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparams); } 
-	if(en_partition == ON){ partitionit(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalparams); } 
-	if(en_reduce == ON){ reduceit(kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, sourcestatsmarker, source_partition, globalparams); } 
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
+				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid){
+	if(en_process == ON){ processit(edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid); } 
+	if(en_partition == ON){ partitionit(edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalparamsK); } 
+	if(en_reduce == ON){ reduceit(edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, sourcestatsmarker, source_partition, globalparamsK); } 
 	return;
 }
 
@@ -3916,7 +4118,8 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparams){
+dispatch_reduce(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -3929,9 +4132,9 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	
 	unsigned int sourcestatsmarker = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
-	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++)
+	for(unsigned int k=0; k<globalparamsK.ACTSPARAMS_TREEDEPTH-1; k++)
 	#else 
-	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++)
+	for(unsigned int k=0; k<globalparamsK.ACTSPARAMS_TREEDEPTH; k++)
 	#endif 
 	{
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
@@ -3939,12 +4142,12 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	}
 	
 	unsigned int vreadoffset_kvs = 0;
-	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	buffer_type reducebuffersz = globalparamsK.SIZE_REDUCE / 2;
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
-	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	#else 
-	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
 	#endif 
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
@@ -3953,7 +4156,7 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	batch_type num_source_partitions = NUM_PARTITIONS;	
 	#endif
 
-	for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; } // vmask_subp[k] = 0; 
+	// for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; } // vmask_subp[k] = 0; 
 	
 	bool_type enablereduce = ON;
 	
@@ -3964,20 +4167,20 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 		#endif
 		
 		enablereduce = ON;
-		travstate_t rtravstate = gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);
+		travstate_t rtravstate = gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		batch_type voffset_kvs = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		readvdata(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
-		readvdata(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
+		readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparamsK);
+		readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
 		
 		// reduce
-		dispatch(OFF, OFF, enablereduce, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparams);
+		dispatch(OFF, OFF, enablereduce, edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid);
 		
 		// writeback vertices
-		savevdata(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparams);
-		savevdata(enablereduce, kvdram, globalparams.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparams);
+		savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparamsK);
+		savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_VERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs += reducebuffersz * 2;
@@ -3985,7 +4188,7 @@ dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE]
 	return;
 } 
 
-#ifdef ACTSPROC_1by1
+#if defined(ACTSPROC_1by1) & not defined(EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM)
 extern "C" {
 void 
 	#ifdef SW 
@@ -4065,6 +4268,119 @@ topkernelproc(uint512_dt * kvdram){
 }
 }
 #endif 
+#if defined(ACTSPROC_1by1) & defined(EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM)
+extern "C" {
+void 
+	#ifdef SW 
+	actsproc:: 
+	#endif
+topkernelproc(uint512_dt * edges, uint512_dt * kvdram){
+#ifndef ACTS_1by1
+#pragma HLS INTERFACE m_axi port = edges offset = slave bundle = gmem0		
+#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem1		
+		
+#pragma HLS INTERFACE s_axilite port = edges bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+#pragma HLS DATA_PACK variable = edges
+#pragma HLS DATA_PACK variable = kvdram
+#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printparameters();
+	#endif
+	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<">>> ====================== Light weight ACTS (PR: 1 ACTS IN 1 COMPUTEUNITS) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
+	#endif
+	
+	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = sourcebuffer
+	keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer
+	unitBRAMwidth_type vmask[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask
+	unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask_subp
+	uint32_type vmask_p[BLOCKRAM_SIZE];
+	
+	globalparams_t globalparamsE = getglobalparams(edges);
+	globalparams_t globalparamsK = getglobalparams(kvdram);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdram, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdram, globalparamsK); }
+	
+	value_t buffer[DOUBLE_BLOCKRAM_SIZE]; // CRITICAL AUTOMATEME.
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
+	
+	#ifdef ENABLERECURSIVEPARTITIONING
+	batch_type num_vchunks = get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);
+	#else 
+	batch_type num_vchunks = NUM_PARTITIONS;	
+	#endif 
+	
+	unsigned int PARTITION_CHKPT[EDGESSTATSDRAMSZ];
+	unsigned int num_edgechunks_in_a_buffer = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM].data[0].key; // NUM_EDGECHUNKS_IN_A_BUFFER = 
+	// for(unsigned int u=0; u<num_edgechunks_in_a_buffer+1; u++){ PARTITION_CHKPT[u] = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + 1 + u].data[0].key; }
+	// for(unsigned int u=0; u<num_edgechunks_in_a_buffer+1; u++){ cout<<"$$$$$$$$$$ num_edgechunks_in_a_buffer: "<<num_edgechunks_in_a_buffer<<", kvdram["<<globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u<<"].data[0].key: "<<kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key<<endl; }
+	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ PARTITION_CHKPT[u] = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + 1 + u].data[0].key; }
+	// for(unsigned int u=0; u<num_edgechunks_in_a_buffer+2; u++){ cout<<"$$$$$$$$$$ num_edgechunks_in_a_buffer: "<<num_edgechunks_in_a_buffer<<", kvdram["<<globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u<<"].data[0].key: "<<kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key<<endl; }
+	// exit(EXIT_SUCCESS);
+	
+	for(unsigned int v_chunkid=0; v_chunkid<num_edgechunks_in_a_buffer; v_chunkid++){
+		// cout<<"--- topkernelproc: processing vchunk v_chunkid ("<<PARTITION_CHKPT[v_chunkid]<<"), vchunk v_chunkid+1 ("<<PARTITION_CHKPT[v_chunkid+1]<<"). globalparamsK.VARS_WORKBATCH: "<<globalparamsK.VARS_WORKBATCH<<" ... "<<endl;
+		
+		// process & partition
+		#ifdef PROCESSMODULE
+		if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
+			#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+			cout<<"topkernelproc: processing instance ... "<<endl;
+			#endif
+			dispatch(ON, OFF, OFF, edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE, globalparamsK, PARTITION_CHKPT, v_chunkid);
+		}
+		#endif
+		
+		// partition
+		#ifdef PARTITIONMODULE
+		if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
+			#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+			cout<<"topkernelproc: partitioning instance ... "<<endl;
+			#endif
+			dispatch(OFF, ON, OFF, edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE, globalparamsK, PARTITION_CHKPT, v_chunkid);
+		}
+		#endif
+		
+		// reduce & partition
+		#if defined(REDUCEMODULE)
+		if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+			#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+			cout<<"topkernelproc: reducing instance ... "<<endl;
+			#endif
+			dispatch_reduce(edges, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE, globalparamsK, PARTITION_CHKPT, v_chunkid);
+		}
+		#endif
+		
+		savekvdramstats(kvdram, buffer, globalparamsK);
+		globalparamsK.VARS_WORKBATCH += 1;
+		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+		actsutilityobj->clearglobalvars();
+		#endif
+	}
+	
+	retrievekvdramstats(kvdram, buffer, globalparamsK);
+	// exit(EXIT_SUCCESS);
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printglobalvars();
+	#endif 
+	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	actsutilityobj->clearglobalvars();
+	#endif
+	return;
+}
+}
+#endif 
 
 #ifdef ACTSPROC_2by1
 extern "C" {
@@ -4103,45 +4419,45 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB){
 	#pragma HLS DATA_PACK variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsA = getglobalparams(kvdramA);
-	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	globalparams_t globalparamsK = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsK); }
 	
-	globalparams_t globalparamsB = getglobalparams(kvdramB);
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	globalparams_t globalparamsE = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsE); }
 	
 	// process & partition
 	#ifdef PROCESSMODULE
-	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 	}
 	#endif
 	
 	// partition
 	#ifdef PARTITIONMODULE
-	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 	}
 	#endif
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
-	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
-		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsK);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
 	}
 	#endif
 
@@ -4199,14 +4515,14 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	#pragma HLS DATA_PACK variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsA = getglobalparams(kvdramA);
-	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	globalparams_t globalparamsK = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsK); }
 	
-	globalparams_t globalparamsB = getglobalparams(kvdramB);
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	globalparams_t globalparamsE = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsE); }
 	
 	globalparams_t globalparamsC = getglobalparams(kvdramC);
 	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramC, vmask_p, globalparamsC.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
@@ -4218,12 +4534,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// process & partition
 	#ifdef PROCESSMODULE
-	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(ON, OFF, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(ON, OFF, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 	}
@@ -4231,12 +4547,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// partition
 	#ifdef PARTITIONMODULE
-	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(OFF, ON, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(OFF, ON, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 	}
@@ -4244,12 +4560,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
-	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
-		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsK);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
 		dispatch_reduce(kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsC);
 		dispatch_reduce(kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsD);
 	}
@@ -4321,14 +4637,14 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	#pragma HLS DATA_PACK variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsA = getglobalparams(kvdramA);
-	unsigned int GraphAlgo = globalparamsA.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsA); }
+	globalparams_t globalparamsK = getglobalparams(kvdramA);
+	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramA, vmask_p, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramA, globalparamsK); }
 	
-	globalparams_t globalparamsB = getglobalparams(kvdramB);
-	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsB.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsB); }
+	globalparams_t globalparamsE = getglobalparams(kvdramB);
+	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramB, vmask_p, globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ resetkvdramstats(kvdramB, globalparamsE); }
 	
 	globalparams_t globalparamsC = getglobalparams(kvdramC);
 	if(GraphAlgo != PAGERANK){ loadvmask_p(kvdramC, vmask_p, globalparamsC.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
@@ -4356,12 +4672,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// process & partition
 	#ifdef PROCESSMODULE
-	if(globalparamsA.ENABLE_PROCESSCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(ON, OFF, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(ON, OFF, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(ON, OFF, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(ON, OFF, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 		dispatch(ON, OFF, OFF, kvdramE, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
@@ -4373,12 +4689,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// partition
 	#ifdef PARTITIONMODULE
-	if(globalparamsA.ENABLE_PARTITIONCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsA);
-		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsB);
+		dispatch(OFF, ON, OFF, kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsK);
+		dispatch(OFF, ON, OFF, kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
 		dispatch(OFF, ON, OFF, kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsC);
 		dispatch(OFF, ON, OFF, kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsD);
 		dispatch(OFF, ON, OFF, kvdramE, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, globalparamsE);
@@ -4390,12 +4706,12 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
-	if(globalparamsA.ENABLE_APPLYUPDATESCOMMAND == ON){ 
+	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsA);
-		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsB);
+		dispatch_reduce(kvdramA, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsK);
+		dispatch_reduce(kvdramB, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
 		dispatch_reduce(kvdramC, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsC);
 		dispatch_reduce(kvdramD, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsD);
 		dispatch_reduce(kvdramE, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE);
@@ -4415,8 +4731,3 @@ topkernelproc(uint512_dt * kvdramA, uint512_dt * kvdramB, uint512_dt * kvdramC, 
 }
 }
 #endif 
-
-
-
-
-

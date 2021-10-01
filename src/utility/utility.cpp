@@ -134,6 +134,8 @@ void utility::printallparameters(){
 	std::cout<<"utility:: SOURCEBLOCKRAM_SIZE: "<<SOURCEBLOCKRAM_SIZE<<std::endl;
 	std::cout<<"utility:: DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<std::endl;
 	
+	std::cout<<"utility:: NUM_EDGECHUNKS_IN_A_BUFFER: "<<NUM_EDGECHUNKS_IN_A_BUFFER<<std::endl;
+	
 	#ifdef ENABLE_KERNEL_PROFILING
 	std::cout<<"utility:: ENABLE_KERNEL_PROFILING DEFINED: "<<std::endl;
 	#else 

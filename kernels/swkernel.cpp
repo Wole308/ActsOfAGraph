@@ -37,7 +37,7 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 swkernel::~swkernel(){}
 
 #if defined(SW) & not defined(ACTS_1by1)
-long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
@@ -246,7 +246,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 #endif 
 
 #if defined(SW) & defined(ACTS_1by1)
-long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
@@ -259,42 +259,138 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 
 	std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
 	kernelobjs->topkernel(
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[0],
+			#endif
 		(uint512_dt *)kvsourcedram[0],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[1],
+			#endif
 		(uint512_dt *)kvsourcedram[1],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[2],
+			#endif		
 		(uint512_dt *)kvsourcedram[2],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[3],
+			#endif	
 		(uint512_dt *)kvsourcedram[3],
 		#if NUMSYNCTHREADS>4
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[4],
+			#endif	
 		(uint512_dt *)kvsourcedram[4],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[5],
+			#endif	
 		(uint512_dt *)kvsourcedram[5],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[6],
+			#endif	
 		(uint512_dt *)kvsourcedram[6],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[7],
+			#endif	
 		(uint512_dt *)kvsourcedram[7],
 		#if NUMSYNCTHREADS>8
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[8],
+			#endif	
 		(uint512_dt *)kvsourcedram[8],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[9],
+			#endif	
 		(uint512_dt *)kvsourcedram[9],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[10],
+			#endif	
 		(uint512_dt *)kvsourcedram[10],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[11],
+			#endif	
 		(uint512_dt *)kvsourcedram[11],
 		#if NUMSYNCTHREADS>12
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[12],
+			#endif
 		(uint512_dt *)kvsourcedram[12],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[13],
+			#endif	
 		(uint512_dt *)kvsourcedram[13],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[14],
+			#endif	
 		(uint512_dt *)kvsourcedram[14],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[15],
+			#endif	
 		(uint512_dt *)kvsourcedram[15],
 		#if NUMSYNCTHREADS>16
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[16],
+			#endif	
 		(uint512_dt *)kvsourcedram[16],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[17],
+			#endif	
 		(uint512_dt *)kvsourcedram[17],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[18],
+			#endif	
 		(uint512_dt *)kvsourcedram[18],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[19],
+			#endif	
 		(uint512_dt *)kvsourcedram[19],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[20],
+			#endif	
 		(uint512_dt *)kvsourcedram[20],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[21],
+			#endif	
 		(uint512_dt *)kvsourcedram[21],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[22],
+			#endif	
 		(uint512_dt *)kvsourcedram[22],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[23],
+			#endif	
 		(uint512_dt *)kvsourcedram[23],
 		#if NUMSYNCTHREADS>24
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[24],
+			#endif	
 		(uint512_dt *)kvsourcedram[24],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[25],
+			#endif	
 		(uint512_dt *)kvsourcedram[25],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[26],
+			#endif	
 		(uint512_dt *)kvsourcedram[26],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[27],
+			#endif	
 		(uint512_dt *)kvsourcedram[27],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[28],
+			#endif	
 		(uint512_dt *)kvsourcedram[28],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[29],
+			#endif	
 		(uint512_dt *)kvsourcedram[29],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[30],
+			#endif	
 		(uint512_dt *)kvsourcedram[30],
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			(uint512_dt *)edges[31],
+			#endif	
 		(uint512_dt *)kvsourcedram[31],
 		#endif 
 		#endif 

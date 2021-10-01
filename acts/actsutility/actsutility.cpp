@@ -1493,8 +1493,12 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	// if(globalstats_getcounterrorsinreduce() > 128){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
 	// #endif 
 	
-	#ifdef _DEBUGMODE_CHECKS2
-	if(globalstats_getcounterrorsinreduce() > (40000 * NUMSUBWORKERS)){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce tolerable errors. EXITING"<<endl; exit(EXIT_FAILURE); } 
+	#ifdef _DEBUGMODE_CHECKS2 // REMOVEME.
+	if(globalstats_getcounterrorsinreduce() > (40000 * NUMSUBCPUTHREADS)){ 
+		cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<")("<<40000 * NUMSUBCPUTHREADS<<")("<<NUMSUBCPUTHREADS<<") reduce tolerable errors. EXITING"<<endl; 
+		cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.SIZE_REDUCE<<endl; 
+		exit(EXIT_FAILURE); 
+	} 
 	#endif 
 	#endif
 	return;

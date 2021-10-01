@@ -86,12 +86,13 @@ using namespace std;
 #define KVSTATSDRAMSZ (KVSTATSSZ * VECTOR_SIZE)
 #define KVSTATSDRAMSZ_KVS KVSTATSDRAMSZ
 
+#define EDGESSTATSDRAMSZ 64
+
 #ifdef USEHBMMEMORY
-	#define KVSOURCEDRAMSZ ((1 << 28) / 8) // max HBM capacity (256MB)
+	#define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
 #endif 
-#ifdef USEDDRAMMEMORY 
-	// #define KVSOURCEDRAMSZ (1 << 28) // ((1 << 31) / 8)
-	#define KVSOURCEDRAMSZ (1 << 27) // ((1 << 31) / 8)
+#ifdef USEDDRAMMEMORY
+	#define KVSOURCEDRAMSZ ((1 << 27)+ (1 << 26))
 #endif 
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ
@@ -229,6 +230,7 @@ typedef struct {
 	unsigned int BASEOFFSETKVS_VERTICESDATAMASK;
 	unsigned int BASEOFFSETKVS_VERTICESPARTITIONMASK;
 	unsigned int BASEOFFSETKVS_STATSDRAM;
+	unsigned int BASEOFFSETKVS_EDGESSTATSDRAM;
 	unsigned int BASEOFFSETKVS_KVDRAM;
 	unsigned int BASEOFFSETKVS_KVDRAMWORKSPACE;
 
@@ -240,6 +242,7 @@ typedef struct {
 	unsigned int SIZE_VERTICESDATAMASK;
 	unsigned int SIZE_VERTICESPARTITIONMASK;
 	unsigned int SIZE_KVSTATSDRAM;
+	unsigned int SIZE_EDGESSTATSDRAM;
 	unsigned int SIZE_KVDRAM;
 	unsigned int SIZE_KVDRAMWORKSPACE;
 	unsigned int SIZE_REDUCE;
@@ -253,6 +256,7 @@ typedef struct {
 	unsigned int POW_ACTIVEVERTICES;
 	unsigned int POW_VERTICESDATAMASK;
 	unsigned int POW_KVSTATSDRAM;
+	unsigned int POW_EDGESSTATSDRAM;
 	unsigned int POW_KVDRAM;
 	unsigned int POW_KVDRAMWORKSPACE;
 	unsigned int POW_REDUCE;
@@ -270,7 +274,14 @@ typedef struct {
 	unsigned int ACTSPARAMS_DESTVOFFSET;
 
 	unsigned int RETURN_RETURNVALUES;
+	
+	unsigned int VARS_WORKBATCH;
 } globalparams_t;
+
+typedef struct {
+	globalparams_t globalparamsK;
+	globalparams_t globalparamsE;
+} globalparams_TWOt;
 
 typedef struct {
 	unsigned int baseaddr_worksourcekvs_kvs;

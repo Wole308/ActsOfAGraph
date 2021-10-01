@@ -28,7 +28,12 @@ public:
 	acts();
 	~acts();
 
+	#ifndef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	void topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
+	#endif 
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	void topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * edges{{i}}, uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
+	#endif 
 private:
 	
 };
