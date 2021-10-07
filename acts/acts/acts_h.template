@@ -27,13 +27,17 @@ class acts {
 public:
 	acts();
 	~acts();
+	
+	void loadsrcvs({%for i in context['NUMSUBCPUTHREADS_seq']%} uint512_dt * edges{{i}}, uint512_dt * kvdram{{i}}, {%endfor%} uint512_dt * vdram);
 
-	#ifndef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	void topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
-	#endif 
-	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	void topkernel({%for i in context['SYNCTHREADS_seq']%}uint512_dt * edges{{i}}, uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
-	#endif 
+	void topkernel(
+		{%for i in context['NUMSUBCPUTHREADS_seq']%}
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		uint512_dt * edges{{i}},
+		#endif 
+		uint512_dt * kvdram{{i}},
+		{%endfor%} 
+		uint512_dt * vdram);
 private:
 	
 };

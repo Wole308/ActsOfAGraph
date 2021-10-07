@@ -12,7 +12,7 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
-#include "../../acts/sortreduce/sr.h" // change to sr
+// #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
 #include "evalparams.h"

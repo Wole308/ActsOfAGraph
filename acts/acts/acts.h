@@ -27,13 +27,28 @@ class acts {
 public:
 	acts();
 	~acts();
+	
+	void loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * edges2, uint512_dt * kvdram2,  uint512_dt * edges3, uint512_dt * kvdram3,  uint512_dt * vdram);
 
-	#ifndef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	void topkernel(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram);
-	#endif 
-	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	void topkernel(uint512_dt * edges0, uint512_dt * kvdram0,uint512_dt * edges1, uint512_dt * kvdram1,uint512_dt * edges2, uint512_dt * kvdram2,uint512_dt * edges3, uint512_dt * kvdram3, uint512_dt * vdram);
-	#endif 
+	void topkernel(
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		uint512_dt * edges0,
+		#endif 
+		uint512_dt * kvdram0,
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		uint512_dt * edges1,
+		#endif 
+		uint512_dt * kvdram1,
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		uint512_dt * edges2,
+		#endif 
+		uint512_dt * kvdram2,
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		uint512_dt * edges3,
+		#endif 
+		uint512_dt * kvdram3,
+ 
+		uint512_dt * vdram);
 private:
 	
 };

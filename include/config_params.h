@@ -4,13 +4,19 @@
 /** CRITICAL NOTES
 	DEFAULT SETTINGS: ENABLERECURSIVEPARTITIONING, HWIMPLFOR_ACTSPROC, USEHBMMEMORY, NUMSYNCTHREADS(gen.py)=NUMSUBCPUTHREADS
 	Num_procs: 16 worked
+	
+	ACTS_XbyYbyZ: X: num kernels, Y: num compute units, Z: num HBM channels per compute unit
 */
 
-#define ACTS_1by1 //
-#define ACTSPROC_1by1 //
+// #define ACTS_1by1 //
+// #define ACTSPROC_1by1 //
 // #define ACTSPROC_2by1
 // #define ACTSPROC_4by1 //
 // #define ACTSPROC_8by1
+
+// #define ACTS_1by1by1
+#define ACTS_1by2by1
+// #define ACTS_2by1by1
 
 // #define ENABLE_PERFECTACCURACY //
 // #define ENABLE_VOICEOUTREDUCEERRORS //
@@ -35,7 +41,11 @@
 #define USEDDRAMMEMORY
 
 #define EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#define NUM_EDGECHUNKS_IN_A_BUFFER 2//1
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#define NUM_EDGECHUNKS_IN_A_BUFFER 5//1,5
+#else 
+#define NUM_EDGECHUNKS_IN_A_BUFFER 1	
+#endif 
 
 #endif
 

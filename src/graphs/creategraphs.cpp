@@ -27,7 +27,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../include/common.h"
 #include "../../include/host_common.h"
-#include "mysort.h"
+// #include "mysort.h"
 #include "creategraphs.h"
 using namespace std;
 #define YES
@@ -38,7 +38,7 @@ creategraphs::creategraphs(unsigned int datasetid){
 	algorithm * algorithmobj = new algorithm();
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, false, false);
-	mysortobj = new mysort(graphobj);
+	// mysortobj = new mysort(graphobj);
 	
 	cout<<"creategraphs:: constructor called: creating structures... "<<endl;
 	cout<<"creategraphs:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;

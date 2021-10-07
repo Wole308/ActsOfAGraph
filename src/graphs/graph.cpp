@@ -27,10 +27,10 @@
 #include <iostream> 
 #include <sys/stat.h> 
 #include <sys/types.h> 
-#include "EdgeProcess.h" 
-#include "VertexValues.h" 
-#include "sortreduce.h" 
-#include "filekvreader.h"
+// #include "EdgeProcess.h" 
+// #include "VertexValues.h" 
+// #include "sortreduce.h" 
+// #include "filekvreader.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/utility/utility.h"
 #include "../../include/host_common.h"

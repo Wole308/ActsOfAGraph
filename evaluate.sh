@@ -48,8 +48,10 @@ RESULTSPATHNAME="results_acts"
 # SYNKERNELSPATHNAME="synkernels_trad"
 # RESULTSPATHNAME="results_trad"
 
-NCOMPUTEUNITS_IN_1KERNELS=$OFF
-NCOMPUTEUNITS_IN_NKERNELS=$ON
+# ACTS_1BY2BY1=$OFF
+# ACTS_2BY1BY1=$ON
+ACTS_1BY2BY1=$ON
+ACTS_2BY1BY1=$OFF
 
 KERNELTYPE="ACTSMODEL_LW"
 
@@ -145,13 +147,21 @@ NUMTHREADS_EQ1=1
 NUMTHREADS_EQ2=2
 NUMTHREADS_EQ3=3
 NUMTHREADS_EQ4=4
+NUMTHREADS_EQ5=5
 NUMTHREADS_EQ6=6
+NUMTHREADS_EQ7=7
 NUMTHREADS_EQ8=8
+NUMTHREADS_EQ9=9
 NUMTHREADS_EQ10=10
+NUMTHREADS_EQ11=11
 NUMTHREADS_EQ12=12
+NUMTHREADS_EQ13=13
 NUMTHREADS_EQ14=14
+NUMTHREADS_EQ15=15
 NUMTHREADS_EQ16=16
+NUMTHREADS_EQ17=17
 NUMTHREADS_EQ18=18
+NUMTHREADS_EQ19=19
 NUMTHREADS_EQ20=20
 NUMTHREADS_EQ24=24
 NUMTHREADS_EQ28=28
@@ -501,6 +511,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ2 #
 		# for numsubcputhreads in $NUMTHREADS_EQ3
 		for numsubcputhreads in $NUMTHREADS_EQ4 #
+		# for numsubcputhreads in $NUMTHREADS_EQ5
 		# for numsubcputhreads in $NUMTHREADS_EQ8 #
 		# for numsubcputhreads in $NUMTHREADS_EQ12
 		# for numsubcputhreads in $NUMTHREADS_EQ14
@@ -513,9 +524,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
 		do
 		
-		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4 #
-		# for numpartitions_pow in $NUMPARTITIONSPOW_EQ8 # ACTS_PARTITION_AND_REDUCE_STRETEGY # CRITICAL NEWCHANGE
-		# for dataset in $NUMPARTITIONSPOW_EQ3 $NUMPARTITIONSPOW_EQ4 $NUMPARTITIONSPOW_EQ5 $NUMPARTITIONSPOW_EQ6 $NUMPARTITIONSPOW_EQ7 $NUMPARTITIONSPOW_EQ8
+		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4
 		do
 		
 			### >>> LOOP3: locke (kernel-only evaluation)
@@ -830,18 +839,18 @@ do
 								make cleanall
 								if [ $CRABTREE == $ON ]
 								then
-									if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									if [ $ACTS_2BY1BY1 == $ON ]
 									then
-										echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
+										echo "crabtree.ACTS_2BY1BY1 setup specified."
 										make host
 										./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT
-									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+									elif [ $ACTS_1BY2BY1 == $ON ]
 									then
-										echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+										echo "crabtree.ACTS_1BY2BY1 setup specified."
 										make host
 										./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
 									else
-										echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+										echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
 									fi
 								elif [ $AWS == $ON ]
 								then
@@ -850,14 +859,14 @@ do
 									make host
 									# source /opt/xilinx/xrt/setup.sh 
 									# source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-									if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									if [ $ACTS_2BY1BY1 == $ON ]
 									then
 										./host $BACKUPDIR_AWSKERNELXCLBIN1 $BACKUPDIR_AWSKERNELXCLBIN2
-									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+									elif [ $ACTS_1BY2BY1 == $ON ]
 									then
 										./host $BACKUPDIR_AWSKERNELXCLBIN
 									else
-										echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+										echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
 									fi
 								else
 									echo "no setup specified. specify crabtree or aws"
@@ -871,9 +880,9 @@ do
 							# ================================================ SIMULATIONS ================================================
 							elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 							then
-								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								if [ $ACTS_2BY1BY1 == $ON ]
 								then
-									echo "crabtree.NCOMPUTEUNITS_IN_NKERNELS setup specified."
+									echo "crabtree.ACTS_2BY1BY1 setup specified."
 									
 									make cleanall
 									make host 
@@ -889,21 +898,21 @@ do
 									# cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
 									# XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
 									
-								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								elif [ $ACTS_1BY2BY1 == $ON ]
 								then
-									echo "crabtree.NCOMPUTEUNITS_IN_1KERNELS setup specified."
+									echo "crabtree.ACTS_1BY2BY1 setup specified."
 									make cleanall
 									make all TARGET=sw_emu DEVICE=$DEVICEPATH 
 									cp xclbin/topkernel.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_AWSKERNELXCLBIN
 									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_AWSKERNELXCLBIN
 								else
-									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+									echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
 								fi
 							
 							# ================================================ SYNTHESIS (CRABTREE) ================================================
 							elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
 							then
-								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								if [ $ACTS_2BY1BY1 == $ON ]
 								then
 									# make cleanall
 									# rm -rf xclbin
@@ -925,43 +934,55 @@ do
 									# echo "sleeping for 5 seconds before continuing ...."
 									# sleep 5
 									
+									make cleanall
+									rm -rf xclbin
+									make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									if test -f "host"; then
+										cp xclbin/topkernelprocandsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+										echo "kernel.xclbin saved"
+									fi
+									echo "sleeping for 5 seconds before continuing ...."
+									sleep 5
+									
 									# make cleanall
 									# rm -rf xclbin
-									# make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									# make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									# if test -f "host"; then
-										# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
+										# cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										# echo "kernel.xclbin saved"
+									# fi
+									# echo "sleeping for 5 seconds before continuing ...."
+									# sleep 5
+									
+								elif [ $ACTS_1BY2BY1 == $ON ]
+								then
+									# make cleanall
+									# rm -rf xclbin
+									# make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out 
+								
+									# echo "sleeping for 5 seconds before continuing ...."
+									# sleep 5
+									
+									# if test -f "host"; then
+										# cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										# echo "host, kernel.xo, kernel.xclbin, nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out saved"
 									# fi
 									# echo "sleeping for 5 seconds before continuing ...."
 									# sleep 5
 									
 									make cleanall
 									rm -rf xclbin
-									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
+									make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									if test -f "host"; then
-										cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										cp xclbin/topkernelprocandsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										echo "kernel.xclbin saved"
 									fi
 									echo "sleeping for 5 seconds before continuing ...."
 									sleep 5
 									
-								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
-								then
-									make cleanall
-									rm -rf xclbin
-									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out 
-								
-									echo "sleeping for 5 seconds before continuing ...."
-									sleep 5
 									
-									if test -f "host"; then
-										cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-										echo "host, kernel.xo, kernel.xclbin, nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out saved"
-									fi
-									echo "sleeping for 5 seconds before continuing ...."
-									sleep 5
 								else
-									echo "not specified (7). specify NCOMPUTEUNITS_IN_NKERNELS or NCOMPUTEUNITS_IN_1KERNELS"
+									echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
 								fi
 							
 							# ================================================ SYNTHESIS (AWS) ================================================
@@ -973,14 +994,14 @@ do
 								make cleanall
 								rm -rf xclbin
 								
-								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								if [ $ACTS_2BY1BY1 == $ON ]
 								then
 									# make all_nk DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out 
 									make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
 									# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
 									cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
 									# cp -rf xclbin/topkernelsync.hw.${DSA_NAME}.xclbin kernel.xclbin
-								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								elif [ $ACTS_1BY2BY1 == $ON ]
 								then
 									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
 									cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
@@ -992,11 +1013,11 @@ do
 								sleep 5
 								
 								if test -f "host"; then
-									if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+									if [ $ACTS_2BY1BY1 == $ON ]
 									then
 										cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN1
 										# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN2
-									elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+									elif [ $ACTS_1BY2BY1 == $ON ]
 									then
 										make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
 										cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
@@ -1015,11 +1036,11 @@ do
 								echo "sleeping for 60 minuites before continuing ...."
 								sleep 3600
 								
-								if [ $NCOMPUTEUNITS_IN_NKERNELS == $ON ]
+								if [ $ACTS_2BY1BY1 == $ON ]
 								then
 									cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN1
 									# cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN2
-								elif [ $NCOMPUTEUNITS_IN_1KERNELS == $ON ]
+								elif [ $ACTS_1BY2BY1 == $ON ]
 								then
 									cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
 								else

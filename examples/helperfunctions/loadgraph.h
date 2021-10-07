@@ -7,7 +7,7 @@
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
-#include "../../acts/sortreduce/sr.h" // change to sr
+// #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
 using namespace std;
@@ -26,7 +26,7 @@ public:
 	// globalparams_TWOt loadoffsetmarkers(keyvalue_t * stats[NUMSUBCPUTHREADS], globalparams_TWOt globalparams,
 		// unsigned int offsetkvs_edges, unsigned int offsetkvs_stats, unsigned int size_edges[NUMSUBCPUTHREADS]);
 	
-	globalparams_TWOt loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer, vertex_t kvbufferoffset, vertex_t vdataoffset, vertex_t size, globalparams_TWOt globalparams);
+	globalparams_t loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer, vertex_t kvbufferoffset_xxx, vertex_t vdataoffset_xxx, vertex_t size_xxx, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest);
 	
 	void setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices, globalparams_TWOt globalparams);
 

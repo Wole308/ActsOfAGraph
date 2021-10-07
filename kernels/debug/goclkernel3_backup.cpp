@@ -31,6 +31,7 @@ using namespace std;
 
 #define ENABLE_ACTSPROC
 // #define ENABLE_ACTSSYNC // NOTE: if this is used, adjust the value of context['NUMSYNCTHREADS'] in gen.py to 16
+// #define ENABLE_ACTSSYNC2
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
@@ -39,7 +40,7 @@ goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _st
 	statsobj = _statsobj;
 	graphobj = _graphobj;
 	algorithmobj = _algorithmobj;
-	#ifndef ACTS_1by1
+	#ifndef defined(ACTS_1by1)
 	// kernelobjs_synchronize = new actssync();
 	#endif 
 }
@@ -142,8 +143,8 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-#ifdef ACTS_1by2by1
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
+// #ifdef defined(ACTS_1by2by1)
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){				
 	long double total_time_elapsed = 0;
 	long double avs_proc[128][8]; //[GraphIter][CLOP]
 	long double avs_sync[32];
@@ -156,8 +157,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
-	unsigned int baseoffsetkvs_verticesdata = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
 	unsigned int edgessz_kvs = A + B;
 	unsigned int kvdramsz_kvs = C + D;
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes)"<<endl;							
@@ -187,6 +186,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 
     //Creating Context and Command Queue for selected Device
     OCL_CHECK(err, cl::Context context(device, NULL, NULL, NULL, &err));
+    /* OCL_CHECK(
+        err,
+        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); */
 	OCL_CHECK(err,
               cl::CommandQueue q(context,
                                  device,
@@ -219,26 +221,23 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	std::vector<cl::Event> write_events(32);
 	std::vector<cl::Event> read_events(32);
 	
-	long double prockerneltimelapse_ms = 0;
-	long double synkerneltimelapse_ms = 0;
-	long double procandsynkerneltimelapse_ms = 0;
-	long double totalkerneltimelapse_ms = 0;
+	long double kerneltimelapse_ms = 0;
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
+		cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
+		#endif
 		inoutBufExt_edges[i].obj = edges[i];
 		inoutBufExt_edges[i].param = 0;
 		inoutBufExt_edges[i].flags = bank[2*i];
-		cout<<"attaching Edges["<<i<<"] to HBM["<<2*i<<"]: "<<endl;
 		
 		inoutBufExt_kvdram[i].obj = kvsourcedram[i];
 		inoutBufExt_kvdram[i].param = 0;
 		inoutBufExt_kvdram[i].flags = bank[2*i+1];
-		cout<<"attaching Kvdram["<<i<<"] to HBM["<<2*i+1<<"]: "<<endl;
 	}
 	inoutBufExt_vdram.obj = vdram;
 	inoutBufExt_vdram.param = 0;
 	inoutBufExt_vdram.flags = bank[2*NUMSUBCPUTHREADS];
-	cout<<"attaching Vdram to HBM["<<2*NUMSUBCPUTHREADS<<"]: "<<endl;
 	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel:: creating OCL buffers..."<<endl;
@@ -247,10 +246,10 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		OCL_CHECK(err,
 			  buffer_edgesdram[i] =
 				  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
+							 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
 							 sizeof(uint512_vec_dt) * edgessz_kvs,
-							 &inoutBufExt_edges[i], 
+							 // &inoutBufExt_edges[i], 
+							 edges[i],
 							 &err));
 		cout<<"+++ goclkernel: created buffer_edgesdram["<<i<<"] "<<endl;
 	}
@@ -258,20 +257,20 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		OCL_CHECK(err,
 			  buffer_kvdram[i] =
 				  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
+							 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
 							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-							 &inoutBufExt_kvdram[i], 
+							 // &inoutBufExt_kvdram[i], 
+							 kvsourcedram[i],
 							 &err));
 		cout<<"+++ goclkernel: created buffer_kvdram["<<i<<"] "<<endl;
 	}
 	OCL_CHECK(err,
 			  buffer_vdram =
 				  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
+							 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, 
 							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-							 &inoutBufExt_vdram, 
+							 // &inoutBufExt_vdram, 
+							 vdram,
 							 &err));
 	cout<<"+++ goclkernel: created buffer_vdram "<<endl;
 	
@@ -303,76 +302,62 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	std::string cu_id = std::to_string((1));
 	std::string krnl2_name_full = krnl_name + ":{" + "topkernelsync_" + cu_id + "}"; 
 	OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
-	
-	// Setting kernel arguments...
-	cout<<"goclkernel:: Setting kernel (proc) arguments..."<<endl;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		OCL_CHECK(err, err = krnls_proc[i].setArg(0, buffer_edgesdram[i]));
-		OCL_CHECK(err, err = krnls_proc[i].setArg(1, buffer_kvdram[i]));
-		OCL_CHECK(err, err = q.finish()); // REMOVEME.
-	}
-	
-	// Setting kernel arguments...
-	cout<<"goclkernel:: Setting kernel (sync) arguments..."<<endl;
-	OCL_CHECK(err, err = krnls_sync.setArg(0, buffer_kvdram[0]));
-	OCL_CHECK(err, err = krnls_sync.setArg(1, buffer_kvdram[1]));
-	OCL_CHECK(err, err = krnls_sync.setArg(2, buffer_kvdram[2]));
-	OCL_CHECK(err, err = krnls_sync.setArg(3, buffer_kvdram[3]));
-	OCL_CHECK(err, err = krnls_sync.setArg(4, buffer_vdram));
-	
-	// Migrating input data to device global memory...
-	cout<<"goclkernel:: Migrating input data to device global memory..."<<endl;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i], buffer_kvdram[i]}, 0, NULL, &write_events[i])); // REMOVEME.
-		OCL_CHECK(err, err = write_events[i].wait());
-		OCL_CHECK(err, err = q.finish());
-	}
-	
-	std::chrono::steady_clock::time_point beginkerneltime4 = std::chrono::steady_clock::now();
-	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ // numIters, numValidIters
-		std::chrono::steady_clock::time_point beginkerneltime3 = std::chrono::steady_clock::now();	
-		
-		// Processing phase started...
-		cout<<"------------------------------ goclkernel:: Processing phase (Iteration: "<<GraphIter<<" of "<<numValidIters<<") started..."<<endl;
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-			std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
 
+	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
+		// Processing phase started...
+		cout<<"goclkernel:: Processing phase (Iteration: "<<GraphIter<<") started..."<<endl;
+		// std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // NUMSUBCPUTHREADS
+			std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	
+
+			// Setting kernel arguments
+			OCL_CHECK(err, err = krnls_proc[i].setArg(0, buffer_edgesdram[i]));
+			OCL_CHECK(err, err = krnls_proc[i].setArg(1, buffer_kvdram[i]));
+			// cout<<"+++ goclkernel: SUCCESS HERE 35. err: "<<err<<endl;
+			// exit(EXIT_SUCCESS);
+			
+			// Copy input data to device global memory
+			/* OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i], buffer_kvdram[i]},					
+																		0, NULL, &write_events[i]));
+			OCL_CHECK(err, err = write_events[i].wait()); */
+			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i], buffer_kvdram[i]}, 0));
+			
 			// Launch the kernel
 			OCL_CHECK(err, err = q.enqueueTask(krnls_proc[i], NULL, &kernel_events[i])); 
+			// OCL_CHECK(err, err = q.enqueueTask(krnls_proc[i])); 
 			OCL_CHECK(err, err = kernel_events[i].wait());
 			
-			#ifdef _DEBUGMODE_TIMERS2
-			prockerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime1).count()) / 1000;			
-			std::cout <<">>> kernel (proc) time elapsed for iteration "<<GraphIter<<": "<<prockerneltimelapse_ms<<" ms, "<<(prockerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
-			#endif 
-			
-			OCL_CHECK(err, err = q.finish());
+			long double kerneltimelapse_microsec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();			
+			kerneltimelapse_ms += kerneltimelapse_microsec / 1000;
+			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
+			std::cout <<">>> kernel (proc) time elapsed: "<<kerneltimelapse_ms<<" ms, "<<kerneltimelapse_microsec<<" microsecs, "<<std::endl;
+			#endif
 		}
 		
-		// Apply phase started...
-		cout<<"goclkernel:: Apply phase (Iteration: "<<GraphIter<<" of "<<numValidIters<<") started..."<<endl;
-		std::chrono::steady_clock::time_point beginkerneltime2 = std::chrono::steady_clock::now();	
-	
-		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[0])); 
-		OCL_CHECK(err, err = kernel_events[0].wait());
+		// Read
+		cout<<"goclkernel:: Reading back..."<<endl;
+		for (int i = 0; i < NUMSUBCPUTHREADS; i++) { OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i], buffer_kvdram[i]}, CL_MIGRATE_MEM_OBJECT_HOST)); }
 		
-		#ifdef _DEBUGMODE_TIMERS2
-		synkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime2).count()) / 1000;			
-		std::cout <<">>> kernel (sync) time elapsed for iteration "<<GraphIter<<": "<<synkerneltimelapse_ms<<" ms, "<<(synkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
+		// Apply phase started...
+		cout<<"goclkernel:: Apply phase (Iteration: "<<GraphIter<<") started..."<<endl;
+		std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	
+		
+		OCL_CHECK(err, err = krnls_sync.setArg(0, buffer_kvdram[0]));
+		OCL_CHECK(err, err = krnls_sync.setArg(1, buffer_kvdram[1]));
+		OCL_CHECK(err, err = krnls_sync.setArg(2, buffer_kvdram[2]));
+		OCL_CHECK(err, err = krnls_sync.setArg(3, buffer_kvdram[3]));
+		OCL_CHECK(err, err = krnls_sync.setArg(4, buffer_vdram));
+		
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0], buffer_kvdram[1], buffer_kvdram[2], buffer_kvdram[3], buffer_vdram}, 0));
+		
+		OCL_CHECK(err, err = q.enqueueTask(krnls_sync)); 
+		
+		long double kerneltimelapse_microsec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();			
+		kerneltimelapse_ms += kerneltimelapse_microsec / 1000;
+		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
+		std::cout <<">>> kernel (sync) time elapsed: "<<kerneltimelapse_ms<<" ms, "<<kerneltimelapse_microsec<<" microsecs, "<<std::endl;
 		#endif
-		#ifdef _DEBUGMODE_TIMERS2
-		procandsynkerneltimelapse_ms = prockerneltimelapse_ms + synkerneltimelapse_ms; /// (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime3).count()) / 1000;			
-		std::cout <<"### kernel (proc & syn) time elapsed for iteration "<<GraphIter<<": "<<procandsynkerneltimelapse_ms<<" ms, "<<(procandsynkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
-		#endif 
-		#ifdef _DEBUGMODE_TIMERS2
-		totalkerneltimelapse_ms	+= procandsynkerneltimelapse_ms;
-		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_TIMERS2
-	/// totalkerneltimelapse_ms	= (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime4).count()) / 1000;			
-	std::cout <<"+++ total kernel time elapsed for all iterations: "<<totalkerneltimelapse_ms<<" ms, "<<(totalkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
-	#endif 
 	
 	// Finish
 	OCL_CHECK(err, err = q.finish());
@@ -380,20 +365,21 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
 	#endif
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ // NUMSUBCPUTHREADS
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i], buffer_kvdram[i]},					
 																	CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[i]));
 		OCL_CHECK(err, err = read_events[i].wait());
 	}
 	OCL_CHECK(err, err = q.finish());
+	// OCL_CHECK(err, err = read_events.wait());
 	
-	timeelapsed_totals[0][0] = totalkerneltimelapse_ms;
-	total_time_elapsed = totalkerneltimelapse_ms;
+	timeelapsed_totals[0][0] = kerneltimelapse_ms;
+	total_time_elapsed = kerneltimelapse_ms;
 	return total_time_elapsed;
 }
-#endif
-#ifdef ACTS_2by1by1
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){
+// #endif
+#ifdef defined(ACTS_2by1by1)
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){
 	long double total_time_elapsed = 0;
 	long double avs_proc[128][8];
 	long double avs_sync[32];
@@ -401,7 +387,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int _BASEOFFSETKVS_MESSAGESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_MESSAGESDATA].data[0].key;
 	unsigned int _BASEOFFSETKVS_EDGESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
 	unsigned int _BASEOFFSETKVS_VERTEXPTR = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
-	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
+	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATA].data[0].key;
 	unsigned int _BASEOFFSETKVS_ACTIVEVERTICES = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
 	unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
 	unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
@@ -874,46 +860,7 @@ unsigned int goclkernel::ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int G
 	else { return 0; }
 }
 
-void goclkernel::verifyresults_hw(uint512_vec_dt * kvbuffer, unsigned int baseoffsetkvs_verticesdata){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"goclkernel::verifyresults_hw: verifying vertex data... "<<endl;
-	#endif
-	
-	unsigned int vdatas[64];
-	for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
-	
-	uint512_vec_dt buff[REDUCEBUFFERSZ];
-	for(unsigned int offset_kvs=0; offset_kvs<VERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
-		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
-			buff[i] = kvbuffer[baseoffsetkvs_verticesdata + offset_kvs + i];
-		}
-		
-		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				unsigned int pos = i*VECTOR_SIZE + v;
-				unsigned int vid1 = offset_kvs*REDUCESZ*VECTOR_SIZE + v*REDUCESZ + i*2;
-				unsigned int vid2 = vid1 + 1;
-				unsigned int vdata1 = buff[i].data[v].key;
-				unsigned int vdata2 = buff[i].data[v].value;
-				
-				if(vdata1 < 64){
-					#ifdef _DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel:verifyresults_hw: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
-					#endif 
-					vdatas[vdata1] += 1; 
-				}
-				if(vdata2 < 64){
-					#ifdef _DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel:verifyresults_hw: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
-					#endif
-					vdatas[vdata2] += 1; 
-				}
-			}
-		}
-	}
-	utilityobj->printvalues("goclkernel::verifyresults_hw.vdatas: verifying results after kernel run", vdatas, 16);
-	return;
-}
+
 
 
 

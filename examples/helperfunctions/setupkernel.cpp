@@ -15,7 +15,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
 #include "../../src/algorithm/algorithm.h"
-#include "../../acts/sortreduce/sr.h" // change to sr
+// #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
 #include "setupkernel.h"
@@ -44,9 +44,9 @@ setupkernel::setupkernel(stats * _statsobj){
 }
 setupkernel::~setupkernel(){} 
 
-long double setupkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]){						
+long double setupkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){						
 	#ifdef ACTGRAPH_SETUP
-	long double total_time_elapsed = kernelobj->runapp(binaryFile, vdram, edges, kvbuffer, timeelapsed_totals);
+	long double total_time_elapsed = kernelobj->runapp(binaryFile, vdram, edges, kvbuffer, timeelapsed_totals, numValidIters);
 	#endif 
 	#ifdef GRAFBOOST_SETUP
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ srkernelobj->srtopkernel(_sr, (uint512_dt *)kvbuffer[i]); }

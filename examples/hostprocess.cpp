@@ -25,13 +25,30 @@ int main(int argc, char** argv){
 	dataset * datasetobj = new dataset();
 	utility * utilityobj = new utility();
 	#ifdef FPGA_IMPL
+	#ifdef ACTS_2by1by1
 	if (argc != 3) { // 2,3
         std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
         return EXIT_FAILURE;
     }
     binaryFile1 = argv[1];
 	binaryFile2 = argv[2];
+	#else 
+	if (argc != 2) { // 2,3
+        std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
+        return EXIT_FAILURE;
+    }
+    binaryFile1 = argv[1];
+	binaryFile2 = binaryFile1;	
+	#endif 
 	#endif
+	/* #ifdef FPGA_IMPL
+	if (argc != 2) { // 2,3
+        std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
+        return EXIT_FAILURE;
+    }
+    binaryFile1 = argv[1];
+	binaryFile2 = binaryFile1;
+	#endif */
 	utilityobj->printallparameters();
 
 	#ifdef _GENERATE2DGRAPH

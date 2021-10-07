@@ -225,7 +225,8 @@ typedef struct {
 	unsigned int BASEOFFSETKVS_MESSAGESDATA;
 	unsigned int BASEOFFSETKVS_EDGESDATA;
 	unsigned int BASEOFFSETKVS_VERTEXPTR;
-	unsigned int BASEOFFSETKVS_VERTICESDATA;
+	unsigned int BASEOFFSETKVS_SRCVERTICESDATA;
+	unsigned int BASEOFFSETKVS_DESTVERTICESDATA;
 	unsigned int BASEOFFSETKVS_ACTIVEVERTICES;
 	unsigned int BASEOFFSETKVS_VERTICESDATAMASK;
 	unsigned int BASEOFFSETKVS_VERTICESPARTITIONMASK;
@@ -237,7 +238,8 @@ typedef struct {
 	unsigned int SIZE_MESSAGESDRAM;
 	unsigned int SIZE_EDGES;
 	unsigned int SIZE_VERTEXPTRS;
-	unsigned int SIZE_VERTICESDATA;
+	unsigned int SIZE_SRCVERTICESDATA;
+	unsigned int SIZE_DESTVERTICESDATA;
 	unsigned int SIZE_ACTIVEVERTICES;
 	unsigned int SIZE_VERTICESDATAMASK;
 	unsigned int SIZE_VERTICESPARTITIONMASK;
@@ -252,7 +254,8 @@ typedef struct {
 	unsigned int POW_MESSAGESDRAM;
 	unsigned int POW_EDGES;
 	unsigned int POW_VERTEXPTRS;
-	unsigned int POW_VERTICESDATA;
+	unsigned int POW_SRCVERTICESDATA;
+	unsigned int POW_DESTVERTICESDATA;
 	unsigned int POW_ACTIVEVERTICES;
 	unsigned int POW_VERTICESDATAMASK;
 	unsigned int POW_KVSTATSDRAM;
@@ -272,6 +275,7 @@ typedef struct {
 	unsigned int ACTSPARAMS_SRCVOFFSET;
 	unsigned int ACTSPARAMS_SRCVSIZE;
 	unsigned int ACTSPARAMS_DESTVOFFSET;
+	unsigned int ACTSPARAMS_NUMEDGECHUNKSINABUFFER;
 
 	unsigned int RETURN_RETURNVALUES;
 	

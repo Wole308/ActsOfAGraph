@@ -9,7 +9,7 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/stats/stats.h"
 #include "../../src/algorithm/algorithm.h"
-#include "../../acts/sortreduce/sr.h" // change to sr
+// #include "../../acts/sortreduce/sr.h" // change to sr
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
 using namespace std;
@@ -20,7 +20,7 @@ public:
 	setupkernel(stats * _statsobj);
 	~setupkernel();
 
-	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8]);										
+	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters);										
 	
 	#ifdef GRAFBOOST_SETUP 
 	void loadSRstructures();

@@ -4,7 +4,7 @@
 #include "../utility/utility.h"
 #include "../../include/host_common.h"
 #include "../../include/common.h"
-#include "mysort.h"
+// #include "mysort.h"
 
 #define CREATENDGRAPH_BATCHSIZE 10000000
 
@@ -56,7 +56,9 @@ private:
 	utility * utilityobj;
 	unsigned int groupid;
 	
+	#ifdef GRAFBOOST_SETUP
 	mysort * mysortobj;
+	#endif 
 };
 #endif
 
