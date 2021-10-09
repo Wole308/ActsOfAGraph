@@ -23,12 +23,10 @@ public:
 	globalparams_TWOt loadedges_rowblockwise(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);					
 	
 	globalparams_TWOt loadoffsetmarkers(vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], keyvalue_t * stats[NUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);
-	// globalparams_TWOt loadoffsetmarkers(keyvalue_t * stats[NUMSUBCPUTHREADS], globalparams_TWOt globalparams,
-		// unsigned int offsetkvs_edges, unsigned int offsetkvs_stats, unsigned int size_edges[NUMSUBCPUTHREADS]);
+
+	globalparams_t loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer, vertex_t kvbufferoffset_xxx, vertex_t size_xxx, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest);
 	
-	globalparams_t loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer, vertex_t kvbufferoffset_xxx, vertex_t vdataoffset_xxx, vertex_t size_xxx, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest);
-	
-	void setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices, globalparams_TWOt globalparams);
+	void setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams);
 
 	globalparams_TWOt loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbuffer, container_t * container, globalparams_TWOt globalparams);
 	

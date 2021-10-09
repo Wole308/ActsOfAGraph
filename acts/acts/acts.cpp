@@ -3632,15 +3632,15 @@ actit(bool_type enable, unsigned int mode,
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
 	if(enable == OFF){ return; }
 	
-static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE]; // REMOVEME.-SWX
+keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE]; // REMOVEME.-SWX
 	#pragma HLS array_partition variable = buffer_setof1
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	
-static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so1[VECTOR_SIZE][NUM_PARTITIONS];
 	#pragma HLS array_partition variable = capsule_so1
 
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	
 	travstate_t ptravstatepp0 = ptravstate;
 	travstate_t ptravstatepp1 = ptravstate;
@@ -3653,8 +3653,8 @@ static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -3727,16 +3727,16 @@ priorit(bool_type enable, unsigned int mode,
 	#pragma HLS array_partition variable = sourcebufferpp1
 	#endif 
 	
-static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = buffer_setof8
 	#ifdef PUP1
-static keyvalue_buffer_t bufferpp1_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+keyvalue_buffer_t bufferpp1_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = bufferpp1_setof8
 	#endif 
 	
-static keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsule_so8[NUM_PARTITIONS];
 	#ifdef PUP1
-static keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
+keyvalue_capsule_t capsulepp1_so8[NUM_PARTITIONS];
 	#endif 
 	
 	travstate_t ptravstatepp0 = ptravstate;
@@ -7277,18 +7277,18 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint
 	globalparams_t globalparamsE;
 	travstate_t rtravstate[NUMSUBCPUTHREADS];
 	
-	globalparamsK[0] = actssyncobj.SYNC_getglobalparams(kvdram0);
+	globalparamsK[0] = SYNC_getglobalparams(kvdram0);
 	globalparamsK[1] = globalparamsK[0];
 	globalparamsK[2] = globalparamsK[0];
 	globalparamsK[3] = globalparamsK[0];
-	globalparamsE = actssyncobj.SYNC_getglobalparams(edges0);
+	globalparamsE = SYNC_getglobalparams(edges0);
 	
 	unsigned int BASEOFFSETKVS_VERTICESDATA_K = globalparamsK[0].BASEOFFSETKVS_DESTVERTICESDATA;
 	unsigned int BASEOFFSETKVS_VERTICESDATA_E = globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA;
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = globalparamsK[0].ACTSPARAMS_TREEDEPTH;
-	batch_type num_source_partitions = actssyncobj.SYNC_get_num_source_partitions(globalparamsK[0].ACTSPARAMS_TREEDEPTH);
+	batch_type num_source_partitions = SYNC_get_num_source_partitions(globalparamsK[0].ACTSPARAMS_TREEDEPTH);
 	#else
 	step_type currentLOP = globalparamsK[0].ACTSPARAMS_TREEDEPTH + 1;
 	batch_type num_source_partitions = NUM_PARTITIONS;
@@ -7310,10 +7310,10 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 	
 		unsigned int ntravszs = 0;
-		rtravstate[0] = actssyncobj.SYNC_gettravstate(ON, kvdram0, globalparamsK[0], currentLOP, sourcestatsmarker);
-		rtravstate[1] = actssyncobj.SYNC_gettravstate(ON, kvdram1, globalparamsK[1], currentLOP, sourcestatsmarker);
-		rtravstate[2] = actssyncobj.SYNC_gettravstate(ON, kvdram2, globalparamsK[2], currentLOP, sourcestatsmarker);
-		rtravstate[3] = actssyncobj.SYNC_gettravstate(ON, kvdram3, globalparamsK[3], currentLOP, sourcestatsmarker);
+		rtravstate[0] = SYNC_gettravstate(ON, kvdram0, globalparamsK[0], currentLOP, sourcestatsmarker);
+		rtravstate[1] = SYNC_gettravstate(ON, kvdram1, globalparamsK[1], currentLOP, sourcestatsmarker);
+		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparamsK[2], currentLOP, sourcestatsmarker);
+		rtravstate[3] = SYNC_gettravstate(ON, kvdram3, globalparamsK[3], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		// for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ cout<<"acts::loadsrcvs: rtravstate["<<i<<"].size_kvs: "<<rtravstate[i].size_kvs<<endl; } // REMOVEME.
 		// if(ntravszs > 0){ cout<<"acts::loadsrcvs: populating sourcev: partition "<<iterationidx<<", ntravszs: "<<ntravszs<<endl; } // REMOVEME.
@@ -7428,7 +7428,7 @@ topkernel(
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
-	unsigned int numIters = actsprocobj.GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
+	unsigned int numIters = GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
 	GRAPHITER_LOOP: for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<<">>> swkernel::runapp(ACTS_1by1): Iteration: "<<GraphIter<<endl;
 		
@@ -7457,18 +7457,18 @@ topkernel(
 		
 		// run acts
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-actsprocobj.topkernelproc(edges0, kvdram0);	
-actsprocobj.topkernelproc(edges1, kvdram1);	
-actsprocobj.topkernelproc(edges2, kvdram2);	
-actsprocobj.topkernelproc(edges3, kvdram3);	
+topkernelproc(edges0, kvdram0);	
+topkernelproc(edges1, kvdram1);	
+topkernelproc(edges2, kvdram2);	
+topkernelproc(edges3, kvdram3);	
 		#else 
-actsprocobj.topkernelproc(kvdram0);	
-actsprocobj.topkernelproc(kvdram1);	
-actsprocobj.topkernelproc(kvdram2);	
-actsprocobj.topkernelproc(kvdram3);	
+topkernelproc(kvdram0);	
+topkernelproc(kvdram1);	
+topkernelproc(kvdram2);	
+topkernelproc(kvdram3);	
 	
 		#endif 
-actssyncobj.topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3, vdram);
+topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3, vdram);
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 		loadsrcvs( edges0, kvdram0,  edges1, kvdram1,  edges2, kvdram2,  edges3, kvdram3,  vdram);
 		#endif 

@@ -44,8 +44,7 @@ using namespace std;
 #define SRCBUFFER_SIZE (BLOCKRAM_SIZE - (4 * 4))
 #else 
 #define SRCBUFFER_SIZE (DOUBLE_BLOCKRAM_SIZE - (4 * 4))
-#endif 
-// #define SRCBUFFER_SIZE (512 - (4 * 4))
+#endif
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY // NEWCHANGE.
 #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*4))

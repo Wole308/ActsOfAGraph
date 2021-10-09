@@ -223,6 +223,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	long double synkerneltimelapse_ms = 0;
 	long double procandsynkerneltimelapse_ms = 0;
 	long double totalkerneltimelapse_ms = 0;
+	long double endtoendkerneltimelapse_ms = 0;
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		inoutBufExt_edges[i].obj = edges[i];
@@ -361,7 +362,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		std::cout <<">>> kernel (sync) time elapsed for iteration "<<GraphIter<<": "<<synkerneltimelapse_ms<<" ms, "<<(synkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
 		#endif
 		#ifdef _DEBUGMODE_TIMERS2
-		procandsynkerneltimelapse_ms = prockerneltimelapse_ms + synkerneltimelapse_ms; /// (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime3).count()) / 1000;			
+		procandsynkerneltimelapse_ms = prockerneltimelapse_ms + (synkerneltimelapse_ms / 2); /// FIXME.
+		// procandsynkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime3).count()) / 1000;			
 		std::cout <<"### kernel (proc & syn) time elapsed for iteration "<<GraphIter<<": "<<procandsynkerneltimelapse_ms<<" ms, "<<(procandsynkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
 		#endif 
 		#ifdef _DEBUGMODE_TIMERS2
@@ -370,8 +372,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	}
 	
 	#ifdef _DEBUGMODE_TIMERS2
-	/// totalkerneltimelapse_ms	= (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime4).count()) / 1000;			
-	std::cout <<"+++ total kernel time elapsed for all iterations: "<<totalkerneltimelapse_ms<<" ms, "<<(totalkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
+	endtoendkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime4).count()) / 1000;			
+	std::cout <<"+++ total kernel time elapsed for all iterations: "<<totalkerneltimelapse_ms<<" ms, "<<(totalkerneltimelapse_ms * 1000)<<" microsecs "<<std::endl;
+	std::cout <<"+++ total kernel time elapsed (end-to-end) for all iterations: "<<endtoendkerneltimelapse_ms<<" ms, "<<(endtoendkerneltimelapse_ms * 1000)<<" microsecs "<<std::endl;
 	#endif 
 	
 	// Finish

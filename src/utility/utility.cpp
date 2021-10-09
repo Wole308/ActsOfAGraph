@@ -721,9 +721,14 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	#endif
 	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
 	
+	unsigned int GraphIter=0;
+	*numValidIters = 0;
+	
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	
-	for(unsigned int GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
+	// cout<<"-------+++++++++++++++++++++++++++++++++++++(A)-------------- NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<endl;
+	for(GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
+		// cout<<">>> GraphIter: "<<GraphIter<<endl;
 
 		for(unsigned int i=0; i<actvvs.size(); i++){
 			unsigned int vid = actvvs[i];
@@ -749,19 +754,26 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 			}
 		}
 		
+		// cout<<"-------))))))))))))))))))))))))))))))))(B)-------------- NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<", GraphIter: "<<GraphIter<<endl;
+		
 		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<actvvs_nextit.size()<<""<<endl;
-		if(actvvs_nextit.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; *numValidIters = GraphIter; break; }
+		if(actvvs_nextit.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
 		
 		actvvs.clear();
 		for(unsigned int i=0; i<actvvs_nextit.size(); i++){ actvvs.push_back(actvvs_nextit[i]); }
 		actvvs_nextit.clear();
 	}
 	
+	if(GraphIter == NumGraphIters){ *numValidIters = GraphIter; }
+	else { *numValidIters = GraphIter+1; }
+	// cout<<"-------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^(B)-------------- GraphIter: "<<GraphIter<<", NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<endl;
+	
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	cout<<">>> utility::runsssp_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> utility::runsssp_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> utility::runsssp_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
 	
+	// exit(EXIT_SUCCESS); // --------------
 	delete vdatas;
 	return total_edges_processed;
 }
